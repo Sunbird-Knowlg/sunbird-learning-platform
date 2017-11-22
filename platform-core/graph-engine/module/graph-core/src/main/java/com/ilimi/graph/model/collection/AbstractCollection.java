@@ -24,10 +24,7 @@ import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.ICollection;
 
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
 import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
 
 public abstract class AbstractCollection extends AbstractDomainObject implements ICollection {
 
@@ -121,103 +118,75 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     }
 
     @Override
-    public Future<Map<String, List<String>>> validateNode(Request request) {
-        Future<List<String>> metadataValidation = Futures.successful(null);
-        return getMessageMap(metadataValidation, manager.getContext().dispatcher());
+	public Map<String, List<String>> validateNode(Request request) {
+		return getMessageMap(null, manager.getContext().dispatcher());
     }
 
-    protected Future<Map<String, List<String>>> getMessageMap(Future<List<String>> aggregate, ExecutionContext ec) {
-        Future<Map<String, List<String>>> messageMap = aggregate.map(new Mapper<List<String>, Map<String, List<String>>>() {
-            @Override
-            public Map<String, List<String>> apply(List<String> parameter) {
-                Map<String, List<String>> map = new HashMap<String, List<String>>();
-                List<String> messages = new ArrayList<String>();
-                if (null != parameter && !parameter.isEmpty()) {
-                    messages.addAll(parameter);
-                }
-                map.put(getNodeId(), messages);
-                return map;
-            }
-        }, ec);
-        return messageMap;
+	protected Map<String, List<String>> getMessageMap(List<String> aggregate, ExecutionContext ec) {
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		List<String> messages = new ArrayList<String>();
+		if (null != aggregate && !aggregate.isEmpty()) {
+			messages.addAll(aggregate);
+		}
+		map.put(getNodeId(), messages);
+		return map;
     }
 
-    @SuppressWarnings("unchecked")
-    protected Future<Boolean> checkMemberNode(Request req, final String memberId, final ExecutionContext ec) {
+	protected Boolean checkMemberNode(Request req, final String memberId, final ExecutionContext ec) {
         Request request = new Request(req);
         request.setOperation("getNodeByUniqueId");
         request.put(GraphDACParams.node_id.name(), memberId);
-		Future<Object> dacFuture = getNodeByUniqueId(request);
-        Future<Boolean> validMembers = dacFuture.map(new Mapper<Object, Boolean>() {
-            @Override
-            public Boolean apply(Object parameter) {
-                if (parameter instanceof Response) {
-                    Response ar = (Response) parameter;
-                    Node node = (Node) ar.get(GraphDACParams.node.name());
-                    if (manager.validateRequired(node)) {
-                        if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType()) && !StringUtils.equals(SystemNodeTypes.PROXY_NODE.name(), node.getNodeType()))
-                            return false;
-                        if (StringUtils.isNotBlank(getMemberObjectType())) {
-                            if (!StringUtils.equals(getMemberObjectType(), node.getObjectType()))
-                                return false;
-                        }
-                        return true;
-                    }
-                }
+
+		Response ar = searchMgr.getNodeByUniqueId(request);
+		Node node = (Node) ar.get(GraphDACParams.node.name());
+		if (manager.validateRequired(node)) {
+			if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())
+					&& !StringUtils.equals(SystemNodeTypes.PROXY_NODE.name(), node.getNodeType()))
                 return false;
+			if (StringUtils.isNotBlank(getMemberObjectType())) {
+				if (!StringUtils.equals(getMemberObjectType(), node.getObjectType()))
+					return false;
             }
-        }, ec);
-        return validMembers;
+			return true;
+		}
+		return false;
     }
     
-    @SuppressWarnings("unchecked")
-    protected Future<Boolean> checkMemberNodes(Request req, final List<String> memberIds, final ExecutionContext ec) {
+	@SuppressWarnings("unchecked")
+	protected Boolean checkMemberNodes(Request req, final List<String> memberIds, final ExecutionContext ec) {
         Request request = new Request(req);
         request.setOperation("getNodesByUniqueIds");
         request.put(GraphDACParams.node_ids.name(), memberIds);
-		Future<Object> dacFuture = Futures.successful(searchMgr.getNodesByUniqueIds(request));
-        Future<Boolean> validMembers = dacFuture.map(new Mapper<Object, Boolean>() {
-            @Override
-            public Boolean apply(Object parameter) {
-                if (parameter instanceof Response) {
-                    Response ar = (Response) parameter;
-                    List<Node> nodes = (List<Node>) ar.get(GraphDACParams.node_list.name());
-                    if (manager.validateRequired(nodes)) {
-                        if (memberIds.size() == nodes.size()) {
-                            for (Node node : nodes) {
-                                if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType()) && !StringUtils.equals(SystemNodeTypes.PROXY_NODE.name(), node.getNodeType()))
-                                    return false;
-                                if (StringUtils.isNotBlank(getMemberObjectType())) {
-                                    if (!StringUtils.equals(getMemberObjectType(), node.getObjectType()))
-                                        return false;
-                                }
-                            }
-                            return true;
-                        }
+		Response ar = searchMgr.getNodesByUniqueIds(request);
+		List<Node> nodes = (List<Node>) ar.get(GraphDACParams.node_list.name());
+		if (manager.validateRequired(nodes)) {
+			if (memberIds.size() == nodes.size()) {
+				for (Node node : nodes) {
+					if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())
+							&& !StringUtils.equals(SystemNodeTypes.PROXY_NODE.name(), node.getNodeType()))
+						return false;
+					if (StringUtils.isNotBlank(getMemberObjectType())) {
+						if (!StringUtils.equals(getMemberObjectType(), node.getObjectType()))
+							return false;
                     }
                 }
-                return false;
+				return true;
             }
-        }, ec);
-        return validMembers;
+		}
+		return false;
     }
 
-    protected Future<Node> getNodeObject(Request req, ExecutionContext ec, String setId) {
+	protected Node getNodeObject(Request req, ExecutionContext ec, String setId) {
 		Request request = new Request();
 		request.put(GraphDACParams.node_id.name(), setId);
-		Future<Object> dacFuture = getNodeByUniqueId(request);
-        Future<Node> nodeFuture = dacFuture.map(new Mapper<Object, Node>() {
-            @Override
-            public Node apply(Object parameter) {
-                if (null != parameter && parameter instanceof Response) {
-                    Response res = (Response) parameter;
-                    Node node = (Node) res.get(GraphDACParams.node.name());
-                    return node;
-                }
-                return null;
-            }
-        }, ec);
-        return nodeFuture;
+		Response res = searchMgr.getNodeByUniqueId(request);
+		Node node = null;
+
+		if (!manager.checkError(res)) {
+			node = (Node) res.get(GraphDACParams.node.name());
+		}
+		return node;
+
     }
     
     protected void checkMetadata(Map<String, Object> metadata) {
@@ -298,10 +267,5 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
         }
         return array;
     }
-
-	private Future<Object> getNodeByUniqueId(Request request) {
-		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-		return response;
-	}
 
 }

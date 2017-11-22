@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.service.INeo4JBoltGraphOperations;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
@@ -33,7 +34,7 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.importer.ImportData;
 
-public class Neo4JBoltGraphOperations {
+public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 
 	/**
 	 * Creates the graph.

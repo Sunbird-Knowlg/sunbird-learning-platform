@@ -121,32 +121,22 @@ public class ProxyNode extends AbstractNode {
         }
     }
 
-    public Future<String> createNode(final Request req) {
+	public String createNode(final Request req) {
         Request request = new Request(req);
         request.put(GraphDACParams.node.name(), toNode());
-		Future<Object> response = Futures.successful(nodeMgr.addNode(request));
-        Future<String> message = response.map(new Mapper<Object, String>() {
-            @Override
-            public String apply(Object parameter) {
-                if (parameter instanceof Response) {
-                    Response res = (Response) parameter;
-                    if (manager.checkError(res)) {
-                        return manager.getErrorMessage(res);
-                    } else {
-                        String identifier = (String) res.get(GraphDACParams.node_id.name());
-                        if (manager.validateRequired(identifier)) {
-                            setNodeId(identifier);
-                        } else {
-                            return "Error creating node in the graph";
-                        }
-                    }
-                } else {
-                    return "Error creating node in the graph";
-                }
-                return null;
-            }
-        }, manager.getContext().dispatcher());
-        return message;
+		Response response = nodeMgr.addNode(request);
+
+		if (manager.checkError(response)) {
+			return manager.getErrorMessage(response);
+		} else {
+			String identifier = (String) response.get(GraphDACParams.node_id.name());
+			if (manager.validateRequired(identifier)) {
+				setNodeId(identifier);
+				return null;
+			} else {
+				return "Error creating node in the graph";
+			}
+		}
     }
 
     public Future<String> updateNode(Request req) {
@@ -176,7 +166,7 @@ public class ProxyNode extends AbstractNode {
         }
     }
 
-    public Future<Map<String, List<String>>> validateNode(Request req) {
+	public Map<String, List<String>> validateNode(Request req) {
     	
     	try {
     		final ExecutionContext ec = manager.context().dispatcher();
@@ -184,13 +174,12 @@ public class ProxyNode extends AbstractNode {
     		if(StringUtils.isBlank(graphId) || StringUtils.isBlank(objectType) || StringUtils.isBlank(identifier))
     		{
     			messages.add("GraphId or Object type  or identifier not set for node: " + getNodeId());
-    			Future<List<String>> message = Futures.successful(messages);
-                return getMessageMap(message, ec);
+				return getMessageMap(messages, ec);
     		}else
     		{
     			Map<String, List<String>> map = new HashMap<String, List<String>>();
             	map.put(getNodeId(), messages);
-            	return Futures.successful(map);
+				return map;
     		}
     	} catch (Exception e) {
     		throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);

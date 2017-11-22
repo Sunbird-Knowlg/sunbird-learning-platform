@@ -19,10 +19,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
 
 import akka.actor.ActorRef;
-import akka.dispatch.Futures;
 import akka.util.Timeout;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 public class DefinitionCache extends BaseGraphManager {
@@ -93,17 +90,15 @@ public class DefinitionCache extends BaseGraphManager {
 			sc.setObjectType(objectType);
 			sc.setResultSize(1);
 			request.put(GraphDACParams.search_criteria.name(), sc);
-			Future<Object> future = Futures.successful(searchMgr.searchNodes(request));
-			Object obj = Await.result(future, WAIT_TIMEOUT.duration());
-			if (obj instanceof Response) {
-				Response res = (Response) obj;
-				List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-				if (null != nodes && !nodes.isEmpty()) {
-					Node node = nodes.get(0);
-					DefinitionDTO dto = new DefinitionDTO();
-					dto.fromNode(node);
-					return dto;
-				}
+
+			Response res = searchMgr.searchNodes(request);
+
+			List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+			if (null != nodes && !nodes.isEmpty()) {
+				Node node = nodes.get(0);
+				DefinitionDTO dto = new DefinitionDTO();
+				dto.fromNode(node);
+				return dto;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

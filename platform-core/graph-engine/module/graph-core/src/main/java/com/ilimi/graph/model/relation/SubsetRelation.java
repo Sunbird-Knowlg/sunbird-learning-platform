@@ -12,10 +12,6 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 
-import akka.dispatch.Futures;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-
 public class SubsetRelation extends AbstractRelation {
 
     public SubsetRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId) {
@@ -28,20 +24,19 @@ public class SubsetRelation extends AbstractRelation {
     }
 
     @Override
-    public Future<Map<String, List<String>>> validateRelation(Request request) {
+	public Map<String, List<String>> validateRelation(Request request) {
         try {
-            List<Future<String>> futures = new ArrayList<Future<String>>();
+			List<String> futures = new ArrayList<String>();
             // Check node types: start node type should be Set.
             // and end node type should be Set
-            final ExecutionContext ec = manager.getContext().dispatcher();
-            Future<Node> startNode = getNode(request, this.startNodeId);
-            Future<Node> endNode = getNode(request, this.endNodeId);
-            Future<String> startNodeMsg = getNodeTypeFuture(this.startNodeId, startNode, new String[]{SystemNodeTypes.SET.name()}, ec);
+			Node startNode = getNode(request, this.startNodeId);
+			Node endNode = getNode(request, this.endNodeId);
+			String startNodeMsg = getNodeTypeFuture(this.startNodeId, startNode,
+					new String[] { SystemNodeTypes.SET.name() });
             futures.add(startNodeMsg);
-            Future<String> endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode, new String[]{SystemNodeTypes.SET.name()}, ec);
+			String endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode, new String[] { SystemNodeTypes.SET.name() });
             futures.add(endNodeMsg);
-            Future<Iterable<String>> aggregate = Futures.sequence(futures, manager.getContext().dispatcher());
-            return getMessageMap(aggregate, ec);
+			return getMessageMap(futures);
         } catch (Exception e) {
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
         }

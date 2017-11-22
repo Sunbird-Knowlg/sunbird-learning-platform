@@ -26,8 +26,6 @@ import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.INode;
 
 import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnSuccess;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 
@@ -73,23 +71,18 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     public void create(final Request req) {
         try {
             checkMetadata(metadata);
-            Future<Map<String, List<String>>> aggregate = validateNode(req);
-            aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
-                @Override
-                public void onSuccess(Map<String, List<String>> messages) throws Throwable {
-                    List<String> errMessages = getErrorMessages(messages);
-                    if (null == errMessages || errMessages.isEmpty()) {
-                        Request request = new Request(req);
-                        request.put(GraphDACParams.node.name(), toNode());
-						Future<Object> response = Futures.successful(nodeMgr.addNode(request));
-                        manager.returnResponse(response, getParent());
-                    } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Node validation failed",
-                                ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
-                                errMessages, getParent());
-                    }
-                }
-            }, manager.getContext().dispatcher());
+			Map<String, List<String>> messages = validateNode(req);
+			List<String> errMessages = getErrorMessages(messages);
+			if (null == errMessages || errMessages.isEmpty()) {
+				Request request = new Request(req);
+				request.put(GraphDACParams.node.name(), toNode());
+				Future<Object> response = Futures.successful(nodeMgr.addNode(request));
+				manager.returnResponse(response, getParent());
+			} else {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(),
+						"Node validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
+						errMessages, getParent());
+			}
         } catch (Exception e) {
             manager.ERROR(e, getParent());
         }
@@ -237,7 +230,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
      * @param ec the ec
      * @return the message map
      */
-    protected Map<String, List<String>> getMessageMap(List<String> aggregate, ExecutionContext ec) {
+	protected Map<String, List<String>> getMessageMap(List<String> aggregate, ExecutionContext ec) {
     		Map<String, List<String>> map = new HashMap<String, List<String>>();
         List<String> messages = new ArrayList<String>();
         if (null != aggregate && !aggregate.isEmpty()) {

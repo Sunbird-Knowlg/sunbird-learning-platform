@@ -22,9 +22,7 @@ import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 
 import akka.dispatch.Futures;
-import akka.dispatch.OnComplete;
 import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
 
 public class Sequence extends AbstractCollection {
 
@@ -47,22 +45,13 @@ public class Sequence extends AbstractCollection {
         try {
             final ExecutionContext ec = manager.getContext().dispatcher();
             if (null != memberIds && memberIds.size() > 0) {
-                Future<Boolean> validMembers = checkMemberNodes(req, memberIds, ec);
-                validMembers.onComplete(new OnComplete<Boolean>() {
-                    @Override
-                    public void onComplete(Throwable arg0, Boolean arg1) throws Throwable {
-                        if (null != arg0) {
-                            manager.ERROR(arg0, getParent());
-                        } else {
-                            if (arg1) {
-                                createSequenceObject(req, ec);
-                            } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_INVALID_MEMBERIDS.name(),
-                                        "Member Ids are invalid", ResponseCode.CLIENT_ERROR, getParent());
-                            }
-                        }
-                    }
-                }, ec);
+				Boolean validMembers = checkMemberNodes(req, memberIds, ec);
+				if (validMembers) {
+					createSequenceObject(req, ec);
+				} else {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_INVALID_MEMBERIDS.name(),
+							"Member Ids are invalid", ResponseCode.CLIENT_ERROR, getParent());
+				}
             } else {
                 createSequenceObject(req, ec);
             }
@@ -94,8 +83,7 @@ public class Sequence extends AbstractCollection {
                     Map<String, Object> map = new HashMap<String, Object>();
                     map.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
                     dacRequest.put(GraphDACParams.metadata.name(), map);
-					Futures.successful(graphMgr.addRelation(dacRequest));
-                    manager.OK(getParent());
+					manager.returnResponse(Futures.successful(graphMgr.addRelation(dacRequest)), getParent());
                 }
             } catch (Exception e) {
                 manager.handleException(e, getParent());
@@ -209,42 +197,28 @@ public class Sequence extends AbstractCollection {
         Request request = new Request(req);
         request.setOperation("addNode");
         request.put(GraphDACParams.node.name(), toNode());
-		Future<Object> dacFuture = Futures.successful(nodeMgr.addNode(request));
 
-        dacFuture.onComplete(new OnComplete<Object>() {
-            @Override
-            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                if (null != arg0) {
-                    manager.ERROR(arg0, getParent());
-                } else {
-                    if (arg1 instanceof Response) {
-                        Response res = (Response) arg1;
-                        if (manager.checkError(res)) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(),
-                                    manager.getErrorMessage(res), res.getResponseCode(), getParent());
-                        } else {
-                            String sequenceId = (String) res.get(GraphDACParams.node_id.name());
-                            req.getContext().get(GraphDACParams.graph_id.name());
-                     		SequenceCacheManager.createSequence(graphId, sequenceId, memberIds);
+		Response res = nodeMgr.addNode(request);
 
-                            if (null != memberIds && memberIds.size() > 0) {
-                                Request dacRequest = new Request(req);
-                                dacRequest.setOperation("createCollection");
-                                dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
-                                dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
-                                dacRequest.put(GraphDACParams.index.name(), SystemProperties.IL_SEQUENCE_INDEX.name());
-                                dacRequest.put(GraphDACParams.members.name(), memberIds);
-								Futures.successful(graphMgr.createCollection(dacRequest));
-                            }
-                            manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
-                        }
-                    } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(),
-                                "Failed to create Sequence node", ResponseCode.SERVER_ERROR, getParent());
-                    }
-                }
+		if (manager.checkError(res)) {
+			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(),
+					manager.getErrorMessage(res), res.getResponseCode(), getParent());
+		} else {
+			String sequenceId = (String) res.get(GraphDACParams.node_id.name());
+			req.getContext().get(GraphDACParams.graph_id.name());
+			SequenceCacheManager.createSequence(graphId, sequenceId, memberIds);
+
+			if (null != memberIds && memberIds.size() > 0) {
+				Request dacRequest = new Request(req);
+				dacRequest.setOperation("createCollection");
+				dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
+				dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
+				dacRequest.put(GraphDACParams.index.name(), SystemProperties.IL_SEQUENCE_INDEX.name());
+				dacRequest.put(GraphDACParams.members.name(), memberIds);
+				Futures.successful(graphMgr.createCollection(dacRequest));
             }
-        }, ec);
+			manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
+		}
     }
 
 	@Override

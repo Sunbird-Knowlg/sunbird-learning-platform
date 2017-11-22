@@ -151,7 +151,8 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
         }
     }
 
-    @Override
+	@SuppressWarnings("unchecked")
+	@Override
     public void createRelation(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());

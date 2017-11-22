@@ -11,11 +11,6 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-
 public class SequenceMembershipRelation extends AbstractRelation {
 
     public SequenceMembershipRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId, Map<String, Object> metadata) {
@@ -28,49 +23,39 @@ public class SequenceMembershipRelation extends AbstractRelation {
     }
 
     @Override
-    public Future<Map<String, List<String>>> validateRelation(Request request) {
+	public Map<String, List<String>> validateRelation(Request request) {
         try {
-        	List<Future<String>> futures = new ArrayList<Future<String>>();
+			List<String> futures = new ArrayList<String>();
             // check for cycle
-            Future<String> cyclicCheck = checkCycle(request);
+			String cyclicCheck = checkCycle(request);
             futures.add(cyclicCheck);
         	
-            List<Future<Node>> nodeFutures = new ArrayList<Future<Node>>();
-            final ExecutionContext ec = manager.getContext().dispatcher();
+			List<Node> nodeFutures = new ArrayList<Node>();
             String startNodeId = this.startNodeId;
             String endNodeId = this.endNodeId;
-            Future<Node> startNodeFuture = getNode(request, this.startNodeId);
-            Future<Node> endNodeFuture = getNode(request, this.endNodeId);
+			Node startNodeFuture = getNode(request, this.startNodeId);
+			Node endNodeFuture = getNode(request, this.endNodeId);
             nodeFutures.add(startNodeFuture);
             nodeFutures.add(endNodeFuture);
-            Future<Iterable<Node>> nodeAggregate = Futures.sequence(nodeFutures, manager.getContext().dispatcher());
-            Future<String> messages = nodeAggregate
-                    .map(new Mapper<Iterable<Node>, String>() {
-                        @Override
-                        public String apply(Iterable<Node> parameter) {
-                            Node startNode = null;
-                            Node endNode = null;
-                            if (null != parameter) {
-                                for (Node node : parameter) {
-                                    if (startNode == null)
-                                        startNode = node;
-                                    else
-                                        endNode = node;
-                                }
-                                if (null == startNode)
-                                	return "Invalid node: could not find node: " + startNodeId;
-                                if(null == endNode)
-                                	return "Invalid node: could not find node: " + endNodeId;
-                            } else {
-                                return "Invalid nodes: could not find one or more nodes";
-                            }
-                            return null;
-                        }
-                    }, ec);
-            futures.add(messages);
             
-            Future<Iterable<String>> aggregate = Futures.sequence(futures, manager.getContext().dispatcher());
-            return getMessageMap(aggregate, ec);
+			Node startNode = null;
+			Node endNode = null;
+			if (null != nodeFutures && !nodeFutures.isEmpty()) {
+				for (Node node : nodeFutures) {
+					if (startNode == null)
+						startNode = node;
+					else
+						endNode = node;
+				}
+				if (null == startNode)
+					futures.add("Invalid node: could not find node: " + startNodeId);
+				if (null == endNode)
+					futures.add("Invalid node: could not find node: " + endNodeId);
+			} else {
+				futures.add("Invalid nodes: could not find one or more nodes");
+			}
+
+			return getMessageMap(futures);
         } catch (Exception e) {
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
         }

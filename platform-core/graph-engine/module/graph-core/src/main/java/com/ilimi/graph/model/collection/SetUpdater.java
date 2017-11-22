@@ -24,7 +24,6 @@ import com.ilimi.graph.model.relation.UsedBySetRelation;
 
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -74,86 +73,71 @@ public class SetUpdater extends AbstractDomainObject {
     public Future<List<String>> getSets(final Request req, String objectType, String property, final Object oldValue, final Object newValue) {
         final Promise<List<String>> promise = Futures.promise();
         final Future<List<String>> future = promise.future();
-        final ExecutionContext ec = manager.getContext().dispatcher();
         MetadataNode mNode = new MetadataNode(getManager(), getGraphId(), objectType, property);
-        Future<Node> mNodeFuture = getNodeObject(req, mNode.getNodeId());
-        mNodeFuture.onComplete(new OnComplete<Node>() {
-            @Override
-            public void onComplete(Throwable e, Node node) throws Throwable {
-                final List<String> setIds = new ArrayList<String>();
-                if (null != node) {
-                    List<String> valueNodeIds = new ArrayList<String>();
-                    List<Relation> outRels = node.getOutRelations();
-                    if (null != outRels && outRels.size() > 0) {
-                        for (Relation rel : outRels) {
-                            if (StringUtils.equals(UsedBySetRelation.RELATION_NAME, rel.getRelationType())) {
-                                setIds.add(rel.getEndNodeId());
-                            } else if (StringUtils.equals(HasValueRelation.RELATION_NAME, rel.getRelationType())) {
-                                if (null != rel.getEndNodeMetadata()) {
-                                    Object val = rel.getEndNodeMetadata().get(ValueNode.VALUE_NODE_VALUE_KEY);
-                                    if (null != val) {
-                                        if (val == oldValue || val == newValue) {
-                                            valueNodeIds.add(rel.getEndNodeId());
-                                        }
-                                    }
+        
+        Node node = getNodeObject(req, mNode.getNodeId());
+        final List<String> setIds = new ArrayList<String>();
+        if (null != node) {
+            List<String> valueNodeIds = new ArrayList<String>();
+            List<Relation> outRels = node.getOutRelations();
+            if (null != outRels && outRels.size() > 0) {
+                for (Relation rel : outRels) {
+                    if (StringUtils.equals(UsedBySetRelation.RELATION_NAME, rel.getRelationType())) {
+                        setIds.add(rel.getEndNodeId());
+                    } else if (StringUtils.equals(HasValueRelation.RELATION_NAME, rel.getRelationType())) {
+                        if (null != rel.getEndNodeMetadata()) {
+                            Object val = rel.getEndNodeMetadata().get(ValueNode.VALUE_NODE_VALUE_KEY);
+                            if (null != val) {
+                                if (val == oldValue || val == newValue) {
+                                    valueNodeIds.add(rel.getEndNodeId());
                                 }
                             }
                         }
                     }
-                    if (!valueNodeIds.isEmpty()) {
-                        List<Future<Node>> vNodeFutures = new ArrayList<Future<Node>>();
-                        for (String vNodeId : valueNodeIds) {
-                            Future<Node> vNodeFuture = getNodeObject(req, vNodeId);
-                            vNodeFutures.add(vNodeFuture);
-                        }
-                        Future<Iterable<Node>> valueNodes = Futures.sequence(vNodeFutures, ec);
-                        valueNodes.onComplete(new OnComplete<Iterable<Node>>() {
-                            @Override
-                            public void onComplete(Throwable arg0, Iterable<Node> vNodes) throws Throwable {
-                                if (null != vNodes) {
-                                    for (Node vNode : vNodes) {
-                                        List<Relation> outRels = vNode.getOutRelations();
-                                        if (null != outRels && outRels.size() > 0) {
-                                            for (Relation rel : outRels) {
-                                                if (StringUtils.equals(UsedBySetRelation.RELATION_NAME, rel.getRelationType())) {
-                                                    setIds.add(rel.getEndNodeId());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                promise.success(setIds);
-                            }
-                        }, ec);
-                    } else {
-                        promise.success(setIds);
-                    }
-                } else {
-                    promise.success(setIds);
                 }
             }
-        }, ec);
+            if (!valueNodeIds.isEmpty()) {
+                List<Node> vNodes = new ArrayList<Node>();
+                for (String vNodeId : valueNodeIds) {
+                    Node vNodeFuture = getNodeObject(req, vNodeId);
+                    vNodes.add(vNodeFuture);
+                }
+
+				if (null != vNodes) {
+					for (Node vNode : vNodes) {
+						List<Relation> outRels1 = vNode.getOutRelations();
+						if (null != outRels1 && outRels1.size() > 0) {
+							for (Relation rel : outRels1) {
+								if (StringUtils.equals(UsedBySetRelation.RELATION_NAME, rel.getRelationType())) {
+									setIds.add(rel.getEndNodeId());
+                                }
+                            }
+                        }
+                    }
+				}
+				promise.success(setIds);
+            } else {
+                promise.success(setIds);
+            }
+        } else {
+            promise.success(setIds);
+        }
         return future;
     }
 
-    private Future<Node> getNodeObject(Request req, String nodeId) {
-        ExecutionContext ec = manager.getContext().dispatcher();
+	private Node getNodeObject(Request req, String nodeId) {
 		IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
         Request request = new Request(req);
         request.put(GraphDACParams.node_id.name(), nodeId);
-		Future<Object> future = Futures.successful(searchMgr.getNodeByUniqueId(request));
-        Future<Node> nodeFuture = future.map(new Mapper<Object, Node>() {
-            @Override
-            public Node apply(Object obj) {
-                if (obj instanceof Response) {
-                    Response res = (Response) obj;
-                    Node node = (Node) res.get(GraphDACParams.node.name());
-                    return node;
-                }
-                return null;
-            }
-        }, ec);
-        return nodeFuture;
+
+		Response res = searchMgr.getNodeByUniqueId(request);
+
+		if (!manager.checkError(res)) {
+			Node node = (Node) res.get(GraphDACParams.node.name());
+			return node;
+		}
+		return null;
+
     }
 
 }

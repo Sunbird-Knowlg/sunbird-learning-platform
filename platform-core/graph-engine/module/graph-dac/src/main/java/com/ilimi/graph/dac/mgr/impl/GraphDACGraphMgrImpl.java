@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.service.INeo4JBoltGraphOperations;
 import org.ekstep.graph.service.operation.Neo4JBoltGraphOperations;
 
 import com.ilimi.common.dto.Request;
@@ -20,7 +21,7 @@ import com.ilimi.graph.importer.ImportData;
 
 public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphMgr {
 
-	private static Neo4JBoltGraphOperations service = new Neo4JBoltGraphOperations();
+	private static INeo4JBoltGraphOperations service = new Neo4JBoltGraphOperations();
 
 	@Override
 	public Response createGraph(Request request) {

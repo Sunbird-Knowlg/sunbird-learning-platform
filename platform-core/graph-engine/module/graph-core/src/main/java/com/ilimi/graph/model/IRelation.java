@@ -5,8 +5,6 @@ import java.util.Map;
 
 import com.ilimi.common.dto.Request;
 
-import scala.concurrent.Future;
-
 /**
  * @author rayulu
  * 
@@ -25,10 +23,10 @@ public interface IRelation extends IPropertyContainer {
 
     boolean isType(String relationType);
 
-    Future<String> createRelation(final Request req);
+	String createRelation(final Request req);
     
-    Future<String> deleteRelation(Request req);
+	String deleteRelation(Request req);
 
-    Future<Map<String, List<String>>> validateRelation(Request request);
+	Map<String, List<String>> validateRelation(Request request);
 
 }

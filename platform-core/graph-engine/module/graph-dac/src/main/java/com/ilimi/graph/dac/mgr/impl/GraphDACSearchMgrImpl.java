@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.graph.service.INeo4JBoltSearchOperations;
 import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
 
 import com.ilimi.common.dto.Property;
@@ -27,9 +28,7 @@ import com.ilimi.graph.dac.model.Traverser;
 
 public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearchMgr {
 	
-	// private static IGraphDatabaseService service = new Neo4JBoltImpl();
-
-	private static Neo4JBoltSearchOperations service = new Neo4JBoltSearchOperations();
+	private static INeo4JBoltSearchOperations service = new Neo4JBoltSearchOperations();
 	
 
     @Override

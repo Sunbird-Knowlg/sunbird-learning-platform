@@ -16,9 +16,6 @@ import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.IRelation;
 
-import akka.dispatch.Futures;
-import akka.dispatch.OnSuccess;
-import scala.concurrent.Future;
 import scala.concurrent.Promise;
 
 public abstract class AbstractIndexNode extends AbstractDomainObject {
@@ -49,11 +46,11 @@ public abstract class AbstractIndexNode extends AbstractDomainObject {
         promise.success(map);
     }
 
-	protected Future<Object> getNodeObject(Request req, IGraphDACSearchMgr searchMgr, String nodeId) {
+	protected Response getNodeObject(Request req, IGraphDACSearchMgr searchMgr, String nodeId) {
         Request request = new Request(req);
         request.put(GraphDACParams.node_id.name(), nodeId);
-		Future<Object> future = Futures.successful(searchMgr.getNodeByUniqueId(request));
-        return future;
+		Response response = searchMgr.getNodeByUniqueId(request);
+		return response;
     }
 
     protected boolean checkIfNodeExists(Promise<Map<String, Object>> promise, Throwable arg0, Object arg1, String errorCode) {
@@ -107,21 +104,17 @@ public abstract class AbstractIndexNode extends AbstractDomainObject {
             Response res = (Response) arg1;
             String nodeId = (String) res.get(GraphDACParams.node_id.name());
             setNodeId(nodeId);
-            Future<Map<String, List<String>>> relValidation = rel.validateRelation(req);
-            relValidation.onSuccess(new OnSuccess<Map<String, List<String>>>() {
-                @Override
-                public void onSuccess(Map<String, List<String>> messageMap) throws Throwable {
-                    List<String> errMessages = getErrorMessages(messageMap);
-                    if (null == errMessages || errMessages.isEmpty()) {
-                        rel.createRelation(req);
-                        Map<String, Object> map = new HashMap<String, Object>();
-                        map.put(GraphDACParams.node_id.name(), getNodeId());
-                        promise.success(map);
-                    } else {
-                        failPromise(promise, errorCode, errMessages);
-                    }
-                }
-            }, manager.getContext().dispatcher());
+			Map<String, List<String>> messageMap = rel.validateRelation(req);
+			List<String> errMessages = getErrorMessages(messageMap);
+			if (null == errMessages || errMessages.isEmpty()) {
+				rel.createRelation(req);
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put(GraphDACParams.node_id.name(), getNodeId());
+				promise.success(map);
+			} else {
+				failPromise(promise, errorCode, errMessages);
+			}
+
         }
     }
 

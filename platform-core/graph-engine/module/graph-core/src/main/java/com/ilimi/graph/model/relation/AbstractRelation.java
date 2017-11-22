@@ -16,10 +16,8 @@ import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.mgr.IGraphDACGraphMgr;
-import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
 import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
 import com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
-import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
 import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -29,11 +27,7 @@ import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.cache.DefinitionCache;
 
 import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnSuccess;
-import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
-import scala.concurrent.Promise;
 
 public abstract class AbstractRelation extends AbstractDomainObject implements IRelation {
 
@@ -41,7 +35,6 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     protected String endNodeId;
     protected Map<String, Object> metadata;
     
-	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
 	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 	private static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
 
@@ -64,57 +57,39 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     public void create(final Request req) {
         try {
         	Boolean skipValidation = (Boolean) req.get(GraphDACParams.skip_validations.name());
-        	Future<Map<String, List<String>>> aggregate = null;
-        	if (null != skipValidation && skipValidation)
-        		aggregate = Futures.successful(null);
-        	else
-        		aggregate = validateRelation(req);
-            aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
-                @Override
-                public void onSuccess(Map<String, List<String>> messageMap) throws Throwable {
-                    List<String> errMessages = getErrorMessages(messageMap);
-                    if (null == errMessages || errMessages.isEmpty()) {
-                        Request request = new Request(req);
-                        request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
-                        request.put(GraphDACParams.relation_type.name(), getRelationType());
-                        request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
-                        request.put(GraphDACParams.metadata.name(), getMetadata());
-						Future<Object> response = Futures.successful(graphMgr.addRelation(request));
-                        manager.returnResponse(response, getParent());
-                    } else {
-                        manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
-                    }
-                }
-            }, manager.getContext().dispatcher());
+			Map<String, List<String>> messageMap = null;
+			if (null == skipValidation || !skipValidation)
+				messageMap = validateRelation(req);
+			List<String> errMessages = getErrorMessages(messageMap);
+			if (null == errMessages || errMessages.isEmpty()) {
+				Request request = new Request(req);
+				request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
+				request.put(GraphDACParams.relation_type.name(), getRelationType());
+				request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
+				request.put(GraphDACParams.metadata.name(), getMetadata());
+				Future<Object> response = Futures.successful(graphMgr.addRelation(request));
+				manager.returnResponse(response, getParent());
+			} else {
+				manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
+			}
         } catch (Exception e) {
         	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_CREATE.name() + " Error occured while creating the relation", null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Error occured while creating the Relation", e);
         }
     }
 
-    public Future<String> createRelation(final Request req) {
+	public String createRelation(final Request req) {
         Request request = new Request(req);
         request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
         request.put(GraphDACParams.relation_type.name(), getRelationType());
         request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
         request.put(GraphDACParams.metadata.name(), getMetadata());
-		Future<Object> response = Futures.successful(graphMgr.addRelation(request));
-        Future<String> message = response.map(new Mapper<Object, String>() {
-            @Override
-            public String apply(Object parameter) {
-                if (parameter instanceof Response) {
-                    Response res = (Response) parameter;
-                    if (manager.checkError(res)) {
-                        return manager.getErrorMessage(res);
-                    }
-                } else {
-                    return "Error occured while creating the relation: " + getStartNodeId() + " - " + getRelationType() + " - "
-                            + getEndNodeId();
-                }
-                return null;
-            }
-        }, manager.getContext().dispatcher());
-        return message;
+
+		Response res = graphMgr.addRelation(request);
+		if (manager.checkError(res)) {
+			return manager.getErrorMessage(res);
+		}
+		return null;
     }
 
     @Override
@@ -131,46 +106,31 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     }
 
     @Override
-    public Future<String> deleteRelation(Request req) {
+	public String deleteRelation(Request req) {
         Request request = new Request(req);
         request.setOperation("deleteRelation");
         request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
         request.put(GraphDACParams.relation_type.name(), getRelationType());
         request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
-		Future<Object> response = Futures.successful(graphMgr.deleteRelation(request));
-        Future<String> message = response.map(new Mapper<Object, String>() {
-            @Override
-            public String apply(Object parameter) {
-                if (parameter instanceof Response) {
-                    Response res = (Response) parameter;
-                    if (manager.checkError(res)) {
-                        return manager.getErrorMessage(res);
-                    }
-                } else {
-                    return "Error occured while deleting the relation: " + getStartNodeId() + " - " + getRelationType() + " - "
-                            + getEndNodeId();
-                }
-                return null;
-            }
-        }, manager.getContext().dispatcher());
-        return message;
+
+		Response res = graphMgr.deleteRelation(request);
+		if (manager.checkError(res)) {
+			return manager.getErrorMessage(res);
+		}
+		return null;
     }
 
     @Override
     public void validate(final Request request) {
         try {
-            Future<Map<String, List<String>>> aggregate = validateRelation(request);
-            aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
-                @Override
-                public void onSuccess(Map<String, List<String>> messageMap) throws Throwable {
-                    List<String> errMessages = getErrorMessages(messageMap);
-                    if (null == errMessages || errMessages.isEmpty()) {
-                        manager.OK(getParent());
-                    } else {
-                        manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
-                    }
-                }
-            }, manager.getContext().dispatcher());
+			Map<String, List<String>> messageMap = validateRelation(request);
+
+			List<String> errMessages = getErrorMessages(messageMap);
+			if (null == errMessages || errMessages.isEmpty()) {
+				manager.OK(getParent());
+			} else {
+				manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
+			}
         } catch (Exception e) {
         	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + " Error Validating the relation "+ e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(),"Error Validating the relation", e);
@@ -224,93 +184,70 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                 "Set Property is not supported on relations");
     }
 
-    protected Future<Map<String, List<String>>> getMessageMap(Future<Iterable<String>> aggregate, ExecutionContext ec) {
-        Future<Map<String, List<String>>> messageMap = aggregate
-                .map(new Mapper<Iterable<String>, Map<String, List<String>>>() {
-                    @Override
-                    public Map<String, List<String>> apply(Iterable<String> parameter) {
-                        Map<String, List<String>> map = new HashMap<String, List<String>>();
-                        List<String> messages = new ArrayList<String>();
-                        if (null != parameter) {
-                            for (String msg : parameter) {
-                                if (StringUtils.isNotBlank(msg))
-                                    messages.add(msg);
-                            }
-                        }
-                        map.put(getStartNodeId(), messages);
-                        return map;
-                    }
-                }, ec);
-        return messageMap;
+	protected Map<String, List<String>> getMessageMap(Iterable<String> aggregate) {
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		List<String> messages = new ArrayList<String>();
+		if (null != aggregate) {
+			for (String msg : aggregate) {
+				if (StringUtils.isNotBlank(msg))
+					messages.add(msg);
+			}
+		}
+		map.put(getStartNodeId(), messages);
+		return map;
+
     }
 
-    protected Future<Node> getNode(Request request, String nodeId) {
+	protected Node getNode(Request request, String nodeId) {
         try {
             Request newReq = new Request(request);
             newReq.setOperation("getNodeByUniqueId");
             newReq.put(GraphDACParams.node_id.name(), nodeId);
-			Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-            Future<Node> node = response.map(new Mapper<Object, Node>() {
-                @Override
-                public Node apply(Object parameter) {
-                    if (parameter instanceof Response) {
-                        Response res = (Response) parameter;
-                        Node node = (Node) res.get(GraphDACParams.node.name());
-                        return node;
-                    } else {
-                        return null;
-                    }
-                }
-            }, manager.getContext().dispatcher());
-            return node;
+
+			Response res = searchMgr.getNodeByUniqueId(request);
+			if (!manager.checkError(res)) {
+				Node node = (Node) res.get(GraphDACParams.node.name());
+				return node;
+			} else {
+				return null;
+			}
         } catch (Exception e) {
         	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error occured while validating the relation " + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), "Error occured while validating the relation", e);
         }
     }
 
-    protected Future<String> checkCycle(Request req) {
+	protected String checkCycle(Request req) {
         try {
             Request request = new Request(req);
             request.put(GraphDACParams.start_node_id.name(), this.endNodeId);
             request.put(GraphDACParams.relation_type.name(), getRelationType());
             request.put(GraphDACParams.end_node_id.name(), this.startNodeId);
-			Future<Object> response = Futures.successful(searchMgr.checkCyclicLoop(request));
-            Future<String> message = response.map(new Mapper<Object, String>() {
-                @Override
-                public String apply(Object parameter) {
-                    if (parameter instanceof Response) {
-                        Response res = (Response) parameter;
-                        if (manager.checkError(res)) {
-                            return manager.getErrorMessage(res);
-                        } else {
-                            Boolean loop = (Boolean) res.get(GraphDACParams.loop.name());
-                            if (null != loop && loop.booleanValue()) {
-                                String msg = (String) res.get(GraphDACParams.message.name());
-                                return msg;
-                            } else {
-                            	if (StringUtils.equals(startNodeId, endNodeId))
-                            		return "Relation '" + getRelationType() + "' cannot be created between: " + getStartNodeId() + " and " + getEndNodeId();
-                            	else
-                            		return null;
-                            }
-                        }
-                    } else {
-                        return "UnKnown error";
-                    }
+			Response res = searchMgr.checkCyclicLoop(request);
+
+			if (manager.checkError(res)) {
+				return manager.getErrorMessage(res);
+			} else {
+				Boolean loop = (Boolean) res.get(GraphDACParams.loop.name());
+				if (null != loop && loop.booleanValue()) {
+					String msg = (String) res.get(GraphDACParams.message.name());
+					return msg;
+				} else {
+					if (StringUtils.equals(startNodeId, endNodeId))
+						return "Relation '" + getRelationType() + "' cannot be created between: " + getStartNodeId()
+								+ " and " + getEndNodeId();
+					else
+						return null;
                 }
-            }, manager.getContext().dispatcher());
-            return message;
+			}
+
         } catch (Exception e) {
         	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + " Error occured while validing the relation" + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), "Error occured while validing the relation", e);
         }
     }
 
-    protected Future<String> getNodeTypeFuture(String nodeId, Future<Node> node, final String[] nodeTypes, final ExecutionContext ec) {
-        Future<String> endNodeMsg = node.map(new Mapper<Node, String>() {
-            @Override
-            public String apply(Node node) {
+	protected String getNodeTypeFuture(String nodeId, Node node, final String[] nodeTypes) {
                 if (null == node) {
                     return "Node '" + nodeId + "' not Found";
                 } else {
@@ -320,102 +257,53 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                         return "Node " + node.getIdentifier() + " is not a " + nodeTypes;
                     }
                 }
-            }
-        }, ec);
-        return endNodeMsg;
     }
 
-    protected Future<String> getNodeTypeFuture(Future<Node> nodeFuture, final ExecutionContext ec) {
-        Future<String> nodeType = nodeFuture.map(new Mapper<Node, String>() {
-            @Override
-            public String apply(Node parameter) {
-                if (null != parameter)
-                    return parameter.getNodeType();
-                else
-                    return null;
-            }
-        }, ec);
-        return nodeType;
+	protected String getNodeTypeFuture(Node nodeFuture) {
+		if (null != nodeFuture)
+			return nodeFuture.getNodeType();
+		else
+			return null;
+
     }
 
-    protected Future<String> getObjectTypeFuture(Future<Node> nodeFuture, final ExecutionContext ec) {
-        Future<String> objectType = nodeFuture.map(new Mapper<Node, String>() {
-            @Override
-            public String apply(Node parameter) {
-                if (null != parameter)
-                    return parameter.getObjectType();
-                else
-                    return null;
-            }
-        }, ec);
-        return objectType;
+	protected String getObjectTypeFuture(Node node) {
+		if (null != node)
+			return node.getObjectType();
+		else
+			return null;
+
     }
 
-    protected void compareFutures(Future<String> future1, final Future<String> future2, final Promise<String> promise, final String property, 
-            final ExecutionContext ec) {
-        future1.onSuccess(new OnSuccess<String>() {
-            @Override
-            public void onSuccess(final String val1) throws Throwable {
-                if (StringUtils.isNotBlank(val1)) {
-                    future2.onSuccess(new OnSuccess<String>() {
-                        @Override
-                        public void onSuccess(final String val2) throws Throwable {
-                            if (StringUtils.isNotBlank(val2)) {
-                                if (StringUtils.equals(val1, val2)) {
-                                    promise.success(null);
-                                } else {
-                                    promise.success(property + " values do not match");
-                                }
-                            } else {
-                                promise.success(property + " cannot be empty");
-                            }
+	protected String compareFutures(String future1, final String future2, final String property) {
+		if (StringUtils.isNotBlank(future1) && StringUtils.isNotBlank(future2)) {
+			if (StringUtils.equals(future1, future2)) {
+				return null;
+			} else {
+				return property + " values do not match";
+            }
+		} else {
+			return property + " cannot be empty";
+		}
+    }
+
+	protected String validateObjectTypes(String objectType, final String endNodeObjectType,
+			final Request request) {
+
+		if (StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(endNodeObjectType)) {
+				List<String> outRelations = DefinitionCache.getOutRelationObjectTypes(graphId, objectType);
+				if (null != outRelations && !outRelations.isEmpty()) {
+					for (String outRel : outRelations) {
+						if (StringUtils.equals(getRelationType() + ":" + endNodeObjectType, outRel)) {
+						return getRelationType() + " is not allowed between " + objectType + " and "
+								+ endNodeObjectType;
                         }
-                    }, ec);
-                } else {
-                    promise.success(property + " cannot be empty");
-                }
-            }
-        }, ec);
-    }
+					}
+					
+				}
+		}
+		return null;
 
-    protected void validateObjectTypes(Future<String> objectType, final Future<String> endNodeObjectType,
-            final Request request, final Promise<String> objectTypePromise, final ExecutionContext ec) {
-        objectType.onSuccess(new OnSuccess<String>() {
-            @Override
-            public void onSuccess(final String type) throws Throwable {
-                if (StringUtils.isNotBlank(type)) {
-                    endNodeObjectType.onSuccess(new OnSuccess<String>() {
-                        @Override
-                        public void onSuccess(final String endNodeType) throws Throwable {
-                            if (StringUtils.isNotBlank(endNodeType)) {
-                            	List<String> outRelations = DefinitionCache.getOutRelationObjectTypes(graphId, type);
-                            	boolean found = false;
-                            	if (null != outRelations && !outRelations.isEmpty()) {
-                                    for (String outRel : outRelations) {
-                                        if (StringUtils.equals(getRelationType() + ":" + endNodeType,
-                                                outRel)) {
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!found) {
-                                    objectTypePromise
-                                            .success(getRelationType() + " is not allowed between "
-                                                    + type + " and " + endNodeType);
-                                } else {
-                                    objectTypePromise.success(null);
-                                }
-                            } else {
-                                objectTypePromise.success(null);
-                            }
-                        }
-                    }, ec);
-                } else {
-                    objectTypePromise.success(null);
-                }
-            }
-        }, ec);
     }
 
 }

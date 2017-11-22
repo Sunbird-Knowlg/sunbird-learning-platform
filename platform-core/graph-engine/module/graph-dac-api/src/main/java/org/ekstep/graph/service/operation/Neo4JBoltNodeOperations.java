@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.service.INeo4JBoltNodeOperations;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
-import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
@@ -39,7 +39,7 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 
-public class Neo4JBoltNodeOperations {
+public class Neo4JBoltNodeOperations implements INeo4JBoltNodeOperations {
 
 	private final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
 	private Neo4jBoltValidator versionValidator = new Neo4jBoltValidator();
@@ -212,7 +212,7 @@ public class Neo4JBoltNodeOperations {
 		versionValidator.validateUpdateOperation(graphId, node);
 		node.getMetadata().remove(GraphDACParams.versionKey.name());
 		PlatformLogger.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
-		
+
 		// Adding Channel and App Id
 		setRequestContextToNode(node, request);
 
@@ -390,7 +390,7 @@ public class Neo4JBoltNodeOperations {
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.REMOVE_PROPERTY, parameterMap));
 			for (Record record : result.list())
 				PlatformLogger.log("Remove Property Value Operation | ", record);
-			
+
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 		}
 	}
@@ -527,25 +527,29 @@ public class Neo4JBoltNodeOperations {
 	private void setRequestContextToNode(Node node, Request request) {
 		if (null != request && null != request.getContext()) {
 			String channel = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
-			PlatformLogger.log("Channel from request: " + channel + " for content: "+ node.getIdentifier(), null, LoggerEnum.DEBUG.name());
+			PlatformLogger.log("Channel from request: " + channel + " for content: " + node.getIdentifier(), null,
+					LoggerEnum.DEBUG.name());
 			if (StringUtils.isNotBlank(channel))
 				node.getMetadata().put(GraphDACParams.channel.name(), channel);
-			
+
 			String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
-			PlatformLogger.log("ConsumerId from request: " + consumerId + " for content: "+ node.getIdentifier(), null, LoggerEnum.DEBUG.name());
+			PlatformLogger.log("ConsumerId from request: " + consumerId + " for content: " + node.getIdentifier(), null,
+					LoggerEnum.DEBUG.name());
 			if (StringUtils.isNotBlank(consumerId))
 				node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
-			
+
 			String appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
-			PlatformLogger.log("App Id from request: " + appId + " for content: "+ node.getIdentifier(), null, LoggerEnum.DEBUG.name());
+			PlatformLogger.log("App Id from request: " + appId + " for content: " + node.getIdentifier(), null,
+					LoggerEnum.DEBUG.name());
 			if (StringUtils.isNotBlank(appId))
 				node.getMetadata().put(GraphDACParams.appId.name(), appId);
 		}
 	}
-	
-	private void updateRedisCache(String graphId, org.neo4j.driver.v1.types.Node neo4JNode, String nodeId, String nodeType) {
 
-		if(!graphId.equalsIgnoreCase("domain"))
+	private void updateRedisCache(String graphId, org.neo4j.driver.v1.types.Node neo4JNode, String nodeId,
+			String nodeType) {
+
+		if (!graphId.equalsIgnoreCase("domain"))
 			return;
 
 		if (!nodeType.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name()))
@@ -557,7 +561,8 @@ public class Neo4JBoltNodeOperations {
 		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.consumerId.name()).asString()))
 			cacheMap.put(GraphDACParams.consumerId.name(), neo4JNode.get(GraphDACParams.consumerId.name()).asString());
 		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString()))
-			cacheMap.put(GraphDACParams.lastUpdatedOn.name(), neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString());
+			cacheMap.put(GraphDACParams.lastUpdatedOn.name(),
+					neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString());
 		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.createdBy.name()).asString()))
 			cacheMap.put(GraphDACParams.createdBy.name(), neo4JNode.get(GraphDACParams.createdBy.name()).asString());
 		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.status.name()).asString()))

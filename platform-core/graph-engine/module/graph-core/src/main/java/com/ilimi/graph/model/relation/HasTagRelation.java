@@ -11,10 +11,6 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 
-import akka.dispatch.Futures;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-
 public class HasTagRelation extends AbstractRelation {
     
     public static final String RELATION_NAME = "hasTag"; 
@@ -29,20 +25,19 @@ public class HasTagRelation extends AbstractRelation {
     }
 
     @Override
-    public Future<Map<String, List<String>>> validateRelation(Request request) {
+    public Map<String, List<String>> validateRelation(Request request) {
         try {
-            List<Future<String>> futures = new ArrayList<Future<String>>();
+            List<String> futures = new ArrayList<String>();
             // Check node types: start node type should be Definition Node.
             // end node type should be Value Node
-            final ExecutionContext ec = manager.getContext().dispatcher();
-            Future<Node> startNode = getNode(request, this.startNodeId);
-            Future<Node> endNode = getNode(request, this.endNodeId);
-            Future<String> startNodeMsg = getNodeTypeFuture(this.startNodeId, startNode, new String[]{SystemNodeTypes.DEFINITION_NODE.name()}, ec);
+            Node startNode = getNode(request, this.startNodeId);
+            Node endNode = getNode(request, this.endNodeId);
+            String startNodeMsg = getNodeTypeFuture(this.startNodeId, startNode, new String[]{SystemNodeTypes.DEFINITION_NODE.name()});
             futures.add(startNodeMsg);
-            Future<String> endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode, new String[]{SystemNodeTypes.VALUE_NODE.name()}, ec);
+			String endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode,
+					new String[] { SystemNodeTypes.VALUE_NODE.name() });
             futures.add(endNodeMsg);
-            Future<Iterable<String>> aggregate = Futures.sequence(futures, manager.getContext().dispatcher());
-            return getMessageMap(aggregate, ec);
+			return getMessageMap(futures);
         } catch (Exception e) {
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
         }

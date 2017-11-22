@@ -167,7 +167,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 				if (messages.isEmpty()) {
 					datanode.removeExternalFields();
 					// create the node object
-					Response createRes = datanode.createNode1(request);
+					Response createRes = datanode.createNode(request);
 					if (null != createRes && checkError(createRes)) {
 						sendResponse(createRes, parent);
 					} else {
@@ -251,7 +251,6 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 								Map<String, Object> responseMap = new HashMap<String, Object>();
 								responseMap.put(GraphDACParams.node_id.name(), datanode.getNodeId());
 								responseMap.put(GraphDACParams.versionKey.name(), datanode.getVersionKey());
-
 								OK(responseMap, parent);
 							} else {
 								ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(),
@@ -332,81 +331,66 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 			final List<Relation> addRels = new ArrayList<Relation>();
 			final List<Relation> delRels = new ArrayList<Relation>();
 			final List<Node> dbNodes = new ArrayList<Node>();
-			Future<Node> nodeFuture = datanode.getNodeObject(request);
-			nodeFuture.andThen(new OnComplete<Node>() {
-				@Override
-				public void onComplete(Throwable arg0, Node dbNode) throws Throwable {
-					if (null != dbNode && StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), dbNode.getNodeType())) {
-						if (null == datanode.getMetadata()) {
-							datanode.setMetadata(new HashMap<String, Object>());
-						}
-						Map<String, Object> dbMetadata = dbNode.getMetadata();
-						if (null != dbMetadata && !dbMetadata.isEmpty()) {
-							dbMetadata.remove(GraphDACParams.versionKey.name());
-							dbMetadata.remove(GraphDACParams.lastUpdatedBy.name());
-							for (Entry<String, Object> entry : dbMetadata.entrySet()) {
-								if (!datanode.getMetadata().containsKey(entry.getKey()))
-									datanode.getMetadata().put(entry.getKey(), entry.getValue());
-							}
-						}
-						getRelationsDelta(addRels, delRels, dbNode, datanode);
-						dbNodes.add(dbNode);
+			
+			Node dbNode = datanode.getNodeObject(request);
+			
+			if (null != dbNode && StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), dbNode.getNodeType())) {
+				if (null == datanode.getMetadata()) {
+					datanode.setMetadata(new HashMap<String, Object>());
+				}
+				Map<String, Object> dbMetadata = dbNode.getMetadata();
+				if (null != dbMetadata && !dbMetadata.isEmpty()) {
+					dbMetadata.remove(GraphDACParams.versionKey.name());
+					dbMetadata.remove(GraphDACParams.lastUpdatedBy.name());
+					for (Entry<String, Object> entry : dbMetadata.entrySet()) {
+						if (!datanode.getMetadata().containsKey(entry.getKey()))
+							datanode.getMetadata().put(entry.getKey(), entry.getValue());
 					}
 				}
-			}, ec).andThen(new OnComplete<Node>() {
-				@Override
-				public void onComplete(Throwable arg0, Node arg1) throws Throwable {
-					if (messages.isEmpty()) {
-						// validate the node
-						if (null == skipValidations || !skipValidations) {
-							Map<String, List<String>> validationMap = datanode.validateNode(request);
-							if (!validationMap.isEmpty()) {
-								for (List<String> list : validationMap.values()) {
-									if (null != list && !list.isEmpty()) {
-										for (String msg : list) {
-											messages.add(msg);
-										}
-									}
+				getRelationsDelta(addRels, delRels, dbNode, datanode);
+				dbNodes.add(dbNode);
+			}
+			if (messages.isEmpty()) {
+				// validate the node
+				if (null == skipValidations || !skipValidations) {
+					Map<String, List<String>> validationMap = datanode.validateNode(request);
+					if (!validationMap.isEmpty()) {
+						for (List<String> list : validationMap.values()) {
+							if (null != list && !list.isEmpty()) {
+								for (String msg : list) {
+									messages.add(msg);
 								}
 							}
 						}
-						if (messages.isEmpty()) {
-							Future<Response> updateFuture = null;
-							datanode.removeExternalFields();
-							if (null == dbNodes || dbNodes.isEmpty())
-								updateFuture = datanode.createNode(request);
-							else
-								updateFuture = datanode.updateNode(request);
-							updateFuture.onComplete(new OnComplete<Response>() {
-								@Override
-								public void onComplete(Throwable arg0, Response arg1) throws Throwable {
-									if (null != arg0) {
-										ERROR(arg0, getSender());
-									} else {
-										if (null != arg1 && checkError(arg1)) {
-											sendResponse(arg1, parent);
-										} else {
-											// if node metadata is
-											// updated
-											// successfully,
-											// update relations and tags
-											updateRelations(parent, node, datanode, request, ec, addRels,
-													delRels);
-										}
-									}
-								}
-							}, ec);
-						} else {
-							ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(),
-									"Node Metadata validation failed", ResponseCode.CLIENT_ERROR,
-									GraphDACParams.messages.name(), messages, parent);
-						}
+					}
+				}
+				if (messages.isEmpty()) {
+					Response updateResponse = null;
+					datanode.removeExternalFields();
+					if (null == dbNodes || dbNodes.isEmpty())
+						updateResponse = datanode.createNode(request);
+					else
+						updateResponse = datanode.updateNode(request);
+
+					if (null != updateResponse && checkError(updateResponse)) {
+						sendResponse(updateResponse, parent);
 					} else {
-						ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_NOT_FOUND.name(), "Node Not Found",
-								ResponseCode.RESOURCE_NOT_FOUND, GraphDACParams.messages.name(), messages, parent);
+						// if node metadata is
+						// updated
+						// successfully,
+						// update relations and tags
+						updateRelations(parent, node, datanode, request, ec, addRels, delRels);
 					}
+				} else {
+					ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(),
+							"Node Metadata validation failed", ResponseCode.CLIENT_ERROR,
+							GraphDACParams.messages.name(), messages, parent);
 				}
-			}, ec);
+			} else {
+				ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_NOT_FOUND.name(), "Node Not Found",
+						ResponseCode.RESOURCE_NOT_FOUND, GraphDACParams.messages.name(), messages, parent);
+			}
+
 		}
 	}
 
@@ -601,60 +585,35 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 				if (null == skipValidations)
 					skipValidations = false;
 				final ProxyNode proxyNode = new ProxyNode(this, graphId, node);
-				final ExecutionContext ec = getContext().dispatcher();
 				final List<String> messages = new ArrayList<String>();
 				// validate the node
-				Future<Map<String, List<String>>> nodeValidationFuture = null;
-				if (null != skipValidations && skipValidations)
-					nodeValidationFuture = Futures.successful(null);
-				else
-					nodeValidationFuture = proxyNode.validateNode(request);
-				nodeValidationFuture.andThen(new OnComplete<Map<String, List<String>>>() {
-					@Override
-					public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {
-						if (null != arg0) {
-							messages.add(arg0.getMessage());
-						} else {
-							if (null != arg1 && !arg1.isEmpty()) {
-								for (List<String> list : arg1.values()) {
-									if (null != list && !list.isEmpty()) {
-										for (String msg : list) {
-											messages.add(msg);
-										}
-									}
-								}
+				Map<String, List<String>> nodeValidation = null;
+				if (!skipValidations)
+					nodeValidation = proxyNode.validateNode(request);
+
+				if (null != nodeValidation && !nodeValidation.isEmpty()) {
+					for (List<String> list : nodeValidation.values()) {
+						if (null != list && !list.isEmpty()) {
+							for (String msg : list) {
+								messages.add(msg);
 							}
 						}
 					}
-				}, ec).andThen(new OnComplete<Map<String, List<String>>>() {
-					@Override
-					public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {
-						// if there are no validation messages
-						if (messages.isEmpty()) {
-							// create the node object
-							Future<String> createFuture = proxyNode.createNode(request);
-							createFuture.onComplete(new OnComplete<String>() {
-								@Override
-								public void onComplete(Throwable arg0, String arg1) throws Throwable {
-									if (null != arg0) {
-										ERROR(arg0, getSender());
-									} else {
-										if (StringUtils.isNotBlank(arg1)) {
-											messages.add(arg1);
-											ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(),
-													"Node Creation Error", ResponseCode.CLIENT_ERROR,
-													GraphDACParams.messages.name(), messages, parent);
-										}
-									}
-								}
-							}, ec);
-						} else {
-							ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(),
-									"Validation Errors", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
-									messages, parent);
-						}
+				}
+
+				if (messages.isEmpty()) {
+					// create the node object
+					String createProxyNode = proxyNode.createNode(request);
+
+					if (StringUtils.isNotBlank(createProxyNode)) {
+						messages.add(createProxyNode);
+						ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
+								ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
 					}
-				}, ec);
+				} else {
+					ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors",
+							ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+				}
 			} catch (Exception e) {
 				handleException(e, getSender());
 			}
@@ -697,37 +656,27 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 				set.setInRelations(translationNode.getInRelations());
 				set.setOutRelations(translationNode.getOutRelations());
 				if (!proxy) {
-					Future<String> createFuture = proxyNode.createNode(request);
-					createFuture.onComplete(new OnComplete<String>() {
-						@Override
-						public void onComplete(Throwable arg0, String arg1) throws Throwable {
-							if (null != arg0) {
-								ERROR(arg0, getSender());
-							} else {
+					String createProxyNode = proxyNode.createNode(request);
 
-								if (StringUtils.isNotBlank(arg1)) {
-									messages.add(arg1);
-									ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(),
-											"Node Creation Error", ResponseCode.CLIENT_ERROR,
-											GraphDACParams.messages.name(), messages, parent);
-								} else {
-									if (messages.isEmpty()) {
-										// create the node object
-										request.put(GraphDACParams.node.name(), translationNode);
-										if (create) {
-											set.createSetNode(request, ec);
-										} else {
-											set.addMembers(request);
-										}
-									} else {
-										ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(),
-												"Validation Errors", ResponseCode.CLIENT_ERROR,
-												GraphDACParams.messages.name(), messages, parent);
-									}
-								}
+					if (StringUtils.isNotBlank(createProxyNode)) {
+						messages.add(createProxyNode);
+						ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
+								ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+					} else {
+						if (messages.isEmpty()) {
+							// create the node object
+							request.put(GraphDACParams.node.name(), translationNode);
+							if (create) {
+								set.createSetNode(request, ec);
+							} else {
+								set.addMembers(request);
 							}
+						} else {
+							ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(),
+									"Validation Errors", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
+									messages, parent);
 						}
-					}, ec);
+					}
 				} else {
 					request.put(GraphDACParams.node.name(), translationNode);
 					if (create) {

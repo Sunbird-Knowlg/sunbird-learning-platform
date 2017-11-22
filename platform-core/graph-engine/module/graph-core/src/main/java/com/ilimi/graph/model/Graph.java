@@ -23,7 +23,6 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
@@ -66,13 +65,10 @@ import com.ilimi.graph.writer.RDFGraphWriter;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
-import akka.dispatch.OnSuccess;
 import akka.util.Timeout;
-import scala.Tuple2;
 import scala.concurrent.Await;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
-import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
 
 public class Graph extends AbstractDomainObject {
@@ -90,8 +86,8 @@ public class Graph extends AbstractDomainObject {
 	public void create(Request req) {
 		try {
 			Request request = new Request(req);
-			Future<Object> response = Futures.successful(graphMgr.createGraph(request));
-			manager.returnResponse(response, getParent());
+			Response response = graphMgr.createGraph(request);
+			manager.returnResponse(Futures.successful(response), getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(),
 					e);
@@ -150,23 +146,18 @@ public class Graph extends AbstractDomainObject {
 
 		final Request setNodesReq = new Request(req);
 		setNodesReq.put(GraphDACParams.search_criteria.name(), sc);
-		Future<Object> setNodesResponse = Futures.successful(searchMgr.searchNodes(setNodesReq));
-
-		Object obj = Await.result(setNodesResponse, WAIT_TIMEOUT.duration());
-		if (obj instanceof Response) {
-			Response response = (Response) obj;
+		Response response = searchMgr.searchNodes(setNodesReq);
+		if (!manager.checkError(response)) {
 			List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
 			return nodes;
 		} else {
-			throw new ResourceNotFoundException(GraphEngineErrorCodes.ERR_GRAPH_LOAD_GRAPH_UNKNOWN_ERROR.name(),
-					"Nodes not found: " + graphId);
+			return null;
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public void load(Request req) {
 		try {
-			final ExecutionContext ec = manager.getContext().dispatcher();
 
 			// get all sets
 			List<Node> setNodes = getAllSetObjects(req);
@@ -195,33 +186,24 @@ public class Graph extends AbstractDomainObject {
 			Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 					SystemNodeTypes.DEFINITION_NODE.name());
 			defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
-			Future<Object> defNodesResponse = Futures.successful(searchMgr.getNodeProperty(defNodesReq));
-			defNodesResponse.onComplete(new OnComplete<Object>() {
-				@Override
-				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-					if (null != arg0) {
-						manager.handleException(arg0, getParent());
-					} else {
-						if (arg1 instanceof Response) {
-							Response res = (Response) arg1;
-							List<Node> defNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-							if (null != defNodes && !defNodes.isEmpty()) {
-								System.out.println("Total def nodes: " + defNodes.size());
-								for (Node defNode : defNodes) {
-									DefinitionNode node = new DefinitionNode(manager, defNode);
-									node.loadToCache(defNodesReq);
-								}
-								manager.OK(getParent());
-							} else {
-								manager.OK(getParent());
-							}
-						} else {
-							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_LOAD_GRAPH_UNKNOWN_ERROR.name(),
-									"Failed to get definition nodes", ResponseCode.SERVER_ERROR, getParent());
-						}
+			Response res = searchMgr.getNodeProperty(defNodesReq);
+
+			if (manager.checkError(res)) {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_LOAD_GRAPH_UNKNOWN_ERROR.name(),
+						"Failed to get definition nodes", ResponseCode.SERVER_ERROR, getParent());
+			} else {
+				List<Node> defNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+				if (null != defNodes && !defNodes.isEmpty()) {
+					System.out.println("Total def nodes: " + defNodes.size());
+					for (Node defNode : defNodes) {
+						DefinitionNode node = new DefinitionNode(manager, defNode);
+						node.loadToCache(defNodesReq);
 					}
+					manager.OK(getParent());
+				} else {
+					manager.OK(getParent());
 				}
-			}, ec);
+			}
 
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -230,89 +212,62 @@ public class Graph extends AbstractDomainObject {
 	}
 
 	public void validate(final Request req) {
-		Future<Map<String, List<String>>> validationMap = validateGraph(req);
-		final ExecutionContext ec = manager.getContext().dispatcher();
-		validationMap.onComplete(new OnComplete<Map<String, List<String>>>() {
-			@Override
-			public void onComplete(Throwable arg0, Map<String, List<String>> map) throws Throwable {
-				if (null != arg0) {
-					List<String> messages = new ArrayList<String>();
-					messages.add(arg0.getMessage());
-					Map<String, List<String>> errorMap = new HashMap<String, List<String>>();
-					errorMap.put(ERROR_MESSAGES, messages);
-					manager.OK(GraphDACParams.messages.name(), errorMap, getParent());
-				} else {
-					manager.OK(GraphDACParams.messages.name(), map, getParent());
-				}
-			}
-		}, ec);
+		Map<String, List<String>> validationMap = validateGraph(req);
+		manager.OK(GraphDACParams.messages.name(), validationMap, getParent());
 	}
 
-	private Future<Map<String, List<String>>> validateGraph(final Request req) {
+	private Map<String, List<String>> validateGraph(final Request req) {
 		try {
-			final ExecutionContext ec = manager.getContext().dispatcher();
 
 			// get all definition nodes
 			Request defNodesReq = new Request(req);
 			Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 					SystemNodeTypes.DEFINITION_NODE.name());
 			defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
-			Future<Object> defNodesResponse = Futures.successful(searchMgr.getNodesByProperty(defNodesReq));
+			Response defNodesResponse = searchMgr.getNodesByProperty(defNodesReq);
 
 			// get all data nodes
 			Request request = new Request(req);
 			Property property = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 					SystemNodeTypes.DATA_NODE.name());
 			request.put(GraphDACParams.metadata.name(), property);
-			Future<Object> dataNodesResponse = Futures.successful(searchMgr.getNodeProperty(request));
+			Response dataNodesResponse = searchMgr.getNodeProperty(request);
 
 			// get all relations
 			Request relsRequest = new Request(req);
-			Future<Object> relationsResponse = Futures.successful(searchMgr.getAllRelations(relsRequest));
+			Response relationsResponse = searchMgr.getAllRelations(relsRequest);
 
 			// List<Future<List<String>>> validationMessages = new
 			// ArrayList<Future<List<String>>>();
-			List<Future<Map<String, List<String>>>> validationMessages = new ArrayList<Future<Map<String, List<String>>>>();
+			List<Map<String, List<String>>> validationMessages = new ArrayList<Map<String, List<String>>>();
 
 			// Promise to get all relation validation messages
-			final Promise<Map<String, List<String>>> relationsPromise = Futures.promise();
-			Future<Map<String, List<String>>> relationMessages = relationsPromise.future();
-			getRelationValidationsFuture(relationsResponse, relationsPromise, ec, relsRequest);
+			Map<String, List<String>> relationMessages = getRelationValidationsFuture(relationsResponse, relsRequest);
 			validationMessages.add(relationMessages);
 
 			// get future of all node validation messages
-			final Promise<Map<String, List<String>>> nodesPromise = Futures.promise();
-			Future<Map<String, List<String>>> nodeMessages = nodesPromise.future();
-			getNodesValidationsFuture(defNodesResponse, dataNodesResponse, nodesPromise, ec, request);
+			Map<String, List<String>> nodeMessages = getNodesValidationsFuture(defNodesResponse, dataNodesResponse, request);
 			validationMessages.add(nodeMessages);
-
-			Future<Iterable<Map<String, List<String>>>> validationsFuture = Futures.sequence(validationMessages, ec);
-			Future<Map<String, List<String>>> validationMap = validationsFuture
-					.map(new Mapper<Iterable<Map<String, List<String>>>, Map<String, List<String>>>() {
-						@Override
-						public Map<String, List<String>> apply(Iterable<Map<String, List<String>>> parameter) {
-							Map<String, List<String>> errorMap = new HashMap<String, List<String>>();
-							if (null != parameter) {
-								for (Map<String, List<String>> map : parameter) {
-									if (null != map && !map.isEmpty()) {
-										for (Entry<String, List<String>> entry : map.entrySet()) {
-											if (null != entry.getValue() && !entry.getValue().isEmpty()) {
-												List<String> list = errorMap.get(entry.getKey());
-												if (null == list) {
-													list = new ArrayList<String>();
-													errorMap.put(entry.getKey(), list);
-												}
-												list.addAll(entry.getValue());
-											}
-										}
-									}
+			Map<String, List<String>> errorMap = new HashMap<String, List<String>>();
+			if (null != validationMessages) {
+				for (Map<String, List<String>> map : validationMessages) {
+					if (null != map && !map.isEmpty()) {
+						for (Entry<String, List<String>> entry : map.entrySet()) {
+							if (null != entry.getValue() && !entry.getValue().isEmpty()) {
+								List<String> list = errorMap.get(entry.getKey());
+								if (null == list) {
+									list = new ArrayList<String>();
+									errorMap.put(entry.getKey(), list);
 								}
+								list.addAll(entry.getValue());
 							}
-							return errorMap;
 						}
-					}, ec);
+					}
+				}
+			}
+			return errorMap;
 
-			return validationMap;
+
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_VALIDATE_GRAPH_UNKNOWN_ERROR.name(),
 					e.getMessage(), e);
@@ -742,7 +697,7 @@ public class Graph extends AbstractDomainObject {
 					e);
 		}
 	}
-	
+
 	public void executeQueryForProps(Request req) {
 		try {
 			Request request = new Request(req);
@@ -751,7 +706,8 @@ public class Graph extends AbstractDomainObject {
 			Future<Object> response = Futures.successful(searchMgr.executeQuery(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
-			throw new ServerException(GraphEngineErrorCodes.ERR_EXECUTE_QUERY_FOR_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+			throw new ServerException(GraphEngineErrorCodes.ERR_EXECUTE_QUERY_FOR_NODES_UNKNOWN_ERROR.name(),
+					e.getMessage(), e);
 		}
 	}
 
@@ -779,8 +735,8 @@ public class Graph extends AbstractDomainObject {
 		if (null != node) {
 			manager.OK(GraphDACParams.definition_node.name(), node, getParent());
 		} else {
-			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
-					"Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get definition node",
+					ResponseCode.RESOURCE_NOT_FOUND, getParent());
 		}
 	}
 
@@ -789,32 +745,28 @@ public class Graph extends AbstractDomainObject {
 		try {
 			Request request = new Request(req);
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Futures.successful(searchMgr.searchNodes(request));
-			response.onComplete(new OnComplete<Object>() {
-				@Override
-				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-					boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-							GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(),
-							"Failed to get definition node");
-					if (valid) {
-						Response res = (Response) arg1;
-						List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-						if (null != nodes && !nodes.isEmpty()) {
-							List<DefinitionDTO> definitions = new ArrayList<DefinitionDTO>();
-							for (Node node : nodes) {
-								DefinitionNode defNode = new DefinitionNode(manager, node);
-								DefinitionDTO definition = defNode.getValueObject();
-								defNode.loadToCache(req);
-								definitions.add(definition);
-							}
-							manager.OK(GraphDACParams.definition_nodes.name(), definitions, getParent());
-						} else {
-							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
-									"Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
-						}
+			Response res = searchMgr.searchNodes(request);
+
+			if (manager.checkError(res)) {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), manager.getErrorMessage(res),
+						res.getResponseCode(), getParent());
+			} else {
+				List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+				if (null != nodes && !nodes.isEmpty()) {
+					List<DefinitionDTO> definitions = new ArrayList<DefinitionDTO>();
+					for (Node node : nodes) {
+						DefinitionNode defNode = new DefinitionNode(manager, node);
+						DefinitionDTO definition = defNode.getValueObject();
+						defNode.loadToCache(req);
+						definitions.add(definition);
 					}
+					manager.OK(GraphDACParams.definition_nodes.name(), definitions, getParent());
+				} else {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+							"Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
 				}
-			}, manager.getContext().dispatcher());
+
+			}
 
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -827,8 +779,8 @@ public class Graph extends AbstractDomainObject {
 			Request request = new Request(req);
 			request.setOperation("getNodesCount");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Futures.successful(searchMgr.getNodesCount(request));
-			manager.returnResponse(response, getParent());
+			Response response = searchMgr.getNodesCount(request);
+			manager.returnResponse(Futures.successful(response), getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
 					e);
@@ -901,7 +853,6 @@ public class Graph extends AbstractDomainObject {
 					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(),
 							"Definition nodes list is empty", ResponseCode.CLIENT_ERROR, getParent());
 				} else {
-					final ExecutionContext ec = manager.getContext().dispatcher();
 					Map<String, List<String>> messageMap = new HashMap<String, List<String>>();
 					final List<DefinitionNode> defNodes = new ArrayList<DefinitionNode>();
 					for (Node node : nodes) {
@@ -914,26 +865,20 @@ public class Graph extends AbstractDomainObject {
 						}
 					}
 					if (null == messageMap || messageMap.isEmpty()) {
-						List<Future<Object>> futures = new ArrayList<Future<Object>>();
 						final Request req = new Request(request);
 						req.setOperation("importNodes");
 						req.put(GraphDACParams.node_list.name(), nodes);
-						Future<Object> response = Futures.successful(nodeMgr.importNodes(request));
-						futures.add(response);
-						response.onComplete(new OnComplete<Object>() {
-							@Override
-							public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-								boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-										GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_FAILED_TO_CREATE.name(),
-										"Definition nodes creation error");
-								if (valid) {
-									for (DefinitionNode defNode : defNodes) {
-										defNode.loadToCache(request);
-									}
-									manager.OK(getParent());
-								}
+
+						Response response = nodeMgr.importNodes(req);
+						if (manager.checkError(response)) {
+							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_FAILED_TO_CREATE.name(),
+									manager.getErrorMessage(response), response.getResponseCode(), getParent());
+						} else {
+							for (DefinitionNode defNode : defNodes) {
+								defNode.loadToCache(request);
 							}
-						}, ec);
+							manager.OK(getParent());
+						}
 					} else {
 						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_VALIDATION_FAILED.name(),
 								"Definition nodes validation error", ResponseCode.CLIENT_ERROR,
@@ -950,36 +895,81 @@ public class Graph extends AbstractDomainObject {
 	@SuppressWarnings("unchecked")
 	public void exportGraph(final Request request) {
 		try {
-			final ExecutionContext ec = manager.getContext().dispatcher();
 			final String format = (String) request.get(GraphEngineParams.format.name());
 			SearchCriteria sc = null;
 			if (null != request.get(GraphEngineParams.search_criteria.name()))
 				sc = (SearchCriteria) request.get(GraphEngineParams.search_criteria.name());
 
-			Future<Object> nodesResponse = null;
+			Response nodesResponse = null;
 			if (null == sc) {
 				Request nodesReq = new Request(request);
 				nodesReq.setOperation("getAllNodes");
-				nodesResponse = Futures.successful(searchMgr.getAllNodes(nodesReq));
+				nodesResponse = searchMgr.getAllNodes(nodesReq);
 			} else {
 				Request nodesReq = new Request(request);
 				nodesReq.setOperation("searchNodes");
 				nodesReq.put(GraphDACParams.search_criteria.name(), sc);
 				nodesReq.put(GraphDACParams.get_tags.name(), true);
-				nodesResponse = Futures.successful(searchMgr.searchNodes(nodesReq));
+				nodesResponse = searchMgr.searchNodes(nodesReq);
 			}
 
-			Future<Object> relationsResponse = null;
+			Response relationsResponse = null;
 			if (!StringUtils.equalsIgnoreCase(ImportType.CSV.name(), format)) {
 				Request relationsReq = new Request(request);
 				relationsReq.setOperation("getAllRelations");
-				relationsResponse = Futures.successful(searchMgr.getAllRelations(relationsReq));
+				relationsResponse = searchMgr.getAllRelations(relationsReq);
 			} else {
-				Object blankResponse = new Response();
-				relationsResponse = Futures.successful(blankResponse);
+				Response blankResponse = new Response();
+				relationsResponse = blankResponse;
 			}
 
-			Future<Object> exportFuture = nodesResponse.zip(relationsResponse)
+			if (manager.checkError(nodesResponse)) {
+				String msg = manager.getErrorMessage(nodesResponse);
+				if (StringUtils.isNotBlank(msg)) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg,
+							nodesResponse.getResponseCode(), getParent());
+				}
+			}
+
+			if (manager.checkError(relationsResponse)) {
+				String msg = manager.getErrorMessage(relationsResponse);
+				if (StringUtils.isNotBlank(msg)) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg,
+							relationsResponse.getResponseCode(), getParent());
+				}
+			}
+
+			List<Node> nodes = (List<Node>) nodesResponse.get(GraphDACParams.node_list.name());
+			List<Relation> relations = (List<Relation>) relationsResponse.get(GraphDACParams.relations.name());
+			OutputStream outputStream = new ByteArrayOutputStream();
+			try {
+				outputStream = GraphWriterFactory.getData(format, nodes, relations);
+			} catch (Exception e) {
+				try {
+					if (null != outputStream)
+						outputStream.close();
+				} catch (IOException e1) {
+					PlatformLogger.log("Error! While Closing the Input Stream.", null, e);
+				}
+				PlatformLogger.log("Error! While Reading the Data.", null, e);
+			}
+			Response response = new Response();
+			ResponseParams params = new ResponseParams();
+			params.setErr("0");
+			params.setStatus(StatusType.successful.name());
+			params.setErrmsg("Operation successful");
+			response.setParams(params);
+			response.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
+			try {
+				if (null != outputStream)
+					outputStream.close();
+			} catch (IOException e) {
+				PlatformLogger.log("Error! While Closing the Input Stream.", null, e);
+			}
+
+			manager.returnResponse(Futures.successful(response), getParent());
+
+			/*Future<Object> exportFuture = nodesResponse.zip(relationsResponse)
 					.map(new Mapper<Tuple2<Object, Object>, Object>() {
 						@Override
 						public Object apply(Tuple2<Object, Object> zipped) {
@@ -1029,10 +1019,10 @@ public class Graph extends AbstractDomainObject {
 							}
 							return response;
 						}
+			
+					}, ec);*/
 
-					}, ec);
-
-			manager.returnResponse(exportFuture, getParent());
+			// manager.returnResponse(exportFuture, getParent());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1041,156 +1031,102 @@ public class Graph extends AbstractDomainObject {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void getNodesValidationsFuture(Future<Object> defNodesResponse, final Future<Object> nodesResponse,
-			final Promise<Map<String, List<String>>> nodesPromise, final ExecutionContext ec, final Request request) {
+	private Map<String, List<String>> getNodesValidationsFuture(Response defNodesResponse, final Response nodesResponse,
+			final Request request) {
 
-		defNodesResponse.onComplete(new OnComplete<Object>() {
-			@Override
-			public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-				final Map<String, List<String>> messages = new HashMap<String, List<String>>();
-				messages.put(ERROR_MESSAGES, new ArrayList<String>());
-				if (null != arg0) {
-					messages.get(ERROR_MESSAGES).add("Error getting Definition Nodes");
-					nodesPromise.success(messages);
-				} else {
-					if (arg1 instanceof Response) {
-						Response res = (Response) arg1;
-						if (manager.checkError(res)) {
-							messages.get(ERROR_MESSAGES).add(manager.getErrorMessage(res));
-							nodesPromise.success(messages);
-						} else {
-							List<Node> defNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-							final Map<String, Node> defNodeMap = new HashMap<String, Node>();
-							if (null != defNodes && !defNodes.isEmpty()) {
-								for (Node n : defNodes) {
-									defNodeMap.put(n.getObjectType(), n);
+		final Map<String, List<String>> messages = new HashMap<String, List<String>>();
+		messages.put(ERROR_MESSAGES, new ArrayList<String>());
+
+		if (manager.checkError(defNodesResponse)) {
+			messages.get(ERROR_MESSAGES).add(manager.getErrorMessage(defNodesResponse));
+		} else {
+			List<Node> defNodes = (List<Node>) defNodesResponse.get(GraphDACParams.node_list.name());
+			final Map<String, Node> defNodeMap = new HashMap<String, Node>();
+			if (null != defNodes && !defNodes.isEmpty()) {
+				for (Node n : defNodes) {
+					defNodeMap.put(n.getObjectType(), n);
+				}
+			}
+
+			if (manager.checkError(nodesResponse)) {
+				messages.get(ERROR_MESSAGES).add(manager.getErrorMessage(nodesResponse));
+			} else {
+				List<Node> nodes = (List<Node>) nodesResponse.get(GraphDACParams.node_list.name());
+				if (null != nodes && !nodes.isEmpty()) {
+					for (Node node : nodes) {
+						try {
+							DataNode datanode = new DataNode(getManager(), getGraphId(), node);
+							List<String> validationMsgs = datanode.validateNode(defNodeMap);
+							if (null != validationMsgs && !validationMsgs.isEmpty()) {
+								List<String> list = messages.get(node.getIdentifier());
+								if (null == list) {
+									list = new ArrayList<String>();
+									messages.put(node.getIdentifier(), list);
 								}
+								list.addAll(validationMsgs);
 							}
-							nodesResponse.onSuccess(new OnSuccess<Object>() {
-								@Override
-								public void onSuccess(Object arg0) throws Throwable {
-									if (arg0 instanceof Response) {
-										Response res = (Response) arg0;
-										if (manager.checkError(res)) {
-											messages.get(ERROR_MESSAGES).add(manager.getErrorMessage(res));
-											nodesPromise.success(messages);
-										} else {
-											List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-											if (null != nodes && !nodes.isEmpty()) {
-												for (Node node : nodes) {
-													try {
-														DataNode datanode = new DataNode(getManager(), getGraphId(),
-																node);
-														List<String> validationMsgs = datanode.validateNode(defNodeMap);
-														if (null != validationMsgs && !validationMsgs.isEmpty()) {
-															List<String> list = messages.get(node.getIdentifier());
-															if (null == list) {
-																list = new ArrayList<String>();
-																messages.put(node.getIdentifier(), list);
-															}
-															list.addAll(validationMsgs);
-														}
-													} catch (Exception e) {
-														List<String> list = messages.get(node.getIdentifier());
-														if (null == list) {
-															list = new ArrayList<String>();
-															messages.put(node.getIdentifier(), list);
-														}
-														list.add(e.getMessage());
-													}
-												}
-												nodesPromise.success(messages);
-											} else {
-												nodesPromise.success(messages);
-											}
-										}
-									} else {
-										messages.get(ERROR_MESSAGES).add("Failed to get nodes");
-										nodesPromise.success(messages);
-									}
-								}
-							}, ec);
+						} catch (Exception e) {
+							List<String> list = messages.get(node.getIdentifier());
+							if (null == list) {
+								list = new ArrayList<String>();
+								messages.put(node.getIdentifier(), list);
+							}
+							list.add(e.getMessage());
 						}
-					} else {
-						messages.get(ERROR_MESSAGES).add("Error getting Definition Nodes");
-						nodesPromise.success(messages);
 					}
 				}
 			}
-		}, ec);
+
+		}
+
+		return messages;
 	}
 
 	@SuppressWarnings("unchecked")
-	private void getRelationValidationsFuture(Future<Object> relationsResponse,
-			final Promise<Map<String, List<String>>> relationsPromise, final ExecutionContext ec,
-			final Request request) {
-		relationsResponse.onSuccess(new OnSuccess<Object>() {
-			@Override
-			public void onSuccess(Object arg0) throws Throwable {
-				final Map<String, List<String>> messages = new HashMap<String, List<String>>();
-				messages.put(ERROR_MESSAGES, new ArrayList<String>());
-				if (arg0 instanceof Response) {
-					Response res = (Response) arg0;
-					if (manager.checkError(res)) {
-						messages.get(ERROR_MESSAGES).add(manager.getErrorMessage(res));
-					} else {
-						List<Relation> rels = (List<Relation>) res.get(GraphDACParams.relations.name());
-						if (null != rels && !rels.isEmpty()) {
-							List<Future<Map<String, List<String>>>> msgFutures = new ArrayList<Future<Map<String, List<String>>>>();
-							for (final Relation rel : rels) {
-								try {
-									IRelation iRel = RelationHandler.getRelation(getManager(), rel.getGraphId(),
-											rel.getStartNodeId(), rel.getRelationType(), rel.getEndNodeId(),
-											rel.getMetadata());
-									Future<Map<String, List<String>>> validationMsgs = iRel.validateRelation(request);
-									msgFutures.add(validationMsgs);
-								} catch (Exception e) {
-									List<String> list = messages.get(rel.getStartNodeId());
-									if (null == list) {
-										list = new ArrayList<String>();
-										messages.put(rel.getStartNodeId(), list);
-									}
-									list.add(e.getMessage());
+	private Map<String, List<String>> getRelationValidationsFuture(Response relationsResponse, final Request request) {
+		final Map<String, List<String>> messages = new HashMap<String, List<String>>();
+		messages.put(ERROR_MESSAGES, new ArrayList<String>());
+
+		if (manager.checkError(relationsResponse)) {
+			messages.get(ERROR_MESSAGES).add(manager.getErrorMessage(relationsResponse));
+		} else {
+			List<Relation> rels = (List<Relation>) relationsResponse.get(GraphDACParams.relations.name());
+			if (null != rels && !rels.isEmpty()) {
+				List<Map<String, List<String>>> msgFutures = new ArrayList<Map<String, List<String>>>();
+				for (final Relation rel : rels) {
+					try {
+						IRelation iRel = RelationHandler.getRelation(getManager(), rel.getGraphId(),
+								rel.getStartNodeId(), rel.getRelationType(), rel.getEndNodeId(), rel.getMetadata());
+						Map<String, List<String>> validationMsgs = iRel.validateRelation(request);
+						msgFutures.add(validationMsgs);
+					} catch (Exception e) {
+						List<String> list = messages.get(rel.getStartNodeId());
+						if (null == list) {
+							list = new ArrayList<String>();
+							messages.put(rel.getStartNodeId(), list);
+						}
+						list.add(e.getMessage());
+					}
+				}
+
+				if (null != msgFutures) {
+					for (Map<String, List<String>> map : msgFutures) {
+						if (null != map) {
+							for (Entry<String, List<String>> entry : map.entrySet()) {
+								List<String> list = messages.get(entry.getKey());
+								if (null == list) {
+									list = new ArrayList<String>();
+									messages.put(entry.getKey(), list);
 								}
+								list.addAll(entry.getValue());
 							}
-							Future<Iterable<Map<String, List<String>>>> relFutures = Futures.sequence(msgFutures, ec);
-							relFutures.onComplete(new OnComplete<Iterable<Map<String, List<String>>>>() {
-								@Override
-								public void onComplete(Throwable arg0, Iterable<Map<String, List<String>>> arg1)
-										throws Throwable {
-									if (null != arg0) {
-										relationsPromise.success(messages);
-									} else {
-										// add relation validation messages
-										// to messages list
-										if (null != arg1) {
-											for (Map<String, List<String>> map : arg1) {
-												if (null != map) {
-													for (Entry<String, List<String>> entry : map.entrySet()) {
-														List<String> list = messages.get(entry.getKey());
-														if (null == list) {
-															list = new ArrayList<String>();
-															messages.put(entry.getKey(), list);
-														}
-														list.addAll(entry.getValue());
-													}
-												}
-											}
-										}
-										relationsPromise.success(messages);
-									}
-								}
-							}, ec);
-						} else {
-							relationsPromise.success(messages);
 						}
 					}
-				} else {
-					messages.get(ERROR_MESSAGES).add("Failed to get relations");
-					relationsPromise.success(messages);
 				}
 			}
-		}, ec);
+		}
+
+		return messages;
 	}
 
 	public void exportNode(Request req) {
@@ -1226,8 +1162,8 @@ public class Graph extends AbstractDomainObject {
 			Request request = new Request(req);
 			request.setOperation("upsertRootNode");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Futures.successful(nodeMgr.upsertRootNode(request));
-			manager.returnResponse(response, getParent());
+			Response response = nodeMgr.upsertRootNode(request);
+			manager.returnResponse(Futures.successful(response), getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), e.getMessage(), e);
 		}

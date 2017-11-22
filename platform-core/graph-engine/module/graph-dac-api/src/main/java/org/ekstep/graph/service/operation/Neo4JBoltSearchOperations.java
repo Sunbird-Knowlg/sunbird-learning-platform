@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.service.INeo4JBoltSearchOperations;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
@@ -37,7 +38,7 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.SubGraph;
 import com.ilimi.graph.dac.model.Traverser;
 
-public class Neo4JBoltSearchOperations {
+public class Neo4JBoltSearchOperations implements INeo4JBoltSearchOperations {
 
 	/**
 	 * Gets the node by id.

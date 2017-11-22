@@ -24,8 +24,6 @@ import com.ilimi.graph.model.relation.HasTagRelation;
 import com.ilimi.graph.model.relation.HasValueRelation;
 
 import akka.dispatch.Futures;
-import akka.dispatch.OnComplete;
-import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
 
@@ -82,60 +80,51 @@ public class ValueNode extends AbstractIndexNode {
     public Future<Map<String, Object>> create(final Request req) {
         final Promise<Map<String, Object>> promise = Futures.promise();
         Future<Map<String, Object>> future = promise.future();
-        final ExecutionContext ec = manager.getContext().dispatcher();
-		Future<Object> getFuture = getNodeObject(req, searchMgr, getSourceNodeId());
-        getFuture.onComplete(new OnComplete<Object>() {
-            @Override
-            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                boolean valid = validateResponse(promise, arg0, arg1,
-                        GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(), "Source Node not found: "
-                                + getObjectType());
-                if (valid) {
-                    Response res = (Response) arg1;
-                    Node sourceNode = (Node) res.get(GraphDACParams.node.name());
-                    List<Relation> rels = sourceNode.getOutRelations();
-                    boolean found = false;
-                    if (null != rels && rels.size() > 0) {
-                        for (Relation rel : rels) {
-                            if (StringUtils.equalsIgnoreCase(getRelationType(), rel.getRelationType())) {
-                                Object endNodeValue = rel.getEndNodeMetadata().get(VALUE_NODE_VALUE_KEY);
-                                if (getValue() == endNodeValue) {
-                                    setNodeId(rel.getEndNodeId());
-                                    found = true;
-                                    break;
-                                }
-                            }
+		Response res = getNodeObject(req, searchMgr, getSourceNodeId());
+
+		if (manager.checkError(res)) {
+			failPromise(promise, GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(),
+					manager.getErrorMessage(res));
+		} else {
+			Node sourceNode = (Node) res.get(GraphDACParams.node.name());
+			List<Relation> rels = sourceNode.getOutRelations();
+			boolean found = false;
+			if (null != rels && rels.size() > 0) {
+				for (Relation rel : rels) {
+					if (StringUtils.equalsIgnoreCase(getRelationType(), rel.getRelationType())) {
+						Object endNodeValue = rel.getEndNodeMetadata().get(VALUE_NODE_VALUE_KEY);
+						if (getValue() == endNodeValue) {
+							setNodeId(rel.getEndNodeId());
+							found = true;
+							break;
                         }
                     }
-                    if (!found) {
-                        Request request = new Request(req);
-                        request.put(GraphDACParams.node.name(), toNode());
-						Future<Object> createFuture = Futures.successful(nodeMgr.addNode(request));
-                        createFuture.onComplete(new OnComplete<Object>() {
-                            @Override
-                            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                                boolean valid = validateResponse(promise, arg0, arg1,
-                                        GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(), "Failed to create Value Node");
-                                if (valid) {
-                                    Response addRes = (Response) arg1;
-                                    String valueNodeId = (String) addRes.get(GraphDACParams.node_id.name());
-                                    setNodeId(valueNodeId);
-                                    IRelation rel = new HasValueRelation(getManager(), getGraphId(), getSourceNodeId(), getNodeId());
-                                    rel.createRelation(req);
-                                    Map<String, Object> map = new HashMap<String, Object>();
-                                    map.put(GraphDACParams.node_id.name(), getNodeId());
-                                    promise.success(map);
-                                }
-                            }
-                        }, ec);
-                    } else {
-                        Map<String, Object> map = new HashMap<String, Object>();
-                        map.put(GraphDACParams.node_id.name(), getNodeId());
-                        promise.success(map);
-                    }
-                }
+				}
+			}
+			if (!found) {
+				Request request = new Request(req);
+				request.put(GraphDACParams.node.name(), toNode());
+				Response addRes = nodeMgr.addNode(request);
+
+				if (manager.checkError(addRes)) {
+					failPromise(promise, GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(),
+							manager.getErrorMessage(addRes));
+				} else {
+					String valueNodeId = (String) addRes.get(GraphDACParams.node_id.name());
+					setNodeId(valueNodeId);
+					IRelation rel = new HasValueRelation(getManager(), getGraphId(), getSourceNodeId(), getNodeId());
+					rel.createRelation(req);
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put(GraphDACParams.node_id.name(), getNodeId());
+					promise.success(map);
+
+				}
+			} else {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put(GraphDACParams.node_id.name(), getNodeId());
+				promise.success(map);
             }
-        }, ec);
+		}
         return future;
     }
 

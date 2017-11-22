@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.service.INeo4JBoltNodeOperations;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.operation.Neo4JBoltNodeOperations;
@@ -26,10 +27,7 @@ import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
  */
 public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr {
 
-	// private static IGraphDatabaseService service =
-	// GraphServiceFactory.getDatabaseService();
-
-	private static Neo4JBoltNodeOperations service = new Neo4JBoltNodeOperations();
+	private static INeo4JBoltNodeOperations service = new Neo4JBoltNodeOperations();
 
 	/*
 	 * (non-Javadoc)

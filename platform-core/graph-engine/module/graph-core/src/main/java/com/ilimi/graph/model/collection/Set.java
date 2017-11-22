@@ -96,26 +96,20 @@ public class Set extends AbstractCollection {
 		fromNode(node);
 	}
 
-	public Future<Node> getSetObject(Request req) {
+	public Node getSetObject(Request req) {
 		Request request = new Request(req);
 		request.setOperation("getNodeByUniqueId");
 		request.put(GraphDACParams.node_id.name(), getNodeId());
-		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-		Future<Node> message = response.map(new Mapper<Object, Node>() {
-			@Override
-			public Node apply(Object parameter) {
-				if (null != parameter && parameter instanceof Response) {
-					Response res = (Response) parameter;
-					Node node = (Node) res.get(GraphDACParams.node.name());
-					if (StringUtils.equalsIgnoreCase(SystemNodeTypes.SET.name(), node.getNodeType())) {
-						// fromNode(node);
-						return node;
-					}
-				}
-				return null;
+		Response res = searchMgr.getNodeByUniqueId(request);
+		Node node = null;
+		if (!manager.checkError(res)) {
+			node = (Node) res.get(GraphDACParams.node.name());
+			if (!StringUtils.equalsIgnoreCase(SystemNodeTypes.SET.name(), node.getNodeType())) {
+				// fromNode(node);
+				node = null;
 			}
-		}, manager.getContext().dispatcher());
-		return message;
+		}
+		return node;
 	}
 
 	@Override
@@ -150,48 +144,38 @@ public class Set extends AbstractCollection {
 
 	@SuppressWarnings("unchecked")
 	public void updateMembership(final Request req) {
-		final ExecutionContext ec = manager.getContext().dispatcher();
-		Future<Node> nodeFuture = getSetObject(req);
-		nodeFuture.onComplete(new OnComplete<Node>() {
-			@Override
-			public void onComplete(Throwable arg0, Node node) throws Throwable {
-				if (null == node) {
-					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_NOT_FOUND.name(), "Set not found",
-							ResponseCode.RESOURCE_NOT_FOUND, getParent());
+		Node setNode = getSetObject(req);
+
+		if (null == setNode) {
+			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_NOT_FOUND.name(), "Set not found",
+					ResponseCode.RESOURCE_NOT_FOUND, getParent());
+		} else {
+			if (null != criteria && StringUtils.equals(SET_TYPES.CRITERIA_SET.name(), getSetType())) {
+				final Request request = new Request(req);
+				request.put(GraphDACParams.search_criteria.name(), criteria);
+
+				Response res = searchMgr.searchNodes(request);
+
+				if (manager.checkError(res)) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(),
+							manager.getErrorMessage(res), res.getResponseCode(), getParent());
 				} else {
-					if (null != criteria && StringUtils.equals(SET_TYPES.CRITERIA_SET.name(), getSetType())) {
-						final Request request = new Request(req);
-						request.setOperation("searchNodes");
-						request.put(GraphDACParams.search_criteria.name(), criteria);
-						Future<Object> dacFuture = Futures.successful(searchMgr.searchNodes(request));
-						dacFuture.onComplete(new OnComplete<Object>() {
-							@Override
-							public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-								boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-										GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(),
-										"Error searching nodes");
-								if (valid) {
-									Response res = (Response) arg1;
-									List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-									List<String> existingMembers = new ArrayList<String>();
-									if (null != nodes && !nodes.isEmpty()) {
-										for (Node node : nodes) {
-											existingMembers.add(node.getIdentifier());
-										}
-									}
-									updateMembershipFromCache(existingMembers, node);
-								}
-							}
-						}, ec);
-					} else if (null != memberIds && memberIds.size() > 0) {
-						updateMembershipFromCache(memberIds, node);
-					} else {
-						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_UPDATE_MEMBERSHIP_ERROR.name(),
-								"Update membership - invalid Set type.", ResponseCode.CLIENT_ERROR, getParent());
+					List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+					List<String> existingMembers = new ArrayList<String>();
+					if (null != nodes && !nodes.isEmpty()) {
+						for (Node node : nodes) {
+							existingMembers.add(node.getIdentifier());
+						}
 					}
+					updateMembershipFromCache(existingMembers, setNode);
 				}
+			} else if (null != memberIds && memberIds.size() > 0) {
+				updateMembershipFromCache(memberIds, setNode);
+			} else {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_UPDATE_MEMBERSHIP_ERROR.name(),
+						"Update membership - invalid Set type.", ResponseCode.CLIENT_ERROR, getParent());
 			}
-		}, ec);
+		}
 	}
 
 	private void updateMembershipFromCache(final List<String> memberIds, Node node) {
@@ -217,20 +201,20 @@ public class Set extends AbstractCollection {
 			req.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
 			if (removeIds.size() > 0) {
 				for (String removeId : removeIds) {
-					Future<Object> removeResp = removeMemberFromSet(req, getNodeId(), removeId);
-					manager.returnResponseOnFailure(removeResp, getParent());
+					Response removeResp = removeMemberFromSet(req, getNodeId(), removeId);
+					manager.returnResponseOnFailure(Futures.successful(removeResp), getParent());
 				}
 			}
 			if (addIds.size() > 0) {
-				Future<Object> addResp = addMembersToSet(req, getNodeId(), addIds);
-				manager.returnResponseOnFailure(addResp, getParent());
+				List<Response> addResp = addMembersToSet(req, getNodeId(), addIds);
+				manager.returnResponseOnFailure(Futures.successful(addResp), getParent());
 			}
 			Request updateReq = new Request(req);
 			updateReq.setOperation("updateNode");
 			updateReq.put(GraphDACParams.node.name(), toNode());
-			Future<Object> response = Futures.successful(nodeMgr.updateNode(updateReq));
+			Response response = nodeMgr.updateNode(updateReq);
 			updateRelations(req, node);
-			manager.returnResponse(response, getParent());
+			manager.returnResponse(Futures.successful(response), getParent());
  		} else {
  			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_GET_SET_MEMBERS_INVALID_SET_ID.name(),
  					"Failed to get set members", ResponseCode.RESOURCE_NOT_FOUND, getParent());
@@ -247,48 +231,31 @@ public class Set extends AbstractCollection {
 		} else {
 			try {
 				final ExecutionContext ec = manager.getContext().dispatcher();
-				Future<Node> setFuture = getNodeObject(req, ec, setId);
-				OnComplete<Node> getSetObject = new OnComplete<Node>() {
-					@Override
-					public void onComplete(Throwable arg0, Node set) throws Throwable {
-						if (null != arg0 || null == set) {
-							manager.ERROR(arg0, getParent());
+				Node set = getNodeObject(req, ec, setId);
+
+				Map<String, Object> metadata = set.getMetadata();
+				if (null == metadata) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+							"Invalid Set", ResponseCode.CLIENT_ERROR, getParent());
+				} else {
+					String type = (String) metadata.get(SET_TYPE_KEY);
+					if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
+						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+								"Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR, getParent());
+					} else {
+						Node member = getNodeObject(req, ec, memberId);
+
+						if (null == member) {
+							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+									"Member with identifier: " + memberId + " does not exist.",
+									ResponseCode.CLIENT_ERROR, getParent());
 						} else {
-							Map<String, Object> metadata = set.getMetadata();
-							if (null == metadata) {
-								manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
-										"Invalid Set", ResponseCode.CLIENT_ERROR, getParent());
-							} else {
-								String type = (String) metadata.get(SET_TYPE_KEY);
-								if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
-									manager.ERROR(
-											GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
-											"Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR,
-											getParent());
-								} else {
-									Future<Node> nodeFuture = getNodeObject(req, ec, memberId);
-									nodeFuture.onComplete(new OnComplete<Node>() {
-										public void onComplete(Throwable arg0, Node member) throws Throwable {
-											if (null != arg0) {
-												manager.ERROR(arg0, getParent());
-											} else if (null == member) {
-												manager.ERROR(
-														GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS
-																.name(),
-														"Member with identifier: " + memberId + " does not exist.",
-														ResponseCode.CLIENT_ERROR, getParent());
-											} else {
-												Future<Object> addResp = addMemberToSet(req, setId, memberId);
-												manager.returnResponse(addResp, getParent());
-											}
-										};
-									}, ec);
-								}
-							}
+							Future<Object> addResp = addMemberToSet(req, setId, memberId);
+							manager.returnResponse(addResp, getParent());
 						}
 					}
-				};
-				setFuture.onComplete(getSetObject, manager.getContext().dispatcher());
+				}
+
 			} catch (Exception e) {
 				manager.handleException(e, getParent());
 			}
@@ -306,46 +273,33 @@ public class Set extends AbstractCollection {
 		} else {
 			try {
 				final ExecutionContext ec = manager.getContext().dispatcher();
-				Future<Node> setFuture = getNodeObject(req, ec, setId);
-				OnComplete<Node> getSetObject = new OnComplete<Node>() {
-					@Override
-					public void onComplete(Throwable arg0, Node set) throws Throwable {
-						if (null != arg0 || null == set) {
-							manager.ERROR(arg0, getParent());
+				Node set = getNodeObject(req, ec, setId);
+
+				Map<String, Object> metadata = set.getMetadata();
+				if (null == metadata) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+							"Invalid Set", ResponseCode.CLIENT_ERROR, getParent());
+				} else {
+					String type = (String) metadata.get(SET_TYPE_KEY);
+					if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
+						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+								"Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR, getParent());
+					} else {
+						Boolean member = false;
+						if (members.size() == 1)
+							member = checkMemberNode(req, members.get(0), ec);
+						else
+							member = checkMemberNodes(req, members, ec);
+
+						if (!member) {
+							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+									"Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR, getParent());
 						} else {
-							Map<String, Object> metadata = set.getMetadata();
-							if (null == metadata) {
-								manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
-										"Invalid Set", ResponseCode.CLIENT_ERROR, getParent());
-							} else {
-								String type = (String) metadata.get(SET_TYPE_KEY);
-								if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
-									manager.ERROR(
-											GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
-											"Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR,
-											getParent());
-								} else {
-									Future<Boolean> nodeFuture = null;
-									if(members.size()==1)
-										nodeFuture = checkMemberNode(req, members.get(0), ec);
-									else 
-										nodeFuture = checkMemberNodes(req, members, ec);
-									nodeFuture.onComplete(new OnComplete<Boolean>() {
-										public void onComplete(Throwable arg0, Boolean member) throws Throwable {
-											if (null != arg0 || null == member || !member) {
-												manager.ERROR(arg0, getParent());
-											} else {
-												Future<Object> response = addMembersToSet(req, setId, members);
-												manager.returnResponse(response, getParent());
-											}
-										};
-									}, ec);
-								}
-							}
+							List<Response> response = addMembersToSet(req, setId, members);
+							manager.returnResponse(Futures.successful(response), getParent());
 						}
 					}
-				};
-				setFuture.onComplete(getSetObject, manager.getContext().dispatcher());
+				}
 			} catch (Exception e) {
 				manager.handleException(e, getParent());
 			}
@@ -362,60 +316,49 @@ public class Set extends AbstractCollection {
 						"Required parameters are missing...");
 			} else {
 				final ExecutionContext ec = manager.getContext().dispatcher();
-				Future<Node> setFuture = getNodeObject(req, ec, setId);
-				OnComplete<Node> getSetObject = new OnComplete<Node>() {
-					@Override
-					public void onComplete(Throwable arg0, Node set) throws Throwable {
-						if (null != arg0 || null == set) {
-							manager.ERROR(arg0, getParent());
-						} else {
-							Map<String, Object> metadata = set.getMetadata();
-							if (null == metadata) {
-								manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
-										"Invalid Set", ResponseCode.CLIENT_ERROR, getParent());
-							} else {
-								String type = (String) metadata.get(SET_TYPE_KEY);
-								if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
-									manager.ERROR(
-											GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
-											"Member cannot be removed from criteria sets", ResponseCode.CLIENT_ERROR,
-											getParent());
-								} else {
-									// ActorRef cacheRouter =
-									// GraphCacheActorPoolMgr.getCacheRouter();
-									// Request request = new Request(req);
-									// request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-									// request.setOperation("removeSetMember");
-									// request.put(GraphDACParams.set_id.name(),
-									// setId);
-									// request.put(GraphDACParams.member_id.name(),
-									// memberId);
-									// Future<Object> response =
-									// Patterns.ask(cacheRouter, request,
-									// timeout);
-									//
-									// ActorRef dacRouter =
-									// GraphDACActorPoolMgr.getDacRouter();
-									// Request dacRequest = new Request(req);
-									// dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-									// dacRequest.setOperation("deleteRelation");
-									// dacRequest.put(GraphDACParams.start_node_id.name(),
-									// setId);
-									// dacRequest.put(GraphDACParams.relation_type.name(),
-									// new
-									// String(RelationTypes.SET_MEMBERSHIP.relationName()));
-									// dacRequest.put(GraphDACParams.end_node_id.name(),
-									// memberId);
-									// dacRouter.tell(dacRequest,
-									// manager.getSelf());
-									Future<Object> response = removeMemberFromSet(req, setId, memberId);
-									manager.returnResponse(response, getParent());
-								}
-							}
-						}
+				Node set = getNodeObject(req, ec, setId);
+
+				Map<String, Object> metadata = set.getMetadata();
+				if (null == metadata) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+							"Invalid Set", ResponseCode.CLIENT_ERROR, getParent());
+				} else {
+					String type = (String) metadata.get(SET_TYPE_KEY);
+					if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
+						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+								"Member cannot be removed from criteria sets", ResponseCode.CLIENT_ERROR, getParent());
+					} else {
+						// ActorRef cacheRouter =
+						// GraphCacheActorPoolMgr.getCacheRouter();
+						// Request request = new Request(req);
+						// request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+						// request.setOperation("removeSetMember");
+						// request.put(GraphDACParams.set_id.name(),
+						// setId);
+						// request.put(GraphDACParams.member_id.name(),
+						// memberId);
+						// Future<Object> response =
+						// Patterns.ask(cacheRouter, request,
+						// timeout);
+						//
+						// ActorRef dacRouter =
+						// GraphDACActorPoolMgr.getDacRouter();
+						// Request dacRequest = new Request(req);
+						// dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+						// dacRequest.setOperation("deleteRelation");
+						// dacRequest.put(GraphDACParams.start_node_id.name(),
+						// setId);
+						// dacRequest.put(GraphDACParams.relation_type.name(),
+						// new
+						// String(RelationTypes.SET_MEMBERSHIP.relationName()));
+						// dacRequest.put(GraphDACParams.end_node_id.name(),
+						// memberId);
+						// dacRouter.tell(dacRequest,
+						// manager.getSelf());
+						Response response = removeMemberFromSet(req, setId, memberId);
+						manager.returnResponse(Futures.successful(response), getParent());
 					}
-				};
-				setFuture.onComplete(getSetObject, manager.getContext().dispatcher());
+				}
 			}
 		} catch (Exception e) {
 			manager.handleException(e, getParent());
@@ -433,37 +376,25 @@ public class Set extends AbstractCollection {
 						"Required parameters are missing...");
 			} else {
 				final ExecutionContext ec = manager.getContext().dispatcher();
-				Future<Node> setFuture = getNodeObject(req, ec, setId);
-				OnComplete<Node> getSetObject = new OnComplete<Node>() {
-					@Override
-					public void onComplete(Throwable arg0, Node set) throws Throwable {
-						if (null != arg0 || null == set) {
-							manager.ERROR(arg0, getParent());
-						} else {
-							Map<String, Object> metadata = set.getMetadata();
-							if (null == metadata) {
-								manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
-										"Invalid Set", ResponseCode.CLIENT_ERROR, getParent());
-							} else {
-								String type = (String) metadata.get(SET_TYPE_KEY);
-								if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
-									manager.ERROR(
-											GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
-											"Member cannot be removed from criteria sets", ResponseCode.CLIENT_ERROR,
-											getParent());
-								} else {
-									Future<Object> responseFinal = null;
-									for (String memberId : members) {
-										Future<Object> response = removeMemberFromSet(req, setId, memberId);
-										responseFinal = response;
-									}
-									manager.returnResponse(responseFinal, getParent());
-								}
-							}
+				Node set = getNodeObject(req, ec, setId);
+
+				Map<String, Object> metadata = set.getMetadata();
+				if (null == metadata) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+							"Invalid Set", ResponseCode.CLIENT_ERROR, getParent());
+				} else {
+					String type = (String) metadata.get(SET_TYPE_KEY);
+					if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
+						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+								"Member cannot be removed from criteria sets", ResponseCode.CLIENT_ERROR, getParent());
+					} else {
+						Response responseFinal = null;
+						for (String memberId : members) {
+							responseFinal = removeMemberFromSet(req, setId, memberId);
 						}
+						manager.returnResponse(Futures.successful(responseFinal), getParent());
 					}
-				};
-				setFuture.onComplete(getSetObject, manager.getContext().dispatcher());
+				}
 			}
 		} catch (Exception e) {
 			manager.handleException(e, getParent());
@@ -662,18 +593,13 @@ public class Set extends AbstractCollection {
 		try {
 			final ExecutionContext ec = manager.getContext().dispatcher();
 			if (null != memberIds && memberIds.size() > 0) {
-				Future<Boolean> validMembers = checkMemberNodes(req, memberIds, ec);
-				validMembers.onComplete(new OnComplete<Boolean>() {
-					@Override
-					public void onComplete(Throwable arg0, Boolean valid) throws Throwable {
-						if (valid) {
-							createSetNode(req, ec);
-						} else {
-							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(),
-									"Member Ids are invalid", ResponseCode.CLIENT_ERROR, getParent());
-						}
-					}
-				}, ec);
+				Boolean valid = checkMemberNodes(req, memberIds, ec);
+				if (valid) {
+					createSetNode(req, ec);
+				} else {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(),
+							"Member Ids are invalid", ResponseCode.CLIENT_ERROR, getParent());
+				}
 			} else {
 				createSetNode(req, ec);
 			}
@@ -684,46 +610,39 @@ public class Set extends AbstractCollection {
 
 	public void createSetNode(final Request req, final ExecutionContext ec) {
 		Request request = new Request(req);
-		request.setOperation("addNode");
 		request.put(GraphDACParams.node.name(), toNode());
-		Future<Object> dacFuture = Futures.successful(nodeMgr.addNode(request));
-		dacFuture.onComplete(new OnComplete<Object>() {
-			@Override
-			public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-				boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-						GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(), "Failed to create Set node");
-				if (valid) {
-					Response res = (Response) arg1;
-					String setId = (String) res.get(GraphDACParams.node_id.name());
-					setNodeId(setId);
-					if (null != memberIds && memberIds.size() > 0) {
-						Request dacRequest = new Request(req);
-						dacRequest.setOperation("createCollection");
-						dacRequest.put(GraphDACParams.collection_id.name(), setId);
-						dacRequest.put(GraphDACParams.relation_type.name(),
-								RelationTypes.SET_MEMBERSHIP.relationName());
-						dacRequest.put(GraphDACParams.members.name(), memberIds);
-						Futures.successful(graphMgr.createCollection(dacRequest));
-					}
-					req.getContext().get(GraphDACParams.graph_id.name());
-					SetCacheManager.createSet(graphId, setId, memberIds);
-					Future<Node> nodeFuture = getSetObject(req);
-					nodeFuture.onComplete(new OnComplete<Node>() {
-						@Override
-						public void onComplete(Throwable arg0, Node object) throws Throwable {
-							if (null != object) {
-								updateRelations(req, object);
-							}
-						}
-					}, ec);
-					if (null != criteria) {
-						updateIndex(req, criteria);
-					} else {
-						manager.OK(GraphDACParams.set_id.name(), setId, getParent());
-					}
-				}
+
+		Response response = nodeMgr.addNode(request);
+
+		if (manager.checkError(response)) {
+			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(),
+					manager.getErrorMessage(response), response.getResponseCode(), getParent());
+		} else {
+			String setId = (String) response.get(GraphDACParams.node_id.name());
+			setNodeId(setId);
+			if (null != memberIds && memberIds.size() > 0) {
+				Request dacRequest = new Request(req);
+				dacRequest.setOperation("createCollection");
+				dacRequest.put(GraphDACParams.collection_id.name(), setId);
+				dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
+				dacRequest.put(GraphDACParams.members.name(), memberIds);
+				manager.returnResponse(Futures.successful(graphMgr.createCollection(dacRequest)), getParent());
 			}
-		}, ec);
+			req.getContext().get(GraphDACParams.graph_id.name());
+			SetCacheManager.createSet(graphId, setId, memberIds);
+			Node node = getSetObject(req);
+
+			if (null != node) {
+				updateRelations(req, node);
+			}
+			if (null != criteria) {
+				updateIndex(req, criteria);
+			} else {
+				manager.OK(GraphDACParams.set_id.name(), setId, getParent());
+			}
+
+		}
+
 	}
 
 	/**
@@ -901,8 +820,8 @@ public class Set extends AbstractCollection {
 		return mergeFutures(futures);
 	}
 
-	private Future<Object> addMembersToSet(Request req, String setId, List<String> memberIds) {
-		List<Future<Object>> futures = new ArrayList<Future<Object>>();
+	private List<Response> addMembersToSet(Request req, String setId, List<String> memberIds) {
+		List<Response> response = new ArrayList<Response>();
 		req.getContext().get(GraphDACParams.graph_id.name());
  		SetCacheManager.addSetMembers(graphId, setId, memberIds);
 
@@ -912,26 +831,24 @@ public class Set extends AbstractCollection {
 			dacRequest.put(GraphDACParams.start_node_id.name(), setId);
 			dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
 			dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-			Future<Object> dacResponse = Futures.successful(graphMgr.addRelation(dacRequest));
-			futures.add(dacResponse);
+			Response dacResponse = graphMgr.addRelation(dacRequest);
+			response.add(dacResponse);
 		}
-		return mergeFutures(futures);
+		return response;
 	}
 
-	private Future<Object> removeMemberFromSet(Request req, String setId, String memberId) {
-		List<Future<Object>> futures = new ArrayList<Future<Object>>();
+	private Response removeMemberFromSet(Request req, String setId, String memberId) {
 		Request dacRequest = new Request(req);
 		dacRequest.setOperation("deleteRelation");
 		dacRequest.put(GraphDACParams.start_node_id.name(), setId);
 		dacRequest.put(GraphDACParams.relation_type.name(), new String(RelationTypes.SET_MEMBERSHIP.relationName()));
 		dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-		Future<Object> dacResponse = Futures.successful(graphMgr.deleteRelation(dacRequest));
-		futures.add(dacResponse);
+		Response dacResponse = graphMgr.deleteRelation(dacRequest);
 		
 		//get from redis cache
 		req.getContext().get(GraphDACParams.graph_id.name());
  		SetCacheManager.dropSet(graphId, setId);
- 		return mergeFutures(futures);
+		return dacResponse;
 	}
 
 	private Future<Object> mergeFutures(List<Future<Object>> futures) {

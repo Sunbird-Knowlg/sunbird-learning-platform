@@ -14,11 +14,6 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-
 public class SetMembershipRelation extends AbstractRelation {
 
     public SetMembershipRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId) {
@@ -31,34 +26,30 @@ public class SetMembershipRelation extends AbstractRelation {
     }
 
     @Override
-    public Future<Map<String, List<String>>> validateRelation(Request request) {
+    public Map<String, List<String>> validateRelation(Request request) {
         try {
-            List<Future<String>> futures = new ArrayList<Future<String>>();
+            List<String> futures = new ArrayList<String>();
             // Check node types: start node type should be Set.
             // end node type should be data node
-            final ExecutionContext ec = manager.getContext().dispatcher();
-            Future<Node> startNode = getNode(request, this.startNodeId);
-            Future<String> startNodeMsg = startNode.map(new Mapper<Node, String>() {
-                @Override
-                public String apply(Node node) {
-                    if (null == node) {
-                        return "Start Node Id is invalid";
-                    } else {
-                        String nodeType = node.getNodeType();
-                        if (StringUtils.equals(SystemNodeTypes.SET.name(), nodeType))
-                            return null;
-                         else {
-                            return "Start Node " + startNodeId + " should be one a Set";
-                        }
-                    }
+            Node startNode = getNode(request, this.startNodeId);
+            String startNodeMsg = null;
+            
+            if (null == startNode) {
+            	startNodeMsg = "Start Node Id is invalid";
+            } else {
+                String nodeType = startNode.getNodeType();
+                if (StringUtils.equals(SystemNodeTypes.SET.name(), nodeType))
+                	startNodeMsg = null;
+                 else {
+                	 startNodeMsg = "Start Node " + startNodeId + " should be one a Set";
                 }
-            }, ec);
+            }
             futures.add(startNodeMsg);
-            Future<Node> endNode = getNode(request, this.endNodeId);
-            Future<String> endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode, new String[]{SystemNodeTypes.DATA_NODE.name()}, ec);
+            Node endNode = getNode(request, this.endNodeId);
+			String endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode,
+					new String[] { SystemNodeTypes.DATA_NODE.name() });
             futures.add(endNodeMsg);
-            Future<Iterable<String>> aggregate = Futures.sequence(futures, manager.getContext().dispatcher());
-            return getMessageMap(aggregate, ec);
+			return getMessageMap(futures);
         } catch (Exception e) {
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
         }

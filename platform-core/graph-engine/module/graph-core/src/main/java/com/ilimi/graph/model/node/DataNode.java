@@ -10,8 +10,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.graph.service.common.DACErrorCodeConstants;
-import org.ekstep.graph.service.common.DACErrorMessageConstants;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -38,8 +36,6 @@ import com.ilimi.graph.model.cache.DefinitionCache;
 import com.ilimi.graph.model.relation.RelationHandler;
 
 import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -58,7 +54,7 @@ public class DataNode extends AbstractNode {
 		super(manager, graphId, nodeId, metadata);
 		this.objectType = objectType;
 	}
-	
+
 	public DataNode(BaseGraphManager manager, String graphId, Node node, boolean skipRelationUpdate) {
 		super(manager, graphId, node.getIdentifier(), node.getMetadata());
 		this.objectType = node.getObjectType();
@@ -109,14 +105,14 @@ public class DataNode extends AbstractNode {
 					}
 					if (null == idx) {
 						idx = index++;
-//						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
+						// metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
 						relation.setMetadata(metadata);
 					}
 				}
 			}
 		}
 	}
-	
+
 	public void removeExternalFields() {
 		DefinitionDTO dto = DefinitionCache.getDefinitionNode(graphId, objectType);
 		if (null != dto) {
@@ -151,22 +147,14 @@ public class DataNode extends AbstractNode {
 		return this.objectType;
 	}
 
-	public Future<Node> getNodeObject(Request req) {
+	public Node getNodeObject(Request req) {
 		Request request = new Request(req);
 		request.put(GraphDACParams.node_id.name(), getNodeId());
-		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-		Future<Node> message = response.map(new Mapper<Object, Node>() {
-			@Override
-			public Node apply(Object parameter) {
-				if (null != parameter && parameter instanceof Response) {
-					Response res = (Response) parameter;
-					Node node = (Node) res.get(GraphDACParams.node.name());
-					return node;
-				}
-				return null;
-			}
-		}, manager.getContext().dispatcher());
-		return message;
+		Response res = searchMgr.getNodeByUniqueId(request);
+		Node node = null;
+		if (null != res.get(GraphDACParams.node.name()))
+			node = (Node) res.get(GraphDACParams.node.name());
+		return node;
 	}
 
 	public List<Relation> getNewRelationList() {
@@ -199,30 +187,21 @@ public class DataNode extends AbstractNode {
 			}
 		}
 		if (null != relations && !relations.isEmpty()) {
-			List<Future<String>> futures = new ArrayList<Future<String>>();
+			List<String> futures = new ArrayList<String>();
 			for (IRelation rel : relations) {
-				Future<String> msg = rel.deleteRelation(request);
+				String msg = rel.deleteRelation(request);
 				futures.add(msg);
 			}
-			Future<Iterable<String>> deleteFuture = Futures.sequence(futures, ec);
-			deleteFuture.onComplete(new OnComplete<Iterable<String>>() {
-				@Override
-				public void onComplete(Throwable arg0, Iterable<String> arg1) throws Throwable {
-					List<String> messages = new ArrayList<String>();
-					if (null != arg0) {
-						messages.add(arg0.getMessage());
-					} else {
-						if (null != arg1) {
-							for (String msg : arg1) {
-								if (StringUtils.isNotBlank(msg)) {
-									messages.add(msg);
-								}
-							}
-						}
+			List<String> messages = new ArrayList<String>();
+
+			if (!futures.isEmpty()) {
+				for (String msg : futures) {
+					if (StringUtils.isNotBlank(msg)) {
+						messages.add(msg);
 					}
-					promise.success(messages);
 				}
-			}, ec);
+			}
+			promise.success(messages);
 		} else {
 			promise.success(null);
 		}
@@ -242,43 +221,25 @@ public class DataNode extends AbstractNode {
 			}
 		}
 		if (null != relations && !relations.isEmpty()) {
-			List<Future<List<String>>> futures = new ArrayList<Future<List<String>>>();
+			List<List<String>> futures = new ArrayList<List<String>>();
 			for (IRelation rel : relations) {
-				Future<Map<String, List<String>>> msgFuture = rel.validateRelation(request);
-				Future<List<String>> listFuture = manager.convertFuture(msgFuture);
-				futures.add(listFuture);
+				Map<String, List<String>> msgFuture = rel.validateRelation(request);
+				futures.addAll(msgFuture.values());
 			}
-			Future<Iterable<List<String>>> sequence = Futures.sequence(futures, ec);
-			Future<List<String>> relValidationFuture = sequence.map(new Mapper<Iterable<List<String>>, List<String>>() {
-				@Override
-				public List<String> apply(Iterable<List<String>> parameter) {
-					List<String> messages = new ArrayList<String>();
-					if (null != parameter) {
-						for (List<String> list : parameter) {
-							if (null != list && !list.isEmpty()) {
-								messages.addAll(list);
-							}
-						}
-					}
-					return messages;
-				}
-			}, ec);
-			relValidationFuture.onComplete(new OnComplete<List<String>>() {
-				@Override
-				public void onComplete(Throwable arg0, List<String> arg1) throws Throwable {
-					List<String> messages = new ArrayList<String>();
-					if (null != arg0) {
-						messages.add(arg0.getMessage());
-						promise.success(messages);
-					} else {
-						if (null == arg1 || arg1.isEmpty()) {
-							createRelations(relations, request, ec, promise);
-						} else {
-							promise.success(arg1);
-						}
+			List<String> messages = new ArrayList<String>();
+			if (null != futures) {
+				for (List<String> list : futures) {
+					if (null != list && !list.isEmpty()) {
+						messages.addAll(list);
 					}
 				}
-			}, ec);
+			}
+
+			if (messages.isEmpty()) {
+				createRelations(relations, request, ec, promise);
+			} else {
+				promise.success(messages);
+			}
 		} else {
 			promise.success(null);
 		}
@@ -288,31 +249,21 @@ public class DataNode extends AbstractNode {
 	private void createRelations(List<IRelation> relations, final Request request, ExecutionContext ec,
 			final Promise<List<String>> promise) {
 		if (null != relations && !relations.isEmpty()) {
-			List<Future<String>> futures = new ArrayList<Future<String>>();
+			List<String> futures = new ArrayList<String>();
 			for (IRelation rel : relations) {
-				Future<String> msg = rel.createRelation(request);
+				String msg = rel.createRelation(request);
 				futures.add(msg);
 			}
-			Future<Iterable<String>> createFuture = Futures.sequence(futures, ec);
-			createFuture.onComplete(new OnComplete<Iterable<String>>() {
-				@Override
-				public void onComplete(Throwable arg0, Iterable<String> arg1) throws Throwable {
-					List<String> messages = new ArrayList<String>();
-					if (null != arg0) {
-						messages.add(arg0.getMessage());
-					} else {
-						if (null != arg1) {
-							for (String msg : arg1) {
-								if (StringUtils.isNotBlank(msg)) {
-									messages.add(msg);
-								}
-							}
-						}
-					}
-					promise.success(messages);
-				}
-			}, ec);
 
+			List<String> messages = new ArrayList<String>();
+			if (!futures.isEmpty()) {
+				for (String msg : futures) {
+					if (StringUtils.isNotBlank(msg)) {
+						messages.add(msg);
+					}
+				}
+			}
+			promise.success(messages);
 		} else {
 			promise.success(null);
 		}
@@ -323,8 +274,8 @@ public class DataNode extends AbstractNode {
 		try {
 			Request request = new Request(req);
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Futures.successful(nodeMgr.removePropertyValue(request));
-			manager.returnResponse(response, getParent());
+			Response response = nodeMgr.removePropertyValue(request);
+			manager.returnResponse(Futures.successful(response), getParent());
 		} catch (Exception e) {
 			manager.ERROR(e, getParent());
 		}
@@ -341,109 +292,53 @@ public class DataNode extends AbstractNode {
 			try {
 				Request request = new Request(req);
 				request.copyRequestValueObjects(req.getRequest());
-				Future<Object> response = Futures.successful(nodeMgr.updatePropertyValue(request));
-				manager.returnResponse(response, getParent());
+				Response response = nodeMgr.updatePropertyValue(request);
+				manager.returnResponse(Futures.successful(response), getParent());
 			} catch (Exception e) {
 				manager.ERROR(e, getParent());
 			}
 		}
 	}
 
-	public Future<Response> createNode(final Request req) {
-        Request request = new Request(req);
-        request.put(GraphDACParams.node.name(), toNode());
-		Future<Object> response = Futures.successful(nodeMgr.addNode(request));
-        Future<Response> message = response.map(new Mapper<Object, Response>() {
-            @Override
-            public Response apply(Object parameter) {
-            	try {
-	                if (parameter instanceof Response) {
-	                    Response res = (Response) parameter;
-	                    if (manager.checkError(res)) {
-	                        return res;
-	                    } else {
-	                        String identifier = (String) res.get(GraphDACParams.node_id.name());
-	                        String versionKey = (String) res.get(GraphDACParams.versionKey.name());
-	                        if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
-	                            setNodeId(identifier);
-	                            setVersionKey(versionKey);
-	                        } else {
-	                        	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(), 
-	                        			"Error creating node in the graph", ResponseCode.SERVER_ERROR);
-	                        }
-	                    }
-	                } else {
-	                	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(), 
-                    			"Error creating node in the graph", ResponseCode.SERVER_ERROR);
-	                }
-            	} catch (Exception ex) {
-					throw new ServerException(DACErrorCodeConstants.SERVER_ERROR.name(),
-							DACErrorMessageConstants.OBJECT_CASTING_ERROR + " | [Object Cast Error].");
-            	}
-                return null;
-            }
-        }, manager.getContext().dispatcher());
-        return message;
-    }
-	
-	
-	public Response createNode1(final Request req) {
-        Request request = new Request(req);
-        request.put(GraphDACParams.node.name(), toNode());
-        Response res = nodeMgr.addNode(request);
-        
-        if (manager.checkError(res)) {
-            return res;
-        } else {
-            String identifier = (String) res.get(GraphDACParams.node_id.name());
-            String versionKey = (String) res.get(GraphDACParams.versionKey.name());
-            if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
-                setNodeId(identifier);
-                setVersionKey(versionKey);
-                return res;
-            } else {
-            		return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(), 
-            			"Error creating node in the graph", ResponseCode.SERVER_ERROR);
-            }
-        }
-    }
-	
+	public Response createNode(final Request req) {
+		Request request = new Request(req);
+		request.put(GraphDACParams.node.name(), toNode());
+		Response res = nodeMgr.addNode(request);
 
-	public Future<Response> updateNode(Request req) {
-		try {
-			checkMetadata(metadata);
-			Request request = new Request(req);
-			request.put(GraphDACParams.node.name(), toNode());
-			Future<Object> response = Futures.successful(nodeMgr.updateNode(request));
-			Future<Response> message = response.map(new Mapper<Object, Response>() {
-				@Override
-				public Response apply(Object parameter) {
-					if (parameter instanceof Response) {
-						Response res = (Response) parameter;
-						if (manager.checkError(res)) {
-							return res;
-						} else {
-							String identifier = (String) res.get(GraphDACParams.node_id.name());
-	                        String versionKey = (String) res.get(GraphDACParams.versionKey.name());
-	                        if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
-	                            setNodeId(identifier);
-	                            setVersionKey(versionKey);
-	                        } else {
-	                        	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), 
-	                        			"Error updating node in the graph", ResponseCode.SERVER_ERROR);
-	                        }
-						}
-					} else {
-						return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), 
-                    			"Error updating node in the graph", ResponseCode.SERVER_ERROR);
-					}
-					return null;
-				}
-			}, manager.getContext().dispatcher());
-			return message;
-		} catch (Exception e) {
-			return Futures.successful(manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), 
-        			e.getMessage(), ResponseCode.SERVER_ERROR));
+		if (manager.checkError(res)) {
+			return res;
+		} else {
+			String identifier = (String) res.get(GraphDACParams.node_id.name());
+			String versionKey = (String) res.get(GraphDACParams.versionKey.name());
+			if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
+				setNodeId(identifier);
+				setVersionKey(versionKey);
+				return res;
+			} else {
+				return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(),
+						"Error creating node in the graph", ResponseCode.SERVER_ERROR);
+			}
+		}
+	}
+
+	public Response updateNode(Request req) {
+		checkMetadata(metadata);
+		Request request = new Request(req);
+		request.put(GraphDACParams.node.name(), toNode());
+		Response response = nodeMgr.updateNode(request);
+		if (manager.checkError(response)) {
+			return response;
+		} else {
+			String identifier = (String) response.get(GraphDACParams.node_id.name());
+			String versionKey = (String) response.get(GraphDACParams.versionKey.name());
+			if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
+				setNodeId(identifier);
+				setVersionKey(versionKey);
+				return response;
+			} else {
+				return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(),
+						"Error updating node in the graph", ResponseCode.SERVER_ERROR);
+			}
 		}
 	}
 
@@ -471,7 +366,7 @@ public class DataNode extends AbstractNode {
 			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
 		}
 	}
-	
+
 	public List<String> validateNode(DefinitionDTO dto) {
 		List<String> messages = new ArrayList<String>();
 		if (StringUtils.isBlank(objectType)) {
