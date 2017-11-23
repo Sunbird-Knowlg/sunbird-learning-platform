@@ -4,8 +4,6 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
-import org.testng.annotations.BeforeClass;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.enums.GraphEngineParams;
@@ -31,7 +29,7 @@ public class GraphImportTest {
     
     ActorRef reqRouter = null;
     
-    @BeforeClass
+	// @BeforeClass
     private void initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
         reqRouter = system.actorOf(Props.create(RequestRouter.class));

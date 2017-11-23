@@ -1,10 +1,9 @@
 package com.ilimi.graph.engine.importtest;
 
-import org.testng.annotations.DataProvider;
 
 public class GraphImportDataProvider {
 
-    @DataProvider(name="definitions")
+	// @DataProvider(name="definitions")
     public static Object[][] getDefinitionData() {
         return new Object[][]{
                 {"literacy", "taxonomy_definitions.json", "Literacy Subject Definition"},
@@ -27,7 +26,7 @@ public class GraphImportDataProvider {
        };
     }
     
-    @DataProvider(name="csvdata")
+	// @DataProvider(name="csvdata")
     public static Object[][] getCSVData() {
         return new Object[][]{
                 {"literacy", "Literacy-GraphEngine.csv", "Literacy Subject CSV Data"},

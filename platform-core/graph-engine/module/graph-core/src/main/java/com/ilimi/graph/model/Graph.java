@@ -67,7 +67,6 @@ import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
 import akka.util.Timeout;
 import scala.concurrent.Await;
-import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
@@ -246,7 +245,8 @@ public class Graph extends AbstractDomainObject {
 			validationMessages.add(relationMessages);
 
 			// get future of all node validation messages
-			Map<String, List<String>> nodeMessages = getNodesValidationsFuture(defNodesResponse, dataNodesResponse, request);
+			Map<String, List<String>> nodeMessages = getNodesValidationsFuture(defNodesResponse, dataNodesResponse,
+					request);
 			validationMessages.add(nodeMessages);
 			Map<String, List<String>> errorMap = new HashMap<String, List<String>>();
 			if (null != validationMessages) {
@@ -266,7 +266,6 @@ public class Graph extends AbstractDomainObject {
 				}
 			}
 			return errorMap;
-
 
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_VALIDATE_GRAPH_UNKNOWN_ERROR.name(),
@@ -353,177 +352,72 @@ public class Graph extends AbstractDomainObject {
 					inputStream.setInputStream(new ByteArrayInputStream(bytes));
 					final ByteArrayInputStream byteInputStream = new ByteArrayInputStream(bytes);
 
-					final ExecutionContext ec = manager.getContext().dispatcher();
-
 					// Fetch Definition Nodes
 					final Request defNodesReq = new Request(request);
 					Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 							SystemNodeTypes.DEFINITION_NODE.name());
 					defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
-					Future<Object> defNodesResponse = Futures.successful(searchMgr.getNodesByProperty(defNodesReq));
 
-					// Create Definition Nodes Property Map from Future.
-					Future<Map<String, Map<String, MetadataDefinition>>> propDataMapFuture = defNodesResponse
-							.map(new Mapper<Object, Map<String, Map<String, MetadataDefinition>>>() {
-								@Override
-								public Map<String, Map<String, MetadataDefinition>> apply(Object parameter) {
-									Map<String, Map<String, MetadataDefinition>> propertyDataMap = new HashMap<String, Map<String, MetadataDefinition>>();
-									if (parameter instanceof Response) {
-										Response res = (Response) parameter;
-										List<Node> defNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-										List<DefinitionNode> defNodesList = new ArrayList<DefinitionNode>();
-										for (Node defNode : defNodes) {
-											DefinitionNode node = new DefinitionNode(manager, defNode);
-											defNodesList.add(node);
-										}
-										propertyDataMap = getPropertyDataMap(defNodesList);
-									}
-									return propertyDataMap;
-								}
+					Response res = searchMgr.getNodesByProperty(defNodesReq);
 
-								private Map<String, Map<String, MetadataDefinition>> getPropertyDataMap(
-										List<DefinitionNode> defNodesList) {
-									Map<String, Map<String, MetadataDefinition>> propertyDataMap = new HashMap<String, Map<String, MetadataDefinition>>();
-									for (DefinitionNode node : defNodesList) {
-										String objectType = node.getFunctionalObjectType();
-										Map<String, MetadataDefinition> propMap = new HashMap<String, MetadataDefinition>();
-										List<MetadataDefinition> indexedMeta = node.getIndexedMetadata();
-										if (indexedMeta != null) {
-											for (MetadataDefinition propDef : indexedMeta) {
-												propMap.put(propDef.getTitle(), propDef);
-												propMap.put(propDef.getPropertyName(), propDef);
-											}
-										}
-										List<MetadataDefinition> nonIndexedMeta = node.getNonIndexedMetadata();
-										if (nonIndexedMeta != null) {
-											for (MetadataDefinition propDef : nonIndexedMeta) {
-												propMap.put(propDef.getTitle(), propDef);
-												propMap.put(propDef.getPropertyName(), propDef);
-											}
-										}
-										propertyDataMap.put(objectType, propMap);
-									}
-									return propertyDataMap;
-								}
-
-							}, ec);
-
-					// Import inputStream and get outputStream with Validations.
-					propDataMapFuture.onComplete(new OnComplete<Map<String, Map<String, MetadataDefinition>>>() {
-
-						@Override
-						public void onComplete(Throwable arg0,
-								Map<String, Map<String, MetadataDefinition>> propertyDataMap) {
-							if (null != arg0) {
-								manager.ERROR(arg0, getParent());
-							} else {
-								try {
-									// Create ImportData object from
-									// inputStream.
-									final ImportData importData = GraphReaderFactory.getObject(getManager(), format,
-											graphId, inputStream.getInputStream(), propertyDataMap);
-									request.put(GraphDACParams.import_input_object.name(), importData);
-									request.put(GraphDACParams.task_id.name(), taskId);
-									// Use ImportData object and import Graph.
-									Future<Object> importResponse = Futures.successful(graphMgr.importGraph(request));
-									importResponse.onComplete(new OnComplete<Object>() {
-										@Override
-										public void onComplete(Throwable throwable, Object arg1) throws Throwable {
-											Response actorResponse = (Response) arg1;
-											if (throwable != null) {
-												manager.ERROR(throwable, getParent());
-											} else {
-												ResponseParams params = (ResponseParams) actorResponse.getParams();
-												if (StatusType.failed.name().equals(params.getStatus())) {
-													getParent().tell(actorResponse, manager.getSelf());
-												} else {
-													final Map<String, List<String>> importMsgMap = (Map<String, List<String>>) actorResponse
-															.get(GraphDACParams.messages.name());
-													CSVImportMessageHandler msgHandler = new CSVImportMessageHandler(
-															byteInputStream);
-													OutputStream outputStream = msgHandler
-															.getOutputStream(importMsgMap);
-													Map<String, Object> outputMap = new HashMap<String, Object>();
-													outputMap.put(GraphEngineParams.output_stream.name(),
-															new OutputStreamValue(outputStream));
-													outputMap.put(GraphEngineParams.task_id.name(), taskId);
-													manager.OK(outputMap, getParent());
-
-													// Validate Graph.
-													// Future<Map<String,
-													// List<String>>>
-													// validationMap =
-													// validateGraph(
-													// request);
-													// validationMap.onComplete(new
-													// OnComplete<Map<String,
-													// List<String>>>() {
-													// @Override
-													// public void
-													// onComplete(Throwable
-													// throwable,
-													// Map<String, List<String>>
-													// validateMsgMap) throws
-													// Throwable {
-													// if (throwable != null) {
-													// manager.ERROR(throwable,
-													// getParent());
-													// } else {
-													// for (String rowIdentifier
-													// : importMsgMap.keySet())
-													// {
-													// if
-													// (validateMsgMap.containsKey(rowIdentifier))
-													// {
-													// List<String> msgs = new
-													// ArrayList<String>(
-													// importMsgMap.get(rowIdentifier));
-													// msgs.addAll(validateMsgMap.get(rowIdentifier));
-													// validateMsgMap.put(rowIdentifier,
-													// msgs);
-													// } else {
-													// List<String> msgs = new
-													// ArrayList<String>(
-													// importMsgMap.get(rowIdentifier));
-													// validateMsgMap.put(rowIdentifier,
-													// msgs);
-													// }
-													// }
-													// CSVImportMessageHandler
-													// msgHandler = new
-													// CSVImportMessageHandler(
-													// byteInputStream);
-													// OutputStream outputStream
-													// = msgHandler
-													// .getOutputStream(validateMsgMap);
-													//
-													// Map<String, Object>
-													// outputMap = new
-													// HashMap<String,
-													// Object>();
-													// outputMap.put(GraphEngineParams.output_stream.name(),
-													// new
-													// OutputStreamValue(outputStream));
-													// outputMap.put(GraphEngineParams.task_id.name(),
-													// taskId);
-													// manager.OK(outputMap,
-													// getParent());
-													// }
-													// }
-													//
-													// }, ec);
-												}
-											}
-										}
-									}, ec);
-								} catch (Exception e) {
-									manager.ERROR(e, GraphEngineParams.task_id.name(), taskId, getParent());
+					if (manager.checkError(res)) {
+						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_UNKNOWN_ERROR.name(),
+								manager.getErrorMessage(res), res.getResponseCode(), getParent());
+					} else {
+						Map<String, Map<String, MetadataDefinition>> propertyDataMap = new HashMap<String, Map<String, MetadataDefinition>>();
+						List<Node> defNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+						List<DefinitionNode> defNodesList = new ArrayList<DefinitionNode>();
+						for (Node defNode : defNodes) {
+							DefinitionNode node = new DefinitionNode(manager, defNode);
+							defNodesList.add(node);
+						}
+						for (DefinitionNode node : defNodesList) {
+							String objectType = node.getFunctionalObjectType();
+							Map<String, MetadataDefinition> propMap = new HashMap<String, MetadataDefinition>();
+							List<MetadataDefinition> indexedMeta = node.getIndexedMetadata();
+							if (indexedMeta != null) {
+								for (MetadataDefinition propDef : indexedMeta) {
+									propMap.put(propDef.getTitle(), propDef);
+									propMap.put(propDef.getPropertyName(), propDef);
 								}
 							}
+							List<MetadataDefinition> nonIndexedMeta = node.getNonIndexedMetadata();
+							if (nonIndexedMeta != null) {
+								for (MetadataDefinition propDef : nonIndexedMeta) {
+									propMap.put(propDef.getTitle(), propDef);
+									propMap.put(propDef.getPropertyName(), propDef);
+								}
+							}
+							propertyDataMap.put(objectType, propMap);
 						}
-					}, ec);
+
+						final ImportData importData = GraphReaderFactory.getObject(getManager(), format, graphId,
+								inputStream.getInputStream(), propertyDataMap);
+						request.put(GraphDACParams.import_input_object.name(), importData);
+						request.put(GraphDACParams.task_id.name(), taskId);
+						// Use ImportData object and import Graph.
+						Response importResponse = graphMgr.importGraph(request);
+
+						ResponseParams params = (ResponseParams) importResponse.getParams();
+						if (StatusType.failed.name().equals(params.getStatus())) {
+							getParent().tell(importResponse, manager.getSelf());
+						} else {
+							final Map<String, List<String>> importMsgMap = (Map<String, List<String>>) importResponse
+									.get(GraphDACParams.messages.name());
+							CSVImportMessageHandler msgHandler = new CSVImportMessageHandler(byteInputStream);
+							OutputStream outputStream = msgHandler.getOutputStream(importMsgMap);
+							Map<String, Object> outputMap = new HashMap<String, Object>();
+							outputMap.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
+							outputMap.put(GraphEngineParams.task_id.name(), taskId);
+							manager.OK(outputMap, getParent());
+						}
+
+					}
+				} catch (Exception e) {
+					manager.ERROR(e, GraphEngineParams.task_id.name(), taskId, getParent());
 				}
 			}
+
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_UNKNOWN_ERROR.name(), e.getMessage(), e);
 		}
@@ -587,32 +481,28 @@ public class Graph extends AbstractDomainObject {
 				request.copyRequestValueObjects(req.getRequest());
 				Property property = new Property(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType);
 				request.put(GraphDACParams.metadata.name(), property);
-				Future<Object> response = Futures.successful(searchMgr.getNodesByProperty(request));
-				response.onComplete(new OnComplete<Object>() {
-					@Override
-					public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-						boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-								GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get nodes");
-						if (valid) {
-							Response res = (Response) arg1;
-							List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-							if (null != nodes && !nodes.isEmpty()) {
-								List<Node> nodeList = new ArrayList<Node>();
-								for (Node node : nodes) {
-									if (null != node && StringUtils.isNotBlank(node.getNodeType()) && StringUtils
-											.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
-										nodeList.add(node);
-									}
-								}
-								manager.OK(GraphDACParams.node_list.name(), nodeList, getParent());
-							} else {
-								manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
-										"Failed to get data nodes", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+				Response res = searchMgr.getNodesByProperty(request);
+
+				if (manager.checkError(res)) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(),
+							manager.getErrorMessage(res), res.getResponseCode(), getParent());
+				} else {
+					List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+					if (null != nodes && !nodes.isEmpty()) {
+						List<Node> nodeList = new ArrayList<Node>();
+						for (Node node : nodes) {
+							if (null != node && StringUtils.isNotBlank(node.getNodeType()) && StringUtils
+									.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
+								nodeList.add(node);
 							}
 						}
+						manager.OK(GraphDACParams.node_list.name(), nodeList, getParent());
+					} else {
+						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+								"Failed to get data nodes", ResponseCode.RESOURCE_NOT_FOUND, getParent());
 					}
-				}, manager.getContext().dispatcher());
 
+				}
 			} catch (Exception e) {
 				throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(),
 						e.getMessage(), e);
@@ -1133,28 +1023,28 @@ public class Graph extends AbstractDomainObject {
 		Request request = new Request(req);
 		request.setOperation("getNodeByUniqueId");
 		request.copyRequestValueObjects(req.getRequest());
-		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-		response.onComplete(new OnComplete<Object>() {
-			@Override
-			public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-				boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-						GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_UNKNOWN_ERROR.name(), "Failed to export node.");
-				if (valid) {
-					Response res = (Response) arg1;
-					Node node = (Node) res.get(GraphDACParams.node.name());
-					if (null == node || StringUtils.isBlank(node.getNodeType())
-							|| !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
-						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_NOT_FOUND.name(),
-								"Failed to export node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
-					} else {
-						RDFGraphWriter rdfWriter = new RDFGraphWriter();
-						try (InputStream is = rdfWriter.getRDF(node)) {
-							manager.OK(GraphEngineParams.input_stream.name(), new InputStreamValue(is), getParent());
-						}
-					}
+		Response res = searchMgr.getNodeByUniqueId(request);
+
+		if (manager.checkError(res)) {
+			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_UNKNOWN_ERROR.name(),
+					manager.getErrorMessage(res), res.getResponseCode(), getParent());
+		} else {
+			Node node = (Node) res.get(GraphDACParams.node.name());
+			if (null == node || StringUtils.isBlank(node.getNodeType())
+					|| !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_NOT_FOUND.name(), "Failed to export node",
+						ResponseCode.RESOURCE_NOT_FOUND, getParent());
+			} else {
+				RDFGraphWriter rdfWriter = new RDFGraphWriter();
+				try (InputStream is = rdfWriter.getRDF(node)) {
+					manager.OK(GraphEngineParams.input_stream.name(), new InputStreamValue(is), getParent());
+				} catch (Exception e) {
+					throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_UNKNOWN_ERROR.name(),
+							e.getMessage(), e);
 				}
 			}
-		}, manager.getContext().dispatcher());
+
+		}
 	}
 
 	public void upsertRootNode(Request req) {
@@ -1174,32 +1064,28 @@ public class Graph extends AbstractDomainObject {
 			Request request = new Request(req);
 			request.setOperation("getNodeByUniqueId");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-			response.onComplete(new OnComplete<Object>() {
-				@Override
-				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-					boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-							GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get data node");
-					if (valid) {
-						Response res = (Response) arg1;
-						Node node = (Node) res.get(GraphDACParams.node.name());
-						if (null == node || StringUtils.isBlank(node.getNodeType()) || !StringUtils
-								.equalsIgnoreCase(SystemNodeTypes.PROXY_NODE.name(), node.getNodeType())) {
-							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
-									"Failed to get proxy node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
-						} else {
-							manager.OK(GraphDACParams.node.name(), node, getParent());
-						}
-					}
+			Response res = searchMgr.getNodeByUniqueId(request);
+
+			if (manager.checkError(res)) {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), manager.getErrorMessage(res),
+						res.getResponseCode(), getParent());
+			} else {
+				Node node = (Node) res.get(GraphDACParams.node.name());
+				if (null == node || StringUtils.isBlank(node.getNodeType())
+						|| !StringUtils.equalsIgnoreCase(SystemNodeTypes.PROXY_NODE.name(), node.getNodeType())) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+							"Failed to get proxy node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+				} else {
+					manager.OK(GraphDACParams.node.name(), node, getParent());
 				}
-			}, manager.getContext().dispatcher());
+			}
 
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
 					e);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void bulkUpdateNodes(Request request) {
 		try {
@@ -1234,7 +1120,8 @@ public class Graph extends AbstractDomainObject {
 							relation.put("from", node.getIdentifier());
 							relation.put("to", rel.getEndNodeId());
 							relation.put("type", rel.getRelationType());
-							relation.put("metadata", null == rel.getMetadata() ? new HashMap<String, Object>() : rel.getMetadata());
+							relation.put("metadata",
+									null == rel.getMetadata() ? new HashMap<String, Object>() : rel.getMetadata());
 							addOutRelations.add(relation);
 						}
 						if (StringUtils.isNotBlank(rel.getEndNodeObjectType())) {
@@ -1253,7 +1140,8 @@ public class Graph extends AbstractDomainObject {
 							relation.put("from", rel.getStartNodeId());
 							relation.put("to", node.getIdentifier());
 							relation.put("type", rel.getRelationType());
-							relation.put("metadata", null == rel.getMetadata() ? new HashMap<String, Object>() : rel.getMetadata());
+							relation.put("metadata",
+									null == rel.getMetadata() ? new HashMap<String, Object>() : rel.getMetadata());
 							addInRelations.add(relation);
 						}
 						if (StringUtils.isNotBlank(rel.getStartNodeObjectType())) {
@@ -1266,7 +1154,7 @@ public class Graph extends AbstractDomainObject {
 					}
 				}
 			}
-			
+
 			request.setOperation("bulkUpdateNodes");
 			request.put(GraphDACParams.newNodes.name(), newNodes);
 			request.put(GraphDACParams.modifiedNodes.name(), modifiedNodes);

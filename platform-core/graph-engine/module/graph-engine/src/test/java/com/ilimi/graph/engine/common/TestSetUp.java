@@ -25,6 +25,7 @@ import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.engine.loadtest.TestUtil;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
+import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -44,6 +45,7 @@ public class TestSetUp {
 	private static String NEO4J_SERVER_ADDRESS = "localhost:7687";
 	private static String GRAPH_DIRECTORY_PROPERTY_KEY = "graph.dir";
 	private static String BOLT_ENABLED = "true";
+	private static ActorRef reqRouter = null;
 
 	@AfterClass
 	public static void afterTest() {
@@ -51,7 +53,8 @@ public class TestSetUp {
 	}
 
 	@BeforeClass
-	public static void before() {
+	public static void before() throws Exception {
+		reqRouter = TestUtil.initReqRouter();
 		setupEmbeddedNeo4J();
 	}
 
@@ -63,7 +66,7 @@ public class TestSetUp {
 			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
 			request.setOperation("importDefinitions");
 			request.put(GraphEngineParams.input_stream.name(), objectType);
-			Future<Object> response = Patterns.ask(TestUtil.initReqRouter(), request, TestUtil.timeout);
+			Future<Object> response = Patterns.ask(reqRouter, request, TestUtil.timeout);
 
 			Object obj = Await.result(response, TestUtil.timeout.duration());
 

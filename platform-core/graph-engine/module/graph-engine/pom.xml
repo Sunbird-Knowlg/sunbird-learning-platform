@@ -28,10 +28,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>6.8.8</version>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-bolt</artifactId>
 			<scope>test</scope>
+			<version>3.0.4</version>
 		</dependency>
 	</dependencies>
 </project>

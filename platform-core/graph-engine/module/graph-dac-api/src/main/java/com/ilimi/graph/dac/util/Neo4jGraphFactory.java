@@ -4,12 +4,10 @@ import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,12 +21,12 @@ import org.neo4j.io.fs.FileUtils;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.ExecutionContext;
 import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.Configuration;
@@ -50,22 +48,15 @@ public class Neo4jGraphFactory {
     	restrictedGraphList.add("numeracy");
     	restrictedGraphList.add("literacy");
     	restrictedGraphList.add("literacy_v2");
-        try (InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties")) {
-            if (null != inputStream) {
-                Properties props = new Properties();
-                props.load(inputStream);
-                String graphDir = props.getProperty("graph.dir");
-                if (StringUtils.isNotBlank(graphDir)) {
-                    File f = new File(graphDir);
-                    if (!f.exists()) {
-                        System.out.println(f.mkdirs());
-                    }
-                    graphDbPath = graphDir;
-                }
-            }       
-        } catch (Exception e) {
-			PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
-        }
+    	
+		String graphDir = Platform.config.getString("graph.dir");
+    			 if (StringUtils.isNotBlank(graphDir)) {
+                     File f = new File(graphDir);
+                     if (!f.exists()) {
+                         System.out.println(f.mkdirs());
+                     }
+                     graphDbPath = graphDir;
+                 }
     }
     
     public static synchronized GraphDatabaseService getGraphDb(String graphId) {

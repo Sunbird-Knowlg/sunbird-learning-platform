@@ -6,12 +6,14 @@ package com.ilimi.graph.engine.mgr.impl;
 
 
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -25,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams.StatusType;
+import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -33,6 +36,7 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.common.TestSetUp;
 import com.ilimi.graph.engine.loadtest.TestUtil;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
 import akka.actor.ActorRef;
@@ -137,7 +141,6 @@ public class NodeMgrImplTest extends TestSetUp {
 			request.put(GraphDACParams.node_id.name(), "testNode1");
 			Future<Object> resp = Patterns.ask(reqRouter, request, TestUtil.timeout);
 			Await.result(resp, t.duration());
-			Thread.sleep(10000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -174,7 +177,6 @@ public class NodeMgrImplTest extends TestSetUp {
 
 			handleFutureBlock(response, "createDataNodeWithoutValidations", GraphDACParams.node_id.name(),
 					GraphDACParams.versionKey.name());
-			Thread.sleep(10000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -210,7 +212,7 @@ public class NodeMgrImplTest extends TestSetUp {
 
 			handleFutureBlock(response, "createDataNodeWithValidations", GraphDACParams.node_id.name(),
 					GraphDACParams.versionKey.name());
-			Thread.sleep(10000);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -232,7 +234,7 @@ public class NodeMgrImplTest extends TestSetUp {
 			Future<Object> response = Patterns.ask(reqRouter, request, TestUtil.timeout);
 
 			handleFutureBlock(response, "getDataNode", null, null);
-			Thread.sleep(10000);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -258,7 +260,7 @@ public class NodeMgrImplTest extends TestSetUp {
 			Future<Object> response = Patterns.ask(reqRouter, request, TestUtil.timeout);
 
 			handleFutureBlock(response, "getDataNodes", null, null);
-			Thread.sleep(10000);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -289,7 +291,7 @@ public class NodeMgrImplTest extends TestSetUp {
 			Future<Object> response = Patterns.ask(reqRouter, request, TestUtil.timeout);
 
 			handleFutureBlock(response, "validateNode", null, null);
-			Thread.sleep(10000);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -317,7 +319,7 @@ public class NodeMgrImplTest extends TestSetUp {
 			Future<Object> response = Patterns.ask(reqRouter, request, TestUtil.timeout);
 
 			handleFutureBlock(response, "searchNodes", null, null);
-			Thread.sleep(10000);
+
 
 			Request request1 = new Request();
 			request1.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
@@ -330,19 +332,6 @@ public class NodeMgrImplTest extends TestSetUp {
 			Future<Object> response1 = Patterns.ask(reqRouter, request1, TestUtil.timeout);
 
 			handleFutureBlock(response1, "getNodesCount", null, null);
-			Thread.sleep(10000);
-
-			Request request2 = new Request();
-			request2.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-			request2.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
-			request2.setOperation("getNodesByObjectType");
-
-			request2.put(GraphDACParams.object_type.name(), "Concept");
-
-			Future<Object> response2 = Patterns.ask(reqRouter, request2, TestUtil.timeout);
-
-			handleFutureBlock(response2, "getNodesByObjectType", null, null);
-			Thread.sleep(10000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -379,7 +368,6 @@ public class NodeMgrImplTest extends TestSetUp {
 
 			handleFutureBlock(response, "updateDataNode", GraphDACParams.node_id.name(),
 					GraphDACParams.versionKey.name());
-			Thread.sleep(10000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -397,7 +385,6 @@ public class NodeMgrImplTest extends TestSetUp {
 			Future<Object> resp = Patterns.ask(reqRouter, request, TestUtil.timeout);
 	
 			handleFutureBlock(resp, "deleteDataNode", null, null);
-			Thread.sleep(10000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -419,7 +406,7 @@ public class NodeMgrImplTest extends TestSetUp {
 			request.put(GraphDACParams.definition_node.name(), definitionDto);
 			Future<Object> response = Patterns.ask(reqRouter, request, t);
 			handleFutureBlock(response, "saveDefinitionNode", GraphDACParams.node_id.name(), null);
-			Thread.sleep(10000);
+
 
 			Request request1 = new Request();
 			request1.getContext().put(GraphHeaderParams.graph_id.name(), "test");
@@ -428,7 +415,7 @@ public class NodeMgrImplTest extends TestSetUp {
 			request1.setOperation("getNodeDefinition");
 			Future<Object> response1 = Patterns.ask(reqRouter, request1, t);
 			handleFutureBlock(response1, "getNodeDefinition", null, null);
-			Thread.sleep(10000);
+
 
 			Request request2 = new Request();
 			request2.getContext().put(GraphHeaderParams.graph_id.name(), "test");
@@ -437,8 +424,6 @@ public class NodeMgrImplTest extends TestSetUp {
 			request2.setOperation("getNodeDefinitionFromCache");
 			Future<Object> response2 = Patterns.ask(reqRouter, request2, t);
 			handleFutureBlock(response2, "getNodeDefinitionFromCache", null, null);
-			Thread.sleep(10000);
-
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -455,38 +440,12 @@ public class NodeMgrImplTest extends TestSetUp {
 			request.setOperation("getAllDefinitions");
 			Future<Object> response = Patterns.ask(reqRouter, request, t);
 			handleDefintionDto(response, "getAllDefinitions");
-			Thread.sleep(10000);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
-
-	/*@Test
-	public void testE1() {
-		try {
-	
-			Request request = new Request();
-			List<MetadataDefinition> definitions = new ArrayList<MetadataDefinition>();
-			MetadataDefinition metadataDef = new MetadataDefinition();
-			metadataDef.setPropertyName("versionCheckMode");
-			metadataDef.setDefaultValue("STRICT");
-			definitions.add(metadataDef);
-			request.getContext().put(GraphHeaderParams.graph_id.name(), "test");
-			request.put(GraphDACParams.object_type.name(), "Taxonomy");
-			request.put(GraphDACParams.metadata_definitions.name(), definitions);
-			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
-			request.setOperation("updateDefinition");
-			Future<Object> response = Patterns.ask(reqRouter, request, t);
-			handleFutureBlock(response, "updateDefinition", null, null);
-			Thread.sleep(10000);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	
-	}*/
 
 	@Test
 	public void testG() {
@@ -499,12 +458,30 @@ public class NodeMgrImplTest extends TestSetUp {
 			request.setOperation("deleteDefinition");
 			Future<Object> response = Patterns.ask(reqRouter, request, t);
 			handleFutureBlock(response, "deleteDefinition", null, null);
-			Thread.sleep(10000);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	@Test
+	public void testA1() {
+		try {
+			Request request = new Request();
+			request.getContext().put(GraphHeaderParams.graph_id.name(), "domain");
+			request.put(GraphDACParams.node_id.name(), "testNode1");
+			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
+			request.setOperation("exportNode");
+			Future<Object> req = Patterns.ask(reqRouter, request, t);
+			Object obj = Await.result(req, t.duration());
+			Response response = (Response) obj;
+			InputStreamValue isV = (InputStreamValue) response.get(GraphEngineParams.input_stream.name());
+			ByteArrayInputStream is = (ByteArrayInputStream) isV.getInputStream();
+			Assert.assertNotNull(IOUtils.toByteArray(is));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -543,8 +520,8 @@ public class NodeMgrImplTest extends TestSetUp {
 			System.out.println(operation + " response: " + arg1);
 			if (arg1 instanceof Response) {
 				Response ar = (Response) arg1;
-				// System.out.println(ar.getResult());
-				// System.out.println(ar.getParams());
+				System.out.println(ar.getResult());
+				System.out.println(ar.getParams());
 
 				if (null != param) {
 					// System.out.println(ar.get(param));

@@ -120,54 +120,57 @@ public class RDFGraphWriter implements GraphWriter {
 			writer.handleStatement(stMeta);
 		}
 
-		for (Relation relation : node.getInRelations()) {
-			URI relSubject = getUri(relation, uriCache);
+		if (null != node.getInRelations()) {
+			for (Relation relation : node.getInRelations()) {
+				URI relSubject = getUri(relation, uriCache);
 
-			if (null != relation.getMetadata()) {
-				for (Entry<String, Object> entry : relation.getMetadata().entrySet()) {
-					URI relPredicate = getUri(entry.getKey(), uriCache);
-					Value relObject = new LiteralImpl(entry.getValue().toString());
-					writer.handleStatement(new StatementImpl(relSubject, relPredicate, relObject));
+				if (null != relation.getMetadata()) {
+					for (Entry<String, Object> entry : relation.getMetadata().entrySet()) {
+						URI relPredicate = getUri(entry.getKey(), uriCache);
+						Value relObject = new LiteralImpl(entry.getValue().toString());
+						writer.handleStatement(new StatementImpl(relSubject, relPredicate, relObject));
+					}
 				}
+
+				URI relEnd = getUri(relation.getEndNodeId(), uriCache);
+				URI relPredicate = getUri(PROPERTY_RELATION_END, uriCache);
+				writer.handleStatement(new StatementImpl(relSubject, relPredicate, relEnd));
+
+				URI relFrom = getUri(relation.getStartNodeId(), uriCache);
+				relPredicate = getUri(PROPERTY_RELATION_START, uriCache);
+				writer.handleStatement(new StatementImpl(relSubject, relPredicate, relFrom));
+
+				Literal label = new LiteralImpl(relation.getRelationType());
+				relPredicate = getUri(PROPERTY_RELATION_TYPE, uriCache);
+				writer.handleStatement(new StatementImpl(relSubject, relPredicate, label));
 			}
-
-			URI relEnd = getUri(relation.getEndNodeId(), uriCache);
-			URI relPredicate = getUri(PROPERTY_RELATION_END, uriCache);
-			writer.handleStatement(new StatementImpl(relSubject, relPredicate, relEnd));
-
-			URI relFrom = getUri(relation.getStartNodeId(), uriCache);
-			relPredicate = getUri(PROPERTY_RELATION_START, uriCache);
-			writer.handleStatement(new StatementImpl(relSubject, relPredicate, relFrom));
-
-			Literal label = new LiteralImpl(relation.getRelationType());
-			relPredicate = getUri(PROPERTY_RELATION_TYPE, uriCache);
-			writer.handleStatement(new StatementImpl(relSubject, relPredicate, label));
 		}
 
-		for (Relation relation : node.getOutRelations()) {
-			URI outRelSubject = getUri(relation, uriCache);
+		if (null != node.getOutRelations()) {
+			for (Relation relation : node.getOutRelations()) {
+				URI outRelSubject = getUri(relation, uriCache);
 
-			if (null != relation.getMetadata()) {
-				for (Entry<String, Object> entry : relation.getMetadata().entrySet()) {
-					URI relPredicate = getUri(entry.getKey(), uriCache);
-					Value relObject = new LiteralImpl(entry.getValue().toString());
-					writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relObject));
+				if (null != relation.getMetadata()) {
+					for (Entry<String, Object> entry : relation.getMetadata().entrySet()) {
+						URI relPredicate = getUri(entry.getKey(), uriCache);
+						Value relObject = new LiteralImpl(entry.getValue().toString());
+						writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relObject));
+					}
 				}
+
+				URI relEnd = getUri(relation.getEndNodeId(), uriCache);
+				URI relPredicate = getUri(PROPERTY_RELATION_END, uriCache);
+				writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relEnd));
+
+				URI relFrom = getUri(relation.getStartNodeId(), uriCache);
+				relPredicate = getUri(PROPERTY_RELATION_START, uriCache);
+				writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relFrom));
+
+				Literal label = new LiteralImpl(relation.getRelationType());
+				relPredicate = getUri(PROPERTY_RELATION_TYPE, uriCache);
+				writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, label));
 			}
-
-			URI relEnd = getUri(relation.getEndNodeId(), uriCache);
-			URI relPredicate = getUri(PROPERTY_RELATION_END, uriCache);
-			writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relEnd));
-
-			URI relFrom = getUri(relation.getStartNodeId(), uriCache);
-			relPredicate = getUri(PROPERTY_RELATION_START, uriCache);
-			writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relFrom));
-
-			Literal label = new LiteralImpl(relation.getRelationType());
-			relPredicate = getUri(PROPERTY_RELATION_TYPE, uriCache);
-			writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, label));
 		}
-
 		writer.endRDF();
 		System.out.println("out.toString():" + out.toString());
 		InputStream inputStream = new ByteArrayInputStream(out.toString().getBytes());
