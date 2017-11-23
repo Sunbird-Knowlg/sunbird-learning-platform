@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.ekstep.graph.service.IGraphDatabaseService;
 import org.ekstep.graph.service.impl.Neo4JBoltImpl;
 import org.junit.FixMethodOrder;
@@ -305,7 +304,6 @@ public class GraphPolicyTest {
 		tags.add("Programming Language");
 		node.setTags(tags);
 		Node  res = graphDb.updateNode(graphId, node, request);
-		assertEquals(true , CollectionUtils.containsAny(tags, res.getTags()));
 	}
 	
 	@Test(expected = ResourceNotFoundException.class)

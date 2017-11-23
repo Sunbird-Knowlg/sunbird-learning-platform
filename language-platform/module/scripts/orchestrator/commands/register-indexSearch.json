@@ -44,15 +44,21 @@
         "datatype": "java.util.ArrayList",
         "routingParam": false
     },
+    {
+        "name": "fields",
+        "index": 7,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },
 	{
         "name": "fuzzy",
-        "index": 7,
+        "index": 8,
         "datatype": "java.lang.Boolean",
         "routingParam": false
     },
 	{
         "name": "limit",
-        "index": 8,
+        "index": 9,
         "datatype": "java.lang.Integer",
         "routingParam": false
     }

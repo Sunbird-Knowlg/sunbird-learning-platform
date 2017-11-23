@@ -27,7 +27,7 @@ public class TestSetup {
 		try {
 			 try {
 				 System.out.println("Starting Cassandra");
-				 EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml");
+				 EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 100000L);
 				 System.out.println("Cassandra Started");
 				 
 				 System.out.println("Creating Schema");

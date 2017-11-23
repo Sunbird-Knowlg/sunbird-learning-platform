@@ -26,6 +26,8 @@ public class BaseTest
 	public String UrlContentType = "text/plain";
 	public String uploadContentType = "multipart/form-data";
 	public String userId = "ilimi";
+	public String channelId = "test.ChannelId";
+	public String appId = "test.appId";
 	
 	public String APIToken = Platform.config.getString("ft.access_key");
 	public String validuserId = "functional-tests";
@@ -80,6 +82,17 @@ public class BaseTest
 		return requestSpec;
 	}
 	
+	public RequestSpecification getRequestSpecification(String content_type,String user_id, String APIToken, String channelId, String appId)
+	{
+		RequestSpecBuilder builderreq = new RequestSpecBuilder();
+		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeader("Content-Type", content_type);
+		builderreq.addHeader("Authorization", APIToken);
+		builderreq.addHeader("X-Channel-Id", channelId);
+		builderreq.addHeader("X-App-Id", appId);
+		RequestSpecification requestSpec = builderreq.build();
+		return requestSpec;
+	}
 	
 	/**
 	 * checks whether response statuscode is 200,param size is 5, param.status is successful and param.errmsg is null

@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServlet;
 
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
-import org.ekstep.searchindex.consumer.ConsumerRunner;
 
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
@@ -25,10 +24,5 @@ public class InitServlet extends HttpServlet {
         PlatformLogger.log("Initialising Request Router Pool");
         LearningRequestRouterPool.init();
         SearchRequestRouterPool.init(RequestRouterPool.getActorSystem());
-        try {
-			ConsumerRunner.startConsumers();
-		} catch (Exception e) {
-			throw new ServletException(e);
-		} 
     }
 }

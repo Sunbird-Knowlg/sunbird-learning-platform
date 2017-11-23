@@ -47,6 +47,12 @@ if {$facetsNull == 1} {
 	set facets $empty_list
 }
 
+set fields [$request get "fields"]
+set fieldsNull [java::isnull $fields]
+if {$fieldsNull == 1} {
+	set fields $null_var
+}
+
 set fuzzy [$request get "fuzzy"]
 set fuzzyNull [java::isnull $fuzzy]
 if {$fuzzyNull == 1} {
@@ -59,6 +65,6 @@ if {$limitNull == 1} {
 	set limit [java::new Integer 10000]
 }
 
-set searchResponse [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit]
+set searchResponse [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fields $fuzzy $limit]
 
 return $searchResponse
