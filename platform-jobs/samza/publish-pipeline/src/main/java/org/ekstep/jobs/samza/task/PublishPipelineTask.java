@@ -5,14 +5,11 @@ import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.PublishPipelineService;
-import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 
 public class PublishPipelineTask extends AbstractTask {
 
 	static JobLogger LOGGER = new JobLogger(PublishPipelineTask.class);
-	
-	private JobMetrics metrics;
 	
 	ISamzaService service = new PublishPipelineService();
 	

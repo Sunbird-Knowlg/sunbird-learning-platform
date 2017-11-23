@@ -21,7 +21,7 @@ import com.ilimi.common.logger.PlatformLogger;
 
 public abstract class AbstractTask implements StreamTask, InitableTask, WindowableTask {
 	
-	private JobMetrics metrics;
+	protected JobMetrics metrics;
 	
 	private Config config = null;
 	
