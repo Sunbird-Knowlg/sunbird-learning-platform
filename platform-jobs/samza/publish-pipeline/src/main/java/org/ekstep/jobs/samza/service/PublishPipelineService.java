@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.slugs.Slug;
@@ -28,6 +30,7 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.jobs.samza.model.Event;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -40,10 +43,12 @@ import com.ilimi.common.Platform;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.graph.dac.enums.GraphDACParams;
+//import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+
+import eu.medsea.util.StringUtil;
 
 public class PublishPipelineService implements ISamzaService {
 
@@ -79,19 +84,34 @@ public class PublishPipelineService implements ISamzaService {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-		Map<String, Object> eks = getPublishLifecycleData(message);
-		if (null == eks || eks.isEmpty()) {
+		Map<String, Object> object = getPublishInstructionData(message);
+		if (null == object || object.isEmpty()) {
 			metrics.incSkippedCounter();
 			return;
 		}
-		String nodeId = (String) eks.get(PublishPipelineParams.id.name());
+		String nodeId = (String) object.get(PublishPipelineParams.id.name());
 		try {
 			Node node = getNode(nodeId);
 			if (null != node) {
 				LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
-				publishContent(node);
-				metrics.incSuccessCounter();
+				
+				Event event = new Event(message);
+				Map<String, Object> eventMap = event.getMap();
+				Map<String, Object> edata = (Map<String, Object>) eventMap.get("edata");
+				node.getMetadata().put("publish_type", edata.get("publish_type"));
+				boolean flag = publishContent(node);
+				
+				if(flag) {//status
+					metrics.incSuccessCounter();
+				}else {
+					
+					edata.put("status", "FAILED");
+					edata.put("iteration", (int)edata.get("iteration")+1);
+					eventMap.put("edata", edata);
+					publishEvent(eventMap, collector);
+				}
 			} else {
 				metrics.incSkippedCounter();
 			}
@@ -99,6 +119,10 @@ public class PublishPipelineService implements ISamzaService {
 			LOGGER.error("Failed to process message", message, e);
 			metrics.incFailedCounter();
 		}
+	}
+	
+	private void publishEvent(Map<String, Object> message, MessageCollector collector) throws Exception {
+		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", config.get("job_request_topic")), message));
 	}
 	
 	private Node getNode(String nodeId) {
@@ -111,7 +135,8 @@ public class PublishPipelineService implements ISamzaService {
 		return node;
 	}
 	
-	private void publishContent(Node node) throws Exception{
+	private boolean publishContent(Node node) throws Exception{
+		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()), COLLECTION_CONTENT_MIMETYPE)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
@@ -127,12 +152,17 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.debug("Content Enrichment start for content: " + node.getIdentifier());
 		String nodeId = node.getIdentifier().replace(".img", "");
 		Node publishedNode = util.getNode(PublishPipelineParams.domain.name(), nodeId);
+		if(!(StringUtils.equalsIgnoreCase((String)publishedNode.getMetadata().get(PublishPipelineParams.status.name()), PublishPipelineParams.Live.name())
+				|| StringUtils.equalsIgnoreCase((String)publishedNode.getMetadata().get(PublishPipelineParams.status.name()), PublishPipelineParams.Unlisted.name()))) {
+			return false;
+		}
 		if(StringUtils.equalsIgnoreCase(((String)publishedNode.getMetadata().get(PublishPipelineParams.mimeType.name())), COLLECTION_CONTENT_MIMETYPE)) {
 			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 			publishedNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
 			processCollection(publishedNode);
 			LOGGER.debug("Content Enrichment done for content: " + node.getIdentifier());
 		}
+		return published;
 	}
 
 	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
@@ -243,6 +273,29 @@ public class PublishPipelineService implements ISamzaService {
 	}
 
 	@SuppressWarnings("unchecked")
+	private Map<String, Object> getPublishInstructionData(Map<String, Object> message) {
+		String eid = (String) message.get(PublishPipelineParams.eid.name());
+		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_CONTENT_PUBLISH.name()))
+			return null;
+
+		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
+		if(StringUtils.equalsIgnoreCase((String)edata.get("action"), "publish")) {
+			Map<String, Object> object = (Map<String, Object>) message.get(PublishPipelineParams.object.name());
+			if (null == object) 
+				return null;
+			
+			if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
+				if(((Integer)edata.get("iteration") == 0) || 
+						((Integer)edata.get("iteration") > 0 && 
+								(Integer)edata.get("iteration") <5 && 
+										StringUtils.equalsIgnoreCase((String)edata.get("status"), "FAILED"))) 
+					return object;
+			}
+		}
+		return null;
+	}
+	
+	/*@SuppressWarnings("unchecked")
 	private Map<String, Object> getPublishLifecycleData(Map<String, Object> message) {
 		String eid = (String) message.get(PublishPipelineParams.eid.name());
 		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name()))
@@ -261,7 +314,7 @@ public class PublishPipelineService implements ISamzaService {
 			return eks;
 		
 		return null;
-	}
+	}*/
 	
 	@SuppressWarnings("unchecked")
 	private void processCollection(Node node) throws Exception {

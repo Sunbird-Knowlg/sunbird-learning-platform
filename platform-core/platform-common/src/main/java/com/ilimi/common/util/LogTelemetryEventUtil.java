@@ -10,9 +10,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.dto.TelemetryBEEvent;
+import com.ilimi.common.dto.TelemetryPBIEvent;
 import com.ilimi.common.logger.PlatformLogger;
 
 public class LogTelemetryEventUtil {
@@ -20,8 +22,63 @@ public class LogTelemetryEventUtil {
 	
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
 	private static final Logger objectLifecycleEventLogger = LogManager.getLogger("ObjectLifecycleLogger");
+	private static final Logger publishContentEventLogger = LogManager.getLogger("PublishContentEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
+	
+	
+	public static String logInstructionBasedContentPublishEvent(String contentId, Map<String, Object> metadata) {
+		TelemetryPBIEvent te = new TelemetryPBIEvent();
+		long unixTime = System.currentTimeMillis();
+		Map<String,Object> actor = new HashMap<String,Object>();
+		Map<String,Object> context = new HashMap<String,Object>();
+		Map<String,Object> object = new HashMap<String,Object>();
+		Map<String,Object> edata = new HashMap<String,Object>();
+		
+		te.setEid("BE_CONTENT_PUBLISH");
+		te.setEts(unixTime);
+		te.setMid(mid);
+		
+		actor.put("id", "");
+		actor.put("type", "System");
+		te.setActor(actor);
+		
+		context.put("channel", "in.ekstep");  //Need to be passed from config - need confirmation
+		Map<String, Object> pdata = new HashMap<>();
+		pdata.put("id", "org.ekstep.platform");  //Need to be passed from config - need confirmation
+		pdata.put("ver", "1.0");
+		context.put("pdata", pdata);
+		if (Platform.config.hasPath("s3.env")) {
+			String env = Platform.config.getString("s3.env");
+			context.put("env", env);
+		}
+		te.setContext(context);
+		
+		
+		
+		
+		object.put("id", contentId);
+		object.put("type", metadata.get("contentType"));
+		object.put("ver", metadata.get("version"));
+		te.setObject(object);
+		
+		edata.put("action", "publish");
+		edata.put("status", "");
+		edata.put("iteration", 0);
+		edata.put("publish_type", (String)metadata.get("publish_type"));
+		te.setEdata(edata);
+		
+		String jsonMessage = null;
+		try {
+			jsonMessage = mapper.writeValueAsString(te);
+			if (StringUtils.isNotBlank(jsonMessage))
+				publishContentEventLogger.info(jsonMessage);
+		} catch (Exception e) {
+			PlatformLogger.log("Error logging BE_CONTENT_PUBLISH event", e.getMessage(), e);
+		}
+		return jsonMessage;
+	}
+	
 	public static String logContentLifecycleEvent(String contentId, Map<String, Object> metadata) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();

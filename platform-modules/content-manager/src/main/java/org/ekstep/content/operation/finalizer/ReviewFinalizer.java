@@ -78,11 +78,13 @@ public class ReviewFinalizer extends BaseFinalizer {
 		
 		Boolean isPublishOperation = (Boolean) parameterMap
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
-	
+		String publishType = null;
 		if (BooleanUtils.isTrue(isPublishOperation)) {
 			PlatformLogger.log("Changing the Content Status to 'Processing'.", LoggerEnum.INFO.name());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Processing.name());
+			publishType = (String)node.getMetadata().get("publish_type");
+			node.getMetadata().remove("publish_type");
 		} else {
 			PlatformLogger.log("Changing the Content Status to 'Review'.", LoggerEnum.INFO.name());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
@@ -102,7 +104,12 @@ public class ReviewFinalizer extends BaseFinalizer {
 		Response response = updateContentNode(contentId, newNode, null);
 		PlatformLogger.log("Generating Telemetry Event. | [Content ID: " + contentId + "]", node);
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
-		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());
+		newNode.getMetadata().put("publish_type", publishType);
+		
+		if (BooleanUtils.isTrue(isPublishOperation)) {
+			LogTelemetryEventUtil.logInstructionBasedContentPublishEvent(newNode.getIdentifier(), newNode.getMetadata());
+		}
+		
 		return response;
 	}
 
