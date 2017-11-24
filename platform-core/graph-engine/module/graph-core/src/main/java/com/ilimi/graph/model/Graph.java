@@ -64,7 +64,6 @@ import com.ilimi.graph.writer.RDFGraphWriter;
 
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
 import akka.util.Timeout;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -515,31 +514,27 @@ public class Graph extends AbstractDomainObject {
 		try {
 			Request request = new Request(req);
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Futures.successful(searchMgr.getNodesByProperty(request));
-			response.onComplete(new OnComplete<Object>() {
-				@Override
-				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-					boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-							GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get nodes");
-					if (valid) {
-						Response res = (Response) arg1;
-						List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-						if (null != nodes && !nodes.isEmpty()) {
-							List<Node> nodeList = new ArrayList<Node>();
-							for (Node node : nodes) {
-								if (null != node && StringUtils.isNotBlank(node.getNodeType())) {
-									nodeList.add(node);
-								}
-							}
-							manager.OK(GraphDACParams.node_list.name(), nodeList, getParent());
-						} else {
-							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
-									"Failed to get data nodes", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+			Response res = searchMgr.getNodesByProperty(request);
+
+			if (manager.checkError(res)) {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), manager.getErrorMessage(res),
+						res.getResponseCode(), getParent());
+			} else {
+				List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+				if (null != nodes && !nodes.isEmpty()) {
+					List<Node> nodeList = new ArrayList<Node>();
+					for (Node node : nodes) {
+						if (null != node && StringUtils.isNotBlank(node.getNodeType())) {
+							nodeList.add(node);
 						}
 					}
+					manager.OK(GraphDACParams.node_list.name(), nodeList, getParent());
+				} else {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+							"Failed to get data nodes", ResponseCode.RESOURCE_NOT_FOUND, getParent());
 				}
-			}, manager.getContext().dispatcher());
 
+			}
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
 					e);
@@ -550,25 +545,22 @@ public class Graph extends AbstractDomainObject {
 		try {
 			Request request = new Request(req);
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-			response.onComplete(new OnComplete<Object>() {
-				@Override
-				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-					boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-							GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get data node");
-					if (valid) {
-						Response res = (Response) arg1;
-						Node node = (Node) res.get(GraphDACParams.node.name());
-						if (null == node || StringUtils.isBlank(node.getNodeType()) || !StringUtils
-								.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
-							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
-									"Failed to get data node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
-						} else {
-							manager.OK(GraphDACParams.node.name(), node, getParent());
-						}
-					}
+
+			Response res = searchMgr.getNodeByUniqueId(request);
+			if (manager.checkError(res)) {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), manager.getErrorMessage(res),
+						res.getResponseCode(), getParent());
+			} else {
+				Node node = (Node) res.get(GraphDACParams.node.name());
+				if (null == node || StringUtils.isBlank(node.getNodeType())
+						|| !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
+					manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+							"Failed to get data node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+				} else {
+					manager.OK(GraphDACParams.node.name(), node, getParent());
 				}
-			}, manager.getContext().dispatcher());
+
+			}
 
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
