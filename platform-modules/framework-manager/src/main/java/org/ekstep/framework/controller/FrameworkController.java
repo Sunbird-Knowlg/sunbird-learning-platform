@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.ekstep.taxonomy;
+package org.ekstep.framework.controller;
 
 /**
  * @author pradyumna
@@ -11,6 +11,6 @@ package org.ekstep.taxonomy;
  *         changes
  *
  */
-public class FrameworkManagerImpl {
+public class FrameworkController {
 
 }
