@@ -1,0 +1,146 @@
+{
+	"definitionNodes":[
+		{
+			"objectType": "Term",
+			"properties":[
+			{
+				"propertyName": "label",
+	          	"title": "Label",
+	          	"description": "Label of the Term",
+	          	"category": "General",
+	          	"dataType": "Text",
+	          	"required": true,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'text', 'order': 1}",
+	          	"indexed": true
+			},
+			{
+				"propertyName": "value",
+	          	"title": "Value",
+	          	"description": "Value of the Term",
+	          	"category": "General",
+	          	"dataType": "Text",
+	          	"required": true,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'text', 'order': 2}",
+	          	"indexed": true
+			},
+			{
+				"propertyName": "index",
+	          	"title": "Index",
+	          	"description": "Index position of the term",
+	          	"category": "General",
+	          	"dataType": "Number",
+	          	"required": false,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'number', 'order': 3}",
+	          	"indexed": false
+			},
+			{
+	          "propertyName": "createdBy",
+	          "title": "Created By",
+	          "description": "",
+	          "category": "audit",
+	          "dataType": "Text",
+	          "range": [],
+	          "required": false,
+	          "indexed": false,
+	          "displayProperty": "Editable",
+	          "defaultValue": "",
+	          "renderingHints": "{ 'inputType': 'text',  'order': 4}"
+	        },
+	        {
+	          "propertyName": "createdOn",
+	          "title": "Created On",
+	          "description": "",
+	          "category": "audit",
+	          "dataType": "Date",
+	          "range": [],
+	          "required": false,
+	          "indexed": false,
+	          "displayProperty": "Readonly",
+	          "defaultValue": "",
+	          "renderingHints": "{ 'order': 11 }"
+	        },  
+	        {
+	          "propertyName": "lastUpdatedBy",
+	          "title": "Last Updated By",
+	          "description": "",
+	          "category": "audit",
+	          "dataType": "Text",
+	          "range": [],
+	          "required": false,
+	          "indexed": false,
+	          "displayProperty": "Editable",
+	          "defaultValue": "",
+	          "renderingHints": "{ 'inputType': 'text',  'order': 5}"
+	        },
+	        {
+	          "propertyName": "lastUpdatedOn",
+	          "title": "Last Updated On",
+	          "description": "",
+	          "category": "audit",
+	          "dataType": "Date",
+	          "range": [],
+	          "required": false,
+	          "indexed": false,
+	          "displayProperty": "Readonly",
+	          "defaultValue": "",
+	          "renderingHints": "{ 'order': 6}"
+	        }
+			],
+			"inrelations":[
+			{
+				"relationName": "hasSequenceMember",
+				"objectTypes": [
+					"Category"
+				],
+				"title": "category",
+				"description": "Category using the term",
+				"required": false,
+				"renderingHints": "{ 'order': 7}"
+			}
+			],
+			"outrelations":[
+			{
+				"relationName": "hasSequenceMember",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "children",
+				"description": "Child term items (in sorted order)",
+				"required": false,
+				"renderingHints": "{ 'order': 8}"
+			},
+			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "terms",
+				"description": "terms associated with the current term",
+				"required": false,
+				"renderingHints": "{ 'order': 9}"
+			}	
+			],
+			"systemTags": [],
+			"metadata":{
+				"ttl": 0.08,
+				"limit": 50,
+				"fields":[
+					"term_id",
+					"label",
+					"value",
+					"description",
+					"author",
+					"createdBy",
+					"lastUpdatedOn",
+					"createdOn"
+				]
+			}
+		}
+	]
+}
