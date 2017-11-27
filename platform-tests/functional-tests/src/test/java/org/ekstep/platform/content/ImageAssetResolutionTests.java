@@ -25,7 +25,7 @@ public class ImageAssetResolutionTests extends BaseTest {
 	static String nodeId;
 	
 	@Before
-	public void createContent(){
+	public void createNewContent(){
 		if(nodeId==null){
 			setURI();
 			Response R =
