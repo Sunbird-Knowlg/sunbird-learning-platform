@@ -40,6 +40,37 @@
 	          	"indexed": false
 			},
 			{
+	          "propertyName": "description",
+	          "title": "Name",
+	          "description": "description of the term",
+	          "category": "General",
+	          "dataType": "Text",
+	          "required": false,
+	          "displayProperty": "Editable",
+	          "defaultValue": "",
+	          "renderingHints": "{'inputType': 'text', 'order': 1}",
+	          "indexed": true
+	        },
+			{
+	            "propertyName": "status",
+	            "title": "Status",
+	            "description": "Status of the term",
+	            "category": "general",
+	            "dataType": "Select",
+	            "range":
+	            [
+	                "Draft",
+	                "Live",
+	                "Review",
+	                "Retired"
+	            ],
+	            "required": false,
+				"indexed": true,
+	            "displayProperty": "Editable",
+	            "defaultValue": "Live",
+	            "renderingHints": "{'inputType': 'select', 'order': 3}"
+	        },
+			{
 	          "propertyName": "createdBy",
 	          "title": "Created By",
 	          "description": "",
@@ -92,7 +123,7 @@
 	          "renderingHints": "{ 'order': 6}"
 	        }
 			],
-			"inrelations":[
+			"inRelations":[
 			{
 				"relationName": "hasSequenceMember",
 				"objectTypes": [
@@ -104,7 +135,7 @@
 				"renderingHints": "{ 'order': 7}"
 			}
 			],
-			"outrelations":[
+			"outRelations":[
 			{
 				"relationName": "hasSequenceMember",
 				"objectTypes": [
@@ -131,10 +162,11 @@
 				"ttl": 0.08,
 				"limit": 50,
 				"fields":[
-					"term_id",
+					"identifier",
 					"label",
 					"value",
 					"description",
+					"status",
 					"author",
 					"createdBy",
 					"lastUpdatedOn",
