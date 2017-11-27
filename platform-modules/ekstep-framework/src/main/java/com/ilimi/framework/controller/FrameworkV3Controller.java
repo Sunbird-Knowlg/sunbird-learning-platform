@@ -25,7 +25,7 @@ import com.ilimi.framework.mgr.IFrameworkManager;
  *
  */
 @Controller
-@RequestMapping("/v3/framework")
+@RequestMapping("/v2/framework")
 public class FrameworkV3Controller extends BaseController{
 
 	private final String graphId = "domain";
