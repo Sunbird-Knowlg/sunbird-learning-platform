@@ -25,7 +25,7 @@ import com.ilimi.framework.mgr.ICategoryManager;
  *
  */
 @Controller
-@RequestMapping("/v3/category")
+@RequestMapping("/v2/category")
 public class CategoryV3Controller extends BaseController {
 
 @Autowired
