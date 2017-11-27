@@ -8,12 +8,12 @@ public interface ICategoryManager {
 	
 	Response createCategory(Map<String,Object> request);
 
-	Response readCategory(String graphId, String channelId);
+	Response readCategory(String channelId);
 
 	Response updateCategory(String channelId, Map<String, Object> map);
 
 	Response searchCategory(Map<String, Object> map);
 	
-	Response retireCategory(Map<String, Object> map);
+	Response retireCategory(String categoryId);
 	
 }

@@ -31,8 +31,6 @@ public class CategoryV3Controller extends BaseController {
 @Autowired
 private ICategoryManager categoryManager;
 	
-private String graphId = "domain";
-	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
@@ -60,7 +58,7 @@ private String graphId = "domain";
 		PlatformLogger.log("category GetById | category Id : " + categoryId);
 		try {
 			PlatformLogger.log("Calling the Manager for fetching category 'getById' | [category Id " + categoryId + "]");
-			response = categoryManager.readCategory(graphId, categoryId);
+			response = categoryManager.readCategory(categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Read category", e.getMessage(), e);
@@ -106,12 +104,12 @@ private String graphId = "domain";
 	
 	@RequestMapping(value = "/retire", method = RequestMethod.DELETE)
 	@ResponseBody
-	public ResponseEntity<Response> retire(@RequestBody Map<String, Object> map,
+	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryId,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.category.retire";
-		PlatformLogger.log("Get | categorys: " + " | Request: " + map);
+		PlatformLogger.log("Get | categorys: " + " | Request: " + categoryId);
 		try {
-			Response response = categoryManager.retireCategory(map);
+			Response response = categoryManager.retireCategory(categoryId);
 			PlatformLogger.log("retire category | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

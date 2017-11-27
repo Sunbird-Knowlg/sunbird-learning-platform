@@ -1,6 +1,7 @@
 package com.ilimi.framework.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,15 +57,15 @@ public class CategoryManagerImpl extends BaseManager implements ICategoryManager
 	}
 
 	@Override
-	public Response readCategory(String graphId, String channelId) {
-		Response responseNode = getDataNode(graphId, channelId);
+	public Response readCategory(String channelId) {
+		Response responseNode = getDataNode(GRAPH_ID, channelId);
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CATEGORY_NOT_FOUND.name(),
 					"Content not found with id: " + channelId);
 		Response response = new Response();
 		Node channel = (Node) responseNode.get(GraphDACParams.node.name());
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_OBJECT_TYPE);
-		Map<String, Object> channelMap = ConvertGraphNode.convertGraphNode(channel, graphId, definition, null);
+		Map<String, Object> channelMap = ConvertGraphNode.convertGraphNode(channel, GRAPH_ID, definition, null);
 		PlatformLogger.log("Got Node: ", channel);
 		response.put(CategoryEnum.channel.name(), channelMap);
 		response.setParams(getSucessStatus());
@@ -124,9 +125,26 @@ public class CategoryManagerImpl extends BaseManager implements ICategoryManager
 	}
 	
 	@Override
-	public Response retireCategory(Map<String, Object> map) {
-		// TODO Auto-generated method stub
-		return null;
+	public Response retireCategory(String categoryId) {
+		Response createResponse = null;
+		boolean checkError = false;
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_OBJECT_TYPE);
+		Response getNodeResponse = getDataNode(GRAPH_ID, categoryId);
+		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+		Node domainObj;
+		try {
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("status", "retire");
+			domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+			updateDataNode(domainObj);
+			checkError = checkError(createResponse);
+			if (checkError)
+				return createResponse;
+			else
+				return createResponse;
+		} catch (Exception e) {
+			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
+		}
 	}
 	
 	private DefinitionDTO getDefinition(String graphId, String objectType) {
