@@ -57,17 +57,17 @@ public class CategoryManagerImpl extends BaseManager implements ICategoryManager
 	}
 
 	@Override
-	public Response readCategory(String channelId) {
-		Response responseNode = getDataNode(GRAPH_ID, channelId);
+	public Response readCategory(String categoryId) {
+		Response responseNode = getDataNode(GRAPH_ID, categoryId);
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CATEGORY_NOT_FOUND.name(),
-					"Content not found with id: " + channelId);
+					"Content not found with id: " + categoryId);
 		Response response = new Response();
-		Node channel = (Node) responseNode.get(GraphDACParams.node.name());
+		Node category = (Node) responseNode.get(GraphDACParams.node.name());
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_OBJECT_TYPE);
-		Map<String, Object> channelMap = ConvertGraphNode.convertGraphNode(channel, GRAPH_ID, definition, null);
-		PlatformLogger.log("Got Node: ", channel);
-		response.put(CategoryEnum.channel.name(), channelMap);
+		Map<String, Object> categoryMap = ConvertGraphNode.convertGraphNode(category, GRAPH_ID, definition, null);
+		PlatformLogger.log("Got Node: ", category);
+		response.put(CategoryEnum.category.name(), categoryMap);
 		response.setParams(getSucessStatus());
 		return response;
 	}
@@ -107,10 +107,10 @@ public class CategoryManagerImpl extends BaseManager implements ICategoryManager
 			criteria.setNodeType("DATA_NODE");
 			Response response = searchNodes(GRAPH_ID, criteria);
 			List<Object> categoryList = new ArrayList<Object>();
-			List<Node> category = (List<Node>) response.get(GraphDACParams.node_list.name());
-			for(Node channel : category){
-				Map<String, Object> channelMap = ConvertGraphNode.convertGraphNode(channel, GRAPH_ID, definition, null);
-					categoryList.add(channelMap);
+			List<Node> categoryNodes = (List<Node>) response.get(GraphDACParams.node_list.name());
+			for(Node category : categoryNodes){
+				Map<String, Object> categoryMap = ConvertGraphNode.convertGraphNode(category, GRAPH_ID, definition, null);
+					categoryList.add(categoryMap);
 			}
 			Response resp = new Response();
 			resp.put("count", categoryList.size());
