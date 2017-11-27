@@ -28,7 +28,7 @@ import com.ilimi.framework.mgr.ITermManager;
  *
  */
 @Controller
-@RequestMapping("/v3/channel/term")
+@RequestMapping("/v2/channel/term")
 public class TermChannelV3Controller extends BaseController {
 
 	@Autowired
