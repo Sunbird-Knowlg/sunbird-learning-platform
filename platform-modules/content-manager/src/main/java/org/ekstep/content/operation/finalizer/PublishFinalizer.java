@@ -419,7 +419,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	
 	private boolean disableCollectionFullECAR() {
 		if (Platform.config.hasPath("publish.collection.fullecar.disable"))
-			return Platform.config.getBoolean("publish.collection.fullecar.disable");
+			return "true".equalsIgnoreCase(Platform.config.getString("publish.collection.fullecar.disable"));
 		else 
 			return false;
 	}
