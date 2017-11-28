@@ -1,6 +1,7 @@
 package com.ilimi.framework.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.framework.enums.CategoryEnum;
-import com.ilimi.framework.mgr.ICategoryManager;
+import com.ilimi.framework.mgr.ICategoryInstanceManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
@@ -34,44 +35,65 @@ import com.ilimi.graph.model.node.DefinitionDTO;
  *
  */
 @Component
-public class CategoryManagerImpl extends BaseManager implements ICategoryManager {
+public class CategoryInstanceManagerImpl extends BaseManager implements ICategoryInstanceManager {
 
-	private static final String CATEGORY_OBJECT_TYPE = "Category";
+	private static final String CATEGORY_INSTANCE_OBJECT_TYPE = "CategoryInstance";
 
 	private static final String GRAPH_ID = "domain";
 	
 	@Override
-	public Response createCategory(Map<String, Object> request) {
+	public Response createCategoryInstance(String identifier, Map<String, Object> request) {
 		if (null == request)
-			return ERROR("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		String code = (String) request.get("code");
 		if (null == code || StringUtils.isBlank(code))
-			return ERROR("ERR_CATEGORY_CODE_REQUIRED", "Unique code is mandatory for category", ResponseCode.CLIENT_ERROR);
+			return ERROR("ERR_CATEGORY_INSTANCE_CODE_REQUIRED", "Unique code is mandatory for categoryInstance", ResponseCode.CLIENT_ERROR);
 		request.put("identifier", code);
-		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_OBJECT_TYPE);
+		Response responseNode = getDataNode(GRAPH_ID, identifier);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CATEGORY_INSTANCE_NOT_FOUND.name(),
+					"Channel/framework not found with id: " + identifier);
+		Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
+		String objectType = dataNode.getObjectType();
+		request = setRelations(objectType, identifier, request);
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_INSTANCE_OBJECT_TYPE);
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(request, definition, null);
-			node.setObjectType(CATEGORY_OBJECT_TYPE);
+			node.setObjectType(CATEGORY_INSTANCE_OBJECT_TYPE);
 			node.setGraphId(GRAPH_ID);
 			Response response = createDataNode(node);
 			if (checkError(response))
 				return response;
 			else
 				return response;
-		}catch(Exception e){
+		} catch(Exception e){
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR);
 		}
 	}
 
+	private Map<String, Object> setRelations(String objectType, String identifier, Map<String, Object> request) {
+		List<Map<String,Object>> relationList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> relationMap = new HashMap<String,Object>();
+		relationMap.put("identifier", identifier);
+		relationMap.put("relation", "hasSequenceMember");
+		if(StringUtils.equalsIgnoreCase(objectType, "Channel"))
+			relationList.add(relationMap);
+			request.put("channel", relationList);
+		if(StringUtils.equalsIgnoreCase(objectType, "Framework"))
+			relationList.add(relationMap);
+			request.put("framework", relationList);
+		return request;
+	}
+
 	@Override
-	public Response readCategory(String categoryId) {
-		Response responseNode = getDataNode(GRAPH_ID, categoryId);
+	public Response readCategoryInstance(String categoryInstanceId) {
+		Response responseNode = getDataNode(GRAPH_ID, categoryInstanceId);
 		if (checkError(responseNode))
-			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CATEGORY_NOT_FOUND.name(),
-					"Category not found with id: " + categoryId);
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CATEGORY_INSTANCE_NOT_FOUND.name(),
+					"Content not found with id: " + categoryInstanceId);
 		Response response = new Response();
 		Node category = (Node) responseNode.get(GraphDACParams.node.name());
-		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_OBJECT_TYPE);
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_INSTANCE_OBJECT_TYPE);
 		Map<String, Object> categoryMap = ConvertGraphNode.convertGraphNode(category, GRAPH_ID, definition, null);
 		PlatformLogger.log("Got Node: ", category);
 		response.put(CategoryEnum.category.name(), categoryMap);
@@ -80,18 +102,18 @@ public class CategoryManagerImpl extends BaseManager implements ICategoryManager
 	}
 
 	@Override
-	public Response updateCategory(String categoryId, Map<String, Object> map) {
+	public Response updateCategoryInstance(String categoryInstanceId, Map<String, Object> map) {
 		Response createResponse = null;
 		boolean checkError = false;
-		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_OBJECT_TYPE);
-		Response getNodeResponse = getDataNode(GRAPH_ID, categoryId);
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_INSTANCE_OBJECT_TYPE);
+		Response getNodeResponse = getDataNode(GRAPH_ID, categoryInstanceId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		Node domainObj;
 		try {
 			domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 			domainObj.setGraphId(GRAPH_ID);
-			domainObj.setIdentifier(categoryId);
-			domainObj.setObjectType(CATEGORY_OBJECT_TYPE);
+			domainObj.setIdentifier(categoryInstanceId);
+			domainObj.setObjectType(CATEGORY_INSTANCE_OBJECT_TYPE);
 			createResponse = updateDataNode(domainObj);
 			checkError = checkError(createResponse);
 			if (checkError)
@@ -105,53 +127,57 @@ public class CategoryManagerImpl extends BaseManager implements ICategoryManager
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response searchCategory(Map<String, Object> map) {
+	public Response searchCategoryInstance(Map<String, Object> map) {
 		try {
-			DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_OBJECT_TYPE);
+			DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_INSTANCE_OBJECT_TYPE);
 			SearchCriteria criteria = new SearchCriteria();
 			criteria.setGraphId(GRAPH_ID);
-			criteria.setObjectType(CATEGORY_OBJECT_TYPE);
+			criteria.setObjectType(CATEGORY_INSTANCE_OBJECT_TYPE);
 			criteria.setNodeType("DATA_NODE");
 			List<Filter> filters = new ArrayList<Filter>();
-            Filter filter = new Filter("status", SearchConditions.OP_IN, "Live");
-            filters.add(filter);
-            MetadataCriterion metadata = MetadataCriterion.create(filters);
-            List<MetadataCriterion> metadataList = new ArrayList<MetadataCriterion>();
-            metadataList.add(metadata);
-            criteria.setMetadata(metadataList);
-			Response response = searchNodes(GRAPH_ID, criteria);
-			List<Object> categoryList = new ArrayList<Object>();
-			List<Node> categoryNodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-			for(Node category : categoryNodes){
+             Filter filter = new Filter("status", SearchConditions.OP_IN, "Live");
+             filters.add(filter);
+             MetadataCriterion metadata = MetadataCriterion.create(filters);
+             List<MetadataCriterion> metadataList = new ArrayList<MetadataCriterion>();
+             metadataList.add(metadata);
+             criteria.setMetadata(metadataList);
+			 Response response = searchNodes(GRAPH_ID, criteria);
+			 List<Object> categoryList = new ArrayList<Object>();
+			 List<Node> categoryNodes = (List<Node>) response.get(GraphDACParams.node_list.name());
+			 for(Node category : categoryNodes){
 				Map<String, Object> categoryMap = ConvertGraphNode.convertGraphNode(category, GRAPH_ID, definition, null);
 					categoryList.add(categoryMap);
-			}
-			Response resp = new Response();
-			resp.put("count", categoryList.size());
-			resp.put("categories", categoryList);
-			if(checkError(resp))
+			 }
+			 Response resp = new Response();
+			 resp.put("count", categoryList.size());
+			 resp.put("categories", categoryList);
+			 if(checkError(resp))
 				return resp;
-			else
+			 else
 				return resp;
-		} catch (Exception e) {
+		 } catch (Exception e) {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
 	
 	@Override
-	public Response retireCategory(String categoryId) {
-		Response retireResponse = null;
+	public Response retireCategoryInstance(String categoryInstanceId) {
+		Response createResponse = null;
 		boolean checkError = false;
-		Response getNodeResponse = getDataNode(GRAPH_ID, categoryId);
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_INSTANCE_OBJECT_TYPE);
+		Response getNodeResponse = getDataNode(GRAPH_ID, categoryInstanceId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+		Node domainObj;
 		try {
-			graphNode.getMetadata().put("status", "retire");
-		    retireResponse = updateDataNode(graphNode);
-			checkError = checkError(retireResponse);
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("status", "retire");
+			domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+			updateDataNode(domainObj);
+			checkError = checkError(createResponse);
 			if (checkError)
-				return retireResponse;
+				return createResponse;
 			else
-				return retireResponse;
+				return createResponse;
 		} catch (Exception e) {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}

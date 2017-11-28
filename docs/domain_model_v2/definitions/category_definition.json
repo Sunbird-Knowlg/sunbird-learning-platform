@@ -24,7 +24,7 @@
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 1}",
+          "renderingHints": "{'inputType': 'text', 'order': 3}",
           "indexed": true
         },
         {
@@ -36,7 +36,31 @@
           "required": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 2}",
+          "renderingHints": "{'inputType': 'text', 'order': 4}",
+          "indexed": true
+        },
+        {
+          "propertyName": "translations",
+          "title": "translations",
+          "description": "translations for the category",
+          "category": "General",
+          "dataType": "json",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'object', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "propertyName": "defaultTerm",
+          "title": "defaultTerm",
+          "description": "defaultTerm associated with the category",
+          "category": "General",
+          "dataType": "json",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 6}",
           "indexed": true
         },
         {
@@ -49,14 +73,13 @@
             [
                 "Draft",
                 "Live",
-                "Review",
                 "Retired"
             ],
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Live",
-            "renderingHints": "{'inputType': 'select', 'order': 3}"
+            "renderingHints": "{'inputType': 'select', 'order': 7}"
         },
         {
           "propertyName": "createdBy",
@@ -69,7 +92,7 @@
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 8}"
         },
         {
           "propertyName": "createdOn",
@@ -82,7 +105,7 @@
           "indexed": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 11 }"
+          "renderingHints": "{ inputType': 'date', 'order': 9 }"
         },  
         {
           "propertyName": "lastUpdatedBy",
@@ -95,7 +118,7 @@
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 12 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
         },
         {
           "propertyName": "lastUpdatedOn",
@@ -108,7 +131,7 @@
           "indexed": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 13 }"
+          "renderingHints": "{ inputType': 'date', 'order': 11 }"
         }
       ],
       "inRelations":[],
@@ -121,12 +144,12 @@
 				"title": "term",
 				"description": "term instance which has sequence relationship with this category",
 				"required": false,
-				"renderingHints": "{ 'order': 26 }"
+				"renderingHints": "{ 'order': 12 }"
 			}
 	  ],
       "systemTags": [],
       "metadata": {
-        "ttl": 24,
+        "ttl": 11,
         "limit": 50
       }
     }
