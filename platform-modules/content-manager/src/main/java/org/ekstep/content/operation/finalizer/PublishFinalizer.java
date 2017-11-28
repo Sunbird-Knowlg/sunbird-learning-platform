@@ -56,6 +56,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected String contentId;
 
 	private static final String s3Artifact = "s3.artifact.folder";
+	
+	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -218,9 +220,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			String[] urlArray = null;
 			ContentBundle contentBundle = new ContentBundle();
 			
-			if ("collection".equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
-				PlatformLogger.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier(), null,
-						LoggerEnum.INFO.name());
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
+				System.out.println("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			} else {
 				PlatformLogger.log("Creating Full ECAR For Content Id: " + node.getIdentifier(), null,
 						LoggerEnum.INFO.name());
@@ -251,6 +252,12 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			PlatformLogger.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+			
+			// if collection full ECAR creation disabled set spine as download url.
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
+				downloadUrl = urlArray[IDX_S3_URL];
+				s3Key = urlArray[IDX_S3_KEY];
+			}
 		}
 
 		// Delete local compressed artifactFile
@@ -273,14 +280,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		// Populate Fields and Update Node
-		if ("collection".equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
-			PlatformLogger.log("Disabled full ECAR generation for collections. So not setting related metadata for collection id: " + node.getIdentifier(), null,
-					LoggerEnum.INFO.name());
-		} else {
-			node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
-			node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
-			node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(s3Key));
-		}
+		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
+		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
+		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(s3Key));
 		
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
