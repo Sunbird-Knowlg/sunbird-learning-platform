@@ -56,6 +56,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected String contentId;
 
 	private static final String s3Artifact = "s3.artifact.folder";
+	
+	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -214,19 +216,26 @@ public class PublishFinalizer extends BaseFinalizer {
 			PlatformLogger.log("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier(), null,
 					LoggerEnum.INFO.name());
 			Map<String, Object> variants = new HashMap<String, Object>();
-
-			PlatformLogger.log("Creating Full ECAR For Content Id: " + node.getIdentifier(), null,
-					LoggerEnum.INFO.name());
-			String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
+			Map<Object, List<String>> downloadUrls = null;
+			String[] urlArray = null;
 			ContentBundle contentBundle = new ContentBundle();
-			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
-					null, EcarPackageType.FULL);
-			String[] urlArray = contentBundle.createContentBundle(contents, bundleFileName,
-					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
-			downloadUrl = urlArray[IDX_S3_URL];
-			s3Key = urlArray[IDX_S3_KEY];
-			PlatformLogger.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
-
+			
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
+				System.out.println("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
+			} else {
+				PlatformLogger.log("Creating Full ECAR For Content Id: " + node.getIdentifier(), null,
+						LoggerEnum.INFO.name());
+				String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
+				
+				downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
+						null, EcarPackageType.FULL);
+				urlArray = contentBundle.createContentBundle(contents, bundleFileName,
+						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+				downloadUrl = urlArray[IDX_S3_URL];
+				s3Key = urlArray[IDX_S3_KEY];
+				PlatformLogger.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
+			}
+			
 			PlatformLogger.log("Creating Spine ECAR For Content Id: " + node.getIdentifier(), null,
 					LoggerEnum.INFO.name());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
@@ -243,6 +252,12 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			PlatformLogger.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+			
+			// if collection full ECAR creation disabled set spine as download url.
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
+				downloadUrl = urlArray[IDX_S3_URL];
+				s3Key = urlArray[IDX_S3_KEY];
+			}
 		}
 
 		// Delete local compressed artifactFile
@@ -268,7 +283,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
 		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
 		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(s3Key));
-
+		
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
@@ -400,5 +415,12 @@ public class PublishFinalizer extends BaseFinalizer {
 		PlatformLogger.log("Returning the Response Object After Migrating the Content Body and Metadata.", response,
 				null, LoggerEnum.INFO.name());
 		return response;
+	}
+	
+	private boolean disableCollectionFullECAR() {
+		if (Platform.config.hasPath("publish.collection.fullecar.disable"))
+			return "true".equalsIgnoreCase(Platform.config.getString("publish.collection.fullecar.disable"));
+		else 
+			return false;
 	}
 }
