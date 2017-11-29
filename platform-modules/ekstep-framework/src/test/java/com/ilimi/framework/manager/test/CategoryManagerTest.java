@@ -1,4 +1,4 @@
-package org.ekstep.framework.manager.test;
+package com.ilimi.framework.manager.test;
 
 public class CategoryManagerTest {
 

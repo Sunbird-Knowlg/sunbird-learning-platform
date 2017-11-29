@@ -1,4 +1,4 @@
-package org.ekstep.framework.controller.test;
+package com.ilimi.framework.controller.test;
 
 public class CategoryV3ControllerTest {
 
