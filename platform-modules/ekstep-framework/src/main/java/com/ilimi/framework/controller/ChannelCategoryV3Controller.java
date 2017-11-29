@@ -33,12 +33,13 @@ public class ChannelCategoryV3Controller extends BaseController {
 @Autowired
 private ICategoryInstanceManager categoryInstanceManager;
 	
-	String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
+	
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
+		String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
 		String apiId = "ekstep.learning.categoryInstance.create";
 		PlatformLogger.log("Executing category Create API.", requestMap);
 		Request request = getRequest(requestMap);
@@ -56,6 +57,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String categoryInstanceId) {
 		String apiId = "ekstep.learning.categoryInstance.read";
+		String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
 		PlatformLogger.log(
 				"Executing category instance Get API for category instance Id: " + categoryInstanceId + ".", null);
 		Response response;
@@ -75,6 +77,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String categoryInstanceId,
 			@RequestBody Map<String, Object> requestMap) {
+		String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
 		String apiId = "ekstep.learning.category.update";
 		PlatformLogger.log(
 				"Executing category instance Update API For categoryInstance Id: " + categoryInstanceId + ".",
@@ -94,6 +97,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
+		String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
 		String apiId = "ekstep.learning.categoryInstance.search";
 		PlatformLogger.log("search | category: " + " | Request: " + map);
 		try {
@@ -110,6 +114,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryInstanceId,
 			@RequestHeader(value = "user-id") String userId) {
+		String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
 		String apiId = "ekstep.learning.categoryInstance.retire";
 		PlatformLogger.log("Get | categorys: " + " | Request: " + categoryInstanceId);
 		try {

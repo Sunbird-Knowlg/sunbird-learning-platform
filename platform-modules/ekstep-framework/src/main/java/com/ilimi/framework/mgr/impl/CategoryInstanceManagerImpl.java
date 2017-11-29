@@ -88,7 +88,7 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 			DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_INSTANCE_OBJECT_TYPE);
 			Map<String, Object> categoryMap = ConvertGraphNode.convertGraphNode(category, GRAPH_ID, definition, null);
 			PlatformLogger.log("Got Node: ", category);
-			response.put(CategoryEnum.category.name(), categoryMap);
+			response.put(CategoryEnum.categoryInstance.name(), categoryMap);
 			response.setParams(getSucessStatus());
 			return response;
 		}
@@ -154,6 +154,14 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 			List<Filter> filters = new ArrayList<Filter>();
              Filter filter = new Filter("status", SearchConditions.OP_IN, "Live");
              filters.add(filter);
+			if ((null != map) && !map.isEmpty()) {
+				for (String key : map.keySet()) {
+					if (StringUtils.isNotBlank((String) map.get(key))) {
+						filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
+						filters.add(filter);
+					}
+				}
+			}
              MetadataCriterion metadata = MetadataCriterion.create(filters);
              List<MetadataCriterion> metadataList = new ArrayList<MetadataCriterion>();
              metadataList.add(metadata);
@@ -167,7 +175,7 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 			 }
 			 Response resp = new Response();
 			 resp.put("count", categoryList.size());
-			 resp.put("categories", categoryList);
+			 resp.put("categoryInstances", categoryList);
 			 if(checkError(resp))
 				return resp;
 			 else
