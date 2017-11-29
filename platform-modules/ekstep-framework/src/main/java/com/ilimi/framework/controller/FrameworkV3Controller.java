@@ -25,9 +25,9 @@ import com.ilimi.framework.mgr.IFrameworkManager;
  *
  */
 @Controller
-@RequestMapping("/v2/framework")
+@RequestMapping("/v3/framework")
 public class FrameworkV3Controller extends BaseController{
-
+	 
 	private final String graphId = "domain";
 	
 	@Autowired
@@ -72,7 +72,7 @@ public class FrameworkV3Controller extends BaseController{
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> updateFramework(@PathVariable(value = "id") String frameworkId,
-			@RequestBody Map<String, Object> requestMap) {
+			@RequestBody Map<String, Object> requestMap,@RequestHeader(value = "X-Channel-Id") String channelId) {
 
 		String apiId = "ekstep.learning.framework.update";
 		PlatformLogger.log(
@@ -81,7 +81,7 @@ public class FrameworkV3Controller extends BaseController{
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("framework");
-			Response response = frameworkManager.updateFramework(frameworkId, map);
+			Response response = frameworkManager.updateFramework(frameworkId,channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while updating framework (Update Framework API): ", e.getMessage(), e);
@@ -98,10 +98,28 @@ public class FrameworkV3Controller extends BaseController{
 		PlatformLogger.log("Executing framework List API : ", requestMap);
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("framework");
-			Response response = frameworkManager.listFramework(map);
+			Map<String, Object> map = (Map<String, Object>) request.get("search");
+				Response response = frameworkManager.listFramework(map);
+				return getResponseEntity(response, apiId, null);
+			
+		} catch (Exception e) {
+			PlatformLogger.log("Exception Occured while Performing List Operation : " , e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Response> retire(@PathVariable(value = "id") String frameworkId,
+			@RequestHeader(value = "user-id") String userId,@RequestHeader(value = "X-Channel-Id") String channelId) {
+		String apiId = "ekstep.learning.framework.retire";
+		PlatformLogger.log("Executing Framework Retire API for Framework Id : " + frameworkId);
+		try {
+			Response response = frameworkManager.retireFramework(frameworkId,channelId);
+			PlatformLogger.log("Framework Retire Framework | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			PlatformLogger.log("Exception Occured while Performing Retire Operation : " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

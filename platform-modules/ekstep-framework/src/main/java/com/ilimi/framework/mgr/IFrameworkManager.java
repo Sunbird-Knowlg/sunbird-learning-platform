@@ -20,9 +20,9 @@ public interface IFrameworkManager {
 	
 	Response readFramework(String graphId, String frameworkId) throws Exception;
 	
-	Response updateFramework(String frameworkId, Map<String, Object> map) throws Exception;
+	Response updateFramework(String frameworkId,String channelId, Map<String, Object> map) throws Exception;
 	
 	Response listFramework(Map<String, Object> map) throws Exception;
 	
-	Response retireFramework(Map<String, Object> map) throws Exception;
+	Response retireFramework(String frameworkId, String channelId) throws Exception;
 }
