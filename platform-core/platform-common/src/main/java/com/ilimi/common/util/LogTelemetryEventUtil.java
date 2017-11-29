@@ -22,9 +22,18 @@ public class LogTelemetryEventUtil {
 	
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
 	private static final Logger objectLifecycleEventLogger = LogManager.getLogger("ObjectLifecycleLogger");
-	private static final Logger publishContentEventLogger = LogManager.getLogger("PublishContentEventLogger");
+	private static final Logger instructionEventLogger = LogManager.getLogger("InstructionEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
+	private static String eventId = "BE_CONTENT_PUBLISH";
+	private static String actorId = "Publish Samza Job";
+	private static String actorType = "System";
+	private static String pdataId = "org.ekstep.platform";
+	private static String pdataVersion = "1.0";
+	private static String action = "publish";
+	private static String status = "Pending";
+	private static int iteration = 0;
+	
 	
 	
 	public static String logInstructionBasedContentPublishEvent(String contentId, Map<String, Object> metadata) {
@@ -35,18 +44,18 @@ public class LogTelemetryEventUtil {
 		Map<String,Object> object = new HashMap<String,Object>();
 		Map<String,Object> edata = new HashMap<String,Object>();
 		
-		te.setEid("BE_CONTENT_PUBLISH");
+		te.setEid(eventId);
 		te.setEts(unixTime);
 		te.setMid(mid);
 		
-		actor.put("id", "");
-		actor.put("type", "System");
+		actor.put("id", actorId);//publish job
+		actor.put("type", actorType);
 		te.setActor(actor);
 		
-		context.put("channel", "in.ekstep");  //Need to be passed from config - need confirmation
+		context.put("channel", metadata.get("channel")); 
 		Map<String, Object> pdata = new HashMap<>();
-		pdata.put("id", "org.ekstep.platform");  //Need to be passed from config - need confirmation
-		pdata.put("ver", "1.0");
+		pdata.put("id", pdataId); 
+		pdata.put("ver", pdataVersion);
 		context.put("pdata", pdata);
 		if (Platform.config.hasPath("s3.env")) {
 			String env = Platform.config.getString("s3.env");
@@ -62,9 +71,9 @@ public class LogTelemetryEventUtil {
 		object.put("ver", metadata.get("version"));
 		te.setObject(object);
 		
-		edata.put("action", "publish");
-		edata.put("status", "");
-		edata.put("iteration", 0);
+		edata.put("action", action);
+		edata.put("status", status);
+		edata.put("iteration", iteration);
 		edata.put("publish_type", (String)metadata.get("publish_type"));
 		te.setEdata(edata);
 		
@@ -72,7 +81,7 @@ public class LogTelemetryEventUtil {
 		try {
 			jsonMessage = mapper.writeValueAsString(te);
 			if (StringUtils.isNotBlank(jsonMessage))
-				publishContentEventLogger.info(jsonMessage);
+				instructionEventLogger.info(jsonMessage);
 		} catch (Exception e) {
 			PlatformLogger.log("Error logging BE_CONTENT_PUBLISH event", e.getMessage(), e);
 		}

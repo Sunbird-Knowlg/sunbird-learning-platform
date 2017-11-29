@@ -109,7 +109,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		if (BooleanUtils.isTrue(isPublishOperation)) {
 			LogTelemetryEventUtil.logInstructionBasedContentPublishEvent(newNode.getIdentifier(), newNode.getMetadata());
 		}
-		
+		node.getMetadata().put("publish_type", publishType); //Added for executing publish operation locally
 		return response;
 	}
 

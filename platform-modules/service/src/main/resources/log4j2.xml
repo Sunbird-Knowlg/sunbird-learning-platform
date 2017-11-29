@@ -90,11 +90,8 @@
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 
-
-
-
-		<RollingRandomAccessFile name="PublishContentEventAppender" fileName="/data/logs/publish_content_event_mw.log"
-			filePattern="/data/logs/publish_content_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingRandomAccessFile name="InstructionEventAppender" fileName="/data/logs/instruction_event_mw.log"
+			filePattern="/data/logs/instruction_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -105,21 +102,16 @@
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="publish_content_event_mw-*.log" />
+                    <IfFileName glob="instruction_event_mw-*.log" />
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 
-
-
-
-
-
 	</Appenders>
 	<Loggers>
-		<Logger name="PublishContentEventLogger" level="INFO" additivity="false">
-			<AppenderRef ref="PublishContentEventAppender" />
+		<Logger name="InstructionEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="InstructionEventAppender" />
 		</Logger>
 		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="TelemetryEventAppender" />
