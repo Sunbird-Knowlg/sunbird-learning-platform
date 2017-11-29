@@ -34,7 +34,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap, 
-			@RequestParam(value = "frameworkId") String frameworkId) {
+			@RequestParam(value = "frameworkId", required = true) String frameworkId) {
 		String apiId = "ekstep.learning.categoryInstance.create";
 		PlatformLogger.log("Executing category Create API.", requestMap);
 		Request request = getRequest(requestMap);
@@ -50,7 +50,8 @@ private ICategoryInstanceManager categoryInstanceManager;
 	
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> read(@PathVariable(value = "id") String categoryInstanceId) {
+	public ResponseEntity<Response> read(@PathVariable(value = "id") String categoryInstanceId,
+			@RequestParam(value = "frameworkId", required = true) String frameworkId) {
 		String apiId = "ekstep.learning.categoryInstance.read";
 		PlatformLogger.log(
 				"Executing category instance Get API category instance Id: " + categoryInstanceId + ".", null);
@@ -58,7 +59,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 		PlatformLogger.log("category instance GetById | category instance Id : " + categoryInstanceId);
 		try {
 			PlatformLogger.log("Calling the Manager for fetching category instance 'getById' | [category instance Id " + categoryInstanceId + "]");
-			response = categoryInstanceManager.readCategoryInstance(categoryInstanceId);
+			response = categoryInstanceManager.readCategoryInstance(frameworkId, categoryInstanceId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Read category instance", e.getMessage(), e);
@@ -70,15 +71,14 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String categoryInstanceId,
+			@RequestParam(value = "frameworkId", required = true) String frameworkId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.categoryInstance.update";
-		PlatformLogger.log(
-				"Executing category Update API For category instance Id: " + categoryInstanceId + ".",
-				requestMap, "INFO");
+		PlatformLogger.log("Executing category Update API For category instance Id: " + categoryInstanceId + ".",requestMap, "INFO");
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("categoryInstance");
-			Response response = categoryInstanceManager.updateCategoryInstance(categoryInstanceId, map);
+			Response response = categoryInstanceManager.updateCategoryInstance(frameworkId, categoryInstanceId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Update category", e.getMessage(), e);
@@ -89,11 +89,12 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map,
+			@RequestParam(value = "frameworkId", required = true) String frameworkId,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.categoryInstance.search";
 		PlatformLogger.log("search | category: " + " | Request: " + map);
 		try {
-			Response response = categoryInstanceManager.searchCategoryInstance(map);
+			Response response = categoryInstanceManager.searchCategoryInstance(frameworkId, map);
 			PlatformLogger.log("search category instance | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -105,11 +106,12 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@RequestMapping(value = "/retire", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryInstanceId,
+			@RequestParam(value = "frameworkId", required = true) String frameworkId,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.categoryInstance.retire";
 		PlatformLogger.log("Get | categorys: " + " | Request: " + categoryInstanceId);
 		try {
-			Response response = categoryInstanceManager.retireCategoryInstance(categoryInstanceId);
+			Response response = categoryInstanceManager.retireCategoryInstance(frameworkId, categoryInstanceId);
 			PlatformLogger.log("retire category | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

@@ -10,10 +10,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
+import com.ilimi.common.dto.ExecutionContext;
+import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
@@ -32,11 +33,12 @@ public class ChannelCategoryV3Controller extends BaseController {
 @Autowired
 private ICategoryInstanceManager categoryInstanceManager;
 	
+	String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap, 
-			@RequestParam(value = "channelId") String channelId) {
+	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.categoryInstance.create";
 		PlatformLogger.log("Executing category Create API.", requestMap);
 		Request request = getRequest(requestMap);
@@ -60,7 +62,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 		PlatformLogger.log("category instance GetById | category instance Id : " + categoryInstanceId);
 		try {
 			PlatformLogger.log("Calling the Manager for fetching category instance 'getById' | [category Id " + categoryInstanceId + "]");
-			response = categoryInstanceManager.readCategoryInstance(categoryInstanceId);
+			response = categoryInstanceManager.readCategoryInstance(channelId, categoryInstanceId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Read category instance", e.getMessage(), e);
@@ -80,7 +82,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("categoryInstance");
-			Response response = categoryInstanceManager.updateCategoryInstance(categoryInstanceId, map);
+			Response response = categoryInstanceManager.updateCategoryInstance(channelId, categoryInstanceId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Update category instance", e.getMessage(), e);
@@ -95,7 +97,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 		String apiId = "ekstep.learning.categoryInstance.search";
 		PlatformLogger.log("search | category: " + " | Request: " + map);
 		try {
-			Response response = categoryInstanceManager.searchCategoryInstance(map);
+			Response response = categoryInstanceManager.searchCategoryInstance(channelId, map);
 			PlatformLogger.log("search category instance | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -111,7 +113,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 		String apiId = "ekstep.learning.categoryInstance.retire";
 		PlatformLogger.log("Get | categorys: " + " | Request: " + categoryInstanceId);
 		try {
-			Response response = categoryInstanceManager.retireCategoryInstance(categoryInstanceId);
+			Response response = categoryInstanceManager.retireCategoryInstance(channelId, categoryInstanceId);
 			PlatformLogger.log("retire category instance | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

@@ -8,11 +8,11 @@ public interface ICategoryInstanceManager {
 
 	Response createCategoryInstance(String identifier, Map<String,Object> request);
 
-	Response readCategoryInstance(String categoryInstanceId);
+	Response readCategoryInstance(String identifier, String categoryInstanceId);
 
-	Response updateCategoryInstance(String categoryInstanceId, Map<String, Object> map);
-
-	Response searchCategoryInstance(Map<String, Object> map);
+	Response searchCategoryInstance(String identifier, Map<String, Object> map);
 	
-	Response retireCategoryInstance(String categoryInstanceId);
+	Response retireCategoryInstance(String identifier, String categoryInstanceId);
+
+	Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map);
 }
