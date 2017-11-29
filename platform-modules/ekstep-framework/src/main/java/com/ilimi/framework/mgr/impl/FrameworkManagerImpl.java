@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -160,10 +161,11 @@ public class FrameworkManagerImpl extends BaseManager implements IFrameworkManag
 			}
 			if (!map.isEmpty()) {
 				for (String critKey : map.keySet()) {
-					System.out.println();
 					String critVal = (String) map.get(critKey);
-					filter = new Filter(critKey, SearchConditions.OP_IN, critVal);
-					filters.add(filter);
+					if(!StringUtils.isBlank(critVal)){
+						filter = new Filter(critKey, SearchConditions.OP_IN, critVal);
+						filters.add(filter);
+					}
 				}
 			}
 
