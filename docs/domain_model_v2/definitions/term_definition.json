@@ -133,6 +133,26 @@
 				"description": "Category using the term",
 				"required": false,
 				"renderingHints": "{ 'order': 7}"
+			},
+			{
+				"relationName": "hasSequenceMember",
+				"objectTypes": [
+					"CategoryInstance"
+				],
+				"title": "categoryInstance",
+				"description": "CategoryInstance using the term",
+				"required": false,
+				"renderingHints": "{ 'order': 7}"
+			},
+			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"Content"
+				],
+				"title": "content",
+				"description": "Content associated with the term",
+				"required": false,
+				"renderingHints": "{ 'order': 7}"
 			}
 			],
 			"outRelations":[

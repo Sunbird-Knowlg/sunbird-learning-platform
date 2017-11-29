@@ -98,7 +98,6 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		if(null != node) {
 			List<Relation> inRelations = node.getInRelations();
 			for(Relation rel : inRelations) {
-				System.out.println(identifier + rel.getStartNodeId());
 				if(StringUtils.equalsIgnoreCase(identifier, rel.getStartNodeId()))
 					return true;
 				else {
@@ -154,6 +153,15 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 			List<Filter> filters = new ArrayList<Filter>();
              Filter filter = new Filter("status", SearchConditions.OP_IN, "Live");
              filters.add(filter);
+
+			if ((null != map) && !map.isEmpty()) {
+				for (String key : map.keySet()) {
+					if (StringUtils.isNotBlank((String) map.get(key))) {
+						filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
+						filters.add(filter);
+					}
+				}
+			}
              MetadataCriterion metadata = MetadataCriterion.create(filters);
              List<MetadataCriterion> metadataList = new ArrayList<MetadataCriterion>();
              metadataList.add(metadata);

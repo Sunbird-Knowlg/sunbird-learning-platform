@@ -46,8 +46,19 @@ public interface ITermManager {
 	/**
 	 * @param categoryId
 	 * @param map
+	 * @param map
 	 * @return
 	 */
-	Response searchTerms(String categoryId);
+	Response searchTerms(String categoryId, Map<String, Object> map);
 
+	/**
+	 * @param categoryId
+	 * @param termId
+	 * @return
+	 */
+	Response retireTerm(String categoryId, String termId);
+
+	Boolean validateRequest(String channelId, String categoryId);
+
+	Boolean validateCategoryId(String categoryId);
 }

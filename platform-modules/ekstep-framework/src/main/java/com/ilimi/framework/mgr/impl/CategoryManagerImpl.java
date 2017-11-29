@@ -115,6 +115,15 @@ public class CategoryManagerImpl extends BaseManager implements ICategoryManager
 			List<Filter> filters = new ArrayList<Filter>();
             Filter filter = new Filter("status", SearchConditions.OP_IN, "Live");
             filters.add(filter);
+
+			if ((null != map) && !map.isEmpty()) {
+				for (String key : map.keySet()) {
+					if (StringUtils.isNotBlank((String) map.get(key))) {
+						filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
+						filters.add(filter);
+					}
+				}
+			}
             MetadataCriterion metadata = MetadataCriterion.create(filters);
             List<MetadataCriterion> metadataList = new ArrayList<MetadataCriterion>();
             metadataList.add(metadata);
