@@ -194,7 +194,7 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		Node domainObj;
 		try {
 			Map<String,Object> map = new HashMap<String,Object>();
-			map.put("status", "retire");
+			map.put("status", "Retired");
 			domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 			updateDataNode(domainObj);
 			checkError = checkError(createResponse);

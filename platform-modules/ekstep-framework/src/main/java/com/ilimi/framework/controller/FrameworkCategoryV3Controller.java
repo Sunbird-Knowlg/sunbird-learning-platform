@@ -89,8 +89,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map,
-			@RequestParam(value = "frameworkId", required = true) String frameworkId,
-			@RequestHeader(value = "user-id") String userId) {
+			@RequestParam(value = "frameworkId", required = true) String frameworkId) {
 		String apiId = "ekstep.learning.categoryInstance.search";
 		PlatformLogger.log("search | category: " + " | Request: " + map);
 		try {
@@ -103,11 +102,10 @@ private ICategoryInstanceManager categoryInstanceManager;
 		}
 	}
 	
-	@RequestMapping(value = "/retire", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryInstanceId,
-			@RequestParam(value = "frameworkId", required = true) String frameworkId,
-			@RequestHeader(value = "user-id") String userId) {
+			@RequestParam(value = "frameworkId", required = true) String frameworkId) {
 		String apiId = "ekstep.learning.categoryInstance.retire";
 		PlatformLogger.log("Get | categorys: " + " | Request: " + categoryInstanceId);
 		try {

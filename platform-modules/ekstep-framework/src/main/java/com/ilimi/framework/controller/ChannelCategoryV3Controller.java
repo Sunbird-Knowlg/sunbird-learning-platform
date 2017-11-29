@@ -95,8 +95,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 	
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map,
-			@RequestHeader(value = "user-id") String userId) {
+	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map) {
 		String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
 		String apiId = "ekstep.learning.categoryInstance.search";
 		PlatformLogger.log("search | category: " + " | Request: " + map);
@@ -110,10 +109,9 @@ private ICategoryInstanceManager categoryInstanceManager;
 		}
 	}
 	
-	@RequestMapping(value = "/retire", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
-	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryInstanceId,
-			@RequestHeader(value = "user-id") String userId) {
+	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryInstanceId) {
 		String channelId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
 		String apiId = "ekstep.learning.categoryInstance.retire";
 		PlatformLogger.log("Get | categorys: " + " | Request: " + categoryInstanceId);

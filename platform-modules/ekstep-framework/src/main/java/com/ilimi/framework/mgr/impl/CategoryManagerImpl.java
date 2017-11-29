@@ -153,7 +153,7 @@ public class CategoryManagerImpl extends BaseManager implements ICategoryManager
 		Response getNodeResponse = getDataNode(GRAPH_ID, categoryId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		try {
-			graphNode.getMetadata().put("status", "retire");
+			graphNode.getMetadata().put("status", "Retired");
 		    retireResponse = updateDataNode(graphNode);
 			checkError = checkError(retireResponse);
 			if (checkError)

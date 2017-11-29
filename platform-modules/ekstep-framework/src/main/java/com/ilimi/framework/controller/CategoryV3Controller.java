@@ -102,10 +102,9 @@ private ICategoryManager categoryManager;
 		}
 	}
 	
-	@RequestMapping(value = "/retire", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
-	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryId,
-			@RequestHeader(value = "user-id") String userId) {
+	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryId) {
 		String apiId = "ekstep.learning.category.retire";
 		PlatformLogger.log("Get | categorys: " + " | Request: " + categoryId);
 		try {
