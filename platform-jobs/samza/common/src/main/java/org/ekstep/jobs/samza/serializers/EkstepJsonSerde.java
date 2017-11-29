@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * A serializer for JSON strings that
@@ -64,6 +66,7 @@ public class EkstepJsonSerde<T> implements Serde<T> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T fromBytes(byte[] bytes) {
 		if (bytes != null) {
@@ -78,14 +81,27 @@ public class EkstepJsonSerde<T> implements Serde<T> {
 				}
 			} catch (UnsupportedEncodingException e) {
 				LOG.error("Error deserializing data. Unsupported encoding: " + bytes, e);
-				return null;
+				Map<String,Object> map = exceptionMap(bytes, "Error deserializing data. Unsupported encoding", e);
+				return (T) map;
 			} catch (Exception e) {
 				LOG.error("Error deserializing data: " + str, e);
-				return null;
+				Map<String,Object> map = exceptionMap(str, "Error deserializing data", e);
+				return (T) map;
 			}
 		} else {
 			return null;
 		}
 	}
 
+	public Map<String,Object> exceptionMap(Object data, String message, Exception e){
+		Map<String,Object> map = new HashMap<String,Object>();
+		if(data instanceof Byte)
+			map.put("bytes", data);
+		if(data instanceof String)
+			map.put("str", data);
+		map.put("message", message);
+		map.put("exception", e);
+		map.put("serde", "error");
+	return map;
+	}
 }

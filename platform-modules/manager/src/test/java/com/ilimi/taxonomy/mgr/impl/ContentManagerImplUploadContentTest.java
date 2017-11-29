@@ -4,41 +4,50 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ServerException;
 import com.ilimi.taxonomy.content.common.TestParams;
 import com.ilimi.taxonomy.content.common.TestSetup;
+import com.ilimi.taxonomy.content.common.TestSetupUtil;
+import com.ilimi.taxonomy.mgr.IContentManager;
 
-import junit.framework.Assert;
 
 /**
- * Test Cases for code coverage of Upload Content. This Class covers test caes
- * for both upload(). see ContentManagerImpl
+ * Test Cases for code coverage of Upload Content. This Class covers test cases
+ * for both upload().
  * 
  * @see ContentManagerImpl
  * @author gauraw
  *
  */
-
-@SuppressWarnings("deprecation")
-public class ContentManagerImplUploadContentTest extends TestSetup {
+//@Ignore
+public class ContentManagerImplUploadContentTest extends TestSetupUtil {
 
 	static ContentManagerImpl contentManager = new ContentManagerImpl();
 
 	static Map<String, Object> versionKeyMap = new HashMap<String, Object>();
 
 	static ObjectMapper mapper = new ObjectMapper();
+	
+	static ClassLoader classLoader = ContentManagerImplUploadContentTest.class.getClassLoader();
+	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 
 	static String taxonomyId = "domain";
 
@@ -49,14 +58,12 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 
 	@BeforeClass
 	public static void initTest() throws Exception {
-		System.out.println("ContentManagerImplUploadContentTest -- Before Class");
 		seedContent();
 
 	}
 
 	@AfterClass
 	public static void finishTest() {
-		System.out.println("ContentManagerImplUploadContentTest -- After Class");
 	}
 
 	/*
@@ -65,8 +72,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	 */
 
 	// Empty Content Id
-	// @Test
-	@Test(timeout = 10000000000000L)
+	@Test
 	public void testUploadContentException_01() {
 
 		exception.expect(ClientException.class);
@@ -77,7 +83,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	}
 
 	// Empty Taxonomy Id
-	@Test(timeout = 10000000000000L)
+	@Test
 	public void testUploadContentException_02() {
 
 		exception.expect(ClientException.class);
@@ -89,19 +95,18 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	}
 
 	// Invalid Content Id
-	@Test(timeout = 10000000000000L)
+	@Test
 	public void testUploadContentException_03() {
 
 		exception.expect(ClientException.class);
 		String contentId = "TEST1.img"; // Invalid Content Id
-		String taxonomyId = "ttttt";
 		String mimeType = "application/pdf";
 		File file = new File("");
 		Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
 	}
 
 	// Empty File
-	@Test(timeout = 10000000000000L)
+	@Test
 	public void testUploadContentException_04() {
 
 		exception.expect(ClientException.class);
@@ -112,12 +117,12 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	}
 
 	// Upload Document Content
-	@Test(timeout = 1000000000000000L)
+	@Test
 	public void testUploadContent_01() {
 		try {
 			String contentId = "U_Document_001";
 			String mimeType = "application/pdf";
-			File file1 = new File("./src/test/resources/UploadFiles/pdf.pdf");
+			File file1 = new File(path+"/pdf.pdf");
 			String absPath = file1.getAbsolutePath();
 			File file = new File(absPath);
 
@@ -125,17 +130,9 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 			String responseCode = (String) response.getResponseCode().toString();
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
-			/*
-			 * String
-			 * contentUrl=(String)response.getResult().get("content_url");
-			 * System.out.println("reponseCode:::::::"+responseCode);
-			 * System.out.println("nodeId:::::::"+nodeId);
-			 * System.out.println("versionKey:::::::"+versionKey);
-			 * System.out.println("contentUrl::::::::::::"+contentUrl);
-			 */
-			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
-			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
-			Assert.assertFalse(
+			assertTrue(StringUtils.isNotBlank(nodeId));
+			assertTrue(StringUtils.isNotBlank(versionKey));
+			assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
 				versionKeyMap.put(contentId, versionKey);
@@ -145,12 +142,12 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	}
 
 	// Upload Document Content with empty mime type.
-	@Test(timeout = 1000000000000000L)
+	@Test
 	public void testUploadContent_02() {
 		try {
 			String contentId = "U_Document_002";
 			String mimeType = "";
-			File file1 = new File("./src/test/resources/UploadFiles/pdf.pdf");
+			File file1 = new File(path+"/test.pdf");
 			String absPath = file1.getAbsolutePath();
 			File file = new File(absPath);
 
@@ -158,17 +155,9 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 			String responseCode = (String) response.getResponseCode().toString();
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
-			/*
-			 * String
-			 * contentUrl=(String)response.getResult().get("content_url");
-			 * System.out.println("reponseCode:::::::"+responseCode);
-			 * System.out.println("nodeId:::::::"+nodeId);
-			 * System.out.println("versionKey:::::::"+versionKey);
-			 * System.out.println("contentUrl::::::::::::"+contentUrl);
-			 */
-			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
-			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
-			Assert.assertFalse(
+			assertTrue(StringUtils.isNotBlank(nodeId));
+			assertTrue(StringUtils.isNotBlank(versionKey));
+			assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
 				versionKeyMap.put(contentId, versionKey);
@@ -184,7 +173,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	 */
 
 	// Empty Taxonomy Id
-	@Test(timeout = 10000000000000L)
+	@Test
 	public void testUploadContentException_05() {
 		String contentId = "TEST1";
 		String taxonomyId = "";
@@ -196,7 +185,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	}
 
 	// Empty Content Id
-	@Test(timeout = 10000000000000L)
+	@Test
 	public void testUploadContentException_06() {
 		String contentId = "";
 		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
@@ -207,7 +196,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	}
 
 	// Empty file url
-	@Test(timeout = 10000000000000L)
+	@Test
 	public void testUploadContentException_07() {
 		String contentId = "TEST1";
 		String fileUrl = "";
@@ -218,7 +207,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	}
 
 	// upload with fileUrl
-	@Test(timeout = 1000000000000000L)
+	@Test
 	public void testUploadContent_03() {
 		try {
 			String contentId = "U_Document_003";
@@ -229,17 +218,9 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 			String responseCode = (String) response.getResponseCode().toString();
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
-			/*
-			 * 
-			 * contentUrl=(String)response.getResult().get("content_url");
-			 * System.out.println("reponseCode:::::::"+responseCode);
-			 * System.out.println("nodeId:::::::"+nodeId);
-			 * System.out.println("versionKey:::::::"+versionKey);
-			 * System.out.println("contentUrl::::::::::::"+contentUrl);
-			 */
-			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
-			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
-			Assert.assertFalse(
+			assertTrue(StringUtils.isNotBlank(nodeId));
+			assertTrue(StringUtils.isNotBlank(versionKey));
+			assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
 				versionKeyMap.put(contentId, versionKey);
@@ -249,10 +230,10 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	}
 
 	// upload with fileUrl and empty mime type.
-	@Test(timeout = 1000000000000000L)
+	@Test
 	public void testUploadContent_04() {
 		try {
-			String contentId = "U_Document_15";
+			String contentId = "U_Document_004";
 			String mimeType = "";
 			String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
 
@@ -260,17 +241,9 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 			String responseCode = (String) response.getResponseCode().toString();
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
-			/*
-			 * String
-			 * contentUrl=(String)response.getResult().get("content_url");
-			 * System.out.println("reponseCode:::::::"+responseCode);
-			 * System.out.println("nodeId:::::::"+nodeId);
-			 * System.out.println("versionKey:::::::"+versionKey);
-			 * System.out.println("contentUrl::::::::::::"+contentUrl);
-			 */
-			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
-			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
-			Assert.assertFalse(
+			assertTrue(StringUtils.isNotBlank(nodeId));
+			assertTrue(StringUtils.isNotBlank(versionKey));
+			assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
 				versionKeyMap.put(contentId, versionKey);
@@ -288,8 +261,6 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 			documentContentMap1.put(TestParams.identifier.name(), "U_Document_001");
 			Response documentResponse1 = contentManager.createContent(documentContentMap1);
 			String documentVersionKey1 = (String) documentResponse1.getResult().get(TestParams.versionKey.name());
-			System.out.println(
-					"Content Creation::::::Document::::versionKey:::::U_Document_001::::" + documentVersionKey1);
 			if (StringUtils.isNotBlank(documentVersionKey1))
 				versionKeyMap.put("U_Document_001", documentVersionKey1);
 
@@ -300,8 +271,6 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 			documentContentMap2.put(TestParams.identifier.name(), "U_Document_002");
 			Response documentResponse2 = contentManager.createContent(documentContentMap2);
 			String documentVersionKey2 = (String) documentResponse2.getResult().get(TestParams.versionKey.name());
-			System.out.println(
-					"Content Creation::::::Document::::versionKey:::::U_Document_002::::" + documentVersionKey2);
 			if (StringUtils.isNotBlank(documentVersionKey2))
 				versionKeyMap.put("U_Document_002", documentVersionKey2);
 
@@ -312,8 +281,6 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 			documentContentMap3.put(TestParams.identifier.name(), "U_Document_003");
 			Response documentResponse3 = contentManager.createContent(documentContentMap3);
 			String documentVersionKey3 = (String) documentResponse3.getResult().get(TestParams.versionKey.name());
-			System.out.println(
-					"Content Creation::::::Document::::versionKey:::::U_Document_003::::" + documentVersionKey3);
 			if (StringUtils.isNotBlank(documentVersionKey3))
 				versionKeyMap.put("U_Document_003", documentVersionKey3);
 
@@ -324,8 +291,6 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 			documentContentMap4.put(TestParams.identifier.name(), "U_Document_004");
 			Response documentResponse4 = contentManager.createContent(documentContentMap4);
 			String documentVersionKey4 = (String) documentResponse4.getResult().get(TestParams.versionKey.name());
-			System.out.println(
-					"Content Creation::::::Document::::versionKey:::::U_Document_004::::" + documentVersionKey4);
 			if (StringUtils.isNotBlank(documentVersionKey4))
 				versionKeyMap.put("U_Document_004", documentVersionKey4);
 

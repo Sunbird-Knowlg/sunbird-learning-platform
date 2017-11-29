@@ -1,55 +1,30 @@
 package org.ekstep.jobs.samza.task;
 
 import java.util.Map;
-import org.apache.samza.config.Config;
-import org.apache.samza.system.IncomingMessageEnvelope;
-import org.apache.samza.task.InitableTask;
 import org.apache.samza.task.MessageCollector;
-import org.apache.samza.task.StreamTask;
-import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
-import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.PublishPipelineService;
-import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
-import org.ekstep.jobs.samza.util.PublishPipelineParams;
 
-public class PublishPipelineTask implements StreamTask, InitableTask, WindowableTask {
+public class PublishPipelineTask extends AbstractTask {
 
 	static JobLogger LOGGER = new JobLogger(PublishPipelineTask.class);
 	
-	private JobMetrics metrics;
-	
 	ISamzaService service = new PublishPipelineService();
 	
-	@Override
-	public void init(Config config, TaskContext context) throws Exception {
-		try {
-			metrics = new JobMetrics(context);
-			service.initialize(config);
-			LOGGER.info("Task initialized");
-		} catch(Exception ex) {
-			LOGGER.error("Task initialization failed", ex);
-		}
+	public ISamzaService initialize() throws Exception {
+		LOGGER.info("Task initialized");
+		return service;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
-		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
+	public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		try {
-			if(null != outgoingMap.get(PublishPipelineParams.eid.name())){
-					service.processMessage(outgoingMap, metrics, collector);
-			}
+			service.processMessage(message,  metrics, collector);
 		} catch (Exception e) {
 			metrics.incFailedCounter();
-			LOGGER.error("Message processing failed", outgoingMap, e);
+			LOGGER.error("Message processing failed", message, e);
 		}
-	}
-
-	@Override
-	public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
-		metrics.clear();
 	}
 }
