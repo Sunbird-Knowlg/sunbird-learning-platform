@@ -98,7 +98,6 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		if(null != node) {
 			List<Relation> inRelations = node.getInRelations();
 			for(Relation rel : inRelations) {
-				System.out.println(identifier + rel.getStartNodeId());
 				if(StringUtils.equalsIgnoreCase(identifier, rel.getStartNodeId()))
 					return true;
 				else {

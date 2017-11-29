@@ -4,22 +4,31 @@
 package com.ilimi.framework.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.slugs.Slug;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.framework.mgr.ITermManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.model.Filter;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
@@ -42,12 +51,25 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 	public Response createTerm(String frameworkId, String categoryId, Map<String, Object> request) {
 		if (null == request)
 			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+		String id = getTermIdentifier(categoryId, (String) request.get("label"), frameworkId);
+		if (null != id)
+			request.put("identifier", id);
+		else
+			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
+
+		Relation inRelation = new Relation(categoryId, "hasSequenceMember", null);
+		List<Relation> inRelations = new ArrayList<Relation>();
+		inRelations.add(inRelation);
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(request, definition, null);
 			node.setObjectType(TERM_OBJECT_TYPE);
 			node.setGraphId(GRAPH_ID);
+			node.setInRelations(inRelations);
 			Response response = createDataNode(node);
+
 			if (checkError(response))
 				return response;
 			else
@@ -64,12 +86,25 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 	public Response createTerm(String categoryId, Map<String, Object> request) {
 		if (null == request)
 			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+		String id = getTermIdentifier(categoryId, (String) request.get("label"), null);
+		if (null != id)
+			request.put("identifier", id);
+		else
+			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
+
+		Relation inRelation = new Relation(categoryId, "hasSequenceMember", null);
+		List<Relation> inRelations = new ArrayList<Relation>();
+		inRelations.add(inRelation);
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(request, definition, null);
 			node.setObjectType(TERM_OBJECT_TYPE);
 			node.setGraphId(GRAPH_ID);
+			node.setInRelations(inRelations);
 			Response response = createDataNode(node);
+
 			if (checkError(response))
 				return response;
 			else
@@ -104,6 +139,10 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 	public Response updateTerm(String categoryId, String termId, Map<String, Object> map) {
 		Response createResponse = null;
 		boolean checkError = false;
+		if (map.containsKey("label")) {
+			return ERROR("ERR_SERVER_ERROR", "Term Label cannot be updated", ResponseCode.SERVER_ERROR);
+		}
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
 		Response getNodeResponse = getDataNode(GRAPH_ID, termId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
@@ -129,13 +168,27 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response searchTerms(String categoryId) {
+	public Response searchTerms(String categoryId, Map<String, Object> map) {
 		try {
 			DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
+			List<Filter> filters = new ArrayList<Filter>();
+			Filter filter = new Filter("status", SearchConditions.OP_IN, "Live");
+			filters.add(filter);
+
+			if ((null != map) && !map.isEmpty()) {
+				for (String key : map.keySet()) {
+					if (StringUtils.isNotBlank((String) map.get(key))) {
+						filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
+						filters.add(filter);
+					}
+				}
+			}
+			MetadataCriterion metadata = MetadataCriterion.create(filters);
 			SearchCriteria criteria = new SearchCriteria();
 			criteria.setGraphId(GRAPH_ID);
 			criteria.setObjectType(TERM_OBJECT_TYPE);
 			criteria.setNodeType("DATA_NODE");
+			criteria.addMetadata(metadata);
 			Response response = searchNodes(GRAPH_ID, criteria);
 			List<Object> termList = new ArrayList<Object>();
 			List<Node> terms = (List<Node>) response.get(GraphDACParams.node_list.name());
@@ -150,6 +203,36 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 				return resp;
 			else
 				return resp;
+		} catch (Exception e) {
+			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see com.ilimi.framework.mgr.ITermManager#retireTerm(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public Response retireTerm(String categoryId, String termId) {
+		Response createResponse = null;
+		boolean checkError = false;
+
+		DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
+		Response getNodeResponse = getDataNode(GRAPH_ID, termId);
+		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+		Node domainObj;
+		try {
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("status", "Retired");
+			domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+			domainObj.setGraphId(GRAPH_ID);
+			domainObj.setIdentifier(termId);
+			domainObj.setObjectType(TERM_OBJECT_TYPE);
+			createResponse = updateDataNode(domainObj);
+			checkError = checkError(createResponse);
+			if (checkError)
+				return createResponse;
+			else
+				return createResponse;
 		} catch (Exception e) {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
@@ -179,16 +262,16 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 		return null;
 	}
 
-	private Response getDataNode(String taxonomyId, String id) {
-		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+	private Response getDataNode(String graphId, String id) {
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), id);
 		Response getNodeRes = getResponse(request);
 		return getNodeRes;
 	}
 
-	private Response searchNodes(String taxonomyId, SearchCriteria criteria) {
-		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-				GraphDACParams.node_id.name(), taxonomyId);
+	private Response searchNodes(String graphId, SearchCriteria criteria) {
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.node_id.name(), graphId);
 		request.put("search_criteria", criteria);
 		Response getNodeRes = getResponse(request);
 		return getNodeRes;
@@ -212,6 +295,63 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 			PlatformLogger.log("Returning Node Update Response.");
 		}
 		return response;
+	}
+
+	/**
+	 * @param categoryId
+	 * @param object
+	 * @param object2
+	 * @return
+	 */
+	private String getTermIdentifier(String categoryId, String label, String frameworkId) {
+		String id = null;
+		if (StringUtils.isNotBlank(categoryId) && StringUtils.isNotBlank(label)) {
+			if (null != frameworkId)
+				id = Slug.makeSlug(frameworkId + "_" + categoryId + "_" + label);
+			else
+				id = Slug.makeSlug(categoryId + "_" + label);
+		}
+		return id;
+	}
+
+	public Boolean validateRequest(String scope, String categoryId) {
+		if (StringUtils.isNotBlank(scope) && StringUtils.isNotBlank(categoryId)) {
+			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
+			if (checkError(categoryResp)) {
+				return false;
+			} else {
+				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
+				if (StringUtils.equalsIgnoreCase(categoryId, node.getIdentifier())) {
+					List<Relation> inRelation = node.getInRelations();
+					if (!inRelation.isEmpty()) {
+						for (Relation relation : inRelation) {
+							if (StringUtils.equalsIgnoreCase(scope, relation.getStartNodeId()))
+								return true;
+						}
+					}
+				}
+			}
+		} else {
+			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
+		}
+		return false;
+	}
+
+	public Boolean validateCategoryId(String categoryId) {
+		if (StringUtils.isNotBlank(categoryId)) {
+			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
+			if (checkError(categoryResp)) {
+				return false;
+			} else {
+				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
+				if (StringUtils.equalsIgnoreCase(categoryId, node.getIdentifier())) {
+					return true;
+				}
+			}
+		} else {
+			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
+		}
+		return false;
 	}
 
 }
