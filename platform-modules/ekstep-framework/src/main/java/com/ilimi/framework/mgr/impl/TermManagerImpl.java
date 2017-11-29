@@ -22,6 +22,7 @@ import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
+import com.ilimi.framework.enums.TermEnum;
 import com.ilimi.framework.mgr.ITermManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Filter;
@@ -52,13 +53,13 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 		if (null == request)
 			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		String id = getTermIdentifier(categoryId, (String) request.get("label"), frameworkId);
+		String id = getTermIdentifier(categoryId, (String) request.get(TermEnum.label.name()), frameworkId);
 		if (null != id)
-			request.put("identifier", id);
+			request.put(TermEnum.identifier.name(), id);
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
 
-		Relation inRelation = new Relation(categoryId, "hasSequenceMember", null);
+		Relation inRelation = new Relation(categoryId, TermEnum.hasSequenceMember.name(), null);
 		List<Relation> inRelations = new ArrayList<Relation>();
 		inRelations.add(inRelation);
 
@@ -87,9 +88,9 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 		if (null == request)
 			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		String id = getTermIdentifier(categoryId, (String) request.get("label"), null);
+		String id = getTermIdentifier(categoryId, (String) request.get(TermEnum.label.name()), null);
 		if (null != id)
-			request.put("identifier", id);
+			request.put(TermEnum.identifier.name(), id);
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
 
@@ -127,7 +128,7 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
 		Map<String, Object> termMap = ConvertGraphNode.convertGraphNode(termNode, graphId, definition, null);
 		PlatformLogger.log("Got Node: ", termNode);
-		response.put("term", termMap);
+		response.put(TermEnum.term.name(), termMap);
 		response.setParams(getSucessStatus());
 		return response;
 	}
@@ -139,7 +140,7 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 	public Response updateTerm(String categoryId, String termId, Map<String, Object> map) {
 		Response createResponse = null;
 		boolean checkError = false;
-		if (map.containsKey("label")) {
+		if (map.containsKey(TermEnum.label.name())) {
 			return ERROR("ERR_SERVER_ERROR", "Term Label cannot be updated", ResponseCode.SERVER_ERROR);
 		}
 
@@ -172,7 +173,7 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 		try {
 			DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
 			List<Filter> filters = new ArrayList<Filter>();
-			Filter filter = new Filter("status", SearchConditions.OP_IN, "Live");
+			Filter filter = new Filter(TermEnum.status.name(), SearchConditions.OP_IN, TermEnum.Live.name());
 			filters.add(filter);
 
 			if ((null != map) && !map.isEmpty()) {
@@ -222,7 +223,7 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 		Node domainObj;
 		try {
 			Map<String,Object> map = new HashMap<String,Object>();
-			map.put("status", "Retired");
+			map.put(TermEnum.status.name(), TermEnum.Retired.name());
 			domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 			domainObj.setGraphId(GRAPH_ID);
 			domainObj.setIdentifier(termId);
@@ -281,7 +282,7 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 		PlatformLogger.log("[updateNode] | Node: ", node);
 		Response response = new Response();
 		if (null != node) {
-			String channelId = node.getIdentifier();
+			String termId = node.getIdentifier();
 
 			PlatformLogger.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
 			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
@@ -291,7 +292,7 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 			PlatformLogger.log("Updating the Node ID: " + node.getIdentifier());
 			response = getResponse(updateReq);
 
-			response.put("node_id", channelId);
+			response.put(GraphDACParams.node_id.name(), termId);
 			PlatformLogger.log("Returning Node Update Response.");
 		}
 		return response;
