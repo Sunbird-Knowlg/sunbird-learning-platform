@@ -222,7 +222,7 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 		Node domainObj;
 		try {
 			Map<String,Object> map = new HashMap<String,Object>();
-			map.put("status", "Retire");
+			map.put("status", "Retired");
 			domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 			domainObj.setGraphId(GRAPH_ID);
 			domainObj.setIdentifier(termId);
