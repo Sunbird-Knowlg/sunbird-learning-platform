@@ -89,6 +89,38 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Akka actors initialized");	
 	}
 	
+	@Override
+	@SuppressWarnings("unchecked")
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
+		
+		Map<String, Object> object = getPublishInstructionData(message);
+		if (null == object || object.isEmpty()) {
+			metrics.incSkippedCounter();
+			return;
+		}
+		
+		String nodeId = (String) object.get(PublishPipelineParams.id.name());
+		try {
+			Node node = getNode(nodeId);
+			if (null != node) {
+				LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
+				Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
+				int maxPublishRetry = 0;
+				if(StringUtils.isNotEmpty((String)config.get("MAX_PUBLISH_RETRY")))
+					maxPublishRetry = Integer.valueOf(maxPublishRetry);
+				
+				processPublishJobStartEvent(edata, object, message, node, collector);
+				processPublishJobEvent(edata, object, message, node, collector, metrics, maxPublishRetry);
+				processPublishJobStopEvent(edata, object, message, collector, metrics, maxPublishRetry);
+			}else {
+				metrics.incSkippedCounter();
+			}
+		}catch(Exception e) {
+			LOGGER.error("Failed to process message", message, e);
+			metrics.incFailedCounter();
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getJobEvent(String jobEventId, Map<String, Object> object, Map<String, Object> message, String publishStatus){
 		
@@ -156,79 +188,6 @@ public class PublishPipelineService implements ISamzaService {
 			pushEvent(getJobEvent(stopJobEventId, object, message, PublishPipelineParams.FAILED.name()), collector, backendTelemetryTopicId);
 		}
 	}
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-		
-		Map<String, Object> object = getPublishInstructionData(message);
-		if (null == object || object.isEmpty()) {
-			metrics.incSkippedCounter();
-			return;
-		}
-		
-		String nodeId = (String) object.get(PublishPipelineParams.id.name());
-		try {
-			Node node = getNode(nodeId);
-			if (null != node) {
-				LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
-				Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
-				int maxPublishRetry = 0;
-				if(StringUtils.isNotEmpty((String)config.get("MAX_PUBLISH_RETRY")))
-					maxPublishRetry = Integer.valueOf(maxPublishRetry);
-				
-				processPublishJobStartEvent(edata, object, message, node, collector);
-				processPublishJobEvent(edata, object, message, node, collector, metrics, maxPublishRetry);
-				processPublishJobStopEvent(edata, object, message, collector, metrics, maxPublishRetry);
-			}else {
-				metrics.incSkippedCounter();
-			}
-		}catch(Exception e) {
-			LOGGER.error("Failed to process message", message, e);
-			metrics.incFailedCounter();
-		}
-	}
-	
-	
-	/*@Override
-	@SuppressWarnings("unchecked")
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-		Map<String, Object> object = getPublishInstructionData(message);
-		if (null == object || object.isEmpty()) {
-			metrics.incSkippedCounter();
-			return;
-		}
-		
-		String nodeId = (String) object.get(PublishPipelineParams.id.name());
-		try {
-			Node node = getNode(nodeId);
-			if (null != node) {
-				LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
-				
-				Event event = new Event(message);
-				Map<String, Object> eventMap = event.getMap();
-				Map<String, Object> edata = (Map<String, Object>) eventMap.get("edata");
-				node.getMetadata().put("publish_type", edata.get("publish_type"));
-				boolean flag = publishContent(node);
-				
-				if(flag) {
-					metrics.incSuccessCounter();
-				}else {
-					
-					edata.put("status", PublishPipelineParams.FAILED.name());
-					edata.put("iteration", (int)edata.get("iteration")+1);
-					eventMap.put("edata", edata);
-					String topicId = (String)config.get("task.inputs");
-					pushEvent(eventMap, collector, topicId);
-				}
-			} else {
-				metrics.incSkippedCounter();
-			}
-		}catch(Exception e) {
-			LOGGER.error("Failed to process message", message, e);
-			metrics.incFailedCounter();
-		}
-	}*/
 	
 	private void pushEvent(Map<String, Object> message, MessageCollector collector, String topicId) throws Exception {
 		String jsonMessage = mapper.writeValueAsString(message);
@@ -408,27 +367,6 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		return null;
 	}
-	
-	/*@SuppressWarnings("unchecked")
-	private Map<String, Object> getPublishLifecycleData(Map<String, Object> message) {
-		String eid = (String) message.get(PublishPipelineParams.eid.name());
-		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name()))
-			return null;
-
-		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
-		if (null == edata) 
-			return null;
-
-		Map<String, Object> eks = (Map<String, Object>) edata.get(PublishPipelineParams.eks.name());
-		if (null == eks) 
-			return null;
-
-		if ((StringUtils.equalsIgnoreCase((String) eks.get(PublishPipelineParams.state.name()), PublishPipelineParams.Processing.name()))
-		&& (!StringUtils.equalsIgnoreCase((String) eks.get(PublishPipelineParams.type.name()), PublishPipelineParams.Asset.name())))
-			return eks;
-		
-		return null;
-	}*/
 	
 	@SuppressWarnings("unchecked")
 	private void processCollection(Node node) throws Exception {
