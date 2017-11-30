@@ -48,7 +48,7 @@ public class TermV3ControllerTest extends TestSetup {
 	private final String base_category_path = "/v3/category/term";
 	private static String categoryId = null;
 	private static CategoryManagerImpl categoryManager = new CategoryManagerImpl();
-	String termId = null;
+	static String termId = null;
 	static ObjectMapper mapper = new ObjectMapper();
 	private static String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 
@@ -99,12 +99,51 @@ public class TermV3ControllerTest extends TestSetup {
 		}
 	}
 
-	// @Test
+	@Test
 	public void readCategoryTerm() {
 		try {
 			String path = base_category_path + "/read/" + termId + "?category=" + categoryId;
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
-					.contentType(MediaType.APPLICATION_JSON));
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void searchCategoryTerm() {
+		String request = "{ \"request\": { } }";
+		try {
+			String path = base_category_path + "/search?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void updateCategoryTerm() {
+		String request = "{ \"request\": { \"term\": { \"value\": \"Class2\" } } }";
+		try {
+			String path = base_category_path + "/update/" + termId + "?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void zRetireCategoryTerm() {
+		try {
+			String path = base_category_path + "/retire/" + termId + "?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi"));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
 		} catch (Exception e) {
