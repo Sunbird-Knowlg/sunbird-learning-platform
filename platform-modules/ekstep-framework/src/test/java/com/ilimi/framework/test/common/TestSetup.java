@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -22,13 +23,16 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.engine.loadtest.TestUtil;
+import com.ilimi.graph.engine.router.ActorBootstrap;
+import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
+import akka.util.Timeout;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 /**
  * @author pradyumna
@@ -47,6 +51,25 @@ public class TestSetup {
 	private static String BOLT_ENABLED = "true";
 	private static ActorRef reqRouter = null;
 
+	static long timeout = 50000;
+	static Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+
+	private static ActorRef initReqRouter() throws Exception {
+		ActorBootstrap.getActorSystem();
+		ActorRef reqRouter = GraphEngineActorPoolMgr.getRequestRouter();
+		Thread.sleep(2000);
+		System.out.println("Request Router: " + reqRouter);
+		return reqRouter;
+		/*ActorSystem system = ActorSystem.create("MySystem");
+		ActorRef reqRouter = system.actorOf(Props.create(RequestRouter.class));
+		
+		Future<Object> future = Patterns.ask(reqRouter, "init", timeout);
+		Object response = Await.result(future, t.duration());
+		Thread.sleep(2000);
+		System.out.println("Response from request router: " + response);
+		return reqRouter;*/
+	}
+
 	@AfterClass
 	public static void afterTest() {
 		tearEmbeddedNeo4JSetup();
@@ -54,7 +77,7 @@ public class TestSetup {
 
 	@BeforeClass
 	public static void before() throws Exception {
-		reqRouter = TestUtil.initReqRouter();
+		reqRouter = initReqRouter();
 		setupEmbeddedNeo4J();
 	}
 
@@ -66,9 +89,9 @@ public class TestSetup {
 			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
 			request.setOperation("importDefinitions");
 			request.put(GraphEngineParams.input_stream.name(), objectType);
-			Future<Object> response = Patterns.ask(reqRouter, request, TestUtil.timeout);
+			Future<Object> response = Patterns.ask(reqRouter, request, timeout);
 
-			Object obj = Await.result(response, TestUtil.timeout.duration());
+			Object obj = Await.result(response, t.duration());
 
 			resp = (Response) obj;
 			System.out.println(resp.getResponseCode() + "    ::    " + resp.getParams().getStatus());
