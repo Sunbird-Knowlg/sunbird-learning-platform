@@ -81,7 +81,7 @@ public class PublishPipelineService implements ISamzaService {
 	private static String stopJobEventId = "BE_JOB_STOP";
 	
 	private String backendTelemetryTopicId = (String)config.get("backend_telemetry_topic");
-	private String learningJobReqTopicId = (String)config.get("task.inputs");
+	private String failedEventTopicId = (String)config.get("failed_event_topic");
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -167,7 +167,7 @@ public class PublishPipelineService implements ISamzaService {
 						edata.put("status", PublishPipelineParams.FAILED.name());
 						edata.put("iteration", (int)edata.get("iteration")+1);
 						message.put("edata", edata);
-						pushEvent(message, collector, learningJobReqTopicId);
+						pushEvent(message, collector, failedEventTopicId);
 					}
 				}
 				if((Integer)edata.get("iteration") == maxPublishRetry && 
