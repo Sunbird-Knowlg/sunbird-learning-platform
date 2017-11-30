@@ -76,7 +76,6 @@ public class Sequence extends AbstractCollection {
                             null, ResponseCode.CLIENT_ERROR, getParent());
                 } else {
                     Request dacRequest = new Request(req);
-                    dacRequest.setOperation("addRelation");
                     dacRequest.put(GraphDACParams.start_node_id.name(), sequenceId);
                     dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
                     dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
@@ -103,11 +102,10 @@ public class Sequence extends AbstractCollection {
             	req.getContext().get(GraphDACParams.graph_id.name());
          		SequenceCacheManager.removeSequenceMember(graphId, sequenceId, memberId);
                 Request dacRequest = new Request(req);
-                dacRequest.setOperation("deleteRelation");
                 dacRequest.put(GraphDACParams.start_node_id.name(), sequenceId);
                 dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
                 dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-				Futures.successful(graphMgr.deleteRelation(dacRequest));
+				graphMgr.deleteRelation(dacRequest);
                 manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
             }
         } catch (Exception e) {
@@ -161,9 +159,8 @@ public class Sequence extends AbstractCollection {
             	req.getContext().get(GraphDACParams.graph_id.name());
          		SequenceCacheManager.dropSequence(graphId, sequenceId);
                 Request dacRequest = new Request(req);
-                dacRequest.setOperation("deleteCollection");
                 dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
-				Futures.successful(graphMgr.deleteCollection(dacRequest));
+				graphMgr.deleteCollection(dacRequest);
                 manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
             }
         } catch (Exception e) {
@@ -195,7 +192,6 @@ public class Sequence extends AbstractCollection {
 
     private void createSequenceObject(final Request req, final ExecutionContext ec) {
         Request request = new Request(req);
-        request.setOperation("addNode");
         request.put(GraphDACParams.node.name(), toNode());
 
 		Response res = nodeMgr.addNode(request);
@@ -210,12 +206,11 @@ public class Sequence extends AbstractCollection {
 
 			if (null != memberIds && memberIds.size() > 0) {
 				Request dacRequest = new Request(req);
-				dacRequest.setOperation("createCollection");
 				dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
 				dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
 				dacRequest.put(GraphDACParams.index.name(), SystemProperties.IL_SEQUENCE_INDEX.name());
 				dacRequest.put(GraphDACParams.members.name(), memberIds);
-				Futures.successful(graphMgr.createCollection(dacRequest));
+				graphMgr.createCollection(dacRequest);
             }
 			manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
 		}

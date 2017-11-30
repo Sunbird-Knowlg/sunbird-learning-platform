@@ -98,7 +98,6 @@ public class Set extends AbstractCollection {
 
 	public Node getSetObject(Request req) {
 		Request request = new Request(req);
-		request.setOperation("getNodeByUniqueId");
 		request.put(GraphDACParams.node_id.name(), getNodeId());
 		Response res = searchMgr.getNodeByUniqueId(request);
 		Node node = null;
@@ -210,7 +209,6 @@ public class Set extends AbstractCollection {
 				manager.returnResponseOnFailure(Futures.successful(addResp), getParent());
 			}
 			Request updateReq = new Request(req);
-			updateReq.setOperation("updateNode");
 			updateReq.put(GraphDACParams.node.name(), toNode());
 			Response response = nodeMgr.updateNode(updateReq);
 			updateRelations(req, node);
@@ -456,12 +454,11 @@ public class Set extends AbstractCollection {
 			} else {
 				req.getContext().get(GraphDACParams.graph_id.name());
          		SetCacheManager.dropSet(graphId, setId);
-                Future<Object> response = null;
                 
 				Request dacRequest = new Request(req);
 				dacRequest.setOperation("deleteCollection");
 				dacRequest.put(GraphDACParams.collection_id.name(), setId);
-				Futures.successful(graphMgr.deleteCollection(dacRequest));
+				Future<Object> response = Futures.successful(graphMgr.deleteCollection(dacRequest));
 
 				manager.returnResponse(response, getParent());
 			}
@@ -703,15 +700,13 @@ public class Set extends AbstractCollection {
 					request.put(GraphDACParams.start_node_id.name(), getNodeId());
 					request.put(GraphDACParams.relation_type.name(), entry.getKey());
 					request.put(GraphDACParams.end_node_id.name(), entry.getValue());
-					request.setOperation("addOutgoingRelations");
+					graphMgr.addOutgoingRelations(request);
 				} else {
 					request.put(GraphDACParams.start_node_id.name(), entry.getValue());
 					request.put(GraphDACParams.relation_type.name(), entry.getKey());
 					request.put(GraphDACParams.end_node_id.name(), getNodeId());
-					request.setOperation("addIncomingRelations");
-				}
-				// dacRouter.tell(request, manager.getSelf());
-				Futures.successful(graphMgr.addIncomingRelations(request));
+					graphMgr.addIncomingRelations(request);
+				}				
 			}
 		}
 	}
@@ -736,17 +731,13 @@ public class Set extends AbstractCollection {
 					request.put(GraphDACParams.start_node_id.name(), getNodeId());
 					request.put(GraphDACParams.relation_type.name(), entry.getKey());
 					request.put(GraphDACParams.end_node_id.name(), entry.getValue());
-					request.setOperation("deleteOutgoingRelations");
-					Futures.successful(graphMgr.deleteIncomingRelations(request));
+					graphMgr.deleteOutgoingRelations(request);
 				} else {
 					request.put(GraphDACParams.start_node_id.name(), entry.getValue());
 					request.put(GraphDACParams.relation_type.name(), entry.getKey());
 					request.put(GraphDACParams.end_node_id.name(), getNodeId());
-					request.setOperation("deleteIncomingRelations");
-					Futures.successful(graphMgr.deleteIncomingRelations(request));
+					graphMgr.deleteIncomingRelations(request);
 				}
-				// dacRouter.tell(request, manager.getSelf());
-
 			}
 		}
 	}
@@ -806,7 +797,6 @@ public class Set extends AbstractCollection {
 	}
 
 	private Future<Object> addMemberToSet(Request req, String setId, String memberId) {
-		List<Future<Object>> futures = new ArrayList<Future<Object>>();
 		req.getContext().get(GraphDACParams.graph_id.name());
  		SetCacheManager.addSetMember(graphId, setId, memberId);
  		
@@ -816,8 +806,7 @@ public class Set extends AbstractCollection {
 		dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
 		dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
 		Future<Object> dacResponse = Futures.successful(graphMgr.addRelation(dacRequest));
-		futures.add(dacResponse);
-		return mergeFutures(futures);
+		return dacResponse;
 	}
 
 	private List<Response> addMembersToSet(Request req, String setId, List<String> memberIds) {
@@ -827,7 +816,6 @@ public class Set extends AbstractCollection {
 
 		for (String memberId : memberIds) {
 			Request dacRequest = new Request(req);
-			dacRequest.setOperation("addRelation");
 			dacRequest.put(GraphDACParams.start_node_id.name(), setId);
 			dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
 			dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
@@ -839,7 +827,6 @@ public class Set extends AbstractCollection {
 
 	private Response removeMemberFromSet(Request req, String setId, String memberId) {
 		Request dacRequest = new Request(req);
-		dacRequest.setOperation("deleteRelation");
 		dacRequest.put(GraphDACParams.start_node_id.name(), setId);
 		dacRequest.put(GraphDACParams.relation_type.name(), new String(RelationTypes.SET_MEMBERSHIP.relationName()));
 		dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
@@ -849,24 +836,6 @@ public class Set extends AbstractCollection {
 		req.getContext().get(GraphDACParams.graph_id.name());
  		SetCacheManager.dropSet(graphId, setId);
 		return dacResponse;
-	}
-
-	private Future<Object> mergeFutures(List<Future<Object>> futures) {
-		ExecutionContext ec = manager.getContext().dispatcher();
-		Future<Iterable<Object>> composite = Futures.sequence(futures, ec);
-		Future<Object> result = composite.map(new Mapper<Iterable<Object>, Object>() {
-			@Override
-			public Object apply(Iterable<Object> parameter) {
-				Object res = null;
-				if (null != parameter) {
-					for (Object obj : parameter) {
-						res = obj;
-					}
-				}
-				return res;
-			}
-		}, ec);
-		return result;
 	}
 
 	private void updateIndex(Request req, SearchCriteria sc) {
@@ -894,61 +863,50 @@ public class Set extends AbstractCollection {
 
 	private void updateIndexRelations(final Request req, final ExecutionContext ec,
 			final List<Future<String>> futures) {
-		Request request = new Request(req);
-		request.setOperation("getNodeByUniqueId");
-		request.put(GraphDACParams.node_id.name(), getNodeId());
-		Future<Object> setResponse = Futures.successful(searchMgr.getNodeByUniqueId(request));
-		setResponse.onComplete(new OnComplete<Object>() {
-			@Override
-			public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-				if (null != arg0) {
-					manager.ERROR(arg0, getParent());
-				} else {
-					if (arg1 instanceof Response) {
-						final Response response = (Response) arg1;
-						if (manager.checkError(response)) {
-							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_UPDATE_INDEX_ERROR.name(),
-									manager.getErrorMessage(response), ResponseCode.CLIENT_ERROR, getParent());
-						} else {
-							Node setNode = (Node) response.get(GraphDACParams.node.name());
-							final List<String> dbIndexes = new ArrayList<String>();
-							List<Relation> inRels = setNode.getInRelations();
-							if (null != inRels && inRels.size() > 0) {
-								for (Relation inRel : inRels) {
-									if (StringUtils.equalsIgnoreCase(UsedBySetRelation.RELATION_NAME,
-											inRel.getRelationType())) {
-										dbIndexes.add(inRel.getStartNodeId());
-									}
-								}
-							}
-							Future<Iterable<String>> indexFuture = Futures.sequence(futures, ec);
-							indexFuture.onSuccess(new OnSuccess<Iterable<String>>() {
-								@Override
-								public void onSuccess(Iterable<String> list) throws Throwable {
-									List<String> addIndexes = new ArrayList<String>();
-									List<String> delIndexes = new ArrayList<String>();
-									getDeltaIndexes(dbIndexes, list, addIndexes, delIndexes);
-									for (String indexId : addIndexes) {
-										UsedBySetRelation rel = new UsedBySetRelation(getManager(), getGraphId(),
-												indexId, getNodeId());
-										rel.createRelation(req);
-									}
-									for (String indexId : delIndexes) {
-										UsedBySetRelation rel = new UsedBySetRelation(getManager(), getGraphId(),
-												indexId, getNodeId());
-										rel.deleteRelation(req);
-									}
-									manager.OK(GraphDACParams.node_id.name(), getNodeId(), getParent());
-								}
-							}, ec);
+		try {
+			Request request = new Request(req);
+			request.put(GraphDACParams.node_id.name(), getNodeId());
+			Response response = searchMgr.getNodeByUniqueId(request);
+			if (manager.checkError(response)) {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_UPDATE_INDEX_ERROR.name(),
+						manager.getErrorMessage(response), ResponseCode.CLIENT_ERROR, getParent());
+			} else {
+				Node setNode = (Node) response.get(GraphDACParams.node.name());
+				final List<String> dbIndexes = new ArrayList<String>();
+				List<Relation> inRels = setNode.getInRelations();
+				if (null != inRels && inRels.size() > 0) {
+					for (Relation inRel : inRels) {
+						if (StringUtils.equalsIgnoreCase(UsedBySetRelation.RELATION_NAME,
+								inRel.getRelationType())) {
+							dbIndexes.add(inRel.getStartNodeId());
 						}
-					} else {
-						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_UPDATE_INDEX_ERROR.name(), "Internal Error",
-								ResponseCode.SERVER_ERROR, getParent());
 					}
 				}
+				Future<Iterable<String>> indexFuture = Futures.sequence(futures, ec);
+				indexFuture.onSuccess(new OnSuccess<Iterable<String>>() {
+					@Override
+					public void onSuccess(Iterable<String> list) throws Throwable {
+						List<String> addIndexes = new ArrayList<String>();
+						List<String> delIndexes = new ArrayList<String>();
+						getDeltaIndexes(dbIndexes, list, addIndexes, delIndexes);
+						for (String indexId : addIndexes) {
+							UsedBySetRelation rel = new UsedBySetRelation(getManager(), getGraphId(),
+									indexId, getNodeId());
+							rel.createRelation(req);
+						}
+						for (String indexId : delIndexes) {
+							UsedBySetRelation rel = new UsedBySetRelation(getManager(), getGraphId(),
+									indexId, getNodeId());
+							rel.deleteRelation(req);
+						}
+						manager.OK(GraphDACParams.node_id.name(), getNodeId(), getParent());
+					}
+				}, ec);
 			}
-		}, ec);
+		} catch (Exception e) {
+			e.printStackTrace();
+			manager.ERROR(e, getParent());
+		}
 	}
 
 	private void getDeltaIndexes(List<String> dbIndexes, Iterable<String> list, List<String> addIndexes,

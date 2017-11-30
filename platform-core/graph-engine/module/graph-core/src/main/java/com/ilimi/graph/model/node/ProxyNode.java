@@ -70,23 +70,13 @@ public class ProxyNode extends AbstractNode {
         return this.objectType;
     }
 
-    public Future<Node> getNodeObject(Request req) {
+    public Node getNodeObject(Request req) {
         Request request = new Request(req);
         request.put(GraphDACParams.node_id.name(), getNodeId());
         request.put(GraphDACParams.get_tags.name(), true);
-		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-        Future<Node> message = response.map(new Mapper<Object, Node>() {
-            @Override
-            public Node apply(Object parameter) {
-                if (null != parameter && parameter instanceof Response) {
-                    Response res = (Response) parameter;
-                    Node node = (Node) res.get(GraphDACParams.node.name());
-                    return node;
-                }
-                return null;
-            }
-        }, manager.getContext().dispatcher());
-        return message;
+        Response response = searchMgr.getNodeByUniqueId(request);
+        Node node = (Node) response.get(GraphDACParams.node.name());
+        return node;
     }
 
     
@@ -139,52 +129,35 @@ public class ProxyNode extends AbstractNode {
 		}
     }
 
-    public Future<String> updateNode(Request req) {
+    public String updateNode(Request req) {
         try {
             checkMetadata(metadata);
             Request request = new Request(req);
-            request.setOperation("updateNode");
             request.put(GraphDACParams.node.name(), toNode());
-			Future<Object> response = Futures.successful(nodeMgr.updateNode(request));
-            Future<String> message = response.map(new Mapper<Object, String>() {
-                @Override
-                public String apply(Object parameter) {
-                    if (parameter instanceof Response) {
-                        Response res = (Response) parameter;
-                        if (manager.checkError(res)) {
-                            return manager.getErrorMessage(res);
-                        }
-                    } else {
-                        return "Error updating node";
-                    }
-                    return null;
-                }
-            }, manager.getContext().dispatcher());
-            return message;
+            Response response = nodeMgr.updateNode(request);
+            if (manager.checkError(response)) {
+                return manager.getErrorMessage(response);
+            }
+            return null;
         } catch (Exception e) {
-            return Futures.successful(e.getMessage());
+            return e.getMessage();
         }
     }
 
 	public Map<String, List<String>> validateNode(Request req) {
-    	
-    	try {
-    		final ExecutionContext ec = manager.context().dispatcher();
-            final List<String> messages = new ArrayList<String>();
-    		if(StringUtils.isBlank(graphId) || StringUtils.isBlank(objectType) || StringUtils.isBlank(identifier))
-    		{
-    			messages.add("GraphId or Object type  or identifier not set for node: " + getNodeId());
+	    	try {
+	    		final ExecutionContext ec = manager.context().dispatcher();
+	            final List<String> messages = new ArrayList<String>();
+	    		if(StringUtils.isBlank(graphId) || StringUtils.isBlank(objectType) || StringUtils.isBlank(identifier)) {
+	    			messages.add("GraphId or Object type  or identifier not set for node: " + getNodeId());
 				return getMessageMap(messages, ec);
-    		}else
-    		{
-    			Map<String, List<String>> map = new HashMap<String, List<String>>();
-            	map.put(getNodeId(), messages);
+	    		} else {
+	    			Map<String, List<String>> map = new HashMap<String, List<String>>();
+	            	map.put(getNodeId(), messages);
 				return map;
-    		}
-    	} catch (Exception e) {
-    		throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
-    	}
+	    		}
+	    	} catch (Exception e) {
+	    		throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
+	    	}
     }
-
-
 }

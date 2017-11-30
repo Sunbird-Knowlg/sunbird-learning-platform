@@ -23,6 +23,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
@@ -149,7 +150,8 @@ public class Graph extends AbstractDomainObject {
 			List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
 			return nodes;
 		} else {
-			return null;
+			throw new ResourceNotFoundException(GraphEngineErrorCodes.ERR_GRAPH_LOAD_GRAPH_UNKNOWN_ERROR.name(),
+					 					"Nodes not found: " + graphId);
 		}
 	}
 
@@ -184,7 +186,7 @@ public class Graph extends AbstractDomainObject {
 			Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 					SystemNodeTypes.DEFINITION_NODE.name());
 			defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
-			Response res = searchMgr.getNodeProperty(defNodesReq);
+			Response res = searchMgr.getNodesByProperty(defNodesReq);
 
 			if (manager.checkError(res)) {
 				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_LOAD_GRAPH_UNKNOWN_ERROR.name(),
@@ -229,14 +231,12 @@ public class Graph extends AbstractDomainObject {
 			Property property = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 					SystemNodeTypes.DATA_NODE.name());
 			request.put(GraphDACParams.metadata.name(), property);
-			Response dataNodesResponse = searchMgr.getNodeProperty(request);
+			Response dataNodesResponse = searchMgr.getNodesByProperty(request);
 
 			// get all relations
 			Request relsRequest = new Request(req);
 			Response relationsResponse = searchMgr.getAllRelations(relsRequest);
 
-			// List<Future<List<String>>> validationMessages = new
-			// ArrayList<Future<List<String>>>();
 			List<Map<String, List<String>>> validationMessages = new ArrayList<Map<String, List<String>>>();
 
 			// Promise to get all relation validation messages
@@ -285,7 +285,6 @@ public class Graph extends AbstractDomainObject {
 
 	public void createTaskNode(Request request) throws Exception {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-		String taskId = null;
 		Node node = new Node();
 		node.setIdentifier(graphId + "_task_" + System.currentTimeMillis());
 		node.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -297,12 +296,8 @@ public class Graph extends AbstractDomainObject {
 		final Request req = new Request();
 		req.put(GraphDACParams.node.name(), node);
 		req.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-		Future<Object> future = Futures.successful(nodeMgr.addNode(request));
-		Object obj = Await.result(future, WAIT_TIMEOUT.duration());
-		if (obj instanceof Response) {
-			Response reponse = (Response) obj;
-			taskId = (String) reponse.get(GraphDACParams.node_id.name());
-		}
+		Response response = nodeMgr.addNode(request);
+		String taskId = (String) response.get(GraphDACParams.node_id.name());
 		manager.OK(GraphEngineParams.task_id.name(), taskId, getParent());
 	}
 
@@ -318,7 +313,6 @@ public class Graph extends AbstractDomainObject {
 
 	public void addInRelations(Request request) {
 		try {
-			request.setOperation("addIncomingRelations");
 			Future<Object> response = Futures.successful(graphMgr.addIncomingRelations(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
@@ -441,27 +435,18 @@ public class Graph extends AbstractDomainObject {
 			request.put(GraphDACParams.query.name(), query);
 			if (null != params && !params.isEmpty())
 				request.put(GraphDACParams.params.name(), params);
-			Future<Object> response = Futures.successful(searchMgr.executeQuery(request));
-			Future<List<Map<String, Object>>> future = response.map(new Mapper<Object, List<Map<String, Object>>>() {
-				@Override
-				public List<Map<String, Object>> apply(Object parameter) {
-					if (null != parameter && parameter instanceof Response) {
-						Response res = (Response) parameter;
-						List<Map<String, Object>> resultMap = (List<Map<String, Object>>) res
-								.get(GraphDACParams.results.name());
-						if (null != resultMap && !resultMap.isEmpty()) {
-							List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-							for (Map<String, Object> map : resultMap) {
-								if (null != map && !map.isEmpty())
-									result.add(map);
-							}
-							return result;
-						}
-					}
-					return null;
+			Response res = searchMgr.executeQuery(request);
+			List<Map<String, Object>> resultMap = (List<Map<String, Object>>) res
+					.get(GraphDACParams.results.name());
+			List<Map<String, Object>> result = null;
+			if (null != resultMap && !resultMap.isEmpty()) {
+				result = new ArrayList<Map<String, Object>>();
+				for (Map<String, Object> map : resultMap) {
+					if (null != map && !map.isEmpty())
+						result.add(map);
 				}
-			}, manager.getContext().dispatcher());
-			return future;
+			}
+			return Futures.successful(result);
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
 					e);
@@ -583,9 +568,8 @@ public class Graph extends AbstractDomainObject {
 	public void executeQueryForProps(Request req) {
 		try {
 			Request request = new Request(req);
-			request.setOperation("executeQueryForProps");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Futures.successful(searchMgr.executeQuery(request));
+			Future<Object> response = Futures.successful(searchMgr.executeQueryForProps(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_EXECUTE_QUERY_FOR_NODES_UNKNOWN_ERROR.name(),
@@ -659,7 +643,6 @@ public class Graph extends AbstractDomainObject {
 	public void getNodesCount(Request req) {
 		try {
 			Request request = new Request(req);
-			request.setOperation("getNodesCount");
 			request.copyRequestValueObjects(req.getRequest());
 			Response response = searchMgr.getNodesCount(request);
 			manager.returnResponse(Futures.successful(response), getParent());
@@ -672,7 +655,6 @@ public class Graph extends AbstractDomainObject {
 	public void traverse(Request req) {
 		try {
 			Request request = new Request(req);
-			request.setOperation("traverse");
 			request.copyRequestValueObjects(req.getRequest());
 			Future<Object> response = Futures.successful(searchMgr.traverse(request));
 			manager.returnResponse(response, getParent());
@@ -685,7 +667,6 @@ public class Graph extends AbstractDomainObject {
 	public void traverseSubGraph(Request req) {
 		try {
 			Request request = new Request(req);
-			request.setOperation("traverseSubGraph");
 			request.copyRequestValueObjects(req.getRequest());
 			Future<Object> response = Futures.successful(searchMgr.traverseSubGraph(request));
 			manager.returnResponse(response, getParent());
@@ -748,7 +729,6 @@ public class Graph extends AbstractDomainObject {
 					}
 					if (null == messageMap || messageMap.isEmpty()) {
 						final Request req = new Request(request);
-						req.setOperation("importNodes");
 						req.put(GraphDACParams.node_list.name(), nodes);
 
 						Response response = nodeMgr.importNodes(req);
@@ -785,11 +765,9 @@ public class Graph extends AbstractDomainObject {
 			Response nodesResponse = null;
 			if (null == sc) {
 				Request nodesReq = new Request(request);
-				nodesReq.setOperation("getAllNodes");
 				nodesResponse = searchMgr.getAllNodes(nodesReq);
 			} else {
 				Request nodesReq = new Request(request);
-				nodesReq.setOperation("searchNodes");
 				nodesReq.put(GraphDACParams.search_criteria.name(), sc);
 				nodesReq.put(GraphDACParams.get_tags.name(), true);
 				nodesResponse = searchMgr.searchNodes(nodesReq);
@@ -798,7 +776,6 @@ public class Graph extends AbstractDomainObject {
 			Response relationsResponse = null;
 			if (!StringUtils.equalsIgnoreCase(ImportType.CSV.name(), format)) {
 				Request relationsReq = new Request(request);
-				relationsReq.setOperation("getAllRelations");
 				relationsResponse = searchMgr.getAllRelations(relationsReq);
 			} else {
 				Response blankResponse = new Response();
@@ -850,61 +827,6 @@ public class Graph extends AbstractDomainObject {
 			}
 
 			manager.returnResponse(Futures.successful(response), getParent());
-
-			/*Future<Object> exportFuture = nodesResponse.zip(relationsResponse)
-					.map(new Mapper<Tuple2<Object, Object>, Object>() {
-						@Override
-						public Object apply(Tuple2<Object, Object> zipped) {
-							Response nodesResp = (Response) zipped._1();
-							if (manager.checkError(nodesResp)) {
-								String msg = manager.getErrorMessage(nodesResp);
-								if (StringUtils.isNotBlank(msg)) {
-									manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg,
-											nodesResp.getResponseCode(), getParent());
-								}
-							}
-							Response relationsResp = (Response) zipped._2();
-							if (manager.checkError(nodesResp)) {
-								String msg = manager.getErrorMessage(nodesResp);
-								if (StringUtils.isNotBlank(msg)) {
-									manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg,
-											relationsResp.getResponseCode(), getParent());
-								}
-							}
-							List<Node> nodes = (List<Node>) nodesResp.get(GraphDACParams.node_list.name());
-							List<Relation> relations = (List<Relation>) relationsResp
-									.get(GraphDACParams.relations.name());
-							OutputStream outputStream = new ByteArrayOutputStream();
-							try {
-								outputStream = GraphWriterFactory.getData(format, nodes, relations);
-							} catch (Exception e) {
-								try {
-									if (null != outputStream)
-										outputStream.close();
-								} catch (IOException e1) {
-									PlatformLogger.log("Error! While Closing the Input Stream.", null, e);
-								}
-								PlatformLogger.log("Error! While Reading the Data.", null, e);
-							}
-							Response response = new Response();
-							ResponseParams params = new ResponseParams();
-							params.setErr("0");
-							params.setStatus(StatusType.successful.name());
-							params.setErrmsg("Operation successful");
-							response.setParams(params);
-							response.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
-							try {
-								if (null != outputStream)
-									outputStream.close();
-							} catch (IOException e) {
-								PlatformLogger.log("Error! While Closing the Input Stream.", null, e);
-							}
-							return response;
-						}
-			
-					}, ec);*/
-
-			// manager.returnResponse(exportFuture, getParent());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1013,7 +935,6 @@ public class Graph extends AbstractDomainObject {
 
 	public void exportNode(Request req) {
 		Request request = new Request(req);
-		request.setOperation("getNodeByUniqueId");
 		request.copyRequestValueObjects(req.getRequest());
 		Response res = searchMgr.getNodeByUniqueId(request);
 
@@ -1042,7 +963,6 @@ public class Graph extends AbstractDomainObject {
 	public void upsertRootNode(Request req) {
 		try {
 			Request request = new Request(req);
-			request.setOperation("upsertRootNode");
 			request.copyRequestValueObjects(req.getRequest());
 			Response response = nodeMgr.upsertRootNode(request);
 			manager.returnResponse(Futures.successful(response), getParent());
@@ -1054,7 +974,6 @@ public class Graph extends AbstractDomainObject {
 	public void getProxyNode(Request req) {
 		try {
 			Request request = new Request(req);
-			request.setOperation("getNodeByUniqueId");
 			request.copyRequestValueObjects(req.getRequest());
 			Response res = searchMgr.getNodeByUniqueId(request);
 
@@ -1147,7 +1066,6 @@ public class Graph extends AbstractDomainObject {
 				}
 			}
 
-			request.setOperation("bulkUpdateNodes");
 			request.put(GraphDACParams.newNodes.name(), newNodes);
 			request.put(GraphDACParams.modifiedNodes.name(), modifiedNodes);
 			request.put(GraphDACParams.addedOutRelations.name(), addOutRelations);

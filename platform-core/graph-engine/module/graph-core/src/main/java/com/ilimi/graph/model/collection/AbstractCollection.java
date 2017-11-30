@@ -134,7 +134,6 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
 
 	protected Boolean checkMemberNode(Request req, final String memberId, final ExecutionContext ec) {
         Request request = new Request(req);
-        request.setOperation("getNodeByUniqueId");
         request.put(GraphDACParams.node_id.name(), memberId);
 
 		Response ar = searchMgr.getNodeByUniqueId(request);
@@ -155,7 +154,6 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
 	@SuppressWarnings("unchecked")
 	protected Boolean checkMemberNodes(Request req, final List<String> memberIds, final ExecutionContext ec) {
         Request request = new Request(req);
-        request.setOperation("getNodesByUniqueIds");
         request.put(GraphDACParams.node_ids.name(), memberIds);
 		Response ar = searchMgr.getNodesByUniqueIds(request);
 		List<Node> nodes = (List<Node>) ar.get(GraphDACParams.node_list.name());

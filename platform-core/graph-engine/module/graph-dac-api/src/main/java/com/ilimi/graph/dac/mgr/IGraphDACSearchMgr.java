@@ -26,6 +26,8 @@ public interface IGraphDACSearchMgr {
 	Response checkCyclicLoop(Request request);
     
 	Response executeQuery(Request request);
+	
+	Response executeQueryForProps(Request request);
 
 	Response searchNodes(Request request);
 

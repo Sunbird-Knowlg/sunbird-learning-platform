@@ -2,7 +2,6 @@ package com.ilimi.graph.model.cache;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -19,12 +18,8 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
 
 import akka.actor.ActorRef;
-import akka.util.Timeout;
-import scala.concurrent.duration.Duration;
 
 public class DefinitionCache extends BaseGraphManager {
-
-	private static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
 
 	public static DefinitionDTO getDefinitionNode(String graphId, String objectType) {
 		DefinitionDTO dto = getDefinitionFromCache(graphId, objectType);
@@ -84,7 +79,6 @@ public class DefinitionCache extends BaseGraphManager {
 			IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 			Request request = new Request();
 			request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-			request.setOperation("searchNodes");
 			SearchCriteria sc = new SearchCriteria();
 			sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
 			sc.setObjectType(objectType);
