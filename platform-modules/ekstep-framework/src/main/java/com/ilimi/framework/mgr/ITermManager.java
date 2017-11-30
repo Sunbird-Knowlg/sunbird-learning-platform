@@ -15,14 +15,6 @@ public interface ITermManager {
 
 	/**
 	 * @param categoryId
-	 * @param frameworkId
-	 * @param map
-	 * @return
-	 */
-	Response createTerm(String frameworkId, String categoryId, Map<String, Object> map);
-
-	/**
-	 * @param categoryId
 	 * @param map
 	 * @return
 	 */

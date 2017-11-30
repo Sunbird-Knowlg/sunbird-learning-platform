@@ -46,57 +46,22 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 	private static final String GRAPH_ID = "domain";
 
 	/* (non-Javadoc)
-	 * @see org.ekstep.taxonomy.mgr.ITermManager#createTerm(java.lang.String, java.lang.String, java.util.Map)
-	 */
-	@Override
-	public Response createTerm(String frameworkId, String categoryId, Map<String, Object> request) {
-		if (null == request)
-			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-
-		String id = getTermIdentifier(categoryId, (String) request.get(TermEnum.label.name()), frameworkId);
-		if (null != id)
-			request.put(TermEnum.identifier.name(), id);
-		else
-			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
-
-		Relation inRelation = new Relation(categoryId, TermEnum.hasSequenceMember.name(), null);
-		List<Relation> inRelations = new ArrayList<Relation>();
-		inRelations.add(inRelation);
-
-		DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
-		try {
-			Node node = ConvertToGraphNode.convertToGraphNode(request, definition, null);
-			node.setObjectType(TERM_OBJECT_TYPE);
-			node.setGraphId(GRAPH_ID);
-			node.setInRelations(inRelations);
-			Response response = createDataNode(node);
-
-			if (checkError(response))
-				return response;
-			else
-				return response;
-		} catch (Exception e) {
-			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR);
-		}
-	}
-
-	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.ITermManager#createTerm(java.lang.String, java.util.Map)
 	 */
 	@Override
 	public Response createTerm(String categoryId, Map<String, Object> request) {
 		if (null == request)
 			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+		if (StringUtils.isBlank((String) request.get(TermEnum.label.name())))
+			return ERROR("ERR_TERM_LABEL_REQUIRED", "Unique Label is required for Term", ResponseCode.CLIENT_ERROR);
 
-		String id = getTermIdentifier(categoryId, (String) request.get(TermEnum.label.name()), null);
+		String id = getTermIdentifier(categoryId, (String) request.get(TermEnum.label.name()));
 		if (null != id)
 			request.put(TermEnum.identifier.name(), id);
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
 
-		Relation inRelation = new Relation(categoryId, "hasSequenceMember", null);
-		List<Relation> inRelations = new ArrayList<Relation>();
-		inRelations.add(inRelation);
+		List<Relation> inRelations = setRelations(categoryId);// new ArrayList<Relation>();
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
 		try {
@@ -114,6 +79,7 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR);
 		}
 	}
+
 
 	/* (non-Javadoc)
 	 * @see org.ekstep.framework.mgr.ITermManager#readTerm(java.lang.String, java.lang.String)
@@ -172,24 +138,12 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 	public Response searchTerms(String categoryId, Map<String, Object> map) {
 		try {
 			DefinitionDTO definition = getDefinition(GRAPH_ID, TERM_OBJECT_TYPE);
-			List<Filter> filters = new ArrayList<Filter>();
-			Filter filter = new Filter(TermEnum.status.name(), SearchConditions.OP_IN, TermEnum.Live.name());
-			filters.add(filter);
 
-			if ((null != map) && !map.isEmpty()) {
-				for (String key : map.keySet()) {
-					if (StringUtils.isNotBlank((String) map.get(key))) {
-						filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
-						filters.add(filter);
-					}
-				}
-			}
-			MetadataCriterion metadata = MetadataCriterion.create(filters);
 			SearchCriteria criteria = new SearchCriteria();
 			criteria.setGraphId(GRAPH_ID);
 			criteria.setObjectType(TERM_OBJECT_TYPE);
 			criteria.setNodeType("DATA_NODE");
-			criteria.addMetadata(metadata);
+			criteria.addMetadata(getMetadata(categoryId, map));
 			Response response = searchNodes(GRAPH_ID, criteria);
 			List<Object> termList = new ArrayList<Object>();
 			List<Node> terms = (List<Node>) response.get(GraphDACParams.node_list.name());
@@ -300,17 +254,58 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 
 	/**
 	 * @param categoryId
+	 * @return
+	 */
+	private List<String> getChildren(String categoryId) {
+		Response getNodeResponse = getDataNode(GRAPH_ID, categoryId);
+		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+		List<String> identifiers = new ArrayList<String>();
+		for (Relation relation : graphNode.getOutRelations()) {
+			if (StringUtils.equalsIgnoreCase(TERM_OBJECT_TYPE, relation.getEndNodeObjectType()))
+				identifiers.add(relation.getEndNodeId());
+		}
+
+		return identifiers;
+	}
+
+	/**
+	 * @param categoryId
+	 * @param map
+	 * @return
+	 */
+	private MetadataCriterion getMetadata(String categoryId, Map<String, Object> map) {
+		List<Filter> filters = new ArrayList<Filter>();
+		Filter filter = new Filter(TermEnum.status.name(), SearchConditions.OP_IN, TermEnum.Live.name());
+		filters.add(filter);
+
+		if ((null != map) && !map.isEmpty()) {
+			for (String key : map.keySet()) {
+				if (StringUtils.isNotBlank((String) map.get(key))) {
+					filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
+					filters.add(filter);
+				}
+			}
+		}
+
+		for (String identifier : getChildren(categoryId)) {
+			filter = new Filter(TermEnum.identifier.name(), SearchConditions.OP_IN, identifier);
+			filters.add(filter);
+		}
+
+		return MetadataCriterion.create(filters);
+
+	}
+
+	/**
+	 * @param categoryId
 	 * @param object
 	 * @param object2
 	 * @return
 	 */
-	private String getTermIdentifier(String categoryId, String label, String frameworkId) {
+	private String getTermIdentifier(String categoryId, String label) {
 		String id = null;
-		if (StringUtils.isNotBlank(categoryId) && StringUtils.isNotBlank(label)) {
-			if (null != frameworkId)
-				id = Slug.makeSlug(frameworkId + "_" + categoryId + "_" + label);
-			else
-				id = Slug.makeSlug(categoryId + "_" + label);
+		if (StringUtils.isNotBlank(categoryId)) {
+			id = Slug.makeSlug(categoryId + "_" + label);
 		}
 		return id;
 	}
@@ -353,6 +348,18 @@ public class TermManagerImpl extends BaseManager implements ITermManager {
 			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
 		}
 		return false;
+	}
+
+	/**
+	 * @param categoryId
+	 * @param request
+	 * @return
+	 */
+	private List<Relation> setRelations(String categoryId) {
+		Relation inRelation = new Relation(categoryId, "hasSequenceMember", null);
+		List<Relation> inRelations = new ArrayList<Relation>();
+		inRelations.add(inRelation);
+		return inRelations;
 	}
 
 }

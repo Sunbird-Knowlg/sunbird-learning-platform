@@ -8,5 +8,5 @@ package com.ilimi.framework.enums;
  *
  */
 public enum TermEnum {
-	identifier, hasSequenceMember, label, term, status, Live, Retired;
+	identifier, hasSequenceMember, label, term, status, Live, Retired, Term;
 }

@@ -112,7 +112,7 @@ public class TermFrameworkV3Controller extends BaseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/search", method = RequestMethod.GET)
+	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> search(@RequestParam(value = "framework", required = true) String frameworkId,
 			@RequestParam(value = "category", required = true) String categoryId,
