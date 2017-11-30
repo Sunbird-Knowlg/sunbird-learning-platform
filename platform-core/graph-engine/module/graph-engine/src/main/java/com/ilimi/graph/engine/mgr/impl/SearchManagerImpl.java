@@ -31,8 +31,6 @@ import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.Graph;
 
 import akka.actor.ActorRef;
-import akka.dispatch.OnComplete;
-import scala.concurrent.Future;
 
 public class SearchManagerImpl extends BaseGraphManager implements ISearchManager {
 
@@ -152,7 +150,8 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
         }
     }
     
-    public void executeQueryForProps(Request request) {
+	@SuppressWarnings("unchecked")
+	public void executeQueryForProps(Request request) {
     		String query = (String) request.get(GraphDACParams.query.name());
 		List<String> props = (List<String>) request.get(GraphDACParams.property_keys.name());
 		if (!validateRequired(query, props)) {
@@ -364,55 +363,45 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                 }
                 Graph graph = new Graph(this, graphId);
                 final ActorRef parent = getSender();
-                Future<List<Map<String, Object>>> future = graph.executeQuery(request, sb.toString(), params);
-                future.onComplete(new OnComplete<List<Map<String, Object>>>() {
-                    @Override
-                    public void onComplete(Throwable arg0, List<Map<String, Object>> arg1) throws Throwable {
-                        if (null != arg0) {
-                            ERROR(arg0, parent);
-                        } else {
-                            List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-                            if (null != arg1 && !arg1.isEmpty()) {
-                                Map<String, Map<String, Object>> nodeMap = new HashMap<String, Map<String, Object>>();
-                                for (Map<String, Object> map : arg1) {
-                                    if (null != map && !map.isEmpty()) {
-                                        String nodeId = (String) map.get("n." + SystemProperties.IL_UNIQUE_ID.name());
-                                        Map<String, Object> attrMap = nodeMap.get(nodeId);
-                                        if (null == attrMap) {
-                                            attrMap = new HashMap<String, Object>();
-                                            attrMap.put("id", nodeId);
-                                            List<Map<String, Object>> relList = new ArrayList<Map<String, Object>>();
-                                            attrMap.put(relationType, relList);
-                                            nodeMap.put(nodeId, attrMap);
-                                        }
-                                        Map<String, Object> relMap = new HashMap<String, Object>();
-                                        for (Entry<String, Object> entry : map.entrySet()) {
-                                            if (StringUtils.startsWith(entry.getKey(), "n.")) {
-                                                attrMap.put(entry.getKey().substring(2), entry.getValue());
-                                            } else if (StringUtils.startsWith(entry.getKey(), "r.")) {
-                                                if (null != entry.getValue()) {
-                                                    relMap.put(entry.getKey().substring(2), entry.getValue());
-                                                }
-                                            }
-                                        }
-                                        attrMap.remove(SystemProperties.IL_UNIQUE_ID.name());
-                                        if (!relMap.isEmpty()) {
-                                            if (relMap.containsKey(SystemProperties.IL_UNIQUE_ID.name()))
-                                                relMap.remove(SystemProperties.IL_UNIQUE_ID.name());
-                                            List<Map<String, Object>> relList = (List<Map<String, Object>>) attrMap
-                                                    .get(relationType);
-                                            relList.add(relMap);
-                                        }
+				List<Map<String, Object>> resultList = graph.executeQuery(request, sb.toString(), params);
+				if (null != resultList && !resultList.isEmpty()) {
+					Map<String, Map<String, Object>> nodeMap = new HashMap<String, Map<String, Object>>();
+					for (Map<String, Object> map : resultList) {
+						if (null != map && !map.isEmpty()) {
+							String nodeId = (String) map.get("n." + SystemProperties.IL_UNIQUE_ID.name());
+							Map<String, Object> attrMap = nodeMap.get(nodeId);
+							if (null == attrMap) {
+								attrMap = new HashMap<String, Object>();
+								attrMap.put("id", nodeId);
+								List<Map<String, Object>> relList = new ArrayList<Map<String, Object>>();
+								attrMap.put(relationType, relList);
+								nodeMap.put(nodeId, attrMap);
+							}
+							Map<String, Object> relMap = new HashMap<String, Object>();
+							for (Entry<String, Object> entry : map.entrySet()) {
+								if (StringUtils.startsWith(entry.getKey(), "n.")) {
+									attrMap.put(entry.getKey().substring(2), entry.getValue());
+								} else if (StringUtils.startsWith(entry.getKey(), "r.")) {
+									if (null != entry.getValue()) {
+										relMap.put(entry.getKey().substring(2), entry.getValue());
                                     }
                                 }
-                                for (Map<String, Object> val : nodeMap.values()) {
-                                    resultList.add(val);
-                                }
                             }
-                            OK(GraphDACParams.results.name(), resultList, parent);
+							attrMap.remove(SystemProperties.IL_UNIQUE_ID.name());
+							if (!relMap.isEmpty()) {
+								if (relMap.containsKey(SystemProperties.IL_UNIQUE_ID.name()))
+									relMap.remove(SystemProperties.IL_UNIQUE_ID.name());
+								List<Map<String, Object>> relList = (List<Map<String, Object>>) attrMap
+										.get(relationType);
+								relList.add(relMap);
+							}
                         }
                     }
-                }, getContext().dispatcher());
+					for (Map<String, Object> val : nodeMap.values()) {
+						resultList.add(val);
+					}
+				}
+				OK(GraphDACParams.results.name(), resultList, parent);
 
             } catch (Exception e) {
                 handleException(e, getSender());

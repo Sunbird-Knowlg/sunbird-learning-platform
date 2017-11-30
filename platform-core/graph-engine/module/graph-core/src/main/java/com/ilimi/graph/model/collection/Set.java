@@ -456,7 +456,6 @@ public class Set extends AbstractCollection {
          		SetCacheManager.dropSet(graphId, setId);
                 
 				Request dacRequest = new Request(req);
-				dacRequest.setOperation("deleteCollection");
 				dacRequest.put(GraphDACParams.collection_id.name(), setId);
 				Future<Object> response = Futures.successful(graphMgr.deleteCollection(dacRequest));
 
@@ -474,10 +473,9 @@ public class Set extends AbstractCollection {
 						"Required parameters are missing...");
 			} else {
 				Request request = new Request(req);
-				request.setOperation("getNodeByUniqueId");
 				request.put(GraphDACParams.node_id.name(), this.getNodeId());
-				Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
-				manager.returnResponse(response, getParent());
+				Response response = searchMgr.getNodeByUniqueId(request);
+				manager.returnResponse(Futures.successful(response), getParent());
 			}
 		} catch (Exception e) {
 			manager.handleException(e, getParent());
@@ -561,26 +559,23 @@ public class Set extends AbstractCollection {
 			final Request request = new Request(req);
 			request.setOperation("searchNodes");
 			request.put(GraphDACParams.search_criteria.name(), this.criteria);
-			Future<Object> dacFuture = Futures.successful(searchMgr.searchNodes(request));
-			dacFuture.onComplete(new OnComplete<Object>() {
-				@Override
-				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-					boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-							GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(), "Error searching nodes");
-					if (valid) {
-						Response res = (Response) arg1;
-						List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-						List<String> memberIds = new ArrayList<String>();
-						if (null != nodes && !nodes.isEmpty()) {
-							for (Node node : nodes) {
-								memberIds.add(node.getIdentifier());
-							}
-						}
-						setMemberIds(memberIds);
-						createSetNode(req, ec);
+			Response res = searchMgr.searchNodes(request);
+
+			if (manager.checkError(res)) {
+				manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(),
+						manager.getErrorMessage(res), res.getResponseCode(), getParent());
+			} else {
+				List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+				List<String> memberIds = new ArrayList<String>();
+				if (null != nodes && !nodes.isEmpty()) {
+					for (Node node : nodes) {
+						memberIds.add(node.getIdentifier());
 					}
 				}
-			}, ec);
+				setMemberIds(memberIds);
+				createSetNode(req, ec);
+
+			}
 		} catch (Exception e) {
 			manager.ERROR(e, getParent());
 		}
@@ -619,7 +614,6 @@ public class Set extends AbstractCollection {
 			setNodeId(setId);
 			if (null != memberIds && memberIds.size() > 0) {
 				Request dacRequest = new Request(req);
-				dacRequest.setOperation("createCollection");
 				dacRequest.put(GraphDACParams.collection_id.name(), setId);
 				dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
 				dacRequest.put(GraphDACParams.members.name(), memberIds);

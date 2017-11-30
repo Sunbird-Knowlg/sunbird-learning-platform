@@ -198,7 +198,7 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
             throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Required parameters are missing...");
         } else {
             Graph graph = new Graph(this, graphId);
-            graph.addOutRelations(request);
+			graph.addInRelations(request);
         }
     }
 

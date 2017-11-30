@@ -108,7 +108,6 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     @Override
 	public String deleteRelation(Request req) {
         Request request = new Request(req);
-        request.setOperation("deleteRelation");
         request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
         request.put(GraphDACParams.relation_type.name(), getRelationType());
         request.put(GraphDACParams.end_node_id.name(), getEndNodeId());

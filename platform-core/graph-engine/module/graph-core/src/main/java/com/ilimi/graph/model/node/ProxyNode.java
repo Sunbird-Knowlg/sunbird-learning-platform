@@ -24,7 +24,6 @@ import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 
 import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 

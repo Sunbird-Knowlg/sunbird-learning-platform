@@ -64,9 +64,7 @@ import com.ilimi.graph.writer.GraphWriterFactory;
 import com.ilimi.graph.writer.RDFGraphWriter;
 
 import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
 import akka.util.Timeout;
-import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
@@ -429,7 +427,7 @@ public class Graph extends AbstractDomainObject {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Future<List<Map<String, Object>>> executeQuery(Request req, String query, Map<String, Object> params) {
+	public List<Map<String, Object>> executeQuery(Request req, String query, Map<String, Object> params) {
 		try {
 			Request request = new Request(req);
 			request.put(GraphDACParams.query.name(), query);
@@ -446,7 +444,7 @@ public class Graph extends AbstractDomainObject {
 						result.add(map);
 				}
 			}
-			return Futures.successful(result);
+			return result;
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
 					e);
