@@ -40,7 +40,7 @@ public class TermChannelV3Controller extends BaseController {
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestParam(value = "category", required = true) String categoryId,
-			@RequestHeader(value = "x-channel-id") String channelId,
+			@RequestHeader(value = "X-Channel-Id") String channelId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.framework.term.create";
 		PlatformLogger.log("Executing Term Create API (Java Version) (API Version V3).", requestMap);
@@ -64,7 +64,7 @@ public class TermChannelV3Controller extends BaseController {
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String termId,
-			@RequestHeader(value = "x-channel-id") String channelId,
+			@RequestHeader(value = "X-Channel-Id") String channelId,
 			@RequestParam(value = "category", required = true) String categoryId) {
 		String apiId = "ekstep.framework.term.read";
 		PlatformLogger.log("Executing term Get API term Id: " + termId + ".", null);
@@ -91,7 +91,7 @@ public class TermChannelV3Controller extends BaseController {
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String termId,
-			@RequestHeader(value = "x-channel-id") String channelId,
+			@RequestHeader(value = "X-Channel-Id") String channelId,
 			@RequestParam(value = "category", required = true) String categoryId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.framework.term.update";
@@ -120,7 +120,7 @@ public class TermChannelV3Controller extends BaseController {
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> list(@RequestParam(value = "category", required = true) String categoryId,
-			@RequestHeader(value = "x-channel-id") String channelId, @RequestBody Map<String, Object> requestMap) {
+			@RequestHeader(value = "X-Channel-Id") String channelId, @RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.framework.term.search";
 		PlatformLogger.log("Executing term search API For category Id: " + categoryId + ".", "INFO");
 		Request request = getRequest(requestMap);
@@ -143,7 +143,7 @@ public class TermChannelV3Controller extends BaseController {
 	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String termId,
-			@RequestHeader(value = "x-channel-id") String channelId,
+			@RequestHeader(value = "X-Channel-Id") String channelId,
 			@RequestParam(value = "category", required = true) String categoryId) {
 		String apiId = "ekstep.framework.term.retire";
 		PlatformLogger.log("Executing term retire API For term Id: " + termId + ".", "INFO");
