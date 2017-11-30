@@ -68,7 +68,7 @@ public class LogTelemetryEventUtil {
 		
 		object.put("id", contentId);
 		object.put("type", metadata.get("contentType"));
-		object.put("ver", metadata.get("version"));
+		object.put("ver", metadata.get("versionKey"));
 		te.setObject(object);
 		
 		edata.put("action", action);

@@ -92,7 +92,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 	String jsonSearchWithFacets = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]},\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"]}}";
 	String jsonSearchWithSortByAsc = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]},\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"],\"sort_by\":{\"name\":\"asc\"}}}";
 	String jsonSearchWithSortByDsc = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]},\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"],\"sort_by\":{\"name\":\"desc\"}}}";
-
+	private String PROCESSING = "Processing";
+	private String PENDING = "Pending";
+	
 	
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
 	static URL url = classLoader.getResource("DownloadedFiles");
@@ -2854,7 +2856,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			JsonPath jp3 = R3.jsonPath();
 			String statusUpdated = jp3.get("result.content.status");
 			//System.out.println(statusUpdated);
-			if (statusUpdated.equals("Processing")) {
+			if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 				i = i + 1000;
 			}
 			if (statusUpdated.equals("Live")) {
@@ -3726,7 +3728,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live") || n_status.equals("Processing") && n_identifier.equals(collectionId)
+		Assert.assertTrue(n_status.equals("Live") || n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(collectionId)
 				&& n_identifier1.contains(nodeId));
 	}
 
@@ -4545,7 +4547,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with draft textbook unit and visibility-Parent
@@ -4698,7 +4700,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with draft textbook unit and visibility-Default
@@ -4850,7 +4852,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent
@@ -5011,7 +5013,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent
@@ -5169,7 +5171,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with Draft textbook unit and visibility-Default with draft children
@@ -5304,7 +5306,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with Draft textbook unit and visibility-Parent with draft children
@@ -5442,7 +5444,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Default and live children
@@ -5626,7 +5628,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent and live children
@@ -5803,7 +5805,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent and live children
@@ -6003,7 +6005,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
-				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId2));
+				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId2));
 	}
 
 	// Publish content with malformed XML body
@@ -6588,7 +6590,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		try {
 			// Validating the status
-			if (statusActual.equals("Processing")) {
+			if (statusActual.equals(PROCESSING) || statusActual.equals(PENDING)) {
 				for (int i = 1000; i <= 30000; i = i + 1000) {
 					try {
 						Thread.sleep(i);
@@ -6605,7 +6607,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 					JsonPath jp3 = R3.jsonPath();
 					String statusUpdated = jp3.get("result.content.status");
 					//System.out.println(statusUpdated);
-					if (statusUpdated.equals("Processing")) {
+					if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 						i = i + 1000;
 					}
 					if (statusUpdated.equals("Live")) {
@@ -6798,7 +6800,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	// Async Publish validations - Collection
 	public void asyncPublishValidations(ArrayList<String> identifier1, String status, String nodeId,
 			String c_identifier, String node1, String node2) {
-		if (status.equals("Processing")) {
+		if (status.equals(PROCESSING) || status.equals(PENDING)) {
 			for (int i = 1000; i <= 30000; i = i + 1000) {
 				try {
 					Thread.sleep(i);
@@ -6814,7 +6816,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				// Validate the response
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
-				if (statusUpdated.equals("Processing")) {
+				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 					//System.out.println(statusUpdated);
 					i++;
 				}

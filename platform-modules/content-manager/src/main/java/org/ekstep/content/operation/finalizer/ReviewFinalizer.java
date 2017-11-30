@@ -80,9 +80,9 @@ public class ReviewFinalizer extends BaseFinalizer {
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
 		String publishType = null;
 		if (BooleanUtils.isTrue(isPublishOperation)) {
-			PlatformLogger.log("Changing the Content Status to 'Processing'.", LoggerEnum.INFO.name());
+			PlatformLogger.log("Changing the Content Status to 'Pending'.", LoggerEnum.INFO.name());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
-					ContentWorkflowPipelineParams.Processing.name());
+					ContentWorkflowPipelineParams.Pending.name());
 			publishType = (String)node.getMetadata().get("publish_type");
 			node.getMetadata().remove("publish_type");
 		} else {

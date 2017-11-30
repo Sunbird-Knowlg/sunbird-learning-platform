@@ -47,6 +47,8 @@ public class MimeTypeMgrTests extends BaseTest {
 	String jsonCreateValidDocContent = "{ \"request\": { \"content\": { \"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"English\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"mimeType\":\"application/msword\" } } }";
 	String jsonCreateValidEpubContent = "{\"request\":{\"content\":{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}}}";
 	String jsonCreateEpubContentWithInvalidZip = "{\"request\":{\"content\":{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}}}";
+	private String PROCESSING = "Processing";
+	private String PENDING = "Pending";
 	
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
 
@@ -886,7 +888,7 @@ public class MimeTypeMgrTests extends BaseTest {
 			JsonPath jp3 = R3.jsonPath();
 			String statusUpdated = jp3.get("result.content.status");
 			// System.out.println(statusUpdated);
-			if (statusUpdated.equals("Processing")) {
+			if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 				i = i + 1000;
 			}
 			if (statusUpdated.equals("Live")) {
@@ -898,7 +900,7 @@ public class MimeTypeMgrTests extends BaseTest {
 	// Async Publish validations - Collection
 	public void asyncPublishValidations(ArrayList<String> identifier1, String status, String nodeId,
 			String c_identifier, String node1, String node2) {
-		if (status.equals("Processing")) {
+		if (status.equals(PROCESSING) || status.equals(PENDING)) {
 			for (int i = 1000; i <= 5000; i = i + 1000) {
 				try {
 					Thread.sleep(i);
@@ -914,7 +916,7 @@ public class MimeTypeMgrTests extends BaseTest {
 				// Validate the response
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
-				if (statusUpdated.equals("Processing")) {
+				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 					i++;
 				}
 				if (statusUpdated.equals("Live")) {
@@ -924,7 +926,7 @@ public class MimeTypeMgrTests extends BaseTest {
 			}
 		}
 		if (status.equals("Live")) {
-			Assert.assertTrue(status.equals("Live") || status.equals("Processing") && c_identifier.equals(nodeId)
+			Assert.assertTrue(status.equals("Live") || status.equals(PROCESSING) || status.equals(PENDING) && c_identifier.equals(nodeId)
 					&& identifier1.contains(node1) && identifier1.contains(node2));
 		}
 	}

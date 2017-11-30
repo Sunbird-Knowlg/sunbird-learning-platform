@@ -44,7 +44,6 @@ import com.jayway.restassured.response.Response;
 
 import net.lingala.zip4j.core.ZipFile;
 
-
 public class ContentPublishWorkflowTests extends BaseTest{
 	
 	int rn = generateRandomInt(0, 9999999);
@@ -64,6 +63,9 @@ public class ContentPublishWorkflowTests extends BaseTest{
 	String malformedJSONBody = "{\"theme\":{\"manifes77\",\"scribble\":[],\"htext\":[],\"g\":[]}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_NFT\"}}";
 	
+	private String PROCESSING = "Processing";
+	private String PENDING = "Pending";
+
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
 	static URL url = classLoader.getResource("DownloadedFiles/");
 	static File downloadPath;
@@ -2166,7 +2168,7 @@ public class ContentPublishWorkflowTests extends BaseTest{
 			JsonPath jp3 = R3.jsonPath();
 			String statusUpdated = jp3.get("result.content.status");
 			//System.out.println(statusUpdated);
-			if (statusUpdated.equals("Processing")){
+			if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)){
 				i=i+1000;
 			}
 			if (statusUpdated.equals("Live")){
@@ -3368,7 +3370,7 @@ public void publishNestedCollectionExpectSuccess200(){
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(collectionId)&&n_identifier1.contains(nodeId));
+		Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(collectionId)&&n_identifier1.contains(nodeId));
 	}
 	
 	// Publish Text book with draft children with visibility - Default
@@ -4469,7 +4471,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			String n_status = jp4.get("result.content.status");
 			String n_identifier = jp4.get("result.content.identifier");
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 		}
 
 	
@@ -4668,7 +4670,7 @@ public void publishNestedCollectionExpectSuccess200(){
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+		Assert.assertTrue (n_status.equals("Live")|| n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 	}
 	
 	// Create, upload and publish nested textbook with draft textbook unit and visibility-Default
@@ -4865,7 +4867,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			String n_status = jp4.get("result.content.status");
 			String n_identifier = jp4.get("result.content.identifier");
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 		}
 		
 		// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent
@@ -5074,7 +5076,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			String n_status = jp4.get("result.content.status");
 			String n_identifier = jp4.get("result.content.identifier");
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 		}
 		
 		// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent
@@ -5279,7 +5281,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			String n_status = jp4.get("result.content.status");
 			String n_identifier = jp4.get("result.content.identifier");
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 		}	
 	
 		// Create, upload and publish nested textbook with Draft textbook unit and visibility-Default with draft children
@@ -5455,7 +5457,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			String n_status = jp4.get("result.content.status");
 			String n_identifier = jp4.get("result.content.identifier");
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 		}	
 		
 		// Create, upload and publish nested textbook with Draft textbook unit and visibility-Parent with draft children
@@ -5634,7 +5636,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			String n_status = jp4.get("result.content.status");
 			String n_identifier = jp4.get("result.content.identifier");
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 		}	
 		
 		// Create, upload and publish nested textbook with Live textbook unit and visibility-Default and live children
@@ -5859,7 +5861,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			String n_status = jp4.get("result.content.status");
 			String n_identifier = jp4.get("result.content.identifier");
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 		}	
 		
 		// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent and live children
@@ -6087,7 +6089,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			String n_status = jp4.get("result.content.status");
 			String n_identifier = jp4.get("result.content.identifier");
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId));
 		}
 		
 		
@@ -6351,7 +6353,7 @@ public void publishNestedCollectionExpectSuccess200(){
 			//System.out.println(node2);
 			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 			//System.out.println(n_identifier1 );
-			Assert.assertTrue (n_status.equals("Live")||n_status.equals("Processing")&&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId2));
+			Assert.assertTrue (n_status.equals("Live")||n_status.equals(PROCESSING) || n_status.equals(PENDING) &&n_identifier.equals(textBookId)&&n_identifier1.contains(nodeId2));
 		}
 		
 	// Publish content with malformed XML body
@@ -6575,7 +6577,7 @@ public void publishNestedCollectionExpectSuccess200(){
 
 		try{
 		// Validating the status
-		if (statusActual.equals("Processing")){
+		if (statusActual.equals(PROCESSING) || statusActual.equals(PENDING)){
 			for (int i=1000; i<=30000; i=i+1000){
 				try{Thread.sleep(i);}catch(InterruptedException e){System.out.println(e);} 
 				setURI();
@@ -6594,7 +6596,7 @@ public void publishNestedCollectionExpectSuccess200(){
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
 				//System.out.println(statusUpdated);
-				if (statusUpdated.equals("Processing")){
+				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)){
 					i=i+1000;
 				}
 				if (statusUpdated.equals("Live")){
@@ -6802,7 +6804,7 @@ public void publishNestedCollectionExpectSuccess200(){
 	}*/
 	// Async Publish validations - Collection
 	public void asyncPublishValidations(ArrayList<String> identifier1, String status, String nodeId, String c_identifier, String node1, String node2){
-		if(status.equals("Processing")){
+		if(status.equals(PROCESSING) || status.equals(PENDING)){
 			for (int i=1000; i<=30000; i=i+1000){
 				try{Thread.sleep(i);}catch(InterruptedException e){System.out.println(e);} 
 				setURI();
@@ -6820,7 +6822,7 @@ public void publishNestedCollectionExpectSuccess200(){
 				// Validate the response
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
-				if (statusUpdated.equals("Processing")){
+				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)){
 					//System.out.println(statusUpdated);
 					i++;
 				}

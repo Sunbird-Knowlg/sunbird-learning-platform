@@ -47,6 +47,9 @@ public class UnlistedPublishTestCases extends BaseTest{
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_NFT\"}}";
 	String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"version_Key\", \"body\": \"{\\\"theme\\\":{\\\"id\\\":\\\"theme\\\",\\\"version\\\":\\\"1.0\\\",\\\"startStage\\\":\\\"cd168631-889c-4414-909d-a85a83ca3a68\\\",\\\"stage\\\":[{\\\"x\\\":0,\\\"y\\\":0,\\\"w\\\":100,\\\"h\\\":100,\\\"id\\\":\\\"cd168631-889c-4414-909d-a85a83ca3a68\\\",\\\"rotate\\\":null,\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true,\\\"color\\\":\\\"#FFFFFF\\\",\\\"genieControls\\\":false,\\\"instructions\\\":\\\"\\\"}\\\"},\\\"param\\\":[{\\\"name\\\":\\\"next\\\",\\\"value\\\":\\\"b4a01a33-a6e4-4c63-b37a-11c783c950b5\\\"}],\\\"manifest\\\":{\\\"media\\\":[{\\\"assetId\\\":\\\"do_11233272325713920013\\\"}]},\\\"image\\\":[{\\\"asset\\\":\\\"do_11233272325713920013\\\",\\\"x\\\":20,\\\"y\\\":20,\\\"w\\\":49.81,\\\"h\\\":88.56,\\\"rotate\\\":0,\\\"z-index\\\":0,\\\"id\\\":\\\"d434956b-672c-4204-bdd1-864dbae40c0c\\\",\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true}\\\"}}]},{\\\"x\\\":0,\\\"y\\\":0,\\\"w\\\":100,\\\"h\\\":100,\\\"id\\\":\\\"b4a01a33-a6e4-4c63-b37a-11c783c950b5\\\",\\\"rotate\\\":null,\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true,\\\"color\\\":\\\"#FFFFFF\\\",\\\"genieControls\\\":false,\\\"instructions\\\":\\\"\\\"}\\\"},\\\"param\\\":[{\\\"name\\\":\\\"previous\\\",\\\"value\\\":\\\"cd168631-889c-4414-909d-a85a83ca3a68\\\"}],\\\"manifest\\\":{\\\"media\\\":[{\\\"assetId\\\":\\\"do_11233272325713920013\\\"},{\\\"assetId\\\":\\\"do_10095813\\\"}]},\\\"image\\\":[{\\\"asset\\\":\\\"do_11233272325713920013\\\",\\\"x\\\":20,\\\"y\\\":20,\\\"w\\\":49.81,\\\"h\\\":88.56,\\\"rotate\\\":0,\\\"z-index\\\":0,\\\"id\\\":\\\"cc35e88c-1630-414b-9d50-a343c522e316\\\",\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true}\\\"}},{\\\"asset\\\":\\\"do_10095813\\\",\\\"x\\\":20,\\\"y\\\":20,\\\"w\\\":49.49,\\\"h\\\":87.98,\\\"rotate\\\":0,\\\"z-index\\\":1,\\\"id\\\":\\\"7849c5a6-0013-44a6-97ae-c5872974d500\\\",\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true}\\\"}}]}],\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"do_11233272325713920013\\\",\\\"src\\\":\\\"/assets/public/content/do_11233272325713920013/artifact/5c568572a97acec4f01f596694396418_1505459382119.jpeg\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"do_10095813\\\",\\\"src\\\":\\\"/assets/public/content/c7a7d301f288f1afe24117ad59083b2a_1475430290462.jpeg\\\",\\\"type\\\":\\\"image\\\"}]},\\\"plugin-manifest\\\":{\\\"plugin\\\":[]},\\\"compatibilityVersion\\\":2}}\"}}}";
 	
+	private String PROCESSING = "Processing";
+	private String PENDING = "Pending";
+	
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
 	static URL url = classLoader.getResource("DownloadedFiles");
 	static File downloadPath;
@@ -592,7 +595,7 @@ public class UnlistedPublishTestCases extends BaseTest{
 
 		try {
 			// Validating the status
-			if (statusActual.equals("Processing")) {
+			if (statusActual.equals(PROCESSING) || statusActual.equals(PENDING)) {
 				for (int i = 1000; i <= 30000; i = i + 1000) {
 					try {
 						Thread.sleep(i);
@@ -609,7 +612,7 @@ public class UnlistedPublishTestCases extends BaseTest{
 					JsonPath jp3 = R3.jsonPath();
 					String statusUpdated = jp3.get("result.content.status");
 					//System.out.println(statusUpdated);
-					if (statusUpdated.equals("Processing")) {
+					if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 						i = i + 1000;
 					}
 					if (statusUpdated.equals("Unlisted")) {
@@ -793,7 +796,7 @@ public class UnlistedPublishTestCases extends BaseTest{
 	// Async Publish validations - Collection
 	public void asyncPublishValidations(ArrayList<String> identifier1, String status, String nodeId,
 			String c_identifier, String node1, String node2) {
-		if (status.equals("Processing")) {
+		if (status.equals(PROCESSING) || status.equals(PENDING)) {
 			for (int i = 1000; i <= 30000; i = i + 1000) {
 				try {
 					Thread.sleep(i);
@@ -809,7 +812,7 @@ public class UnlistedPublishTestCases extends BaseTest{
 				// Validate the response
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
-				if (statusUpdated.equals("Processing")) {
+				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 					//System.out.println(statusUpdated);
 					i++;
 				}

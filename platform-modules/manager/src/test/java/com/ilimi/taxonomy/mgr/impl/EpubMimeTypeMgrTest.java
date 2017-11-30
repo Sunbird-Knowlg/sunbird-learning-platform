@@ -32,7 +32,8 @@ public class EpubMimeTypeMgrTest extends TestSetup {
 	ContentManagerImpl mgr = new ContentManagerImpl();
 	String createEpubContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
 	String requestForReview = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}";
-	
+	private String PROCESSING = "Processing";
+	private String PENDING = "Pending";
 	ObjectMapper mapper = new ObjectMapper();
 	String node_id = "";
 	
@@ -116,7 +117,7 @@ public class EpubMimeTypeMgrTest extends TestSetup {
 		assertEquals(true, publishResult.containsKey("content"));
 		Map<String,Object> contents = (Map)publishResult.get("content");
 		assertEquals(true, contents.containsKey("status"));
-		if (contents.get("status").equals("Processing")) {
+		if (contents.get("status").equals(PROCESSING) && contents.get("status").equals(PENDING)) {
 			for (int i = 1000; i <= 5000; i = i + 1000) {
 				try {
 					Thread.sleep(i);
@@ -126,7 +127,7 @@ public class EpubMimeTypeMgrTest extends TestSetup {
 				Response getContent = mgr.find("domain", node_id, null, fields);
                 Map<String,Object> data = getContent.getResult();
                 Map<String,Object> contentData = (Map) data.get("content");
-				if (contentData.get("status").equals("Processing")) {
+				if (contentData.get("status").equals(PROCESSING) && contentData.get("status").equals(PENDING)) {
 					i++;
 				}
 				if (contentData.get("status").equals("Live")) {
