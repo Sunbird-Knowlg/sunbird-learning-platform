@@ -15,4 +15,6 @@ public interface ICategoryInstanceManager {
 	Response retireCategoryInstance(String identifier, String categoryInstanceId);
 
 	Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map);
+
+	boolean validateScopeId(String identifier);
 }

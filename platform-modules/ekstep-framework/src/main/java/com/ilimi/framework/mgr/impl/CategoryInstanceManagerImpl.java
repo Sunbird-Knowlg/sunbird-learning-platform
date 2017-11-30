@@ -20,6 +20,7 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.framework.enums.CategoryEnum;
+import com.ilimi.framework.enums.TermEnum;
 import com.ilimi.framework.mgr.ICategoryInstanceManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Filter;
@@ -32,7 +33,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
 /**
- * This is the entry point for all CRUD operations related to category API.
+ * This is the entry point for all CRUD operations related to category Instance API.
  * 
  * @author Rashmi
  *
@@ -51,9 +52,6 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		if (null == request.get("code") || StringUtils.isBlank((String)request.get("code")))
 			return ERROR("ERR_CATEGORY_INSTANCE_CODE_REQUIRED", "Unique code is mandatory for categoryInstance", ResponseCode.CLIENT_ERROR);
 		Response responseNode = getDataNode(GRAPH_ID, identifier);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CATEGORY_INSTANCE_NOT_FOUND.name(),
-					"Channel/framework not found with id: " + identifier);
 		Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
 		String objectType = dataNode.getObjectType();
 		request = setMetadata(objectType, identifier, request);
@@ -94,7 +92,7 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		}
 	}
 
-	private Boolean validateScopeNode(String identifier, Node node) {
+	public Boolean validateScopeNode(String identifier, Node node) {
 		if(null != node) {
 			List<Relation> inRelations = node.getInRelations();
 			for(Relation rel : inRelations) {
@@ -111,7 +109,6 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 
 	@Override
 	public Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) {
-		Response createResponse = null;
 		boolean checkError = false;
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
@@ -129,12 +126,12 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 				domainObj.setGraphId(GRAPH_ID);
 				domainObj.setIdentifier(categoryInstanceId);
 				domainObj.setObjectType(CATEGORY_INSTANCE_OBJECT_TYPE);
-				createResponse = updateDataNode(domainObj);
-				checkError = checkError(createResponse);
+				Response updateResponse = updateDataNode(domainObj);
+				checkError = checkError(updateResponse);
 				if (checkError)
-					return createResponse;
+					return updateResponse;
 				else
-					return createResponse;
+					return updateResponse;
 			} catch (Exception e) {
 				return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 			}
@@ -150,21 +147,7 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 			criteria.setGraphId(GRAPH_ID);
 			criteria.setObjectType(CATEGORY_INSTANCE_OBJECT_TYPE);
 			criteria.setNodeType("DATA_NODE");
-			List<Filter> filters = new ArrayList<Filter>();
-             Filter filter = new Filter("status", SearchConditions.OP_IN, "Live");
-             filters.add(filter);
-			if ((null != map) && !map.isEmpty()) {
-				for (String key : map.keySet()) {
-					if (StringUtils.isNotBlank((String) map.get(key))) {
-						filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
-						filters.add(filter);
-					}
-				}
-			}
-             MetadataCriterion metadata = MetadataCriterion.create(filters);
-             List<MetadataCriterion> metadataList = new ArrayList<MetadataCriterion>();
-             metadataList.add(metadata);
-             criteria.setMetadata(metadataList);
+			criteria.addMetadata(getMetadata(identifier, map));
 			 Response response = searchNodes(GRAPH_ID, criteria);
 			 List<Object> categoryList = new ArrayList<Object>();
 			 List<Node> categoryNodes = (List<Node>) response.get(GraphDACParams.node_list.name());
@@ -186,22 +169,30 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 	
 	@Override
 	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
-		Response createResponse = null;
 		boolean checkError = false;
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CATEGORY_INSTANCE_OBJECT_TYPE);
 		Response getNodeResponse = getDataNode(GRAPH_ID, categoryInstanceId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		Node domainObj;
 		try {
-			Map<String,Object> map = new HashMap<String,Object>();
-			map.put("status", "Retired");
-			domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
-			updateDataNode(domainObj);
-			checkError = checkError(createResponse);
-			if (checkError)
-				return createResponse;
-			else
-				return createResponse;
+			Boolean isValid = validateScopeNode(identifier, graphNode);
+			if(!isValid) {
+				throw new ClientException(ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/" + ContentErrorCodes.ERR_FRAMEWORK_NOT_FOUND.name(), "Given channel/framework is not related to given category");
+			}
+			else {
+				Map<String,Object> map = new HashMap<String,Object>();
+				map.put("status", "Retired");
+				domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+				domainObj.setGraphId(GRAPH_ID);
+				domainObj.setIdentifier(categoryInstanceId);
+				domainObj.setObjectType(CATEGORY_INSTANCE_OBJECT_TYPE);
+				Response createResponse = updateDataNode(domainObj);
+				checkError = checkError(createResponse);
+				if (checkError)
+					return createResponse;
+				else
+					return createResponse;
+			}
 		} catch (Exception e) {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
@@ -213,20 +204,22 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		relationMap.put("identifier", identifier);
 		relationMap.put("relation", "hasSequenceMember");
 		if(StringUtils.equalsIgnoreCase(objectType, "Channel")) {
-			relationList.add(relationMap);
-			request.put("channel", relationList);
-			String code = (String) request.get("code");
-			request.put("identifier", Slug.makeSlug(identifier + "_" + code));
+			request = setRequestData(objectType, "channel", identifier, request, relationMap,relationList);
 		}
 		if(StringUtils.equalsIgnoreCase(objectType, "Framework")) {
-			relationList.add(relationMap);
-			request.put("framework", relationList);
-			String code = (String) request.get("code");
-			request.put("identifier", Slug.makeSlug(identifier + "_" + code));
+			request = setRequestData(objectType, "framework", identifier, request, relationMap,relationList);
 		}
 		return request;
 	}
 
+	private Map<String,Object> setRequestData(String objectType, String value, String identifier, Map<String,Object> request, Map<String, Object> relationMap, List<Map<String, Object>> relationList){
+		relationList.add(relationMap);
+		request.put(value, relationList);
+		String code = (String) request.get("code");
+		request.put("identifier", Slug.makeSlug(identifier + "_" + code));
+		return request;
+	}
+	
 	private DefinitionDTO getDefinition(String graphId, String objectType) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), objectType);
@@ -244,7 +237,6 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		if (null != node) {
 			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
 			request.put(GraphDACParams.node.name(), node);
-
 			PlatformLogger.log("Creating the Node ID: " + node.getIdentifier());
 			response = getResponse(request);
 		}
@@ -265,18 +257,60 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		Response getNodeRes = getResponse(request);
 		return getNodeRes;
 	}
+	
+	/**
+	 * @param categoryId
+	 * @param map
+	 * @return
+	 */
+	private MetadataCriterion getMetadata(String identifier, Map<String, Object> map) {
+		List<Filter> filters = new ArrayList<Filter>();
+		Filter filter = new Filter(CategoryEnum.status.name(), SearchConditions.OP_IN, CategoryEnum.Live.name());
+		filters.add(filter);
+
+		if ((null != map) && !map.isEmpty()) {
+			for (String key : map.keySet()) {
+				if (StringUtils.isNotBlank((String) map.get(key))) {
+					filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
+					filters.add(filter);
+				}
+			}
+		}
+
+		for (String id : getChildren(identifier)) {
+			filter = new Filter(CategoryEnum.id.name(), SearchConditions.OP_IN, id);
+			filters.add(filter);
+		}
+
+		return MetadataCriterion.create(filters);
+
+	}
+
+	/**
+	 * @param categoryId
+	 * @return
+	 */
+	private List<String> getChildren(String identifier) {
+		Response getNodeResponse = getDataNode(GRAPH_ID, identifier);
+		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+		List<String> identifiers = new ArrayList<String>();
+		for (Relation relation : graphNode.getOutRelations()) {
+			if (StringUtils.equalsIgnoreCase(CATEGORY_INSTANCE_OBJECT_TYPE, relation.getEndNodeObjectType()))
+				identifiers.add(relation.getEndNodeId());
+		}
+
+		return identifiers;
+	}
 
 	private Response updateDataNode(Node node) {
 		PlatformLogger.log("[updateNode] | Node: ", node);
 		Response response = new Response();
 		if (null != node) {
 			String categoryId = node.getIdentifier();
-
 			PlatformLogger.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
 			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-
 			PlatformLogger.log("Updating the Node ID: " + node.getIdentifier());
 			response = getResponse(updateReq);
 
@@ -284,5 +318,22 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 			PlatformLogger.log("Returning Node Update Response.");
 		}
 		return response;
+	}
+	
+	public boolean validateScopeId(String identifier) {
+		if (StringUtils.isNotBlank(identifier)) {
+			Response response = getDataNode(GRAPH_ID, identifier);
+			if (checkError(response)) {
+				return false;
+			} else {
+				Node node = (Node) response.get(GraphDACParams.node.name());
+				if (StringUtils.equalsIgnoreCase(identifier, node.getIdentifier())) {
+					return true;
+				}
+			}
+		} else {
+			throw new ClientException("ERR_INVALID_CHANNEL_ID/ERR_INVALID_FRAMEWORK_ID", "Required fields missing...");
+		}
+		return false;
 	}
 }

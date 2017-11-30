@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.framework.mgr.ICategoryManager;
 
@@ -31,12 +32,16 @@ public class CategoryV3Controller extends BaseController {
 @Autowired
 private ICategoryManager categoryManager;
 	
+	/**
+	 * 
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.category.create";
-		PlatformLogger.log("Executing category Create API.", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("category");
@@ -48,17 +53,19 @@ private ICategoryManager categoryManager;
 		}
 	}
 	
+	/**
+	 * 
+	 * @param categoryId
+	 * @return
+	 */
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String categoryId) {
 		String apiId = "ekstep.learning.category.read";
-		PlatformLogger.log(
-				"Executing category Get API category Id: " + categoryId + ".", null);
-		Response response;
-		PlatformLogger.log("category GetById | category Id : " + categoryId);
+		PlatformLogger.log("Executing category Get API category Id: " + categoryId, LoggerEnum.INFO.name());
 		try {
 			PlatformLogger.log("Calling the Manager for fetching category 'getById' | [category Id " + categoryId + "]");
-			response = categoryManager.readCategory(categoryId);
+			Response response = categoryManager.readCategory(categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Read category", e.getMessage(), e);
@@ -66,15 +73,19 @@ private ICategoryManager categoryManager;
 		}
 	}
 	
+	/**
+	 * 
+	 * @param categoryId
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String categoryId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.category.update";
-		PlatformLogger.log(
-				"Executing category Update API For category Id: " + categoryId + ".",
-				requestMap, "INFO");
+		PlatformLogger.log("Executing category Update API For category Id: " + categoryId + ".", requestMap, LoggerEnum.INFO.name());
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("category");
@@ -86,12 +97,17 @@ private ICategoryManager categoryManager;
 		}
 	}
 	
+	/**
+	 * 
+	 * @param map
+	 * @param userId
+	 * @return
+	 */
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.category.search";
-		PlatformLogger.log("search | category: " + " | Request: " + map);
 		try {
 			Response response = categoryManager.searchCategory(map);
 			PlatformLogger.log("search category | Response: " + response);
@@ -102,11 +118,15 @@ private ICategoryManager categoryManager;
 		}
 	}
 	
+	/**
+	 * 
+	 * @param categoryId
+	 * @return
+	 */
 	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryId) {
 		String apiId = "ekstep.learning.category.retire";
-		PlatformLogger.log("Get | categorys: " + " | Request: " + categoryId);
 		try {
 			Response response = categoryManager.retireCategory(categoryId);
 			PlatformLogger.log("retire category | Response: " + response);
