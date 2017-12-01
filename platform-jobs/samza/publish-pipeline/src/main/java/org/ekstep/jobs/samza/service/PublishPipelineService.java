@@ -75,11 +75,8 @@ public class PublishPipelineService implements ISamzaService {
 	private static String mid = "PPS."+System.currentTimeMillis()+"."+UUID.randomUUID();
 	
 	private static String startJobEventId = "BE_JOB_START";
-	private static String stopJobEventId = "BE_JOB_STOP";
+	private static String endJobEventId = "BE_JOB_END";
 	
-	private String backendTelemetryTopicId = (String)config.get("backend_telemetry_topic");
-	private String failedEventTopicId = (String)config.get("failed_event_topic");
-
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
@@ -93,6 +90,9 @@ public class PublishPipelineService implements ISamzaService {
 	@SuppressWarnings("unchecked")
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 		
+		String backendTelemetryTopicId = this.config.get("backend_telemetry_topic");
+		String failedEventTopicId = this.config.get("failed_event_topic");
+
 		Map<String, Object> object = getPublishInstructionData(message);
 		if (null == object || object.isEmpty()) {
 			metrics.incSkippedCounter();
@@ -109,9 +109,9 @@ public class PublishPipelineService implements ISamzaService {
 				if(StringUtils.isNotEmpty((String)config.get("MAX_PUBLISH_RETRY")))
 					maxPublishRetry = Integer.valueOf(maxPublishRetry);
 				
-				processPublishJobStartEvent(edata, object, message, node, collector);
-				processPublishJobEvent(edata, object, message, node, collector, metrics, maxPublishRetry);
-				processPublishJobStopEvent(edata, object, message, collector, metrics, maxPublishRetry);
+				processPublishJobStartEvent(edata, object, message, node, collector, backendTelemetryTopicId);
+				processPublishJobEvent(edata, object, message, node, collector, metrics, maxPublishRetry, backendTelemetryTopicId, failedEventTopicId);
+				processPublishJobEndEvent(edata, object, message, collector, metrics, maxPublishRetry, backendTelemetryTopicId);
 			}else {
 				metrics.incSkippedCounter();
 			}
@@ -142,7 +142,7 @@ public class PublishPipelineService implements ISamzaService {
 		
 		if(StringUtils.equalsIgnoreCase(startJobEventId, jobEventId)) {
 			eks.put("message", "Started processing of publish samza job");
-		}else if(StringUtils.equalsIgnoreCase(stopJobEventId, jobEventId)){
+		}else if(StringUtils.equalsIgnoreCase(endJobEventId, jobEventId)){
 			eks.put("message", "Publish job processing complete");
 		}
 		eks.put("class", (String)config.get("task.class"));
@@ -151,7 +151,7 @@ public class PublishPipelineService implements ISamzaService {
 		
 		return startJobEvent;
 	}
-	private void processPublishJobStartEvent(Map<String, Object> edata, Map<String, Object> object, Map<String, Object> message, Node node, MessageCollector collector) throws Exception {
+	private void processPublishJobStartEvent(Map<String, Object> edata, Map<String, Object> object, Map<String, Object> message, Node node, MessageCollector collector, String backendTelemetryTopicId) throws Exception {
 		if((Integer)edata.get("iteration") == 0 && StringUtils.equalsIgnoreCase((String)edata.get("status"), PublishPipelineParams.Pending.name())) {
 			node.getMetadata().put("status", "Processing");
 			util.updateNode(node);
@@ -162,7 +162,7 @@ public class PublishPipelineService implements ISamzaService {
 	}
 	
 	private void processPublishJobEvent(Map<String, Object> edata, Map<String, Object> object, Map<String, Object> message, Node node, 
-			MessageCollector collector, JobMetrics metrics, int maxPublishRetry) throws Exception {
+			MessageCollector collector, JobMetrics metrics, int maxPublishRetry, String backendTelemetryTopicId, String failedEventTopicId) throws Exception {
 		if(((Integer)edata.get("iteration") == 0 && StringUtils.equalsIgnoreCase((String)edata.get("status"), PublishPipelineParams.Processing.name())) ||
 				((Integer)edata.get("iteration") > 0 && 
 						(Integer)edata.get("iteration") <maxPublishRetry && 
@@ -171,7 +171,7 @@ public class PublishPipelineService implements ISamzaService {
 			node.getMetadata().put("publish_type", edata.get("publish_type"));
 			if(publishContent(node)) {
 				metrics.incSuccessCounter();
-				pushEvent(getJobEvent(stopJobEventId, object, message, PublishPipelineParams.SUCCESS.name()), collector, backendTelemetryTopicId);
+				pushEvent(getJobEvent(endJobEventId, object, message, PublishPipelineParams.SUCCESS.name()), collector, backendTelemetryTopicId);
 			}else {
 				edata.put("status", PublishPipelineParams.FAILED.name());
 				edata.put("iteration", (int)edata.get("iteration")+1);
@@ -180,12 +180,12 @@ public class PublishPipelineService implements ISamzaService {
 			}
 		}
 	}
-	private void processPublishJobStopEvent(Map<String, Object> edata, Map<String, Object> object, Map<String, Object> message, 
-			MessageCollector collector, JobMetrics metrics, int maxPublishRetry) throws Exception {
+	private void processPublishJobEndEvent(Map<String, Object> edata, Map<String, Object> object, Map<String, Object> message, 
+			MessageCollector collector, JobMetrics metrics, int maxPublishRetry, String backendTelemetryTopicId) throws Exception {
 		if((Integer)edata.get("iteration") == maxPublishRetry && 
 				StringUtils.equalsIgnoreCase((String)edata.get("status"), PublishPipelineParams.FAILED.name())) {
 			metrics.incFailedCounter();
-			pushEvent(getJobEvent(stopJobEventId, object, message, PublishPipelineParams.FAILED.name()), collector, backendTelemetryTopicId);
+			pushEvent(getJobEvent(endJobEventId, object, message, PublishPipelineParams.FAILED.name()), collector, backendTelemetryTopicId);
 		}
 	}
 	
