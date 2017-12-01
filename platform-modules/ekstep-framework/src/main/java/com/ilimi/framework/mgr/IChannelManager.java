@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.mgr;
+package com.ilimi.framework.mgr;
 
 import java.util.Map;
 

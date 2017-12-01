@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.controller;
+package com.ilimi.framework.controller;
 
 import java.util.Map;
 
@@ -16,7 +16,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.taxonomy.mgr.IChannelManager;
+import com.ilimi.framework.mgr.IChannelManager;
 
 @Controller
 @RequestMapping("/v3/channel")

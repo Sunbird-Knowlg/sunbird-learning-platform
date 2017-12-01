@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.mgr.impl;
+package com.ilimi.framework.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +15,13 @@ import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
+import com.ilimi.framework.enums.ChannelEnum;
+import com.ilimi.framework.mgr.IChannelManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
-import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
-import com.ilimi.taxonomy.mgr.IChannelManager;
 
 @Component
 public class ChannelManagerImpl extends BaseManager implements IChannelManager {
@@ -60,7 +60,7 @@ public class ChannelManagerImpl extends BaseManager implements IChannelManager {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CHANNEL_OBJECT_TYPE);
 		Map<String, Object> channelMap = ConvertGraphNode.convertGraphNode(channel, graphId, definition, null);
 		PlatformLogger.log("Got Node: ", channel);
-		response.put(TaxonomyAPIParams.channel.name(), channelMap);
+		response.put(ChannelEnum.channel.name(), channelMap);
 		response.setParams(getSucessStatus());
 		return response;
 	}
@@ -171,7 +171,7 @@ public class ChannelManagerImpl extends BaseManager implements IChannelManager {
 			PlatformLogger.log("Updating the Node ID: " + node.getIdentifier());
 			response = getResponse(updateReq);
 
-			response.put(TaxonomyAPIParams.node_id.name(), channelId);
+			response.put(ChannelEnum.node_id.name(), channelId);
 			PlatformLogger.log("Returning Node Update Response.");
 		}
 		return response;
