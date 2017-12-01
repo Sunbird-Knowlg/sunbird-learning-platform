@@ -41,11 +41,13 @@ public class FrameworkV3Controller extends BaseController{
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> createFramework(@RequestBody Map<String, Object> requestMap) {
+	public ResponseEntity<Response> createFramework(@RequestBody Map<String, Object> requestMap,@RequestHeader(value = "X-Channel-Id") String channelId) {
+
 		String apiId = "ekstep.learning.framework.create";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("framework");
+			map.put("owner", channelId);
 			Response response = frameworkManager.createFramework(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
