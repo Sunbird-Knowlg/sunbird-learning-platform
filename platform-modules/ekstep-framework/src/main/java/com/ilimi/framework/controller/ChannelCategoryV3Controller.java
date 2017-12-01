@@ -153,7 +153,7 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryInstanceId,  
-			@RequestHeader(value = "X-Channel-Id") String channelId) {
+			@RequestHeader(value = "X-Channel-id") String channelId) {
 		String apiId = "ekstep.learning.categoryInstance.retire";
 		PlatformLogger.log("Get | category Instance: " + " | Request: " + categoryInstanceId);
 		try {
