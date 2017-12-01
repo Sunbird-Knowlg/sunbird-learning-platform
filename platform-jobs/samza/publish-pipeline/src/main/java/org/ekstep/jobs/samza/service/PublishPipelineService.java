@@ -190,8 +190,8 @@ public class PublishPipelineService implements ISamzaService {
 	}
 	
 	private void pushEvent(Map<String, Object> message, MessageCollector collector, String topicId) throws Exception {
-		String jsonMessage = mapper.writeValueAsString(message);
-		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topicId), jsonMessage));
+//		String jsonMessage = mapper.writeValueAsString(message);
+		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", topicId), message));
 	}
 	
 	private Node getNode(String nodeId) {
