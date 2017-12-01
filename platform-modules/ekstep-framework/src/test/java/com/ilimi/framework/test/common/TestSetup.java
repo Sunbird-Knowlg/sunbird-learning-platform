@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransactionTerminatedException;
@@ -38,6 +39,7 @@ import scala.concurrent.duration.Duration;
  * @author pradyumna
  *
  */
+@Ignore
 public class TestSetup {
 
 	static ClassLoader classLoader = TestSetup.class.getClassLoader();
@@ -71,12 +73,14 @@ public class TestSetup {
 	}
 
 	@AfterClass
-	public static void afterTest() {
+	public static void afterTest() throws Exception {
 		tearEmbeddedNeo4JSetup();
+		Thread.sleep(5000);
 	}
 
 	@BeforeClass
 	public static void before() throws Exception {
+		tearEmbeddedNeo4JSetup();
 		reqRouter = initReqRouter();
 		setupEmbeddedNeo4J();
 	}
@@ -149,13 +153,14 @@ public class TestSetup {
 	}
 	}
 
-	private static void tearEmbeddedNeo4JSetup() {
-		graphDb.shutdown();
+	private static void tearEmbeddedNeo4JSetup() throws Exception {
+		if (null != graphDb)
+			graphDb.shutdown();
+		Thread.sleep(5000);
 		deleteEmbeddedNeo4j(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)));
 	}
 
 	private static void deleteEmbeddedNeo4j(final File emDb) {
-		System.out.println(emDb.getAbsolutePath().toString());
 		if (emDb.exists()) {
 			if (emDb.isDirectory()) {
 				for (File child : emDb.listFiles()) {

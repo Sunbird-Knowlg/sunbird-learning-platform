@@ -1,6 +1,7 @@
 package com.ilimi.framework.controller;
 
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -71,8 +73,8 @@ public class TermChannelV3Controller extends BaseController {
 			@RequestParam(value = "category", required = true) String categoryId) {
 		String apiId = "ekstep.learning.channel.term.read";
 		try {
-			if (termManager.validateRequest(channelId, categoryId) && termId.contains(categoryId)) {
-				Response response = termManager.readTerm(graphId, termId);
+			if (termManager.validateRequest(channelId, categoryId)) {
+				Response response = termManager.readTerm(graphId, termId, categoryId);
 				return getResponseEntity(response, apiId, null);
 			} else {
 				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for Term", apiId, null);

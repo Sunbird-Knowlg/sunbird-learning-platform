@@ -25,7 +25,7 @@ public interface ITermManager {
 	 * @param termId
 	 * @return
 	 */
-	Response readTerm(String graphId, String termId);
+	Response readTerm(String graphId, String termId, String scopeId);
 
 	/**
 	 * @param categoryId

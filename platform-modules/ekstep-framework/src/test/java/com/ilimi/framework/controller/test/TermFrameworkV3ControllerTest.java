@@ -28,7 +28,8 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
-import com.ilimi.framework.mgr.impl.CategoryManagerImpl;
+import com.ilimi.framework.mgr.impl.CategoryInstanceManagerImpl;
+import com.ilimi.framework.mgr.impl.FrameworkManagerImpl;
 import com.ilimi.framework.test.common.TestSetup;
 
 /**
@@ -40,41 +41,63 @@ import com.ilimi.framework.test.common.TestSetup;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TermV3ControllerTest extends TestSetup {
+public class TermFrameworkV3ControllerTest extends TestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
 
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_category_path = "/v3/category/term";
-	private static String categoryId = null;
-	private static CategoryManagerImpl categoryManager = new CategoryManagerImpl();
+	private final String base_category_path = "/v3/framework/term";
+	private static String categoryId = null, frameworkId = null;
+	private static CategoryInstanceManagerImpl categoryInstanceManager = new CategoryInstanceManagerImpl();
+	private static FrameworkManagerImpl frameworkManager = new FrameworkManagerImpl();
 	static String termId = null;
 	static ObjectMapper mapper = new ObjectMapper();
 	private static String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 
 	@BeforeClass
 	public static void beforeClass() {
-		createCategory();
+		createCategoryInstance();
 	}
 
 	/**
 	 * 
 	 */
-	private static void createCategory() {
+	private static void createCategoryInstance() {
 		try {
+			frameworkId = createframework();
+
 			Map<String, Object> requestMap = mapper.readValue(createCategoryReq,
 					new TypeReference<Map<String, Object>>() {
 					});
 
-			Response resp = categoryManager.createCategory(requestMap);
+			Response resp = categoryInstanceManager.createCategoryInstance(frameworkId, requestMap);
 			categoryId = (String) resp.getResult().get("node_id");
 			System.out.println("CategoryId : " + categoryId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * @return
+	 */
+	private static String createframework() {
+		String frameworkReq = "{ \"name\": \"CBSE2\", \"description\": \"CBSE framework of Bihar\", \"code\": \"org.ekstep.framework.create\", \"owner\": \"channelKA\" }";
+		try {
+
+			Map<String, Object> requestMap = mapper.readValue(frameworkReq, new TypeReference<Map<String, Object>>() {
+			});
+
+			Response resp = frameworkManager.createFramework(requestMap);
+			return (String) resp.getResult().get("node_id");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	@Before
@@ -89,14 +112,13 @@ public class TermV3ControllerTest extends TestSetup {
 	public void testA() {
 		String request = "{ \"request\": { \"term\": { \"label\": \"Standard2\", \"value\": \"Standard2\", \"description\":\"Second Standard\" } } }";
 		try {
-			String path = base_category_path + "/create?category=" + categoryId;
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+			String path = base_category_path + "/create?framework=" + frameworkId + "&category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
-			MockHttpServletResponse  response = actions.andReturn().getResponse();
+			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
-			Response resp = mapper.readValue(response.getContentAsString(),
-					new TypeReference<Response>() {
-					});
+			Response resp = mapper.readValue(response.getContentAsString(), new TypeReference<Response>() {
+			});
 			termId = (String) resp.getResult().get("node_id");
 			System.out.println("TERM ID : " + termId);
 		} catch (Exception e) {
@@ -110,8 +132,9 @@ public class TermV3ControllerTest extends TestSetup {
 	@Test
 	public void testB() {
 		try {
-			String path = base_category_path + "/read/" + termId + "?category=" + categoryId;
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
+			String path = base_category_path + "/read/" + termId + "?framework=" + frameworkId + "&category="
+					+ categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
 		} catch (Exception e) {
@@ -126,8 +149,8 @@ public class TermV3ControllerTest extends TestSetup {
 	public void testC() {
 		String request = "{ \"request\": { } }";
 		try {
-			String path = base_category_path + "/search?category=" + categoryId;
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+			String path = base_category_path + "/search?framework=" + frameworkId + "&category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
@@ -143,8 +166,9 @@ public class TermV3ControllerTest extends TestSetup {
 	public void testD() {
 		String request = "{ \"request\": { \"term\": { \"value\": \"Class2\" } } }";
 		try {
-			String path = base_category_path + "/update/" + termId + "?category=" + categoryId;
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
+			String path = base_category_path + "/update/" + termId + "?framework=" + frameworkId + "&category="
+					+ categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path)
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
@@ -159,8 +183,9 @@ public class TermV3ControllerTest extends TestSetup {
 	@Test
 	public void testZ() {
 		try {
-			String path = base_category_path + "/retire/" + termId + "?category=" + categoryId;
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi"));
+			String path = base_category_path + "/retire/" + termId + "?framework=" + frameworkId + "&category="
+					+ categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
 		} catch (Exception e) {
