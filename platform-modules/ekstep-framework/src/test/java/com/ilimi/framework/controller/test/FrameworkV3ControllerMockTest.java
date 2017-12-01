@@ -119,14 +119,15 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	/*
 	 * Scenario 1 : Create Framework with valid url and valid request body.
 	 * 
-	 * Given: Valid url and valid request body. When: Framework create API hits.
+	 * Given: Valid url and valid request body.
+	 * When: Framework create API hits.
 	 * Then: 200 - OK, 1 framework with no relationship got created.
 	 * 
 	 */
 	@Test
 	public void mockTestFramework_01() throws Exception {
 		String path = basePath + "/create";
-		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA")
 				.content(createFrameworkValidJson));
 		Response resp = mapper.readValue(actions.andReturn().getResponse().getContentAsString(),
 				new TypeReference<Response>() {
@@ -138,7 +139,8 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	/*
 	 * Scenario 2 : create Framework with invalid url and valid request body.
 	 * 
-	 * Given: Invalid url and valid request body When: Framework create API
+	 * Given: Invalid url and valid request body.
+	 * When: Framework create API
 	 * hits. Then: 404 - Invalid request path
 	 * 
 	 */
@@ -153,7 +155,8 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	/*
 	 * Scenario 3 : Create Framework with valid url and invalid request body.
 	 * 
-	 * Given: Valid url and invalid request body When: Framework create API
+	 * Given: Valid url and invalid request body 
+	 * When: Framework create API
 	 * hits. Then: 400 - Bad Request with error Message: Invalid Request
 	 * 
 	 */
@@ -174,8 +177,9 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 * Scenario 4 : Read Framework with valid url and valid framework
 	 * identifier.
 	 * 
-	 * Given: Valid url and valid framework identifier When: Framework read API
-	 * hits. Then: 200 - OK, Framework details with given identifier returns.
+	 * Given: Valid url and valid framework identifier 
+	 * When: Framework read API hits. 
+	 * Then: 200 - OK, Framework details with given identifier returns.
 	 * 
 	 */
 	@Test
@@ -186,11 +190,11 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	}
 
 	/*
-	 * Scenario 5 : Read Framework with invalid url and valid framework
-	 * identifier.
+	 * Scenario 5 : Read Framework with invalid url and valid framework identifier.
 	 * 
-	 * Given: Invalid url and valid framework identifier When: Framework Read
-	 * API hits. Then: 404- Invalid request path
+	 * Given: Invalid url and valid framework identifier 
+	 * When: Framework Read API hits. 
+	 * Then: 404- Invalid request path
 	 * 
 	 */
 	@Test
@@ -201,12 +205,11 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	}
 
 	/*
-	 * Scenario 6 : Read Framework with valid url and invalid framework
-	 * identifier.
+	 * Scenario 6 : Read Framework with valid url and invalid framework identifier.
 	 * 
-	 * Given: Valid url and invalid framework identifier When: Framework read
-	 * API hits. Then: 404 - Not Found with error Message: Framework not found
-	 * with id: framework
+	 * Given: Valid url and invalid framework identifier 
+	 * When: Framework read API hits. 
+	 * Then: 404 - Resource Not Found with error Message: Framework not found with id: framework Id
 	 * 
 	 */
 	@Test
@@ -262,8 +265,8 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 * valid framework identifier but invalid header( Channel Id Not Present in
 	 * Header).
 	 * 
-	 * Given: Valid url, Valid request body and Valid framework identifier,
-	 * Invalid Header (Channel Id Not Present) When: Framework update API hits.
+	 * Given: Valid url, Valid request body and Valid framework identifier, Invalid Header (Channel Id Not Present) 
+	 * When: Framework update API hits.
 	 * Then: 400 , Bad Request with error Message: Invalid Request
 	 * 
 	 */
@@ -282,9 +285,9 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 * not match with owner).
 	 * 
 	 * Given: Valid url, Valid request body and Valid framework identifier,
-	 * Invalid Header (Channel Id in Header will not match with owner) When:
-	 * Framework update API hits. Then: 400 , Invalid Request. Owner Information
-	 * Not Matched. - CLIENT_ERROR
+	 * Invalid Header (Channel Id in Header will not match with owner) 
+	 * When: Framework update API hits. 
+	 * Then: 400 , Invalid Request. Owner Information Not Matched. - CLIENT_ERROR
 	 * 
 	 */
 	@Test
@@ -296,14 +299,13 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	}
 
 	/*
-	 * //check
 	 *
 	 * Scenario 11 : update Framework with valid url, valid request body and
 	 * Invalid framework identifier.
 	 * 
 	 * Given: Valid url, Valid request body and Invalid framework identifier
-	 * When: Framework update API hits. Then: 500 , Something went wrong while
-	 * Processing your request - SERVER_ERROR
+	 * When: Framework update API hits. 
+	 * Then: 404 - Resource Not Found with error Message: Framework not found with id: framework Id
 	 * 
 	 */
 	@Test
@@ -311,17 +313,17 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 		String path = basePath + "/update/" + "test11111";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(updateFrameworkValidJson));
-		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*
-	 *
+	 *	// check - if custom message and different http error code is required. 
 	 * Scenario 12 : update Framework with valid url, Invalid request body
 	 * (wrong category instance id) and valid framework identifier.
 	 * 
-	 * Given: Valid url, Invalid request body (wrong category instance id) and
-	 * valid framework identifier When: Framework update API hits. Then: 400 ,
-	 * Invalid node: could not find node: do_112385793073471488 - CLIENT_ERROR
+	 * Given: Valid url, Invalid request body (wrong category instance id) and valid framework identifier.
+	 * When: Framework update API hits. 
+	 * Then: 400 , Invalid node: could not find node: category instance id - CLIENT_ERROR
 	 * 
 	 */
 	@Test
@@ -341,7 +343,8 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 *
 	 * Scenario 13 : list Framework with valid url, valid request body
 	 * 
-	 * Given: Valid url and Valid request body When: Framework list API hits.
+	 * Given: Valid url and Valid request body 
+	 * When: Framework list API hits.
 	 * Then: 200 ,OK - List of All Frameworks will be returned (By default
 	 * "Live" status will be considered, if status is not supplied in criteria )
 	 * 
@@ -358,7 +361,8 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 *
 	 * Scenario 14 : list Framework with Invalid url, valid request body
 	 * 
-	 * Given: Invalid url and Valid request body When: Framework list API hits.
+	 * Given: Invalid url and Valid request body 
+	 * When: Framework list API hits.
 	 * Then: 404 , Invalid Request
 	 * 
 	 */
@@ -374,7 +378,8 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 *
 	 * Scenario 15 : list Framework with Valid url, Invalid request body
 	 * 
-	 * Given: Valid url and Invalid request body When: Framework list API hits.
+	 * Given: Valid url and Invalid request body 
+	 * When: Framework list API hits.
 	 * Then: 400 , Invalid Search Request - CLIENT_ERROR
 	 * 
 	 */
@@ -394,7 +399,8 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 *
 	 * Scenario 16 : Retire Framework with Valid url, Valid Framework Id
 	 * 
-	 * Given: Valid url and valid framework Id When: Framework Retire API hits.
+	 * Given: Valid url and valid framework Id 
+	 * When: Framework Retire API hits.
 	 * Then: 200 - OK , Framework Status will be changed to "Retire" from "Live"
 	 * 
 	 */
@@ -407,12 +413,12 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	}
 
 	/*
-	 * //check
 	 *
 	 * Scenario 17 : Retire Framework with Valid url, Invalid Framework Id
 	 * 
-	 * Given: Valid url and valid framework Id When: Framework Retire API hits.
-	 * Then: 500, Server Error
+	 * Given: Valid url and valid framework Id 
+	 * When: Framework Retire API hits.
+	 * Then: 404, - Resource Not Found with error Message: Framework not found with id: framework Id
 	 * 
 	 */
 	@Test
@@ -420,7 +426,7 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 		String path = basePath + "/retire/" + "test1234";
 		actions = mockMvc.perform(
 				MockMvcRequestBuilders.delete(path).header("user-id", "gauraw").header("X-Channel-Id", "channelKA"));
-		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*
@@ -428,8 +434,9 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 *
 	 * Scenario 18 : Retire Framework with Invalid url, Valid Framework Id
 	 * 
-	 * Given: Invalid url and valid framework Id When: Framework Retire API
-	 * hits. Then: 404, Invalid Request
+	 * Given: Invalid url and valid framework Id 
+	 * When: Framework Retire API hits. 
+	 * Then: 404, Invalid Request
 	 * 
 	 */
 	@Test

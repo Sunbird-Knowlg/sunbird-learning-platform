@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.framework.enums.FrameworkEnum;
 import com.ilimi.framework.mgr.IFrameworkManager;
@@ -50,7 +51,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response readFramework(String graphId, String frameworkId) throws Exception {
 		return read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
-
 	}
 
 	/*
@@ -64,6 +64,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response updateFramework(String frameworkId, String channelId, Map<String, Object> map) throws Exception {
 		Response getNodeResponse = getDataNode(GRAPH_ID, frameworkId);
+		if (checkError(getNodeResponse))
+			throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
+					"Framework Not Found With Id : "+frameworkId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		String owner = (String) graphNode.getMetadata().get("owner");
 		if (!(channelId.equalsIgnoreCase(owner))) {
@@ -99,6 +102,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response retireFramework(String frameworkId, String channelId) throws Exception {
 		Response getNodeResponse = getDataNode(GRAPH_ID, frameworkId);
+		if (checkError(getNodeResponse))
+			throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
+					"Framework Not Found With Id : "+frameworkId);
 		Node frameworkNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		
 		String owner = (String) frameworkNode.getMetadata().get("owner");
