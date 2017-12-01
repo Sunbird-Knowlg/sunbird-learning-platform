@@ -20,7 +20,6 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.framework.enums.CategoryEnum;
-import com.ilimi.framework.enums.TermEnum;
 import com.ilimi.framework.mgr.ICategoryInstanceManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Filter;
@@ -278,7 +277,7 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		}
 
 		for (String id : getChildren(identifier)) {
-			filter = new Filter(CategoryEnum.id.name(), SearchConditions.OP_IN, id);
+			filter = new Filter(CategoryEnum.identifier.name(), SearchConditions.OP_IN, id);
 			filters.add(filter);
 		}
 
