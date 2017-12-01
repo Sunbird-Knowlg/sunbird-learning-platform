@@ -91,21 +91,6 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		}
 	}
 
-	public Boolean validateScopeNode(String identifier, Node node) {
-		if(null != node) {
-			List<Relation> inRelations = node.getInRelations();
-			for(Relation rel : inRelations) {
-				if(StringUtils.equalsIgnoreCase(identifier, rel.getStartNodeId()))
-					return true;
-				else {
-					return false;
-				}
-				
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) {
 		boolean checkError = false;
@@ -195,6 +180,21 @@ public class CategoryInstanceManagerImpl extends BaseManager implements ICategor
 		} catch (Exception e) {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
+	}
+	
+	public Boolean validateScopeNode(String identifier, Node node) {
+		if(null != node) {
+			List<Relation> inRelations = node.getInRelations();
+			for(Relation rel : inRelations) {
+				if(StringUtils.equalsIgnoreCase(identifier, rel.getStartNodeId()))
+					return true;
+				else {
+					return false;
+				}
+				
+			}
+		}
+		return false;
 	}
 	
 	private Map<String, Object> setMetadata(String objectType, String identifier, Map<String, Object> request) {
