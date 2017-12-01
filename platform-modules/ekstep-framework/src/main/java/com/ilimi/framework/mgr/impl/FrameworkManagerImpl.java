@@ -79,8 +79,8 @@ public class FrameworkManagerImpl extends BaseManager implements IFrameworkManag
 	public Response readFramework(String graphId, String frameworkId) throws Exception {
 		Response responseNode = getDataNode(graphId, frameworkId);
 		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_FRAEWORK_NOT_FOUND",
-					"Framework not found with id : " + frameworkId);
+			throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
+					"Framework Not Found With Id : "+frameworkId);
 		Response response = new Response();
 		Node framework = (Node) responseNode.get(GraphDACParams.node.name());
 		DefinitionDTO definition = getDefinition(GRAPH_ID, FRAMEWORK_OBJECT_TYPE);
@@ -105,6 +105,9 @@ public class FrameworkManagerImpl extends BaseManager implements IFrameworkManag
 		boolean checkError = false;
 		DefinitionDTO definition = getDefinition(GRAPH_ID, FRAMEWORK_OBJECT_TYPE);
 		Response getNodeResponse = getDataNode(GRAPH_ID, frameworkId);
+		if (checkError(getNodeResponse))
+			throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
+					"Framework Not Found With Id : "+frameworkId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 
 		String owner = (String) graphNode.getMetadata().get("owner");
@@ -207,6 +210,9 @@ public class FrameworkManagerImpl extends BaseManager implements IFrameworkManag
 		Response response = null;
 		boolean checkError = false;
 		Response getNodeResponse = getDataNode(GRAPH_ID, frameworkId);
+		if (checkError(getNodeResponse))
+			throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
+					"Framework Not Found With Id : "+frameworkId);
 		Node frameworkNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		
 		String owner = (String) frameworkNode.getMetadata().get("owner");
