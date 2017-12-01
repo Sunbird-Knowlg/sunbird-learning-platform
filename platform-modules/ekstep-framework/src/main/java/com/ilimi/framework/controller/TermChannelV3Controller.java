@@ -1,10 +1,6 @@
-/**
- * 
- */
 package com.ilimi.framework.controller;
 
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -36,14 +31,18 @@ public class TermChannelV3Controller extends BaseController {
 
 	private String graphId = "domain";
 
+	/**
+	 * 
+	 * @param categoryId
+	 * @param channelId
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@RequestParam(value = "category", required = true) String categoryId,
-			@RequestHeader(value = "X-Channel-Id") String channelId,
-			@RequestBody Map<String, Object> requestMap) {
-		String apiId = "ekstep.framework.term.create";
-		PlatformLogger.log("Executing Term Create API (Java Version) (API Version V3).", requestMap);
+	public ResponseEntity<Response> create(@RequestParam(value = "category", required = true) String categoryId, @RequestHeader(value = "X-Channel-Id") String channelId, @RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.channel.term.create";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("term");
@@ -51,35 +50,32 @@ public class TermChannelV3Controller extends BaseController {
 				Response response = termManager.createTerm(categoryId, map);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				return getExceptionResponseEntity(
-						new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for Term"), apiId, null);
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for Term", apiId, null);
 			}
-
 		} catch (Exception e) {
+			PlatformLogger.log("create term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
-
 	}
 
+	/**
+	 * 
+	 * @param termId
+	 * @param channelId
+	 * @param categoryId
+	 * @return
+	 */
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> read(@PathVariable(value = "id") String termId,
-			@RequestHeader(value = "X-Channel-Id") String channelId,
+	public ResponseEntity<Response> read(@PathVariable(value = "id") String termId, @RequestHeader(value = "X-Channel-Id") String channelId,
 			@RequestParam(value = "category", required = true) String categoryId) {
-		String apiId = "ekstep.framework.term.read";
-		PlatformLogger.log("Executing term Get API term Id: " + termId + ".", null);
-		Response response;
-		PlatformLogger.log("category GetById | term Id : " + termId);
+		String apiId = "ekstep.learning.channel.term.read";
 		try {
 			if (termManager.validateRequest(channelId, categoryId) && termId.contains(categoryId)) {
-				PlatformLogger
-						.log("Calling the Manager for fetching category 'getById' | [term Id " + termId + "]");
-				response = termManager.readTerm(graphId, termId);
+				Response response = termManager.readTerm(graphId, termId);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				return getExceptionResponseEntity(
-						new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for Term"), apiId,
-						null);
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for Term", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Read term", e.getMessage(), e);
@@ -87,6 +83,14 @@ public class TermChannelV3Controller extends BaseController {
 		}
 	}
 
+	/**
+	 * 
+	 * @param termId
+	 * @param channelId
+	 * @param categoryId
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
@@ -94,10 +98,7 @@ public class TermChannelV3Controller extends BaseController {
 			@RequestHeader(value = "X-Channel-Id") String channelId,
 			@RequestParam(value = "category", required = true) String categoryId,
 			@RequestBody Map<String, Object> requestMap) {
-		String apiId = "ekstep.framework.term.update";
-		PlatformLogger.log(
-				"Executing term update API For term Id: " + termId + ".",
-				requestMap, "INFO");
+		String apiId = "ekstep.learning.channel.term.update";
 		Request request = getRequest(requestMap);
 		try {
 			if (termManager.validateRequest(channelId, categoryId)) {
@@ -105,24 +106,27 @@ public class TermChannelV3Controller extends BaseController {
 				Response response = termManager.updateTerm(categoryId, termId, map);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				return getExceptionResponseEntity(
-						new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermUpdate"), apiId,
-						null);
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermUpdate", apiId, null);
 			}
-
 		} catch (Exception e) {
 			PlatformLogger.log("Update term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 
+	/**
+	 * 
+	 * @param categoryId
+	 * @param channelId
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> list(@RequestParam(value = "category", required = true) String categoryId,
 			@RequestHeader(value = "X-Channel-Id") String channelId, @RequestBody Map<String, Object> requestMap) {
-		String apiId = "ekstep.framework.term.search";
-		PlatformLogger.log("Executing term search API For category Id: " + categoryId + ".", "INFO");
+		String apiId = "ekstep.learning.channel.term.search";
 		Request request = getRequest(requestMap);
 		try {
 			if (termManager.validateRequest(channelId, categoryId)) {
@@ -130,9 +134,7 @@ public class TermChannelV3Controller extends BaseController {
 				Response response = termManager.searchTerms(categoryId, map);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				return getExceptionResponseEntity(
-						new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermSearch"), apiId,
-						null);
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermSearch", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Search terms", e.getMessage(), e);
@@ -140,27 +142,29 @@ public class TermChannelV3Controller extends BaseController {
 		}
 	}
 
+	/**
+	 * 
+	 * @param termId
+	 * @param channelId
+	 * @param categoryId
+	 * @return
+	 */
 	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String termId,
 			@RequestHeader(value = "X-Channel-Id") String channelId,
 			@RequestParam(value = "category", required = true) String categoryId) {
-		String apiId = "ekstep.framework.term.retire";
-		PlatformLogger.log("Executing term retire API For term Id: " + termId + ".", "INFO");
+		String apiId = "ekstep.learning.channel.term.retire";
 		try {
 			if (termManager.validateRequest(channelId, categoryId)) {
 				Response response = termManager.retireTerm(categoryId, termId);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				return getExceptionResponseEntity(
-						new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermRetire"), apiId,
-						null);
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermRetire", apiId, null);
 			}
-
 		} catch (Exception e) {
-			PlatformLogger.log("Update term", e.getMessage(), e);
+			PlatformLogger.log("retire term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-
 }

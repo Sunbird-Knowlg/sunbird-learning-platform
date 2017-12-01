@@ -29,8 +29,8 @@ import com.ilimi.framework.mgr.ICategoryInstanceManager;
 @RequestMapping("/v3/channel/category")
 public class ChannelCategoryV3Controller extends BaseController {
 
-@Autowired
-private ICategoryInstanceManager categoryInstanceManager;
+	@Autowired
+	private ICategoryInstanceManager categoryInstanceManager;
 	
 	/**
 	 * 
@@ -43,16 +43,15 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap, 
 			@RequestHeader(value = "X-Channel-Id") String channelId) {
-		String apiId = "ekstep.learning.categoryInstance.create";
-		PlatformLogger.log("Executing category Create API.", requestMap);
+		String apiId = "ekstep.learning.categoryinstance.create";
 		Request request = getRequest(requestMap);
 		try {
 			if(categoryInstanceManager.validateScopeId(channelId)) {
-				Map<String, Object> map = (Map<String, Object>) request.get("categoryInstance");
+				Map<String, Object> map = (Map<String, Object>) request.get("category");
 				Response response = categoryInstanceManager.createCategoryInstance(channelId, map);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				throw new ClientException("ERR_INVALID_CHANNEL_ID","Invalid channelId: " + channelId + " for CategoryInstance", apiId, null);
+				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for Category instance", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Create category instance", e.getMessage(), e);
@@ -70,15 +69,13 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String categoryInstanceId,
 			@RequestHeader(value = "X-Channel-Id") String channelId) {
-		String apiId = "ekstep.learning.categoryInstance.read";
-		PlatformLogger.log("Executing category instance Get API for category instance Id: " + categoryInstanceId);
+		String apiId = "ekstep.learning.categoryinstance.read";
 		try {
 			if(categoryInstanceManager.validateScopeId(channelId)) {
-				PlatformLogger.log("Calling the Manager for fetching category instance 'getById' | [category Id " + categoryInstanceId + "]");
 				Response response = categoryInstanceManager.readCategoryInstance(channelId, categoryInstanceId);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for CategoryInstance", apiId, null);
+				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for Category instance", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Read category instance", e.getMessage(), e);
@@ -98,17 +95,15 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String categoryInstanceId,
 			@RequestBody Map<String, Object> requestMap, @RequestHeader(value = "X-Channel-Id") String channelId) {
-		String apiId = "ekstep.learning.categoryInstance.update";
-		PlatformLogger.log("Executing category instance Update API  for CategoryInstance Id: " + categoryInstanceId + ".",
-				requestMap, "INFO");
+		String apiId = "ekstep.learning.categoryinstance.update";
 		Request request = getRequest(requestMap);
 		try {
 			if(categoryInstanceManager.validateScopeId(channelId)) {
-				Map<String, Object> map = (Map<String, Object>) request.get("categoryInstance");
+				Map<String, Object> map = (Map<String, Object>) request.get("category");
 				Response response = categoryInstanceManager.updateCategoryInstance(channelId, categoryInstanceId, map);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for CategoryInstance", apiId, null);
+				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for Categoryinstance", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Update category instance", e.getMessage(), e);
@@ -127,13 +122,11 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map, @RequestHeader(value = "X-Channel-Id") String channelId) {
-		String apiId = "ekstep.learning.categoryInstance.search";
-		PlatformLogger.log("search | categoryInstance: " + " | Request: " + map);
+		String apiId = "ekstep.learning.categoryinstance.search";
 		Request request = getRequest(map);
 		try {
 			if(categoryInstanceManager.validateScopeId(channelId)) {	
 				Response response = categoryInstanceManager.searchCategoryInstance(channelId, (Map)request.get("search"));
-				PlatformLogger.log("search category instance | Response: " + response);
 				return getResponseEntity(response, apiId, null);
 			} else {
 				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for CategoryInstance", apiId, null);
@@ -154,15 +147,13 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryInstanceId,  
 			@RequestHeader(value = "X-Channel-id") String channelId) {
-		String apiId = "ekstep.learning.categoryInstance.retire";
-		PlatformLogger.log("Get | category Instance: " + " | Request: " + categoryInstanceId);
+		String apiId = "ekstep.learning.categoryinstance.retire";
 		try {
 			if(categoryInstanceManager.validateScopeId(channelId)) {
 				Response response = categoryInstanceManager.retireCategoryInstance(channelId, categoryInstanceId);
-				PlatformLogger.log("retire category instance | Response: " + response);
 				return getResponseEntity(response, apiId, null);
 			} else {
-					throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for CategoryInstance", apiId, null);
+					throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for Categoryinstance", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("retire category instance | Exception: " , e.getMessage(), e);

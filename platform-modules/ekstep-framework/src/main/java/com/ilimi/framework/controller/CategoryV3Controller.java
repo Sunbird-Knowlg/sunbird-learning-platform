@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.framework.mgr.ICategoryManager;
 
@@ -62,9 +60,7 @@ private ICategoryManager categoryManager;
 	@ResponseBody
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String categoryId) {
 		String apiId = "ekstep.learning.category.read";
-		PlatformLogger.log("Executing category Get API category Id: " + categoryId, LoggerEnum.INFO.name());
 		try {
-			PlatformLogger.log("Calling the Manager for fetching category 'getById' | [category Id " + categoryId + "]");
 			Response response = categoryManager.readCategory(categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -85,7 +81,6 @@ private ICategoryManager categoryManager;
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String categoryId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.category.update";
-		PlatformLogger.log("Executing category Update API For category Id: " + categoryId + ".", requestMap, LoggerEnum.INFO.name());
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("category");
@@ -103,12 +98,13 @@ private ICategoryManager categoryManager;
 	 * @param userId
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map,
-			@RequestHeader(value = "user-id") String userId) {
+	public ResponseEntity<Response> search(@RequestBody Map<String, Object> request) {
 		String apiId = "ekstep.learning.category.search";
 		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("search");
 			Response response = categoryManager.searchCategory(map);
 			PlatformLogger.log("search category | Response: " + response);
 			return getResponseEntity(response, apiId, null);

@@ -14,7 +14,6 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.framework.mgr.ICategoryInstanceManager;
 
@@ -28,8 +27,8 @@ import com.ilimi.framework.mgr.ICategoryInstanceManager;
 @RequestMapping("/v3/framework/category")
 public class FrameworkCategoryV3Controller extends BaseController {
 
-@Autowired
-private ICategoryInstanceManager categoryInstanceManager;
+	@Autowired
+	private ICategoryInstanceManager categoryInstanceManager;
 	
 	/**
 	 * 
@@ -42,15 +41,15 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap, 
 			@RequestParam(value = "framework", required = true) String frameworkId) {
-		String apiId = "ekstep.learning.categoryInstance.create";
+		String apiId = "ekstep.learning.categoryinstance.create";
 		Request request = getRequest(requestMap);
 		try {
 			if(categoryInstanceManager.validateScopeId(frameworkId)) {
-				Map<String, Object> map = (Map<String, Object>) request.get("categoryInstance");
+				Map<String, Object> map = (Map<String, Object>) request.get("category");
 				Response response = categoryInstanceManager.createCategoryInstance(frameworkId, map);
 				return getResponseEntity(response, apiId, null);
 			} else {
-					throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for CategoryInstance ", apiId, null);
+				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for Categoryinstance ", apiId, null);
 		    }
 		} catch (Exception e) {
 			PlatformLogger.log("Create category instance", e.getMessage(), e);
@@ -68,15 +67,14 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String categoryInstanceId,
 			@RequestParam(value = "framework", required = true) String frameworkId) {
-		String apiId = "ekstep.learning.categoryInstance.read";
+		String apiId = "ekstep.learning.categoryinstance.read";
 		Response response;
-		PlatformLogger.log("category instance GetById | category instance Id : " + categoryInstanceId);
 		try {
 			if(categoryInstanceManager.validateScopeId(frameworkId)) {
 				response = categoryInstanceManager.readCategoryInstance(frameworkId, categoryInstanceId);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for CategoryInstance ", apiId, null);
+				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for Categoryinstance ", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Read category instance", e.getMessage(), e);
@@ -97,16 +95,15 @@ private ICategoryInstanceManager categoryInstanceManager;
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String categoryInstanceId,
 			@RequestParam(value = "framework", required = true) String frameworkId,
 			@RequestBody Map<String, Object> requestMap) {
-		String apiId = "ekstep.learning.categoryInstance.update";
-		PlatformLogger.log("Executing category Update API For category instance Id: " + categoryInstanceId + ".",requestMap, "INFO");
+		String apiId = "ekstep.learning.categoryinstance.update";
 		Request request = getRequest(requestMap);
 		try {
 			if(categoryInstanceManager.validateScopeId(frameworkId)) {
-				Map<String, Object> map = (Map<String, Object>) request.get("categoryInstance");
+				Map<String, Object> map = (Map<String, Object>) request.get("category");
 				Response response = categoryInstanceManager.updateCategoryInstance(frameworkId, categoryInstanceId, map);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for CategoryInstance ", apiId, null);
+				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for Categoryinstance ", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Update category", e.getMessage(), e);
@@ -125,15 +122,14 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@SuppressWarnings({"unchecked","rawtypes"})
 	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map,
 			@RequestParam(value = "framework", required = true) String frameworkId) {
-		String apiId = "ekstep.learning.categoryInstance.search";
-		PlatformLogger.log("search | category: " + " | Request: " + map, LoggerEnum.INFO.name());
+		String apiId = "ekstep.learning.categoryinstance.search";
 		Request request = getRequest(map);
 		try {
 			if(categoryInstanceManager.validateScopeId(frameworkId)) {
 				Response response = categoryInstanceManager.searchCategoryInstance(frameworkId, (Map)request.get("search"));
 				return getResponseEntity(response, apiId, null);
 			} else {
-				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for CategoryInstance ", apiId, null);
+				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for Categoryinstance ", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("search category instance | Exception: " , e.getMessage(), e);
@@ -151,15 +147,13 @@ private ICategoryInstanceManager categoryInstanceManager;
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String categoryInstanceId,
 			@RequestParam(value = "framework", required = true) String frameworkId) {
-		String apiId = "ekstep.learning.categoryInstance.retire";
-		PlatformLogger.log("Retire | category: " + " | Request: " + categoryInstanceId, LoggerEnum.INFO.name());
+		String apiId = "ekstep.learning.categoryinstance.retire";
 		try {
 			if(categoryInstanceManager.validateScopeId(frameworkId)) {
 				Response response = categoryInstanceManager.retireCategoryInstance(frameworkId, categoryInstanceId);
-				PlatformLogger.log("retire category | Response: " + response);
 				return getResponseEntity(response, apiId, null);
 			} else {
-				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId:  " + frameworkId + " for CategoryInstance ", apiId, null);
+				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId:  " + frameworkId + " for Categoryinstance ", apiId, null);
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("retire category instance | Exception: " , e.getMessage(), e);

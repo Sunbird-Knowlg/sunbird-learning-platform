@@ -33,13 +33,16 @@ public class FrameworkV3Controller extends BaseController{
 	@Autowired
 	private IFrameworkManager frameworkManager;
 
+	/**
+	 * 
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> createFramework(@RequestBody Map<String, Object> requestMap) {
-
 		String apiId = "ekstep.learning.framework.create";
-		PlatformLogger.log("Executing framework Create API for Request : ", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("framework");
@@ -51,16 +54,17 @@ public class FrameworkV3Controller extends BaseController{
 		}
 	}
 
+	/**
+	 * 
+	 * @param frameworkId
+	 * @return
+	 */
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> readFramework(@PathVariable(value = "id") String frameworkId) {
-
 		String apiId = "ekstep.learning.framework.read";
-		PlatformLogger.log(
-				"Executing framework Read API for Framework Id : " + frameworkId);
-
 		try {
-			Response response = frameworkManager.readFramework(graphId,frameworkId);
+			Response response = frameworkManager.readFramework(graphId, frameworkId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while reading framework details (Read Framework API): ", e.getMessage(), e);
@@ -68,16 +72,19 @@ public class FrameworkV3Controller extends BaseController{
 		}
 	}
 
+	/**
+	 * 
+	 * @param frameworkId
+	 * @param requestMap
+	 * @param channelId
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> updateFramework(@PathVariable(value = "id") String frameworkId,
 			@RequestBody Map<String, Object> requestMap,@RequestHeader(value = "X-Channel-Id") String channelId) {
-
 		String apiId = "ekstep.learning.framework.update";
-		PlatformLogger.log(
-				"Executing framework Update API for Framework Id : " + frameworkId,
-				requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("framework");
@@ -89,18 +96,21 @@ public class FrameworkV3Controller extends BaseController{
 		}
 	}
 
+	/**
+	 * 
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> listFramework(@RequestBody Map<String, Object> requestMap) {
-
 		String apiId = "ekstep.learning.framework.list";
-		PlatformLogger.log("Executing framework List API : ", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("search");
-				Response response = frameworkManager.listFramework(map);
-				return getResponseEntity(response, apiId, null);
+			Response response = frameworkManager.listFramework(map);
+			return getResponseEntity(response, apiId, null);
 			
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while Performing List Operation : " , e.getMessage(), e);
@@ -108,20 +118,24 @@ public class FrameworkV3Controller extends BaseController{
 		}
 	}
 	
+	/**
+	 * 
+	 * @param frameworkId
+	 * @param userId
+	 * @param channelId
+	 * @return
+	 */
 	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String frameworkId,
 			@RequestHeader(value = "user-id") String userId,@RequestHeader(value = "X-Channel-Id") String channelId) {
 		String apiId = "ekstep.learning.framework.retire";
-		PlatformLogger.log("Executing Framework Retire API for Framework Id : " + frameworkId);
 		try {
 			Response response = frameworkManager.retireFramework(frameworkId,channelId);
-			PlatformLogger.log("Framework Retire Framework | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while Performing Retire Operation : " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
 }
