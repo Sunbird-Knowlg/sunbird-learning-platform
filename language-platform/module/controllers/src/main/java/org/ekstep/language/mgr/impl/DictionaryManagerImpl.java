@@ -2285,9 +2285,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					.get(LanguageParams.otherMeanings.name());
 			
 			wordRequestMap.remove(LanguageParams.otherMeanings.name());
+			
+			List<String> keywords = (List<String>) wordRequestMap.get(LanguageParams.tags.name());
 			wordRequestMap.remove(LanguageParams.tags.name());
 
 			Node word = new Node(wordIdentifier, SystemNodeTypes.DATA_NODE.name(), "Word");
+			if (keywords != null) {
+				word.setTags(keywords);
+			}
 
 			word.setMetadata(wordRequestMap);
 
@@ -2803,16 +2808,19 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			meaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 		}
 		
-		List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
+		// commented on 30-Nov for keyword/themes model change
+		//List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
 		meaningMap.remove(LanguageParams.tags.name());
 
 		// set synset metadata
 		synset.setMetadata(meaningMap);
 		
+
+		// commented on 30-Nov for keyword/themes model change
 		// set synset tags
-		if (tags != null) {
+		/*if (tags != null) {
 			synset.setTags(tags);
-		}
+		}*/
 
 		return synset;
 
