@@ -2811,7 +2811,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		// commented on 30-Nov for keyword/themes model change
 		//List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
 		meaningMap.remove(LanguageParams.tags.name());
-
+		meaningMap.remove(LanguageParams.keywords.name());
+		
 		// set synset metadata
 		synset.setMetadata(meaningMap);
 		
