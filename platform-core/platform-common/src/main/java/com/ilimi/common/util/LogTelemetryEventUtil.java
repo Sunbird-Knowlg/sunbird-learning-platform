@@ -25,7 +25,7 @@ public class LogTelemetryEventUtil {
 	private static final Logger instructionEventLogger = LogManager.getLogger("InstructionEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
-	private static String eventId = "BE_CONTENT_PUBLISH";
+	private static String eventId = "BE_JOB_REQUEST";
 	private static String actorId = "Publish Samza Job";
 	private static String actorType = "System";
 	private static String pdataId = "org.ekstep.platform";
@@ -83,7 +83,7 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				instructionEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			PlatformLogger.log("Error logging BE_CONTENT_PUBLISH event", e.getMessage(), e);
+			PlatformLogger.log("Error logging BE_JOB_REQUEST event", e.getMessage(), e);
 		}
 		return jsonMessage;
 	}
