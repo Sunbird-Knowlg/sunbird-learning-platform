@@ -90,8 +90,29 @@
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 
+		<RollingRandomAccessFile name="InstructionEventAppender" fileName="/data/logs/instruction_event_mw.log"
+			filePattern="/data/logs/instruction_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="instruction_event_mw-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+		</RollingRandomAccessFile>
+
 	</Appenders>
 	<Loggers>
+		<Logger name="InstructionEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="InstructionEventAppender" />
+		</Logger>
 		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="TelemetryEventAppender" />
 		</Logger>

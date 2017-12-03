@@ -1,5 +1,8 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
@@ -35,13 +38,17 @@ public abstract class BaseContentManager extends BaseManager {
 	}
 	
 	protected void isNodeUnderProcessing(Node node, String operation) {
-		boolean isProccssing = checkNodeStatus(node, TaxonomyAPIParams.Processing.name());
+		List<String> status = new ArrayList<>();
+		status.add(TaxonomyAPIParams.Processing.name());
+		status.add(TaxonomyAPIParams.Pending.name());
+		boolean isProccssing = checkNodeStatus(node, status);
 		if (BooleanUtils.isTrue(isProccssing)) {
 			PlatformLogger.log("Given Content is in Processing Status.");
 			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply '"+ operation +"' Operation on the Content in 'Processing' Status.] ");
+					"Operation Denied! | [Cannot Apply '"+ operation +"' Operation on the Content in '" + 
+							(String)node.getMetadata().get(TaxonomyAPIParams.status.name()) + "' Status.] ");
 		} else {
-			PlatformLogger.log("Given Content is not in Processing Status.");
+			PlatformLogger.log("Given Content is not in " + (String)node.getMetadata().get(TaxonomyAPIParams.status.name()) + " Status.");
 		}
 	}
 	
@@ -54,13 +61,17 @@ public abstract class BaseContentManager extends BaseManager {
 	}
 	
 	// TODO: if exception occurs it return false. It is invalid. Check.
-	private boolean checkNodeStatus(Node node, String status) {
+	private boolean checkNodeStatus(Node node, List<String> status) {
 		boolean inGivenStatus = false;
 		try {
-			if (null != node && null != node.getMetadata()
-					&& StringUtils.equalsIgnoreCase((String) node.getMetadata().get(TaxonomyAPIParams.status.name()),
-							status))
-				inGivenStatus = true;
+			if (null != node && null != node.getMetadata()) {
+				for(String st : status) {
+					if(StringUtils.equalsIgnoreCase((String) node.getMetadata().get(TaxonomyAPIParams.status.name()),
+							st)) {
+						inGivenStatus = true;
+					}
+				}
+			}
 		} catch (Exception e) {
 			PlatformLogger.log("Something Went Wrong While Checking the is Under Processing Status.", null, e);
 		}

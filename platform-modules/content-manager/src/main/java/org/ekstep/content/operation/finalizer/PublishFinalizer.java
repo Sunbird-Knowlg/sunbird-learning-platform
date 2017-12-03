@@ -197,7 +197,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			List<Node> nodes = new ArrayList<Node>();
 			
 			String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
-			PlatformLogger.log("In finalize ******* publishType: " + publishType + " ***", null,  LoggerEnum.INFO.name());
 			if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
 				node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
 			} else {

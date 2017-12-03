@@ -1420,6 +1420,7 @@
 						"Draft",
 						"Review",
 						"Redraft",
+						"Pending",
 						"Flagged",
 						"Live",
 						"Retired",

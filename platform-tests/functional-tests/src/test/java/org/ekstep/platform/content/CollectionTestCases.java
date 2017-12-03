@@ -26,6 +26,9 @@ import com.jayway.restassured.response.Response;
 	
 public class CollectionTestCases extends BaseTest{
 	
+	private String PROCESSING = "Processing";
+	private String PENDING = "Pending";
+	
 	public RequestSpecification getRequestSpecification(String content_type,String user_id, String APIToken)
 	{
 		RequestSpecBuilder builderreq = new RequestSpecBuilder();
@@ -235,7 +238,7 @@ public class CollectionTestCases extends BaseTest{
 }
 	// Async Publish validations - Collection
 	public void asyncPublishValidations(ArrayList<String> identifier1, String status, String nodeId, String c_identifier, String node1, String node2){
-		if(status.equals("Processing")){
+		if(status.equals(PROCESSING) || status.equals(PENDING)){
 			for (int i=1000; i<=30000; i=i+1000){
 				try{Thread.sleep(i);}catch(InterruptedException e){System.out.println(e);} 
 				setURI();
@@ -253,7 +256,7 @@ public class CollectionTestCases extends BaseTest{
 				// Validate the response
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
-				if (statusUpdated.equals("Processing")){
+				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)){
 					//System.out.println(statusUpdated);
 					i++;
 				}
