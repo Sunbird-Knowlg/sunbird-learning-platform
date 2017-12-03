@@ -34,7 +34,6 @@ import com.ilimi.framework.test.common.TestSetup;
  * @author gauraw
  *
  */
-@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -91,7 +90,6 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 
 			Response resp = frameworkManager.createFramework(requestMap);
 			frameworkId = (String) resp.getResult().get("node_id");
-			System.out.println("Framework Id : " + frameworkId);
 		} catch (Exception e) {
 			System.out.println("Exception Occured while creating Framework :" + e.getMessage());
 			e.printStackTrace();
@@ -107,7 +105,7 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 
 			Response resp = categoryInstManager.createCategoryInstance(frameworkId, requestMap);
 			categoryInstanceId = (String) resp.getResult().get("node_id");
-			System.out.println("Category Instance Id : " + categoryInstanceId);
+			System.out.println("Category Instance: " + categoryInstanceId);
 		} catch (Exception e) {
 			System.out.println("Exception Occured while creating Category Instance :" + e.getMessage());
 			e.printStackTrace();
@@ -233,6 +231,7 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 * Framework update API hits. Then: 200 - OK, Framework partial update done.
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void mockTestFramework_07() throws Exception {
 		String path = basePath + "/update/" + frameworkId;
@@ -240,6 +239,7 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 				+ categoryInstanceId + "\",\"name\": \"cat3\"}]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(updateFrameworkValidJson));
+		System.out.println("Response 07: " + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -404,6 +404,7 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	 * Then: 200 - OK , Framework Status will be changed to "Retire" from "Live"
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void mockTestFramework_16() throws Exception {
 		String path = basePath + "/retire/" + frameworkId;

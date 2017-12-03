@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransactionTerminatedException;
@@ -39,7 +38,6 @@ import scala.concurrent.duration.Duration;
  * @author pradyumna
  *
  */
-@Ignore
 public class TestSetup {
 
 	static ClassLoader classLoader = TestSetup.class.getClassLoader();
@@ -52,7 +50,7 @@ public class TestSetup {
 	private static String GRAPH_DIRECTORY_PROPERTY_KEY = "graph.dir";
 	private static String BOLT_ENABLED = "true";
 	private static ActorRef reqRouter = null;
-
+	
 	static long timeout = 50000;
 	static Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
 
@@ -60,16 +58,7 @@ public class TestSetup {
 		ActorBootstrap.getActorSystem();
 		ActorRef reqRouter = GraphEngineActorPoolMgr.getRequestRouter();
 		Thread.sleep(2000);
-		System.out.println("Request Router: " + reqRouter);
 		return reqRouter;
-		/*ActorSystem system = ActorSystem.create("MySystem");
-		ActorRef reqRouter = system.actorOf(Props.create(RequestRouter.class));
-		
-		Future<Object> future = Patterns.ask(reqRouter, "init", timeout);
-		Object response = Await.result(future, t.duration());
-		Thread.sleep(2000);
-		System.out.println("Response from request router: " + response);
-		return reqRouter;*/
 	}
 
 	@AfterClass
@@ -98,16 +87,14 @@ public class TestSetup {
 			Object obj = Await.result(response, t.duration());
 
 			resp = (Response) obj;
-			System.out.println(resp.getResponseCode() + "    ::    " + resp.getParams().getStatus());
 			if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
-				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
+				System.out.println(resp.getParams().getErr() + " :: " + resp.getParams().getErrmsg());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-	}
+		}
 		return resp;
 	}
-
 
 	private static Map<String, String> loadAllDefinitions(File folder) {
 		for (File fileEntry : folder.listFiles()) {
@@ -121,9 +108,9 @@ public class TestSetup {
 					definitions.put(fileEntry.getName(), resp.getResponseCode().toString());
 				} catch (IOException e) {
 					e.printStackTrace();
+				}
 			}
-			}
-	}
+		}
 		return definitions;
 	}
 
@@ -136,21 +123,20 @@ public class TestSetup {
 		});
 	}
 
-	private static void setupEmbeddedNeo4J() {
+	private static void setupEmbeddedNeo4J() throws Exception {
 		GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector("0");
-
 		graphDb = new GraphDatabaseFactory()
 				.newEmbeddedDatabaseBuilder(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)))
 				.setConfig(bolt.type, TestParams.BOLT.name()).setConfig(bolt.enabled, BOLT_ENABLED)
 				.setConfig(bolt.address, NEO4J_SERVER_ADDRESS).newGraphDatabase();
 		registerShutdownHook(graphDb);
-
+		Thread.sleep(5000);
 		try (Transaction tx = graphDb.beginTx()) {
 			definitions = loadAllDefinitions(definitionLocation);
 			tx.success();
 		} catch (TransactionTerminatedException ignored) {
 			System.out.println("Execption Occured while setting Embedded Neo4j : " + ignored);
-	}
+		}
 	}
 
 	private static void tearEmbeddedNeo4JSetup() throws Exception {
@@ -165,13 +151,13 @@ public class TestSetup {
 			if (emDb.isDirectory()) {
 				for (File child : emDb.listFiles()) {
 					deleteEmbeddedNeo4j(child);
+				}
 			}
-		}
 			try {
 				emDb.delete();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-	}
+		}
 	}
 }

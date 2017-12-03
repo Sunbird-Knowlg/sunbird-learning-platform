@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -36,7 +35,7 @@ import com.ilimi.framework.test.common.TestSetup;
  * @author pradyumna
  *
  */
-@Ignore
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -57,28 +56,20 @@ public class TermChannelV3ControllerTest extends TestSetup {
 	private static String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 
 	@BeforeClass
-	public static void beforeClass() {
+	public static void beforeClass() throws Exception {
 		createCategoryInstance();
 	}
 
 	/**
 	 * 
 	 */
-	private static void createCategoryInstance() {
-		try {
-			channelId = createChannel();
-
-			Map<String, Object> requestMap = mapper.readValue(createCategoryReq,
-					new TypeReference<Map<String, Object>>() {
-					});
-
-			Response resp = categoryInstanceManager.createCategoryInstance(channelId, requestMap);
-			categoryId = (String) resp.getResult().get("node_id");
-			System.out.println("CategoryId : " + categoryId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	private static void createCategoryInstance() throws Exception {
+		channelId = createChannel();
+		Map<String, Object> requestMap = mapper.readValue(createCategoryReq,
+				new TypeReference<Map<String, Object>>() {
+				});
+		Response resp = categoryInstanceManager.createCategoryInstance(channelId, requestMap);
+		categoryId = (String) resp.getResult().get("node_id");
 	}
 
 	/**
@@ -120,8 +111,7 @@ public class TermChannelV3ControllerTest extends TestSetup {
 			Assert.assertEquals(200, response.getStatus());
 			Response resp = mapper.readValue(response.getContentAsString(), new TypeReference<Response>() {
 			});
-			termId = (String) resp.getResult().get("node_id");
-			System.out.println("TERM ID : " + termId);
+			termId = (String) resp.getResult().get("node_id");			
 		} catch (Exception e) {
 			e.getCause();
 		}
