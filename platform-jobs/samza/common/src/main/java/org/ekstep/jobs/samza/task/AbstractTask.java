@@ -20,11 +20,11 @@ import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 
 public abstract class AbstractTask implements StreamTask, InitableTask, WindowableTask {
-	
+
 	protected JobMetrics metrics;
-	
+
 	private Config config = null;
-	
+
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
 		metrics = new JobMetrics(context);
@@ -34,45 +34,46 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	}
 
 	public abstract ISamzaService initialize() throws Exception;
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
+	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator)
+			throws Exception {
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
 		preProcess(message, collector);
 		process(message, collector, coordinator);
-//		postProcess(message, collector);
+		postProcess(message, collector);
 	}
-	
-	public abstract void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception;
-	
-	public void preProcess(Map<String,Object> message, MessageCollector collector) {
-		if(null != message) {
-			if(message.containsKey("serde")) {
-				String event = generateEvent(LoggerEnum.ERROR.name(), "Samza Job De-serialization error" + message, null);
-				collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
-			}
-//			else {
-//				String event = generateEvent(LoggerEnum.INFO.name(), "Job_Start_Event", message);
-//				collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
-//			}
+
+	public abstract void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator)
+			throws Exception;
+
+	public void preProcess(Map<String, Object> message, MessageCollector collector) {
+		if (isInvalidMessage(message)) {
+			String event = generateEvent(LoggerEnum.ERROR.name(), "Samza job de-serialization error", message);
+			collector.send(new OutgoingMessageEnvelope(
+					new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
 		}
-		else {
-			Map<String,Object> map = new HashMap<String,Object>();
-			map.put("message", "null value event from kafka event");
-			String event = generateEvent(LoggerEnum.ERROR.name(), "Samza Job Null Event Error", map);
-			collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
-		}
+		// check for valid instruction to process. action=publish, max retries less than iteration value.
+		// generate job start event
+		
 	}
-	
-	public void postProcess(Map<String,Object> message, MessageCollector collector) {
+
+	public void postProcess(Map<String, Object> message, MessageCollector collector) {
+		// check status of the processed event.
+		// generate job end event with execution stats.
 	}
-	
+
 	private String generateEvent(String logLevel, String message, Map<String, Object> data) {
 		String event = PlatformLogger.getBELog(logLevel, message, data, null);
 		return event;
 	}
-	
+
+	protected boolean isInvalidMessage(Map<String, Object> message) {
+		return (message == null || (null != message && message.containsKey("serde")
+				&& "error".equalsIgnoreCase((String) message.get("serde"))));
+	}
+
 	@Override
 	public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		metrics.clear();

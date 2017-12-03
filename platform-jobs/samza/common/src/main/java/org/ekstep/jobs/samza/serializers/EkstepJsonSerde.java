@@ -81,27 +81,29 @@ public class EkstepJsonSerde<T> implements Serde<T> {
 				}
 			} catch (UnsupportedEncodingException e) {
 				LOG.error("Error deserializing data. Unsupported encoding: " + bytes, e);
-				Map<String,Object> map = exceptionMap(bytes, "Error deserializing data. Unsupported encoding", e);
+				Map<String, Object> map = exceptionMap(bytes, "Error deserializing data. Unsupported encoding", e);
 				return (T) map;
 			} catch (Exception e) {
 				LOG.error("Error deserializing data: " + str, e);
-				Map<String,Object> map = exceptionMap(str, "Error deserializing data", e);
+				Map<String, Object> map = exceptionMap(str, "Error deserializing data", e);
 				return (T) map;
 			}
 		} else {
-			return null;
+			LOG.error("Bytes data is null");
+			Map<String, Object> map = exceptionMap(bytes, "Bytes data is null", null);
+			return (T) map;
 		}
 	}
 
-	public Map<String,Object> exceptionMap(Object data, String message, Exception e){
-		Map<String,Object> map = new HashMap<String,Object>();
-		if(data instanceof Byte)
+	public Map<String, Object> exceptionMap(Object data, String message, Exception e) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (data instanceof Byte)
 			map.put("bytes", data);
-		if(data instanceof String)
+		if (data instanceof String)
 			map.put("str", data);
 		map.put("message", message);
 		map.put("exception", e);
 		map.put("serde", "error");
-	return map;
+		return map;
 	}
 }
