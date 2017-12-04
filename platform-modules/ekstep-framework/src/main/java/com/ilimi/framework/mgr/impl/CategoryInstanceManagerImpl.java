@@ -52,8 +52,8 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 
 	@Override
 	public Response readCategoryInstance(String identifier, String categoryInstanceId) {
-		if (validateScopeNode(categoryInstanceId, identifier)) {
-			return read(identifier, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.categoryInstance.name());
+		if (validateScopeNode(identifier, categoryInstanceId)) {
+			return read(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.categoryInstance.name());
 		} else {
 			throw new ClientException(ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/" + ContentErrorCodes.ERR_FRAMEWORK_NOT_FOUND.name(), "Given channel/framework is not related to given category");
 		}
