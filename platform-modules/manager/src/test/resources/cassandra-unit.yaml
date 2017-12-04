@@ -19,19 +19,41 @@ cluster_name: 'Test Cluster'
 # the heaviest-loaded existing node.  If there is no load information
 # available, such as is the case with a new cluster, it will pick
 # a random token, which will lead to hot spots.
-initial_token:
+#initial_token:
 
 # See http://wiki.apache.org/cassandra/HintedHandoff
 hinted_handoff_enabled: true
 # this defines the maximum amount of time a dead host will have hints
-# generated.  After it has been dead this long, hints will be dropped.
-max_hint_window_in_ms: 3600000 # one hour
+# generated.  After it has been dead this long, new hints for it will not be
+# created until it has been seen alive and gone down again.
+max_hint_window_in_ms: 10800000 # 3 hours
+# Maximum throttle in KBs per second, per delivery thread.  This will be
+# reduced proportionally to the number of nodes in the cluster.  (If there
+# are two nodes in the cluster, each delivery thread will use the maximum
+# rate; if there are three, each will throttle to half of the maximum,
+# since we expect two nodes to be delivering hints simultaneously.)
+hinted_handoff_throttle_in_kb: 1024
+# Number of threads with which to deliver hints;
+# Consider increasing this number when you have multi-dc deployments, since
+# cross-dc handoff tends to be slower
+max_hints_delivery_threads: 2
 
-# DEPRECATED : Sleep this long after delivering each hint
-#hinted_handoff_throttle_delay_in_ms: 1
+hints_directory: target/embeddedCassandra/hints
 
-# authentication backend, implementing IAuthenticator; used to identify users
-authenticator: org.apache.cassandra.auth.AllowAllAuthenticator
+# The following setting populates the page cache on memtable flush and compaction
+# WARNING: Enable this setting only when the whole node's data fits in memory.
+# Defaults to: false
+# populate_io_cache_on_flush: false
+
+# Authentication backend, implementing IAuthenticator; used to identify users
+# Out of the box, Cassandra provides org.apache.cassandra.auth.{AllowAllAuthenticator,
+# PasswordAuthenticator}.
+#
+# - AllowAllAuthenticator performs no checks - set it to disable authentication.
+# - PasswordAuthenticator relies on username/password pairs to authenticate
+#   users. It keeps usernames and hashed passwords in system_auth.credentials table.
+#   Please increase system_auth keyspace replication factor if you use this authenticator.
+authenticator: AllowAllAuthenticator
 
 # Authorization backend, implementing IAuthorizer; used to limit access/provide permissions
 # Out of the box, Cassandra provides org.apache.cassandra.auth.{AllowAllAuthorizer,
@@ -40,31 +62,37 @@ authenticator: org.apache.cassandra.auth.AllowAllAuthenticator
 # - AllowAllAuthorizer allows any action to any user - set it to disable authorization.
 # - CassandraAuthorizer stores permissions in system_auth.permissions table. Please
 #   increase system_auth keyspace replication factor if you use this authorizer.
-authorizer: org.apache.cassandra.auth.AllowAllAuthorizer
+authorizer: AllowAllAuthorizer
+
+# Validity period for permissions cache (fetching permissions can be an
+# expensive operation depending on the authorizer, CassandraAuthorizer is
+# one example). Defaults to 2000, set to 0 to disable.
+# Will be disabled automatically for AllowAllAuthorizer.
+permissions_validity_in_ms: 2000
+
 
 # The partitioner is responsible for distributing rows (by key) across
 # nodes in the cluster.  Any IPartitioner may be used, including your
 # own as long as it is on the classpath.  Out of the box, Cassandra
-# provides org.apache.cassandra.dht.RandomPartitioner
-# org.apache.cassandra.dht.ByteOrderedPartitioner,
-# org.apache.cassandra.dht.OrderPreservingPartitioner (deprecated),
-# and org.apache.cassandra.dht.CollatingOrderPreservingPartitioner
-# (deprecated).
+# provides org.apache.cassandra.dht.{Murmur3Partitioner, RandomPartitioner
+# ByteOrderedPartitioner, OrderPreservingPartitioner (deprecated)}.
 #
 # - RandomPartitioner distributes rows across the cluster evenly by md5.
-#   When in doubt, this is the best option.
+#   This is the default prior to 1.2 and is retained for compatibility.
+# - Murmur3Partitioner is similar to RandomPartioner but uses Murmur3_128
+#   Hash Function instead of md5.  When in doubt, this is the best option.
 # - ByteOrderedPartitioner orders rows lexically by key bytes.  BOP allows
 #   scanning rows in key order, but the ordering can generate hot spots
 #   for sequential insertion workloads.
 # - OrderPreservingPartitioner is an obsolete form of BOP, that stores
 # - keys in a less-efficient format and only works with keys that are
 #   UTF8-encoded Strings.
-# - CollatingOPP colates according to EN,US rules rather than lexical byte
+# - CollatingOPP collates according to EN,US rules rather than lexical byte
 #   ordering.  Use this as an example if you need custom collation.
 #
 # See http://wiki.apache.org/cassandra/Operations for more on
 # partitioners and token selection.
-partitioner: org.apache.cassandra.dht.RandomPartitioner
+partitioner: org.apache.cassandra.dht.Murmur3Partitioner
 
 # directories where Cassandra should store data on disk.
 data_file_directories:
@@ -72,6 +100,18 @@ data_file_directories:
 
 # commit log
 commitlog_directory: target/embeddedCassandra/commitlog
+
+cdc_raw_directory: target/embeddedCassandra/cdc
+
+# policy for data disk failures:
+# stop: shut down gossip and Thrift, leaving the node effectively dead, but
+#       can still be inspected via JMX.
+# best_effort: stop using the failed disk and respond to requests based on
+#              remaining available sstables.  This means you WILL see obsolete
+#              data at CL.ONE!
+# ignore: ignore fatal errors and let requests fail, as in pre-1.2 Cassandra
+disk_failure_policy: stop
+
 
 # Maximum size of the key cache in memory.
 #
@@ -141,6 +181,17 @@ saved_caches_directory: target/embeddedCassandra/saved_caches
 commitlog_sync: periodic
 commitlog_sync_period_in_ms: 10000
 
+# The size of the individual commitlog file segments.  A commitlog
+# segment may be archived, deleted, or recycled once all the data
+# in it (potentially from each columnfamily in the system) has been
+# flushed to sstables.
+#
+# The default size is 32, which is almost always fine, but if you are
+# archiving commitlog segments (see commitlog_archiving.properties),
+# then you probably want a finer granularity of archiving; 8 or 16 MB
+# is reasonable.
+commitlog_segment_size_in_mb: 32
+
 # any class that implements the SeedProvider interface and has a
 # constructor that takes a Map<String, String> of parameters will do.
 seed_provider:
@@ -153,6 +204,7 @@ seed_provider:
           # seeds is actually a comma-delimited list of addresses.
           # Ex: "<ip1>,<ip2>,<ip3>"
           - seeds: "127.0.0.1"
+
 
 # For workloads with more data than can fit in memory, Cassandra's
 # bottleneck will be reads that need to fetch data from
@@ -187,7 +239,7 @@ concurrent_writes: 32
 # the number of full memtables to allow pending flush, that is,
 # waiting for a writer thread.  At a minimum, this should be set to
 # the maximum number of secondary indexes created on a single CF.
-# memtable_flush_queue_size: 4
+#memtable_flush_queue_size: 4
 
 # Whether to, when doing sequential writing, fsync() at intervals in
 # order to force the operating system to flush the dirty
@@ -198,7 +250,7 @@ trickle_fsync: false
 trickle_fsync_interval_in_kb: 10240
 
 # TCP port, for commands and data
-storage_port: 7010
+storage_port: 0
 
 # SSL port, for encrypted communication.  Unused unless enabled in
 # encryption_options
@@ -216,6 +268,13 @@ ssl_storage_port: 7011
 # Setting this to 0.0.0.0 is always wrong.
 listen_address: 127.0.0.1
 
+start_native_transport: true
+# port for the CQL native transport to listen for clients on
+native_transport_port: 9042
+
+# Whether to start the thrift rpc server.
+start_rpc: true
+
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
 # broadcast_address: 1.2.3.4
@@ -228,11 +287,7 @@ listen_address: 127.0.0.1
 # (i.e. it will be based on the configured hostname of the node).
 rpc_address: localhost
 # port for Thrift to listen for clients on
-rpc_port: 9171
-
-start_native_transport: true
-# port for the CQL native transport to listen for clients on
-native_transport_port: 9342
+rpc_port: 0
 
 # enable or disable keepalive on rpc connections
 rpc_keepalive: true
@@ -314,7 +369,7 @@ column_index_size_in_kb: 64
 # Size limit for rows being compacted in memory.  Larger rows will spill
 # over to disk and use a slower two-pass compaction process.  A message
 # will be logged specifying the row key.
-# in_memory_compaction_limit_in_mb: 64
+#in_memory_compaction_limit_in_mb: 64
 
 # Number of simultaneous compactions to allow, NOT including
 # validation "compactions" for anti-entropy repair.  Simultaneous
@@ -336,7 +391,7 @@ column_index_size_in_kb: 64
 # This is usually only useful for SSD-based hardware: otherwise,
 # your concern is usually to get compaction to do LESS i/o (see:
 # compaction_throughput_mb_per_sec), not more.
-# multithreaded_compaction: false
+#multithreaded_compaction: false
 
 # Throttles compaction to the given total throughput across the entire
 # system. The faster you insert data, the faster you need to compact in
@@ -349,21 +404,44 @@ compaction_throughput_mb_per_sec: 16
 # Track cached row keys during compaction, and re-cache their new
 # positions in the compacted sstable.  Disable if you use really large
 # key caches.
-# compaction_preheat_key_cache: true
+#compaction_preheat_key_cache: true
 
 # Throttles all outbound streaming file transfers on this node to the
 # given total throughput in Mbps. This is necessary because Cassandra does
 # mostly sequential IO when streaming data during bootstrap or repair, which
 # can lead to saturating the network connection and degrading rpc performance.
-# When unset, the default is 400 Mbps or 50 MB/s.
-# stream_throughput_outbound_megabits_per_sec: 400
+# When unset, the default is 200 Mbps or 25 MB/s.
+# stream_throughput_outbound_megabits_per_sec: 200
 
-# DEPRECATED : Time to wait for a reply from other nodes before failing the command
-#rpc_timeout_in_ms: 10000
+# How long the coordinator should wait for read operations to complete
+read_request_timeout_in_ms: 5000
+# How long the coordinator should wait for seq or index scans to complete
+range_request_timeout_in_ms: 10000
+# How long the coordinator should wait for writes to complete
+write_request_timeout_in_ms: 2000
+# How long a coordinator should continue to retry a CAS operation
+# that contends with other proposals for the same row
+cas_contention_timeout_in_ms: 1000
+# How long the coordinator should wait for truncates to complete
+# (This can be much longer, because unless auto_snapshot is disabled
+# we need to flush first so we can snapshot before removing the data.)
+truncate_request_timeout_in_ms: 60000
+# The default timeout for other, miscellaneous operations
+request_timeout_in_ms: 10000
+
+# Enable operation timeout information exchange between nodes to accurately
+# measure request timeouts.  If disabled, replicas will assume that requests
+# were forwarded to them instantly by the coordinator, which means that
+# under overload conditions we will waste that much extra time processing
+# already-timed-out requests.
+#
+# Warning: before enabling this property make sure to ntp is installed
+# and the times are synchronized between the nodes.
+cross_node_timeout: false
 
 # Enable socket timeout for streaming operation.
 # When a timeout occurs during streaming, streaming is retried from the start
-# of the current file. This *can* involve re-streaming an important amount of
+# of the current file. This _can_ involve re-streaming an important amount of
 # data, so you should avoid setting the value too low.
 # Default value is 0, which never timeout streams.
 # streaming_socket_timeout_in_ms: 0
@@ -416,7 +494,7 @@ compaction_throughput_mb_per_sec: 16
 #
 # You can use a custom Snitch by setting this to the full class name
 # of the snitch, which will be assumed to be on your classpath.
-endpoint_snitch: PropertyFileSnitch
+endpoint_snitch: SimpleSnitch
 
 # controls how often to perform the more expensive part of host score
 # calculation
@@ -499,7 +577,7 @@ index_interval: 128
 # the keystore and truststore.  For instructions on generating these files, see:
 # http://download.oracle.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CreateKeystore
 #
-server_encryption_options:
+encryption_options:
     internode_encryption: none
     keystore: conf/.keystore
     keystore_password: cassandra
@@ -510,6 +588,3 @@ server_encryption_options:
     # algorithm: SunX509
     # store_type: JKS
     # cipher_suites: [TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA]
-
-# Tombstone warning threshold
-tombstone_warn_threshold: 2000

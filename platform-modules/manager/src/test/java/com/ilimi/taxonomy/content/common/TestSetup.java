@@ -164,7 +164,7 @@ public class TestSetup{
 //			cassandra = new CassandraCQLUnit(dataSet);
 			 try {
 				 System.out.println("Starting Cassandra");
-				 EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 60000l);
+				 EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 100000l);
 				System.out.println("Started Cassandra");
 			} catch (TTransportException | IOException e) {
 				// TODO Auto-generated catch block
