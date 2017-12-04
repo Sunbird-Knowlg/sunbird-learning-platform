@@ -147,7 +147,7 @@ public class DomainV3APITests extends BaseTest
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-		get("/domain/v3/terms/list?domain=Content").
+		get("/domain/v3/terms/list?language=mr").
 		then().
 		spec(get200ResponseSpec());	
 	}
