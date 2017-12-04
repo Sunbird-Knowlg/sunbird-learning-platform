@@ -16,6 +16,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.framework.common.FrameworkIdentifier;
 import com.ilimi.framework.mgr.IFrameworkManager;
 
 /**
@@ -48,6 +49,7 @@ public class FrameworkV3Controller extends BaseController{
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("framework");
 			map.put("owner", channelId);
+			map.put("identifier", FrameworkIdentifier.getIdentifier((String)map.get("name")));
 			Response response = frameworkManager.createFramework(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
