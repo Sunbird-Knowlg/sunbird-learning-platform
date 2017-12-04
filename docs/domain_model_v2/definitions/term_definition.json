@@ -1,0 +1,198 @@
+{
+	"definitionNodes":[
+		{
+			"objectType": "Term",
+			"properties":[
+			{
+				"propertyName": "label",
+	          	"title": "Label",
+	          	"description": "Label of the Term",
+	          	"category": "General",
+	          	"dataType": "Text",
+	          	"required": true,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'text', 'order': 1}",
+	          	"indexed": true
+			},
+			{
+				"propertyName": "value",
+	          	"title": "Value",
+	          	"description": "Value of the Term",
+	          	"category": "General",
+	          	"dataType": "Text",
+	          	"required": true,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'text', 'order': 2}",
+	          	"indexed": true
+			},
+			{
+				"propertyName": "index",
+	          	"title": "Index",
+	          	"description": "Index position of the term",
+	          	"category": "General",
+	          	"dataType": "Number",
+	          	"required": false,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'number', 'order': 3}",
+	          	"indexed": false
+			},
+			{
+	          "propertyName": "description",
+	          "title": "Name",
+	          "description": "description of the term",
+	          "category": "General",
+	          "dataType": "Text",
+	          "required": false,
+	          "displayProperty": "Editable",
+	          "defaultValue": "",
+	          "renderingHints": "{'inputType': 'text', 'order': 1}",
+	          "indexed": true
+	        },
+			{
+	            "propertyName": "status",
+	            "title": "Status",
+	            "description": "Status of the term",
+	            "category": "general",
+	            "dataType": "Select",
+	            "range":
+	            [
+	                "Draft",
+	                "Live",
+	                "Review",
+	                "Retired"
+	            ],
+	            "required": false,
+				"indexed": true,
+	            "displayProperty": "Editable",
+	            "defaultValue": "Live",
+	            "renderingHints": "{'inputType': 'select', 'order': 3}"
+	        },
+			{
+	          "propertyName": "createdBy",
+	          "title": "Created By",
+	          "description": "",
+	          "category": "audit",
+	          "dataType": "Text",
+	          "range": [],
+	          "required": false,
+	          "indexed": false,
+	          "displayProperty": "Editable",
+	          "defaultValue": "",
+	          "renderingHints": "{ 'inputType': 'text',  'order': 4}"
+	        },
+	        {
+	          "propertyName": "createdOn",
+	          "title": "Created On",
+	          "description": "",
+	          "category": "audit",
+	          "dataType": "Date",
+	          "range": [],
+	          "required": false,
+	          "indexed": false,
+	          "displayProperty": "Readonly",
+	          "defaultValue": "",
+	          "renderingHints": "{ 'order': 11 }"
+	        },  
+	        {
+	          "propertyName": "lastUpdatedBy",
+	          "title": "Last Updated By",
+	          "description": "",
+	          "category": "audit",
+	          "dataType": "Text",
+	          "range": [],
+	          "required": false,
+	          "indexed": false,
+	          "displayProperty": "Editable",
+	          "defaultValue": "",
+	          "renderingHints": "{ 'inputType': 'text',  'order': 5}"
+	        },
+	        {
+	          "propertyName": "lastUpdatedOn",
+	          "title": "Last Updated On",
+	          "description": "",
+	          "category": "audit",
+	          "dataType": "Date",
+	          "range": [],
+	          "required": false,
+	          "indexed": false,
+	          "displayProperty": "Readonly",
+	          "defaultValue": "",
+	          "renderingHints": "{ 'order': 6}"
+	        }
+			],
+			"inRelations":[
+			{
+				"relationName": "hasSequenceMember",
+				"objectTypes": [
+					"Category"
+				],
+				"title": "category",
+				"description": "Category using the term",
+				"required": false,
+				"renderingHints": "{ 'order': 7}"
+			},
+			{
+				"relationName": "hasSequenceMember",
+				"objectTypes": [
+					"CategoryInstance"
+				],
+				"title": "categoryInstance",
+				"description": "CategoryInstance using the term",
+				"required": false,
+				"renderingHints": "{ 'order': 7}"
+			},
+			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"Content"
+				],
+				"title": "content",
+				"description": "Content associated with the term",
+				"required": false,
+				"renderingHints": "{ 'order': 7}"
+			}
+			],
+			"outRelations":[
+			{
+				"relationName": "hasSequenceMember",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "children",
+				"description": "Child term items (in sorted order)",
+				"required": false,
+				"renderingHints": "{ 'order': 8}"
+			},
+			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "terms",
+				"description": "terms associated with the current term",
+				"required": false,
+				"renderingHints": "{ 'order': 9}"
+			}	
+			],
+			"systemTags": [],
+			"metadata":{
+				"ttl": 0.08,
+				"limit": 50,
+				"fields":[
+					"identifier",
+					"label",
+					"value",
+					"description",
+					"status",
+					"author",
+					"createdBy",
+					"lastUpdatedOn",
+					"createdOn"
+				]
+			}
+		}
+	]
+}

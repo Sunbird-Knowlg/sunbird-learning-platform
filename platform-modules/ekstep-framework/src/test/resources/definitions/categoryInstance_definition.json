@@ -1,12 +1,12 @@
 {
   "definitionNodes": [
     {
-      "objectType": "Channel",
+      "objectType": "CategoryInstance",
       "properties": [
 	   {
           "propertyName": "name",
           "title": "Name",
-          "description": "Name of the channel",
+          "description": "Name of the category",
           "category": "General",
           "dataType": "Text",
           "required": true,
@@ -18,31 +18,55 @@
         {
           "propertyName": "description",
           "title": "Name",
-          "description": "description of the channel",
+          "description": "description of the category",
           "category": "General",
           "dataType": "Text",
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 1}",
+          "renderingHints": "{'inputType': 'text', 'order': 3}",
           "indexed": true
         },
         {
           "propertyName": "code",
           "title": "Code",
-          "description": "Unique code for the channel",
+          "description": "Unique code for the category",
           "category": "General",
           "dataType": "Text",
           "required": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 2}",
+          "renderingHints": "{'inputType': 'text', 'order': 4}",
+          "indexed": true
+        },
+        {
+          "propertyName": "translations",
+          "title": "translations",
+          "description": "translations for the category",
+          "category": "General",
+          "dataType": "json",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'object', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "propertyName": "defaultTerm",
+          "title": "defaultTerm",
+          "description": "defaultTerm associated with the category",
+          "category": "General",
+          "dataType": "json",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 6}",
           "indexed": true
         },
         {
             "propertyName": "status",
             "title": "Status",
-            "description": "Status of the domain",
+            "description": "Status of the category",
             "category": "general",
             "dataType": "Select",
             "range":
@@ -54,8 +78,8 @@
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
-            "defaultValue": "Draft",
-            "renderingHints": "{'inputType': 'select', 'order': 3}"
+            "defaultValue": "Live",
+            "renderingHints": "{'inputType': 'select', 'order': 7}"
         },
         {
           "propertyName": "createdBy",
@@ -68,7 +92,7 @@
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 8}"
         },
         {
           "propertyName": "createdOn",
@@ -81,7 +105,7 @@
           "indexed": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 11 }"
+          "renderingHints": "{ inputType': 'date', 'order': 9 }"
         },  
         {
           "propertyName": "lastUpdatedBy",
@@ -94,7 +118,7 @@
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 12 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
         },
         {
           "propertyName": "lastUpdatedOn",
@@ -107,48 +131,46 @@
           "indexed": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 13 }"
-        },
-        {
-          "propertyName": "contentFilter",
-          "title": "search",
-          "description": "",
-          "category": "technical",
-          "dataType": "json",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 14 }"
+          "renderingHints": "{ inputType': 'date', 'order': 11 }"
         }
       ],
-      "inRelations":[],
+      "inRelations":[
+  		{
+			"relationName": "hasSequenceMember",
+			"objectTypes": [
+				"Framework"
+			],
+			"title": "framework",
+			"description": "framework instance which has sequence relationship with this categoryInstance",
+			"required": false,
+			"renderingHints": "{ 'order': 14 }"
+		},
+		{
+			"relationName": "hasSequenceMember",
+			"objectTypes": [
+				"Channel"
+			],
+			"title": "channel",
+			"description": "channel instance which has sequence relationship with this categoryInstance",
+			"required": false,
+			"renderingHints": "{ 'order': 15 }"
+		}
+	   ],
       "outRelations":[
-  			{
-				"relationName": "hasSequenceMember",
-				"objectTypes": [
-					"CategoryInstance"
-				],
-				"title": "category_instance",
-				"description": "category instance associated with this channel",
-				"required": false,
-				"renderingHints": "{ 'order': 26 }"
-			},
-			{
-				"relationName": "hasSequenceMember",
-				"objectTypes": [
-					"Framework"
-				],
-				"title": "framework",
-				"description": "framework associated with this channel",
-				"required": false,
-				"renderingHints": "{ 'order': 26 }"
-			}
+		{
+			"relationName": "hasSequenceMember",
+			"objectTypes": [
+				"Term"
+			],
+			"title": "term",
+			"description": "term instance which has sequence relationship with this categoryInstance",
+			"required": false,
+			"renderingHints": "{ 'order': 16 }"
+		}
 	  ],
       "systemTags": [],
       "metadata": {
-        "ttl": 24,
+        "ttl": 11,
         "limit": 50
       }
     }
