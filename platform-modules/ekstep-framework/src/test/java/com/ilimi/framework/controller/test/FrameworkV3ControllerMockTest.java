@@ -34,6 +34,7 @@ import com.ilimi.framework.test.common.TestSetup;
  * @author gauraw
  *
  */
+@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
