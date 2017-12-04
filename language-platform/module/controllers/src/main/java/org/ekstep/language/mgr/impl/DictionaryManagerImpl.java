@@ -2338,7 +2338,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 				//check/update primary meaning of all synonym words in primary meaning
 				if (primaryMeaningSynonym != null) {
-					List<String> synonyms = getRelatedWordLemmaFrom(primaryMeaningSynonym);
+					List<String> synonyms = getRelatedWordLemmaFrom(languageId, primaryMeaningSynonym);
 					//List<Node> synonmNodes = searchWords(languageId, synonms);
 					for (String synonym : synonyms) {
 						Node pmSynonymWord = (Node) lemmaWordMap.get(synonym);
@@ -2430,13 +2430,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 	/**
 	 * Gets the related word lemma from.
-	 *
+	 * @param languageId TODO
 	 * @param meaningObj
 	 *            the meaning obj
+	 *
 	 * @return the related word lemma from
 	 */
 	@SuppressWarnings({ "unchecked", "static-access" })
-	private List<String> getRelatedWordLemmaFrom(Map<String, Object> meaningObj) {
+	private List<String> getRelatedWordLemmaFrom(String languageId, Map<String, Object> meaningObj) {
 
 		List<String> lemmas = new ArrayList<>();
 
@@ -2450,6 +2451,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					}
 					if (lemma != null) {
 						lemma = lemma.trim();
+						if(languageId.equalsIgnoreCase("en"))
+							lemma = lemma.toLowerCase();
 						word.put(LanguageParams.lemma.name(), lemma);
 						lemmas.add(lemma);
 					}
@@ -2463,25 +2466,26 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 	/**
 	 * Gets the all lemma.
-	 *
+	 * @param languageId TODO
 	 * @param wordRequestMap
 	 *            the word request map
+	 *
 	 * @return the all lemma
 	 */
 	@SuppressWarnings("unchecked")
-	private List<String> getAllLemma(Map<String, Object> wordRequestMap) {
+	private List<String> getAllLemma(String languageId, Map<String, Object> wordRequestMap) {
 		List<String> lemmas = new ArrayList<>();
 
 		Map<String, Object> primaryMeaning = (Map<String, Object>) wordRequestMap
 				.get(LanguageParams.primaryMeaning.name());
 		if (null != primaryMeaning)
-			lemmas.addAll(getRelatedWordLemmaFrom(primaryMeaning));
+			lemmas.addAll(getRelatedWordLemmaFrom(languageId, primaryMeaning));
 
 		List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) wordRequestMap
 				.get(LanguageParams.otherMeanings.name());
 		if (null != otherMeanings && !otherMeanings.isEmpty())
 			for (Map<String, Object> otherMeaning : otherMeanings)
-				lemmas.addAll(getRelatedWordLemmaFrom(otherMeaning));
+				lemmas.addAll(getRelatedWordLemmaFrom(languageId, otherMeaning));
 
 		return lemmas;
 	}
@@ -2532,7 +2536,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	private Map<String, Object> getLemmaWordMap(String languageId, Map<String, Object> wordRequestMap) {
 
 		Map<String, Object> lemmaWordMap = new HashMap<>();
-		List<String> lemmas = getAllLemma(wordRequestMap);
+		List<String> lemmas = getAllLemma(languageId, wordRequestMap);
 		List<Node> words = new ArrayList<>();
 		if (lemmas != null && lemmas.size() > 0)
 			words = searchWords(languageId, lemmas);
@@ -3083,6 +3087,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			return null;
 		Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Word.name());
 		Map<String, Object> metadata = new HashMap<String, Object>();
+		if(languageId.equalsIgnoreCase("en"))
+			lemma = lemma.toLowerCase();
 		metadata.put(LEMMA_PROPERTY, lemma);
 		metadata.put(ATTRIB_STATUS, "Draft");
 		node.setMetadata(metadata);
