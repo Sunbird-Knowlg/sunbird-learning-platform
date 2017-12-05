@@ -41,7 +41,7 @@
 			},
 			{
 	          "propertyName": "description",
-	          "title": "Name",
+	          "title": "Description",
 	          "description": "description of the term",
 	          "category": "General",
 	          "dataType": "Text",
