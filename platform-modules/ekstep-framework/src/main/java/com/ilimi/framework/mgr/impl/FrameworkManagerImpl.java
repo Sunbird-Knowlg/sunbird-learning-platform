@@ -37,7 +37,15 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	public Response createFramework(Map<String, Object> request) throws Exception {
 		if (null == request)
 			return ERROR("ERR_INVALID_FRMAEWORK_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		return create(request, FRAMEWORK_OBJECT_TYPE, null);
+			String channelId=(String)request.get("owner");
+			boolean isValidChannel=false;
+			isValidChannel=validateChannel(channelId);
+			if(isValidChannel){
+				request.put("channel", channelId);
+				return create(request, FRAMEWORK_OBJECT_TYPE, null);
+			}else{
+				return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't esixt.", ResponseCode.CLIENT_ERROR);
+			}
 	}
 
 	/*
@@ -117,5 +125,5 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		return retire(frameworkId, FRAMEWORK_OBJECT_TYPE);
 
 	}
-
+	
 }

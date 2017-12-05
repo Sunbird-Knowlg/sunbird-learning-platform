@@ -303,4 +303,23 @@ public class BaseFrameworkManager extends BaseManager {
 
 		return identifiers;
 	}
+	
+	/**
+	 * validate channel Node
+	 * 
+	 * @param channelId
+	 * 
+	 * @author gauraw
+	 * 
+	 * */
+	
+	protected boolean validateChannel(String channelId){
+		boolean isValidChannel=false;
+		
+		Response responseNode = getDataNode(GRAPH_ID, channelId);
+		if (!checkError(responseNode)){
+			isValidChannel=true;
+		}
+		return isValidChannel;
+	}
 }
