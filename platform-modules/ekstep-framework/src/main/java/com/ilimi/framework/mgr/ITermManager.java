@@ -53,4 +53,6 @@ public interface ITermManager {
 	Boolean validateRequest(String channelId, String categoryId);
 
 	Boolean validateCategoryId(String categoryId);
+	
+	Boolean validateMasterTerm(String categoryId, String termLabel);
 }

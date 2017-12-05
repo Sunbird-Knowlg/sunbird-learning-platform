@@ -17,6 +17,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.framework.enums.TermEnum;
 import com.ilimi.framework.mgr.ITermManager;
 
 /**
@@ -49,9 +50,15 @@ public class TermFrameworkV3Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("term");
+			String termLabel=(String)map.get(TermEnum.label.name());
 			if (termManager.validateRequest(frameworkId, categoryId)) {
-				Response response = termManager.createTerm(categoryId, map);
-				return getResponseEntity(response, apiId, null);
+				if(termManager.validateMasterTerm(categoryId, termLabel)){
+					Response response = termManager.createTerm(categoryId, map);
+					return getResponseEntity(response, apiId, null);
+				}else{
+					throw new ClientException("ERR_INVALID_TERM_ID", "Invalid Term Id.", apiId, null);
+				}
+				
 			} else {
 				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermCreation", apiId, null);
 			}

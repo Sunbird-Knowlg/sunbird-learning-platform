@@ -140,5 +140,31 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		}
 		return false;
 	}
+	
+	/**
+	 * Validate Term against Master Term (Term under Master Category)
+	 * If term in the request exist in Master Category,then term will be valid else invalid.
+	 * 
+	 * @author gauraw
+	 * 
+	 * */
+	public Boolean validateMasterTerm(String categoryId,String termLabel) {
+		if (StringUtils.isNotBlank(termLabel)) {
+			String temp[]=categoryId.split("_");
+			String termId=generateIdentifier(temp[temp.length-1],termLabel);
+			Response termResp = getDataNode(GRAPH_ID, termId);
+			if (checkError(termResp)) {
+				return false;
+			} else {
+				Node node = (Node) termResp.get(GraphDACParams.node.name());
+				if (StringUtils.equalsIgnoreCase(termId, node.getIdentifier())) {
+					return true;
+				}
+			}
+		} else {
+			throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
+		}
+		return false;
+	}
 
 }
