@@ -3,18 +3,12 @@
  */
 package com.ilimi.framework.controller.test;
 
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -32,28 +26,14 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.Platform;
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.framework.mgr.impl.CategoryManagerImpl;
-import com.ilimi.framework.test.common.TestParams;
 import com.ilimi.framework.test.common.TestSetup;
-import com.ilimi.graph.common.enums.GraphEngineParams;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.engine.router.ActorBootstrap;
-import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
-import com.ilimi.graph.engine.router.GraphEngineManagers;
-
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 /**
  * @author pradyumna
  *
  */
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -72,64 +52,12 @@ public class TermV3ControllerTest extends TestSetup {
 	static ObjectMapper mapper = new ObjectMapper();
 	private static String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 
-	private static Map<String, String> definitions = new HashMap<String, String>();
 	static ClassLoader classLoader = TermV3ControllerTest.class.getClassLoader();
-	static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
-	static ActorRef reqRouter = null;
 
 	@BeforeClass
-	public static void beforeClass() {
-		loadDefinition();
+	public static void beforeClass() throws Exception {
+		loadDefinition("definitions/category_definition.json", "definitions/category_definition.json", "definitions/term_definition.json");
 		createCategory();
-	}
-
-	/**
-	 * 
-	 */
-	private static void loadDefinition() {
-		ActorBootstrap.getActorSystem();
-		reqRouter = GraphEngineActorPoolMgr.getRequestRouter();
-		definitions = loadAllDefinitions(definitionLocation);
-	}
-
-	private static Response createDefinition(String graphId, String objectType) {
-		Response resp = null;
-		try {
-			Request request = new Request();
-			request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
-			request.setOperation("importDefinitions");
-			request.put(GraphEngineParams.input_stream.name(), objectType);
-			Future<Object> response = Patterns.ask(reqRouter, request, timeout);
-
-			Object obj = Await.result(response, t.duration());
-
-			resp = (Response) obj;
-			if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
-				System.out.println(resp.getParams().getErr() + " :: " + resp.getParams().getErrmsg());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return resp;
-	}
-
-	private static Map<String, String> loadAllDefinitions(File folder) {
-		for (File fileEntry : folder.listFiles()) {
-			if (fileEntry.isDirectory()) {
-				loadAllDefinitions(fileEntry);
-			} else {
-				String definition;
-				try {
-					definition = FileUtils.readFileToString(fileEntry);
-					Response resp = createDefinition(Platform.config.getString(TestParams.graphId.name()), definition);
-					definitions.put(fileEntry.getName(), resp.getResponseCode().toString());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return definitions;
 	}
 
 	/**
@@ -165,11 +93,10 @@ public class TermV3ControllerTest extends TestSetup {
 			String path = base_category_path + "/create?category=" + categoryId;
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
-			MockHttpServletResponse  response = actions.andReturn().getResponse();
+			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
-			Response resp = mapper.readValue(response.getContentAsString(),
-					new TypeReference<Response>() {
-					});
+			Response resp = mapper.readValue(response.getContentAsString(), new TypeReference<Response>() {
+			});
 			termId = (String) resp.getResult().get("node_id");
 			System.out.println("TERM ID : " + termId);
 		} catch (Exception e) {

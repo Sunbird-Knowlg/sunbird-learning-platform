@@ -40,7 +40,7 @@ import com.ilimi.framework.test.common.TestSetup;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class FrameworkV3ControllerMockTest extends TestSetup {
+public class FrameworkV3ControllerTest extends TestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
