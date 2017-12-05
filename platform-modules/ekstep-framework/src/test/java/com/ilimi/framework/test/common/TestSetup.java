@@ -54,7 +54,6 @@ public class TestSetup {
 	public static void afterTest() throws Exception {
 		DriverUtil.closeDrivers();
 		tearEmbeddedNeo4JSetup();
-		Thread.sleep(10000);
 	}
 
 	@BeforeClass
@@ -86,7 +85,7 @@ public class TestSetup {
 	private static void tearEmbeddedNeo4JSetup() throws Exception {
 		if (null != graphDb)
 			graphDb.shutdown();
-		Thread.sleep(5000);
+		Thread.sleep(2000);
 		deleteEmbeddedNeo4j(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)));
 	}
 
