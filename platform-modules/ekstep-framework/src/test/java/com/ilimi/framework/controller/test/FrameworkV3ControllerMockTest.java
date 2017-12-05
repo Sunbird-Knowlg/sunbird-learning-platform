@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.framework.mgr.impl.CategoryInstanceManagerImpl;
+import com.ilimi.framework.mgr.impl.ChannelManagerImpl;
 import com.ilimi.framework.mgr.impl.FrameworkManagerImpl;
 import com.ilimi.framework.test.common.TestSetup;
 
@@ -51,12 +52,16 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String frameworkId;
 	private static String categoryInstanceId;
+	private static String channelId;
 	private static CategoryInstanceManagerImpl categoryInstManager = new CategoryInstanceManagerImpl();
+	private static ChannelManagerImpl channelManager = new ChannelManagerImpl();
 	private static FrameworkManagerImpl frameworkManager = new FrameworkManagerImpl();
 
 	private static final String createFrameworkReq = "{\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\",\"owner\": \"channelKA\"}";
 
 	private static final String createCategoryInstanceReq = "{\"name\":\"category\",\"description\":\"\",\"code\":\"medium\"}";
+	
+	private static final String createChannelReq = "{\"name\":\"channel\",\"description\":\"\",\"code\":\"channel\",\"identifier\":\"channelKA\"}";
 
 	private static final String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\",\"owner\": \"channelKA\"}}}";
 
@@ -73,6 +78,7 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 
 	@BeforeClass
 	public static void setup() {
+		createChannel();
 		createFramework();
 		createCategoryInstance();
 	}
@@ -88,7 +94,7 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 			Map<String, Object> requestMap = mapper.readValue(createFrameworkReq,
 					new TypeReference<Map<String, Object>>() {
 					});
-
+			requestMap.put("owner", channelId);
 			Response resp = frameworkManager.createFramework(requestMap);
 			frameworkId = (String) resp.getResult().get("node_id");
 		} catch (Exception e) {
@@ -109,6 +115,21 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 			System.out.println("Category Instance: " + categoryInstanceId);
 		} catch (Exception e) {
 			System.out.println("Exception Occured while creating Category Instance :" + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	private static void createChannel() {
+		try {
+			Map<String, Object> requestMap = mapper.readValue(createChannelReq,
+					new TypeReference<Map<String, Object>>() {
+					});
+
+			Response resp = channelManager.createChannel(requestMap);
+			channelId = (String) resp.getResult().get("node_id");
+			System.out.println("Channel Id: " + channelId);
+		} catch (Exception e) {
+			System.out.println("Exception Occured while creating Channel :" + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -450,4 +471,21 @@ public class FrameworkV3ControllerMockTest extends TestSetup {
 	}
 
 	// Framework Retire API -- End
+	
+	
+	/*
+	 * Scenario 19 : Create Framework with Valid Url, Valid Request Body & Invalid Channel ID.
+	 * 
+	 * Given: Valid url and valid request body and invalid channel id
+	 * When: Framework Create API hits. 
+	 * Then: 400, Invalid Channel Id. Channel doesn't exist.
+	 * 
+	 */
+	@Test
+	public void mockTestFramework_19() throws Exception {
+		String path = basePath + "/create";
+		actions = mockMvc.perform(
+				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "test").content(createFrameworkValidJson));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
 }
