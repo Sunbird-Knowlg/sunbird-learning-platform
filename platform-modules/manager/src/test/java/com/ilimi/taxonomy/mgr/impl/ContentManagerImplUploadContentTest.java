@@ -1,32 +1,26 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.TestParams;
-import com.ilimi.taxonomy.content.common.TestSetup;
 import com.ilimi.taxonomy.content.common.TestSetupUtil;
-import com.ilimi.taxonomy.mgr.IContentManager;
 
 
 /**

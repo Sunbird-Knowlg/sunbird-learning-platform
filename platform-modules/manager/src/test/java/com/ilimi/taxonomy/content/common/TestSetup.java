@@ -14,6 +14,8 @@ import org.apache.thrift.transport.TTransportException;
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Response;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -24,8 +26,6 @@ import org.neo4j.graphdb.TransactionTerminatedException;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
-import com.ilimi.common.Platform;
-import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 

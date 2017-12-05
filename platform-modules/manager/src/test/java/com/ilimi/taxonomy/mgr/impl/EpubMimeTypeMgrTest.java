@@ -1,14 +1,15 @@
 package com.ilimi.taxonomy.mgr.impl;
 
-import java.io.File;
-
 import static org.junit.Assert.assertEquals;
-import java.io.IOException;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,12 +17,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import com.fasterxml.jackson.core.JsonParseException;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.taxonomy.content.common.TestSetup;

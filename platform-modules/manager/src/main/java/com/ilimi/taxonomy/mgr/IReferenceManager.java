@@ -2,7 +2,7 @@ package com.ilimi.taxonomy.mgr;
 
 import java.io.File;
 
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Response;
 
 public interface IReferenceManager {
 

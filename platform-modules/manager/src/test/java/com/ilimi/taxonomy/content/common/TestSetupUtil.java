@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Response;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -15,8 +18,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransactionTerminatedException;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import com.ilimi.common.Platform;
-import com.ilimi.common.dto.Response;
+
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 /**

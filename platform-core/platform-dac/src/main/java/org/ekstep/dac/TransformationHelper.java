@@ -1,8 +1,8 @@
 package org.ekstep.dac;
 
+import org.ekstep.common.logger.PlatformLogger;
 import org.modelmapper.ModelMapper;
 
-import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * Helper to wrap commonly used utility functions in model mapping and

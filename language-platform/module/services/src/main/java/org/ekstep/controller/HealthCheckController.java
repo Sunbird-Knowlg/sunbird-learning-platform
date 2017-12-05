@@ -1,5 +1,9 @@
 package org.ekstep.controller;
 
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ResponseCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,10 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.CoverageIgnore;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.mgr.HealthCheckManager;
 @CoverageIgnore
 @Controller

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -16,7 +17,6 @@ import org.junit.rules.ExpectedException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.content.common.BaseTestUtil;
 import com.ilimi.taxonomy.content.common.TestParams;
 import com.ilimi.taxonomy.content.common.TestSetup;

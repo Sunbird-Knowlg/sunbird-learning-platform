@@ -3,8 +3,8 @@ package com.ilimi.taxonomy.mgr;
 import java.io.InputStream;
 import java.util.List;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 
 public interface ITaxonomyManager {
 

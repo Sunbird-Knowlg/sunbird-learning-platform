@@ -4,8 +4,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+
 import com.ilimi.taxonomy.mgr.impl.ContentManagerImpl;
 
 /**

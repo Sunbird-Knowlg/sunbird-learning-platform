@@ -2,8 +2,8 @@ package org.ekstep.dac.impl;
 
 import java.io.IOException;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 
 /**
  * The Interface IAuditHistoryDataService defines the Audit Logs operations that

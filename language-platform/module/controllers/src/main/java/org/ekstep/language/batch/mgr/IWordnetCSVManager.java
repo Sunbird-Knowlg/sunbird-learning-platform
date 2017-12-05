@@ -1,6 +1,6 @@
 package org.ekstep.language.batch.mgr;
 
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Response;
 
 /**
  * Interface IWordnetCSVManager defines tasks to be implemented to import words and Synsets data into the Graph.

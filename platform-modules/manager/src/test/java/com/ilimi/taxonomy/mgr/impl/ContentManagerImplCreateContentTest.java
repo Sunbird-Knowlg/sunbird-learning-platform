@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.junit.AfterClass;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 @Ignore

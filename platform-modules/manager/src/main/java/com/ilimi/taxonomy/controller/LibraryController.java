@@ -3,6 +3,7 @@ package com.ilimi.taxonomy.controller;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
+import org.ekstep.common.dto.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.controller.BaseController;
-import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 

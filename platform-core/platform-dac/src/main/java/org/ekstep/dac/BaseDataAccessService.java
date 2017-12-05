@@ -7,9 +7,9 @@
  */
 package org.ekstep.dac;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.dto.ResponseParams.StatusType;
 
 /**
  * Base class for DAC services. Provides the implementation of commonly used

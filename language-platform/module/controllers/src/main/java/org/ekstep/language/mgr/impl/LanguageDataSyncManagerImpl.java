@@ -3,12 +3,12 @@ package org.ekstep.language.mgr.impl;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
 import org.ekstep.language.mgr.ICompositeSearchManager;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.CompositeIndexSyncManager;
 
 @Component

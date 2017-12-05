@@ -11,13 +11,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.cassandra.connector.util.CassandraConnector;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.ilimi.cassandra.connector.util.CassandraConnector;
 import com.ilimi.common.Platform;
 import com.ilimi.common.enums.CompositeSearchParams;
 import com.ilimi.common.exception.ClientException;
