@@ -9,18 +9,19 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 
-import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
+
 
 // TODO: Auto-generated Javadoc
 /**
@@ -41,7 +42,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
@@ -120,7 +121,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
 	 * .Node)
 	 */
 	@Override

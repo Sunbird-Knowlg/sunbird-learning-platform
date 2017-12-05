@@ -15,14 +15,14 @@ import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.model.node.DefinitionDTO;
 
 /**
  * The Class OptimizerUtil functionality to optimiseImage operation for different resolutions.

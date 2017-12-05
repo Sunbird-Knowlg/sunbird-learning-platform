@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
+import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 
 /**
  * The Class WordnetUtil contains a collection utility methods used by Language service.

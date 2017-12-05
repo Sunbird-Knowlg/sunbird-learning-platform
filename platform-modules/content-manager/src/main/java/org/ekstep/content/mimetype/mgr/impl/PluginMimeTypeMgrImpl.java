@@ -8,6 +8,12 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -15,18 +21,12 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.content.validator.ContentValidator;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
 
 /**
  * The Class PluginMimeTypeMgrImpl.
@@ -34,7 +34,7 @@ import com.ilimi.graph.dac.model.Node;
 public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager{
 	
 	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File)
+	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.Node, java.io.File)
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
@@ -109,7 +109,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	}
 
 	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model.Node)
+	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model.Node)
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {

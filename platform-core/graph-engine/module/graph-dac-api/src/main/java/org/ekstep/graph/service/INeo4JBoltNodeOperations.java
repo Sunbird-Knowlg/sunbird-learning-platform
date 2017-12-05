@@ -6,9 +6,8 @@ package org.ekstep.graph.service;
 import java.util.List;
 import java.util.Map;
 
-import com.ilimi.common.dto.Property;
-import com.ilimi.common.dto.Request;
-import com.ilimi.graph.dac.model.Node;
+import org.ekstep.common.dto.Property;
+import org.ekstep.common.dto.Request;
 
 /**
  * @author pradyumna
@@ -16,13 +15,13 @@ import com.ilimi.graph.dac.model.Node;
  */
 public interface INeo4JBoltNodeOperations {
 
-	com.ilimi.graph.dac.model.Node upsertNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request);
+	org.ekstep.graph.dac.model.Node upsertNode(String graphId, org.ekstep.graph.dac.model.Node node, Request request);
 
-	com.ilimi.graph.dac.model.Node addNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request);
+	org.ekstep.graph.dac.model.Node addNode(String graphId, org.ekstep.graph.dac.model.Node node, Request request);
 
-	com.ilimi.graph.dac.model.Node updateNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request);
+	org.ekstep.graph.dac.model.Node updateNode(String graphId, org.ekstep.graph.dac.model.Node node, Request request);
 
-	void importNodes(String graphId, List<com.ilimi.graph.dac.model.Node> nodes, Request request);
+	void importNodes(String graphId, List<org.ekstep.graph.dac.model.Node> nodes, Request request);
 
 	void updatePropertyValue(String graphId, String nodeId, Property property, Request request);
 
@@ -34,6 +33,6 @@ public interface INeo4JBoltNodeOperations {
 
 	void deleteNode(String graphId, String nodeId, Request request);
 
-	com.ilimi.graph.dac.model.Node upsertRootNode(String graphId, Request request);
+	org.ekstep.graph.dac.model.Node upsertRootNode(String graphId, Request request);
 
 }

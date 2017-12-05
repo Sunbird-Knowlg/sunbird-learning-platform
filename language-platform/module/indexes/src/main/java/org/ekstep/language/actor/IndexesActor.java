@@ -58,7 +58,7 @@ public class IndexesActor extends LanguageBaseActor {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -769,7 +769,7 @@ public class IndexesActor extends LanguageBaseActor {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
 	 * .dto.Request, akka.actor.ActorRef)
 	 */
 	@Override

@@ -1,6 +1,7 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import com.ilimi.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Node;
+
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;

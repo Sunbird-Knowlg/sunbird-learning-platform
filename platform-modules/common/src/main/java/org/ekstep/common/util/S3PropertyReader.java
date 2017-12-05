@@ -2,7 +2,8 @@ package org.ekstep.common.util;
 
 import java.util.Map;
 import java.util.Properties;
-import com.ilimi.common.Platform;
+
+import org.ekstep.common.Platform;
 
 public class S3PropertyReader {
 	private static Properties prop = new Properties();

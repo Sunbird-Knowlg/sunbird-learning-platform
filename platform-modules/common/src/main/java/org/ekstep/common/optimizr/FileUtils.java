@@ -17,7 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.logger.PlatformLogger;
 
 /**
  *

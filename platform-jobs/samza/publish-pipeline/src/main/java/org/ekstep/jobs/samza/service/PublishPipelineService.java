@@ -19,6 +19,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.PublishWebHookInvoker;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -28,7 +29,6 @@ import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.graph.dac.model.Node;
 
 public class PublishPipelineService implements ISamzaService {
 

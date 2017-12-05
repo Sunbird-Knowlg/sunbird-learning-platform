@@ -5,10 +5,9 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
 import org.imgscalr.Scalr;
-
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * Utility class to generate thumbnails from a given image. Provides overloaded

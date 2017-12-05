@@ -5,12 +5,11 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
-
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.model.MetadataCriterion;
-import com.ilimi.graph.dac.model.RelationCriterion;
-import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.model.Sort;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.model.MetadataCriterion;
+import org.ekstep.graph.dac.model.RelationCriterion;
+import org.ekstep.graph.dac.model.SearchCriteria;
+import org.ekstep.graph.dac.model.Sort;
 
 public abstract class AbstractSearchCriteria {
 

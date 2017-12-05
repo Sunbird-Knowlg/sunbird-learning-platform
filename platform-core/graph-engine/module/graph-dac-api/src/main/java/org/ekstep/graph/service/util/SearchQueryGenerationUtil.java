@@ -3,16 +3,15 @@ package org.ekstep.graph.service.util;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Property;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.SystemProperties;
+import org.ekstep.graph.dac.model.SearchCriteria;
+import org.ekstep.graph.dac.model.Traverser;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.neo4j.driver.v1.exceptions.ClientException;
-
-import com.ilimi.common.dto.Property;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.model.Traverser;
 
 public class SearchQueryGenerationUtil {
 

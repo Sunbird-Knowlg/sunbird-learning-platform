@@ -3,8 +3,9 @@ package org.ekstep.language.mgr;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.graph.dac.model.Node;
+
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.dac.model.Node;
 
 public interface IWordChainsManager {
 

@@ -3,7 +3,7 @@ package com.ilimi.common.dto;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.ilimi.graph.dac.enums.SystemProperties;
+import org.ekstep.graph.dac.enums.SystemProperties;
 
 public class NodeDTO implements Serializable {
 

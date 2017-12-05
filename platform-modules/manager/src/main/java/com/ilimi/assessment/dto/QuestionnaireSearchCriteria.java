@@ -1,7 +1,8 @@
 package com.ilimi.assessment.dto;
 
+import org.ekstep.graph.dac.model.SearchCriteria;
+
 import com.ilimi.common.dto.AbstractSearchCriteria;
-import com.ilimi.graph.dac.model.SearchCriteria;
 
 public class QuestionnaireSearchCriteria extends AbstractSearchCriteria {
 

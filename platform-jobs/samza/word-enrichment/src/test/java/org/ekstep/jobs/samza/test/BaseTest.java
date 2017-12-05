@@ -10,6 +10,14 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.graph.common.enums.GraphEngineParams;
+import org.ekstep.graph.common.enums.GraphHeaderParams;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.enums.ImportType;
+import org.ekstep.graph.importer.InputStreamValue;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.ControllerUtil;
 import org.junit.Assert;
@@ -22,14 +30,6 @@ import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.common.enums.GraphEngineParams;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.graph.enums.ImportType;
-import com.ilimi.graph.importer.InputStreamValue;
 
 
 abstract public class BaseTest {
@@ -152,10 +152,10 @@ abstract public class BaseTest {
 	
 	protected static String createWord(String lemma, String graphId) throws Exception{
 		String synsetRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Synset\",\"metadata\":{\"gloss\":\""+lemma+"\",\"category\":\"Place\"}}";
-		Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
+		Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("org.ekstep.graph.dac.model.Node"));		
 		String synsetId = createNode(synsetNodeObj, graphId);
 		String wordRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Word\",\"metadata\":{\"lemma\":\""+lemma+"\",\"primaryMeaningId\":\""+synsetId+"\"}}";
-		Object wordNodeObj = mapper.readValue(wordRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
+		Object wordNodeObj = mapper.readValue(wordRequest, Class.forName("org.ekstep.graph.dac.model.Node"));		
 		String wordId = createNode(wordNodeObj, graphId);
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata.put(LanguageParams.isPrimary.name(), true);

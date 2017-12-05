@@ -6,14 +6,14 @@ package org.ekstep.graph.service;
 import java.util.List;
 import java.util.Map;
 
-import com.ilimi.common.dto.Property;
-import com.ilimi.common.dto.Request;
-import com.ilimi.graph.dac.model.Graph;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.model.SubGraph;
-import com.ilimi.graph.dac.model.Traverser;
+import org.ekstep.common.dto.Property;
+import org.ekstep.common.dto.Request;
+import org.ekstep.graph.dac.model.Graph;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.dac.model.SearchCriteria;
+import org.ekstep.graph.dac.model.SubGraph;
+import org.ekstep.graph.dac.model.Traverser;
 
 /**
  * @author pradyumna

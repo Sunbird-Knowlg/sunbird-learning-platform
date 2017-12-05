@@ -8,13 +8,13 @@ import java.util.Map;
 
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.validator.ContentValidator;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.engine.mgr.impl.NodeManagerImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
 
 public class ContentValidatorTest {
 	

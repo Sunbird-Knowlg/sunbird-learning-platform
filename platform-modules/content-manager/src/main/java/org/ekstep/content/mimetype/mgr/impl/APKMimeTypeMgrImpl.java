@@ -5,15 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
 
 /**
  * The Class APKMimeTypeMgrImpl is a implementation of IMimeTypeManager for
@@ -34,7 +34,7 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
@@ -58,7 +58,7 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
 	 * .Node)
 	 */
 	@Override

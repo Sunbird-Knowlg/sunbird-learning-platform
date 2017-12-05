@@ -6,6 +6,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Property;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.ekstep.graph.common.DateUtils;
+import org.ekstep.graph.common.Identifier;
+import org.ekstep.graph.dac.enums.AuditProperties;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.enums.SystemProperties;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.INeo4JBoltNodeOperations;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
@@ -22,23 +38,6 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Value;
 
-import com.ilimi.common.dto.Property;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResourceNotFoundException;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
-import com.ilimi.graph.cache.util.RedisStoreUtil;
-import com.ilimi.graph.common.DateUtils;
-import com.ilimi.graph.common.Identifier;
-import com.ilimi.graph.dac.enums.AuditProperties;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.Node;
-
 public class Neo4JBoltNodeOperations implements INeo4JBoltNodeOperations {
 
 	private final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
@@ -46,7 +45,7 @@ public class Neo4JBoltNodeOperations implements INeo4JBoltNodeOperations {
 	private Neo4JBoltAuthorizationValidator authorizationValidator = new Neo4JBoltAuthorizationValidator();
 
 	@SuppressWarnings("unchecked")
-	public com.ilimi.graph.dac.model.Node upsertNode(String graphId, com.ilimi.graph.dac.model.Node node,
+	public org.ekstep.graph.dac.model.Node upsertNode(String graphId, org.ekstep.graph.dac.model.Node node,
 			Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Graph Engine Node: ", node);
@@ -117,7 +116,7 @@ public class Neo4JBoltNodeOperations implements INeo4JBoltNodeOperations {
 	}
 
 	@SuppressWarnings("unchecked")
-	public com.ilimi.graph.dac.model.Node addNode(String graphId, com.ilimi.graph.dac.model.Node node,
+	public org.ekstep.graph.dac.model.Node addNode(String graphId, org.ekstep.graph.dac.model.Node node,
 			Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Graph Engine Node: ", node);
@@ -190,7 +189,7 @@ public class Neo4JBoltNodeOperations implements INeo4JBoltNodeOperations {
 	}
 
 	@SuppressWarnings("unchecked")
-	public com.ilimi.graph.dac.model.Node updateNode(String graphId, com.ilimi.graph.dac.model.Node node,
+	public org.ekstep.graph.dac.model.Node updateNode(String graphId, org.ekstep.graph.dac.model.Node node,
 			Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Graph Engine Node: ", node);
@@ -266,7 +265,7 @@ public class Neo4JBoltNodeOperations implements INeo4JBoltNodeOperations {
 		return node;
 	}
 
-	public void importNodes(String graphId, List<com.ilimi.graph.dac.model.Node> nodes, Request request) {
+	public void importNodes(String graphId, List<org.ekstep.graph.dac.model.Node> nodes, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Graph Engine Node List: ", nodes);
 
@@ -276,7 +275,7 @@ public class Neo4JBoltNodeOperations implements INeo4JBoltNodeOperations {
 		if (null == nodes || nodes.size() <= 0)
 			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 					DACErrorMessageConstants.INVALID_NODE_LIST + " | [Import Nodes Operation Failed.]");
-		for (com.ilimi.graph.dac.model.Node node : nodes) {
+		for (org.ekstep.graph.dac.model.Node node : nodes) {
 			if (null == node.getMetadata())
 				node.setMetadata(new HashMap<String, Object>());
 			node.getMetadata().put(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
@@ -469,7 +468,7 @@ public class Neo4JBoltNodeOperations implements INeo4JBoltNodeOperations {
 		}
 	}
 
-	public com.ilimi.graph.dac.model.Node upsertRootNode(String graphId, Request request) {
+	public org.ekstep.graph.dac.model.Node upsertRootNode(String graphId, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 
 		if (StringUtils.isBlank(graphId))

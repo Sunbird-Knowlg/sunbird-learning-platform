@@ -25,6 +25,7 @@ import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ExtractionType;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
@@ -32,7 +33,6 @@ import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
 
 /**
  * The Class ContentPackageExtractionUtil.

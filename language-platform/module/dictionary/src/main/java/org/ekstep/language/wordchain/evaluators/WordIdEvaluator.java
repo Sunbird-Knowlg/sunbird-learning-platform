@@ -3,13 +3,12 @@ package org.ekstep.language.wordchain.evaluators;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.Evaluator;
-
-import com.ilimi.graph.dac.enums.SystemProperties;
 
 public class WordIdEvaluator implements Evaluator {
 

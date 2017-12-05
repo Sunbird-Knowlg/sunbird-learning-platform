@@ -1,9 +1,11 @@
 package com.ilimi.assessment.mgr;
 
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+
 import com.ilimi.assessment.enums.AssessmentAPIParams;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.graph.dac.enums.GraphDACParams;
+
 
 /**
  * AssessmentManager provides Service API to Manage Assessment data - Assessment
@@ -87,7 +89,7 @@ public interface IAssessmentManager {
      * generated. The identifier of the saved AssessmentItem is returned in
      * response.
      * 
-     * @see com.ilimi.graph.model.collection.Set
+     * @see org.ekstep.graph.model.collection.Set
      * 
      * @request {@link AssessmentAPIParams}.item_set Set -
      *          mandatory

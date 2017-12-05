@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 
 import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 
 public class ItemDTO extends Node {
 

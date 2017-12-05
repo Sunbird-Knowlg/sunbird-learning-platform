@@ -7,6 +7,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
+import org.ekstep.graph.common.Identifier;
+import org.ekstep.graph.common.enums.GraphEngineParams;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.enums.SystemProperties;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.importer.ImportData;
 import org.ekstep.graph.service.INeo4JBoltGraphOperations;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
@@ -20,19 +32,6 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.exceptions.ClientException;
-
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
-import com.ilimi.graph.common.Identifier;
-import com.ilimi.graph.common.enums.GraphEngineParams;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.importer.ImportData;
 
 public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 
@@ -654,7 +653,7 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 	 * @param request
 	 *            the request
 	 */
-	public void createCollection(String graphId, String collectionId, com.ilimi.graph.dac.model.Node collection,
+	public void createCollection(String graphId, String collectionId, org.ekstep.graph.dac.model.Node collection,
 			String relationType, List<String> members, String indexProperty, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Collection Node Id: ", collectionId);
@@ -744,9 +743,9 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		try (Session session = driver.session()) {
 			try (org.neo4j.driver.v1.Transaction tx = session.beginTransaction()) {
-				Map<String, com.ilimi.graph.dac.model.Node> existingNodes = new HashMap<String, com.ilimi.graph.dac.model.Node>();
+				Map<String, org.ekstep.graph.dac.model.Node> existingNodes = new HashMap<String, org.ekstep.graph.dac.model.Node>();
 				Map<String, Map<String, List<Relation>>> existingRelations = new HashMap<String, Map<String, List<Relation>>>();
-				List<com.ilimi.graph.dac.model.Node> importedNodes = new ArrayList<com.ilimi.graph.dac.model.Node>(
+				List<org.ekstep.graph.dac.model.Node> importedNodes = new ArrayList<org.ekstep.graph.dac.model.Node>(
 						input.getDataNodes());
 				int nodesCount = createNodes(graphId, request, existingNodes, existingRelations, importedNodes);
 				int relationsCount = createRelations(graphId, request, existingRelations, existingNodes, importedNodes,
@@ -762,7 +761,7 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 
 	private void updateTaskStatus(String graphId, String taskId, Request request) throws Exception {
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
-		com.ilimi.graph.dac.model.Node taskNode = new com.ilimi.graph.dac.model.Node();
+		org.ekstep.graph.dac.model.Node taskNode = new org.ekstep.graph.dac.model.Node();
 		taskNode.setGraphId(graphId);
 		taskNode.setIdentifier(taskId);
 		taskNode.setMetadata(new HashMap<String, Object>());
@@ -770,17 +769,17 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 		nodeOps.upsertNode(graphId, taskNode, request);
 	}
 
-	private int createNodes(String graphId, Request request, Map<String, com.ilimi.graph.dac.model.Node> existingNodes,
-			Map<String, Map<String, List<Relation>>> existingRelations, List<com.ilimi.graph.dac.model.Node> nodes) {
+	private int createNodes(String graphId, Request request, Map<String, org.ekstep.graph.dac.model.Node> existingNodes,
+			Map<String, Map<String, List<Relation>>> existingRelations, List<org.ekstep.graph.dac.model.Node> nodes) {
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
 		int nodesCount = 0;
-		for (com.ilimi.graph.dac.model.Node node : nodes) {
+		for (org.ekstep.graph.dac.model.Node node : nodes) {
 			if (null == node || StringUtils.isBlank(node.getIdentifier()) || StringUtils.isBlank(node.getNodeType())) {
 				// ERROR(GraphDACErrorCodes.ERR_CREATE_NODE_MISSING_REQ_PARAMS.name(),
 				// "Invalid input node", request, getSender());
 			} else {
-				com.ilimi.graph.dac.model.Node neo4jNode = null;
+				org.ekstep.graph.dac.model.Node neo4jNode = null;
 				if (existingNodes.containsKey(node.getIdentifier())) {
 					neo4jNode = existingNodes.get(node.getIdentifier());
 				} else {
@@ -830,11 +829,11 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 
 	private int createRelations(String graphId, Request request,
 			Map<String, Map<String, List<Relation>>> existingRelations,
-			Map<String, com.ilimi.graph.dac.model.Node> existingNodes, List<com.ilimi.graph.dac.model.Node> nodes,
+			Map<String, org.ekstep.graph.dac.model.Node> existingNodes, List<org.ekstep.graph.dac.model.Node> nodes,
 			Map<String, List<String>> messages) {
 		int relationsCount = 0;
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
-		for (com.ilimi.graph.dac.model.Node node : nodes) {
+		for (org.ekstep.graph.dac.model.Node node : nodes) {
 			List<Relation> nodeRelations = node.getOutRelations();
 			if (nodeRelations != null) {
 				Map<String, List<String>> nodeRelMap = new HashMap<String, List<String>>();
@@ -867,7 +866,7 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 				}
 				// System.out.println("nodeRelMap:"+nodeRelMap);
 				String uniqueId = node.getIdentifier();
-				com.ilimi.graph.dac.model.Node neo4jNode = existingNodes.get(uniqueId);
+				org.ekstep.graph.dac.model.Node neo4jNode = existingNodes.get(uniqueId);
 				if (existingRelations.containsKey(uniqueId)) {
 					Map<String, List<Relation>> relationMap = existingRelations.get(uniqueId);
 					for (String relType : relationMap.keySet()) {
@@ -889,7 +888,7 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 								}
 							}
 							for (String endNodeId : relEndNodeIds) {
-								com.ilimi.graph.dac.model.Node otherNode = existingNodes.get(endNodeId);
+								org.ekstep.graph.dac.model.Node otherNode = existingNodes.get(endNodeId);
 								if (otherNode != null) {
 									Relation relation = relMap.get(endNodeId);
 									request.put(GraphDACParams.metadata.name(), relation.getMetadata());
@@ -942,16 +941,16 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 		return relationsCount;
 	}
 
-	private int createNewRelations(com.ilimi.graph.dac.model.Node neo4jNode, Map<String, List<String>> nodeRelMap,
+	private int createNewRelations(org.ekstep.graph.dac.model.Node neo4jNode, Map<String, List<String>> nodeRelMap,
 			String relType, Map<String, Map<String, Relation>> nodeRelation, String uniqueId,
-			Map<String, com.ilimi.graph.dac.model.Node> existingNodes, Map<String, List<String>> messages,
+			Map<String, org.ekstep.graph.dac.model.Node> existingNodes, Map<String, List<String>> messages,
 			String graphId, Request request) {
 		int relationsCount = 0;
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		List<String> relEndNodeIds = nodeRelMap.get(relType);
 		Map<String, Relation> relMap = nodeRelation.get(relType);
 		for (String endNodeId : relEndNodeIds) {
-			com.ilimi.graph.dac.model.Node otherNode = existingNodes.get(endNodeId);
+			org.ekstep.graph.dac.model.Node otherNode = existingNodes.get(endNodeId);
 			if (null == otherNode) {
 				otherNode = searchOps.getNodeByUniqueId(graphId, endNodeId, true, request);
 				if (null == otherNode) {
@@ -982,9 +981,9 @@ public class Neo4JBoltGraphOperations implements INeo4JBoltGraphOperations {
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
 		String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
-		com.ilimi.graph.dac.model.Node node = searchOps.getNodeByUniqueId(graphId, rootNodeUniqueId, true, request);
+		org.ekstep.graph.dac.model.Node node = searchOps.getNodeByUniqueId(graphId, rootNodeUniqueId, true, request);
 		if (null == node) {
-			node = new com.ilimi.graph.dac.model.Node();
+			node = new org.ekstep.graph.dac.model.Node();
 			node.setGraphId(graphId);
 			node.setIdentifier(rootNodeUniqueId);
 			node.setMetadata(new HashMap<String, Object>());

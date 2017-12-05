@@ -2,9 +2,8 @@ package org.ekstep.graph.service.util;
 
 import java.util.Map;
 
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.service.common.Neo4JOperation;
-
-import com.ilimi.common.logger.PlatformLogger;
 
 public class QueryUtil {
 

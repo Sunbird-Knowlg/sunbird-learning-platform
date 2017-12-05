@@ -8,14 +8,14 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.dac.enums.SystemProperties;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.graph.model.node.RelationDefinition;
 
 import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.model.node.DefinitionDTO;
-import com.ilimi.graph.model.node.RelationDefinition;
 
 public class ConvertToGraphNode {
 	

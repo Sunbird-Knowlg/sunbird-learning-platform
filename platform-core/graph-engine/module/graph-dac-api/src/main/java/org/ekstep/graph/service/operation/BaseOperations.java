@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.ilimi.common.dto.Property;
+import org.ekstep.common.dto.Property;
 
 public class BaseOperations {
 	

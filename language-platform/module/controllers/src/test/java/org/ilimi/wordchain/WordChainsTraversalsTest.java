@@ -1,6 +1,6 @@
 package org.ilimi.wordchain;
 
-import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
+import static org.ekstep.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,6 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.enums.SystemProperties;
+import org.ekstep.graph.dac.model.Filter;
+import org.ekstep.graph.dac.model.MetadataCriterion;
+import org.ekstep.graph.dac.model.SearchConditions;
+import org.ekstep.graph.dac.model.SearchCriteria;
+import org.ekstep.graph.dac.model.Sort;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -29,13 +36,6 @@ import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.graphdb.traversal.Uniqueness;
 
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.Filter;
-import com.ilimi.graph.dac.model.MetadataCriterion;
-import com.ilimi.graph.dac.model.SearchConditions;
-import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.model.Sort;
 
 public class WordChainsTraversalsTest extends BaseManager {
 

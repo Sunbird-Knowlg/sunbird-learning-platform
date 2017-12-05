@@ -13,6 +13,7 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.PublishWebHookInvoker;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
 
@@ -20,7 +21,6 @@ import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
 
 public class PublishTask implements Runnable {
 

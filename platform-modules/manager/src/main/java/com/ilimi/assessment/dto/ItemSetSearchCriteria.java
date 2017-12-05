@@ -1,10 +1,10 @@
 package com.ilimi.assessment.dto;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.model.SearchCriteria;
 
 import com.ilimi.common.dto.AbstractSearchCriteria;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.model.SearchCriteria;
 
 public class ItemSetSearchCriteria extends AbstractSearchCriteria {
 

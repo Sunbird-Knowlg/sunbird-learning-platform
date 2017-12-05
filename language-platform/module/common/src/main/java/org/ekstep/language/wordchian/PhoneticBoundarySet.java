@@ -3,13 +3,13 @@ package org.ekstep.language.wordchian;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 
 // TODO: Auto-generated Javadoc
 /**

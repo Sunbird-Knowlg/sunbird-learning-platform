@@ -10,6 +10,8 @@ import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.jobs.samza.model.Event;
 import org.ekstep.jobs.samza.model.LifecycleEvent;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -20,8 +22,6 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 
 public class ObjectLifecycleService implements ISamzaService {
 	

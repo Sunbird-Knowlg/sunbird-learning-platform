@@ -1,6 +1,7 @@
 package com.ilimi.common.mgr;
 
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Response;
+
 import com.ilimi.common.mgr.impl.AwsUrlUpdateManagerImpl;
 
 /**

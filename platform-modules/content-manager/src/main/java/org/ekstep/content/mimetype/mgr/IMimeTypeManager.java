@@ -5,14 +5,14 @@ package org.ekstep.content.mimetype.mgr;
 
 import java.io.File;
 
+import org.ekstep.common.dto.Response;
 import org.ekstep.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
+import org.ekstep.graph.dac.model.Node;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.graph.dac.model.Node;
 
 /**
  * The Interface IMimeTypeManager provide a way to have different implementation

@@ -3,10 +3,10 @@ package com.ilimi.orchestrator.interpreter.command;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.graph.dac.model.Traverser;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.traversal.Uniqueness;
 
-import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
@@ -57,7 +57,7 @@ public class GetTraverser implements ICommand, Command {
 				}
 				
 				String startNodeId = (String) request.get("startNodeId");
-				com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId, startNodeId);
+				org.ekstep.graph.dac.model.Traverser searchTraverser = new org.ekstep.graph.dac.model.Traverser(graphId, startNodeId);
 				searchTraverser = addRelations(searchTraverser, relationMap);
 				searchTraverser = addUniquenessCriteria(searchTraverser, uniquenessList);
 				searchTraverser = addWordIds(searchTraverser, wordIds);

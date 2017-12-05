@@ -17,6 +17,7 @@ import org.ekstep.content.common.AssetsMimeTypeMap;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.neo4j.io.fs.FileUtils;
 
@@ -25,7 +26,6 @@ import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
 
 /**
  * The Class ContentValidator, mainly used for validating ContentNode and

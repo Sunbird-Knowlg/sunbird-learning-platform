@@ -6,8 +6,8 @@ package org.ekstep.graph.service;
 import java.util.List;
 import java.util.Map;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.graph.importer.ImportData;
+import org.ekstep.common.dto.Request;
+import org.ekstep.graph.importer.ImportData;
 
 /**
  * @author pradyumna
@@ -212,7 +212,7 @@ public interface INeo4JBoltGraphOperations {
 	 * @param request
 	 *            the request
 	 */
-	void createCollection(String graphId, String collectionId, com.ilimi.graph.dac.model.Node collection,
+	void createCollection(String graphId, String collectionId, org.ekstep.graph.dac.model.Node collection,
 			String relationType, List<String> members, String indexProperty, Request request);
 
 	/**

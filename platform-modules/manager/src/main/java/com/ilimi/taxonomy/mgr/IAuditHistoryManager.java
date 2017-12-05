@@ -1,8 +1,9 @@
 package com.ilimi.taxonomy.mgr;
 
 
+import org.ekstep.dac.dto.AuditHistoryRecord;
+
 import com.ilimi.common.dto.Response;
-import com.ilimi.dac.dto.AuditHistoryRecord;
 
 /**
  * The Interface IAuditHistoryManager defines the Audit Logs operations that

@@ -3,6 +3,7 @@ package com.ilimi.taxonomy.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ekstep.graph.dac.enums.RelationTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
 @Controller

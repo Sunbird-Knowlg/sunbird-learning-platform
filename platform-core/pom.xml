@@ -8,6 +8,7 @@
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+	<groupId>org.ekstep</groupId>
 	<artifactId>platform-core</artifactId>
 	<packaging>pom</packaging>
 	<name>Base for all Platform core components</name>

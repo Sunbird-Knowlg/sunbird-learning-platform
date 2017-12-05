@@ -8,20 +8,20 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
-import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.graph.dac.model.Node;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
@@ -100,7 +100,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
 	 * .Node)
 	 */
 	@Override
@@ -140,7 +140,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
@@ -174,7 +174,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#review(com.ilimi.graph.dac.model.
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#review(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
