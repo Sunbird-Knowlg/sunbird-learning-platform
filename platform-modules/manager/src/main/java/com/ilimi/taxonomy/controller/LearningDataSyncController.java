@@ -1,5 +1,6 @@
 package com.ilimi.taxonomy.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,15 +49,20 @@ public class LearningDataSyncController extends BaseController {
 	@RequestMapping(value = "/sync/object/{graphId:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> syncObject(@PathVariable(value = "graphId") String graphId,
-			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.composite-search.sync-object";
-		PlatformLogger.log(apiId + " | Graph : " + graphId , " | Identifier: " + identifiers);
+		PlatformLogger.log(apiId + " | Graph : " + graphId + " | request body: " + map);
 		try {
+			String[] identifiers =null;
+			if (map.get("request") != null && ((Map) map.get("request")).get("identifiers") != null) {
+				List<String> identifiersList = (List<String>) ((Map) map.get("request")).get("identifiers");
+				identifiers = identifiersList.toArray(new String[identifiersList.size()]);
+			}
+
 			Response response = compositeSearchManager.syncObject(graphId, identifiers);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Error: " , apiId, e);
+			PlatformLogger.log("Error: ", apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
