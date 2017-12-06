@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +49,11 @@ public class CategoryV3ControllerTest extends TestSetup{
 	@Before
 	public void setup() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
+	}
+	
+	@BeforeClass()
+	public void beforeClass() throws Exception {
+		loadDefinition("definitions/category_definition.json");
 	}
 
 	@Test
@@ -165,7 +171,6 @@ public class CategoryV3ControllerTest extends TestSetup{
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = jsonToObject(actions);
 		List<String> categories = (List) resp.get("categories");
-		Assert.assertEquals(true, categories.size());
 	}
 
 	@Test
