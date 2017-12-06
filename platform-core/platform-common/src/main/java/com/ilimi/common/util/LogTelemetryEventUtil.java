@@ -25,7 +25,7 @@ public class LogTelemetryEventUtil {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
 	private static String eventId = "BE_JOB_REQUEST";
-	private static int iteration = 0;
+	private static int iteration = 1;
 	
 	public static String logInstructionEvent(Map<String,Object> actor, Map<String,Object> context, Map<String,Object> object, Map<String,Object> edata) {
 		

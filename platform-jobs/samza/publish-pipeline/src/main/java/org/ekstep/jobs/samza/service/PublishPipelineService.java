@@ -141,10 +141,7 @@ public class PublishPipelineService implements ISamzaService {
 			}else {
 				metrics.incFailedCounter();
 				edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
-				edata.put(PublishPipelineParams.iteration.name(), (int)edata.get(PublishPipelineParams.iteration.name())+1);
 				message.put(PublishPipelineParams.edata.name(), edata);
-				if((int)edata.get(PublishPipelineParams.iteration.name())<maxPublishRetry)
-					collector.send(new OutgoingMessageEnvelope(new SystemStream(PublishPipelineParams.kafka.name(), Platform.config.getString("failed_event_topic")), message));
 				LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
 			}
 		}

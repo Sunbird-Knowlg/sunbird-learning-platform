@@ -488,4 +488,21 @@ public class FrameworkV3ControllerTest extends TestSetup {
 				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "test").content(createFrameworkValidJson));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
+	
+	/*
+	 * Scenario 20 : Create Framework with Valid Url, Valid Request Body & Invalid Code.
+	 * 
+	 * Given: Valid url and valid request body and Invalid Code
+	 * When: Framework Create API hits. 
+	 * Then: 400, Unique code is mandatory for framework
+	 * 
+	 */
+	@Test
+	public void mockTestFramework_20() throws Exception{
+		String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"owner\": \"channelKA\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(
+				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "test").content(createFrameworkValidJson));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
 }

@@ -61,11 +61,12 @@ public class PublishTask implements Runnable {
 		PlatformLogger.log("Publish processing start for content", node.getIdentifier(), LoggerEnum.INFO.name());
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"), COLLECTION_CONTENT_MIMETYPE)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
-			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
-			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
 			if (!nodes.isEmpty()) {
 				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), getCompatabilityLevel(nodes));
 			}
+			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
+			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
+			
 		}
 		publishNode(node, (String) node.getMetadata().get("mimeType"));
 		PlatformLogger.log("Publish processing done for content", node.getIdentifier(), LoggerEnum.INFO.name());
@@ -309,6 +310,7 @@ public class PublishTask implements Runnable {
 	public Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
 		return dedup(nodes)
 				.stream()
+				.filter(node -> !StringUtils.equalsIgnoreCase(node.getVisibility(), "Default"))
 				.filter(node -> StringUtils.equalsIgnoreCase(node.getMimeType(), "application/vnd.ekstep.content-collection")
 						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft"))
 				.filter(node -> StringUtils.equalsIgnoreCase(node.getVisibility(), "parent")).sorted(new Comparator<NodeDTO>() {

@@ -50,68 +50,58 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator)
-			throws Exception {
+	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
 		long jobStartTime = 0;
-		preProcess(message, collector, jobStartTime);
-		process(message, collector, coordinator);
-		postProcess(message, collector, jobStartTime);
+		int maxIterationCount = MAXITERTIONCOUNT;
+		if(StringUtils.isNotEmpty(Platform.config.getString("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"))) 
+			maxIterationCount = Integer.valueOf(Platform.config.getString("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"));
+		
+		if(StringUtils.equalsIgnoreCase(this.eventId, (String)message.get(SamzaCommonParams.eid.name()))) {
+			String requestedJobType = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name());
+			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
+				int iterationCount = (int)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.iteration.name());
+				preProcess(message, collector, jobStartTime, maxIterationCount, iterationCount);
+				process(message, collector, coordinator);
+				postProcess(message, collector, jobStartTime, maxIterationCount, iterationCount);
+			}
+		}
 	}
 
-	public abstract void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator)
-			throws Exception;
+	public abstract void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception;
 
-	@SuppressWarnings("unchecked")
-	public void preProcess(Map<String, Object> message, MessageCollector collector, long jobStartTime) {
+	public void preProcess(Map<String, Object> message, MessageCollector collector, long jobStartTime, int maxIterationCount, int iterationCount) {
 		if (isInvalidMessage(message)) {
 			String event = generateEvent(LoggerEnum.ERROR.name(), "Samza job de-serialization error", message);
 			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("backend_telemetry_topic")), event));
 		}
-		
-		// check for valid instruction to process. action=publish, max retries less than iteration value.
-		// generate job start event
-		if(StringUtils.equalsIgnoreCase(this.eventId, (String)message.get(SamzaCommonParams.eid.name()))) {
-			String requestedJobType = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name());
-			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
-				try {
-					int iterationCount = (int)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.iteration.name());
-					if(iterationCount == 0) {
-						Map<String, Object> jobStartEvent = getJobEvent("JOBSTARTEVENT", message);
-						jobStartTime = (long)jobStartEvent.get(SamzaCommonParams.ets.name());
-						pushEvent(jobStartEvent, collector, this.config.get("backend_telemetry_topic"));
-					}
-				}catch (Exception e) {
-					e.printStackTrace();
-				}
+		try {
+			if(iterationCount <= maxIterationCount) {
+				Map<String, Object> jobStartEvent = getJobEvent("JOBSTARTEVENT", message);
+				jobStartTime = (long)jobStartEvent.get(SamzaCommonParams.ets.name());
+				pushEvent(jobStartEvent, collector, this.config.get("backend_telemetry_topic"));
 			}
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
 	
 	@SuppressWarnings("unchecked")
-	public void postProcess(Map<String, Object> message, MessageCollector collector, long jobStartTime) throws Exception {
-		// check status of the processed event.
-		// generate job end event with execution stats.
-		if(StringUtils.equalsIgnoreCase(this.eventId, (String)message.get(SamzaCommonParams.eid.name()))) {
-			String requestedJobType = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name());
-			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
-				String eventExecutionStatus = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.status.name());
-				int iterationCount = (int)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.iteration.name());
-				int maxIterationCount = 0;
-				if(StringUtils.isNotEmpty(Platform.config.getString("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"))) {
-					maxIterationCount = Integer.valueOf(Platform.config.getString("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"));
-				}else {
-					maxIterationCount = MAXITERTIONCOUNT;
-				}
-				if(StringUtils.equalsIgnoreCase(eventExecutionStatus, SamzaCommonParams.SUCCESS.name()) || 
-						(StringUtils.equalsIgnoreCase(eventExecutionStatus, SamzaCommonParams.FAILED.name()) && 
-								(iterationCount == maxIterationCount))) {
-					Map<String, Object> jobEndEvent = getJobEvent("JOBENDEVENT", message);
-					addExecutionTime(jobEndEvent, jobStartTime); //Call to add execution time
-					pushEvent(jobEndEvent, collector, this.config.get("backend_telemetry_topic"));
-				}
+	public void postProcess(Map<String, Object> message, MessageCollector collector, long jobStartTime, int maxIterationCount, int iterationCount) throws Exception {
+		try {
+			if(iterationCount <= maxIterationCount) {
+				Map<String, Object> jobEndEvent = getJobEvent("JOBENDEVENT", message);
+				addExecutionTime(jobEndEvent, jobStartTime); //Call to add execution time
+				pushEvent(jobEndEvent, collector, this.config.get("backend_telemetry_topic"));
 			}
+			String eventExecutionStatus = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.status.name());
+			if(StringUtils.equalsIgnoreCase(eventExecutionStatus, SamzaCommonParams.FAILED.name()) && iterationCount < maxIterationCount) {
+				((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).put(SamzaCommonParams.iteration.name(), iterationCount+1);
+				collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("failed_event_topic")), message));
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
