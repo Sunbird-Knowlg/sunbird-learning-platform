@@ -4,14 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.graph.service.common.DACErrorCodeConstants;
-import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.exceptions.ClientException;
 
 public class DriverUtil {
 
@@ -20,7 +18,8 @@ public class DriverUtil {
 	
 	public static Driver getDriver(String graphId, GraphOperation graphOperation) {
 		PlatformLogger.log("Get Driver for Graph Id: ", graphId);
-		String driverKey = graphId + DACConfigurationConstants.DEFAULT_GRAPH_ID_AND_GRAPH_OPERATION_SEPARATOR + StringUtils.lowerCase(graphOperation.name());
+		String driverKey = graphId + DACConfigurationConstants.UNDERSCORE
+				+ StringUtils.lowerCase(graphOperation.name());
 		PlatformLogger.log("Driver Configuration Key: " + driverKey);
 		
 		Driver driver = driverMap.get(driverKey);
@@ -33,12 +32,10 @@ public class DriverUtil {
 
 	public static Driver loadDriver(String graphId, GraphOperation graphOperation) {
 		PlatformLogger.log("Loading driver for Graph Id: ", graphId);
-		String driverType = DACConfigurationConstants.NEO4J_SERVER_DRIVER_TYPE;
-		if (StringUtils.isBlank(driverType))
-			throw new ClientException(DACErrorCodeConstants.INVALID_DRIVER.name(),
-					DACErrorMessageConstants.INVALID_DRIVER_TYPE + " | [Driver Initialization Failed.]");
-		PlatformLogger.log("Driver Type: " + driverType);
-		
+		String driverType = Platform.config.hasPath("neo4j.driver.type")
+				? Platform.config.getString("neo4j.driver.type")
+				: DACConfigurationConstants.NEO4J_SERVER_DRIVER_TYPE;
+
 		Driver driver = null;
 		switch (driverType) {
 		case "simple":

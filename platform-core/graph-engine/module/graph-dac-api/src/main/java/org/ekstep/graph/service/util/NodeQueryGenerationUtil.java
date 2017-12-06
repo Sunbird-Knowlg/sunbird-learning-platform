@@ -21,11 +21,9 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateNodeCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -37,7 +35,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_NODE + " | [Create Node Query Generation Failed.]");
 
 			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
 
 			Map<String, Object> queryMap = new HashMap<String, Object>();
 			Map<String, Object> templateQueryMap = new HashMap<String, Object>();
@@ -86,7 +83,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			Node node = (Node) parameterMap.get(GraphDACParams.node.name());
 			if (null == node)
 				throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
@@ -95,7 +91,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
 			
 			Map<String, Object> queryMap = new HashMap<String, Object>();
 			Map<String, Object> templateQueryMap = new HashMap<String, Object>();
@@ -139,10 +134,8 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateUpdateNodeCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -154,7 +147,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_NODE + " | [Create Node Query Generation Failed.]");
 
 			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
 
 			Map<String, Object> queryMap = new HashMap<String, Object>();
 			Map<String, Object> templateQueryMap = new HashMap<String, Object>();
@@ -192,11 +184,8 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateImportNodesCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -208,7 +197,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_NODE_LIST + " | [Import Nodes Query Generation Failed.]");
 
 			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
 
 			Map<String, Object> queryMap = new HashMap<String, Object>();
 
@@ -283,18 +271,14 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateUpsertRootNodeCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			Node rootNode = (Node) parameterMap.get(GraphDACParams.rootNode.name());
 			if (null == rootNode)
 				throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 						DACErrorMessageConstants.INVALID_ROOT_NODE + " | [Create Root Node Query Generation Failed.]");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
 
 			query.append(GraphDACParams.MERGE.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
@@ -307,10 +291,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			query.append(
 					getOnCreateSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
 
-			// Adding 'ON MATCH SET' Clause
-//			query.append(
-//					getOnMatchSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
-
 			// Return Node
 			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
@@ -322,11 +302,9 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateUpdatePropertyValueCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -345,12 +323,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_PROPERTY
 								+ " | [Update Property Value Query Generation Failed.]");
 
-			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
-			// Sample:
-			// MATCH (n:Employee)
-			// WHERE n.name = "Azhar"
-			// SET n.owns = "BMW"
 			query.append(GraphDACParams.MATCH.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(CypherQueryConfigurationConstants.BLANK_SPACE)
@@ -376,7 +348,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateUpdatePropertyValuesCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -399,12 +370,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_PROPERTIES
 								+ " | [Update Property Values Query Generation Failed.]");
 
-			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
-			// Sample:
-			// MATCH (n:Employee)
-			// WHERE n.name = "Azhar"
-			// SET n.owns = "BMW", n.address = "Indore"
 			query.append(GraphDACParams.MATCH.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(CypherQueryConfigurationConstants.BLANK_SPACE)
@@ -425,11 +390,9 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateRemovePropertyValueCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -448,12 +411,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_PROPERTY_KEY
 								+ " | [Remove Property Value Query Generation Failed.]");
 
-			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
-			// Sample:
-			// MATCH (n:Employee)
-			// WHERE n.name = "Azhar"
-			// SET n.owns = "BMW"
 			query.append(GraphDACParams.MATCH.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
@@ -478,11 +435,9 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateRemovePropertyValuesCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -501,12 +456,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_PROPERTY_KEY_LIST
 								+ " | [Remove Property Values Query Generation Failed.]");
 
-			String date = DateUtils.formatCurrentDate();
-			PlatformLogger.log("Date: " + date);
-			// Sample:
-			// MATCH (n:Employee)
-			// WHERE n.name = "Azhar"
-			// SET n.owns = "BMW"
 			query.append(GraphDACParams.MATCH.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
@@ -528,11 +477,8 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateDeleteNodeCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -557,10 +503,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getClassicNodeDeleteCypherQuery(String graphId, String nodeId) {
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(nodeId)) {
-			// Sample:
-			// MATCH (n)-[r]-()
-			// WHERE id(n) = 5
-			// DELETE r, n
 			query.append(GraphDACParams.MATCH.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)

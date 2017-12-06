@@ -26,9 +26,9 @@ public class DACConfigurationConstants {
 	
 	public static final String PASSPORT_KEY_BASE_PROPERTY = "graph.passport.key.base";
 	
-	public static final String DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR = ".";
+	public static final String DOT = ".";
 	
-	public static final String DEFAULT_GRAPH_ID_AND_GRAPH_OPERATION_SEPARATOR = "_";
+	public static final String UNDERSCORE = "_";
 	
 	public static final int NEO4J_SERVER_MAX_IDLE_SESSION = 20;
 	

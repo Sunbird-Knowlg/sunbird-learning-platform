@@ -16,8 +16,9 @@ import org.ekstep.graph.dac.model.Graph;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchCriteria;
-import org.ekstep.graph.service.IGraphDatabaseService;
-import org.ekstep.graph.service.impl.Neo4JBoltImpl;
+import org.ekstep.graph.service.operation.Neo4JBoltGraphOperations;
+import org.ekstep.graph.service.operation.Neo4JBoltNodeOperations;
+import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -31,7 +32,6 @@ public class GraphPolicyTest {
 	
 	static String graphId =  "domain";
 	static String graphId1 =  "123";
-	static IGraphDatabaseService graphDb = new Neo4JBoltImpl();;
 	String relationType = "ASSOCIATED_TO"; 
 	
 	@Rule
@@ -39,7 +39,7 @@ public class GraphPolicyTest {
 	
 	@Test
 	public void init(){
-		graphDb.createGraph(graphId, null);
+		Neo4JBoltGraphOperations.createGraph(graphId, null);
 	}
 	
 	@Test
@@ -48,7 +48,7 @@ public class GraphPolicyTest {
 		indexProperties.add("Node");
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.createGraphUniqueContraint(graphId, indexProperties, request);
+		Neo4JBoltGraphOperations.createGraphUniqueContraint(graphId, indexProperties, request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -57,7 +57,7 @@ public class GraphPolicyTest {
 		List<String> indexProperties = new ArrayList<String>();
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.createGraphUniqueContraint(graphId, indexProperties, request);
+		Neo4JBoltGraphOperations.createGraphUniqueContraint(graphId, indexProperties, request);
 	}
 	
 	@Test
@@ -67,7 +67,7 @@ public class GraphPolicyTest {
 		indexProperties.add("label");
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.createIndex(graphId, indexProperties, request);
+		Neo4JBoltGraphOperations.createIndex(graphId, indexProperties, request);
 	}	
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -76,7 +76,7 @@ public class GraphPolicyTest {
 		List<String> indexProperties = new ArrayList<String>();
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.createIndex(graphId, indexProperties, request);
+		Neo4JBoltGraphOperations.createIndex(graphId, indexProperties, request);
 	}	
 	
 	@Test
@@ -90,7 +90,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals(IL_UNIQUE_ID, res.getIdentifier());
 		assertEquals("Content", res.getObjectType());
@@ -107,7 +107,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals(IL_UNIQUE_ID, res.getIdentifier());
 		assertEquals("Content", res.getObjectType());
@@ -124,7 +124,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals(IL_UNIQUE_ID, res.getIdentifier());
 		assertEquals("Content", res.getObjectType());
@@ -142,7 +142,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals(IL_UNIQUE_ID, res.getIdentifier());
 		assertEquals("Content", res.getObjectType());
@@ -159,7 +159,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals(IL_UNIQUE_ID, res.getIdentifier());
 		assertEquals("Content", res.getObjectType());
@@ -177,7 +177,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals(IL_UNIQUE_ID, res.getIdentifier());
 		assertEquals("Content", res.getObjectType());
@@ -193,7 +193,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals("Content", res.getObjectType());
 	}
@@ -208,7 +208,7 @@ public class GraphPolicyTest {
 		node.setMetadata(setData());
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals(IL_UNIQUE_ID, res.getIdentifier());
 	}
@@ -223,7 +223,7 @@ public class GraphPolicyTest {
 		node.setMetadata(setData());
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals("Content", res.getObjectType());
 	}
@@ -240,7 +240,7 @@ public class GraphPolicyTest {
 		node.setMetadata(setData());
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals(true, res.getObjectType()!="Content");
 	}
@@ -256,7 +256,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals("Content", res.getObjectType());
 	}
@@ -272,7 +272,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals("Content", res.getObjectType());
 	}
@@ -288,7 +288,7 @@ public class GraphPolicyTest {
 		node.setObjectType("Content");
 		Request request = new Request();
 		request.setId(graphId);
-		Node res = graphDb.addNode(null, node, request);
+		Node res = Neo4JBoltNodeOperations.addNode(null, node, request);
 		assertEquals(graphId, res.getGraphId());
 		assertEquals("Content", res.getObjectType());
 	}
@@ -297,12 +297,12 @@ public class GraphPolicyTest {
 	public void updateExistingNode(){
 		Request request = new Request();
 		request.setId(graphId);
-		Node  node = graphDb.getNodeByUniqueId(graphId, "JAVA001", null, request);
+		Node node = Neo4JBoltSearchOperations.getNodeByUniqueId(graphId, "JAVA001", null, request);
 		List<String> tags = new ArrayList<String>();
 		tags.add("Language");
 		tags.add("Programming Language");
 		node.setTags(tags);
-		Node  res = graphDb.updateNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.updateNode(graphId, node, request);
 	}
 	
 	@Test(expected = ResourceNotFoundException.class)
@@ -320,7 +320,7 @@ public class GraphPolicyTest {
 		node.setTags(tags);
 		node.setGraphId(graphId);
 		node.setIdentifier("Java00122");
-		Node  res = graphDb.updateNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.updateNode(graphId, node, request);
 	}
 	
 	@Test
@@ -337,7 +337,7 @@ public class GraphPolicyTest {
 		node.setMetadata(scalaMap);
 		tags.add("oops");
 		node.setTags(tags);
-		Node res =  graphDb.upsertNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.upsertNode(graphId, node, request);
 		assertEquals(tags, res.getTags());
 	}
 	
@@ -356,7 +356,7 @@ public class GraphPolicyTest {
 		scalaMap.put("Title", "Learn Scala Language");
 		scalaMap.put("description", "testing new language");
 		node.setMetadata(scalaMap);
-		Node res =  graphDb.upsertNode(graphId, node, request);
+		Node res = Neo4JBoltNodeOperations.upsertNode(graphId, node, request);
 		assertEquals(scalaMap.get("title"), res.getMetadata().get("title"));
 	}
 	
@@ -367,8 +367,8 @@ public class GraphPolicyTest {
 		Property props = new Property();
 		props.setPropertyName("Title");
 		props.setPropertyValue("Learn Language");
-		graphDb.updatePropertyValue(graphId, "SCALA001", props, request);
-		Property res = graphDb.getNodeProperty(graphId, "SCALA001", "Title", request);
+		Neo4JBoltNodeOperations.updatePropertyValue(graphId, "SCALA001", props, request);
+		Property res = Neo4JBoltSearchOperations.getNodeProperty(graphId, "SCALA001", "Title", request);
 		assertEquals("Title", res.getPropertyName());
 	}
 	
@@ -380,8 +380,8 @@ public class GraphPolicyTest {
 		Map<String, Object> map = new HashMap<String,Object>();
 		map.put("Status", "Completed");
 		map.put("NoOfChapters", "37");
-		graphDb.updatePropertyValues(graphId, nodeId, map, request);
-		Property res = graphDb.getNodeProperty(graphId, "python001", "NoOfChapters", request);
+		Neo4JBoltNodeOperations.updatePropertyValues(graphId, nodeId, map, request);
+		Property res = Neo4JBoltSearchOperations.getNodeProperty(graphId, "python001", "NoOfChapters", request);
 		assertEquals("NoOfChapters", res.getPropertyName());
 	}
 	
@@ -390,8 +390,8 @@ public class GraphPolicyTest {
 		String nodeId = "python001";
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.removePropertyValue(graphId, nodeId, "Title", request);
-		Property res = graphDb.getNodeProperty(graphId, nodeId, "Title", request);
+		Neo4JBoltNodeOperations.removePropertyValue(graphId, nodeId, "Title", request);
+		Property res = Neo4JBoltSearchOperations.getNodeProperty(graphId, nodeId, "Title", request);
 		assertEquals("Title", res.getPropertyName());
 		assertEquals("NULL", res.getPropertyValue().toString());
 	}
@@ -401,8 +401,8 @@ public class GraphPolicyTest {
 		String nodeId = "DotNet001";
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.deleteNode(graphId, nodeId, request);
-		Node node = graphDb.getNodeByUniqueId(graphId, nodeId, false, request);
+		Neo4JBoltNodeOperations.deleteNode(graphId, nodeId, request);
+		Node node = Neo4JBoltSearchOperations.getNodeByUniqueId(graphId, nodeId, false, request);
 		assertEquals(null, node.getIdentifier());
 	}
 	
@@ -413,7 +413,7 @@ public class GraphPolicyTest {
 		Map<String, Object> scalaMap = new HashMap<String,Object>();
 		scalaMap.put("Title", "Learn java as Programming Language");
         request.setRequest(scalaMap);
-		Node res =  graphDb.upsertRootNode(graphId, request);
+		Node res = Neo4JBoltNodeOperations.upsertRootNode(graphId, request);
 		System.out.println(res.getIdentifier()+ res.getMetadata());
 	}
 	
@@ -421,8 +421,8 @@ public class GraphPolicyTest {
 	public void createRelations(){
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		Relation rel = graphDb.getRelation(graphId,  "JAVA001", relationType, "SCALA001", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Relation rel = Neo4JBoltSearchOperations.getRelation(graphId, "JAVA001", relationType, "SCALA001", request);
 		assertEquals("SCALA001", rel.getEndNodeId());
 		assertEquals(relationType, rel.getRelationType());
 	}
@@ -432,7 +432,7 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "";
-		graphDb.createRelation(graphId, "JAVA001", relationType,  "SCALA001", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", relationType, "SCALA001", request);
 	}
 	
 	@Test
@@ -440,7 +440,7 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "INHERITED_FROM";
-		graphDb.createRelation(graphId, "JAVA001", relationType,  "SCALA001", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", relationType, "SCALA001", request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -448,7 +448,7 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String startNode = "";
-		graphDb.createRelation(graphId, startNode, relationType,  "SCALA001", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, startNode, relationType, "SCALA001", request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -456,21 +456,21 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String endNode = "";
-		graphDb.createRelation(graphId,  "JAVA001", relationType, endNode, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", relationType, endNode, request);
 	}
 	
 	@Test
 	public void createRelationsWithNonExistingStartNode(){
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.createRelation(graphId,  "JAVA123", relationType, "SCALA001", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA123", relationType, "SCALA001", request);
 	}
 	
 	@Test
 	public void createRelationsWithNonExistingEndNode(){
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.createRelation(graphId,  "JAVA001", relationType, "SCALA123", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", relationType, "SCALA123", request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -478,14 +478,14 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String graphId = "";
-		graphDb.createRelation(graphId,  "JAVA001", relationType, "SCALA001", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", relationType, "SCALA001", request);
 	}
 	
 	@Test
 	public void createExistingRelation(){
 		Request request = new Request();
 		request.setId(graphId);
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
 	}
 	
 	@Test
@@ -493,8 +493,8 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		graphDb.deleteRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.deleteRelation(graphId, "JAVA001", "SCALA001", relationType, request);
 		
 	}
 	
@@ -503,8 +503,8 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", "isParentOf", request);
-		graphDb.deleteRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", "isParentOf", request);
+		Neo4JBoltGraphOperations.deleteRelation(graphId, "JAVA001", "SCALA001", relationType, request);
 		
 	}
 	
@@ -513,9 +513,9 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		graphDb.deleteRelation(graphId, "JAVA001", "SCALA001", "isParentOff", request);
-		Relation rel = graphDb.getRelation(graphId, "JAVA001", relationType, "SCALA001", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.deleteRelation(graphId, "JAVA001", "SCALA001", "isParentOff", request);
+		Relation rel = Neo4JBoltSearchOperations.getRelation(graphId, "JAVA001", relationType, "SCALA001", request);
 		assertEquals(false, rel.getEndNodeId().isEmpty());
 		assertEquals("SCALA001", rel.getEndNodeId());
 		assertEquals(relationType, rel.getRelationType());
@@ -526,8 +526,8 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		graphDb.deleteRelation(graphId, "", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.deleteRelation(graphId, "", "SCALA001", relationType, request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -536,7 +536,7 @@ public class GraphPolicyTest {
 		request.setId(graphId);
 		String relationType = "isParentOf";
 		String endNode = "";
-		graphDb.deleteRelation(graphId, "JAVA001", endNode, relationType, request);
+		Neo4JBoltGraphOperations.deleteRelation(graphId, "JAVA001", endNode, relationType, request);
 	}
 	
 	@Test
@@ -544,8 +544,8 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		graphDb.deleteRelation(graphId, "JAVA0012", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.deleteRelation(graphId, "JAVA0012", "SCALA001", relationType, request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -554,7 +554,7 @@ public class GraphPolicyTest {
 		request.setId(graphId);
 		String relationType = "isParentOf";
 		String endNode = "";
-		graphDb.deleteRelation(graphId, "JAVA001", endNode, relationType, request);
+		Neo4JBoltGraphOperations.deleteRelation(graphId, "JAVA001", endNode, relationType, request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -562,7 +562,7 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.deleteRelation("", "JAVA001", "SCALA001", relationType, null);
+		Neo4JBoltGraphOperations.deleteRelation("", "JAVA001", "SCALA001", relationType, null);
 	}
 	
 	@Test
@@ -571,8 +571,8 @@ public class GraphPolicyTest {
 		request.setId(graphId);
 		String relationType = "isParentOf";
 		String updateRel = "associated_to";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		graphDb.updateRelation(graphId, "JAVA001", "SCALA001", updateRel, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.updateRelation(graphId, "JAVA001", "SCALA001", updateRel, request);
 	
 	}
 	
@@ -581,8 +581,8 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", "isParentOf", request);
-		graphDb.updateRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", "isParentOf", request);
+		Neo4JBoltGraphOperations.updateRelation(graphId, "JAVA001", "SCALA001", relationType, request);
 	}
 	
 	@Test
@@ -590,8 +590,8 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		graphDb.updateRelation(graphId, "JAVA001", "SCALA001", "isParentOff", request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.updateRelation(graphId, "JAVA001", "SCALA001", "isParentOff", request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -599,8 +599,8 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		graphDb.updateRelation(graphId, "", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.updateRelation(graphId, "", "SCALA001", relationType, request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -609,7 +609,7 @@ public class GraphPolicyTest {
 		request.setId(graphId);
 		String relationType = "isParentOf";
 		String endNode = "";
-		graphDb.updateRelation(graphId, "JAVA001", endNode, relationType, request);
+		Neo4JBoltGraphOperations.updateRelation(graphId, "JAVA001", endNode, relationType, request);
 	}
 	
 	@Test
@@ -617,8 +617,8 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
-		graphDb.updateRelation(graphId, "JAVA0012", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.createRelation(graphId, "JAVA001", "SCALA001", relationType, request);
+		Neo4JBoltGraphOperations.updateRelation(graphId, "JAVA0012", "SCALA001", relationType, request);
 	}
 	
 	@Test
@@ -627,7 +627,7 @@ public class GraphPolicyTest {
 		request.setId(graphId);
 		String relationType = "isParentOf";
 		String endNode = "Sacala001";
-		graphDb.updateRelation(graphId, "JAVA001", endNode, relationType, request);
+		Neo4JBoltGraphOperations.updateRelation(graphId, "JAVA001", endNode, relationType, request);
 	}
 	
 	@Test(expected= org.neo4j.driver.v1.exceptions.ClientException.class)
@@ -635,7 +635,7 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		String relationType = "isParentOf";
-		graphDb.updateRelation("", "JAVA001", "SCALA001", relationType, null);
+		Neo4JBoltGraphOperations.updateRelation("", "JAVA001", "SCALA001", relationType, null);
 	}
 	
 //	@Test 
@@ -645,8 +645,8 @@ public class GraphPolicyTest {
 		request.setId(graphId);
 		nodes.add("python001");
 		nodes.add("DotNet001");
-		graphDb.createIncomingRelations(graphId, nodes, "SCALA001", relationType, request);
-		Relation rel = graphDb.getRelation(graphId, "DotNet001", relationType, "Spring001", request);
+		Neo4JBoltGraphOperations.createIncomingRelations(graphId, nodes, "SCALA001", relationType, request);
+		Relation rel = Neo4JBoltSearchOperations.getRelation(graphId, "DotNet001", relationType, "Spring001", request);
 		System.out.println(rel.getRelationType() + rel.getEndNodeId() + rel.getStartNodeId());
 	}
 	
@@ -675,7 +675,8 @@ public class GraphPolicyTest {
 		members.add("SCALA001");
 		members.add("python001");
 		members.add("DotNet001");
-		graphDb.createCollection(graphId1, "testCollection001", node, relationType, members, "IL_UNIQUE_ID", null);
+		Neo4JBoltGraphOperations.createCollection(graphId1, "testCollection001", node, relationType, members,
+				"IL_UNIQUE_ID", null);
 	}
 	
 //	@Test
@@ -683,7 +684,7 @@ public class GraphPolicyTest {
 		Request request = new Request();
 		request.setId(graphId);
 		Long nodeId = (long) 2;
-		Node  res = graphDb.getNodeById(graphId, nodeId, true, request);
+		Node res = Neo4JBoltSearchOperations.getNodeById(graphId, nodeId, true, request);
 		assertEquals("Completed", res.getMetadata().get("Status"));
 		assertEquals("Content", res.getObjectType());
 	}
@@ -692,7 +693,7 @@ public class GraphPolicyTest {
 	public void getNodeByUniqueId(){
 		Request request = new Request();
 		request.setId(graphId);
-		Node  res = graphDb.getNodeByUniqueId(graphId, "JAVA001", null, request);
+		Node res = Neo4JBoltSearchOperations.getNodeByUniqueId(graphId, "JAVA001", null, request);
 		assertEquals("JAVA001" , res.getIdentifier());
 		assertEquals("25" , res.getMetadata().get("NoOfChapters"));
 	}
@@ -704,7 +705,7 @@ public class GraphPolicyTest {
 		Property prop = new Property();
 		prop.setPropertyName("Title");
 		prop.setPropertyValue("Learn Java");
-		List<Node> nodes = graphDb.getNodesByProperty(graphId, prop, true, request);
+		List<Node> nodes = Neo4JBoltSearchOperations.getNodesByProperty(graphId, prop, true, request);
 		assertEquals(false, nodes.isEmpty());
 		assertEquals("DEFINITION_NODE", nodes.iterator().next().getNodeType());
 	}
@@ -721,7 +722,7 @@ public class GraphPolicyTest {
 		request.setId(graphId);
 		Property property = new Property();
 		property.setPropertyName("IL_UNIQUE_ID");
-		Property  res = graphDb.getNodeProperty(graphId, "JAVA001", "Title", request);
+		Property res = Neo4JBoltSearchOperations.getNodeProperty(graphId, "JAVA001", "Title", request);
 		assertEquals("Title", res.getPropertyName());
 	}
 	
@@ -729,7 +730,7 @@ public class GraphPolicyTest {
 	public void getAllNodes(){
 		Request request = new Request();
 		request.setId(graphId);
-		List<Node>  res = graphDb.getAllNodes(graphId, request);
+		List<Node> res = Neo4JBoltSearchOperations.getAllNodes(graphId, request);
 		assertEquals("domain", res.get(0).getGraphId().toString());
 		
 	}
@@ -738,7 +739,7 @@ public class GraphPolicyTest {
 	public void getAllRelations(){
 		Request request = new Request();
 		request.setId(graphId);
-	    List<Relation> rel = graphDb.getAllRelations(graphId, request);
+		List<Relation> rel = Neo4JBoltSearchOperations.getAllRelations(graphId, request);
 	    assertEquals(false, rel.isEmpty());
 	    assertEquals("SCALA001", rel.get(0).getEndNodeId().toString());
 	}
@@ -747,7 +748,8 @@ public class GraphPolicyTest {
     public void getRelationProperty(){
     	Request request = new Request();
 		request.setId(graphId);
-		Property prop = graphDb.getRelationProperty(graphId, "JAVA001", relationType, "SCALA001", "", request);
+		Property prop = Neo4JBoltSearchOperations.getRelationProperty(graphId, "JAVA001", relationType, "SCALA001", "",
+				request);
 		assertEquals(true, prop.getPropertyName().compareToIgnoreCase("ASSOCIATED_TO"));
     }
     
@@ -755,7 +757,8 @@ public class GraphPolicyTest {
     public void getRelationPropertyWithEmptyKey(){
     	Request request = new Request();
 		request.setId(graphId);
-		Property prop = graphDb.getRelationProperty(graphId, "JAVA001", relationType, "SCALA001", null, request);
+		Property prop = Neo4JBoltSearchOperations.getRelationProperty(graphId, "JAVA001", relationType, "SCALA001",
+				null, request);
 		assertEquals(true, prop.getPropertyName().compareToIgnoreCase("ASSOCIATED_TO"));
     }
     
@@ -763,7 +766,7 @@ public class GraphPolicyTest {
     public void getRelation(){
     	Request request = new Request();
 		request.setId(graphId);
-		Relation rel = graphDb.getRelation(graphId, "JAVA001", relationType, "SCALA001", request);
+		Relation rel = Neo4JBoltSearchOperations.getRelation(graphId, "JAVA001", relationType, "SCALA001", request);
 		assertEquals("SCALA001", rel.getEndNodeId());
     }
     
@@ -771,7 +774,8 @@ public class GraphPolicyTest {
 	public void checkForCyclicDependency(){
 		Request request = new Request();
 		request.setId(graphId);
-		Map<String,Object> result = graphDb.checkCyclicLoop(graphId, "JAVA001", relationType,  "SCALA001", request);
+		Map<String, Object> result = Neo4JBoltSearchOperations.checkCyclicLoop(graphId, "JAVA001", relationType,
+				"SCALA001", request);
 		assertEquals("JAVA001 and SCALA001 are connected by relation: ASSOCIATED_TO", result.get("message"));
 	} 
     
@@ -783,7 +787,7 @@ public class GraphPolicyTest {
 		parameterMap.put(GraphDACParams.graphId.name(), graphId);
 		parameterMap.put(GraphDACParams.request.name(), request);
 		String query = "MATCH (n:domain) RETURN n LIMIT 4";
-		List<Map<String, Object>> res = graphDb.executeQuery(graphId, query, parameterMap, request);
+		List<Map<String, Object>> res = Neo4JBoltSearchOperations.executeQuery(graphId, query, parameterMap, request);
 		assertEquals(false, res.isEmpty());
 		assertEquals(6, res.size());
     }
@@ -792,7 +796,7 @@ public class GraphPolicyTest {
 	public void getNodeCount(){
 		SearchCriteria search = new SearchCriteria();
 		search.setObjectType("Content");
-		Long node = graphDb.getNodesCount(graphId, search, null);
+		Long node = Neo4JBoltSearchOperations.getNodesCount(graphId, search, null);
 	}
 	
 	@Test
@@ -811,7 +815,7 @@ public class GraphPolicyTest {
 	}
 //	@Test
 	public void getSubGraph(){
-		Graph res = graphDb.getSubGraph(graphId, "JAVA001", relationType, 0, null);
+		Graph res = Neo4JBoltSearchOperations.getSubGraph(graphId, "JAVA001", relationType, 0, null);
 		System.out.println(res.getNodes());
 	}
 	

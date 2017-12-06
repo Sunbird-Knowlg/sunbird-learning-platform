@@ -42,7 +42,7 @@ public class Neo4JBoltGraphOperations {
 	 * @param request
 	 *            the request
 	 */
-	public void createGraph(String graphId, Request request) {
+	public static void createGraph(String graphId, Request request) {
 		PlatformLogger.log("Operation Not Allowed in Bolt.");
 	}
 
