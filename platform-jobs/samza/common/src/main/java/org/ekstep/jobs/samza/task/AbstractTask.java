@@ -34,8 +34,8 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
     protected String jobClass = "";
     
     private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
-    private static String startJobEventId = "BE_JOB_START";
-	private static String endJobEventId = "BE_JOB_END";
+    private static String startJobEventId = "JOB_START";
+	private static String endJobEventId = "JOB_END";
 	private static int MAXITERTIONCOUNT= 2;
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
@@ -125,7 +125,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		execution.put(SamzaCommonParams.latency.name(), (long)eks.get(SamzaCommonParams.ets.name())-jobStartTime);
 		execution.put(SamzaCommonParams.execution_time.name(), jobStartTime-(long)jobEndEvent.get(SamzaCommonParams.ets.name()));
 		eks.put(SamzaCommonParams.execution.name(), execution);
-		jobEndEvent.put(SamzaCommonParams.eks.name(), eks);
+		((Map<String, Object>)jobEndEvent.get(SamzaCommonParams.edata.name())).put(SamzaCommonParams.eks.name(), eks);
 		
 	}
 	
