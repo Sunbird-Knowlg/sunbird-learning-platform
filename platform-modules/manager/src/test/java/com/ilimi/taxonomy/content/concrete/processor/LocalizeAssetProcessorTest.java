@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
@@ -19,8 +20,6 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import com.ilimi.common.exception.ClientException;
 
 // TODO: ignored because jenkins don't have S3 access.
 @Ignore

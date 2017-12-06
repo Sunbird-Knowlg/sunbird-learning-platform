@@ -10,11 +10,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
 import org.ekstep.graph.dac.model.RelationCriterion;
+import org.ekstep.graph.dac.model.RelationCriterion.DIRECTION;
 import org.ekstep.graph.dac.model.RelationFilter;
 import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.dac.model.Sort;
-import org.ekstep.graph.dac.model.RelationCriterion.DIRECTION;
 
 import com.ilimi.orchestrator.interpreter.ICommand;
 

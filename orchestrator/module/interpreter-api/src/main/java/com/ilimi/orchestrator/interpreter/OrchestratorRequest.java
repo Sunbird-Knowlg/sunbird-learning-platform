@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ilimi.common.dto.ExecutionContext;
-import com.ilimi.common.dto.HeaderParam;
+import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.common.dto.HeaderParam;
+
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 
 public class OrchestratorRequest implements Serializable {

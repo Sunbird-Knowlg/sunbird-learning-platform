@@ -1,7 +1,8 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.logger.PlatformLogger;
+
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;

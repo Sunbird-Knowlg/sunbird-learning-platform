@@ -2,7 +2,8 @@ package com.ilimi.orchestrator.interpreter.command;
 
 import java.util.Map;
 
-import com.ilimi.common.util.LogTelemetryEventUtil;
+import org.ekstep.common.util.LogTelemetryEventUtil;
+
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;

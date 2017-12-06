@@ -2,7 +2,8 @@ package com.ilimi.orchestrator.interpreter.command;
 
 import java.util.Map;
 
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Response;
+
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;

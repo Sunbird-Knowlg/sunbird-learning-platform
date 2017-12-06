@@ -15,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -31,9 +33,6 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-
-import com.ilimi.common.Platform;
-import com.ilimi.common.dto.Response;
 
 public class ContentEnrichmentService implements ISamzaService {
 

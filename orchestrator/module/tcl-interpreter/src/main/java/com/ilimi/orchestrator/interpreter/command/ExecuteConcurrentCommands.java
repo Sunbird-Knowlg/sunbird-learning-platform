@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.MiddlewareException;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.MiddlewareException;
+
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.interpreter.ICommand;

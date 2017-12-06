@@ -7,6 +7,7 @@ import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.dto.Response;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -24,7 +25,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.content.common.TestSetup;
 
 @RunWith(SpringJUnit4ClassRunner.class)

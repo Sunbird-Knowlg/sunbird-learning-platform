@@ -3,7 +3,8 @@ package com.ilimi.orchestrator.interpreter.command;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.ilimi.common.dto.Property;
+import org.ekstep.common.dto.Property;
+
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;

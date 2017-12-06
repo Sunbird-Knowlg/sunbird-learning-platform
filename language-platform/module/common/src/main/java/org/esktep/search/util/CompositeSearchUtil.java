@@ -3,12 +3,11 @@ package org.esktep.search.util;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.language.common.enums.LanguageParams;
-
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
 
 // TODO: Auto-generated Javadoc
 /**

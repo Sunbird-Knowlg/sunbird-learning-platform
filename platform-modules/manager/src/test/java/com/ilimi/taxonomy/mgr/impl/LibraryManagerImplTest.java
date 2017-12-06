@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.logger.PlatformLogger;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,8 +26,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.controller.BaseController;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 @Ignore

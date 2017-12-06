@@ -1,11 +1,10 @@
 package com.ilimi.orchestrator.interpreter.command;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.exception.ResponseCode;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ResponseCode;
 
 public abstract class BaseSystemCommand {
 

@@ -23,10 +23,4 @@
 			<graph id="*" count="4"></graph>
 		</manager>
 	</graph-managers>
-	<dac-managers>
-		<manager
-			classes="org.ekstep.graph.dac.mgr.impl.GraphDACGraphMgrImpl,org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl,org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl">
-			<graph id="*" count="4"></graph>
-		</manager>
-	</dac-managers>
 </actor-config>

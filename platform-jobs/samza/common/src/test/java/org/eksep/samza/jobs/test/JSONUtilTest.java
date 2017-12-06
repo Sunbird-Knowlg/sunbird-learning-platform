@@ -3,10 +3,10 @@ package org.eksep.samza.jobs.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ekstep.common.Platform;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.ilimi.common.Platform;
 import com.typesafe.config.ConfigFactory;
 
 public class JSONUtilTest {

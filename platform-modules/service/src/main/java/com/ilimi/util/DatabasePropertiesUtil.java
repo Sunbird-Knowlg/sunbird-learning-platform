@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.logger.PlatformLogger;
 
 public class DatabasePropertiesUtil {
 	private static Properties prop = new Properties();

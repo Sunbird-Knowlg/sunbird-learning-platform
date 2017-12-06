@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
@@ -16,8 +17,6 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import com.ilimi.common.exception.ClientException;
 
 @Ignore
 public class GlobalizeAssetProcessorTest {

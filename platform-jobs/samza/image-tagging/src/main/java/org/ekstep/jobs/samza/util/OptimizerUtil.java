@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.optimizr.FileType;
 import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.common.optimizr.image.ImageResolutionUtil;
@@ -20,9 +22,6 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.ControllerUtil;
-
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ServerException;
 
 /**
  * The Class OptimizerUtil functionality to optimiseImage operation for different resolutions.
