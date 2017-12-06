@@ -29,14 +29,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.framework.mgr.impl.CategoryInstanceManagerImpl;
+import com.ilimi.framework.mgr.impl.CategoryManagerImpl;
 import com.ilimi.framework.mgr.impl.ChannelManagerImpl;
+import com.ilimi.framework.mgr.impl.TermManagerImpl;
 import com.ilimi.framework.test.common.TestSetup;
 
 /**
  * @author pradyumna
  *
  */
-@Ignore
+//@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -49,8 +51,10 @@ public class TermChannelV3ControllerTest extends TestSetup {
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String base_category_path = "/v3/channel/term";
-	private static String categoryId = null, channelId = null;
+	private static String categoryId = null, channelId = null, masterCategoryId=null, masterTermId=null;
 	private static CategoryInstanceManagerImpl categoryInstanceManager = new CategoryInstanceManagerImpl();
+	private static CategoryManagerImpl categoryManager = new CategoryManagerImpl();
+	private static TermManagerImpl termManager=new TermManagerImpl();
 	private static ChannelManagerImpl channelManager = new ChannelManagerImpl();
 	static String termId = null;
 	static ObjectMapper mapper = new ObjectMapper();
@@ -58,6 +62,9 @@ public class TermChannelV3ControllerTest extends TestSetup {
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
+		loadDefinition("definitions/channel_definition.json", "definitions/category_definition.json", "definitions/categoryInstance_definition.json","definitions/term_definition.json");
+		createMasterCategory();
+		createMasterTerm();
 		createCategoryInstance();
 	}
 
@@ -91,6 +98,35 @@ public class TermChannelV3ControllerTest extends TestSetup {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * This Method will create a master category.
+	 * 
+	 * @author gauraw
+	 */
+	private static void createMasterCategory() throws Exception {
+		Map<String, Object> requestMap = mapper.readValue(createCategoryReq,
+				new TypeReference<Map<String, Object>>() {
+				});
+		Response resp = categoryManager.createCategory(requestMap);
+		masterCategoryId = (String) resp.getResult().get("node_id");
+		System.out.println("masterCategoryId : "+masterCategoryId);
+	}
+	
+	/**
+	 * This Method will create Term under Master Category.
+	 * 
+	 * @author gauraw
+	 */
+	private static void createMasterTerm() throws Exception {
+		String createMasterTermJson="{ \"label\": \"Standard2\", \"value\": \"Standard2\", \"description\":\"Second Standard\" }";
+		Map<String, Object> requestMap = mapper.readValue(createMasterTermJson,
+				new TypeReference<Map<String, Object>>() {
+				});
+		Response resp = termManager.createTerm(masterCategoryId, requestMap);
+		masterTermId = (String) resp.getResult().get("node_id");
+		System.out.println("masterTermId : "+masterTermId);
 	}
 
 	@Before

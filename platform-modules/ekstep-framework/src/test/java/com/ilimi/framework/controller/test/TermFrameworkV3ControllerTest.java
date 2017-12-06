@@ -32,8 +32,10 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.framework.mgr.ICategoryInstanceManager;
 import com.ilimi.framework.mgr.IChannelManager;
 import com.ilimi.framework.mgr.impl.CategoryInstanceManagerImpl;
+import com.ilimi.framework.mgr.impl.CategoryManagerImpl;
 import com.ilimi.framework.mgr.impl.ChannelManagerImpl;
 import com.ilimi.framework.mgr.impl.FrameworkManagerImpl;
+import com.ilimi.framework.mgr.impl.TermManagerImpl;
 import com.ilimi.framework.test.common.TestSetup;
 
 import akka.actor.ActorRef;
@@ -42,7 +44,6 @@ import akka.actor.ActorRef;
  * @author pradyumna
  *
  */
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -58,9 +59,11 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String base_category_path = "/v3/framework/term";
-	private static String categoryId = null, frameworkId = null;
+	private static String categoryId = null, frameworkId = null, masterCategoryId=null, masterTermId=null;
 	private static ICategoryInstanceManager categoryInstanceManager = new CategoryInstanceManagerImpl();
 	private static FrameworkManagerImpl frameworkManager = new FrameworkManagerImpl();
+	private static CategoryManagerImpl categoryManager = new CategoryManagerImpl();
+	private static TermManagerImpl termManager=new TermManagerImpl();
 	static String termId = null;
 	static ObjectMapper mapper = new ObjectMapper();
 	private static final String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
@@ -75,6 +78,8 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json",
 				"definitions/category_definition.json", "definitions/categoryInstance_definition.json", "definitions/term_definition.json");
 		createChannel();
+		createMasterCategory();
+		createMasterTerm();
 		createCategoryInstance();
 	}
 
@@ -141,6 +146,37 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 
 		return null;
 	}
+	
+	
+	/**
+	 * This Method will create a master category.
+	 * 
+	 * @author gauraw
+	 */
+	private static void createMasterCategory() throws Exception {
+		Map<String, Object> requestMap = mapper.readValue(createCategoryReq,
+				new TypeReference<Map<String, Object>>() {
+				});
+		Response resp = categoryManager.createCategory(requestMap);
+		masterCategoryId = (String) resp.getResult().get("node_id");
+		System.out.println("masterCategoryId : "+masterCategoryId);
+	}
+	
+	/**
+	 * This Method will create Term under Master Category.
+	 * 
+	 * @author gauraw
+	 */
+	private static void createMasterTerm() throws Exception {
+		String createMasterTermJson="{ \"label\": \"Standard2\", \"value\": \"Standard2\", \"description\":\"Second Standard\" }";
+		Map<String, Object> requestMap = mapper.readValue(createMasterTermJson,
+				new TypeReference<Map<String, Object>>() {
+				});
+		Response resp = termManager.createTerm(masterCategoryId, requestMap);
+		masterTermId = (String) resp.getResult().get("node_id");
+		System.out.println("masterTermId : "+masterTermId);
+	}
+	
 
 	@Before
 	public void setup() {
