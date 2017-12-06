@@ -60,7 +60,7 @@
             "range":
             [
                 "Live",
-                "Retire"
+                "Retired"
             ],
             "required": false,
 			      "indexed": true,

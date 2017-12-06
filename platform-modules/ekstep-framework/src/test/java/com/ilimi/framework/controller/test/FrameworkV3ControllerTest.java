@@ -35,7 +35,6 @@ import com.ilimi.framework.test.common.TestSetup;
  * @author gauraw
  *
  */
-@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -61,7 +60,7 @@ public class FrameworkV3ControllerTest extends TestSetup {
 
 	private static final String createCategoryInstanceReq = "{\"name\":\"category\",\"description\":\"\",\"code\":\"medium\"}";
 	
-	private static final String createChannelReq = "{\"name\":\"channel\",\"description\":\"\",\"code\":\"channel\",\"identifier\":\"channelKA\"}";
+	private static final String createChannelReq = "{\"name\":\"channel\",\"description\":\"\",\"code\":\"channelKA\",\"identifier\":\"channelKA\"}";
 
 	private static final String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\",\"owner\": \"channelKA\"}}}";
 
@@ -77,7 +76,8 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	private static final String listFrameworkInvalidJson = "{\"id\": \"ekstep.framework.list\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {}}";
 
 	@BeforeClass
-	public static void setup() {
+	public static void setup() throws Exception {
+		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json", "definitions/categoryInstance_definition.json");
 		createChannel();
 		createFramework();
 		createCategoryInstance();
@@ -253,7 +253,7 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	 * Framework update API hits. Then: 200 - OK, Framework partial update done.
 	 * 
 	 */
-	@Ignore
+	
 	@Test
 	public void mockTestFramework_07() throws Exception {
 		String path = basePath + "/update/" + frameworkId;
@@ -426,7 +426,7 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	 * Then: 200 - OK , Framework Status will be changed to "Retire" from "Live"
 	 * 
 	 */
-	@Ignore
+	
 	@Test
 	public void mockTestFramework_16() throws Exception {
 		String path = basePath + "/retire/" + frameworkId;
