@@ -22,14 +22,10 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.dac.model.SubGraph;
 import org.ekstep.graph.dac.model.Traverser;
-import org.ekstep.graph.service.INeo4JBoltSearchOperations;
 import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
 
 public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearchMgr {
 	
-	private static INeo4JBoltSearchOperations service = new Neo4JBoltSearchOperations();
-	
-
     @Override
 	public Response getNodeById(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -38,7 +34,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
         if (!validateRequired(nodeId))
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         try {
-            Node node = service.getNodeById(graphId, nodeId, getTags, request);
+			Node node = Neo4JBoltSearchOperations.getNodeById(graphId, nodeId, getTags, request);
 			return OK(GraphDACParams.node.name(), node);
         } catch (Exception e) {
 			return ERROR(e);
@@ -54,7 +50,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Node node = service.getNodeByUniqueId(graphId, nodeId, getTags, request);
+				Node node = Neo4JBoltSearchOperations.getNodeByUniqueId(graphId, nodeId, getTags, request);
 				return OK(GraphDACParams.node.name(), node);
             } catch (Exception e) {
 				return ERROR(e);
@@ -71,7 +67,8 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
     			throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_QUERY_NOT_FOUND.name(), "Query is missing");
     		} else {
     			try {
-                List<Map<String, Object>> nodes = service.executeQueryForProps(graphId, query, propKeys);
+				List<Map<String, Object>> nodes = Neo4JBoltSearchOperations.executeQueryForProps(graphId, query,
+						propKeys);
 				return OK(GraphDACParams.properties.name(), nodes);
             } catch (Exception e) {
 				return ERROR(e);
@@ -88,7 +85,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_LIST_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	List<Node> nodeList = service.getNodesByProperty(graphId, property, getTags, request);
+				List<Node> nodeList = Neo4JBoltSearchOperations.getNodesByProperty(graphId, property, getTags, request);
 				return OK(GraphDACParams.node_list.name(), nodeList);
             } catch (Exception e) {
 				return ERROR(e);
@@ -116,7 +113,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
 			searchCriteria.addMetadata(mc);
 			searchCriteria.setCountQuery(false);
             try {
-				List<Node> nodes = service.getNodeByUniqueIds(graphId, searchCriteria, request);
+				List<Node> nodes = Neo4JBoltSearchOperations.getNodeByUniqueIds(graphId, searchCriteria, request);
 				return OK(GraphDACParams.node_list.name(), nodes);
             } catch (Exception e) {
 				return ERROR(e);
@@ -133,7 +130,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_PROPERTY_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Property property = service.getNodeProperty(graphId, nodeId, key, request);
+				Property property = Neo4JBoltSearchOperations.getNodeProperty(graphId, nodeId, key, request);
 				return OK(GraphDACParams.property.name(), property);
             } catch (Exception e) {
 				return ERROR(e);
@@ -145,7 +142,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
 	public Response getAllNodes(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-        	List<Node> nodes = service.getAllNodes(graphId, request);
+			List<Node> nodes = Neo4JBoltSearchOperations.getAllNodes(graphId, request);
 			return OK(GraphDACParams.node_list.name(), nodes);
         } catch (Exception e) {
 			return ERROR(e);
@@ -156,7 +153,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
 	public Response getAllRelations(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-        	List<Relation> relations = service.getAllRelations(graphId, request);
+			List<Relation> relations = Neo4JBoltSearchOperations.getAllRelations(graphId, request);
 			return OK(GraphDACParams.relations.name(), relations);
         } catch (Exception e) {
 			return ERROR(e);
@@ -174,7 +171,8 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_GET_RELATIONS_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Property property = service.getRelationProperty(graphId, startNodeId, relationType, endNodeId, key, request);
+				Property property = Neo4JBoltSearchOperations.getRelationProperty(graphId, startNodeId, relationType,
+						endNodeId, key, request);
 				return OK(GraphDACParams.property.name(), property);
             } catch (Exception e) {
 				return ERROR(e);
@@ -192,7 +190,8 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_GET_RELATIONS_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Relation relation = service.getRelation(graphId, startNodeId, relationType, endNodeId, request);
+				Relation relation = Neo4JBoltSearchOperations.getRelation(graphId, startNodeId, relationType, endNodeId,
+						request);
 				return OK(GraphDACParams.relation.name(), relation);
             } catch (Exception e) {
 				return ERROR(e);
@@ -210,7 +209,8 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_CHECK_LOOP_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	Map<String, Object> voMap = service.checkCyclicLoop(graphId, startNodeId, relationType, endNodeId, request);                
+				Map<String, Object> voMap = Neo4JBoltSearchOperations.checkCyclicLoop(graphId, startNodeId,
+						relationType, endNodeId, request);
 				return OK(voMap);
             } catch (Exception e) {
 				return ERROR(e);
@@ -228,7 +228,8 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	List<Map<String, Object>> resultList = service.executeQuery(graphId, query, paramMap, request);
+				List<Map<String, Object>> resultList = Neo4JBoltSearchOperations.executeQuery(graphId, query, paramMap,
+						request);
 				return OK(GraphDACParams.results.name(), resultList);
             } catch (Exception e) {
 				return ERROR(e);
@@ -245,7 +246,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	List<Node> nodes = service.searchNodes(graphId, searchCriteria, getTags, request);
+				List<Node> nodes = Neo4JBoltSearchOperations.searchNodes(graphId, searchCriteria, getTags, request);
 				return OK(GraphDACParams.node_list.name(), nodes);
             } catch (Exception e) {
 				return ERROR(e);
@@ -261,7 +262,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Long count = service.getNodesCount(graphId, searchCriteria, request);
+				Long count = Neo4JBoltSearchOperations.getNodesCount(graphId, searchCriteria, request);
 				return OK(GraphDACParams.count.name(), count);
             } catch (Exception e) {
 				return ERROR(e);
@@ -277,7 +278,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	SubGraph subGraph = service.traverse(graphId, traverser, request);
+				SubGraph subGraph = Neo4JBoltSearchOperations.traverse(graphId, traverser, request);
 				return OK(GraphDACParams.sub_graph.name(), subGraph);
             } catch (Exception e) {
 				return ERROR(e);
@@ -293,7 +294,7 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	Graph subGraph = service.traverseSubGraph(graphId, traverser, request);
+				Graph subGraph = Neo4JBoltSearchOperations.traverseSubGraph(graphId, traverser, request);
 				return OK(GraphDACParams.sub_graph.name(), subGraph);
             } catch (Exception e) {
 				return ERROR(e);
@@ -311,7 +312,8 @@ public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearc
             throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Graph subGraph = service.getSubGraph(graphId, startNodeId, relationType, depth, request);
+				Graph subGraph = Neo4JBoltSearchOperations.getSubGraph(graphId, startNodeId, relationType, depth,
+						request);
 				return OK(GraphDACParams.sub_graph.name(), subGraph);
             } catch (Exception e) {
 				return ERROR(e);

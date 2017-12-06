@@ -16,8 +16,6 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 public class SearchQueryGenerationUtil {
 
 	public static String generateGetNodeByIdCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
 			PlatformLogger.log("Fetching the Parameters From Parameter Map");
@@ -41,11 +39,9 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodeByUniqueIdCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -67,11 +63,8 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodesByPropertyCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -94,11 +87,8 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodeByUniqueIdsCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -120,11 +110,8 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodePropertyCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -152,11 +139,8 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetAllNodesCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -171,11 +155,8 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetAllRelationsCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -191,11 +172,8 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetRelationPropertyCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -236,11 +214,8 @@ public class SearchQueryGenerationUtil {
 	}
 	
 	public static String generateGetRelationByIdCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -260,11 +235,8 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetRelationCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -298,11 +270,8 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateCheckCyclicLoopCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -339,11 +308,8 @@ public class SearchQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateExecuteQueryCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),

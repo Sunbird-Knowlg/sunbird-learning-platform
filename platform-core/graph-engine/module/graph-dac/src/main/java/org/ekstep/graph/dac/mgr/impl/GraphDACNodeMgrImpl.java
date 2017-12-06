@@ -14,7 +14,6 @@ import org.ekstep.graph.common.mgr.GraphDACMgr;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.exception.GraphDACErrorCodes;
 import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.service.INeo4JBoltNodeOperations;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.operation.Neo4JBoltNodeOperations;
@@ -26,7 +25,6 @@ import org.ekstep.graph.service.operation.Neo4JBoltNodeOperations;
  */
 public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr {
 
-	private static INeo4JBoltNodeOperations service = new Neo4JBoltNodeOperations();
 
 	/*
 	 * (non-Javadoc)
@@ -44,7 +42,8 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Invalid input node");
 		else {
 			try {
-				org.ekstep.graph.dac.model.Node upsertedNode = service.upsertNode(graphId, node, request);
+				org.ekstep.graph.dac.model.Node upsertedNode = Neo4JBoltNodeOperations.upsertNode(graphId, node,
+						request);
 				
 				// Creating Map for Response Values
 				Map<String, Object> responseMap = new HashMap<String, Object>();
@@ -88,7 +87,7 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Invalid input node");
 		else {
 			try {
-				org.ekstep.graph.dac.model.Node addedNode = service.addNode(graphId, node, request);
+				org.ekstep.graph.dac.model.Node addedNode = Neo4JBoltNodeOperations.addNode(graphId, node, request);
 				
 				// Creating Map for Response Values
 				Map<String, Object> responseMap = new HashMap<String, Object>();
@@ -120,7 +119,8 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Invalid input node");
 		else {
 			try {
-				org.ekstep.graph.dac.model.Node updatedNode = service.updateNode(graphId, node, request);
+				org.ekstep.graph.dac.model.Node updatedNode = Neo4JBoltNodeOperations.updateNode(graphId, node,
+						request);
 				
 				// Creating Map for Response Values
 				Map<String, Object> responseMap = new HashMap<String, Object>();
@@ -166,7 +166,7 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Required parameters are missing");
 		else {
 			try {
-				service.importNodes(graphId, nodes, request);
+				Neo4JBoltNodeOperations.importNodes(graphId, nodes, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -191,7 +191,7 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Required parameters are missing");
 		} else {
 			try {
-				service.updatePropertyValue(graphId, nodeId, property, request);
+				Neo4JBoltNodeOperations.updatePropertyValue(graphId, nodeId, property, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -217,7 +217,7 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Required parameters are missing");
 		} else {
 			try {
-				service.updatePropertyValues(graphId, nodeId, metadata, request);
+				Neo4JBoltNodeOperations.updatePropertyValues(graphId, nodeId, metadata, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -242,7 +242,7 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Required parameters are missing");
 		} else {
 			try {
-				service.removePropertyValue(graphId, nodeId, key, request);
+				Neo4JBoltNodeOperations.removePropertyValue(graphId, nodeId, key, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -268,7 +268,7 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Required parameters are missing");
 		} else {
 			try {
-				service.removePropertyValues(graphId, nodeId, keys, request);
+				Neo4JBoltNodeOperations.removePropertyValues(graphId, nodeId, keys, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -292,7 +292,7 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 					"Required parameters are missing");
 		} else {
 			try {
-				service.deleteNode(graphId, nodeId, request);
+				Neo4JBoltNodeOperations.deleteNode(graphId, nodeId, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -311,7 +311,7 @@ public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr
 	public Response upsertRootNode(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		try {
-			service.upsertRootNode(graphId, request);
+			Neo4JBoltNodeOperations.upsertRootNode(graphId, request);
 			return OK();
 		} catch (Exception e) {
 			return ERROR(e);

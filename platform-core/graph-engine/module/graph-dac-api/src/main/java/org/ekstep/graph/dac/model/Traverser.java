@@ -36,8 +36,6 @@ public class Traverser implements Serializable {
     private Map<String, String> relationMap = new HashMap<String, String>();
     private Map<String, Object> pathExpander = new HashMap<String, Object>();
 
-    private Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
-
 	public Traverser(String graphId, String startNodeId) {
         this.graphId = graphId;
         if(startNodeId != null){
@@ -151,12 +149,12 @@ public class Traverser implements Serializable {
     	Path path = new Path(graphId);
     	if (null != startNodeVal && StringUtils.equalsIgnoreCase("NODE", startNodeVal.type().name())) {
     		org.neo4j.driver.v1.types.Node node = startNodeVal.asNode();
-    		Node startNode = searchOps.getNodeById(graphId, node.id(), true, request);
+			Node startNode = Neo4JBoltSearchOperations.getNodeById(graphId, node.id(), true, request);
     		path.setStartNode(startNode);
     	}
     	if (null != endNodeVal && StringUtils.equalsIgnoreCase("NODE", endNodeVal.type().name())) {
     		org.neo4j.driver.v1.types.Node node = endNodeVal.asNode();
-    		Node endNode = searchOps.getNodeById(graphId, node.id(), true, request);
+			Node endNode = Neo4JBoltSearchOperations.getNodeById(graphId, node.id(), true, request);
     		path.setEndNode(endNode);
     	}
     	if (null != nodesVal) {
@@ -164,7 +162,7 @@ public class Traverser implements Serializable {
     		List<Node> nodes = new ArrayList<Node>();
     		for (Object obj : list) {
     			org.neo4j.driver.v1.types.Node node = (org.neo4j.driver.v1.types.Node) obj;
-    			Node startNode = searchOps.getNodeById(graphId, node.id(), true, request);
+				Node startNode = Neo4JBoltSearchOperations.getNodeById(graphId, node.id(), true, request);
     			nodes.add(startNode);
     		}
     		path.setNodes(nodes);
@@ -174,7 +172,7 @@ public class Traverser implements Serializable {
     		List<Relation> relations = new ArrayList<Relation>();
     		for (Object obj : list) {
     			org.neo4j.driver.v1.types.Relationship rel = (org.neo4j.driver.v1.types.Relationship) obj;
-    			Relation relation = searchOps.getRelationById(graphId, rel.id(), request);
+				Relation relation = Neo4JBoltSearchOperations.getRelationById(graphId, rel.id(), request);
     			relations.add(relation);
     		}
     		path.setRelations(relations);

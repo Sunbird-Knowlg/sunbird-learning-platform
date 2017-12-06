@@ -34,7 +34,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -60,7 +59,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -86,7 +84,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -104,12 +101,9 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateRelationCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		try {
 			if (null != parameterMap) {
-				PlatformLogger.log("Fetching the Parameters From Parameter Map");
 				String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 				if (StringUtils.isBlank(graphId))
 					throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -155,7 +149,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					allottedIndices.add(0);
 					List<Relationship> relationships = getAllRelationships(graphId, startNodeId,
 							RelationshipDirection.OUTGOING);
-					PlatformLogger.log("Fetched Relationships: ", relationships);
 					for (Relationship relationship : relationships) {
 						if (StringUtils.equalsIgnoreCase(relationship.type(),
 								RelationTypes.SEQUENCE_MEMBERSHIP.relationName())) {
@@ -174,7 +167,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 				if (null != request)
 					metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
-				PlatformLogger.log("Recieved Relation Metadata: ", metadata);
 
 				query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
 						CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
@@ -191,11 +183,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateUpdateRelationCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -448,11 +437,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateRemoveRelationMetadataCypherQuery(Map<String, Object> parameterMap) {
-//		PlatformLogger.log("Parameter Map: ", parameterMap);
-
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),

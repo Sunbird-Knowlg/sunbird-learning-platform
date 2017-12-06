@@ -15,12 +15,9 @@ import org.ekstep.graph.dac.exception.GraphDACErrorCodes;
 import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
 import org.ekstep.graph.dac.util.Neo4jGraphFactory;
 import org.ekstep.graph.importer.ImportData;
-import org.ekstep.graph.service.INeo4JBoltGraphOperations;
 import org.ekstep.graph.service.operation.Neo4JBoltGraphOperations;
 
 public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphMgr {
-
-	private static INeo4JBoltGraphOperations service = new Neo4JBoltGraphOperations();
 
 	@Override
 	public Response createGraph(Request request) {
@@ -51,7 +48,7 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Parameters are missing");
 		} else {
 			try {
-				service.createGraphUniqueContraint(graphId, indexProperties, request);
+				Neo4JBoltGraphOperations.createGraphUniqueContraint(graphId, indexProperties, request);
 				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
 				return ERROR(e);
@@ -69,7 +66,7 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Parameters are missing");
 		} else {
 			try {
-				service.createIndex(graphId, indexProperties, request);
+				Neo4JBoltGraphOperations.createIndex(graphId, indexProperties, request);
 				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
 				return ERROR(e);
@@ -87,7 +84,7 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Graph '" + graphId + "' not found to delete.");
 		} else {
 			try {
-				service.deleteGraph(graphId, request);
+				Neo4JBoltGraphOperations.deleteGraph(graphId, request);
 				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
 				return ERROR(e);
@@ -106,7 +103,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Parameters are missing");
 		} else {
 			try {
-				service.createOutgoingRelations(graphId, startNodeId, endNodeIds, relationType, request);
+				Neo4JBoltGraphOperations.createOutgoingRelations(graphId, startNodeId, endNodeIds, relationType,
+						request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -125,7 +123,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Parameters are missing");
 		} else {
 			try {
-				service.createIncomingRelations(graphId, startNodeIds, endNodeId, relationType, request);
+				Neo4JBoltGraphOperations.createIncomingRelations(graphId, startNodeIds, endNodeId, relationType,
+						request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -144,7 +143,7 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Parameters are missing");
 		} else {
 			try {
-				service.createRelation(graphId, startNodeId, endNodeId, relationType, request);
+				Neo4JBoltGraphOperations.createRelation(graphId, startNodeId, endNodeId, relationType, request);
 				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
 				return ERROR(e);
@@ -164,7 +163,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Parameters are missing");
 		} else {
 			try {
-				service.deleteIncomingRelations(graphId, startNodeIds, endNodeId, relationType, request);
+				Neo4JBoltGraphOperations.deleteIncomingRelations(graphId, startNodeIds, endNodeId, relationType,
+						request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -184,7 +184,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Parameters are missing");
 		} else {
 			try {
-				service.deleteOutgoingRelations(graphId, startNodeId, endNodeIds, relationType, request);
+				Neo4JBoltGraphOperations.deleteOutgoingRelations(graphId, startNodeId, endNodeIds, relationType,
+						request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -203,7 +204,7 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Variables are missing");
 		} else {
 			try {
-				service.deleteRelation(graphId, startNodeId, endNodeId, relationType, request);
+				Neo4JBoltGraphOperations.deleteRelation(graphId, startNodeId, endNodeId, relationType, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -224,7 +225,7 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Variables are missing");
 		} else if (null != metadata && metadata.size() > 0) {
 			try {
-				service.updateRelation(graphId, startNodeId, endNodeId, relationType, request);
+				Neo4JBoltGraphOperations.updateRelation(graphId, startNodeId, endNodeId, relationType, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -246,7 +247,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Variables are missing");
 		} else if (StringUtils.isNotBlank(key)) {
 			try {
-				service.removeRelationMetadataByKey(graphId, startNodeId, endNodeId, relationType, key, request);
+				Neo4JBoltGraphOperations.removeRelationMetadataByKey(graphId, startNodeId, endNodeId, relationType, key,
+						request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -271,8 +273,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Variables are missing");
 		} else {
 			try {
-				service.createCollection(graphId, collectionId, collection, relationType, members, indexProperty,
-						request);
+				Neo4JBoltGraphOperations.createCollection(graphId, collectionId, collection, relationType, members,
+						indexProperty, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -288,7 +290,7 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 					"Required Variables are missing");
 		} else {
 			try {
-				service.deleteCollection(graphId, collectionId, request);
+				Neo4JBoltGraphOperations.deleteCollection(graphId, collectionId, request);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);
@@ -306,7 +308,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 			throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
 		} else {
 			try {
-				Map<String, List<String>> messages = service.importGraph(graphId, taskId, input, request);
+				Map<String, List<String>> messages = Neo4JBoltGraphOperations.importGraph(graphId, taskId, input,
+						request);
 				return OK(GraphDACParams.messages.name(), messages);
 			} catch (Exception e) {
 				return ERROR(e);
@@ -328,8 +331,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 			throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
 		} else {
 			try {
-				service.bulkUpdateNodes(graphId, newNodes, modifiedNodes, addOutRelations, removeOutRelations,
-						addInRelations, removeInRelations);
+				Neo4JBoltGraphOperations.bulkUpdateNodes(graphId, newNodes, modifiedNodes, addOutRelations,
+						removeOutRelations, addInRelations, removeInRelations);
 				return OK();
 			} catch (Exception e) {
 				return ERROR(e);

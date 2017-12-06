@@ -10,13 +10,14 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 
 public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 
-	public void validateAuthorization(String graphId, org.ekstep.graph.dac.model.Node node, Request request) {
+	public void validateAuthorization(String graphId, Node node, Request request) {
 		PlatformLogger.log("Graph Id: "+graphId);
 		PlatformLogger.log("Graph Engine Node: ", null);
 
@@ -36,7 +37,7 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 
 	}
 
-	private boolean isAuthorized(String graphId, org.ekstep.graph.dac.model.Node node, Request request) {
+	private boolean isAuthorized(String graphId, Node node, Request request) {
 		boolean isAuthorized = true;
 
 		// Checking if Authorization Check Required, If not then the request is
