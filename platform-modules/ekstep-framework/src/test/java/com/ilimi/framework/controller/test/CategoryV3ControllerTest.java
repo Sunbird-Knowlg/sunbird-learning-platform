@@ -1,4 +1,5 @@
 package com.ilimi.framework.controller.test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Response;
+import com.ilimi.framework.test.common.TestSetup;
 
 /**
  * 
@@ -33,7 +35,7 @@ import com.ilimi.common.dto.Response;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CategoryV3ControllerTest {
+public class CategoryV3ControllerTest extends TestSetup{
 
 	@Autowired
 	private WebApplicationContext context;
@@ -219,7 +221,7 @@ public class CategoryV3ControllerTest {
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
-	public static Response jsonToObject(ResultActions actions) throws Exception{
+	public static Response jsonToObject(ResultActions actions) throws Exception {
 		String content = null;
 		Response resp = null;
 		content = actions.andReturn().getResponse().getContentAsString();
