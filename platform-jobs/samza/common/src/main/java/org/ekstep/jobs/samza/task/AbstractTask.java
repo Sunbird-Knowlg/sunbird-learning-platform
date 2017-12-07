@@ -54,8 +54,8 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
 		long jobStartTime = 0;
 		int maxIterationCount = MAXITERTIONCOUNT;
-		if(StringUtils.isNotEmpty(Platform.config.getString("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"))) 
-			maxIterationCount = Integer.valueOf(Platform.config.getString("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"));
+		if(StringUtils.isNotEmpty(this.config.get("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"))) 
+			maxIterationCount = Integer.valueOf(this.config.get("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"));
 		
 		if(StringUtils.equalsIgnoreCase(this.eventId, (String)message.get(SamzaCommonParams.eid.name()))) {
 			String requestedJobType = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name());
