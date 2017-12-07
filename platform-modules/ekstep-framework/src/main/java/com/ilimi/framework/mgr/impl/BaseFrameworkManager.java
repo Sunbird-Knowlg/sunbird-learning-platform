@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.slugs.Slug;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResourceNotFoundException;
@@ -36,7 +37,8 @@ import com.ilimi.graph.model.node.DefinitionDTO;
  */
 public class BaseFrameworkManager extends BaseManager {
 
-	protected static final String GRAPH_ID = "domain";
+	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
+			: "domain";
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
