@@ -16,9 +16,9 @@ import com.ilimi.common.dto.Response;
  */
 public interface IFrameworkManager {
 
-	Response createFramework(Map<String, Object> map) throws Exception;
+	Response createFramework(Map<String, Object> map, String channelId) throws Exception;
 	
-	Response readFramework(String graphId, String frameworkId) throws Exception;
+	Response readFramework(String frameworkId) throws Exception;
 	
 	Response updateFramework(String frameworkId,String channelId, Map<String, Object> map) throws Exception;
 	

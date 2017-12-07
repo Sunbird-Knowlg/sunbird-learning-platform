@@ -1,9 +1,6 @@
 package com.ilimi.framework.controller;
 
 import java.util.Map;
-
-import javax.ws.rs.ClientErrorException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,14 +10,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.framework.common.FrameworkIdentifier;
 import com.ilimi.framework.mgr.IFrameworkManager;
 
 /**
@@ -33,7 +26,6 @@ import com.ilimi.framework.mgr.IFrameworkManager;
 @RequestMapping("/v3/framework")
 public class FrameworkV3Controller extends BaseController{
 	 
-	private final String graphId = "domain";
 	
 	@Autowired
 	private IFrameworkManager frameworkManager;
@@ -52,11 +44,7 @@ public class FrameworkV3Controller extends BaseController{
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("framework");
-			if(null == map.get("code"))
-				throw new ClientException("ERR_FRAMEWORK_CODE_REQUIRED", "Unique code is mandatory for framework", ResponseCode.CLIENT_ERROR);
-			map.put("identifier", FrameworkIdentifier.getIdentifier((String)map.get("code")));
-			map.put("owner", channelId);
-			Response response = frameworkManager.createFramework(map);
+			Response response = frameworkManager.createFramework(map,channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while creating framework (Create Framework API): ", e.getMessage(), e);
@@ -74,7 +62,7 @@ public class FrameworkV3Controller extends BaseController{
 	public ResponseEntity<Response> readFramework(@PathVariable(value = "id") String frameworkId) {
 		String apiId = "ekstep.learning.framework.read";
 		try {
-			Response response = frameworkManager.readFramework(graphId, frameworkId);
+			Response response = frameworkManager.readFramework(frameworkId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while reading framework details (Read Framework API): ", e.getMessage(), e);
