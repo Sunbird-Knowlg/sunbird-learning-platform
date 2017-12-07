@@ -54,8 +54,8 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
 		long jobStartTime = 0;
 		int maxIterationCount = MAXITERTIONCOUNT;
-		if(StringUtils.isNotEmpty(this.config.get("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"))) 
-			maxIterationCount = Integer.valueOf(this.config.get("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"));
+		if(StringUtils.isNotEmpty(this.config.get("max.iteration.count.samza.job"))) 
+			maxIterationCount = Integer.valueOf(this.config.get("max.iteration.count.samza.job"));
 		
 		if(StringUtils.equalsIgnoreCase(this.eventId, (String)message.get(SamzaCommonParams.eid.name()))) {
 			String requestedJobType = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name());
@@ -134,11 +134,11 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	
 		Map<String, Object> edata = new HashMap<>();
 		Map<String, Object> eks = new HashMap<>();
-		eks.put(SamzaCommonParams.ets.name(), (String)message.get(SamzaCommonParams.ets.name()));
-		eks.put(SamzaCommonParams.action.name(), (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name()));
-		eks.put(SamzaCommonParams.iteration.name(), (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.iteration.name()));
-		eks.put(SamzaCommonParams.status.name(), (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.status.name()));
-		eks.put(SamzaCommonParams.reqid.name(), (String)message.get(SamzaCommonParams.mid.name()));
+		eks.put(SamzaCommonParams.ets.name(), message.get(SamzaCommonParams.ets.name()));
+		eks.put(SamzaCommonParams.action.name(), ((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name()));
+		eks.put(SamzaCommonParams.iteration.name(), ((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.iteration.name()));
+		eks.put(SamzaCommonParams.status.name(), ((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.status.name()));
+		eks.put(SamzaCommonParams.reqid.name(), message.get(SamzaCommonParams.mid.name()));
 		edata.put(SamzaCommonParams.eks.name(), eks);
 		edata.put(SamzaCommonParams.level.name(), SamzaCommonParams.INFO.name());
 		edata.put(SamzaCommonParams.jobclass.name(), this.jobClass);
