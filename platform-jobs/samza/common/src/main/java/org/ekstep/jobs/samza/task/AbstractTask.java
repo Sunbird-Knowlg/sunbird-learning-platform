@@ -51,20 +51,39 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	@Override
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
+		System.out.println("Message received: " + message);
 		long jobStartTime = 0;
 		int maxIterationCount = MAXITERTIONCOUNT;
 		if(StringUtils.isNotEmpty(this.config.get("max.iteration.count.samza.job"))) 
 			maxIterationCount = Integer.valueOf(this.config.get("max.iteration.count.samza.job"));
+<<<<<<< HEAD
 		System.out.println("process - Outside Condition: " + message.toString());
 		if(StringUtils.equalsIgnoreCase(this.eventId, (String)message.get(SamzaCommonParams.eid.name()))) {
 			String requestedJobType = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name());
 			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
 				System.out.println("process - Inside Condition: " + message.toString());
 				int iterationCount = (int)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.iteration.name());
+=======
+		
+		String eid = (String) message.get(SamzaCommonParams.eid.name());
+
+		if(StringUtils.equalsIgnoreCase(this.eventId, eid)) {
+			Map<String, Object> edata = (Map<String, Object>) message.get(SamzaCommonParams.edata.name());
+			String requestedJobType = (String) edata.get(SamzaCommonParams.action.name());
+			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
+				int iterationCount = (int) edata.get(SamzaCommonParams.iteration.name());
+>>>>>>> dbdc0f3f99a65d3aff6c7f0cba11e8509f7b3d3a
 				preProcess(message, collector, jobStartTime, maxIterationCount, iterationCount);
+				System.out.println("Preprocess completed.");
 				process(message, collector, coordinator);
+				System.out.println("process completed.");
 				postProcess(message, collector, jobStartTime, maxIterationCount, iterationCount);
+				System.out.println("Postprocess completed.");
+			} else {
+				System.out.println("message jobType is invalid: " + jobType + " :: expected:" + this.jobType);
 			}
+		} else {
+			System.out.println("message event id is invalid: " + eid + " :: expected:" + this.eventId);
 		}
 	}
 

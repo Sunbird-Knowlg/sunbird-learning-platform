@@ -47,7 +47,11 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
+<<<<<<< HEAD
 			<version>0.0.57</version>
+=======
+			<version>0.0.58</version>
+>>>>>>> dbdc0f3f99a65d3aff6c7f0cba11e8509f7b3d3a
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
