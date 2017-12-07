@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -16,6 +19,7 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -25,10 +29,6 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.framework.mgr.ICategoryManager;
 import com.ilimi.framework.test.common.TestSetup;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.BeforeClass;
 
 /**
  * 
@@ -169,20 +169,6 @@ public class CategoryManagerTest extends TestSetup{
 		String responseCode=(String) resp.getResponseCode().toString();
 		int resCode=resp.getResponseCode().code();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 400);	
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Test
-	public void updateCategoryWithoutRequest() throws JsonParseException, JsonMappingException, IOException {
-		Map<String, Object> requestMap = mapper.readValue(createCategoryValidRequest, new TypeReference<Map<String, Object>>() {});
-		Map<String,Object> categoryMap = (Map)requestMap.get("category");
-		Response response = mgr.createCategory(categoryMap);
-		Map<String,Object> result = response.getResult();
-		String node_id = (String)result.get("node_id");
-		Map<String,Object> updateRequest = new HashMap<String,Object>();
-		Response resp = mgr.updateCategory(node_id, updateRequest);
-		int resCode=resp.getResponseCode().code();
 		assertTrue(resCode == 400);	
 	}
 	
