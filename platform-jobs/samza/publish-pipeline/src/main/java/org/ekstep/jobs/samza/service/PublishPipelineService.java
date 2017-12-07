@@ -127,36 +127,27 @@ public class PublishPipelineService implements ISamzaService {
 			MessageCollector collector, JobMetrics metrics, int maxPublishRetry) throws Exception {
 		
 		updateNodeStatusToProcessing(edata, message, node); //Changing node status to Processing.
-		
-		int eventPublishIterationCount = (Integer)edata.get(PublishPipelineParams.iteration.name());
-		String eventStatus = (String)edata.get(PublishPipelineParams.status.name());
-		
-		if((eventPublishIterationCount == 0 && StringUtils.equalsIgnoreCase(eventStatus, PublishPipelineParams.Processing.name())) ||
-				(eventPublishIterationCount > 0 && eventPublishIterationCount <maxPublishRetry && StringUtils.equalsIgnoreCase(eventStatus, PublishPipelineParams.FAILED.name()))) {
-			
-			node.getMetadata().put(PublishPipelineParams.publish_type.name(), edata.get(PublishPipelineParams.publish_type.name()));
-			if(publishContent(node)) {
-				metrics.incSuccessCounter();
-				edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
-				message.put(PublishPipelineParams.edata.name(), edata);
-				LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
-			}else {
-				metrics.incFailedCounter();
-				edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
-				message.put(PublishPipelineParams.edata.name(), edata);
-				LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
-			}
+
+		node.getMetadata().put(PublishPipelineParams.publish_type.name(), edata.get(PublishPipelineParams.publish_type.name()));
+		if(publishContent(node)) {
+			metrics.incSuccessCounter();
+			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
+			message.put(PublishPipelineParams.edata.name(), edata);
+			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
+		}else {
+			metrics.incFailedCounter();
+			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
+			message.put(PublishPipelineParams.edata.name(), edata);
+			LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
 		}
 	}
 	
 	private void updateNodeStatusToProcessing(Map<String, Object> edata, Map<String, Object> message, Node node) throws Exception {
-		if((Integer)edata.get("iteration") == 0 && StringUtils.equalsIgnoreCase((String)edata.get("status"), PublishPipelineParams.Pending.name())) {
 			node.getMetadata().put("status", "Processing");
 			util.updateNode(node);
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.Processing.name());
 			message.put("edata", edata);
 			LOGGER.debug("Node status :: Processing for NodeId :: " + node.getIdentifier());
-		}
 	}
 	
 	
