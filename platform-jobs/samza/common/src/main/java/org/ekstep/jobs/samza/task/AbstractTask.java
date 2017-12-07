@@ -55,10 +55,11 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		int maxIterationCount = MAXITERTIONCOUNT;
 		if(StringUtils.isNotEmpty(this.config.get("max.iteration.count.samza.job"))) 
 			maxIterationCount = Integer.valueOf(this.config.get("max.iteration.count.samza.job"));
-		
+		System.out.println("process - Outside Condition: " + message.toString());
 		if(StringUtils.equalsIgnoreCase(this.eventId, (String)message.get(SamzaCommonParams.eid.name()))) {
 			String requestedJobType = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.action.name());
 			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
+				System.out.println("process - Inside Condition: " + message.toString());
 				int iterationCount = (int)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.iteration.name());
 				preProcess(message, collector, jobStartTime, maxIterationCount, iterationCount);
 				process(message, collector, coordinator);
@@ -70,6 +71,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	public abstract void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception;
 
 	public void preProcess(Map<String, Object> message, MessageCollector collector, long jobStartTime, int maxIterationCount, int iterationCount) {
+		System.out.println("Inside preProcess: " + message.toString());
 		if (isInvalidMessage(message)) {
 			String event = generateEvent(LoggerEnum.ERROR.name(), "Samza job de-serialization error", message);
 			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("backend_telemetry_topic")), event));
@@ -78,6 +80,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 			if(iterationCount <= maxIterationCount) {
 				Map<String, Object> jobStartEvent = getJobEvent("JOBSTARTEVENT", message);
 				jobStartTime = (long)jobStartEvent.get(SamzaCommonParams.ets.name());
+				System.out.println("Inside preProcess Before pushEvent: " + message.toString());
 				pushEvent(jobStartEvent, collector, this.config.get("backend_telemetry_topic"));
 			}
 		}catch (Exception e) {
@@ -88,10 +91,12 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	
 	@SuppressWarnings("unchecked")
 	public void postProcess(Map<String, Object> message, MessageCollector collector, long jobStartTime, int maxIterationCount, int iterationCount) throws Exception {
+		System.out.println("Inside postProcess Before pushEvent: " + message.toString());
 		try {
 			if(iterationCount <= maxIterationCount) {
 				Map<String, Object> jobEndEvent = getJobEvent("JOBENDEVENT", message);
 				addExecutionTime(jobEndEvent, jobStartTime); //Call to add execution time
+				System.out.println("Inside postProcess Before pushEvent: " + message.toString());
 				pushEvent(jobEndEvent, collector, this.config.get("backend_telemetry_topic"));
 			}
 			String eventExecutionStatus = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.status.name());
