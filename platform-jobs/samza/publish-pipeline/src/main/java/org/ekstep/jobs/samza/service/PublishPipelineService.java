@@ -97,6 +97,7 @@ public class PublishPipelineService implements ISamzaService {
 			maxPublishRetry = MAXITERTIONCOUNT;
 		
 		if (!validateObject(edata, object, maxPublishRetry)) {
+			LOGGER.info("Ignoring the message because it is not valid for publishing.");
 			metrics.incSkippedCounter();
 			return;
 		}
@@ -312,7 +313,7 @@ public class PublishPipelineService implements ISamzaService {
 			return false;
 		
 		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
-			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) == 0 && 
+			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) == 1 && 
 					StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.Pending.name())) || 
 					((Integer)edata.get(PublishPipelineParams.iteration.name()) > 0 && 
 							(Integer)edata.get(PublishPipelineParams.iteration.name()) <maxPublishRetry && 
