@@ -63,12 +63,13 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 			String requestedJobType = (String) edata.get(SamzaCommonParams.action.name());
 			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
 				int iterationCount = (int) edata.get(SamzaCommonParams.iteration.name());
+				System.out.println("Before preprocess...");
 				preProcess(message, collector, jobStartTime, maxIterationCount, iterationCount);
-				System.out.println("Preprocess completed.");
+				System.out.println("Preprocess completed...");
 				process(message, collector, coordinator);
-				System.out.println("process completed.");
+				System.out.println("process completed...");
 				postProcess(message, collector, jobStartTime, maxIterationCount, iterationCount);
-				System.out.println("Postprocess completed.");
+				System.out.println("Postprocess completed...");
 			} else {
 				System.out.println("message jobType is invalid: " + jobType + " :: expected:" + this.jobType);
 			}
