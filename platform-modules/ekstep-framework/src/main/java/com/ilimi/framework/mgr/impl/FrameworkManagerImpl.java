@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.framework.enums.FrameworkEnum;
@@ -34,18 +35,23 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	 * 
 	 */
 	@Override
-	public Response createFramework(Map<String, Object> request) throws Exception {
+	public Response createFramework(Map<String, Object> request, String channelId) throws Exception {
 		if (null == request)
 			return ERROR("ERR_INVALID_FRMAEWORK_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-			String channelId=(String)request.get("owner");
-			boolean isValidChannel=false;
-			isValidChannel=validateChannel(channelId);
-			if(isValidChannel){
-				request.put("channel", channelId);
-				return create(request, FRAMEWORK_OBJECT_TYPE, null);
-			}else{
-				return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.", ResponseCode.CLIENT_ERROR);
-			}
+
+		if (null == request.get("code"))
+			throw new ClientException("ERR_FRAMEWORK_CODE_REQUIRED", "Unique code is mandatory for framework",
+					ResponseCode.CLIENT_ERROR);
+
+		request.put("identifier", (String) request.get("code"));
+
+		if (validateChannel(channelId)) {
+			return create(request, FRAMEWORK_OBJECT_TYPE);
+		} else {
+			return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
+					ResponseCode.CLIENT_ERROR);
+		}
+
 	}
 
 	/*
@@ -57,7 +63,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	 * 
 	 */
 	@Override
-	public Response readFramework(String graphId, String frameworkId) throws Exception {
+	public Response readFramework(String frameworkId) throws Exception {
 		return read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 	}
 
@@ -76,9 +82,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
 					"Framework Not Found With Id : "+frameworkId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
-		String owner = (String) graphNode.getMetadata().get("owner");
-		if (!(channelId.equalsIgnoreCase(owner))) {
-			return ERROR("ERR_SERVER_ERROR_UPDATE_FRAMEWORK", "Invalid Request. Owner Information Not Matched.",
+		String ownerChannelId = (String) graphNode.getMetadata().get("channel");
+		if (!(channelId.equalsIgnoreCase(ownerChannelId))) {
+			return ERROR("ERR_SERVER_ERROR_UPDATE_FRAMEWORK", "Invalid Request. Channel Id Not Matched.",
 					ResponseCode.CLIENT_ERROR);
 		}
 		return update(frameworkId, FRAMEWORK_OBJECT_TYPE, map);
@@ -115,10 +121,10 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 					"Framework Not Found With Id : "+frameworkId);
 		Node frameworkNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		
-		String owner = (String) frameworkNode.getMetadata().get("owner");
+		String ownerChannelId = (String) frameworkNode.getMetadata().get("channel");
 
-		if (!(channelId.equalsIgnoreCase(owner))) {
-			return ERROR("ERR_SERVER_ERROR_UPDATE_FRAMEWORK", "Invalid Request. Owner Information Not Matched.",
+		if (!(channelId.equalsIgnoreCase(ownerChannelId))) {
+			return ERROR("ERR_SERVER_ERROR_UPDATE_FRAMEWORK", "Invalid Request. Channel Id Not Matched.",
 					ResponseCode.CLIENT_ERROR);
 		}
 		

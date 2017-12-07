@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.framework.mgr.ITermManager;
 
@@ -29,8 +28,6 @@ public class TermCategoryV3Controller extends BaseController {
 
 	@Autowired
 	private ITermManager termManager;
-
-	private String graphId = "domain";
 
 	/**
 	 * 
@@ -47,12 +44,8 @@ public class TermCategoryV3Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("term");
-			if (termManager.validateCategoryId(categoryId)) {
-				Response response = termManager.createTerm(categoryId, map);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermCreation", apiId, null);
-			}
+			Response response = termManager.createTerm(null, categoryId, map);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while creating term (Create term API): ", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
@@ -71,12 +64,8 @@ public class TermCategoryV3Controller extends BaseController {
 			@RequestParam(value = "category", required = true) String categoryId) {
 		String apiId = "ekstep.learning.category.term.read";
 		try {
-			if (termManager.validateCategoryId(categoryId)) {
-				Response response = termManager.readTerm(graphId, termId, categoryId);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for Term", apiId, null);
-			}
+			Response response = termManager.readTerm(null, termId, categoryId);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Read term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
@@ -99,13 +88,9 @@ public class TermCategoryV3Controller extends BaseController {
 		String apiId = "ekstep.learning.category.term.update";
 		Request request = getRequest(requestMap);
 		try {
-			if (termManager.validateCategoryId(categoryId)) {
-				Map<String, Object> map = (Map<String, Object>) request.get("term");
-				Response response = termManager.updateTerm(categoryId, termId, map);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermUpdate", apiId, null);
-			}
+			Map<String, Object> map = (Map<String, Object>) request.get("term");
+			Response response = termManager.updateTerm(null, categoryId, termId, map);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Update term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
@@ -126,13 +111,9 @@ public class TermCategoryV3Controller extends BaseController {
 		String apiId = "ekstep.learning.category.term.search";
 		Request request = getRequest(requestMap);
 		try {
-			if (termManager.validateCategoryId(categoryID)) {
-				Map<String, Object> map = (Map<String, Object>) request.get("search");
-				Response response = termManager.searchTerms(categoryID, map);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermSearch", apiId, null);
-			}
+			Map<String, Object> map = (Map<String, Object>) request.get("search");
+			Response response = termManager.searchTerms(null, categoryID, map);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Search terms", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
@@ -151,12 +132,8 @@ public class TermCategoryV3Controller extends BaseController {
 			@RequestParam(value = "category", required = true) String categoryId) {
 		String apiId = "ekstep.learning.category.term.retire";
 		try {
-			if (termManager.validateCategoryId(categoryId)) {
-				Response response = termManager.retireTerm(categoryId, termId);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermRetire", apiId, null);
-			}
+			Response response = termManager.retireTerm(null, categoryId, termId);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("retire term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);

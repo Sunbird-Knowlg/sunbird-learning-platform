@@ -14,18 +14,19 @@ import com.ilimi.common.dto.Response;
 public interface ITermManager {
 
 	/**
+	 * @param scopeId
 	 * @param categoryId
-	 * @param map
+	 * @param request
 	 * @return
 	 */
-	Response createTerm(String categoryId, Map<String, Object> map);
+	Response createTerm(String scopeId, String categoryId, Map<String, Object> request);
 
 	/**
 	 * @param graphId
 	 * @param termId
 	 * @return
 	 */
-	Response readTerm(String graphId, String termId, String scopeId);
+	Response readTerm(String scopeId, String termId, String categoryId);
 
 	/**
 	 * @param categoryId
@@ -33,7 +34,7 @@ public interface ITermManager {
 	 * @param map
 	 * @return
 	 */
-	Response updateTerm(String categoryId, String termId, Map<String, Object> map);
+	Response updateTerm(String scopeId, String categoryId, String termId, Map<String, Object> map);
 
 	/**
 	 * @param categoryId
@@ -41,18 +42,14 @@ public interface ITermManager {
 	 * @param map
 	 * @return
 	 */
-	Response searchTerms(String categoryId, Map<String, Object> map);
+	Response searchTerms(String scopeId, String categoryId, Map<String, Object> map);
 
 	/**
 	 * @param categoryId
 	 * @param termId
 	 * @return
 	 */
-	Response retireTerm(String categoryId, String termId);
+	Response retireTerm(String scopeId, String categoryId, String termId);
 
-	Boolean validateRequest(String channelId, String categoryId);
 
-	Boolean validateCategoryId(String categoryId);
-	
-	Boolean validateMasterTerm(String categoryId, String termLabel);
 }

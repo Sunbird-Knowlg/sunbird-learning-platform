@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -83,7 +82,6 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 		createCategoryInstance();
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	private static void createChannel() {
 		try {
 			Map<String, Object> requestMap = mapper.readValue(createChannelReq,
@@ -106,7 +104,6 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	/**
 	 * 
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	private static void createCategoryInstance() {
 		try {
 			frameworkId = createframework();
@@ -132,13 +129,13 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	 * @return
 	 */
 	private static String createframework() {
-		String frameworkReq = "{ \"name\": \"CBSE2\", \"description\": \"CBSE framework of Bihar\", \"code\": \"org.ekstep.framework.create\", \"owner\": \"channelKA\" }";
+		String frameworkReq = "{ \"name\": \"CBSE2\", \"description\": \"CBSE framework of Bihar\", \"code\": \"org.ekstep.framework.create\" }";
 		try {
 
 			Map<String, Object> requestMap = mapper.readValue(frameworkReq, new TypeReference<Map<String, Object>>() {
 			});
-
-			Response resp = frameworkManager.createFramework(requestMap);
+			String channelId="channelKA";
+			Response resp = frameworkManager.createFramework(requestMap,channelId);
 			return (String) resp.getResult().get("node_id");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -172,7 +169,7 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 		Map<String, Object> requestMap = mapper.readValue(createMasterTermJson,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp = termManager.createTerm(masterCategoryId, requestMap);
+		Response resp = termManager.createTerm(null, masterCategoryId, requestMap);
 		masterTermId = (String) resp.getResult().get("node_id");
 		System.out.println("masterTermId : "+masterTermId);
 	}

@@ -32,22 +32,34 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.ITermManager#createTerm(java.lang.String, java.util.Map)
 	 */
+	/* (non-Javadoc)
+	 * @see org.ekstep.taxonomy.mgr.ITermManager#createTerm(java.lang.String, java.util.Map)
+	 */
 	@Override
-	public Response createTerm(String categoryId, Map<String, Object> request) {
+	public Response createTerm(String scopeId, String categoryId, Map<String, Object> request) {
 		if (null == request)
 			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		if (StringUtils.isBlank((String) request.get(TermEnum.label.name())))
+		String label = (String) request.get(TermEnum.label.name());
+		if (StringUtils.isBlank(label))
 			return ERROR("ERR_TERM_LABEL_REQUIRED", "Unique Label is required for Term", ResponseCode.CLIENT_ERROR);
 
-		String id = generateIdentifier(categoryId, (String) request.get(TermEnum.label.name()));
+		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
+			validateRequest(scopeId, categoryId);
+			validateMasterTerm(categoryId, label);
+		} else {
+			validateCategoryId(categoryId);
+		}
+
+		String id = generateIdentifier(categoryId, label);
+
 		if (null != id)
 			request.put(TermEnum.identifier.name(), id);
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
 
-		List<Relation> inRelations = setRelations(categoryId);
-
-		return create(request, TERM_OBJECT_TYPE, inRelations);
+		setRelations(categoryId, request);
+		return create(request, TERM_OBJECT_TYPE);
 	}
 
 
@@ -55,8 +67,15 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 * @see org.ekstep.framework.mgr.ITermManager#readTerm(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Response readTerm(String graphId, String termId, String scopeId) {
-		if (validateScopeNode(termId, scopeId)) {
+	public Response readTerm(String scopeId, String termId, String categoryId) {
+		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
+			validateRequest(scopeId, categoryId);
+		} else {
+			validateCategoryId(categoryId);
+		}
+		termId = generateIdentifier(categoryId, termId);
+		if (validateScopeNode(termId, categoryId)) {
 			return read(termId, TERM_OBJECT_TYPE, TermEnum.term.name());
 		} else {
 			throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
@@ -68,11 +87,18 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 * @see org.ekstep.framework.mgr.ITermManager#updateCategory(java.lang.String, java.util.Map)
 	 */
 	@Override
-	public Response updateTerm(String categoryId, String termId, Map<String, Object> map) {
+	public Response updateTerm(String scopeId, String categoryId, String termId, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (map.containsKey(TermEnum.label.name()))
 			return ERROR("ERR_SERVER_ERROR", "Term Label cannot be updated", ResponseCode.SERVER_ERROR);
+		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
+			validateRequest(scopeId, categoryId);
+		} else {
+			validateCategoryId(categoryId);
+		}
+		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
 			return update(termId, TERM_OBJECT_TYPE, map);
 		} else {
@@ -85,7 +111,13 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 * @see org.ekstep.framework.mgr.ITermManager#searchTerms(java.lang.String, java.util.Map)
 	 */
 	@Override
-	public Response searchTerms(String categoryId, Map<String, Object> map) {
+	public Response searchTerms(String scopeId, String categoryId, Map<String, Object> map) {
+		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
+			validateRequest(scopeId, categoryId);
+		} else {
+			validateCategoryId(categoryId);
+		}
 		return search(map, TERM_OBJECT_TYPE, "terms", categoryId);
 	}
 
@@ -93,7 +125,14 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 * @see com.ilimi.framework.mgr.ITermManager#retireTerm(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Response retireTerm(String categoryId, String termId) {
+	public Response retireTerm(String scopeId, String categoryId, String termId) {
+		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
+			validateRequest(scopeId, categoryId);
+		} else {
+			validateCategoryId(categoryId);
+		}
+		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
 			return retire(termId, TERM_OBJECT_TYPE);
 		} else {
@@ -101,44 +140,46 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		}
 	}
 
-	public Boolean validateRequest(String scope, String categoryId) {
+	public void validateRequest(String scope, String categoryId) {
+		Boolean valid = false;
 		if (StringUtils.isNotBlank(scope) && StringUtils.isNotBlank(categoryId)) {
 			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
-			if (checkError(categoryResp)) {
-				return false;
-			} else {
+			if (!checkError(categoryResp)) {
 				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
 				if (StringUtils.equalsIgnoreCase(categoryId, node.getIdentifier())) {
 					List<Relation> inRelation = node.getInRelations();
 					if (!inRelation.isEmpty()) {
 						for (Relation relation : inRelation) {
-							if (StringUtils.equalsIgnoreCase(scope, relation.getStartNodeId()))
-								return true;
+							if (StringUtils.equalsIgnoreCase(scope, relation.getStartNodeId())) {
+								valid = true;
+								break;
+							}
 						}
 					}
 				}
+			} else {
+				valid = false;
 			}
+			if (!valid)
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
 		} else {
 			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
 		}
-		return false;
+
 	}
 
-	public Boolean validateCategoryId(String categoryId) {
+	private void validateCategoryId(String categoryId) {
 		if (StringUtils.isNotBlank(categoryId)) {
 			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
-			if (checkError(categoryResp)) {
-				return false;
-			} else {
+			if (!checkError(categoryResp)) {
 				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
-				if (StringUtils.equalsIgnoreCase(categoryId, node.getIdentifier())) {
-					return true;
+				if (!StringUtils.equalsIgnoreCase(categoryId, node.getIdentifier())) {
+					throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
 				}
 			}
 		} else {
 			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
 		}
-		return false;
 	}
 	
 	/**
@@ -148,23 +189,21 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 * @author gauraw
 	 * 
 	 * */
-	public Boolean validateMasterTerm(String categoryId,String termLabel) {
+	public void validateMasterTerm(String categoryId, String termLabel) {
 		if (StringUtils.isNotBlank(termLabel)) {
 			String temp[]=categoryId.split("_");
 			String termId=generateIdentifier(temp[temp.length-1],termLabel);
 			Response termResp = getDataNode(GRAPH_ID, termId);
-			if (checkError(termResp)) {
-				return false;
-			} else {
+			if (!checkError(termResp)) {
 				Node node = (Node) termResp.get(GraphDACParams.node.name());
-				if (StringUtils.equalsIgnoreCase(termId, node.getIdentifier())) {
-					return true;
+				if (!StringUtils.equalsIgnoreCase(termId, node.getIdentifier())) {
+					throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
 				}
 			}
 		} else {
 			throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
 		}
-		return false;
+
 	}
 
 }

@@ -38,7 +38,7 @@ import com.ilimi.framework.test.common.TestSetup;
  * @author pradyumna
  *
  */
-//@Ignore
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -124,7 +124,7 @@ public class TermChannelV3ControllerTest extends TestSetup {
 		Map<String, Object> requestMap = mapper.readValue(createMasterTermJson,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp = termManager.createTerm(masterCategoryId, requestMap);
+		Response resp = termManager.createTerm(null, masterCategoryId, requestMap);
 		masterTermId = (String) resp.getResult().get("node_id");
 		System.out.println("masterTermId : "+masterTermId);
 	}

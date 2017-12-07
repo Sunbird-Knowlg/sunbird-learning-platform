@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.framework.enums.CategoryEnum;
 import com.ilimi.framework.enums.ChannelEnum;
 import com.ilimi.framework.mgr.IChannelManager;
 
@@ -25,7 +23,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		if (null == request.get("code") || StringUtils.isBlank((String)request.get("code")))
 			return ERROR("ERR_CHANNEL_CODE_REQUIRED", "Unique code is mandatory for Channel", ResponseCode.CLIENT_ERROR);
 		request.put("identifier", (String)request.get("code"));
-		return create(request, CHANNEL_OBJECT_TYPE, null);
+		return create(request, CHANNEL_OBJECT_TYPE);
 	}
 
 	@Override
