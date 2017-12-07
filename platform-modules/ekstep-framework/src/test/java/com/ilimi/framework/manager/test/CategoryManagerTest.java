@@ -38,7 +38,7 @@ import org.junit.BeforeClass;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class CategoryManagerTest {
+public class CategoryManagerTest extends TestSetup{
 	
 	@Autowired
 	ICategoryManager mgr;
@@ -51,10 +51,10 @@ public class CategoryManagerTest {
 	String createCategoryWithoutCode = "{\"category\":{\"name\":\"category\",\"description\":\"sample description of category\"}}";
 	String createCategoryWithoutInvalidRequest = "{\"catesafgory\":{\"name\":\"category\",\"description\":\"sample description of category\"}}";
 	
-//	@BeforeClass()
-//	public static void beforeClass() throws Exception {
-//		loadDefinition("definitions/category_definition.json");
-//	}
+	@BeforeClass()
+	public static void beforeClass() throws Exception {
+		loadDefinition("definitions/category_definition.json");
+	}
 	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
