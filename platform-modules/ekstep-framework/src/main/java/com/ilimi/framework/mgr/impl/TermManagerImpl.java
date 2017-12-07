@@ -44,6 +44,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			return ERROR("ERR_TERM_LABEL_REQUIRED", "Unique Label is required for Term", ResponseCode.CLIENT_ERROR);
 
 		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
 			validateMasterTerm(categoryId, label);
 		} else {
@@ -57,6 +58,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
 
+		setRelations(categoryId, request);
 		return create(request, TERM_OBJECT_TYPE);
 	}
 
@@ -67,11 +69,12 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	@Override
 	public Response readTerm(String scopeId, String termId, String categoryId) {
 		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
 		} else {
 			validateCategoryId(categoryId);
 		}
-
+		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
 			return read(termId, TERM_OBJECT_TYPE, TermEnum.term.name());
 		} else {
@@ -90,11 +93,12 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		if (map.containsKey(TermEnum.label.name()))
 			return ERROR("ERR_SERVER_ERROR", "Term Label cannot be updated", ResponseCode.SERVER_ERROR);
 		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
 		} else {
 			validateCategoryId(categoryId);
 		}
-
+		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
 			return update(termId, TERM_OBJECT_TYPE, map);
 		} else {
@@ -109,6 +113,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	@Override
 	public Response searchTerms(String scopeId, String categoryId, Map<String, Object> map) {
 		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
 		} else {
 			validateCategoryId(categoryId);
@@ -122,10 +127,12 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	@Override
 	public Response retireTerm(String scopeId, String categoryId, String termId) {
 		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
 		} else {
 			validateCategoryId(categoryId);
 		}
+		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
 			return retire(termId, TERM_OBJECT_TYPE);
 		} else {

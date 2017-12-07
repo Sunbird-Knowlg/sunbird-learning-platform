@@ -240,13 +240,6 @@ public class BaseFrameworkManager extends BaseManager {
 		return id;
 	}
 
-	public List<Relation> setRelations(String scopeId) {
-		Relation inRelation = new Relation(scopeId, "hasSequenceMember", null);
-		List<Relation> inRelations = new ArrayList<Relation>();
-		inRelations.add(inRelation);
-		return inRelations;
-	}
-
 	public Boolean validateScopeNode(String scopeId, String identifier) {
 		Response responseNode = getDataNode(GRAPH_ID, scopeId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
@@ -321,5 +314,18 @@ public class BaseFrameworkManager extends BaseManager {
 			isValidChannel=true;
 		}
 		return isValidChannel;
+	}
+
+	public void setRelations(String scopeId, Map<String, Object> request) {
+		Response responseNode = getDataNode(GRAPH_ID, scopeId);
+		Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
+		String objectType = dataNode.getObjectType();
+		List<Map<String, Object>> relationList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> relationMap = new HashMap<String, Object>();
+		relationMap.put("identifier", scopeId);
+		relationMap.put("relation", "hasSequenceMember");
+		relationList.add(relationMap);
+		request.put(StringUtils.lowerCase(objectType), relationList);
+
 	}
 }

@@ -43,14 +43,13 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create CategoryInstanceId",
 					ResponseCode.SERVER_ERROR);
-
-//		List<Relation> inRelations = setRelations(identifier);
-
+		setRelations(identifier, request);
 		return create(request, CATEGORY_INSTANCE_OBJECT_TYPE);
 	}
 
 	@Override
 	public Response readCategoryInstance(String identifier, String categoryInstanceId) {
+		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
 			return read(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.categoryInstance.name());
 		} else {
@@ -65,6 +64,7 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	public Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(identifier, categoryInstanceId)) {
 			return update(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
 		} else {
@@ -82,6 +82,7 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 
 	@Override
 	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
+		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(identifier, categoryInstanceId)) {
 			return retire(identifier, CATEGORY_INSTANCE_OBJECT_TYPE);
 		} else {
