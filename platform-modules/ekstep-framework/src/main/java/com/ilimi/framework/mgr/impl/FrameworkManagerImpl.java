@@ -42,7 +42,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			isValidChannel=validateChannel(channelId);
 			if(isValidChannel){
 				request.put("channel", channelId);
-				return create(request, FRAMEWORK_OBJECT_TYPE, null);
+				return create(request, FRAMEWORK_OBJECT_TYPE);
 			}else{
 				return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.", ResponseCode.CLIENT_ERROR);
 			}

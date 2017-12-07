@@ -45,9 +45,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
 
-		List<Relation> inRelations = setRelations(categoryId);
-
-		return create(request, TERM_OBJECT_TYPE, inRelations);
+		return create(request, TERM_OBJECT_TYPE);
 	}
 
 

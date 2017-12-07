@@ -38,21 +38,19 @@ public class BaseFrameworkManager extends BaseManager {
 
 	protected static final String GRAPH_ID = "domain";
 
-	protected Response create(Map<String, Object> request, String objectType, List<Relation> inRelations) {
+	protected Response create(Map<String, Object> request, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(request, definition, null);
 			node.setObjectType(objectType);
 			node.setGraphId(GRAPH_ID);
-			if (null != inRelations && !inRelations.isEmpty())
-				node.setInRelations(inRelations);
 			Response response = createDataNode(node);
 			if (!checkError(response))
 				return response;
 			else
 				return response;
 		} catch (Exception e) {
-			return ERROR("ERR_SERVER_ERROR", "Internal Server Error (Create Framework API)", ResponseCode.SERVER_ERROR);
+			return ERROR("ERR_SERVER_ERROR", "Internal Server Error", ResponseCode.SERVER_ERROR);
 		}
 	}
 
