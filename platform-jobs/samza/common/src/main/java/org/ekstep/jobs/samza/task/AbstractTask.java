@@ -51,6 +51,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	@Override
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
+		System.out.println("Message received: " + message);
 		long jobStartTime = 0;
 		int maxIterationCount = MAXITERTIONCOUNT;
 		if(StringUtils.isNotEmpty(this.config.get("max.iteration.count.samza.job"))) 
