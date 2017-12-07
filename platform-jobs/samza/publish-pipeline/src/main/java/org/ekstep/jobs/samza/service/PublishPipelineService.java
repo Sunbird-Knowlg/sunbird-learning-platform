@@ -91,8 +91,8 @@ public class PublishPipelineService implements ISamzaService {
 		
 		int maxPublishRetry;
 		
-		if(StringUtils.isNotEmpty(this.config.get("MAX_ITERATION_COUNT_FOR_SAMZA_JOB")))
-			maxPublishRetry = Integer.valueOf(this.config.get("MAX_ITERATION_COUNT_FOR_SAMZA_JOB"));
+		if(StringUtils.isNotEmpty(this.config.get("max.iteration.count.samza.job")))
+			maxPublishRetry = Integer.valueOf(this.config.get("max.iteration.count.samza.job"));
 		else
 			maxPublishRetry = MAXITERTIONCOUNT;
 		
