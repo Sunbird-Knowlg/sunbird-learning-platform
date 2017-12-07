@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -44,7 +43,6 @@ import akka.actor.ActorRef;
  * @author pradyumna
  *
  */
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -131,13 +129,13 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	 * @return
 	 */
 	private static String createframework() {
-		String frameworkReq = "{ \"name\": \"CBSE2\", \"description\": \"CBSE framework of Bihar\", \"code\": \"org.ekstep.framework.create\", \"owner\": \"channelKA\" }";
+		String frameworkReq = "{ \"name\": \"CBSE2\", \"description\": \"CBSE framework of Bihar\", \"code\": \"org.ekstep.framework.create\" }";
 		try {
 
 			Map<String, Object> requestMap = mapper.readValue(frameworkReq, new TypeReference<Map<String, Object>>() {
 			});
-
-			Response resp = frameworkManager.createFramework(requestMap);
+			String channelId="channelKA";
+			Response resp = frameworkManager.createFramework(requestMap,channelId);
 			return (String) resp.getResult().get("node_id");
 		} catch (Exception e) {
 			e.printStackTrace();
