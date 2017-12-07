@@ -134,7 +134,12 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	}
 	
 	private void pushEvent(Map<String, Object> message, MessageCollector collector, String topicId) throws Exception {
-		//collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), topicId), message));
+		try {
+			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), topicId), message));
+		} catch (Exception e) {
+			System.out.println("Topic: "+ topicId);
+			e.printStackTrace();
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
