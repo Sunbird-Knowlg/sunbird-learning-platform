@@ -27,6 +27,15 @@ public abstract class AbstractSamzaService implements ISamzaService {
 	private static String endJobEventId = "JOB_END";
 	protected static int MAXITERTIONCOUNT= 2;
 	
+	private SystemStream backendStream = null;
+	
+	private SystemStream getBackendSystemStream() {
+		if (null == this.backendStream) {
+			this.backendStream = new SystemStream(SamzaCommonParams.kafka.name(), Platform.config.getString("backend_telemetry_topic"));
+		}
+		return this.backendStream;
+	}
+	
 	protected void preProcess(Map<String, Object> message, MessageCollector collector) throws Exception {
 		String eid = (String) message.get(SamzaCommonParams.eid.name());
 		if(StringUtils.equalsIgnoreCase(this.eventId, eid)) {
@@ -39,14 +48,14 @@ public abstract class AbstractSamzaService implements ISamzaService {
 
 				if (isInvalidMessage(message)) {
 					String event = generateEvent(LoggerEnum.ERROR.name(), "Samza job de-serialization error", message);
-					collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), Platform.config.getString("backend_telemetry_topic")), event));
+					collector.send(new OutgoingMessageEnvelope(getBackendSystemStream(), event));
 					// throw exception and catch.
 				}
 				
 				if(currentIteration <= getMaxIterations()) {
 					Map<String, Object> jobStartEvent = getJobEvent("JOBSTARTEVENT", message);
 					System.out.println("Inside preProcess Before pushEvent: " + message.toString());
-					pushEvent(jobStartEvent, collector, Platform.config.getString("backend_telemetry_topic"));
+					pushEvent(jobStartEvent, collector, getBackendSystemStream());
 				}
 				
 				System.out.println("Preprocess completed...");
@@ -68,7 +77,7 @@ public abstract class AbstractSamzaService implements ISamzaService {
 			Map<String, Object> jobEndEvent = getJobEvent("JOBENDEVENT", message);
 			addExecutionTime(jobEndEvent, jobStartTime); //Call to add execution time
 			System.out.println("Inside postProcess Before pushEvent: " + message.toString());
-			pushEvent(jobEndEvent, collector, Platform.config.getString("backend_telemetry_topic"));
+			pushEvent(jobEndEvent, collector, getBackendSystemStream());
 		}
 		
 		Map<String, Object> edata = (Map<String, Object>) message.get(SamzaCommonParams.edata.name());
@@ -102,11 +111,10 @@ public abstract class AbstractSamzaService implements ISamzaService {
 		return event;
 	}
 	
-	private void pushEvent(Map<String, Object> message, MessageCollector collector, String topicId) throws Exception {
+	private void pushEvent(Map<String, Object> message, MessageCollector collector, SystemStream stream) throws Exception {
 		try {
-			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), topicId), message));
+			collector.send(new OutgoingMessageEnvelope(stream, message));
 		} catch (Exception e) {
-			System.out.println("Topic: "+ topicId);
 			e.printStackTrace();
 		}
 	}
