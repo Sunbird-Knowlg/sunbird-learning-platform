@@ -48,6 +48,8 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 
 	@Override
 	public Response searchCategory(Map<String, Object> map) {
+		if (null == map)
+			return ERROR("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		return search(map, CATEGORY_OBJECT_TYPE, "categories", null);
 
 	}

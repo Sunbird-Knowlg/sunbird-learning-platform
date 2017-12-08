@@ -11,9 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +23,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.framework.mgr.ICategoryManager;
+import com.ilimi.framework.mgr.IChannelManager;
+import com.ilimi.framework.mgr.IFrameworkManager;
 import com.ilimi.framework.test.common.TestSetup;
 
 /**
@@ -38,11 +37,13 @@ import com.ilimi.framework.test.common.TestSetup;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class CategoryManagerTest extends TestSetup{
+public class CategoryManagerTest extends TestSetup {
 	
 	@Autowired
 	ICategoryManager mgr;
-	
+	ICategoryManager categoryMgr;
+	IChannelManager channelMgr;
+	IFrameworkManager frmwrkMgr;
 	static ObjectMapper mapper = new ObjectMapper();
 
 	static int rn = generateRandomNumber(0, 9999);
@@ -55,9 +56,6 @@ public class CategoryManagerTest extends TestSetup{
 	public static void beforeClass() throws Exception {
 		loadDefinition("definitions/category_definition.json");
 	}
-	
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
@@ -77,9 +75,7 @@ public class CategoryManagerTest extends TestSetup{
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
 		Response response = mgr.createCategory(categoryMap);
 		String responseCode=(String) response.getResponseCode().toString();
-		int resCode=response.getResponseCode().code();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 400);
 	}
 	
 	@Test
@@ -87,9 +83,7 @@ public class CategoryManagerTest extends TestSetup{
 		Map<String,Object> categoryMap = new HashMap<String,Object>();
 		Response response = mgr.createCategory(categoryMap);
 		String responseCode=(String) response.getResponseCode().toString();
-		int resCode=response.getResponseCode().code();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 400);
 	}
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
@@ -108,24 +102,6 @@ public class CategoryManagerTest extends TestSetup{
 		Map<String,Object> categoryResult = (Map)resultMap.get("category");
 		Assert.assertEquals(node_id, categoryResult.get("identifier"));
 		Assert.assertEquals("sample description of category", categoryResult.get("description"));
-	}
-	
-	@Test(expected = ResourceNotFoundException.class)
-	public void readCategoryWithInvalidNodeId() {
-		Response response = mgr.readCategory("do_123456789");
-		String responseCode=(String) response.getResponseCode().toString();
-		int resCode=response.getResponseCode().code();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 404);
-	}
-	
-	@Test(expected = ResourceNotFoundException.class)
-	public void readCategoryWithoutNodeId() {
-		Response response = mgr.readCategory(null);
-		String responseCode=(String) response.getResponseCode().toString();
-		int resCode=response.getResponseCode().code();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 404);
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -156,9 +132,7 @@ public class CategoryManagerTest extends TestSetup{
 		updateRequest.put("description", "testDescription");
 		Response resp = mgr.updateCategory("do_13234567", updateRequest);
 		String responseCode=(String) resp.getResponseCode().toString();
-		int resCode=resp.getResponseCode().code();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 400);	
+		assertTrue(responseCode.equals("CLIENT_ERROR"));	
 	}
 	
 	@Test
@@ -167,9 +141,7 @@ public class CategoryManagerTest extends TestSetup{
 		updateRequest.put("description", "testDescription");
 		Response resp = mgr.updateCategory(null, updateRequest);
 		String responseCode=(String) resp.getResponseCode().toString();
-		int resCode=resp.getResponseCode().code();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 400);	
 	}
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
@@ -209,18 +181,14 @@ public class CategoryManagerTest extends TestSetup{
 	public void retireCategoryWithInvalidId() {
 		Response resp = mgr.retireCategory(null);
 		String responseCode=(String) resp.getResponseCode().toString();
-		int resCode=resp.getResponseCode().code();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 400);	
 	}
 	
 	@Test
 	public void retireCategoryWithoutNodeId() {
 		Response resp = mgr.retireCategory("do_12456");
 		String responseCode=(String) resp.getResponseCode().toString();
-		int resCode=resp.getResponseCode().code();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
-		assertTrue(resCode == 400);	
 	}
 	
 	private static int generateRandomNumber(int min, int max) {
