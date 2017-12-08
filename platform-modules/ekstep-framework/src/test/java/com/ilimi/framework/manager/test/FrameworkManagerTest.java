@@ -30,7 +30,7 @@ import com.ilimi.framework.test.common.TestSetup;
  * @author gauraw
  *
  */
-@Ignore
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FrameworkManagerTest extends TestSetup{
 	
@@ -42,9 +42,9 @@ public class FrameworkManagerTest extends TestSetup{
 	
 	static ObjectMapper mapper = new ObjectMapper();
 	
-	private static final String createFrameworkReq = "{\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\"}";
-	private static final String createChannelReq = "{\"name\":\"channelKA\",\"description\":\"\",\"code\":\"channelKA\",\"identifier\":\"channelKA\"}";
-	private static final String createFrameworkReqJson = "{\"name\": \"KASB01\",\"description\": \"State Board framework of Karnatka\",\"code\": \"org.ekstep.framework.create\"}";
+	private static final String createFrameworkReq = "{\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"ka_ncert01\"}";
+	private static final String createChannelReq = "{\"name\":\"channelKA\",\"description\":\"\",\"code\":\"channelKA\"}";
+	private static final String createFrameworkReqJson = "{\"name\": \"KASB01\",\"description\": \"State Board framework of Karnatka\",\"code\": \"ka_sb01\"}";
 	private static final String updateFrameworkJson = "{\"versionKey\": \"1511787372693\",\"description\": \" framework description\",\"categories\": [{\"identifier\": \"do_11238579307347148811\",\"name\": \"cat3\"}]}";
 	
 	

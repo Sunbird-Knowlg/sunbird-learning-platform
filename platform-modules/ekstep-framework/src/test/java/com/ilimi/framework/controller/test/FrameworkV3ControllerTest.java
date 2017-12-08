@@ -35,7 +35,7 @@ import com.ilimi.framework.test.common.TestSetup;
  * @author gauraw
  *
  */
-@Ignore
+//@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -51,17 +51,13 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	private static final String basePath = "/v3/framework";
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String frameworkId;
-	private static String categoryInstanceId;
 	private static String channelId;
-	private static CategoryInstanceManagerImpl categoryInstManager = new CategoryInstanceManagerImpl();
 	private static ChannelManagerImpl channelManager = new ChannelManagerImpl();
 	private static FrameworkManagerImpl frameworkManager = new FrameworkManagerImpl();
 
-	private static final String createFrameworkReq = "{\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\",\"owner\": \"channelKA\"}";
+	private static final String createFrameworkReq = "{\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"ka_ncert\"}";
 
-	private static final String createCategoryInstanceReq = "{\"name\":\"category\",\"description\":\"\",\"code\":\"medium\"}";
-	
-	private static final String createChannelReq = "{\"name\":\"channel\",\"description\":\"\",\"code\":\"channelKA\",\"identifier\":\"channelKA\"}";
+	private static final String createChannelReq = "{\"name\":\"Karnatka\",\"description\":\"Channel for Karnatka\",\"code\":\"channelKA\"}";
 
 	private static final String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\"}}}";
 
@@ -81,7 +77,6 @@ public class FrameworkV3ControllerTest extends TestSetup {
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json", "definitions/categoryInstance_definition.json");
 		createChannel();
 		createFramework();
-		createCategoryInstance();
 	}
 
 	@Before
@@ -95,6 +90,7 @@ public class FrameworkV3ControllerTest extends TestSetup {
 			Map<String, Object> requestMap = mapper.readValue(createFrameworkReq,
 					new TypeReference<Map<String, Object>>() {
 					});
+			requestMap.put("channel", channelId);
 			Response resp = frameworkManager.createFramework(requestMap, channelId);
 			frameworkId = (String) resp.getResult().get("node_id");
 		} catch (Exception e) {
@@ -104,21 +100,6 @@ public class FrameworkV3ControllerTest extends TestSetup {
 
 	}
 
-	private static void createCategoryInstance() {
-		try {
-			Map<String, Object> requestMap = mapper.readValue(createCategoryInstanceReq,
-					new TypeReference<Map<String, Object>>() {
-					});
-
-			Response resp = categoryInstManager.createCategoryInstance(frameworkId, requestMap);
-			categoryInstanceId = (String) resp.getResult().get("node_id");
-			System.out.println("Category Instance: " + categoryInstanceId);
-		} catch (Exception e) {
-			System.out.println("Exception Occured while creating Category Instance :" + e.getMessage());
-			e.printStackTrace();
-		}
-	}
-	
 	private static void createChannel() {
 		try {
 			Map<String, Object> requestMap = mapper.readValue(createChannelReq,
@@ -152,7 +133,6 @@ public class FrameworkV3ControllerTest extends TestSetup {
 		Response resp = mapper.readValue(actions.andReturn().getResponse().getContentAsString(),
 				new TypeReference<Response>() {
 				});
-		frameworkId = (String) resp.getResult().get("node_id");
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -249,16 +229,16 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	 * Scenario 7 : update Framework with valid url, valid request body and
 	 * valid framework identifier.
 	 * 
-	 * Given: Valid url, Valid request body and Valid framework identifier When:
-	 * Framework update API hits. Then: 200 - OK, Framework partial update done.
+	 * Given: Valid url, Valid request body and Valid framework identifier 
+	 * When: Framework update API hits. 
+	 * Then: 200 - OK, Framework partial update done.
 	 * 
 	 */
 	
 	@Test
 	public void mockTestFramework_07() throws Exception {
 		String path = basePath + "/update/" + frameworkId;
-		String updateFrameworkValidJson = "{\"id\": \"ekstep.framework.update\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"versionKey\": \"1511787372693\",\"description\": \" framework description\",\"categories\": [{\"identifier\": \""
-				+ categoryInstanceId + "\",\"name\": \"cat3\"}]}}}";
+		String updateFrameworkValidJson = "{\"id\": \"ekstep.framework.update\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"versionKey\": \"1511787372693\",\"description\": \" Karnatka NCERT Framework for Std 1 to 10\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(updateFrameworkValidJson));
 		System.out.println("Response 07: " + actions.andReturn().getResponse().getContentAsString());
@@ -269,8 +249,9 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	 * Scenario 8 : update Framework with Invalid url, valid request body and
 	 * valid framework identifier.
 	 * 
-	 * Given: Valid url, Valid request body and Valid framework identifier When:
-	 * Framework update API hits. Then: 404 , Invalid Request.
+	 * Given: Valid url, Valid request body and Valid framework identifier 
+	 * When:Framework update API hits. 
+	 * Then: 404 , Invalid Request.
 	 * 
 	 */
 	@Test
@@ -304,12 +285,12 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	 *
 	 * Scenario 10 : update Framework with valid url, valid request body and
 	 * valid framework identifier but invalid owner( Channel Id in Header will
-	 * not match with owner).
+	 * not match with owner channel Id).
 	 * 
 	 * Given: Valid url, Valid request body and Valid framework identifier,
-	 * Invalid Header (Channel Id in Header will not match with owner) 
+	 * Invalid Header (Channel Id in Header will not match with owner channel id) 
 	 * When: Framework update API hits. 
-	 * Then: 400 , Invalid Request. Owner Information Not Matched. - CLIENT_ERROR
+	 * Then: 400 , Invalid Request. Channel Id Not Matched. - CLIENT_ERROR
 	 * 
 	 */
 	@Test
