@@ -259,16 +259,27 @@ public class BaseFrameworkManager extends BaseManager {
 
 	private MetadataCriterion getMetadata(String scopeId, Map<String, Object> map, String objectType) {
 		List<Filter> filters = new ArrayList<Filter>();
-		Filter filter = new Filter(FrameworkEnum.status.name(), SearchConditions.OP_IN, FrameworkEnum.Live.name());
-		filters.add(filter);
+		Filter filter = null;
+		boolean defaultSearch = true;
 
 		if ((null != map) && !map.isEmpty()) {
 			for (String key : map.keySet()) {
+				if (StringUtils.equalsIgnoreCase(key, FrameworkEnum.status.name())
+						&& StringUtils.isNotBlank((String) map.get(key))) {
+					defaultSearch = false;
+					filter = new Filter(FrameworkEnum.status.name(), SearchConditions.OP_IN, map.get(key));
+					filters.add(filter);
+				}
 				if (StringUtils.isNotBlank((String) map.get(key))) {
 					filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
 					filters.add(filter);
 				}
 			}
+		}
+
+		if (defaultSearch) {
+			filter = new Filter(FrameworkEnum.status.name(), SearchConditions.OP_IN, FrameworkEnum.Live.name());
+			filters.add(filter);
 		}
 
 		if (StringUtils.isNotBlank(scopeId)) {
