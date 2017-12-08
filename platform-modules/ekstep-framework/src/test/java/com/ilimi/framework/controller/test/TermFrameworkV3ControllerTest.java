@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -30,7 +29,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.framework.mgr.ICategoryInstanceManager;
+import com.ilimi.framework.mgr.ICategoryManager;
 import com.ilimi.framework.mgr.IChannelManager;
+import com.ilimi.framework.mgr.IFrameworkManager;
+import com.ilimi.framework.mgr.ITermManager;
 import com.ilimi.framework.mgr.impl.CategoryInstanceManagerImpl;
 import com.ilimi.framework.mgr.impl.CategoryManagerImpl;
 import com.ilimi.framework.mgr.impl.ChannelManagerImpl;
@@ -44,7 +46,6 @@ import akka.actor.ActorRef;
  * @author pradyumna
  *
  */
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -54,19 +55,21 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	@Autowired
 	private WebApplicationContext context;
 
-	private static IChannelManager channelManager = new ChannelManagerImpl();
+
 	private static String channelId;
 
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String base_category_path = "/v3/framework/term";
 	private static String categoryId = null, frameworkId = null, masterCategoryId=null, masterTermId=null;
-	private static ICategoryInstanceManager categoryInstanceManager = new CategoryInstanceManagerImpl();
-	private static FrameworkManagerImpl frameworkManager = new FrameworkManagerImpl();
-	private static CategoryManagerImpl categoryManager = new CategoryManagerImpl();
-	private static TermManagerImpl termManager=new TermManagerImpl();
 	static String termId = null;
 	static ObjectMapper mapper = new ObjectMapper();
+	private static ICategoryInstanceManager categoryInstanceManager = new CategoryInstanceManagerImpl();
+	private static ICategoryManager categoryManager = new CategoryManagerImpl();
+	private static ITermManager termManager = new TermManagerImpl();
+	private static IChannelManager channelManager = new ChannelManagerImpl();
+	private static IFrameworkManager frameworkManager = new FrameworkManagerImpl();
+
 	private static final String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 	private static final String createChannelReq = "{\"name\":\"channel\",\"description\":\"\",\"code\":\"channelKA\",\"identifier\":\"channelKA\"}";
 
@@ -116,7 +119,7 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 
 			Response resp = categoryInstanceManager.createCategoryInstance(frameworkId, requestMap);
 			if ("OK".equals(resp.getResponseCode().name())) {
-				categoryId = (String) resp.getResult().get("node_id");
+				categoryId = "class";
 			} else {
 				System.out.println("Response: "+ resp.getParams());
 			}
@@ -131,14 +134,14 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	 * @return
 	 */
 	private static String createframework() {
-		String frameworkReq = "{ \"name\": \"CBSE2\", \"description\": \"CBSE framework of Bihar\", \"code\": \"org.ekstep.framework.create\" }";
+		String frameworkReq = "{ \"name\": \"CBSE\", \"description\": \"CBSE framework of Bihar\", \"code\": \"cbse\" }";
 		try {
 
 			Map<String, Object> requestMap = mapper.readValue(frameworkReq, new TypeReference<Map<String, Object>>() {
 			});
 			String channelId="channelKA";
-			Response resp = frameworkManager.createFramework(requestMap,channelId);
-			return (String) resp.getResult().get("node_id");
+			frameworkManager.createFramework(requestMap, channelId);
+			return "cbse";
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -194,9 +197,7 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 					.accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
-			Response resp = mapper.readValue(response.getContentAsString(), new TypeReference<Response>() {
-			});
-			termId = (String) resp.getResult().get("node_id");
+			termId = "standard2";
 			System.out.println("TERM ID : " + termId);
 		} catch (Exception e) {
 			e.getCause();

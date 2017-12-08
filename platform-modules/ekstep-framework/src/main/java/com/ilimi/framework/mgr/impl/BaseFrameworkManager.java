@@ -16,6 +16,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
@@ -328,15 +329,18 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 	public void setRelations(String scopeId, Map<String, Object> request) {
-		Response responseNode = getDataNode(GRAPH_ID, scopeId);
-		Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
-		String objectType = dataNode.getObjectType();
-		List<Map<String, Object>> relationList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> relationMap = new HashMap<String, Object>();
-		relationMap.put("identifier", scopeId);
-		relationMap.put("relation", "hasSequenceMember");
-		relationList.add(relationMap);
-		request.put(StringUtils.lowerCase(objectType), relationList);
-
+		try {
+			Response responseNode = getDataNode(GRAPH_ID, scopeId);
+			Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
+			String objectType = dataNode.getObjectType();
+			List<Map<String, Object>> relationList = new ArrayList<Map<String, Object>>();
+			Map<String, Object> relationMap = new HashMap<String, Object>();
+			relationMap.put("identifier", scopeId);
+			relationMap.put("relation", "hasSequenceMember");
+			relationList.add(relationMap);
+			request.put(StringUtils.lowerCase(objectType), relationList);
+		} catch (Exception e) {
+			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
+		}
 	}
 }
