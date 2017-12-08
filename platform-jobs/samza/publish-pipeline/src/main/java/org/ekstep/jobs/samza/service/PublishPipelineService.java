@@ -16,8 +16,6 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
-import org.apache.samza.system.OutgoingMessageEnvelope;
-import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.slugs.Slug;
@@ -34,6 +32,7 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
+import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
@@ -47,7 +46,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
 
-public class PublishPipelineService implements ISamzaService {
+public class PublishPipelineService extends AbstractSamzaService {
 
 	static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
 
@@ -71,10 +70,12 @@ public class PublishPipelineService implements ISamzaService {
 
 	private Config config = null;
 	
-	private static int MAXITERTIONCOUNT= 2;
-	
 	@Override
 	public void initialize(Config config) throws Exception {
+		this.jobType = "publish";
+		this.jobStartMessage = "Started processing of publish samza job";
+		this.jobEndMessage = "Publish job processing complete";
+		this.jobClass = "org.ekstep.jobs.samza.task.PublishPipelineTask";
 		this.config = config;
 		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
@@ -86,17 +87,16 @@ public class PublishPipelineService implements ISamzaService {
 	@SuppressWarnings("unchecked")
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 
+		preProcess(message, collector);
+		// TODO get jobStartTime correctly;
+		long jobStartTime = System.currentTimeMillis();
 		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
 		Map<String, Object> object = (Map<String, Object>) message.get(PublishPipelineParams.object.name());
 		
-		int maxPublishRetry;
+		int maxIterations = getMaxIterations();
+		int currentIteration = (int) edata.get(SamzaCommonParams.iteration.name());
 		
-		if(StringUtils.isNotEmpty(this.config.get("max.iteration.count.samza.job")))
-			maxPublishRetry = Integer.valueOf(this.config.get("max.iteration.count.samza.job"));
-		else
-			maxPublishRetry = MAXITERTIONCOUNT;
-		
-		if (!validateObject(edata, object, maxPublishRetry)) {
+		if (!validateObject(edata, object, maxIterations)) {
 			LOGGER.info("Ignoring the message because it is not valid for publishing.");
 			metrics.incSkippedCounter();
 			return;
@@ -108,7 +108,7 @@ public class PublishPipelineService implements ISamzaService {
 				Node node = getNode(nodeId);
 				if (null != node) {
 					LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
-					processJob(edata, object, message, node, collector, metrics, maxPublishRetry);
+					processJob(edata, object, message, node, collector, metrics, maxIterations);
 				}else {
 					metrics.incSkippedCounter();
 					LOGGER.debug("Invalid Node Object. Unable to process the event", message);
@@ -121,8 +121,12 @@ public class PublishPipelineService implements ISamzaService {
 			metrics.incSkippedCounter();
 			LOGGER.debug("Invalid NodeId. Unable to process the event", message);
 		}
+		System.out.println("process completed...");
+		postProcess(message, collector, jobStartTime, maxIterations, currentIteration);
+		System.out.println("Postprocess completed...");
+		
 	}
-	
+
 	private void processJob(Map<String, Object> edata, Map<String, Object> object, Map<String, Object> message, Node node, 
 			MessageCollector collector, JobMetrics metrics, int maxPublishRetry) throws Exception {
 		
@@ -299,20 +303,20 @@ public class PublishPipelineService implements ISamzaService {
 	}
 	
 	private boolean validateObject(Map<String, Object> edata, Map<String, Object> object, int maxPublishRetry) {
-		
-		if (null == object) 
-			return false;
-		
-		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
-			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) == 1 && 
-					StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.Pending.name())) || 
-					((Integer)edata.get(PublishPipelineParams.iteration.name()) > 0 && 
-							(Integer)edata.get(PublishPipelineParams.iteration.name()) <maxPublishRetry && 
-							StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.FAILED.name())))
-				return true;
-		}
-		return false;
-	}
+        
+        if (null == object) 
+            return false;
+        
+        if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
+            if(((Integer)edata.get(PublishPipelineParams.iteration.name()) == 1 && 
+                    StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.Pending.name())) || 
+                    ((Integer)edata.get(PublishPipelineParams.iteration.name()) > 1 && 
+                            (Integer)edata.get(PublishPipelineParams.iteration.name()) <=maxPublishRetry && 
+                            StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.FAILED.name())))
+                return true;
+        }
+        return false;
+    }
 
 	@SuppressWarnings("unchecked")
 	private void processCollection(Node node) throws Exception {
