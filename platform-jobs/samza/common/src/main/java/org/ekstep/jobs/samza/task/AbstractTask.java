@@ -59,8 +59,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	@Override
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
-		System.out.println("Message received: " + message);
-		long jobStartTime = 0;
+		Map<String, Object> execution = new HashMap<>();
 		int maxIterations = getMaxIterations();
 		
 		String eid = (String) message.get(SamzaCommonParams.eid.name());
@@ -69,25 +68,20 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 			String requestedJobType = (String) edata.get(SamzaCommonParams.action.name());
 			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
 				int currentIteration = (int) edata.get(SamzaCommonParams.iteration.name());
-				System.out.println("Before preprocess...");
-				preProcess(message, collector, jobStartTime, maxIterations, currentIteration);
-				System.out.println("Preprocess completed...");
+				preProcess(message, collector, execution, maxIterations, currentIteration);
 				process(message, collector, coordinator);
-				System.out.println("process completed...");
-				postProcess(message, collector, jobStartTime, maxIterations, currentIteration);
-				System.out.println("Postprocess completed...");
+				postProcess(message, collector, execution, maxIterations, currentIteration);
 			} else {
-				System.out.println("message jobType is invalid: " + jobType + " :: expected:" + this.jobType);
+				//Throw exception has to be added.
 			}
 		} else {
-			System.out.println("message event id is invalid: " + eid + " :: expected:" + this.eventId);
+			//Throw exception has to be added.
 		}
 	}
 
 	public abstract void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception;
 
-	public void preProcess(Map<String, Object> message, MessageCollector collector, long jobStartTime, int maxIterationCount, int iterationCount) {
-		System.out.println("Inside preProcess: " + message.toString());
+	public void preProcess(Map<String, Object> message, MessageCollector collector, Map<String, Object> execution, int maxIterationCount, int iterationCount) {
 		if (isInvalidMessage(message)) {
 			String event = generateEvent(LoggerEnum.ERROR.name(), "Samza job de-serialization error", message);
 			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("backend_telemetry_topic")), event));
@@ -95,8 +89,11 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		try {
 			if(iterationCount <= maxIterationCount) {
 				Map<String, Object> jobStartEvent = getJobEvent("JOBSTARTEVENT", message);
-				jobStartTime = (long)jobStartEvent.get(SamzaCommonParams.ets.name());
-				System.out.println("Inside preProcess Before pushEvent: " + message.toString());
+				
+				execution.put(SamzaCommonParams.submitted_date.name(), (long)message.get(SamzaCommonParams.ets.name()));
+				execution.put(SamzaCommonParams.processing_date.name(), (long)jobStartEvent.get(SamzaCommonParams.ets.name()));
+				execution.put(SamzaCommonParams.latency.name(), (long)jobStartEvent.get(SamzaCommonParams.ets.name()) - (long)message.get(SamzaCommonParams.ets.name()));
+				
 				pushEvent(jobStartEvent, collector, this.config.get("backend_telemetry_topic"));
 			}
 		}catch (Exception e) {
@@ -106,13 +103,17 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	
 	
 	@SuppressWarnings("unchecked")
-	public void postProcess(Map<String, Object> message, MessageCollector collector, long jobStartTime, int maxIterationCount, int iterationCount) throws Exception {
-		System.out.println("Inside postProcess Before pushEvent: " + message.toString());
+	public void postProcess(Map<String, Object> message, MessageCollector collector, Map<String, Object> execution, int maxIterationCount, int iterationCount) throws Exception {
 		try {
 			if(iterationCount <= maxIterationCount) {
 				Map<String, Object> jobEndEvent = getJobEvent("JOBENDEVENT", message);
-				addExecutionTime(jobEndEvent, jobStartTime); //Call to add execution time
-				System.out.println("Inside postProcess Before pushEvent: " + message.toString());
+				
+				execution.put(SamzaCommonParams.completed_date.name(), (long)jobEndEvent.get(SamzaCommonParams.ets.name()));
+            		execution.put(SamzaCommonParams.execution_time.name(), (long)jobEndEvent.get(SamzaCommonParams.ets.name()) - (long)execution.get(SamzaCommonParams.processing_date.name()));
+            		Map<String, Object> eks = (Map<String, Object>)((Map<String, Object>)jobEndEvent.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.eks.name());
+            		eks.put(SamzaCommonParams.execution.name(), execution);
+            		//addExecutionTime(jobEndEvent, execution); //Call to add execution time
+				
 				pushEvent(jobEndEvent, collector, this.config.get("backend_telemetry_topic"));
 			}
 			String eventExecutionStatus = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.status.name());
@@ -125,23 +126,16 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void addExecutionTime(Map<String, Object> jobEndEvent, long jobStartTime) {
+	/*@SuppressWarnings("unchecked")
+	private void addExecutionTime(Map<String, Object> jobEndEvent, Map<String, Object> execution) {
 		Map<String, Object> eks = (Map<String, Object>)((Map<String, Object>)jobEndEvent.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.eks.name());
-		Map<String, Object> execution = new HashMap<>();
-		execution.put(SamzaCommonParams.submitted_date.name(), eks.get(SamzaCommonParams.ets.name()));
-		execution.put(SamzaCommonParams.processing_date.name(), jobStartTime);
-		execution.put(SamzaCommonParams.completed_date.name(), jobEndEvent.get(SamzaCommonParams.ets.name()));
-		execution.put(SamzaCommonParams.latency.name(), jobStartTime - (long)eks.get(SamzaCommonParams.ets.name()));
-		execution.put(SamzaCommonParams.execution_time.name(), (long)jobEndEvent.get(SamzaCommonParams.ets.name()) - jobStartTime);
 		eks.put(SamzaCommonParams.execution.name(), execution);
-	}
+	}*/
 	
 	private void pushEvent(Map<String, Object> message, MessageCollector collector, String topicId) throws Exception {
 		try {
 			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), topicId), message));
 		} catch (Exception e) {
-			System.out.println("Topic: "+ topicId);
 			e.printStackTrace();
 		}
 	}

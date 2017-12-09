@@ -106,7 +106,6 @@ public class PublishPipelineService implements ISamzaService {
 				Node node = getNode(nodeId);
 				if (null != node) {
 					LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
-					//processJob(edata, message, node, metrics);
 					processJob(edata, node, metrics);
 				}else {
 					metrics.incSkippedCounter();
@@ -122,7 +121,6 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 	
-	//private void processJob(Map<String, Object> edata, Map<String, Object> message, Node node, JobMetrics metrics) throws Exception {
 	private void processJob(Map<String, Object> edata, Node node, JobMetrics metrics) throws Exception {
 		
 		updateNodeStatusToProcessing(edata, node); //Changing node status to Processing.
@@ -131,12 +129,10 @@ public class PublishPipelineService implements ISamzaService {
 		if(publishContent(node)) {
 			metrics.incSuccessCounter();
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
-			//message.put(PublishPipelineParams.edata.name(), edata);
 			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
 		}else {
 			metrics.incFailedCounter();
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
-			//message.put(PublishPipelineParams.edata.name(), edata);
 			LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
 		}
 	}
@@ -145,7 +141,6 @@ public class PublishPipelineService implements ISamzaService {
 			node.getMetadata().put("status", "Processing");
 			util.updateNode(node);
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.Processing.name());
-			//message.put("edata", edata);
 			LOGGER.debug("Node status :: Processing for NodeId :: " + node.getIdentifier());
 	}
 	
