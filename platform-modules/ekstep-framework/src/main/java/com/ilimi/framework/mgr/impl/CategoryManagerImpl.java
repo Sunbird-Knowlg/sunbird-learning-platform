@@ -51,12 +51,10 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		return search(map, CATEGORY_OBJECT_TYPE, "categories", null);
-
 	}
 
 	@Override
 	public Response retireCategory(String categoryId) {
-
 		return retire(categoryId, CATEGORY_OBJECT_TYPE);
 	}
 

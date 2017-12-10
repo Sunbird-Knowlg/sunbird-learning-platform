@@ -77,6 +77,8 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 
 	@Override
 	public Response searchCategoryInstance(String identifier, Map<String, Object> map) {
+		if (null == map)
+			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categoryInstances", identifier);
 	}
 

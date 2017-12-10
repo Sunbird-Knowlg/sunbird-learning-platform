@@ -14,8 +14,7 @@ import com.ilimi.framework.mgr.IChannelManager;
 public class ChannelManagerImpl extends BaseFrameworkManager implements IChannelManager {
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
-
-
+	
 	@Override
 	public Response createChannel(Map<String, Object> request) {
 		if (null == request)
@@ -27,20 +26,27 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	}
 
 	@Override
-	public Response readChannel(String graphId, String channelId) {
+	public Response readChannel(String channelId) {
 		return read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
 
 	}
 
 	@Override
 	public Response updateChannel(String channelId, Map<String, Object> map) {
+		if (null == map)
+			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		return update(channelId, CHANNEL_OBJECT_TYPE, map);
 	}
 
 	@Override
 	public Response listChannel(Map<String, Object> map) {
+		if (null == map)
+			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		return search(map, CHANNEL_OBJECT_TYPE, "channels", null);
-
 	}
-	
+
+	@Override
+	public Response retireChannel(String channelId) {
+		return retire(channelId, CHANNEL_OBJECT_TYPE);
+	}
 }
