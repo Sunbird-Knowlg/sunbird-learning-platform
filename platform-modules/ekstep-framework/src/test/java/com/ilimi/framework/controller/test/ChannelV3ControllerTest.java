@@ -66,6 +66,15 @@ public class ChannelV3ControllerTest extends TestSetup {
 		node_id = (String) resp.get("node_id");
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
+	
+	@Test
+	public void createChannelWithEmptyRequest() throws Exception {
+		String path = base_channel_path + "/create";
+		String request = "";
+		actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
 
 	@Test
 	public void createChannelWithInvalidRequest() throws Exception {
@@ -135,6 +144,15 @@ public class ChannelV3ControllerTest extends TestSetup {
 	@Test
 	public void updateChannelForInValidRequest() throws Exception {
 		String request = "{\"request\":{\"channelss\":{\"description\":\"LP channel API\",\"name\":\"test\",\"code\":\"testUpdate\"}}}";
+		String path = base_channel_path + "/update/" + node_id;
+		actions = this.mockMvc
+				.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+	
+	@Test
+	public void updateChannelForEmptyRequest() throws Exception {
+		String request = "";
 		String path = base_channel_path + "/update/" + node_id;
 		actions = this.mockMvc
 				.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).content(request));
