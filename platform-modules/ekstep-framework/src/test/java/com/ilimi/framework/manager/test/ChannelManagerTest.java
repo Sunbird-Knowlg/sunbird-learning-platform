@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.framework.mgr.IChannelManager;
 import com.ilimi.framework.test.common.TestSetup;
@@ -144,6 +145,13 @@ public class ChannelManagerTest extends TestSetup {
 		map.put("request", searchRequestMap);
 		Response res = channelMgr.listChannel(searchRequestMap);
 		Assert.assertEquals(ResponseCode.OK, res.getResponseCode());
+	}
+	
+	@Test
+	public void searchChannelWithInvalidRequest() {
+		Response resp = channelMgr.listChannel(null);
+		String responseCode=(String) resp.getResponseCode().toString();
+		assertTrue(responseCode.equals("CLIENT_ERROR"));
 	}
 
 	@SuppressWarnings({"unchecked","rawtypes"})
