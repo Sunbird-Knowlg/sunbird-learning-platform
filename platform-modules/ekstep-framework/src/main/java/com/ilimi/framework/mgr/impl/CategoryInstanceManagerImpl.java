@@ -65,7 +65,7 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(identifier, categoryInstanceId)) {
+		if (validateScopeNode(categoryInstanceId, identifier)) {
 			return update(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
 		} else {
 			throw new ClientException(
@@ -85,8 +85,8 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	@Override
 	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(identifier, categoryInstanceId)) {
-			return retire(identifier, CATEGORY_INSTANCE_OBJECT_TYPE);
+		if (validateScopeNode(categoryInstanceId, identifier)) {
+			return retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
 		} else {
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
