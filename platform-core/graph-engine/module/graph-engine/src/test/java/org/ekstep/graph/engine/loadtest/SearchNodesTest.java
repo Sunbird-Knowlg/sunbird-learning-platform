@@ -11,7 +11,6 @@ import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
 import org.ekstep.graph.dac.model.SearchCriteria;
-import org.ekstep.graph.dac.util.Neo4jGraphFactory;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 
 import akka.actor.ActorRef;
@@ -42,17 +41,6 @@ public class SearchNodesTest {
         }
     }
 
-    //@Test(threadPoolSize = 500, invocationCount = 500)
-    public void searchNodesTest() {
-        try {
-            Neo4jGraphFactory.getGraphDb(graphId);
-            int value = (int) Thread.currentThread().getId() % 10;
-            Future<Object> searchRes = searchNodes(reqRouter, graphId, value);
-            TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.node_id.name());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     //@Test
     public void searchNodesTest2() {
@@ -64,18 +52,6 @@ public class SearchNodesTest {
             logger.info("");
             logger.info("");
             logger.info("****************************************************************************************************");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //@Test(threadPoolSize = 500, invocationCount = 500)
-    public void searchNodesTest3() {
-        try {
-            Neo4jGraphFactory.getGraphDb(graphId);
-            int value = (int) Thread.currentThread().getId() % 10;
-            Future<Object> searchRes = searchNodes(reqRouter, graphId, value);
-            TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.node_id.name());
         } catch (Exception e) {
             e.printStackTrace();
         }

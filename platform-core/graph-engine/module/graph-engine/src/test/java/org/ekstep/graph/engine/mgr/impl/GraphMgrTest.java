@@ -14,7 +14,6 @@ import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.SearchCriteria;
-import org.ekstep.graph.dac.util.Neo4jGraphFactory;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.engine.router.RequestRouter;
 import org.ekstep.graph.enums.ImportType;
@@ -188,56 +187,6 @@ public class GraphMgrTest {
             handleFutureBlock(nodeReq1, "createDataNode", GraphDACParams.node_id.name());
             handleFutureBlock(nodeReq2, "createDataNode", GraphDACParams.node_id.name());
             handleFutureBlock(nodeReq3, "createDataNode", GraphDACParams.node_id.name());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //@Test
-    public void testSearchNodes() {
-        try {
-            ActorRef reqRouter = initReqRouter();
-            String graphId = "JAVA_CS";
-            ObjectMapper mapper = new ObjectMapper();
-            Neo4jGraphFactory.getGraphDb(graphId);
-
-            Request req0 = new Request();
-            req0.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-            req0.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
-            req0.setOperation("getNodesCount");
-            SearchCriteria sc0 = new SearchCriteria();
-            sc0.setCountQuery(true);
-            req0.put(GraphDACParams.search_criteria.name(), sc0);
-            Future<Object> res0 = Patterns.ask(reqRouter, req0, timeout);
-            Object arg0 = Await.result(res0, t.duration());
-            System.out.println("Result:" + mapper.writeValueAsString(arg0));
-            Thread.sleep(5000);
-
-            Request request = new Request();
-            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-            request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
-            request.setOperation("searchNodes");
-            SearchCriteria sc = new SearchCriteria();
-            sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
-            request.put(GraphDACParams.search_criteria.name(), sc);
-            Future<Object> req = Patterns.ask(reqRouter, request, timeout);
-            Object arg1 = Await.result(req, t.duration());
-            System.out.println("Result:" + mapper.writeValueAsString(arg1));
-
-            Request request2 = new Request();
-            request2.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-            request2.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
-            request2.setOperation("searchNodes");
-            SearchCriteria sc2 = new SearchCriteria();
-            // sc2.add(SearchConditions.eq(SystemProperties.IL_UNIQUE_ID.name(),
-            // SystemNodeTypes.DEFINITION_NODE.name() + "_COURSE"));
-            sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
-            // sc2.returnField("OUT_RELATION_OBJECTS");
-
-            request2.put(GraphDACParams.search_criteria.name(), sc2);
-            Future<Object> req2 = Patterns.ask(reqRouter, request2, timeout);
-            Object arg2 = Await.result(req2, t.duration());
-            System.out.println("Result:" + mapper.writeValueAsString(arg2));
         } catch (Exception e) {
             e.printStackTrace();
         }

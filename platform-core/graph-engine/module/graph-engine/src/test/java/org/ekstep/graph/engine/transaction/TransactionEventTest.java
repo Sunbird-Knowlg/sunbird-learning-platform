@@ -12,7 +12,6 @@ import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
-import org.ekstep.graph.dac.util.Neo4jGraphFactory;
 import org.ekstep.graph.engine.loadtest.TestUtil;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -23,7 +22,6 @@ import org.ekstep.kafka.util.KafkaMessage;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
-import org.neo4j.graphdb.GraphDatabaseService;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -42,7 +40,7 @@ public class TransactionEventTest {
 
 //	@BeforeClass
     public static void setup(){
-		createGraph();
+		// createGraph();
 		message =  new KafkaMessage();
 		consumer  = new KafkaConsumer(message);
 		consumer.start();
@@ -50,7 +48,7 @@ public class TransactionEventTest {
     
 //	@AfterClass
 	public static void teardown(){
-		deleteGraph();
+		// deleteGraph();
 		consumer.stopExecuting();
 	}
 	
@@ -67,19 +65,19 @@ public class TransactionEventTest {
 		message.flush();
 	}
 	
-	public static void createGraph(){
+	/*public static void createGraph(){
 		if (!Neo4jGraphFactory.graphExists(graphId)) 
 			Neo4jGraphFactory.createGraph(graphId);		
-	}
+	}*/
 
-	public static void deleteGraph(){
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(graphId);
-        }
-        Neo4jGraphFactory.deleteGraph(graphId);
-
-	}
+	/*public static void deleteGraph(){
+	    GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+	    if (null != graphDb) {
+	        Neo4jGraphFactory.shutdownGraph(graphId);
+	    }
+	    Neo4jGraphFactory.deleteGraph(graphId);
+	
+	}*/
 	
 
 	

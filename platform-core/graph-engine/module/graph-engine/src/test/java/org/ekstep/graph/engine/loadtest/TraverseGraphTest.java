@@ -5,13 +5,11 @@ import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Traverser;
-import org.ekstep.graph.dac.util.Neo4jGraphFactory;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.neo4j.graphdb.Direction;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
-import scala.concurrent.Await;
 import scala.concurrent.Future;
 
 /**
@@ -38,20 +36,6 @@ public class TraverseGraphTest {
         reqRouter = TestUtil.initReqRouter();
         Thread.sleep(5000);
 
-    }
-
-//    @Test(threadPoolSize = 100, invocationCount = 1)
-    public void traverseTest() {
-        try {
-            Neo4jGraphFactory.getGraphDb(graphId);
-            Future<Object> traverseRes = traverse(reqRouter, graphId);
-            Object object = Await.result(traverseRes, TestUtil.timeout.duration());
-            // ObjectMapper mapper = new ObjectMapper();
-            // System.out.println("Result:"+mapper.writeValueAsString(object));
-            TestUtil.handleFutureBlock(traverseRes, SCENARIO_NAME, null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private Future<Object> traverse(ActorRef reqRouter, String graphId) {

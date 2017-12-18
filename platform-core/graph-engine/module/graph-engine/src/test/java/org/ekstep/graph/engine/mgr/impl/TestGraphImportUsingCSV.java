@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import org.ekstep.common.dto.Property;
@@ -18,18 +17,12 @@ import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
-import org.ekstep.graph.dac.util.Neo4jGraphFactory;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.engine.router.RequestRouter;
 import org.ekstep.graph.enums.ImportType;
 import org.ekstep.graph.importer.InputStreamValue;
 import org.ekstep.graph.importer.OutputStreamValue;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.Iterators;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -159,29 +152,6 @@ public class TestGraphImportUsingCSV {
     }
 
     //@Test
-    public void testForNodesAndRelationsCount() throws Exception {
-        ActorRef reqRouter = initReqRouter();
-        Request request = getRequest();
-        InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/CSV-NodesAndRelationsCount.csv");
-        request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
-        Future<Object> req = Patterns.ask(reqRouter, request, t);
-        Object obj = Await.result(req, t.duration());
-        Response response = (Response) obj;
-        ResponseParams params = response.getParams();
-        assertEquals(StatusType.successful.name(), params.getStatus());
-
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
-        Transaction tx = graphDb.beginTx();
-        long nodesCount = Iterators.count(graphDb.getAllNodes().iterator());
-        long relationsCount = Iterators.count(graphDb.getAllRelationships().iterator());
-        assertEquals(3, nodesCount); // root node + importedObjects.
-        assertEquals(1, relationsCount); // only isParentOf relation.
-        tx.success();
-        tx.close();
-        deleteGraph();
-    }
-
-    //@Test
     public void testForUpdateNodeMetadata() throws Exception {
         testImportDefinitionNodes();
         ActorRef reqRouter = initReqRouter();
@@ -209,62 +179,6 @@ public class TestGraphImportUsingCSV {
 
         description = getNodeProperty("Num:C1", "description");
         assertEquals("Desc of Geometry", description);
-        deleteGraph();
-    }
-
-    //@Test
-    public void testForUpdateRelationship() throws Exception {
-        testImportDefinitionNodes();
-        ActorRef reqRouter = initReqRouter();
-        Request request = getRequest();
-        InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/CSV-NodesAndTags.csv");
-        request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
-        Future<Object> req = Patterns.ask(reqRouter, request, t);
-        Object obj = Await.result(req, t.duration());
-        Response response = (Response) obj;
-        ResponseParams params = response.getParams();
-        assertEquals(StatusType.successful.name(), params.getStatus());
-
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
-        Transaction tx = graphDb.beginTx();
-        Iterator<Relationship> relations = graphDb.getAllRelationships().iterator();
-        Relationship expRelation = null;
-        while (relations.hasNext()) {
-            Relationship relation = relations.next();
-            String nodeId = (String) relation.getStartNode().getProperty(SystemProperties.IL_UNIQUE_ID.name());
-            if ("Num".equals(nodeId)) {
-                expRelation = relation;
-                break;
-            }
-        }
-        String endNodeId = (String) expRelation.getEndNode().getProperty(SystemProperties.IL_UNIQUE_ID.name());
-        assertEquals("Num:C1", endNodeId);
-        tx.success();
-        tx.close();
-
-        request = getRequest();
-        inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/CSV-UpdatedRelationship.csv");
-        request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
-        req = Patterns.ask(reqRouter, request, t);
-        obj = Await.result(req, t.duration());
-        response = (Response) obj;
-        params = response.getParams();
-        assertEquals(StatusType.successful.name(), params.getStatus());
-
-        tx = graphDb.beginTx();
-        while (relations.hasNext()) {
-            Relationship relation = relations.next();
-            String nodeId = (String) relation.getStartNode().getProperty(SystemProperties.IL_UNIQUE_ID.name());
-            if ("Num".equals(nodeId)) {
-                expRelation = relation;
-                break;
-            }
-        }
-        endNodeId = (String) expRelation.getEndNode().getProperty(SystemProperties.IL_UNIQUE_ID.name());
-        assertEquals("Num:C2", endNodeId);
-        tx.success();
-        tx.close();
-
         deleteGraph();
     }
 

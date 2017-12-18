@@ -13,7 +13,6 @@ import org.ekstep.graph.common.mgr.GraphDACMgr;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.exception.GraphDACErrorCodes;
 import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
-import org.ekstep.graph.dac.util.Neo4jGraphFactory;
 import org.ekstep.graph.importer.ImportData;
 import org.ekstep.graph.service.operation.Neo4JBoltGraphOperations;
 
@@ -24,13 +23,8 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		if (StringUtils.isBlank(graphId)) {
 			throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
-		} else if (Neo4jGraphFactory.graphExists(graphId)) {
-			throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_ALREADY_EXISTS.name(),
-					"Graph '" + graphId + "' already exists");
 		} else {
 			try {
-				Neo4jGraphFactory.createGraph(graphId);
-				Neo4jGraphFactory.getGraphDb(graphId, request);
 				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
 				return ERROR(e);
@@ -79,9 +73,6 @@ public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphM
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		if (StringUtils.isBlank(graphId)) {
 			throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
-		} else if (!Neo4jGraphFactory.graphExists(graphId)) {
-			throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_NOT_FOUND.name(),
-					"Graph '" + graphId + "' not found to delete.");
 		} else {
 			try {
 				Neo4JBoltGraphOperations.deleteGraph(graphId, request);
