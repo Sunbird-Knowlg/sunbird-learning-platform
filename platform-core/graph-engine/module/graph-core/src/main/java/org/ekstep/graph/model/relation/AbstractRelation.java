@@ -14,10 +14,6 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.exception.GraphRelationErrorCodes;
@@ -34,9 +30,6 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     protected String endNodeId;
     protected Map<String, Object> metadata;
     
-	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
-	private static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
-
     protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId,
             Map<String, Object> metadata) {
         this(manager, graphId, startNodeId, endNodeId);

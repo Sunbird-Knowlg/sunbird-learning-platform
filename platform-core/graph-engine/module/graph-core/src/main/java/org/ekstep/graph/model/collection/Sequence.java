@@ -15,10 +15,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
-import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 
 import akka.dispatch.Futures;
@@ -28,8 +24,6 @@ public class Sequence extends AbstractCollection {
 
     private List<String> memberIds;
 
-	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	private static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
 
     public Sequence(BaseGraphManager manager, String graphId, String id) {
         super(manager, graphId, id, null); // TODO: Will add metadata if required.

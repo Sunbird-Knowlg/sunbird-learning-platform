@@ -21,6 +21,8 @@ import akka.actor.ActorRef;
 
 public class DefinitionCache extends BaseGraphManager {
 
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
+
 	public static DefinitionDTO getDefinitionNode(String graphId, String objectType) {
 		DefinitionDTO dto = getDefinitionFromCache(graphId, objectType);
 		return dto;
@@ -76,7 +78,6 @@ public class DefinitionCache extends BaseGraphManager {
 	@SuppressWarnings("unchecked")
 	private static DefinitionDTO getDefinitionNodeFromGraph(String graphId, String objectType) {
 		try {
-			IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 			Request request = new Request();
 			request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
 			SearchCriteria sc = new SearchCriteria();

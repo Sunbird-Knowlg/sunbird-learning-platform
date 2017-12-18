@@ -11,10 +11,6 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.model.IRelation;
@@ -31,8 +27,6 @@ public class RelationNode extends AbstractIndexNode {
 	private String relatedType;
 	private static final String RELATION_NODE_NAME_KEY = "RELATION_NAME";
 	private static final String RELATION_OBJECT_TYPE_KEY = "RELATED_OBJECT_TYPE";
-	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
 	public RelationNode(BaseGraphManager manager, String graphId, String objectType, String name, String relatedType) {
 		super(manager, graphId);

@@ -20,10 +20,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
@@ -44,10 +40,6 @@ public class DefinitionNode extends AbstractNode {
     private List<RelationDefinition> outRelations;
     private List<TagDefinition> systemTags;
     private ObjectMapper mapper = new ObjectMapper();
-
-	private IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
-	private IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-
 
     public DefinitionNode(BaseGraphManager manager, String graphId, String objectType, List<MetadataDefinition> indexedMetadata,
             List<MetadataDefinition> nonIndexedMetadata, List<RelationDefinition> inRelations, List<RelationDefinition> outRelations,

@@ -22,10 +22,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
@@ -40,9 +36,6 @@ import scala.concurrent.Future;
 import scala.concurrent.Promise;
 
 public class DataNode extends AbstractNode {
-
-	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
 	private String objectType;
 	private List<Relation> inRelations;

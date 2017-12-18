@@ -20,12 +20,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
-import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
 import org.ekstep.graph.dac.model.Node;
@@ -60,9 +54,6 @@ public class Set extends AbstractCollection {
 	private List<Relation> inRelations;
 	private List<Relation> outRelations;
 	private ObjectMapper mapper = new ObjectMapper();
-	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
-	private static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
 
 	public static enum SET_TYPES {
 		MATERIALISED_SET, CRITERIA_SET;

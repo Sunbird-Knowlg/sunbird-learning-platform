@@ -14,10 +14,6 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.exception.GraphRelationErrorCodes;
@@ -33,9 +29,6 @@ public class ProxyNode extends AbstractNode {
     private String graphId;
     private String identifier;
 
-	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
-    
     public ProxyNode(BaseGraphManager manager, String graphId, String nodeId, String objectType,
             Map<String, Object> metadata,String identifier) {
         super(manager, graphId, nodeId, metadata);

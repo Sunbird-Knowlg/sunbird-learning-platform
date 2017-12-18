@@ -34,8 +34,8 @@ import scala.concurrent.Future;
  * @author Mohammad Azharuddin
  */
 public abstract class AbstractNode extends AbstractDomainObject implements INode {
-	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
+	protected static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	protected static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
     /** The node id. */
     private String nodeId;

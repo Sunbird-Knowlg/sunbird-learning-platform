@@ -11,10 +11,6 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
@@ -38,8 +34,6 @@ public class ValueNode extends AbstractIndexNode {
     private String relationType = HasValueRelation.RELATION_NAME;
     public static final String VALUE_NODE_VALUE_KEY = "VALUE_NODE_VALUE";
     public static final String VALUE_NODE_TYPE_KEY = "VALUE_NODE_TYPE";
-	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
     public ValueNode(BaseGraphManager manager, String graphId, String objectType, String name, Object value) {
         super(manager, graphId);
