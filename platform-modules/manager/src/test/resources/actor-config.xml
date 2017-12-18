@@ -3,10 +3,8 @@
 		<init-routers>
 			<init-router name="RequestRouter" count="4"
 				class="org.ekstep.graph.engine.router.RequestRouter"></init-router>
-			<init-router name="DACRouter" count="4"
-				class="org.ekstep.graph.engine.router.DACRequestRouter"></init-router>
 			<init-router name="TclExecutor" count="8"
-				class="org.ekstep.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
+				class="com.ilimi.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
 		</init-routers>
 	</init>
 	<graph-managers>
@@ -23,10 +21,4 @@
 			<graph id="*" count="4"></graph>
 		</manager>
 	</graph-managers>
-	<dac-managers>
-		<manager
-			classes="org.ekstep.graph.dac.mgr.impl.GraphDACGraphMgrImpl,org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl,org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl">
-			<graph id="*" count="4"></graph>
-		</manager>
-	</dac-managers>
 </actor-config>
