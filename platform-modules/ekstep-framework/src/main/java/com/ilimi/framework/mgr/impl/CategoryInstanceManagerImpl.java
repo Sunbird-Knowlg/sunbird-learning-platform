@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
 import com.ilimi.framework.enums.CategoryEnum;
 import com.ilimi.framework.mgr.ICategoryInstanceManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -40,9 +39,6 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		String id = generateIdentifier(identifier, (String) request.get("code"));
 		if (null != id)
 			request.put(CategoryEnum.identifier.name(), id);
-		else
-			throw new ServerException("ERR_SERVER_ERROR", "Unable to create CategoryInstanceId",
-					ResponseCode.SERVER_ERROR);
 		setRelations(identifier, request);
 		return create(request, CATEGORY_INSTANCE_OBJECT_TYPE);
 	}
@@ -107,8 +103,6 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 					return true;
 				}
 			}
-		} else {
-			throw new ClientException("ERR_INVALID_CHANNEL_ID/ERR_INVALID_FRAMEWORK_ID", "Required fields missing...");
 		}
 		return false;
 	}

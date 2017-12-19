@@ -264,4 +264,10 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		Random r = new Random();
 		return r.nextInt((max - min) + 1) + min;
 	}
+	
+	@Test
+	public void testValidateCategoryId() {
+		Boolean value = categoryInstanceMgr.validateScopeId(null);
+		Assert.assertEquals(false, value);
+	}
 }
