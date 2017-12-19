@@ -15,9 +15,9 @@ import org.ekstep.graph.common.mgr.Configuration;
 import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
 import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
 import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
+import org.ekstep.graph.dac.mgr.impl.Neo4JBoltGraphMgrImpl;
+import org.ekstep.graph.dac.mgr.impl.Neo4JBoltNodeMgrImpl;
+import org.ekstep.graph.dac.mgr.impl.Neo4JBoltSearchMgrImpl;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 
 import akka.actor.ActorRef;
@@ -29,9 +29,9 @@ public abstract class AbstractDomainObject {
     protected String graphId;
     private ActorRef parent;
 
-	protected IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
-	protected IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
-	protected IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	protected IGraphDACGraphMgr graphMgr = new Neo4JBoltGraphMgrImpl();
+	protected IGraphDACSearchMgr searchMgr = new Neo4JBoltSearchMgrImpl();
+	protected IGraphDACNodeMgr nodeMgr = new Neo4JBoltNodeMgrImpl();
 
     public AbstractDomainObject(BaseGraphManager manager, String graphId) {
         if (StringUtils.isBlank(graphId)) {

@@ -9,14 +9,14 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
-import org.ekstep.graph.common.mgr.GraphDACMgr;
+import org.ekstep.graph.common.mgr.BaseDACMgr;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.exception.GraphDACErrorCodes;
 import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
 import org.ekstep.graph.importer.ImportData;
 import org.ekstep.graph.service.operation.Neo4JBoltGraphOperations;
 
-public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphMgr {
+public class Neo4JBoltGraphMgrImpl extends BaseDACMgr implements IGraphDACGraphMgr {
 
 	@Override
 	public Response createGraph(Request request) {

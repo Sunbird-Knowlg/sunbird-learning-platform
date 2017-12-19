@@ -11,8 +11,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.AbstractDomainObject;
@@ -125,7 +123,6 @@ public class SetUpdater extends AbstractDomainObject {
     }
 
 	private Node getNodeObject(Request req, String nodeId) {
-		IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
         Request request = new Request(req);
         request.put(GraphDACParams.node_id.name(), nodeId);
 

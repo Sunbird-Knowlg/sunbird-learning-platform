@@ -27,12 +27,7 @@ import akka.actor.ActorRef;
  * @author pradyumna
  *
  */
-public class GraphDACMgr {
-
-	private static final String ekstep = "org.ekstep.";
-	private static final String ilimi = "com.ilimi.";
-	private static final String java = "java.";
-	private static final String default_err_msg = "Something went wrong in server while processing the request";
+public class BaseDACMgr {
 
 	protected Response OK() {
 		Response response = new Response();
@@ -91,17 +86,12 @@ public class GraphDACMgr {
 		return params;
 	}
 
-	private String setErrMessage(Throwable e) {
-		Class<? extends Throwable> className = e.getClass();
-		if (className.getName().contains(ekstep) || className.getName().contains(ilimi)) {
-			PlatformLogger.log("Setting error message sent from class " + className, e.getMessage(),
-					LoggerEnum.ERROR.name());
+	protected String setErrMessage(Throwable e) {
+		if (e instanceof MiddlewareException) {
 			return e.getMessage();
-		} else if (className.getName().startsWith(java)) {
-			PlatformLogger.log("Setting default err msg " + className, e.getMessage(), LoggerEnum.ERROR.name());
-			return default_err_msg;
+		} else {
+			return "Something went wrong in server while processing the request";
 		}
-		return null;
 	}
 
 	private void setResponseCode(Response res, Throwable e) {

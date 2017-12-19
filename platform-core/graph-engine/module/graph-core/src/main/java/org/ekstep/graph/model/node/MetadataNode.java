@@ -41,14 +41,14 @@ public class MetadataNode extends AbstractIndexNode {
         Future<Map<String, Object>> future = promise.future();
         final String defNodeId = SystemNodeTypes.DEFINITION_NODE.name() + "_" + objectType;
 
-		Response response = getNodeObject(req, searchMgr, getNodeId());
+		Response response = getNodeObject(req, getNodeId());
 		if (manager.checkError(response)) {
 			if (!StringUtils.equals(ResponseCode.RESOURCE_NOT_FOUND.name(), response.getResponseCode().name())) {
 				failPromise(promise, GraphEngineErrorCodes.ERR_GRAPH_CREATE_METADATA_NODE_FAILED.name(),
 						manager.getErrorMessage(response));
 			} else {
 
-				Response getDefNodeFuture = getNodeObject(req, searchMgr, defNodeId);
+				Response getDefNodeFuture = getNodeObject(req, defNodeId);
 
 				if (manager.checkError(getDefNodeFuture)) {
 					failPromise(promise, GraphEngineErrorCodes.ERR_GRAPH_CREATE_METADATA_NODE_FAILED.name(),

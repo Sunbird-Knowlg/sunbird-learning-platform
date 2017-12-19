@@ -9,7 +9,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
-import org.ekstep.graph.common.mgr.GraphDACMgr;
+import org.ekstep.graph.common.mgr.BaseDACMgr;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.exception.GraphDACErrorCodes;
 import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
@@ -24,7 +24,7 @@ import org.ekstep.graph.dac.model.SubGraph;
 import org.ekstep.graph.dac.model.Traverser;
 import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
 
-public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearchMgr {
+public class Neo4JBoltSearchMgrImpl extends BaseDACMgr implements IGraphDACSearchMgr {
 	
     @Override
 	public Response getNodeById(Request request) {

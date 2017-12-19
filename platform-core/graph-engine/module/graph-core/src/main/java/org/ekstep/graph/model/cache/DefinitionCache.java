@@ -11,7 +11,7 @@ import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
+import org.ekstep.graph.dac.mgr.impl.Neo4JBoltSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -21,7 +21,7 @@ import akka.actor.ActorRef;
 
 public class DefinitionCache extends BaseGraphManager {
 
-	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
+	private static IGraphDACSearchMgr searchMgr = new Neo4JBoltSearchMgrImpl();
 
 	public static DefinitionDTO getDefinitionNode(String graphId, String objectType) {
 		DefinitionDTO dto = getDefinitionFromCache(graphId, objectType);

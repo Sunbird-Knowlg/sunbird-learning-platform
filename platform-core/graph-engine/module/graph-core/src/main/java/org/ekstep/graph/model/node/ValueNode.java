@@ -73,7 +73,7 @@ public class ValueNode extends AbstractIndexNode {
     public Future<Map<String, Object>> create(final Request req) {
         final Promise<Map<String, Object>> promise = Futures.promise();
         Future<Map<String, Object>> future = promise.future();
-		Response res = getNodeObject(req, searchMgr, getSourceNodeId());
+		Response res = getNodeObject(req, getSourceNodeId());
 
 		if (manager.checkError(res)) {
 			failPromise(promise, GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(),

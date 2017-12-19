@@ -11,7 +11,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
 import org.ekstep.graph.model.AbstractDomainObject;
 import org.ekstep.graph.model.IRelation;
 
@@ -45,7 +44,7 @@ public abstract class AbstractIndexNode extends AbstractDomainObject {
         promise.success(map);
     }
 
-	protected Response getNodeObject(Request req, IGraphDACSearchMgr searchMgr, String nodeId) {
+	protected Response getNodeObject(Request req, String nodeId) {
         Request request = new Request(req);
         request.put(GraphDACParams.node_id.name(), nodeId);
 		Response response = searchMgr.getNodeByUniqueId(request);

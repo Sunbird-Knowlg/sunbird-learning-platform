@@ -17,7 +17,7 @@ import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
+import org.ekstep.graph.dac.mgr.impl.Neo4JBoltSearchMgrImpl;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.engine.router.RequestRouter;
 import org.ekstep.graph.enums.ImportType;
@@ -95,7 +95,7 @@ public class TestGraphImportUsingCSV {
         request.setOperation("getNodeProperty");
         request.put(GraphDACParams.node_id.name(), uniqueId);
         request.put(GraphDACParams.property_key.name(), propertyName);
-		Future<Object> req = Futures.successful(new GraphDACSearchMgrImpl().getNodeProperty(request));
+		Future<Object> req = Futures.successful(new Neo4JBoltSearchMgrImpl().getNodeProperty(request));
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         Property property = (Property) response.get(GraphDACParams.property.name());
