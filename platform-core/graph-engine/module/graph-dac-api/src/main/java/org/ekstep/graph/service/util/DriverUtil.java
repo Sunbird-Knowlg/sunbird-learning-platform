@@ -1,6 +1,7 @@
 package org.ekstep.graph.service.util;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -78,4 +79,12 @@ public class DriverUtil {
         });
     }
 
+	public static void closeDrivers() {
+		for (Iterator<Map.Entry<String, Driver>> it = driverMap.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<String, Driver> entry = it.next();
+			Driver driver = entry.getValue();
+			driver.close();
+			it.remove();
+		}
+	}
 }

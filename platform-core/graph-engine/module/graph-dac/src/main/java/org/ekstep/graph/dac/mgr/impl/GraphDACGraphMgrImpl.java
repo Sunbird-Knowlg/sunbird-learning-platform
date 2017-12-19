@@ -15,7 +15,9 @@ import org.ekstep.graph.dac.exception.GraphDACErrorCodes;
 import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
 import org.ekstep.graph.importer.ImportData;
 import org.ekstep.graph.service.operation.Neo4JBoltGraphOperations;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphMgr {
 
 	@Override

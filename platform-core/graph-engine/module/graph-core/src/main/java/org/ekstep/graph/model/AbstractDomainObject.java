@@ -15,10 +15,8 @@ import org.ekstep.graph.common.mgr.Configuration;
 import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
 import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
 import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import akka.actor.ActorRef;
 
@@ -29,9 +27,14 @@ public abstract class AbstractDomainObject {
     protected String graphId;
     private ActorRef parent;
 
-	protected static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
-	protected static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
-	protected static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	@Autowired
+	protected IGraphDACGraphMgr graphMgr;
+
+	@Autowired
+	protected IGraphDACSearchMgr searchMgr;
+
+	@Autowired
+	protected IGraphDACNodeMgr nodeMgr;
 
     public AbstractDomainObject(BaseGraphManager manager, String graphId) {
         if (StringUtils.isBlank(graphId)) {

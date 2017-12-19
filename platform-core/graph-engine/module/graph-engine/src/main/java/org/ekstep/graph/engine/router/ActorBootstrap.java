@@ -110,22 +110,6 @@ public class ActorBootstrap {
         ActorRef searchMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(searchMgrProps));
         GraphEngineActorPoolMgr.addActorRefToPool(null, GraphEngineManagers.SEARCH_MANAGER, searchMgr);
 
-		/* Props dacRouterProps = Props.create(DACRequestRouter.class);
-		ActorRef dacRouter = system.actorOf(new SmallestMailboxPool(poolSize).props(dacRouterProps));
-		GraphDACActorPoolMgr.setDacRouter(dacRouter);
-		
-		Props graphDACMgrProps = Props.create(GraphDACGraphMgrImpl.class);
-		ActorRef graphDACMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(graphDACMgrProps));
-		GraphDACActorPoolMgr.addActorRefToPool(null, GraphDACManagers.DAC_GRAPH_MANAGER, graphDACMgr);
-		
-		Props nodeDACMgrProps = Props.create(GraphDACNodeMgrImpl.class);
-		ActorRef nodeDACMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(nodeDACMgrProps));
-		GraphDACActorPoolMgr.addActorRefToPool(null, GraphDACManagers.DAC_NODE_MANAGER, nodeDACMgr);
-		
-		Props searchDACMgrProps = Props.create(GraphDACSearchMgrImpl.class);
-		ActorRef searchDACMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(searchDACMgrProps));
-		GraphDACActorPoolMgr.addActorRefToPool(null, GraphDACManagers.DAC_SEARCH_MANAGER, searchDACMgr);*/
-
     }
 
     private static void initMethodMap() {
@@ -133,11 +117,6 @@ public class ActorBootstrap {
         GraphEngineActorPoolMgr.initMethodMap(GraphEngineManagers.NODE_MANAGER);
         GraphEngineActorPoolMgr.initMethodMap(GraphEngineManagers.COLLECTION_MANAGER);
         GraphEngineActorPoolMgr.initMethodMap(GraphEngineManagers.SEARCH_MANAGER);
-
-		/*GraphDACActorPoolMgr.initMethodMap(GraphDACManagers.DAC_GRAPH_MANAGER);
-		GraphDACActorPoolMgr.initMethodMap(GraphDACManagers.DAC_NODE_MANAGER);
-		GraphDACActorPoolMgr.initMethodMap(GraphDACManagers.DAC_SEARCH_MANAGER);*/
-
     }
 
     private static void initRouters() {
@@ -164,8 +143,6 @@ public class ActorBootstrap {
                             ActorRef actor = system.actorOf(new SmallestMailboxPool(count).props(actorProps));
                             if (StringUtils.equalsIgnoreCase("RequestRouter", name))
                                 GraphEngineActorPoolMgr.setRequestRouter(actor);
-							/*else if (StringUtils.equalsIgnoreCase("DACRouter", name))
-							    GraphDACActorPoolMgr.setDacRouter(actor);*/
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -188,8 +165,6 @@ public class ActorBootstrap {
                         ActorSelection actor = system.actorSelection(location);
                         if (StringUtils.equalsIgnoreCase("RequestRouter", name))
                             GraphEngineActorPoolMgr.setRequestRouter(actor.anchor());
-						/* else if (StringUtils.equalsIgnoreCase("DACRouter", name))
-						    GraphDACActorPoolMgr.setDacRouter(actor.anchor());*/
                     }
                 }
             }
@@ -261,8 +236,6 @@ public class ActorBootstrap {
                 }
                 if (StringUtils.equalsIgnoreCase("graph-managers", poolName))
                     GraphEngineActorPoolMgr.addActorRefToPool(id, className, actor);
-				/* else if (StringUtils.equalsIgnoreCase("dac-managers", poolName))
-				    GraphDACActorPoolMgr.addActorRefToPool(id, className, actor);*/
             } catch (Exception e) {
                 e.printStackTrace();
             }

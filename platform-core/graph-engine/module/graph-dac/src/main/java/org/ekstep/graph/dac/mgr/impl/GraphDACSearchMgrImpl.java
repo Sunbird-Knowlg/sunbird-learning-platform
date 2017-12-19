@@ -23,7 +23,9 @@ import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.dac.model.SubGraph;
 import org.ekstep.graph.dac.model.Traverser;
 import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearchMgr {
 	
     @Override

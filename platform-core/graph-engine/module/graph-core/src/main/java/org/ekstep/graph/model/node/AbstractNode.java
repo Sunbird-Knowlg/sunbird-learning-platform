@@ -15,10 +15,6 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemProperties;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.model.AbstractDomainObject;
@@ -34,8 +30,6 @@ import scala.concurrent.Future;
  * @author Mohammad Azharuddin
  */
 public abstract class AbstractNode extends AbstractDomainObject implements INode {
-	protected static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	protected static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
     /** The node id. */
     private String nodeId;

@@ -16,12 +16,6 @@ import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
-import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
-import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
-import org.ekstep.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
-import org.ekstep.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.model.AbstractDomainObject;
@@ -34,9 +28,6 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     private String id;
     protected Map<String, Object> metadata;
     protected String memberObjectType;
-	protected static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
-	protected static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
-	protected static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
 
     public AbstractCollection(BaseGraphManager manager, String graphId, String id, Map<String, Object> metadata) {
         super(manager, graphId);

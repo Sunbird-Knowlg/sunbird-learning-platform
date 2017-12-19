@@ -192,7 +192,6 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 	protected Node getNode(Request request, String nodeId) {
         try {
             Request newReq = new Request(request);
-            newReq.setOperation("getNodeByUniqueId");
             newReq.put(GraphDACParams.node_id.name(), nodeId);
 
 			Response res = searchMgr.getNodeByUniqueId(request);

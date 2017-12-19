@@ -39,7 +39,6 @@ import org.junit.runners.MethodSorters;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import scala.concurrent.Await;
@@ -103,18 +102,14 @@ public class NodeMgrImplTest extends TestSetUp {
 			"          \"code\"\n" + 
 			"        ]\n" + 
 			"      }";
-	static ActorRef reqRouter = null;
 	static Map<String, String> contentVersion = new HashMap<String, String>();
 	static long timeout = 50000;
 	protected static Timeout t = new Timeout(Duration.create(60, TimeUnit.SECONDS));
 
 	@BeforeClass
-	public static void beforeTest() {
-		try {
-			reqRouter = TestUtil.initReqRouter();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public static void beforeTest() throws Exception {
+		loadDefinition("definitions/domain_definition.json", "definitions/content_definition.json",
+				"definitions/concept_definition.json", "definitions/dimension_definition.json");
 	}
 	
 	@AfterClass
