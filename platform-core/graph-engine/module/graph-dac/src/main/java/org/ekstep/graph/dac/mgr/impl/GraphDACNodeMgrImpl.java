@@ -17,14 +17,12 @@ import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.operation.Neo4JBoltNodeOperations;
-import org.springframework.stereotype.Component;
 
 /**
  * The Class GraphDACNodeMgrImpl.
  * 
  * @author Mohammad Azharuddin
  */
-@Component
 public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr {
 
 
