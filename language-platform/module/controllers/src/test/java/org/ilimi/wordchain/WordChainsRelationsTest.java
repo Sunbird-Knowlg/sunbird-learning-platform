@@ -1,5 +1,4 @@
 package org.ilimi.wordchain;
-import static org.ekstep.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,6 +12,7 @@ import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.util.RelationType;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
@@ -30,6 +30,7 @@ public class WordChainsRelationsTest {
 	Map<String, Node> endsWithRelationNodeMap = new HashMap<String, Node>();
 	String graphId = "wcpnew";
 	final String pbObjType = "Phonetic_Boundary";
+	public static final Label NODE_LABEL = org.ekstep.graph.dac.enums.Label.NODE;
 
 	//@Test
 	public void createPBandFormRelations() throws Exception {

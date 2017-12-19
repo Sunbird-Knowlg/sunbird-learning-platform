@@ -12,13 +12,11 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
-import org.ekstep.graph.dac.util.Neo4jGraphFactory;
 import org.ekstep.graph.engine.router.ActorBootstrap;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.neo4j.graphdb.GraphDatabaseService;
 
 public class BaseLanguageTest {
 	
@@ -41,24 +39,25 @@ public class BaseLanguageTest {
 	}
 		
 	protected static void createGraph(){
-		if (!Neo4jGraphFactory.graphExists(TEST_LANGUAGE)) 
+		/*if (!Neo4jGraphFactory.graphExists(TEST_LANGUAGE)) 
 			Neo4jGraphFactory.createGraph(TEST_LANGUAGE);
 		if (!Neo4jGraphFactory.graphExists(TEST_COMMON_LANGUAGE)) 
-			Neo4jGraphFactory.createGraph(TEST_COMMON_LANGUAGE);	
+			Neo4jGraphFactory.createGraph(TEST_COMMON_LANGUAGE);	*/
 	}
 
-	protected static void deleteGraph(){
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(TEST_LANGUAGE);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(TEST_LANGUAGE);
-        }
-        Neo4jGraphFactory.deleteGraph(TEST_LANGUAGE);
-        graphDb = Neo4jGraphFactory.getGraphDb(TEST_COMMON_LANGUAGE);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(TEST_COMMON_LANGUAGE);
-        }
-        Neo4jGraphFactory.deleteGraph(TEST_COMMON_LANGUAGE);
-	}
+	protected static void deleteGraph() {
+		/*
+		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(TEST_LANGUAGE);
+		if (null != graphDb) {
+		Neo4jGraphFactory.shutdownGraph(TEST_LANGUAGE);
+		}
+		Neo4jGraphFactory.deleteGraph(TEST_LANGUAGE);
+		graphDb = Neo4jGraphFactory.getGraphDb(TEST_COMMON_LANGUAGE);
+		if (null != graphDb) {
+		Neo4jGraphFactory.shutdownGraph(TEST_COMMON_LANGUAGE);
+		}
+		Neo4jGraphFactory.deleteGraph(TEST_COMMON_LANGUAGE);
+		*/}
 	
 	protected static void createDefinition() throws IOException{
 		 String gradeComplexity_def_json =getJSONString(new File("src/test/resources/GradeLevelComplexity.json"));
