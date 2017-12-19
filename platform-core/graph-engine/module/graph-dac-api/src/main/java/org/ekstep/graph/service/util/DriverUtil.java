@@ -38,23 +38,21 @@ public class DriverUtil {
 				: DACConfigurationConstants.NEO4J_SERVER_DRIVER_TYPE;
 
 		Driver driver = null;
-		switch (driverType) {
+		String route = RoutingUtil.getRoute(graphId, graphOperation);
+		switch (driverType.toLowerCase()) {
 		case "simple":
-		case "SIMPLE":
 			PlatformLogger.log("Reading Simple Driver. | [Driver Initialization.]");
-			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId, graphOperation), ConfigUtil.getConfig());
+			driver = GraphDatabase.driver(route, ConfigUtil.getConfig());
 			break;
 			
 		case "medium":
-		case "MEDIUM":
 			PlatformLogger.log("Reading Medium Driver. | [Driver Initialization.]");
-			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId, graphOperation), AuthTokenUtil.getAuthToken(), ConfigUtil.getConfig());
+			driver = GraphDatabase.driver(route, AuthTokenUtil.getAuthToken(), ConfigUtil.getConfig());
 			break;
 			
 		case "complex":
-		case "COMPLEX":
 			PlatformLogger.log("Reading Complex Driver. | [Driver Initialization.]");
-			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId, graphOperation), AuthTokenUtil.getAuthToken(),
+			driver = GraphDatabase.driver(route, AuthTokenUtil.getAuthToken(),
 					ConfigUtil.getConfig());
 			break;
 
