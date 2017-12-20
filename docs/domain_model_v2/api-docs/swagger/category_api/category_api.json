@@ -1,0 +1,589 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "3.0",
+        "title": "category API",
+        "description": "Category objects are the master list of all categories which can be extended by frameworks. Each master list category has the list of all possible category values. A framework can choose to use the default master list values for a category or override them as per the framework’s context",
+        "license": {
+            "name": "EkStep License",
+            "url": "http:www.EkStep.in"
+        }
+    },
+    "basePath": "/category/v3",
+    "host": "api.ekstep.in",
+    "securityDefinitions": {},
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "tags": [
+        {
+            "name": "category",
+            "description": "Everything related to CRUD Operations of the category"
+        }
+    ],
+    "paths": {
+        "/create": {
+            "post": {
+                "summary": "Creates a category",
+                "description": "This API creates an category in the platform",
+                "tags": [
+                    "category"
+                ],
+                "operationId": "ekstep.learning.category.create",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/categoryRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "category Created Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/categoryCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While creating category! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Creating category! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/read/{categoryId}": {
+            "get": {
+                "summary": "Gets an category",
+                "description": "This API is used to fetch an category from the _EkStep Platform_.This endpoint returns the entire category Object with default fields. ",
+                "tags": [
+                    "category"
+                ],
+                "operationId": "ekstep.learning.category.read",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "categoryId",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "category fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/categoryGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching the category! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching the category! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/update/{categoryId}": {
+            "patch": {
+                "summary": "Updates the given category",
+                "description": "This API is used to update an category based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation",
+                "tags": [
+                    "category"
+                ],
+                "operationId": "ekstep.learning.category.update",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/categoryRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "category Updated Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/categoryUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Updating the category! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Updating the category! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/search": {
+            "post": {
+                "summary": "search an category",
+                "description": "This API is used to search and retrieve all category from the category repository based on the given search creteria in the request body",
+                "tags": [
+                    "category"
+                ],
+                "operationId": "ekstep.learning.category.search",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/searchCategoryRequest"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "category searched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/categorySearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching all category search! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching all category search! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+     },
+    "/retire/{categoryId}": {
+        "delete": {
+            "tags": [
+                "category"
+            ],
+            "summary": "This API is used to delete (Retire) the category from the _EkStep Platform_. It consumes the category Identifier as 'categoryId' on which the delete (Retire) operation has to be performed.",
+            "operationId": "ekstep.learning.category.retire",
+            "produces": [
+                "application/json"
+            ],
+            "parameters": [
+                 {
+                    "name": "categoryId",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+            ],
+            "responses": {
+                "200": {
+                    "description": "category Retired Successfully",
+                    "schema": {
+                        "$ref": "#/definitions/categoryDeleteResponse"
+                    }
+                },
+                "400": {
+                    "description": "Error While category Retire! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                    "schema": {
+                        "$ref": "#/definitions/FailedResponseHeader"
+                    }
+                },
+                "404": {
+                    "description": "category Id does not exist.",
+                    "schema": {
+                        "$ref": "#/definitions/FailedResponseHeader"
+                    }
+                },
+                "500": {
+                    "description": "Error While category Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                    "schema": {
+                        "$ref": "#/definitions/FailedResponseHeader"
+                    }
+                }
+            },
+            "security": []
+        }
+      }
+    },
+    "parameters": {
+        "categoryRequestObject": {
+            "name": "Request",
+            "in": "body",
+            "description": "category Request Object which contains the category object",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/categoryRequestObject"
+            }
+        },
+        "searchCategoryRequest": {
+            "name": "Request",
+            "in": "body",
+            "description": "category Request Object which contains the category object",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/categoryListRequestObject"
+            }
+        }
+    },
+    "definitions": {
+      "categoryDeleteResponse":{
+            "title": "Delete category Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithNodeId"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+      },
+      "categoryListRequestObject": {
+          "title": "category list Request Object",
+          "type": "object",
+          "properties": {
+              "request": {
+                  "$ref": "#/definitions/categoryListObject"
+              }
+          },
+          "required": [
+              "request"
+          ]
+      },
+        "categoryListObject": {
+            "properties": {
+                "sortBy": {
+                    "type": "string",
+                    "description": "sortBy"
+                }
+            }
+        },
+        "categoryRequestObject": {
+            "title": "category Request Object",
+            "type": "object",
+            "properties": {
+                "request": {
+                    "$ref": "#/definitions/categoryObject"
+                }
+            },
+            "required": [
+                "request"
+            ]
+        },
+        "categoryObject": {
+            "title": "category Object",
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/category"
+                }
+            },
+            "required": [
+                "category"
+            ]
+        },
+        "categoryCreateResponse": {
+            "description": "Create category Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithNodeId"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "categoryUpdateResponse": {
+            "title": "Update category Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithNodeId"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "categoryGetResponse": {
+            "title": "Get category Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithcategoryResponse"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "ResultWithcategoryResponse": {
+            "title": "Get category Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/category"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "category": {
+            "title": "category Metadata",
+            "type": "object",
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "Identifier of the category"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the category"
+                },
+                "code": {
+                    "type": "string",
+                    "description": "Unique code for the category"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Status of the category"
+                },
+                "inRelations": {
+                   "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inRelations"
+                    }
+                },
+                "outRelations": {
+                  "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/outRelations"
+                    }
+                }
+            }
+        },
+        "inRelations":{
+          "properties":{
+            "inRelations":{
+               "type":"object",
+               "description":"incoming relations to which the category belongs"
+            }
+          }
+        },
+         "outRelations":{
+          "properties":{
+            "outRelations":{
+               "type":"object",
+               "description":"out going relations to which the category belongs"
+            }
+          }
+        },
+        "ResultWithNodeId": {
+            "title": "Result Containing Node Id",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/NodeId"
+                }
+            }
+        },
+        "ResponseHeader": {
+            "title": "ResponseHeader",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "object",
+                    "description": "API response code "
+                }
+            }
+        },
+        "ResponseParams": {
+            "title": "Response Parameter",
+            "type": "object",
+            "properties": {
+                "resmsgid": {
+                    "type": "string",
+                    "description": "Response Message Id"
+                },
+                "msgid": {
+                    "type": "string",
+                    "description": "Message Id"
+                },
+                "err": {
+                    "type": "string",
+                    "description": "Error Code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Response Status"
+                },
+                "errmsg": {
+                    "type": "string",
+                    "description": "Error Message"
+                }
+            }
+        },
+        "categorySearchResponse": {
+            "title": "search category Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithcategoryResponseArray"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "ResultWithcategoryResponseArray": {
+            "title": "Response category Array with TTL",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/TTL"
+                },
+                {
+                    "$ref": "#/definitions/categoryResponseArray"
+                }
+            ]
+        },
+        "TTL": {
+            "title": "TTL",
+            "type": "object",
+            "properties": {
+                "ttl": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "TTL (Time)"
+                }
+            }
+        },
+        "NodeId": {
+            "title": "Node Id",
+            "type": "object",
+            "properties": {
+                "node_id": {
+                    "type": "string",
+                    "description": "Node Identifier"
+                }
+            }
+        },
+        "categoryResponseArray": {
+            "title": "Response category Array",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/category"
+                    }
+                }
+            }
+        },
+        "FailedResponseHeader": {
+            "title": "Failure Response",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/FailedResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "responseCode"
+                }
+            }
+        },
+        "FailedResponseParams": {
+            "title": "Failed Response Parameter",
+            "type": "object",
+            "properties": {
+                "resmsgid": {
+                    "type": "string",
+                    "description": "Response Message Id"
+                },
+                "msgid": {
+                    "type": "string",
+                    "description": "Message Id"
+                },
+                "err": {
+                    "type": "string",
+                    "description": "Error Code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Response Status"
+                },
+                "errmsg": {
+                    "type": "string",
+                    "description": "Error Message"
+                }
+            }
+        }
+    }
+}

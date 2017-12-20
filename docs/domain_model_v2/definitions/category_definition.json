@@ -141,7 +141,7 @@
 				"objectTypes": [
 					"Term"
 				],
-				"title": "term",
+				"title": "terms",
 				"description": "term instance which has sequence relationship with this category",
 				"required": false,
 				"renderingHints": "{ 'order': 12 }"

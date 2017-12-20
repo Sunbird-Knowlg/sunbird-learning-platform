@@ -16,7 +16,6 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.framework.common.FrameworkIdentifier;
 import com.ilimi.framework.mgr.IFrameworkManager;
 
 /**
@@ -29,8 +28,6 @@ import com.ilimi.framework.mgr.IFrameworkManager;
 @RequestMapping("/v3/framework")
 public class FrameworkV3Controller extends BaseController{
 	 
-	private final String graphId = "domain";
-	
 	@Autowired
 	private IFrameworkManager frameworkManager;
 
@@ -48,9 +45,7 @@ public class FrameworkV3Controller extends BaseController{
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("framework");
-			map.put("owner", channelId);
-			map.put("identifier", FrameworkIdentifier.getIdentifier((String)map.get("name")));
-			Response response = frameworkManager.createFramework(map);
+			Response response = frameworkManager.createFramework(map, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while creating framework (Create Framework API): ", e.getMessage(), e);
@@ -68,7 +63,7 @@ public class FrameworkV3Controller extends BaseController{
 	public ResponseEntity<Response> readFramework(@PathVariable(value = "id") String frameworkId) {
 		String apiId = "ekstep.learning.framework.read";
 		try {
-			Response response = frameworkManager.readFramework(graphId, frameworkId);
+			Response response = frameworkManager.readFramework(frameworkId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception Occured while reading framework details (Read Framework API): ", e.getMessage(), e);

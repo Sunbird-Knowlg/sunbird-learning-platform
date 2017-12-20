@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.dto.TelemetryBEEvent;
@@ -26,55 +25,20 @@ public class LogTelemetryEventUtil {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
 	private static String eventId = "BE_JOB_REQUEST";
-	private static String actorId = "Publish Samza Job";
-	private static String actorType = "System";
-	private static String pdataId = "org.ekstep.platform";
-	private static String pdataVersion = "1.0";
-	private static String action = "publish";
-	private static String status = "Pending";
-	private static int iteration = 0;
+	private static int iteration = 1;
 	
-	
-	
-	public static String logInstructionBasedContentPublishEvent(String contentId, Map<String, Object> metadata) {
+	public static String logInstructionEvent(Map<String,Object> actor, Map<String,Object> context, Map<String,Object> object, Map<String,Object> edata) {
+		
 		TelemetryPBIEvent te = new TelemetryPBIEvent();
 		long unixTime = System.currentTimeMillis();
-		Map<String,Object> actor = new HashMap<String,Object>();
-		Map<String,Object> context = new HashMap<String,Object>();
-		Map<String,Object> object = new HashMap<String,Object>();
-		Map<String,Object> edata = new HashMap<String,Object>();
+		edata.put("iteration", iteration);
 		
 		te.setEid(eventId);
 		te.setEts(unixTime);
 		te.setMid(mid);
-		
-		actor.put("id", actorId);//publish job
-		actor.put("type", actorType);
 		te.setActor(actor);
-		
-		context.put("channel", metadata.get("channel")); 
-		Map<String, Object> pdata = new HashMap<>();
-		pdata.put("id", pdataId); 
-		pdata.put("ver", pdataVersion);
-		context.put("pdata", pdata);
-		if (Platform.config.hasPath("s3.env")) {
-			String env = Platform.config.getString("s3.env");
-			context.put("env", env);
-		}
 		te.setContext(context);
-		
-		
-		
-		
-		object.put("id", contentId);
-		object.put("type", metadata.get("contentType"));
-		object.put("ver", metadata.get("versionKey"));
 		te.setObject(object);
-		
-		edata.put("action", action);
-		edata.put("status", status);
-		edata.put("iteration", iteration);
-		edata.put("publish_type", (String)metadata.get("publish_type"));
 		te.setEdata(edata);
 		
 		String jsonMessage = null;

@@ -11,10 +11,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.slugs.Slug;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
@@ -36,23 +38,22 @@ import com.ilimi.graph.model.node.DefinitionDTO;
  */
 public class BaseFrameworkManager extends BaseManager {
 
-	protected static final String GRAPH_ID = "domain";
+	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
+			: "domain";
 
-	protected Response create(Map<String, Object> request, String objectType, List<Relation> inRelations) {
+	protected Response create(Map<String, Object> request, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(request, definition, null);
 			node.setObjectType(objectType);
 			node.setGraphId(GRAPH_ID);
-			if (null != inRelations && !inRelations.isEmpty())
-				node.setInRelations(inRelations);
 			Response response = createDataNode(node);
 			if (!checkError(response))
 				return response;
 			else
 				return response;
 		} catch (Exception e) {
-			return ERROR("ERR_SERVER_ERROR", "Internal Server Error (Create Framework API)", ResponseCode.SERVER_ERROR);
+			return ERROR("ERR_SERVER_ERROR", "Internal Server Error", ResponseCode.SERVER_ERROR);
 		}
 	}
 
@@ -240,13 +241,6 @@ public class BaseFrameworkManager extends BaseManager {
 		return id;
 	}
 
-	public List<Relation> setRelations(String scopeId) {
-		Relation inRelation = new Relation(scopeId, "hasSequenceMember", null);
-		List<Relation> inRelations = new ArrayList<Relation>();
-		inRelations.add(inRelation);
-		return inRelations;
-	}
-
 	public Boolean validateScopeNode(String scopeId, String identifier) {
 		Response responseNode = getDataNode(GRAPH_ID, scopeId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
@@ -266,16 +260,27 @@ public class BaseFrameworkManager extends BaseManager {
 
 	private MetadataCriterion getMetadata(String scopeId, Map<String, Object> map, String objectType) {
 		List<Filter> filters = new ArrayList<Filter>();
-		Filter filter = new Filter(FrameworkEnum.status.name(), SearchConditions.OP_IN, FrameworkEnum.Live.name());
-		filters.add(filter);
+		Filter filter = null;
+		boolean defaultSearch = true;
 
 		if ((null != map) && !map.isEmpty()) {
 			for (String key : map.keySet()) {
+				if (StringUtils.equalsIgnoreCase(key, FrameworkEnum.status.name())
+						&& StringUtils.isNotBlank((String) map.get(key))) {
+					defaultSearch = false;
+					filter = new Filter(FrameworkEnum.status.name(), SearchConditions.OP_IN, map.get(key));
+					filters.add(filter);
+				}
 				if (StringUtils.isNotBlank((String) map.get(key))) {
 					filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
 					filters.add(filter);
 				}
 			}
+		}
+
+		if (defaultSearch) {
+			filter = new Filter(FrameworkEnum.status.name(), SearchConditions.OP_IN, FrameworkEnum.Live.name());
+			filters.add(filter);
 		}
 
 		if (StringUtils.isNotBlank(scopeId)) {
@@ -302,5 +307,40 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 
 		return identifiers;
+	}
+	
+	/**
+	 * validate channel Node
+	 * 
+	 * @param channelId
+	 * 
+	 * @author gauraw
+	 * 
+	 * */
+	
+	protected boolean validateChannel(String channelId){
+		boolean isValidChannel=false;
+		
+		Response responseNode = getDataNode(GRAPH_ID, channelId);
+		if (!checkError(responseNode)){
+			isValidChannel=true;
+		}
+		return isValidChannel;
+	}
+
+	public void setRelations(String scopeId, Map<String, Object> request) {
+		try {
+			Response responseNode = getDataNode(GRAPH_ID, scopeId);
+			Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
+			String objectType = dataNode.getObjectType();
+			List<Map<String, Object>> relationList = new ArrayList<Map<String, Object>>();
+			Map<String, Object> relationMap = new HashMap<String, Object>();
+			relationMap.put("identifier", scopeId);
+			relationMap.put("relation", "hasSequenceMember");
+			relationList.add(relationMap);
+			request.put(StringUtils.lowerCase(objectType), relationList);
+		} catch (Exception e) {
+			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
+		}
 	}
 }

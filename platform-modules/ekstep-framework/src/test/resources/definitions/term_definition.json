@@ -41,7 +41,7 @@
 			},
 			{
 	          "propertyName": "description",
-	          "title": "Name",
+	          "title": "Description",
 	          "description": "description of the term",
 	          "category": "General",
 	          "dataType": "Text",
@@ -139,7 +139,7 @@
 				"objectTypes": [
 					"CategoryInstance"
 				],
-				"title": "categoryInstance",
+				"title": "categoryinstance",
 				"description": "CategoryInstance using the term",
 				"required": false,
 				"renderingHints": "{ 'order': 7}"

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.framework.mgr.ITermManager;
 
@@ -31,8 +30,6 @@ public class TermChannelV3Controller extends BaseController {
 	@Autowired
 	private ITermManager termManager;
 
-	private String graphId = "domain";
-
 	/**
 	 * 
 	 * @param categoryId
@@ -43,17 +40,15 @@ public class TermChannelV3Controller extends BaseController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@RequestParam(value = "category", required = true) String categoryId, @RequestHeader(value = "X-Channel-Id") String channelId, @RequestBody Map<String, Object> requestMap) {
+	public ResponseEntity<Response> create(@RequestParam(value = "category", required = true) String categoryId,
+			@RequestHeader(value = "X-Channel-Id") String channelId, @RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.channel.term.create";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("term");
-			if (termManager.validateRequest(channelId, categoryId)) {
-				Response response = termManager.createTerm(categoryId, map);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for Term", apiId, null);
-			}
+			Response response = termManager.createTerm(channelId, categoryId, map);
+			return getResponseEntity(response, apiId, null);
+
 		} catch (Exception e) {
 			PlatformLogger.log("create term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
@@ -69,16 +64,13 @@ public class TermChannelV3Controller extends BaseController {
 	 */
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> read(@PathVariable(value = "id") String termId, @RequestHeader(value = "X-Channel-Id") String channelId,
+	public ResponseEntity<Response> read(@PathVariable(value = "id") String termId,
+			@RequestHeader(value = "X-Channel-Id") String channelId,
 			@RequestParam(value = "category", required = true) String categoryId) {
 		String apiId = "ekstep.learning.channel.term.read";
 		try {
-			if (termManager.validateRequest(channelId, categoryId)) {
-				Response response = termManager.readTerm(graphId, termId, categoryId);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for Term", apiId, null);
-			}
+			Response response = termManager.readTerm(channelId, termId, categoryId);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Read term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
@@ -103,13 +95,9 @@ public class TermChannelV3Controller extends BaseController {
 		String apiId = "ekstep.learning.channel.term.update";
 		Request request = getRequest(requestMap);
 		try {
-			if (termManager.validateRequest(channelId, categoryId)) {
-				Map<String, Object> map = (Map<String, Object>) request.get("term");
-				Response response = termManager.updateTerm(categoryId, termId, map);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermUpdate", apiId, null);
-			}
+			Map<String, Object> map = (Map<String, Object>) request.get("term");
+			Response response = termManager.updateTerm(channelId, categoryId, termId, map);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Update term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
@@ -131,13 +119,9 @@ public class TermChannelV3Controller extends BaseController {
 		String apiId = "ekstep.learning.channel.term.search";
 		Request request = getRequest(requestMap);
 		try {
-			if (termManager.validateRequest(channelId, categoryId)) {
-				Map<String, Object> map = (Map<String, Object>) request.get("search");
-				Response response = termManager.searchTerms(categoryId, map);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermSearch", apiId, null);
-			}
+			Map<String, Object> map = (Map<String, Object>) request.get("search");
+			Response response = termManager.searchTerms(channelId, categoryId, map);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Search terms", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
@@ -158,12 +142,8 @@ public class TermChannelV3Controller extends BaseController {
 			@RequestParam(value = "category", required = true) String categoryId) {
 		String apiId = "ekstep.learning.channel.term.retire";
 		try {
-			if (termManager.validateRequest(channelId, categoryId)) {
-				Response response = termManager.retireTerm(categoryId, termId);
-				return getResponseEntity(response, apiId, null);
-			} else {
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Invalid CategoryId for TermRetire", apiId, null);
-			}
+			Response response = termManager.retireTerm(channelId, categoryId, termId);
+			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("retire term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);

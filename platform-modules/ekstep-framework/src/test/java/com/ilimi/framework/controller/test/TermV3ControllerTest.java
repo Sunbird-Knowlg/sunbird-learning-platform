@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -28,6 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
+import com.ilimi.framework.mgr.ICategoryManager;
 import com.ilimi.framework.mgr.impl.CategoryManagerImpl;
 import com.ilimi.framework.test.common.TestSetup;
 
@@ -35,7 +35,6 @@ import com.ilimi.framework.test.common.TestSetup;
  * @author pradyumna
  *
  */
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -45,17 +44,22 @@ public class TermV3ControllerTest extends TestSetup {
 	@Autowired
 	private WebApplicationContext context;
 
+
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String base_category_path = "/v3/category/term";
 	private static String categoryId = null;
-	private static CategoryManagerImpl categoryManager = new CategoryManagerImpl();
 	static String termId = null;
 	static ObjectMapper mapper = new ObjectMapper();
+	private static ICategoryManager categoryManager = new CategoryManagerImpl();
+
 	private static String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 
+	static ClassLoader classLoader = TermV3ControllerTest.class.getClassLoader();
+
 	@BeforeClass
-	public static void beforeClass() {
+	public static void beforeClass() throws Exception {
+		loadDefinition("definitions/category_definition.json", "definitions/category_definition.json", "definitions/term_definition.json");
 		createCategory();
 	}
 
@@ -92,13 +96,9 @@ public class TermV3ControllerTest extends TestSetup {
 			String path = base_category_path + "/create?category=" + categoryId;
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
-			MockHttpServletResponse  response = actions.andReturn().getResponse();
+			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
-			Response resp = mapper.readValue(response.getContentAsString(),
-					new TypeReference<Response>() {
-					});
-			termId = (String) resp.getResult().get("node_id");
-			System.out.println("TERM ID : " + termId);
+			termId = "standard2";
 		} catch (Exception e) {
 			e.getCause();
 		}

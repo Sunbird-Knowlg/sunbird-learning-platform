@@ -18,6 +18,12 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.framework.mgr.IChannelManager;
 
+/**
+ * This is the entry point for all CRUD operations related to channel API.
+ * 
+ * @author rashmi
+ *
+ */
 @Controller
 @RequestMapping("/v3/channel")
 public class ChannelV3Controller extends BaseController {
@@ -25,14 +31,16 @@ public class ChannelV3Controller extends BaseController {
 	@Autowired
 	private IChannelManager channelManager;
 	
-	private String graphId = "domain";
-	
+	/**
+	 * 
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.channel.create";
-		PlatformLogger.log("Executing channel Create API.", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("channel");
@@ -44,17 +52,18 @@ public class ChannelV3Controller extends BaseController {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param channelId
+	 * @return
+	 */
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String channelId) {
 		String apiId = "ekstep.learning.channel.read";
-		PlatformLogger.log(
-				"Executing Channel Get API Channel Id: " + channelId + ".", null);
 		Response response;
-		PlatformLogger.log("Channel GetById | Channel Id : " + channelId);
 		try {
-			PlatformLogger.log("Calling the Manager for fetching Channel 'getById' | [channel Id " + channelId + "]");
-			response = channelManager.readChannel(graphId, channelId);
+			response = channelManager.readChannel(channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Read Channel", e.getMessage(), e);
@@ -62,15 +71,18 @@ public class ChannelV3Controller extends BaseController {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param channelId
+	 * @param requestMap
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String channelId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.channel.update";
-		PlatformLogger.log(
-				"Executing channel Update API For channel Id: " + channelId + ".",
-				requestMap, "INFO");
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("channel");
@@ -82,18 +94,43 @@ public class ChannelV3Controller extends BaseController {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param map
+	 * @param userId
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> list(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.channel.list";
-		PlatformLogger.log("Get | channels: " + " | Request: " + map);
+		Request request = getRequest(map);
 		try {
-			Response response = channelManager.listChannel(map);
-			PlatformLogger.log("List Channel | Response: " + response);
+			Response response = channelManager.listChannel((Map)request.get("search"));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("List Channel | Exception: " , e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param categoryId
+	 * @return
+	 */
+	@RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Response> retire(@PathVariable(value = "id") String channelId) {
+		String apiId = "ekstep.learning.channel.retire";
+		try {
+			Response response = channelManager.retireChannel(channelId);
+			PlatformLogger.log("retire channel | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("retire channel | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

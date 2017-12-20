@@ -40,18 +40,6 @@
           "indexed": false
         },
         {
-          "propertyName": "owner",
-          "title": "Owner",
-          "description": "Owner for the framework",
-          "category": "General",
-          "dataType": "Text",
-          "required": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 4}",
-          "indexed": false
-        },
-        {
           "propertyName": "status",
             "title": "Status",
             "description": "Status of the framework",
@@ -60,7 +48,7 @@
             "range":
             [
                 "Live",
-                "Retire"
+                "Retired"
             ],
             "required": false,
 			      "indexed": true,

@@ -101,8 +101,9 @@ private ICategoryManager categoryManager;
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> search(@RequestBody Map<String, Object> request) {
+	public ResponseEntity<Response> search(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.category.search";
+		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("search");
 			Response response = categoryManager.searchCategory(map);
