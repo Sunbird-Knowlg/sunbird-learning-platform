@@ -2,7 +2,6 @@ package com.ilimi.framework.manager.test;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -18,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
@@ -31,7 +28,7 @@ import com.ilimi.framework.test.common.TestSetup;
 
 /**
  * 
- * @author rashmi
+ * @author Rashmi
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -59,7 +56,7 @@ public class CategoryManagerTest extends TestSetup {
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
-	public void createCategory() throws JsonParseException, JsonMappingException, IOException {
+	public void createCategory() throws Exception {
 		Map<String, Object> requestMap = mapper.readValue(createCategoryValidRequest, new TypeReference<Map<String, Object>>() {});
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
 		Response response = mgr.createCategory(categoryMap);
@@ -70,7 +67,7 @@ public class CategoryManagerTest extends TestSetup {
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
-	public void createCategoryWithoutCode() throws JsonParseException, JsonMappingException, IOException {
+	public void createCategoryWithoutCode() throws Exception {
 		Map<String, Object> requestMap = mapper.readValue(createCategoryWithoutCode, new TypeReference<Map<String, Object>>() {});
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
 		Response response = mgr.createCategory(categoryMap);
@@ -79,7 +76,7 @@ public class CategoryManagerTest extends TestSetup {
 	}
 	
 	@Test
-	public void createCategoryWithInvalidRequest() throws JsonParseException, JsonMappingException, IOException {
+	public void createCategoryWithInvalidRequest() throws Exception {
 		Map<String,Object> categoryMap = new HashMap<String,Object>();
 		Response response = mgr.createCategory(categoryMap);
 		String responseCode=(String) response.getResponseCode().toString();
@@ -88,7 +85,7 @@ public class CategoryManagerTest extends TestSetup {
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
-	public void readCategoryWithValidNodeId() throws JsonParseException, JsonMappingException, IOException, InterruptedException {
+	public void readCategoryWithValidNodeId() throws Exception {
 		Map<String, Object> requestMap = mapper.readValue(createCategoryValidRequest, new TypeReference<Map<String, Object>>() {});
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
 		String identifier = (String)categoryMap.get("code");
@@ -106,7 +103,7 @@ public class CategoryManagerTest extends TestSetup {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
-	public void updateCategoryWithNodeId() throws JsonParseException, JsonMappingException, IOException {
+	public void updateCategoryWithNodeId() throws Exception {
 		Map<String, Object> requestMap = mapper.readValue(createCategoryValidRequest, new TypeReference<Map<String, Object>>() {});
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
 		String code = (String)categoryMap.get("code");
@@ -127,7 +124,7 @@ public class CategoryManagerTest extends TestSetup {
 	}
 	
 	@Test
-	public void updateCategoryWithInValidNodeId() throws JsonParseException, JsonMappingException, IOException {
+	public void updateCategoryWithInValidNodeId() throws Exception {
 		Map<String,Object> updateRequest = new HashMap<String,Object>();
 		updateRequest.put("description", "testDescription");
 		Response resp = mgr.updateCategory("do_13234567", updateRequest);
@@ -136,7 +133,7 @@ public class CategoryManagerTest extends TestSetup {
 	}
 	
 	@Test
-	public void updateCategoryWithoutNodeId() throws JsonParseException, JsonMappingException, IOException {
+	public void updateCategoryWithoutNodeId() throws Exception {
 		Map<String,Object> updateRequest = new HashMap<String,Object>();
 		updateRequest.put("description", "testDescription");
 		Response resp = mgr.updateCategory(null, updateRequest);
@@ -146,7 +143,7 @@ public class CategoryManagerTest extends TestSetup {
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
-	public void searchCategoryWithValidRequest() throws JsonParseException, JsonMappingException, IOException {
+	public void searchCategoryWithValidRequest() throws Exception {
 		Map<String, Object> requestMap = mapper.readValue(createCategoryValidRequest, new TypeReference<Map<String, Object>>() {});
 		Map<String,Object> searchRequestMap = new HashMap<String,Object>();
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
@@ -159,10 +156,17 @@ public class CategoryManagerTest extends TestSetup {
 		Response res = mgr.searchCategory(searchRequestMap);
 		Assert.assertEquals(ResponseCode.OK, res.getResponseCode());
 	}
+	
+	@Test
+	public void searchCategoryWithoutRequest() throws Exception {
+		Response res = mgr.searchCategory(null);
+		String responseCode=(String) res.getResponseCode().toString();
+		assertTrue(responseCode.equals("CLIENT_ERROR"));
+	}
 
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
-	public void retireCategory() throws JsonParseException, JsonMappingException, IOException {
+	public void retireCategory() throws Exception {
 		Map<String, Object> requestMap = mapper.readValue(createCategoryValidRequest, new TypeReference<Map<String, Object>>() {});
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
 		String code = (String)categoryMap.get("code");
@@ -178,14 +182,14 @@ public class CategoryManagerTest extends TestSetup {
 	}
 	
 	@Test
-	public void retireCategoryWithInvalidId() {
+	public void retireCategoryWithInvalidId() throws Exception {
 		Response resp = mgr.retireCategory(null);
 		String responseCode=(String) resp.getResponseCode().toString();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
 	}
 	
 	@Test
-	public void retireCategoryWithoutNodeId() {
+	public void retireCategoryWithoutNodeId() throws Exception {
 		Response resp = mgr.retireCategory("do_12456");
 		String responseCode=(String) resp.getResponseCode().toString();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));

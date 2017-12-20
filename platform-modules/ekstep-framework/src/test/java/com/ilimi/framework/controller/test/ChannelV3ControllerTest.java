@@ -1,12 +1,10 @@
 package com.ilimi.framework.controller.test;
-
 import java.util.Map;
 import java.util.Random;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +21,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.framework.test.common.TestSetup;
+import com.ilimi.framework.manager.test.BaseCategoryInstanceMgrTest;
+import com.ilimi.framework.mgr.IChannelManager;
 
 /**
  * 
@@ -34,7 +33,7 @@ import com.ilimi.framework.test.common.TestSetup;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ChannelV3ControllerTest extends TestSetup {
+public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 	
 	@Autowired
 	private WebApplicationContext context;
@@ -44,16 +43,14 @@ public class ChannelV3ControllerTest extends TestSetup {
 	static int rn = generateRandomNumber(0, 9999);
 	static String node_id = "";
 
+	@Autowired
+	IChannelManager mgr;
+	
 	@Before
 	public void setup() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 	
-	@BeforeClass()
-	public static void beforeClass() throws Exception {
-		loadDefinition("definitions/channel_definition.json");
-	}
-
 	@Test
 	public void createChannelWithNodeId() throws Exception {
 		String request = "{\"request\":{\"channel\":{\"name\":\"channel\",\"description\":\"sample description of channel\",\"code\":\"karnataka"
@@ -129,16 +126,23 @@ public class ChannelV3ControllerTest extends TestSetup {
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
+	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
 	public void updateChannelForValidNodeId() throws Exception {
-		String request = "{\"request\":{\"channel\":{\"description\":\"LP channel API\",\"name\":\"test\",\"description\":\"testUpdate\"}}}";
-		String path = base_channel_path + "/update/" + node_id;
+		String channelId = createChannel(mgr);
+		String request = "{\"request\":{\"channel\":{\"description\":\"LP channel API\"}}}";
+		String path = base_channel_path + "/update/" + channelId;
 		actions = this.mockMvc
 				.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).content(request));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		Response resp = jsonToObject(actions);
-		String node_id_result = (String) resp.get("node_id");
-		Assert.assertEquals(node_id, node_id_result);
+		String readPath = base_channel_path + "/read/" + channelId;
+		actions = this.mockMvc.perform(MockMvcRequestBuilders.get(readPath).contentType(MediaType.APPLICATION_JSON));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp1 = jsonToObject(actions);
+		Map<String,Object> map = resp1.getResult();
+		Map<String,Object> channelMap = (Map)map.get("channel");
+		Assert.assertEquals("LP channel API", channelMap.get("description"));
+		
 	}
 
 	@Test
@@ -179,38 +183,47 @@ public class ChannelV3ControllerTest extends TestSetup {
 
 	@Test
 	public void searchChannelForValidSearch() throws Exception {
-		String request = "{\"request\":{}}";
-		String path = base_channel_path + "/search";
+		createChannel(mgr);
+		String request = "{\"request\":{\"search\":{}}}";
+		String path = base_channel_path + "/list";
 		actions = this.mockMvc
-				.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(request));
+				.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
 	@Test
 	public void searchChannelForInValidSearchRequest() throws Exception {
 		String request = "";
-		String path = base_channel_path + "/search";
+		String path = base_channel_path + "/list";
 		actions = this.mockMvc
 				.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(request));
-		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
 	@Test
 	public void searchChannelForInValidUrl() throws Exception {
-		String request = "{\"request\":{}}";
-		String path = base_channel_path + "/seaxarch";
+		String request = "{\"request\":{\"search\":{}}}";
+		String path = base_channel_path + "/listdss";
 		actions = this.mockMvc
 				.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(request));
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
+	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
 	public void retireChannelForValidNodeId() throws Exception {
-		String path = base_channel_path + "/retire/" + node_id;
+		String channelId = createChannel(mgr);
+		String path = base_channel_path + "/retire/" + channelId;
 		actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		Response resp = jsonToObject(actions);
-		String node = (String) resp.get("node_id");
-		Assert.assertEquals(node, node_id);
+		String readPath = base_channel_path + "/read/" + channelId;
+		actions = this.mockMvc.perform(MockMvcRequestBuilders.get(readPath).contentType(MediaType.APPLICATION_JSON));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp1 = jsonToObject(actions);
+		Map<String,Object> map = resp1.getResult();
+		Map<String,Object> channelMap = (Map)map.get("channel");
+		Assert.assertEquals("Retired", channelMap.get("status"));
+		
 	}
 
 	@Test

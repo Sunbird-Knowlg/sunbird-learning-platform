@@ -40,8 +40,8 @@ private ICategoryManager categoryManager;
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.category.create";
-		Request request = getRequest(requestMap);
 		try {
+			Request request = getRequest(requestMap);
 			Map<String, Object> map = (Map<String, Object>) request.get("category");
 			Response response = categoryManager.createCategory(map);
 			return getResponseEntity(response, apiId, null);
@@ -81,8 +81,8 @@ private ICategoryManager categoryManager;
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String categoryId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.category.update";
-		Request request = getRequest(requestMap);
 		try {
+			Request request = getRequest(requestMap);
 			Map<String, Object> map = (Map<String, Object>) request.get("category");
 			Response response = categoryManager.updateCategory(categoryId, map);
 			return getResponseEntity(response, apiId, null);
@@ -103,8 +103,8 @@ private ICategoryManager categoryManager;
 	@ResponseBody
 	public ResponseEntity<Response> search(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.category.search";
-		Request request = getRequest(requestMap);
 		try {
+			Request request = getRequest(requestMap);
 			Map<String, Object> map = (Map<String, Object>) request.get("search");
 			Response response = categoryManager.searchCategory(map);
 			PlatformLogger.log("search category | Response: " + response);

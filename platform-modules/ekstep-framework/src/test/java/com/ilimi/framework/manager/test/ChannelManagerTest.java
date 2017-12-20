@@ -20,14 +20,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.framework.mgr.IChannelManager;
 import com.ilimi.framework.test.common.TestSetup;
 
 /**
  * 
- * @author rashmi
+ * @author Rashmi
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -148,7 +147,7 @@ public class ChannelManagerTest extends TestSetup {
 	}
 	
 	@Test
-	public void searchChannelWithInvalidRequest() {
+	public void searchChannelWithInvalidRequest() throws Exception {
 		Response resp = channelMgr.listChannel(null);
 		String responseCode=(String) resp.getResponseCode().toString();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
@@ -171,14 +170,14 @@ public class ChannelManagerTest extends TestSetup {
 	}
 	
 	@Test
-	public void retireChannelWithInvalidId() {
+	public void retireChannelWithInvalidId() throws Exception {
 		Response resp = channelMgr.retireChannel(null);
 		String responseCode=(String) resp.getResponseCode().toString();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
 	}
 	
 	@Test
-	public void retireChannelWithoutNodeId() {
+	public void retireChannelWithoutNodeId() throws Exception {
 		Response resp = channelMgr.retireChannel("do_12456");
 		String responseCode=(String) resp.getResponseCode().toString();
 		assertTrue(responseCode.equals("CLIENT_ERROR"));
