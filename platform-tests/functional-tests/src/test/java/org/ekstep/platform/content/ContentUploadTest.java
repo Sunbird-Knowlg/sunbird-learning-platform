@@ -20,7 +20,10 @@ import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
 public class ContentUploadTest extends BaseTest{
-	
+
+	private String PROCESSING = "Processing";
+	private String PENDING = "Pending";
+
 	String jsonCreateValidContent = "{\"request\":{\"content\":{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test\",\"name\":\"Test_3\",\"language\":[\"English\"],\"contentType\":\"Plugin\",\"code\":\"LP_NFT_PLUGIN_TEST_7\",\"tags\":[\"Content\"],\"mimeType\":\"application/vnd.ekstep.plugin-archive\"}}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"org.ektep.test.plugin.ft\"}}";
 	String uploadedFile = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/org.ektep.test.plugin.ft/artifact/archive_1508928130106.zip";
@@ -140,7 +143,7 @@ public class ContentUploadTest extends BaseTest{
 
 	public void asyncPublishValidations(ArrayList<String> identifier1, String status, String nodeId,
 			String c_identifier, String node1, String node2) {
-		if (status.equals("Processing")) {
+		if (status.equals(PROCESSING) || status.equals(PENDING)) {
 			for (int i = 1000; i <= 30000; i = i + 1000) {
 				try {
 					Thread.sleep(i);
@@ -156,7 +159,7 @@ public class ContentUploadTest extends BaseTest{
 				// Validate the response
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
-				if (statusUpdated.equals("Processing")) {
+				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 					//System.out.println(statusUpdated);
 					i++;
 				}

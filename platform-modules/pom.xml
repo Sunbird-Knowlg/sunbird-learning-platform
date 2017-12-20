@@ -27,6 +27,7 @@
 		<module>service</module>
 		<module>actors</module>
 		<module>content-manager</module>
+		<module>ekstep-framework</module>
 	</modules>
 
 	<dependencies>

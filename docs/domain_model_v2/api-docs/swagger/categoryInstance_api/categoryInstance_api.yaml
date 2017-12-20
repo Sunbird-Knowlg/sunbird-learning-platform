@@ -1,0 +1,677 @@
+swagger: '2.0'
+info:
+  version: '3.0'
+  title: Category Instance API
+  description: >-
+    Category instance is an instance of a master list category within a
+    framework/Channel
+  license:
+    name: EkStep License
+    url: 'http:www.EkStep.in'
+host: api.ekstep.in
+securityDefinitions: {}
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: Framework
+    description: >-
+      Everything related to CRUD Operations of the category instance for a
+      Framework
+  - name: Channel
+    description: >-
+      Everything related to CRUD Operations of the category instance for a
+      Channel
+paths:
+  '/framework/v3/category/create?framework={frameworkId}':
+    post:
+      summary: Creates a category Instance for a given Framework
+      description: >-
+        This API creates an category instance form a master category node for a
+        given framework
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.categoryinstance.create
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/CategoryInstanceRequestObject'
+        - name: frameworkId
+          in: path
+          required: true
+          description: frameworkId
+          type: string
+      responses:
+        '200':
+          description: Category instance Created Successfully for a given framework
+          schema:
+            $ref: '#/definitions/CategoryInstanceCreateResponse'
+        '400':
+          description: >-
+            Error While creating Framework! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While creating Framework! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/framework/v3/category/read/{categoryInstanceId}?framework={frameworkId}':
+    get:
+      summary: Gets an Category Instance for a given framework
+      description: >-
+        This API is used to fetch an category instance from the _EkStep
+        Platform_.This endpoint returns the entire category instance Object with
+        default fields. 
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.category.read
+      produces:
+        - application/json
+      parameters:
+        - name: frameworkId
+          in: path
+          required: true
+          description: frameworkId
+          type: string
+        - name: categoryInstanceId
+          in: path
+          required: true
+          description: category Instance Id
+          type: string
+      responses:
+        '200':
+          description: Category Instance fetched Successfully
+          schema:
+            $ref: '#/definitions/CategoryInstanceGetResponse'
+        '400':
+          description: >-
+            Error While fetching the CategoryInstance! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching the CategoryInstance! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/framework/v3/category/update/{categoryInstanceId}?framework={frameworkId}':
+    patch:
+      summary: Updates the category Instance for a given framework
+      description: >-
+        This API is used to update an category instance for a given framework
+        based on the request body provided from the _EkStep Platform_. This
+        endpoint return node_Id on updation
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.category.update
+      produces:
+        - application/json
+      parameters:
+        - name: frameworkId
+          in: path
+          required: true
+          type: string
+        - name: categoryInstanceId
+          in: path
+          required: true
+          description: category Instance Id
+          type: string
+        - $ref: '#/parameters/CategoryInstanceRequestObject'
+      responses:
+        '200':
+          description: Category instance Updated Successfully
+          schema:
+            $ref: '#/definitions/CategoryInstanceUpdateResponse'
+        '400':
+          description: >-
+            Error While Updating the categoryInstance! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Updating the categoryInstance! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/framework/v3/category/search?framework={frameworkId}':
+    post:
+      summary: >-
+        searchs for category instance for a given framework based on search
+        criteria
+      description: >-
+        This API is used to search and retrieve all category for a given channel
+        from repository based on the given list creteria in the request body
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.categoryinstance.search
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/searchCategoryInstanceRequest'
+        - name: frameworkId
+          in: path
+          required: true
+          description: framework Id
+          type: string
+      responses:
+        '200':
+          description: Category instance searched Successfully
+          schema:
+            $ref: '#/definitions/CategoryInstanceSearchResponse'
+        '400':
+          description: >-
+            Error While fetching all category instance for a given framework! |
+            Error occurred while operation, mostly because of the input given by
+            client, In general it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all category instance for a given framework! |
+            Error occurred while operation, mostly because of erroneous
+            condition on server, In general it is 'Server Exception' or
+            'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/framework/v3/category/retire/{categoryInstanceId}?framework={frameworkId}':
+    delete:
+      tags:
+        - Framework
+      summary: >-
+        This API is used to delete (Retire) the category instance from the
+        _EkStep Platform_. It consumes the category instance Identifier as
+        'categoryinstanceId' and 'framworkId ' on which the delete (Retire)
+        operation has to be performed.
+      operationId: ekstep.learning.framework.categoryinstance.retire
+      produces:
+        - application/json
+      parameters:
+        - name: frameworkId
+          in: path
+          required: true
+          type: string
+        - name: categoryInstanceId
+          in: path
+          required: true
+          description: category Instance Id
+          type: string
+      responses:
+        '200':
+          description: category instance Retired Successfully
+          schema:
+            $ref: '#/definitions/CategoryInstanceDeleteResponse'
+        '400':
+          description: >-
+            Error While category instance Retire! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: category instance Id does not exist.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While category instance Retire! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /channel/v3/category/create:
+    post:
+      summary: Creates a category Instance for a given Channel
+      description: This API creates an category instance for a given channel
+      tags:
+        - Channel
+      operationId: ekstep.learning.channel.categoryinstance.create
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/CategoryInstanceRequestObject'
+        - name: X-Channel-Id
+          in: header
+          required: true
+          description: channelId
+          type: string
+      responses:
+        '200':
+          description: Category instance Created Successfully for a given channel
+          schema:
+            $ref: '#/definitions/CategoryInstanceCreateResponse'
+        '400':
+          description: >-
+            Error While creating categoryinstance for a given channel! | Error
+            occurred while operation, mostly because of the input given by
+            client, In general it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While creating categoryinstance for a given channel! | Error
+            occurred while operation, mostly because of erroneous condition on
+            server, In general it is 'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/channel/v3/category/read/{categoryInstanceId}':
+    get:
+      summary: Gets an Category Instance for a given channel
+      description: >-
+        This API is used to fetch an category instance from the _EkStep
+        Platform_.This endpoint returns the entire category instance Object with
+        default fields. 
+      tags:
+        - Channel
+      operationId: ekstep.learning.channel.categoryinstance.read
+      produces:
+        - application/json
+      parameters:
+        - name: X-Channel-Id
+          in: header
+          required: true
+          description: channelId
+          type: string
+        - name: categoryInstanceId
+          in: path
+          required: true
+          description: category Instance Id
+          type: string
+      responses:
+        '200':
+          description: Category Instance fetched Successfully for a given channel
+          schema:
+            $ref: '#/definitions/CategoryInstanceGetResponse'
+        '400':
+          description: >-
+            Error While fetching the CategoryInstance! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching the CategoryInstance! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/channel/v3/category/update/{categoryInstanceId}':
+    patch:
+      summary: Updates the given category Instance for a given channel
+      description: >-
+        This API is used to update an category instance for a given channel
+        based on the request body provided from the _EkStep Platform_. This
+        endpoint return node_Id on updation
+      tags:
+        - Channel
+      operationId: ekstep.learning.channel.categoryinstance.update
+      produces:
+        - application/json
+      parameters:
+        - name: X-Channel-Id
+          in: header
+          required: true
+          type: string
+          description: channelId
+        - name: categoryInstanceId
+          in: path
+          required: true
+          description: category Instance Id
+          type: string
+        - $ref: '#/parameters/CategoryInstanceRequestObject'
+      responses:
+        '200':
+          description: Category instance for a given channel Updated Successfully
+          schema:
+            $ref: '#/definitions/CategoryInstanceUpdateResponse'
+        '400':
+          description: >-
+            Error While Updating the categoryInstance for a given channel! |
+            Error occurred while operation, mostly because of the input given by
+            client, In general it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Updating the categoryInstance for a given channel! |
+            Error occurred while operation, mostly because of erroneous
+            condition on server, In general it is 'Server Exception' or
+            'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /channel/v3/category/search:
+    post:
+      summary: Searchs for an category instance for a given channel
+      description: >-
+        This API is used to list and retrieve all category instance for a given
+        channel from repository based on the given list creteria in the request
+        body
+      tags:
+        - Channel
+      operationId: ekstep.learning.channel.categoryinstance.search
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/searchCategoryInstanceRequest'
+        - name: X-Channel-Id
+          in: header
+          required: true
+          description: channel Id
+          type: string
+      responses:
+        '200':
+          description: >-
+            Category Instance search results returned Successfully for a given
+            channel
+          schema:
+            $ref: '#/definitions/CategoryInstanceSearchResponse'
+        '400':
+          description: >-
+            Error While Searching all category instance for a given channel! |
+            Error occurred while operation, mostly because of the input given by
+            client, In general it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Searching all category instance for a given channel! |
+            Error occurred while operation, mostly because of erroneous
+            condition on server, In general it is 'Server Exception' or
+            'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/channel/v3/category/retire/{categoryInstanceId}':
+    delete:
+      tags:
+        - Channel
+      summary: >-
+        This API is used to delete (Retire) the category instance from the
+        _EkStep Platform_. It consumes the category instance Identifier as
+        'categoryinstanceId' and 'channelId ' on which the delete (Retire)
+        operation has to be performed.
+      operationId: ekstep.learning.channel.categoryinstance.retire
+      produces:
+        - application/json
+      parameters:
+        - name: X-Channel-Id
+          in: header
+          required: true
+          type: string
+          description: channel Id
+        - name: categoryInstanceId
+          in: path
+          required: true
+          description: category Instance Id
+          type: string
+      responses:
+        '200':
+          description: category instance Retired Successfully for a given channel
+          schema:
+            $ref: '#/definitions/CategoryInstanceDeleteResponse'
+        '400':
+          description: >-
+            Error While category instance Retire! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: category instance Id does not exist.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While category instance Retire! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+parameters:
+  CategoryInstanceRequestObject:
+    name: Request
+    in: body
+    description: Category Request Object which contains the request
+    required: true
+    schema:
+      $ref: '#/definitions/CategoryInstanceRequestObject'
+  searchCategoryInstanceRequest:
+    name: Request
+    in: body
+    description: category Request Object which contains the Framework object
+    required: true
+    schema:
+      $ref: '#/definitions/CategoryInstanceSearchRequestObject'
+definitions:
+  CategoryInstanceDeleteResponse:
+    title: Delete category instance Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  CategoryInstanceSearchRequestObject:
+    title: category instance Request Object
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/CategoryInstanceSearchObject'
+    required:
+      - request
+  CategoryInstanceSearchObject:
+    properties:
+      sortBy:
+        type: string
+        description: sortBy
+  CategoryInstanceRequestObject:
+    title: Category Request Object
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/CategoryInstanceObject'
+    required:
+      - request
+  CategoryInstanceObject:
+    title: Category instanceObject
+    type: object
+    properties:
+      category:
+        $ref: '#/definitions/CategoryInstance'
+  CategoryInstanceCreateResponse:
+    description: Create Category Instance Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  CategoryInstanceUpdateResponse:
+    title: Update Category Instance Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  CategoryInstanceGetResponse:
+    title: Get Category Instance Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithCategoryInstanceResponse'
+      - $ref: '#/definitions/ResponseHeader'
+  ResultWithCategoryInstanceResponse:
+    title: Get Category Instance Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/CategoryInstance'
+      - $ref: '#/definitions/ResponseHeader'
+  CategoryInstance:
+    title: Category Metadata
+    type: object
+    properties:
+      identifier:
+        type: string
+        description: Identifier of the Category instance
+      name:
+        type: string
+        description: Name of the Category instance
+      code:
+        type: string
+        description: Unique code for the Category instance
+      status:
+        type: string
+        description: Status of the Category instance
+      translations:
+        type: object
+        description: translations for the Category instance
+      inRelations:
+        type: array
+        items:
+          $ref: '#/definitions/inRelations'
+      outRelations:
+        type: array
+        items:
+          $ref: '#/definitions/outRelations'
+  inRelations:
+    properties:
+      inRelations:
+        type: object
+        description: incoming relations to which the category instance belongs
+  outRelations:
+    properties:
+      outRelations:
+        type: object
+        description: out going relations to which the category instance belongs
+  ResultWithNodeId:
+    title: Result Containing Node Id
+    type: object
+    properties:
+      result:
+        $ref: '#/definitions/NodeId'
+  ResponseHeader:
+    title: ResponseHeader
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: object
+        description: 'API response code '
+  ResponseParams:
+    title: Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        type: string
+        description: Response Message Id
+      msgid:
+        type: string
+        description: Message Id
+      err:
+        type: string
+        description: Error Code
+      status:
+        type: string
+        description: Response Status
+      errmsg:
+        type: string
+        description: Error Message
+  CategoryInstanceSearchResponse:
+    title: Category Instance search Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithCategoryResponseArray'
+      - $ref: '#/definitions/ResponseHeader'
+  ResultWithCategoryResponseArray:
+    title: Response for category instance Array with TTL
+    type: object
+    allOf:
+      - $ref: '#/definitions/TTL'
+      - $ref: '#/definitions/CategoryResponseArray'
+  TTL:
+    title: TTL
+    type: object
+    properties:
+      ttl:
+        type: number
+        format: double
+        description: TTL (Time)
+  NodeId:
+    title: Node Id
+    type: object
+    properties:
+      node_id:
+        type: string
+        description: Node Identifier
+  CategoryResponseArray:
+    title: Response CategoryInstance Array
+    type: object
+    properties:
+      content:
+        type: array
+        items:
+          $ref: '#/definitions/CategoryInstance'
+  FailedResponseHeader:
+    title: Failure Response
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/FailedResponseParams'
+      responseCode:
+        type: string
+        description: responseCode
+  FailedResponseParams:
+    title: Failed Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        type: string
+        description: Response Message Id
+      msgid:
+        type: string
+        description: Message Id
+      err:
+        type: string
+        description: Error Code
+      status:
+        type: string
+        description: Response Status
+      errmsg:
+        type: string
+        description: Error Message

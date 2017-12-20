@@ -1,0 +1,1200 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "3.0",
+        "title": "Term API",
+        "description": "Term specifies the values for Category/CategoryInstance",
+        "license": {
+            "name": "EkStep License",
+            "url": "http:www.EkStep.in"
+        }
+    },
+    "host": "api.ekstep.in",
+    "securityDefinitions": {},
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "tags": [
+        {
+            "name": "Category",
+            "description": "Everything related to CRUD Operations of the term for a Master Category"
+        },
+        {
+            "name": "Framework",
+            "description": "Everything related to CRUD Operations of the term for a CategoryInstance under a given Framework"
+        },
+        {
+            "name": "Channel",
+            "description": "Everything related to CRUD Operations of the term for a CategoryInstance under a given Channel"
+        }
+    ],
+    "paths": {
+      "/framework/v3/category/term/create?category={categoryId}": {
+            "post": {
+                "summary": "Creates a term for a given master Category",
+                "description": "This API creates a term for a given master category",
+                "tags": [
+                    "Category"
+                ],
+                "operationId": "ekstep.learning.category.term.create",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/TermRequestObject"
+                    },
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Master Category Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term Created Successfully for a given master category",
+                        "schema": {
+                            "$ref": "#/definitions/TermCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While creating Term! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While creating Term! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/category/term/read/{termId}?category={categoryId}": {
+            "get": {
+                "summary": "Gets term for a given master category",
+                "description": "This API is used to fetch term from the _EkStep Platform_.This endpoint returns the entire term Object with default fields. ",
+                "tags": [
+                    "Category"
+                ],
+                "operationId": "ekstep.learning.category.term.read",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Master Category Id",
+                        "type": "string"
+                    },
+                     {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching the Term! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching the Term! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/category/term/update/{termId}?category={categoryId}": {
+            "patch": {
+                "summary": "Updates the Term for a given master category",
+                "description": "This API is used to update a term for a given master category based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation",
+                "tags": [
+                    "Category"
+                ],
+                "operationId": "ekstep.learning.category.term.update",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                     {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/TermRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term Updated Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Updating the term! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Updating the term! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/category/term/search?category={categoryId}": {
+            "post": {
+                "summary": "searchs for terms for a given masterCategory based on search criteria",
+                "description": "This API is used to search and retrieve all terms for a given category from repository based on the given list creteria in the request body",
+                "tags": [
+                    "Category"
+                ],
+                "operationId": "ekstep.learning.category.term.search",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/searchTermRequest"
+                    },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                         "description": "Master category Id",
+                        "type": "string"
+                     }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terms searched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermSearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching all terms for a given framework! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching all terms for a given framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/category/term/retire/{termId}?category={categoryId}": {
+            "delete": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "This API is used to delete (Retire) the term from the _EkStep Platform_. It consumes the term Identifier as 'termId' and 'categoryId ' on which the delete (Retire) operation has to be performed.",
+                "operationId": "ekstep.learning.category.term.retire",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                     {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term Retired Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While term Retire! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "404": {
+                        "description": "term Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While term Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/term/create?framework={frameworkId}&category={categoryId}": {
+            "post": {
+                "summary": "Creates a term for a given CategoryInstance under a Framework",
+                "description": "This API creates a term (form of term under MasterCategory) for a given CategoryInstance under a Framework",
+                "tags": [
+                    "Framework"
+                ],
+                "operationId": "ekstep.learning.framework.term.create",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/TermRequestObject"
+                    },
+                    {
+                        "name": "frameworkId",
+                        "in": "path",
+                        "required": true,
+                        "description": "frameworkId",
+                        "type": "string"
+                    },
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "categoryId",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term Created Successfully for a given categoryInstance",
+                        "schema": {
+                            "$ref": "#/definitions/TermCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While creating Term! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While creating Term! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/term/read/{termId}?framework={frameworkId}&category={categoryId}": {
+            "get": {
+                "summary": "Gets an Term for a given categoryInstance under a given framework",
+                "description": "This API is used to fetch an term from the _EkStep Platform_.This endpoint returns the entire term Object with default fields. ",
+                "tags": [
+                    "Framework"
+                ],
+                "operationId": "ekstep.learning.framework.term.read",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "frameworkId",
+                        "in": "path",
+                        "required": true,
+                        "description": "frameworkId",
+                        "type": "string"
+                    },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "category Instance Id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching the Term! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching the Term! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/term/update/{termId}?framework={frameworkId}&category={categoryId}": {
+            "patch": {
+                "summary": "Updates the term for a given categoryInstance under framework",
+                "description": "This API is used to update an term for a given categoryInstance under framework based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation",
+                "tags": [
+                    "Framework"
+                ],
+                "operationId": "ekstep.learning.framework.term.update",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "frameworkId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "category Instance Id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/TermRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term Updated Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Updating the term! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Updating the term! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/term/search?framework={frameworkId}&category={categoryId}": {
+            "post": {
+                "summary": "searchs for terms of categoryInstance under a given framework based on search criteria",
+                "description": "This API is used to search and retrieve all terms for a given categoryInsatnce under a framework from repository based on the given list creteria in the request body",
+                "tags": [
+                    "Framework"
+                ],
+                "operationId": "ekstep.learning.framework.term.search",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/searchTermRequest"
+                    },
+                     {
+                        "name": "frameworkId",
+                        "in": "path",
+                        "required": true,
+                         "description": "framework Id",
+                        "type": "string"
+                     },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                         "description": "Category Instance Id",
+                        "type": "string"
+                     }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terms searched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermSearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching all term for a given framework! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching all term for a given framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/framework/v3/term/retire/{termId}?framework={frameworkId}&category={categoryId}": {
+            "delete": {
+                "tags": [
+                    "Framework"
+                ],
+                "summary": "This API is used to delete (Retire) the term from the _EkStep Platform_. It consumes the term Identifier as 'termId', 'categoryId' and 'frameworkId ' on which the delete (Retire) operation has to be performed.",
+                "operationId": "ekstep.learning.framework.term.retire",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "frameworkId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "category Instance Id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term Retired Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While term Retire! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "404": {
+                        "description": "term Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While term Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+         "/channel/v3/term/create?category={categoryId}": {
+            "post": {
+                "summary": "Creates a term for a given category instance under a Channel",
+                "description": "This API creates a term for a given category instance under a channel",
+                "tags": [
+                    "Channel"
+                ],
+                "operationId": "ekstep.learning.channel.term.create",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/TermRequestObject"
+                    },
+                    {
+                        "name": "X-Channel-Id",
+                        "in": "header",
+                        "required": true,
+                        "description": "channelId",
+                        "type": "string"
+                    },
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "category Instance Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term Created Successfully for a given channel",
+                        "schema": {
+                            "$ref": "#/definitions/TermCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While creating term for a given channel! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While creating term for a given channel! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/channel/v3/category/read/{termId}?catergory=c{categoryId}": {
+            "get": {
+                "summary": "Gets an Category Instance for a given channel",
+                "description": "This API is used to fetch an category instance from the _EkStep Platform_.This endpoint returns the entire category instance Object with default fields. ",
+                "tags": [
+                    "Channel"
+                ],
+                "operationId": "ekstep.learning.channel.categoryinstance.read",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Channel-Id",
+                        "in": "header",
+                        "required": true,
+                        "description": "channelId",
+                        "type": "string"
+                    },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "category Instance Id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term fetched Successfully for a given category instance under a channel",
+                        "schema": {
+                            "$ref": "#/definitions/TermGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching the term! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching the term! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/channel/v3/term/update/{termId}?category={categoryId}": {
+            "patch": {
+                "summary": "Updates the given term for a given category instance under channel",
+                "description": "This API is used to update an term for a given category instance under a channel based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation",
+                "tags": [
+                    "Channel"
+                ],
+                "operationId": "ekstep.learning.channel.term.update",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Channel-Id",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description":"channelId"
+                    },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "category Instance Id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/TermRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term for a given category instance under channel Updated Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/TermUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Updating the term for a given category instance under a channel! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Updating the term for a given channel! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/channel/v3/term/search?category={categoryId}": {
+            "post": {
+                "summary": "Searchs for an terms for a given category instance under a channel",
+                "description": "This API is used to list and retrieve all terms for a given ategory instance under a channel from repository based on the given list creteria in the request body",
+                "tags": [
+                    "Channel"
+                ],
+                "operationId": "ekstep.learning.channel.term.search",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/searchTermRequest"
+                    },
+                     {
+                        "name": "X-Channel-Id",
+                        "in": "header",
+                        "required": true,
+                         "description": "channel Id",
+                        "type": "string"
+                     },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "category Instance Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term search results returned Successfully for a given channel",
+                        "schema": {
+                            "$ref": "#/definitions/TermSearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Searching all category instance for a given channel! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Searching all terms for a given category  instance under a channel! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/channel/v3/category/retire/{termId}?category={categoryId}": {
+            "delete": {
+                "tags": [
+                    "Channel"
+                ],
+                "summary": "This API is used to delete (Retire) the term from the _EkStep Platform_. It consumes the term Identifier as 'termId', categoryId' and 'channelId ' on which the delete (Retire) operation has to be performed.",
+                "operationId": "ekstep.learning.channel.term.retire",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Channel-Id",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "channel Id"
+                    },
+                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "description": "category Instance Id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "termId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Term Id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term Retired Successfully for a given category instance under a  channel",
+                        "schema": {
+                            "$ref": "#/definitions/TermDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While term Retire! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "404": {
+                        "description": "Term Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While term Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        }
+    },
+    "parameters": {
+        "TermRequestObject": {
+            "name": "Request",
+            "in": "body",
+            "description": "Term Request Object which contains the request",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/TermRequestObject"
+            }
+        },
+        "searchTermRequest": {
+            "name": "Request",
+            "in": "body",
+            "description": "Term Request Object which contains the search criteria object",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/TermSearchRequestObject"
+            }
+        }
+    },
+    "definitions": {
+        "TermDeleteResponse": {
+            "title": "Delete term Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithNodeId"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "TermSearchRequestObject": {
+            "title": "term Request Object",
+            "type": "object",
+            "properties": {
+                "request": {
+                    "$ref": "#/definitions/TermSearchObject"
+                }
+            },
+            "required": [
+                "request"
+            ]
+        },
+        "TermSearchObject": {
+            "properties": {
+                "sortBy": {
+                    "type": "string",
+                    "description": "sortBy"
+                }
+            }
+        },
+        "TermRequestObject": {
+            "title": "Category Request Object",
+            "type": "object",
+            "properties": {
+                "request": {
+                    "$ref": "#/definitions/TermObject"
+                }
+            },
+            "required": [
+                "request"
+            ]
+        },
+        "TermObject": {
+            "title": "Term Object",
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/Term"
+                }
+            }
+        },
+        "TermCreateResponse": {
+            "description": "Create Term Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithNodeId"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "TermUpdateResponse": {
+            "title": "Update Term Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithNodeId"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "TermGetResponse": {
+            "title": "Get Term Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithTermResponse"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "ResultWithTermResponse": {
+            "title": "Get Term Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Term"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "Term": {
+            "title": "Term Metadata",
+            "type": "object",
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "Identifier of the Category instance"
+                },
+                "label": {
+                    "type": "string",
+                    "description": "Unique Label of the Term"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "valueof tem object"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Status of the Category instance"
+                },
+                "translations": {
+                    "type": "object",
+                    "description": "translations for the Category instance"
+                },
+                "inRelations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/inRelations"
+                    }
+                },
+                "outRelations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/outRelations"
+                    }
+                }
+            }
+        },
+        "inRelations": {
+            "properties": {
+                "inRelations": {
+                    "type": "object",
+                    "description": "incoming relations to which the term belongs"
+                }
+            }
+        },
+        "outRelations": {
+            "properties": {
+                "outRelations": {
+                    "type": "object",
+                    "description": "out going relations to which the term have"
+                }
+            }
+        },
+        "ResultWithNodeId": {
+            "title": "Result Containing Node Id",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/NodeId"
+                }
+            }
+        },
+        "ResponseHeader": {
+            "title": "ResponseHeader",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "object",
+                    "description": "API response code "
+                }
+            }
+        },
+        "ResponseParams": {
+            "title": "Response Parameter",
+            "type": "object",
+            "properties": {
+                "resmsgid": {
+                    "type": "string",
+                    "description": "Response Message Id"
+                },
+                "msgid": {
+                    "type": "string",
+                    "description": "Message Id"
+                },
+                "err": {
+                    "type": "string",
+                    "description": "Error Code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Response Status"
+                },
+                "errmsg": {
+                    "type": "string",
+                    "description": "Error Message"
+                }
+            }
+        },
+        "TermSearchResponse": {
+            "title": "Term search Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithTermResponseArray"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "ResultWithTermResponseArray": {
+            "title": "Response for Term Array with TTL",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/TTL"
+                },
+                {
+                    "$ref": "#/definitions/TermArray"
+                }
+            ]
+        },
+        "TTL": {
+            "title": "TTL",
+            "type": "object",
+            "properties": {
+                "ttl": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "TTL (Time)"
+                }
+            }
+        },
+        "NodeId": {
+            "title": "Node Id",
+            "type": "object",
+            "properties": {
+                "node_id": {
+                    "type": "string",
+                    "description": "Node Identifier"
+                }
+            }
+        },
+        "TermArray": {
+            "title": "Response Term Array",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Term"
+                    }
+                }
+            }
+        },
+        "FailedResponseHeader": {
+            "title": "Failure Response",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/FailedResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "responseCode"
+                }
+            }
+        },
+        "FailedResponseParams": {
+            "title": "Failed Response Parameter",
+            "type": "object",
+            "properties": {
+                "resmsgid": {
+                    "type": "string",
+                    "description": "Response Message Id"
+                },
+                "msgid": {
+                    "type": "string",
+                    "description": "Message Id"
+                },
+                "err": {
+                    "type": "string",
+                    "description": "Error Code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Response Status"
+                },
+                "errmsg": {
+                    "type": "string",
+                    "description": "Error Message"
+                }
+            }
+        }
+    }
+}

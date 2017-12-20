@@ -1,0 +1,387 @@
+swagger: '2.0'
+info:
+  version: '3.0'
+  title: Framework API
+  description: A Framework can be defined by combining Concept Map and Terms for a Domain. A channel should be able to create multiple frameworks.
+  license:
+    name: EkStep License
+    url: 'http:www.EkStep.in'
+basePath: /framework/v3
+host: api.ekstep.in
+securityDefinitions: {}
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: Framework
+    description: Everything related to CRUD Operations of the framework
+paths:
+  /create:
+    post:
+      summary: Creates a Framework
+      description: 'This API creates an framework for partner, based on the request body for a given channel'
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.create
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/FrameworkRequestObject'
+      responses:
+        '200':
+          description: Framework Created Successfully
+          schema:
+            $ref: '#/definitions/FrameworkCreateResponse'
+        '400':
+          description: 'Error While creating Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: 'Error While Creating Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/read/{frameworkId}':
+    get:
+      summary: Gets an Framework
+      description: 'This API is used to fetch an Framework from the _EkStep Platform_.This endpoint returns the entire Framework Object with default fields. '
+      tags:
+        - Framework
+      operationId: ekstep.learning.Framework.read
+      produces:
+        - application/json
+      parameters:
+        - name: frameworkId
+          in: path
+          required: true
+          description: frameworkId
+          type: string
+      responses:
+        '200':
+          description: Framework fetched Successfully
+          schema:
+            $ref: '#/definitions/FrameworkGetResponse'
+        '400':
+          description: 'Error While fetching the Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: 'Error While fetching the Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/update/{frameworkId}':
+    patch:
+      summary: Updates the given Framework
+      description: This API is used to update an Framework based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.update
+      produces:
+        - application/json
+      parameters:
+        - name: frameworkId
+          in: path
+          required: true
+          type: string
+        - $ref: '#/parameters/FrameworkRequestObject'
+      responses:
+        '200':
+          description: Framework Updated Successfully
+          schema:
+            $ref: '#/definitions/FrameworkUpdateResponse'
+        '400':
+          description: 'Error While Updating the Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: 'Error While Updating the Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /list:
+    post:
+      summary: Lists an Framework
+      description: This API is used to list and retrieve all framework from the framework repository based on the given list creteria in the request body
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.list
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/listFrameworkRequest'
+      responses:
+        '200':
+          description: Framework listed Successfully
+          schema:
+            $ref: '#/definitions/FrameworkListResponse'
+        '400':
+          description: 'Error While fetching all Framework lists! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: 'Error While fetching all Framework lists! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/retire/{frameworkId}':
+    delete:
+      tags:
+        - Framework
+      summary: This API is used to delete (Retire) the framework from the _EkStep Platform_. It consumes the framework Identifier as 'frameworkId' on which the delete (Retire) operation has to be performed.
+      operationId: ekstep.learning.framework.retire
+      produces:
+        - application/json
+      parameters:
+        - name: frameworkId
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Framework Retired Successfully
+          schema:
+            $ref: '#/definitions/FrameworkDeleteResponse'
+        '400':
+          description: 'Error While framework Retire! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: framework Id does not exist.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: 'Error While framework Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+parameters:
+  FrameworkRequestObject:
+    name: Request
+    in: body
+    description: Framework Request Object which contains the Framework object
+    required: true
+    schema:
+      $ref: '#/definitions/FrameworkRequestObject'
+  listFrameworkRequest:
+    name: Request
+    in: body
+    description: Framework Request Object which contains the Framework object
+    required: true
+    schema:
+      $ref: '#/definitions/FrameworkListRequestObject'
+definitions:
+  FrameworkDeleteResponse:
+    title: Delete framework Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  FrameworkListRequestObject:
+    title: Framework list Request Object
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/FrameworkListObject'
+    required:
+      - request
+  FrameworkListObject:
+    properties:
+      sortBy:
+        type: string
+        description: sortBy
+  FrameworkRequestObject:
+    title: Framework Request Object
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/FrameworkObject'
+    required:
+      - request
+  FrameworkObject:
+    title: Framework Object
+    type: object
+    properties:
+      framework:
+        $ref: '#/definitions/Framework'
+    required:
+      - framework
+  FrameworkCreateResponse:
+    description: Create Framework Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  FrameworkUpdateResponse:
+    title: Update Framework Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  FrameworkGetResponse:
+    title: Get Framework Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithFrameworkResponse'
+      - $ref: '#/definitions/ResponseHeader'
+  ResultWithFrameworkResponse:
+    title: Get Framework Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/Framework'
+      - $ref: '#/definitions/ResponseHeader'
+  Framework:
+    title: Framework Metadata
+    type: object
+    properties:
+      identifier:
+        type: string
+        description: Identifier of the Framework
+      name:
+        type: string
+        description: Name of the Framework
+      code:
+        type: string
+        description: Unique code for the Framework
+      status:
+        type: string
+        description: Status of the Framework
+      owner:
+        type: string
+        description: owner for the framework
+      inRelations:
+        type: array
+        items:
+          $ref: '#/definitions/inRelations'
+      outRelations:
+        type: array
+        items:
+          $ref: '#/definitions/outRelations'
+  inRelations:
+    properties:
+      inRelations:
+        type: object
+        description: incoming relations to which the framework belongs
+  outRelations:
+    properties:
+      outRelations:
+        type: object
+        description: out going relations to which the framework belongs
+  ResultWithNodeId:
+    title: Result Containing Node Id
+    type: object
+    properties:
+      result:
+        $ref: '#/definitions/NodeId'
+  ResponseHeader:
+    title: ResponseHeader
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: object
+        description: 'API response code '
+  ResponseParams:
+    title: Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        type: string
+        description: Response Message Id
+      msgid:
+        type: string
+        description: Message Id
+      err:
+        type: string
+        description: Error Code
+      status:
+        type: string
+        description: Response Status
+      errmsg:
+        type: string
+        description: Error Message
+  FrameworkListResponse:
+    title: List Framework Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithFrameworkResponseArray'
+      - $ref: '#/definitions/ResponseHeader'
+  ResultWithFrameworkResponseArray:
+    title: Response Framework Array with TTL
+    type: object
+    allOf:
+      - $ref: '#/definitions/TTL'
+      - $ref: '#/definitions/FrameworkResponseArray'
+  TTL:
+    title: TTL
+    type: object
+    properties:
+      ttl:
+        type: number
+        format: double
+        description: TTL (Time)
+  NodeId:
+    title: Node Id
+    type: object
+    properties:
+      node_id:
+        type: string
+        description: Node Identifier
+  FrameworkResponseArray:
+    title: Response Framework Array
+    type: object
+    properties:
+      content:
+        type: array
+        items:
+          $ref: '#/definitions/Framework'
+  FailedResponseHeader:
+    title: Failure Response
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/FailedResponseParams'
+      responseCode:
+        type: string
+        description: responseCode
+  FailedResponseParams:
+    title: Failed Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        type: string
+        description: Response Message Id
+      msgid:
+        type: string
+        description: Message Id
+      err:
+        type: string
+        description: Error Code
+      status:
+        type: string
+        description: Response Status
+      errmsg:
+        type: string
+        description: Error Message

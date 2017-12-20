@@ -430,7 +430,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		PlatformLogger.log("Content Status: " + status);
-		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status))
+		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status) || !StringUtils.equalsIgnoreCase(ContentAPIParams.Unlisted.name(), status))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
 					"UnPublished content cannot be optimized");
 

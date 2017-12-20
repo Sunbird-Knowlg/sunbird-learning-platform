@@ -2,9 +2,18 @@ package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.http.ContentType.JSON;
+
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
+
 import static org.hamcrest.CoreMatchers.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DomainV3APITests extends BaseTest
 {
@@ -118,5 +127,28 @@ public class DomainV3APITests extends BaseTest
 		//log().all().
 		spec(get404ResponseSpec());
 	}
-
+	
+	// Get Terms list
+	@Test
+	public void getTermsListExpectSuccess200(){
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		get("/domain/v3/terms/list").
+		then().
+		spec(get200ResponseSpec());		
+	}
+	
+	// Get terms list with parameters
+	@Test
+	public void getContentTermsListExpectSuccess200(){
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		get("/domain/v3/terms/list?language=mr").
+		then().
+		spec(get200ResponseSpec());	
+	}
 }

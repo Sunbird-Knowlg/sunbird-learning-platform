@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.TelemetryBEAccessEvent;
 import org.ekstep.common.dto.TelemetryBEEvent;
+import org.ekstep.common.dto.TelemetryPBIEvent;
 import org.ekstep.common.logger.PlatformLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,8 +21,37 @@ public class LogTelemetryEventUtil {
 	
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
 	private static final Logger objectLifecycleEventLogger = LogManager.getLogger("ObjectLifecycleLogger");
+	private static final Logger instructionEventLogger = LogManager.getLogger("InstructionEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
+	private static String eventId = "BE_JOB_REQUEST";
+	private static int iteration = 1;
+	
+	public static String logInstructionEvent(Map<String,Object> actor, Map<String,Object> context, Map<String,Object> object, Map<String,Object> edata) {
+		
+		TelemetryPBIEvent te = new TelemetryPBIEvent();
+		long unixTime = System.currentTimeMillis();
+		edata.put("iteration", iteration);
+		
+		te.setEid(eventId);
+		te.setEts(unixTime);
+		te.setMid(mid);
+		te.setActor(actor);
+		te.setContext(context);
+		te.setObject(object);
+		te.setEdata(edata);
+		
+		String jsonMessage = null;
+		try {
+			jsonMessage = mapper.writeValueAsString(te);
+			if (StringUtils.isNotBlank(jsonMessage))
+				instructionEventLogger.info(jsonMessage);
+		} catch (Exception e) {
+			PlatformLogger.log("Error logging BE_JOB_REQUEST event", e.getMessage(), e);
+		}
+		return jsonMessage;
+	}
+	
 	public static String logContentLifecycleEvent(String contentId, Map<String, Object> metadata) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();

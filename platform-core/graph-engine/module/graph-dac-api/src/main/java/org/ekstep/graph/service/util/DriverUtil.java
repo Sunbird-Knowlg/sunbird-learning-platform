@@ -14,15 +14,14 @@ import org.neo4j.driver.v1.GraphDatabase;
 
 public class DriverUtil {
 
-	
 	private static Map<String, Driver> driverMap = new HashMap<String, Driver>();
-	
+
 	public static Driver getDriver(String graphId, GraphOperation graphOperation) {
 		PlatformLogger.log("Get Driver for Graph Id: ", graphId);
 		String driverKey = graphId + DACConfigurationConstants.UNDERSCORE
 				+ StringUtils.lowerCase(graphOperation.name());
 		PlatformLogger.log("Driver Configuration Key: " + driverKey);
-		
+
 		Driver driver = driverMap.get(driverKey);
 		if (null == driver) {
 			driver = loadDriver(graphId, graphOperation);
@@ -36,7 +35,6 @@ public class DriverUtil {
 		String driverType = Platform.config.hasPath("neo4j.driver.type")
 				? Platform.config.getString("neo4j.driver.type")
 				: DACConfigurationConstants.NEO4J_SERVER_DRIVER_TYPE;
-
 		Driver driver = null;
 		String route = RoutingUtil.getRoute(graphId, graphOperation);
 		switch (driverType.toLowerCase()) {
@@ -44,12 +42,12 @@ public class DriverUtil {
 			PlatformLogger.log("Reading Simple Driver. | [Driver Initialization.]");
 			driver = GraphDatabase.driver(route, ConfigUtil.getConfig());
 			break;
-			
+
 		case "medium":
 			PlatformLogger.log("Reading Medium Driver. | [Driver Initialization.]");
 			driver = GraphDatabase.driver(route, AuthTokenUtil.getAuthToken(), ConfigUtil.getConfig());
 			break;
-			
+
 		case "complex":
 			PlatformLogger.log("Reading Complex Driver. | [Driver Initialization.]");
 			driver = GraphDatabase.driver(route, AuthTokenUtil.getAuthToken(),
@@ -65,17 +63,6 @@ public class DriverUtil {
 			registerShutdownHook(driver);
 		return driver;
 	}
-	
-	private static void registerShutdownHook(Driver driver) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("Closing Neo4j Graph Driver...");
-                if (null != driver)
-                	driver.close();
-            }
-        });
-    }
 
 	public static void closeDrivers() {
 		for (Iterator<Map.Entry<String, Driver>> it = driverMap.entrySet().iterator(); it.hasNext();) {
@@ -85,4 +72,16 @@ public class DriverUtil {
 			it.remove();
 		}
 	}
+
+	private static void registerShutdownHook(Driver driver) {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				System.out.println("Closing Neo4j Graph Driver...");
+				if (null != driver)
+					driver.close();
+			}
+		});
+	}
+
 }

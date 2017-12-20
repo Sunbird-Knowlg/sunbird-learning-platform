@@ -108,7 +108,7 @@ public class PlatformLogger {
 		return logData;
 	}
 
-	private static String getBELog(String logLevel, String message, Object data, Throwable exception) {
+	public static String getBELog(String logLevel, String message, Object data, Throwable exception) {
 		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();
