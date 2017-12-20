@@ -536,8 +536,10 @@ public class BasePipeline extends BaseManager {
 		List<String> status = new ArrayList<String>();
 		status.add(ContentWorkflowPipelineParams.Draft.name());
 		status.add(ContentWorkflowPipelineParams.Live.name());
+		status.add(ContentWorkflowPipelineParams.Unlisted.name());
 		status.add(ContentWorkflowPipelineParams.Review.name());
 		status.add(ContentWorkflowPipelineParams.Processing.name());
+		status.add(ContentWorkflowPipelineParams.Pending.name());
 		Filter statusFilter = new Filter(ContentWorkflowPipelineParams.status.name(), SearchConditions.OP_IN, status);
 		filters.add(statusFilter);
 

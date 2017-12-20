@@ -1,5 +1,6 @@
 package org.ekstep.content.operation.finalizer;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -8,6 +9,7 @@ import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LoggerEnum;
@@ -25,6 +27,13 @@ public class ReviewFinalizer extends BaseFinalizer {
 
 	/** The ContentId. */
 	protected String contentId;
+	
+	private static String actorId = "Publish Samza Job";
+	private static String actorType = "System";
+	private static String pdataId = "org.ekstep.platform";
+	private static String pdataVersion = "1.0";
+	private static String action = "publish";
+	private static String status = "Pending";
 
 	/**
 	 * Instantiates a new ReviewFinalizer and sets the base path and current
@@ -78,11 +87,13 @@ public class ReviewFinalizer extends BaseFinalizer {
 		
 		Boolean isPublishOperation = (Boolean) parameterMap
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
-	
+		String publishType = null;
 		if (BooleanUtils.isTrue(isPublishOperation)) {
-			PlatformLogger.log("Changing the Content Status to 'Processing'.", LoggerEnum.INFO.name());
+			PlatformLogger.log("Changing the Content Status to 'Pending'.", LoggerEnum.INFO.name());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
-					ContentWorkflowPipelineParams.Processing.name());
+					ContentWorkflowPipelineParams.Pending.name());
+			publishType = (String)node.getMetadata().get("publish_type");
+			node.getMetadata().remove("publish_type");
 		} else {
 			PlatformLogger.log("Changing the Content Status to 'Review'.", LoggerEnum.INFO.name());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
@@ -102,8 +113,44 @@ public class ReviewFinalizer extends BaseFinalizer {
 		Response response = updateContentNode(contentId, newNode, null);
 		PlatformLogger.log("Generating Telemetry Event. | [Content ID: " + contentId + "]", node);
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
-		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());
+		newNode.getMetadata().put("publish_type", publishType);
+		
+		if (BooleanUtils.isTrue(isPublishOperation)) {
+			Map<String,Object> actor = new HashMap<String,Object>();
+			Map<String,Object> context = new HashMap<String,Object>();
+			Map<String,Object> object = new HashMap<String,Object>();
+			Map<String,Object> edata = new HashMap<String,Object>();
+			
+			generateInstructionEventMetadata(actor, context, object, edata, newNode.getMetadata(), contentId);
+			LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+		}
+		node.getMetadata().put("publish_type", publishType); //Added for executing publish operation locally
 		return response;
+	}
+	
+	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context, 
+			Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId) {
+		
+		actor.put("id", actorId);
+		actor.put("type", actorType);
+		
+		context.put("channel", metadata.get("channel")); 
+		Map<String, Object> pdata = new HashMap<>();
+		pdata.put("id", pdataId); 
+		pdata.put("ver", pdataVersion);
+		context.put("pdata", pdata);
+		if (Platform.config.hasPath("s3.env")) {
+			String env = Platform.config.getString("s3.env");
+			context.put("env", env);
+		}
+		
+		object.put("id", contentId);
+		object.put("type", metadata.get("contentType"));
+		object.put("ver", metadata.get("versionKey"));
+		
+		edata.put("action", action);
+		edata.put("status", status);
+		edata.put("publish_type", (String)metadata.get("publish_type"));
 	}
 
 }

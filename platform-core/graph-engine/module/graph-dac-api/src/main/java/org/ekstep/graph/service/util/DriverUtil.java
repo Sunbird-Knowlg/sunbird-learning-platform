@@ -1,7 +1,9 @@
 package org.ekstep.graph.service.util;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
@@ -16,14 +18,14 @@ import com.ilimi.common.logger.PlatformLogger;
 
 public class DriverUtil {
 
-	
 	private static Map<String, Driver> driverMap = new HashMap<String, Driver>();
-	
+
 	public static Driver getDriver(String graphId, GraphOperation graphOperation) {
 		PlatformLogger.log("Get Driver for Graph Id: ", graphId);
-		String driverKey = graphId + DACConfigurationConstants.DEFAULT_GRAPH_ID_AND_GRAPH_OPERATION_SEPARATOR + StringUtils.lowerCase(graphOperation.name());
+		String driverKey = graphId + DACConfigurationConstants.DEFAULT_GRAPH_ID_AND_GRAPH_OPERATION_SEPARATOR
+				+ StringUtils.lowerCase(graphOperation.name());
 		PlatformLogger.log("Driver Configuration Key: " + driverKey);
-		
+
 		Driver driver = driverMap.get(driverKey);
 		if (null == driver) {
 			driver = loadDriver(graphId, graphOperation);
@@ -39,7 +41,7 @@ public class DriverUtil {
 			throw new ClientException(DACErrorCodeConstants.INVALID_DRIVER.name(),
 					DACErrorMessageConstants.INVALID_DRIVER_TYPE + " | [Driver Initialization Failed.]");
 		PlatformLogger.log("Driver Type: " + driverType);
-		
+
 		Driver driver = null;
 		switch (driverType) {
 		case "simple":
@@ -47,13 +49,14 @@ public class DriverUtil {
 			PlatformLogger.log("Reading Simple Driver. | [Driver Initialization.]");
 			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId, graphOperation), ConfigUtil.getConfig());
 			break;
-			
+
 		case "medium":
 		case "MEDIUM":
 			PlatformLogger.log("Reading Medium Driver. | [Driver Initialization.]");
-			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId, graphOperation), AuthTokenUtil.getAuthToken(), ConfigUtil.getConfig());
+			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId, graphOperation), AuthTokenUtil.getAuthToken(),
+					ConfigUtil.getConfig());
 			break;
-			
+
 		case "complex":
 		case "COMPLEX":
 			PlatformLogger.log("Reading Complex Driver. | [Driver Initialization.]");
@@ -70,16 +73,25 @@ public class DriverUtil {
 			registerShutdownHook(driver);
 		return driver;
 	}
-	
+
+	public static void closeDrivers() {
+		for (Iterator<Map.Entry<String, Driver>> it = driverMap.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<String, Driver> entry = it.next();
+			Driver driver = entry.getValue();
+			driver.close();
+			it.remove();
+		}
+	}
+
 	private static void registerShutdownHook(Driver driver) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("Closing Neo4j Graph Driver...");
-                if (null != driver)
-                	driver.close();
-            }
-        });
-    }
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				System.out.println("Closing Neo4j Graph Driver...");
+				if (null != driver)
+					driver.close();
+			}
+		});
+	}
 
 }

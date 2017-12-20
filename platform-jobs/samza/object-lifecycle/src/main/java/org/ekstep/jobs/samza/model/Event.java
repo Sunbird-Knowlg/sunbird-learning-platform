@@ -24,6 +24,9 @@ public class Event {
 	private Map<String, String> pdata = new HashMap<String, String>();
 	private Map<String, Object> edata = new HashMap<String, Object>();
 
+	public Event() {
+		
+	}
 	public Event(String eid, String ver, String pid) {
 		super();
 		this.eid = eid;

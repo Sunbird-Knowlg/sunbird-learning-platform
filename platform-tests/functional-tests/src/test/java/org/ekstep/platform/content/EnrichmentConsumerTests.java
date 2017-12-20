@@ -68,7 +68,9 @@ public class EnrichmentConsumerTests extends BaseTest {
 	static URL url = classLoader.getResource("DownloadedFiles");
 	static File downloadPath;
 	char ch = '"';
-	
+	private String PROCESSING = "Processing";
+	private String PENDING = "Pending";
+
 	@BeforeClass
 	public static void setup() throws URISyntaxException{
 		downloadPath = new File(url.toURI().getPath());		
@@ -591,7 +593,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 				// Validate the response
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
-				if (statusUpdated.equals("Processing")) {
+				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 					i++;
 				}
 				if (statusUpdated.equals("Live")) {
@@ -601,7 +603,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 			}
 		}
 		if (status.equals("Live")) {
-			Assert.assertTrue(status.equals("Live") || status.equals("Processing") && c_identifier.equals(nodeId)
+			Assert.assertTrue(status.equals("Live") || status.equals(PROCESSING) || status.equals(PENDING) && c_identifier.equals(nodeId)
 					&& identifier1.contains(node1) && identifier1.contains(node2));
 		}
 	}
@@ -669,7 +671,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 		try {
 			// Validating the status
 			System.out.println(statusActual);
-			if (statusActual.equals("Processing")) {
+			if (statusActual.equals(PROCESSING) || statusActual.equals(PENDING)) {
 				asyncPublishValidationContents(nodeId, statusActual);
 			}
 			// Downloading the zip file from artifact url and ecar from download
@@ -860,7 +862,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 			JsonPath jp3 = R3.jsonPath();
 			String statusUpdated = jp3.get("result.content.status");
 			// System.out.println(statusUpdated);
-			if (statusUpdated.equals("Processing")) {
+			if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 				i = i + 1000;
 			}
 			if (statusUpdated.equals("Live")) {

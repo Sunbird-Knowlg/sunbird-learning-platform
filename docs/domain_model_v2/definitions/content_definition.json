@@ -1464,6 +1464,7 @@
 						"Redraft",
 						"Flagged",
 						"Live",
+						"Pending",
 						"Unlisted",
 						"Retired",
 						"Mock",
