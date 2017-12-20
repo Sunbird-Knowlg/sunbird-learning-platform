@@ -40,9 +40,6 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		String id = generateIdentifier(identifier, (String) request.get("code"));
 		if (null != id)
 			request.put(CategoryEnum.identifier.name(), id);
-		else
-			throw new ServerException("ERR_SERVER_ERROR", "Unable to create CategoryInstanceId",
-					ResponseCode.SERVER_ERROR);
 		setRelations(identifier, request);
 		return create(request, CATEGORY_INSTANCE_OBJECT_TYPE);
 	}
@@ -65,7 +62,7 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(identifier, categoryInstanceId)) {
+		if (validateScopeNode(categoryInstanceId, identifier)) {
 			return update(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
 		} else {
 			throw new ClientException(
@@ -85,8 +82,8 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	@Override
 	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(identifier, categoryInstanceId)) {
-			return retire(identifier, CATEGORY_INSTANCE_OBJECT_TYPE);
+		if (validateScopeNode(categoryInstanceId, identifier)) {
+			return retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
 		} else {
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
@@ -107,8 +104,6 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 					return true;
 				}
 			}
-		} else {
-			throw new ClientException("ERR_INVALID_CHANNEL_ID/ERR_INVALID_FRAMEWORK_ID", "Required fields missing...");
 		}
 		return false;
 	}

@@ -41,8 +41,8 @@ public class ChannelV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.channel.create";
-		Request request = getRequest(requestMap);
 		try {
+			Request request = getRequest(requestMap);
 			Map<String, Object> map = (Map<String, Object>) request.get("channel");
 			Response response = channelManager.createChannel(map);
 			return getResponseEntity(response, apiId, null);
@@ -61,9 +61,8 @@ public class ChannelV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String channelId) {
 		String apiId = "ekstep.learning.channel.read";
-		Response response;
 		try {
-			response = channelManager.readChannel(channelId);
+			Response response = channelManager.readChannel(channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Read Channel", e.getMessage(), e);
@@ -83,8 +82,8 @@ public class ChannelV3Controller extends BaseController {
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String channelId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.channel.update";
-		Request request = getRequest(requestMap);
 		try {
+			Request request = getRequest(requestMap);
 			Map<String, Object> map = (Map<String, Object>) request.get("channel");
 			Response response = channelManager.updateChannel(channelId, map);
 			return getResponseEntity(response, apiId, null);
@@ -106,8 +105,8 @@ public class ChannelV3Controller extends BaseController {
 	public ResponseEntity<Response> list(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.channel.list";
-		Request request = getRequest(map);
 		try {
+			Request request = getRequest(map);
 			Response response = channelManager.listChannel((Map)request.get("search"));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

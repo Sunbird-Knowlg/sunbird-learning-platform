@@ -17,7 +17,7 @@ import com.ilimi.framework.test.common.TestSetup;
 
 /**
  * 
- * @author rashmi
+ * @author Rashmi
  *
  */
 public class BaseCategoryInstanceMgrTest extends TestSetup{

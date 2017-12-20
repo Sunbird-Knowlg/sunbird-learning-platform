@@ -162,10 +162,11 @@ public class CategoryV3ControllerTest extends TestSetup{
 
 	@Test
 	public void searchCategoryForValidSearch() throws Exception {
-		String request = "{\"request\":{}}";
+		String request = "{\"request\":{\"search\":{}}}";
 		String path = base_category_path + "/search";
 		actions = this.mockMvc
 				.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
 	@Test
