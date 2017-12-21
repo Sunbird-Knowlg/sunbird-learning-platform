@@ -194,7 +194,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             Request newReq = new Request(request);
             newReq.put(GraphDACParams.node_id.name(), nodeId);
 
-			Response res = searchMgr.getNodeByUniqueId(request);
+			Response res = searchMgr.getNodeByUniqueId(newReq);
 			if (!manager.checkError(res)) {
 				Node node = (Node) res.get(GraphDACParams.node.name());
 				return node;
@@ -282,15 +282,18 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 
 		if (StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(endNodeObjectType)) {
 				List<String> outRelations = DefinitionCache.getOutRelationObjectTypes(graphId, objectType);
+				boolean found = false;
 				if (null != outRelations && !outRelations.isEmpty()) {
 					for (String outRel : outRelations) {
 						if (StringUtils.equals(getRelationType() + ":" + endNodeObjectType, outRel)) {
-						return getRelationType() + " is not allowed between " + objectType + " and "
-								+ endNodeObjectType;
+						 found = true;
+						 break;
                         }
 					}
-					
 				}
+			if (!found) {
+				return (getRelationType() + " is not allowed between " + objectType + " and " + endNodeObjectType);
+			}
 		}
 		return null;
 
