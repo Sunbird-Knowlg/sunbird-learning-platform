@@ -13,14 +13,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.jobs.samza.service.ISamzaService;
+import org.ekstep.dac.dto.AuditHistoryRecord;
+import org.ekstep.dac.enums.AuditHistoryConstants;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-
-import com.ilimi.dac.dto.AuditHistoryRecord;
-import com.ilimi.dac.enums.AuditHistoryConstants;
 
 /**
  * The Class AuditHistoryService provides implementations of the core operations defined in the IMessageProcessor along

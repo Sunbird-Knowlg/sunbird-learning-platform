@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.logger.PlatformLogger;
 
 /**
  * The Class LanguageMap loads the language graph Id to language name mappings

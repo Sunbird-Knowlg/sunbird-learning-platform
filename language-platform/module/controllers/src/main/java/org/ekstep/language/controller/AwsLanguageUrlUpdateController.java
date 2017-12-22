@@ -1,6 +1,8 @@
 package org.ekstep.language.controller;
 
 
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ilimi.common.controller.BaseController;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.mgr.IAwsUrlUpdateManager;
+import org.ekstep.common.controller.BaseController;
+import org.ekstep.common.mgr.IAwsUrlUpdateManager;
 
 /**
  * The Class AwsUrlUpdateController, is the main entry point for 

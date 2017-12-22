@@ -21,10 +21,10 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.samza.jobs.util.BundleContentParams;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.graph.cache.factory.JedisFactory;
-import com.ilimi.graph.common.mgr.Configuration;
-import com.ilimi.graph.dac.model.Node;
+import org.ekstep.common.dto.Response;
+import org.ekstep.graph.cache.factory.JedisFactory;
+import org.ekstep.graph.common.mgr.Configuration;
+import org.ekstep.graph.dac.model.Node;
 
 public class BundleContentService implements ISamzaService {
 

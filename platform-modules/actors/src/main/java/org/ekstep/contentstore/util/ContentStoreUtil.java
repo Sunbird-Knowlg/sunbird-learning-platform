@@ -11,20 +11,20 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.cassandra.connector.util.CassandraConnector;
+import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.common.util.LogAsyncGraphEvent;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.ilimi.cassandra.connector.util.CassandraConnector;
-import com.ilimi.common.Platform;
-import com.ilimi.common.enums.CompositeSearchParams;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.util.LogAsyncGraphEvent;
+import org.ekstep.common.enums.CompositeSearchParams;
 
 public class ContentStoreUtil {
 

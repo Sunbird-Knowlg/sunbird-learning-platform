@@ -12,6 +12,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -21,10 +25,6 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import com.ilimi.common.Platform;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class LocalizeAssetProcessor is a Content Workflow pipeline Processor
@@ -76,7 +76,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.
+	 * org.ekstep.taxonomy.content.processor.AbstractProcessor#process(org.ekstep.
 	 * taxonomy.content.entity.Plugin)
 	 */
 	@Override

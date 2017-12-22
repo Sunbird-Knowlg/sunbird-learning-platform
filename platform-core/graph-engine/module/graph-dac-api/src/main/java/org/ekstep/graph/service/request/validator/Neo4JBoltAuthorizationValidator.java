@@ -4,20 +4,20 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 
-import com.ilimi.common.Platform;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.util.RedisStoreUtil;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-
 public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 
-	public void validateAuthorization(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
+	public void validateAuthorization(String graphId, Node node, Request request) {
 		PlatformLogger.log("Graph Id: "+graphId);
 		PlatformLogger.log("Graph Engine Node: ", null);
 
@@ -37,7 +37,7 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 
 	}
 
-	private boolean isAuthorized(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
+	private boolean isAuthorized(String graphId, Node node, Request request) {
 		boolean isAuthorized = true;
 
 		// Checking if Authorization Check Required, If not then the request is

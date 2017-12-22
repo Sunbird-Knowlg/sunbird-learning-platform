@@ -11,6 +11,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.common.enums.GraphHeaderParams;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -23,19 +35,7 @@ import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.ekstep.language.wordchian.WordChainUtil;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.mgr.ConvertGraphNode;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.graph.model.node.DefinitionDTO;
+import org.ekstep.common.mgr.ConvertGraphNode;
 
 import akka.actor.ActorRef;
 
@@ -64,7 +64,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -732,7 +732,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(org.ekstep.common
 	 * .dto.Request, akka.actor.ActorRef)
 	 */
 	@Override

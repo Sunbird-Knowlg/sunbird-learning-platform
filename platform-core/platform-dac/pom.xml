@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.ilimi</groupId>
+		<groupId>org.ekstep</groupId>
 		<artifactId>platform-core</artifactId>
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
@@ -42,7 +42,7 @@
 				<hibernate.query.substitutions>true 1, false 0</hibernate.query.substitutions>
 				<hibernate.hbm2ddl.auto>none</hibernate.hbm2ddl.auto>
 				<hibernate.default_schema>ekstep</hibernate.default_schema>
-				<hibernate.packagesToScan>com.ilimi</hibernate.packagesToScan>
+				<hibernate.packagesToScan>org.ekstep</hibernate.packagesToScan>
 				<hibernate.jdbc.batch_size>3</hibernate.jdbc.batch_size>
 			</properties>
 		</profile>
@@ -106,7 +106,7 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>graph-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>

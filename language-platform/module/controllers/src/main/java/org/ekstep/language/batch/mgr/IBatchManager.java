@@ -1,6 +1,6 @@
 package org.ekstep.language.batch.mgr;
 
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Response;
 
 /**
  * The Interface IBatchManager.defines the behaviour of all batch managers.

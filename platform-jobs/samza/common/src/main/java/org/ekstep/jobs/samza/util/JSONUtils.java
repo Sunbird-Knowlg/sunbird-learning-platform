@@ -6,9 +6,8 @@ import java.util.Map.Entry;
 
 import org.apache.samza.config.Config;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 
-
-import com.ilimi.common.Platform;
 import com.typesafe.config.ConfigFactory;
 
 public class JSONUtils {

@@ -1,7 +1,7 @@
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
-java::import -package com.ilimi.graph.dac.model Node Relation
+java::import -package org.ekstep.graph.dac.model Node Relation
 
 
 proc isNotNull {value} {
