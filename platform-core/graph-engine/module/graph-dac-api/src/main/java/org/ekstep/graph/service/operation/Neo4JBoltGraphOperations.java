@@ -754,9 +754,9 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_IMPORT_DATA + " | ['Import Graph' Operation Failed.]");
 		Map<String, List<String>> messages = new HashMap<String, List<String>>();
 		// CHECK - write driver, session and transaction created for this - START
-		Map<String, com.ilimi.graph.dac.model.Node> existingNodes = new HashMap<String, com.ilimi.graph.dac.model.Node>();
+		Map<String, org.ekstep.graph.dac.model.Node> existingNodes = new HashMap<String, org.ekstep.graph.dac.model.Node>();
 		Map<String, Map<String, List<Relation>>> existingRelations = new HashMap<String, Map<String, List<Relation>>>();
-		List<com.ilimi.graph.dac.model.Node> importedNodes = new ArrayList<com.ilimi.graph.dac.model.Node>(
+		List<org.ekstep.graph.dac.model.Node> importedNodes = new ArrayList<org.ekstep.graph.dac.model.Node>(
 				input.getDataNodes());
 		int nodesCount = createNodes(graphId, request, existingNodes, existingRelations, importedNodes);
 		int relationsCount = createRelations(graphId, request, existingRelations, existingNodes, importedNodes,
