@@ -5,5 +5,5 @@ package com.ilimi.dialcode.enums;
  *
  */
 public enum DialCodeEnum {
-	channel,publisher,count,batchCode,Draft,status, Live,identifier;
+	channel,publisher,count,batchCode,Draft,status, Live,identifier,dialcode,dialcodes,generated_on,published_on,metadata;
 }

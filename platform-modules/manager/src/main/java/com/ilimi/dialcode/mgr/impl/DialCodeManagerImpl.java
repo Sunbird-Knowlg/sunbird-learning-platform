@@ -12,6 +12,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.dialcode.enums.DialCodeEnum;
 import com.ilimi.dialcode.mgr.IDialCodeManager;
+import com.ilimi.dialcode.model.DialCode;
 import com.ilimi.dialcode.util.DialCodeStoreUtil;
 import com.ilimi.dialcode.util.SeqRandomGenerator;
 
@@ -87,10 +88,17 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 		
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public Response readDialCode(String dialCodeId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if (StringUtils.isBlank(dialCodeId))
+			return ERROR("ERR_INVALID_DIALCODE_INFO_REQUEST", "Invalid Request", ResponseCode.CLIENT_ERROR);
+		
+		Response resp=new Response();
+		DialCode dialCode=DialCodeStoreUtil.readDialCode(dialCodeId);
+		
+		resp.put(DialCodeEnum.dialcode.name(), dialCode);
+		return resp;
 	}
 
 	@Override

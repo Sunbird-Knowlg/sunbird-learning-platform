@@ -6,13 +6,17 @@ import java.util.Map;
 
 public class DialCode implements Serializable {
 
+	
+	private static final long serialVersionUID = 6038730711148121947L;
+	
 	private String identifier;
 	private String channel;
 	private String publisher;
 	private String batchCode;
 	private String status;
-	private Date generatedOn;
-	private Date publishedOn;
+	private int count;
+	private String generatedOn;
+	private String publishedOn;
 	private Map<String,Object> metadata;
 	
 	public DialCode(){
@@ -59,19 +63,19 @@ public class DialCode implements Serializable {
 		this.status = status;
 	}
 
-	public Date getGeneratedOn() {
+	public String getGeneratedOn() {
 		return generatedOn;
 	}
 
-	public void setGeneratedOn(Date generatedOn) {
+	public void setGeneratedOn(String generatedOn) {
 		this.generatedOn = generatedOn;
 	}
 
-	public Date getPublishedOn() {
+	public String getPublishedOn() {
 		return publishedOn;
 	}
 
-	public void setPublishedOn(Date publishedOn) {
+	public void setPublishedOn(String publishedOn) {
 		this.publishedOn = publishedOn;
 	}
 
@@ -83,5 +87,13 @@ public class DialCode implements Serializable {
 		this.metadata = metadata;
 	}
 	
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
 	
 }
