@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ilimi.common.controller.BaseController;
-import com.ilimi.common.mgr.IAwsUrlUpdateManager;
+import org.ekstep.common.controller.BaseController;
+import org.ekstep.common.mgr.IAwsUrlUpdateManager;
 
 /**
  * The Class AwsUrlUpdateController, is the main entry point for 

@@ -20,8 +20,8 @@ import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 
-import com.ilimi.common.enums.TaxonomyErrorCodes;
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
@@ -47,7 +47,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.common.mgr.BaseManager#getResponse(java.util.List,
+	 * @see org.ekstep.common.mgr.BaseManager#getResponse(java.util.List,
 	 * org.apache.logging.log4j.Logger, java.lang.String, java.lang.String)
 	 */
 	protected Response getResponse(List<Request> requests, Logger logger, String paramName, String returnParam) {
@@ -100,7 +100,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
 	 * .Node)
 	 */
 	@Override
@@ -140,7 +140,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
@@ -174,7 +174,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#review(org.ekstep.graph.dac.model.
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#review(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override

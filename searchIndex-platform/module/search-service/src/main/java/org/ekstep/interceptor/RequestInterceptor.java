@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.ilimi.common.dto.ExecutionContext;
+import org.ekstep.common.dto.ExecutionContext;
 
 @Component
 public class RequestInterceptor extends HandlerInterceptorAdapter {

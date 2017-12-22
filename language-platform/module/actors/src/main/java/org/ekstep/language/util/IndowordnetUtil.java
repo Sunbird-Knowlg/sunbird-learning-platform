@@ -27,7 +27,7 @@ import org.hibernate.Transaction;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Charsets;
-import com.ilimi.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 import akka.actor.ActorRef;
 

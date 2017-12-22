@@ -42,7 +42,7 @@
 				<hibernate.query.substitutions>true 1, false 0</hibernate.query.substitutions>
 				<hibernate.hbm2ddl.auto>none</hibernate.hbm2ddl.auto>
 				<hibernate.default_schema>ekstep</hibernate.default_schema>
-				<hibernate.packagesToScan>com.ilimi</hibernate.packagesToScan>
+				<hibernate.packagesToScan>org.ekstep</hibernate.packagesToScan>
 				<hibernate.jdbc.batch_size>3</hibernate.jdbc.batch_size>
 			</properties>
 		</profile>

@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;

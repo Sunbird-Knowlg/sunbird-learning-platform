@@ -26,7 +26,7 @@ import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
-import com.ilimi.common.mgr.BaseManager;
+import org.ekstep.common.mgr.BaseManager;
 
 /**
  * The Class BaseWordSet, provides basic functionality to find WordSet, create

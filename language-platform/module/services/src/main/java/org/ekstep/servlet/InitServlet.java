@@ -8,7 +8,7 @@ import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
 
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.router.RequestRouterPool;
 
 public class InitServlet extends HttpServlet {
 

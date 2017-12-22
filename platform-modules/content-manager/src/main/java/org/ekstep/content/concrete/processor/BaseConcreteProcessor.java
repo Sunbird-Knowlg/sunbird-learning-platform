@@ -31,7 +31,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
-import com.ilimi.common.mgr.BaseManager;
+import org.ekstep.common.mgr.BaseManager;
 
 /**
  * The Class BaseConcreteProcessor provides the common utility methods for all

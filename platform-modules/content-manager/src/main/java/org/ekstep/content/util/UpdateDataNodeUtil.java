@@ -10,7 +10,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 
-import com.ilimi.common.mgr.BaseManager;
+import org.ekstep.common.mgr.BaseManager;
 
 /*
  * This is the only class which is using Base Manager From Top Level in hierarchy. 

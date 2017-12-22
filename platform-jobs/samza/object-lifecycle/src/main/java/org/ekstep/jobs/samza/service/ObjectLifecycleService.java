@@ -21,7 +21,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Response;
 
 public class ObjectLifecycleService implements ISamzaService {
 	

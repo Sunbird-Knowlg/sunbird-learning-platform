@@ -35,7 +35,7 @@ import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.ekstep.language.wordchian.WordChainUtil;
 
-import com.ilimi.common.mgr.ConvertGraphNode;
+import org.ekstep.common.mgr.ConvertGraphNode;
 
 import akka.actor.ActorRef;
 
@@ -723,7 +723,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(org.ekstep.common
 	 * .dto.Request, akka.actor.ActorRef)
 	 */
 	@Override

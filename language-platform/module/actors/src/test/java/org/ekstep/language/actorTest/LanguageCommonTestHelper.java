@@ -24,7 +24,7 @@ import org.ekstep.graph.engine.router.GraphEngineActorPoolMgr;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.ilimi.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;

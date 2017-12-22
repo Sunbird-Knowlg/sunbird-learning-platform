@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ilimi.common.controller.BaseController;
+import org.ekstep.common.controller.BaseController;
 
 /**
  * The Class ParserController, entry point for parser operation

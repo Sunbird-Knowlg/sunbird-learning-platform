@@ -34,7 +34,7 @@ import com.google.gson.JsonObject;
 public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager{
 	
 	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.Node, java.io.File)
+	 * @see org.ekstep.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.Node, java.io.File)
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
@@ -109,7 +109,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	}
 
 	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model.Node)
+	 * @see org.ekstep.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model.Node)
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {

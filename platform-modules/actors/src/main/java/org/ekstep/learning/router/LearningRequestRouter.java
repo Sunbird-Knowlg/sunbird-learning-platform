@@ -16,7 +16,7 @@ import org.ekstep.learning.actor.ContentStoreActor;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -40,7 +40,7 @@ public class LearningRequestRouter extends UntypedActor {
 	/** The logger. */
 	
 	private static final String ekstep = "org.ekstep.";
-	private static final String ilimi = "com.ilimi.";
+	private static final String ilimi = "org.ekstep.";
 	private static final String java = "java.";
 	private static final String default_err_msg = "Something went wrong in server while processing the request";
 

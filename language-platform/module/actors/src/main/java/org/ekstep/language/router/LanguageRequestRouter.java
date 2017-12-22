@@ -23,7 +23,7 @@ import org.ekstep.language.measures.actor.LexileMeasuresActor;
 import org.ekstep.language.services.ImportActor;
 import org.ekstep.language.transliterate.actor.TransliteratorActor;
 
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;

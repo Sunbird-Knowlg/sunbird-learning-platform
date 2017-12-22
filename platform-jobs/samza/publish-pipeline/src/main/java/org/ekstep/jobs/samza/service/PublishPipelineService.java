@@ -42,7 +42,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
-import com.ilimi.common.dto.NodeDTO;
+import org.ekstep.common.dto.NodeDTO;
 
 
 public class PublishPipelineService implements ISamzaService {

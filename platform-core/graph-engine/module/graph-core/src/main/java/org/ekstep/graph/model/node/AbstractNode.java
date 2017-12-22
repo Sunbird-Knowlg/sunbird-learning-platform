@@ -58,7 +58,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     }
 
     /* (non-Javadoc)
-     * @see org.ekstep.graph.model.IPropertyContainer#create(com.ilimi.common.dto.Request)
+     * @see org.ekstep.graph.model.IPropertyContainer#create(org.ekstep.common.dto.Request)
      */
     @Override
     public void create(final Request req) {
@@ -82,7 +82,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     }
 
     /* (non-Javadoc)
-     * @see org.ekstep.graph.model.IPropertyContainer#getProperty(com.ilimi.common.dto.Request)
+     * @see org.ekstep.graph.model.IPropertyContainer#getProperty(org.ekstep.common.dto.Request)
      */
     @Override
     public void getProperty(Request req) {
@@ -104,7 +104,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     }
 
     /* (non-Javadoc)
-     * @see org.ekstep.graph.model.IPropertyContainer#removeProperty(com.ilimi.common.dto.Request)
+     * @see org.ekstep.graph.model.IPropertyContainer#removeProperty(org.ekstep.common.dto.Request)
      */
     @Override
     public void removeProperty(Request req) {
@@ -113,7 +113,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     }
 
     /* (non-Javadoc)
-     * @see org.ekstep.graph.model.IPropertyContainer#setProperty(com.ilimi.common.dto.Request)
+     * @see org.ekstep.graph.model.IPropertyContainer#setProperty(org.ekstep.common.dto.Request)
      */
     @Override
     public void setProperty(Request req) {
@@ -122,7 +122,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     }
 
     /* (non-Javadoc)
-     * @see org.ekstep.graph.model.INode#updateMetadata(com.ilimi.common.dto.Request)
+     * @see org.ekstep.graph.model.INode#updateMetadata(org.ekstep.common.dto.Request)
      */
     @Override
     public void updateMetadata(Request req) {
@@ -131,7 +131,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     }
 
     /* (non-Javadoc)
-     * @see org.ekstep.graph.model.IPropertyContainer#delete(com.ilimi.common.dto.Request)
+     * @see org.ekstep.graph.model.IPropertyContainer#delete(org.ekstep.common.dto.Request)
      */
     @Override
     public void delete(Request req) {
@@ -156,7 +156,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     }
 
     /* (non-Javadoc)
-     * @see org.ekstep.graph.model.INode#validateNode(com.ilimi.common.dto.Request)
+     * @see org.ekstep.graph.model.INode#validateNode(org.ekstep.common.dto.Request)
      */
     @Override
     public Map<String, List<String>> validateNode(Request request) {

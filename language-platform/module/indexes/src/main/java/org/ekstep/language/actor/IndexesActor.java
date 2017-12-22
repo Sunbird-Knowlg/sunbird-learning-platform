@@ -29,7 +29,7 @@ import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 
-import com.ilimi.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 import akka.actor.ActorRef;
 
@@ -769,7 +769,7 @@ public class IndexesActor extends LanguageBaseActor {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(org.ekstep.common
 	 * .dto.Request, akka.actor.ActorRef)
 	 */
 	@Override

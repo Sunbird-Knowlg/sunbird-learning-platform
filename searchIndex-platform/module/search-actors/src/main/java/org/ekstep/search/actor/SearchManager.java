@@ -28,7 +28,7 @@ import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
-import com.ilimi.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
 

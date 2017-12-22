@@ -16,8 +16,8 @@ import org.ekstep.common.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.mgr.HealthCheckManager;
-import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
+import org.ekstep.common.mgr.HealthCheckManager;
+import org.ekstep.orchestrator.dac.service.IOrchestratorDataService;
 
 @Component
 public class LanguageHealthCheckManager extends HealthCheckManager {

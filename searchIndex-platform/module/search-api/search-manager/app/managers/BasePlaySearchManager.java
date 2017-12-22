@@ -39,7 +39,7 @@ public class BasePlaySearchManager extends Results {
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 	
 	private static final String ekstep = "org.ekstep";
-	private static final String ilimi = "com.ilimi";
+	private static final String ilimi = "org.ekstep";
 	private static final String java = "java.";
 	private static final String default_err_msg = "Something went wrong in server while processing the request";
 

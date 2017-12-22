@@ -12,9 +12,9 @@ import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 
-import com.ilimi.common.enums.TaxonomyErrorCodes;
-import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;

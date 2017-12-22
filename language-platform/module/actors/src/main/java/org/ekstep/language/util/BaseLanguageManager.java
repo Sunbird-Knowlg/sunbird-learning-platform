@@ -12,9 +12,9 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 
-import com.ilimi.common.enums.TaxonomyErrorCodes;
-import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;

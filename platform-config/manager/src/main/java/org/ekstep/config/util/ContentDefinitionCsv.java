@@ -18,7 +18,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.ilimi.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.CoverageIgnore;
 
 public class ContentDefinitionCsv {
 	private static final String NEW_LINE_SEPARATOR = "\n";

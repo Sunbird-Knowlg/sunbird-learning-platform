@@ -22,7 +22,7 @@ import org.ekstep.graph.enums.CollectionTypes;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 
-import com.ilimi.common.mgr.BaseManager;
+import org.ekstep.common.mgr.BaseManager;
 
 public class BaseTranslationSet extends BaseManager{
 

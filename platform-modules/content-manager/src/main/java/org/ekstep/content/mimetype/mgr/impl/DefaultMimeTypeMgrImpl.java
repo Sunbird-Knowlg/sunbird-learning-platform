@@ -20,7 +20,7 @@ import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 
-import com.ilimi.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 
 // TODO: Auto-generated Javadoc
@@ -42,7 +42,7 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
@@ -105,7 +105,7 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
 	 * .Node)
 	 */
 	@Override

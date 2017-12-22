@@ -21,7 +21,7 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.searchindex.util.HTTPUtil;
 
-import com.ilimi.common.dto.NodeDTO;
+import org.ekstep.common.dto.NodeDTO;
 
 
 /**

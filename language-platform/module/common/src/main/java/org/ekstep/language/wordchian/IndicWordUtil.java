@@ -17,7 +17,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
 
-import com.ilimi.common.mgr.BaseManager;
+import org.ekstep.common.mgr.BaseManager;
 
 // TODO: Auto-generated Javadoc
 /**

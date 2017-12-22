@@ -48,7 +48,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common.dto
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(org.ekstep.common.dto
 	 * .Request, akka.actor.ActorRef)
 	 */
 	protected void invokeMethod(Request request, ActorRef parent) {
@@ -69,7 +69,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#saveDefinitionNode(com.ilimi.common.
+	 * org.ekstep.graph.engine.mgr.INodeManager#saveDefinitionNode(org.ekstep.common.
 	 * dto.Request)
 	 */
 	@Override
@@ -107,7 +107,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#updateDefinition(com.ilimi.common.dto
+	 * org.ekstep.graph.engine.mgr.INodeManager#updateDefinition(org.ekstep.common.dto
 	 * .Request)
 	 */
 	@SuppressWarnings("unchecked")
@@ -133,7 +133,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#createDataNode(com.ilimi.common.dto.
+	 * org.ekstep.graph.engine.mgr.INodeManager#createDataNode(org.ekstep.common.dto.
 	 * Request)
 	 */
 	@Override
@@ -267,7 +267,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#validateNode(com.ilimi.common.dto.
+	 * org.ekstep.graph.engine.mgr.INodeManager#validateNode(org.ekstep.common.dto.
 	 * Request)
 	 */
 	@Override
@@ -309,7 +309,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#updateDataNode(com.ilimi.common.dto.
+	 * org.ekstep.graph.engine.mgr.INodeManager#updateDataNode(org.ekstep.common.dto.
 	 * Request)
 	 */
 	@Override
@@ -455,7 +455,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#deleteDataNode(com.ilimi.common.dto.
+	 * org.ekstep.graph.engine.mgr.INodeManager#deleteDataNode(org.ekstep.common.dto.
 	 * Request)
 	 */
 	@Override
@@ -479,7 +479,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#deleteDefinition(com.ilimi.common.dto
+	 * org.ekstep.graph.engine.mgr.INodeManager#deleteDefinition(org.ekstep.common.dto
 	 * .Request)
 	 */
 	@Override
@@ -503,7 +503,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#importDefinitions(com.ilimi.common.
+	 * org.ekstep.graph.engine.mgr.INodeManager#importDefinitions(org.ekstep.common.
 	 * dto.Request)
 	 */
 	@Override
@@ -520,7 +520,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.graph.engine.mgr.INodeManager#exportNode(com.ilimi.common.dto.
+	 * @see org.ekstep.graph.engine.mgr.INodeManager#exportNode(org.ekstep.common.dto.
 	 * Request)
 	 */
 	public void exportNode(Request request) {
@@ -543,7 +543,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#upsertRootNode(com.ilimi.common.dto.
+	 * org.ekstep.graph.engine.mgr.INodeManager#upsertRootNode(org.ekstep.common.dto.
 	 * Request)
 	 */
 	@Override
@@ -567,7 +567,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#createProxyNode(com.ilimi.common.dto.
+	 * org.ekstep.graph.engine.mgr.INodeManager#createProxyNode(org.ekstep.common.dto.
 	 * Request)
 	 */
 	@Override
@@ -623,7 +623,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.engine.mgr.INodeManager#createProxyNodeAndTranslation(com.
+	 * org.ekstep.graph.engine.mgr.INodeManager#createProxyNodeAndTranslation(com.
 	 * ilimi.common.dto.Request)
 	 */
 	@SuppressWarnings("unchecked")

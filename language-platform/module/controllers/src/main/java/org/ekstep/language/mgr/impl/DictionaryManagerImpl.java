@@ -68,10 +68,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ilimi.common.controller.BaseController;
-import com.ilimi.common.dto.CoverageIgnore;
-import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.mgr.ConvertGraphNode;
+import org.ekstep.common.controller.BaseController;
+import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.NodeDTO;
+import org.ekstep.common.mgr.ConvertGraphNode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -565,7 +565,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 * (non-Javadoc)
 	 * 
 	 * @see org.ekstep.language.mgr.IDictionaryManager#list(java.lang.String,
-	 * java.lang.String, com.ilimi.common.dto.Request, java.lang.String)
+	 * java.lang.String, org.ekstep.common.dto.Request, java.lang.String)
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response list(String languageId, String objectType, Request request, String version) {
@@ -1330,7 +1330,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 * 
 	 * @see
 	 * org.ekstep.language.mgr.IDictionaryManager#createWordV2(java.lang.String,
-	 * java.lang.String, com.ilimi.common.dto.Request, boolean)
+	 * java.lang.String, org.ekstep.common.dto.Request, boolean)
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
@@ -2049,7 +2049,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 * (non-Javadoc)
 	 * 
 	 * @see org.ekstep.language.mgr.IDictionaryManager#transliterate(java.lang
-	 * .String, com.ilimi.common.dto.Request, boolean)
+	 * .String, org.ekstep.common.dto.Request, boolean)
 	 */
 	@Override
 	@CoverageIgnore
@@ -2074,7 +2074,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 * 
 	 * @see
 	 * org.ekstep.language.mgr.IDictionaryManager#partialUpdateWordV2(java.lang.
-	 * String, java.lang.String, java.lang.String, com.ilimi.common.dto.Request,
+	 * String, java.lang.String, java.lang.String, org.ekstep.common.dto.Request,
 	 * boolean)
 	 */
 	@SuppressWarnings("unchecked")

@@ -389,7 +389,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.common.controller.BaseController#getAPIVersion()
+	 * @see org.ekstep.common.controller.BaseController#getAPIVersion()
 	 */
 	protected String getAPIVersion() {
 		return API_VERSION_2;

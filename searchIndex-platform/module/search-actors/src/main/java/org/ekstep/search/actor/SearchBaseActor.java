@@ -15,7 +15,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
 
-import com.ilimi.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
@@ -24,7 +24,7 @@ public abstract class SearchBaseActor extends UntypedActor {
 
     
     private static final String ekstep = "org.ekstep.";
-    private static final String ilimi = "com.ilimi.";
+    private static final String ilimi = "org.ekstep.";
     private static final String java = "java.";
     private static final String default_err_msg = "Something went wrong in server while processing the request";
     

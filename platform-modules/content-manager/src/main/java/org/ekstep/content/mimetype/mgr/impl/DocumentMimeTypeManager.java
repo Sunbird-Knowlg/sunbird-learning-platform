@@ -36,7 +36,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
@@ -73,7 +73,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
 	 * .Node)
 	 */
 	@Override
@@ -107,7 +107,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	/**
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#review(org.ekstep.graph.dac.model.
+	 * @see org.ekstep.taxonomy.mgr.IMimeTypeManager#review(org.ekstep.graph.dac.model.
 	 *      Node, java.io.File, java.lang.String)
 	 */
 	@Override

@@ -72,9 +72,9 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.esktep.search.util.CompositeSearchUtil;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.dto.CoverageIgnore;
-import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.mgr.BaseManager;
+import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.NodeDTO;
+import org.ekstep.common.mgr.BaseManager;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;

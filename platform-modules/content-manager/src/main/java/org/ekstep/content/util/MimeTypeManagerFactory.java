@@ -14,7 +14,7 @@ import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
 
-import com.ilimi.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.CoverageIgnore;
 
 public class MimeTypeManagerFactory {
 

@@ -13,8 +13,8 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-/*import com.ilimi.mw.dto.ExecutionContext;
-import com.ilimi.mw.dto.param.HeaderParam;*/
+/*import org.ekstep.mw.dto.ExecutionContext;
+import org.ekstep.mw.dto.param.HeaderParam;*/
 
 /**
  * Base class for data access entities. Provides implementation of commonly used

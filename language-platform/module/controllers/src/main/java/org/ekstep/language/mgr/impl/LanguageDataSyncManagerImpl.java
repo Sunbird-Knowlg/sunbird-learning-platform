@@ -9,7 +9,7 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.mgr.CompositeIndexSyncManager;
+import org.ekstep.common.mgr.CompositeIndexSyncManager;
 
 @Component
 public class LanguageDataSyncManagerImpl extends CompositeIndexSyncManager implements ICompositeSearchManager {

@@ -54,7 +54,7 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	 * @see org.ekstep.taxonomy.content.processor.AbstractProcessor#process(org.ekstep.taxonomy.content.entity.Plugin)
 	 */
 	@Override
 	protected Plugin process(Plugin plugin) {

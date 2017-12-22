@@ -66,7 +66,7 @@ public class IndowordnetActor extends LanguageBaseActor {
     }
     
     /* (non-Javadoc)
-     * @see org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common.dto.Request, akka.actor.ActorRef)
+     * @see org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(org.ekstep.common.dto.Request, akka.actor.ActorRef)
      */
     @Override
     protected void invokeMethod(Request request, ActorRef parent) {

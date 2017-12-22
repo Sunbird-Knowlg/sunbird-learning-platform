@@ -72,7 +72,7 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.
+	 * org.ekstep.taxonomy.content.processor.AbstractProcessor#process(org.ekstep.
 	 * taxonomy.content.entity.Plugin)
 	 */
 	@Override

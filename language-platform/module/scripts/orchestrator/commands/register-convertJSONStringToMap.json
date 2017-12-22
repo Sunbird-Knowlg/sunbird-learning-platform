@@ -1,5 +1,5 @@
 {
     "name": "convert_jsonstring_to_map",
     "type": "COMMAND",
-    "cmdClass": "com.ilimi.orchestrator.interpreter.command.convertJSONStringToMap"
+    "cmdClass": "org.ekstep.orchestrator.interpreter.command.convertJSONStringToMap"
 }

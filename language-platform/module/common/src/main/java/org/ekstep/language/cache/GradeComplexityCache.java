@@ -21,7 +21,7 @@ import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.language.common.enums.LanguageParams;
 
-import com.ilimi.common.mgr.BaseManager;
+import org.ekstep.common.mgr.BaseManager;
 
 /**
  * The Class GradeComplexityCache, caches GradeLevelCompleixty nodes against its

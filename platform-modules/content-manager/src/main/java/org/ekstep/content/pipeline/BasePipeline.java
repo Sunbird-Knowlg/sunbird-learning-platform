@@ -53,10 +53,10 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.enums.TaxonomyErrorCodes;
-import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.dto.NodeDTO;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.router.RequestRouterPool;
 import com.rits.cloning.Cloner;
 
 import akka.actor.ActorRef;

@@ -18,7 +18,7 @@ import org.ekstep.search.actor.DefinitionSyncScheduler;
 import org.ekstep.search.actor.HealthCheckManager;
 import org.ekstep.search.actor.SearchManager;
 
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;

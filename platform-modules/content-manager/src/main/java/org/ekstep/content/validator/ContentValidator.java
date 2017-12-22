@@ -25,7 +25,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.neo4j.io.fs.FileUtils;
 
-import com.ilimi.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.CoverageIgnore;
 
 /**
  * The Class ContentValidator, mainly used for validating ContentNode and

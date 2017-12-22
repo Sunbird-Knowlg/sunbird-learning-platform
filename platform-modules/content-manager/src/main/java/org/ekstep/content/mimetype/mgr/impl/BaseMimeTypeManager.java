@@ -58,8 +58,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.dto.NodeDTO;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 public class BaseMimeTypeManager extends BaseLearningManager {
 

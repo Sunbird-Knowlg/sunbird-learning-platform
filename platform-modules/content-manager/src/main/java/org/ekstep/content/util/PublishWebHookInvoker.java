@@ -16,7 +16,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.S3PropertyReader;
 
-import com.ilimi.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.CoverageIgnore;
 
 @CoverageIgnore
 public class PublishWebHookInvoker {

@@ -30,8 +30,8 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.enums.TaxonomyErrorCodes;
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -64,7 +64,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.common.mgr.BaseManager#getRequest(java.lang.String,
+	 * @see org.ekstep.common.mgr.BaseManager#getRequest(java.lang.String,
 	 * java.lang.String, java.lang.String)
 	 */
 	public Request getRequest(String graphId, String manager, String operation) {
@@ -76,7 +76,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.common.mgr.BaseManager#setContext(com.ilimi.common.dto.Request,
+	 * org.ekstep.common.mgr.BaseManager#setContext(org.ekstep.common.dto.Request,
 	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	protected Request setContext(Request request, String graphId, String manager, String operation) {
@@ -100,7 +100,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.common.mgr.BaseManager#getResponse(com.ilimi.common.dto.
+	 * @see org.ekstep.common.mgr.BaseManager#getResponse(org.ekstep.common.dto.
 	 * Request)
 	 */
 	public Response getResponse(Request request) {
