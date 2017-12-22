@@ -5,10 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.dialcode.enums.DialCodeEnum;
@@ -27,40 +26,65 @@ import com.ilimi.dialcode.util.SeqRandomGenerator;
  * @author gauraw
  *
  */
+
 @Component
 public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCodeManager {
 
+	/**
+	 * Generate Dial Code
+	 * 
+	 * @param map
+	 * @param channelId
+	 *
+	 */
 	@Override
 	public Response generateDialCode(Map<String, Object> map, String channelId) throws Exception {
 		if (null == map)
 			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		/*if(null==map.get(DialCodeEnum.publisher.name()) || StringUtils.isBlank((String)map.get(DialCodeEnum.publisher.name())))
+		if(null==map.get(DialCodeEnum.publisher.name()) || StringUtils.isBlank((String)map.get(DialCodeEnum.publisher.name())))
 			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Publisher is Manadatory", ResponseCode.CLIENT_ERROR);
 		if(null==map.get(DialCodeEnum.batchCode.name()) || StringUtils.isBlank((String)map.get(DialCodeEnum.batchCode.name())))
 			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Batch Code is Manadatory", ResponseCode.CLIENT_ERROR);
-		if(null==map.get(DialCodeEnum.count.name()) || 0==(Integer)map.get(DialCodeEnum.count.name()) || StringUtils.isBlank((String)map.get(DialCodeEnum.count.name())))
-			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Count Can not be zero", ResponseCode.CLIENT_ERROR);*/
+		if(null==map.get(DialCodeEnum.count.name()))
+			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Count is Manadatory.", ResponseCode.CLIENT_ERROR);
+		Integer count=0;
 		
-		Map<Integer,String> dialCodeMap=new HashMap<Integer,String>();
-		Integer startIndex=DialCodeStoreUtil.getDialCodeIndex();	// TODO: Need to fetch it from redis
-		Integer count=(Integer)map.get(DialCodeEnum.count.name());
-		Set<String> dialCodes=SeqRandomGenerator.generate(++startIndex, count);
-		
-		for(String code:dialCodes){
-			dialCodeMap.put(startIndex++, code);
+		// Validation for Empty Count or Count having Character
+		try{
+			count=Integer.parseInt(String.valueOf(map.get(DialCodeEnum.count.name())));
+		}catch(NumberFormatException e){
+			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Count must be a positive Number.", ResponseCode.CLIENT_ERROR);
 		}
 		
-		List<String> list = new ArrayList<String>(dialCodeMap.values());
+		int maxCount=Integer.parseInt(Platform.config.getString("MAX_NO_OF_ALLOWED_DIALCODE_PER_REQUEST"));
 		
-		DialCodeStoreUtil.saveDialCode(channelId, (String)map.get(DialCodeEnum.publisher.name()), 
-				(String)map.get(DialCodeEnum.batchCode.name()), dialCodeMap);
+		if(count>maxCount){
+			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Maximum allowed value for Count is "+maxCount, ResponseCode.CLIENT_ERROR);
+		}
+		
+		Map<Integer,String> dialCodeMap=new HashMap<Integer,String>();
+		List<String> list;
+		
+		synchronized(this) {
+			Integer startIndex=DialCodeStoreUtil.getDialCodeIndex();	// TODO: Need to fetch it from redis
+			Set<String> dialCodes=SeqRandomGenerator.generate(++startIndex, count);
+			
+			for(String code:dialCodes){
+				dialCodeMap.put(startIndex++, code);
+			}
+			
+			list = new ArrayList<String>(dialCodeMap.values());
+			
+			// Store DIAL Codes in Cassandra
+			DialCodeStoreUtil.saveDialCode(channelId, (String)map.get(DialCodeEnum.publisher.name()), 
+					(String)map.get(DialCodeEnum.batchCode.name()), dialCodeMap);
+		}
 		
 		Response resp = new Response();
 		resp.put("count", dialCodeMap.size());
 		resp.put("dialcodes", list);
-		
 		return resp;
-		//return getStubbedResponse(); // Need to return actual response.
+		
 	}
 
 	@Override
@@ -87,11 +111,4 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 		return null;
 	}
 
-	private Response getStubbedResponse(){
-		Response res=new Response();
-		res.setId("testRes-001");
-		res.setResponseCode(ResponseCode.OK);
-		return res;
-	}
-	
 }
