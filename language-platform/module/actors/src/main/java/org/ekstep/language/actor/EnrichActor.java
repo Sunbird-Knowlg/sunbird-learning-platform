@@ -255,6 +255,8 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 						metadata.put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
 					if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
 						metadata.put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
+					if (synset.getMetadata().get(ATTRIB_THEMES) != null)
+						word.getMetadata().put(ATTRIB_THEMES, synset.getMetadata().get(ATTRIB_THEMES));
 					word.setMetadata(metadata);
 					try {
 						PlatformLogger.log("updating word metadata wordId: " + word.getIdentifier() + ", word metadata :"
@@ -316,9 +318,13 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 					word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
 				if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
 					word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
-				List<String> tags = synset.getTags();
+				/* commented keyword copying on 30-NOV for Keywords/themes model change
+				 * List<String> tags = synset.getTags();
  				if (tags != null && tags.size() > 0)
- 					word.setTags(tags);
+ 					word.setTags(tags);*/
+				if (synset.getMetadata().get(ATTRIB_THEMES) != null)
+					word.getMetadata().put(ATTRIB_THEMES, synset.getMetadata().get(ATTRIB_THEMES));
+
 				updatePosList(languageId, word);
 				updateNode = true;
 			}
@@ -331,7 +337,8 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				word.getMetadata().put(ATTRIB_CATEGORY, null);
 				word.getMetadata().put(ATTRIB_PICTURES, null);
 				word.getMetadata().put(ATTRIB_MEANING, null);
-				word.setTags(null);
+				//word.setTags(null);
+				word.getMetadata().put(ATTRIB_THEMES, null);
 				updatePosList(languageId, word);
 				updateNode = true;
 			}
@@ -403,9 +410,11 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 					word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
 				if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
 					word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
-				List<String> tags = synset.getTags();
+				/*List<String> tags = synset.getTags();
 				if (tags != null && tags.size() > 0)
-					word.setTags(tags);
+					word.setTags(tags);*/
+				if (synset.getMetadata().get(ATTRIB_THEMES) != null)
+					word.getMetadata().put(ATTRIB_THEMES, synset.getMetadata().get(ATTRIB_THEMES));
 				updatePosList(languageId, word);
 			}
 

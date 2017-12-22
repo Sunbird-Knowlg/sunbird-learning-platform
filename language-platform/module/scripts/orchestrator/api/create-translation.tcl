@@ -73,11 +73,10 @@ proc checkOnlyOneSynsetPerLanguageExist {synsetList} {
 
 	set synsetList [java::cast List $synsetList]
 	set synsets [java::new HashSet $synsetList] 
-	puts "synsets [$synsets toString]"
 	set languageIds [java::new ArrayList]
 
 	java::for {String synset} $synsets {
-		puts "synset $synset"
+		logs "synset $synset"
 		set synsetLanguageId [getSynsetLanguage $synset]
 		if {![$languageIds contains $synsetLanguageId]} {
 			$languageIds add $synsetLanguageId
@@ -98,6 +97,7 @@ set proxyType "Synset"
 set testMap [java::cast HashMap $translations]
 set graph_id "translations"
 set result_map [java::new HashMap]
+
 logs "translations [$translations toString] , word_id $word_id, language_id $language_id"
 
 set set_list [java::new ArrayList]
@@ -109,8 +109,8 @@ java::for {String translationKey} [$translations keySet] {
 		set synsetList [java::cast List [$testMap get $language]]
 		set synsetListSize [$synsetList size]
 		if {$synsetListSize > 1} {
-			set msg "INVALID REQUEST FORMAT"
-			set code "INVALID_REQUEST_FORMAT"
+			set msg "One Synset per Language can only be linked"
+			set code "ERR_SYNSET_EXIST"
 			set respCode 400
 			return [getErrorResponse $msg $code $respCode]
 		}
@@ -129,11 +129,12 @@ java::for {String translationKey} [$translations keySet] {
 		
 		set synsetResp [multiLanguageSynsetSearch $synset_list]
 		set synsetIds [java::cast List [$synsetResp get "synsets"]]
-		logs "translations word_id $word_id, language_id $language_id, synsetIds [$synsetIds toString]"
+		
+logs "translations word_id $word_id, language_id $language_id, synsetIds [$synsetIds toString]"
 		java::for {String synsetEntry} $synset_list {
 			if {![$synsetIds contains $synsetEntry]} {
-				set msg "One Synset per Language can only be linked"
-				set code "ERR_SYNSET_EXIST"
+				set msg "SYNSET NOT FOUND"
+	 -			set code "SYNSET_NOT_FOUND"
 				set respCode 400
 				return [getErrorResponse $msg $code $respCode]
 			}
@@ -149,14 +150,16 @@ java::for {String translationKey} [$translations keySet] {
 				$graph_synset_list add $proxy_id
 			}
 		}
-		logs "translations word_id $word_id, language_id $language_id, graph_synset_list [$graph_synset_list toString]"
+		
+logs "translations word_id $word_id, language_id $language_id, graph_synset_list [$graph_synset_list toString]"
 		java::for {String synset_id} $synset_list {
 			if {![$graph_synset_list contains $synset_id]} {
 				set proxy_node [java::new Node $synset_id "PROXY_NODE" $proxyType]
 				set metadata [java::new HashMap]
 				$metadata put "graphId" $graph_id
 				$proxy_node setMetadata $metadata
-				logs "translations proxy_node , word_id $word_id, language_id $language_id, synset_id $synset_id, metadata [$metadata toString]"
+				
+logs "translations proxy_node , word_id $word_id, language_id $language_id, synset_id $synset_id, metadata [$metadata toString]"
 				set create_response [createProxyNode $graph_id $proxy_node]
 			}
 		}
@@ -179,22 +182,22 @@ java::for {String translationKey} [$translations keySet] {
 		set check_error [check_response_error $search_response]
 		if {$check_error} {
 			return $search_response;
-		}
-		 else {
+		} else {
 				set graph_nodes [get_resp_value $search_response "node_list"]
 				set translationExists [isNotEmpty $graph_nodes]
-				logs "translations word_id $word_id, language_id $language_id, translationExists $translationExists"
+				
+logs "translations word_id $word_id, language_id $language_id, translationExists $translationExists"
 				if {$translationExists} {
 					set translationSize [$graph_nodes size] 
-				
 					set graph_node [java::cast Node [$graph_nodes get 0]]
 					set collection_id [getProperty $graph_node "identifier"]
-					
 					set collection_type "SET"
 					set synset_ids [getNodeRelationIds $graph_node "Synset" "endNodeId"]
 					set not_empty_list [isNotEmpty $synset_ids]
-					logs "translations word_id $word_id, language_id $language_id, not_empty_list $not_empty_list"
+					set allSynsets [java::new ArrayList]
+logs "translations word_id $word_id, language_id $language_id, not_empty_list $not_empty_list"
 					if {$not_empty_list} {
+						$allSynsets addAll $synset_ids
 						set members [java::new ArrayList]
 						java::for {String synsetId} $synset_list {
 							set synsetContains [$synset_ids contains $synsetId]
@@ -210,6 +213,7 @@ java::for {String translationKey} [$translations keySet] {
 									set synset_ids [getNodeRelationIds $graph_node "Synset" "endNodeId"]
 									set not_empty_list [isNotEmpty $synset_ids]
 									if {$not_empty_list} {
+										$allSynsets addAll $synset_ids
 										$members addAll $synset_ids
 									}
 									#set dropResp [dropCollection $graph_id $collection_node_id $collection_type]
@@ -217,10 +221,10 @@ java::for {String translationKey} [$translations keySet] {
 								}
 							}
 						}
+						set synsetsTobeAddedIntoSingleTS [java::new HashSet $members] 
+						set members [java::new ArrayList $synsetsTobeAddedIntoSingleTS] 
 
-						$synset_list addAll $members
-
-						if {[checkOnlyOneSynsetPerLanguageExist $synset_list]} {
+						if {[checkOnlyOneSynsetPerLanguageExist $allSynsets]} {
 							java::for {String collection_node_id} $collectionIdsToBeDeleted {
 								set dropResp [dropCollection $graph_id $collection_node_id $collection_type]
 							}
@@ -233,7 +237,8 @@ java::for {String translationKey} [$translations keySet] {
 
 						set membersSize [$members size] 
 						if {$membersSize > 0} {
-							logs "translations addMembers word_id $word_id, language_id $language_id, members [$members toString]"
+							
+logs "translations addMembers word_id $word_id, language_id $language_id, members [$members toString]"
 							set searchResponse [addMembers $graph_id $collection_id $collection_type $members]
 						}
 						$set_list add $collection_id
@@ -245,7 +250,8 @@ java::for {String translationKey} [$translations keySet] {
 					set members [java::new ArrayList]
 					$members addAll $synset_list
 					set member_type "Synset"
-					logs "translations createSet word_id $word_id, language_id $language_id, members [$members toString]"
+					
+logs "translations createSet word_id $word_id, language_id $language_id, members [$members toString]"
 					set searchResponse [createSet $graph_id $members $object_type $member_type $node]
 					set set_id [get_resp_value $searchResponse "set_id"]
 					$set_list add $set_id
@@ -264,7 +270,8 @@ set resultSize [$result_map size]
 set setListSize [$set_list size] 
 
 if {$setListSize > 0} {
-	logs "translations resultMap , word_id $word_id, language_id $language_id, set_list [$set_list toString]"
+	
+logs "translations resultMap , word_id $word_id, language_id $language_id, set_list [$set_list toString]"
 	$result_map put "set_list" $set_list
 	set response_list [create_response $result_map]
 	return $response_list
