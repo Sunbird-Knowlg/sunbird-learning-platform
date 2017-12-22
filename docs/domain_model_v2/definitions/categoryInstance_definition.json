@@ -1,67 +1,67 @@
 {
-  "definitionNodes": [
+    "definitionNodes": [
     {
-      "objectType": "CategoryInstance",
-      "properties": [
-	   {
-          "propertyName": "name",
-          "title": "Name",
-          "description": "Name of the category",
-          "category": "General",
-          "dataType": "Text",
-          "required": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 1}",
-          "indexed": true
+        "objectType": "CategoryInstance",
+        "properties": [
+        {
+            "propertyName": "name",
+            "title": "Name",
+            "description": "Name of the category",
+            "category": "General",
+            "dataType": "Text",
+            "required": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 1}",
+            "indexed": true
         },
         {
-          "propertyName": "description",
-          "title": "Name",
-          "description": "description of the category",
-          "category": "General",
-          "dataType": "Text",
-          "required": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 3}",
-          "indexed": true
+            "propertyName": "description",
+            "title": "Name",
+            "description": "description of the category",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 3}",
+            "indexed": true
         },
         {
-          "propertyName": "code",
-          "title": "Code",
-          "description": "Unique code for the category",
-          "category": "General",
-          "dataType": "Text",
-          "required": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 4}",
-          "indexed": true
+            "propertyName": "code",
+            "title": "Code",
+            "description": "Unique code for the category",
+            "category": "General",
+            "dataType": "Text",
+            "required": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 4}",
+            "indexed": true
         },
         {
-          "propertyName": "translations",
-          "title": "translations",
-          "description": "translations for the category",
-          "category": "General",
-          "dataType": "json",
-          "required": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{'inputType': 'object', 'order': 5}",
-          "indexed": true
+            "propertyName": "translations",
+            "title": "translations",
+            "description": "translations for the category",
+            "category": "General",
+            "dataType": "json",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'object', 'order': 5}",
+            "indexed": true
         },
         {
-          "propertyName": "defaultTerm",
-          "title": "defaultTerm",
-          "description": "defaultTerm associated with the category",
-          "category": "General",
-          "dataType": "json",
-          "required": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 6}",
-          "indexed": true
+            "propertyName": "defaultTerm",
+            "title": "defaultTerm",
+            "description": "defaultTerm associated with the category",
+            "category": "General",
+            "dataType": "json",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 6}",
+            "indexed": true
         },
         {
             "propertyName": "status",
@@ -69,110 +69,116 @@
             "description": "Status of the category",
             "category": "general",
             "dataType": "Select",
-            "range":
-            [
+            "range": [
                 "Draft",
                 "Live",
                 "Retired"
             ],
             "required": false,
-			"indexed": true,
+            "indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Live",
             "renderingHints": "{'inputType': 'select', 'order': 7}"
         },
         {
-          "propertyName": "createdBy",
-          "title": "Created By",
-          "description": "",
-          "category": "audit",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 8}"
+            "propertyName": "createdBy",
+            "title": "Created By",
+            "description": "",
+            "category": "audit",
+            "dataType": "Text",
+            "range": [],
+            "required": false,
+            "indexed": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 8}"
         },
         {
-          "propertyName": "createdOn",
-          "title": "Created On",
-          "description": "",
-          "category": "audit",
-          "dataType": "Date",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ inputType': 'date', 'order': 9 }"
-        },  
-        {
-          "propertyName": "lastUpdatedBy",
-          "title": "Last Updated By",
-          "description": "",
-          "category": "audit",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
+            "propertyName": "createdOn",
+            "title": "Created On",
+            "description": "",
+            "category": "audit",
+            "dataType": "Date",
+            "range": [],
+            "required": false,
+            "indexed": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{ inputType': 'date', 'order': 9 }"
         },
         {
-          "propertyName": "lastUpdatedOn",
-          "title": "Last Updated On",
-          "description": "",
-          "category": "audit",
-          "dataType": "Date",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ inputType': 'date', 'order': 11 }"
+            "propertyName": "lastUpdatedBy",
+            "title": "Last Updated By",
+            "description": "",
+            "category": "audit",
+            "dataType": "Text",
+            "range": [],
+            "required": false,
+            "indexed": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
+        },
+        {
+            "propertyName": "lastUpdatedOn",
+            "title": "Last Updated On",
+            "description": "",
+            "category": "audit",
+            "dataType": "Date",
+            "range": [],
+            "required": false,
+            "indexed": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{ inputType': 'date', 'order': 11 }"
+        }],
+        "inRelations": [
+        {
+            "relationName": "hasSequenceMember",
+            "objectTypes": [
+                "Framework"
+            ],
+            "title": "framework",
+            "description": "framework instance which has sequence relationship with this categoryInstance",
+            "required": false,
+            "renderingHints": "{ 'order': 14 }"
+        },
+        {
+            "relationName": "hasSequenceMember",
+            "objectTypes": [
+                "Channel"
+            ],
+            "title": "channel",
+            "description": "channel instance which has sequence relationship with this categoryInstance",
+            "required": false,
+            "renderingHints": "{ 'order': 15 }"
+        }],
+        "outRelations": [
+        {
+            "relationName": "hasSequenceMember",
+            "objectTypes": [
+                "Term"
+            ],
+            "title": "term",
+            "description": "term instance which has sequence relationship with this categoryInstance",
+            "required": false,
+            "renderingHints": "{ 'order': 16 }"
+        },
+        {
+            "relationName": "hasSequenceMember",
+            "objectTypes": [
+                "RootConcept"
+            ],
+            "title": "rootconcept",
+            "description": "root concepts which has sequence relationship with this categoryInstance",
+            "required": false,
+            "renderingHints": "{ 'order': 17 }"
+        }],
+        "systemTags": [],
+        "metadata":
+        {
+            "ttl": 11,
+            "limit": 50
         }
-      ],
-      "inRelations":[
-  		{
-			"relationName": "hasSequenceMember",
-			"objectTypes": [
-				"Framework"
-			],
-			"title": "framework",
-			"description": "framework instance which has sequence relationship with this categoryInstance",
-			"required": false,
-			"renderingHints": "{ 'order': 14 }"
-		},
-		{
-			"relationName": "hasSequenceMember",
-			"objectTypes": [
-				"Channel"
-			],
-			"title": "channel",
-			"description": "channel instance which has sequence relationship with this categoryInstance",
-			"required": false,
-			"renderingHints": "{ 'order': 15 }"
-		}
-	   ],
-      "outRelations":[
-		{
-			"relationName": "hasSequenceMember",
-			"objectTypes": [
-				"Term"
-			],
-			"title": "term",
-			"description": "term instance which has sequence relationship with this categoryInstance",
-			"required": false,
-			"renderingHints": "{ 'order': 16 }"
-		}
-	  ],
-      "systemTags": [],
-      "metadata": {
-        "ttl": 11,
-        "limit": 50
-      }
-    }
-  ]
+    }]
 }

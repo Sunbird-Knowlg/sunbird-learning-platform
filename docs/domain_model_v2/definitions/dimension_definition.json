@@ -218,10 +218,10 @@
         {
           "relationName": "isParentOf",
           "title": "parent",
-          "description": "Domain that this dimension belongs to",
+          "description": "Root concept that this dimension belongs to",
           "required": true,
           "objectTypes": [
-            "Domain"
+            "RootConcept"
           ],
           "renderingHints": "{'order': 26}"
         }
