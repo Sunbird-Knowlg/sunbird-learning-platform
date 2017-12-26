@@ -47,7 +47,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
-			validateMasterTerm(categoryId, label);
+			//validateMasterTerm(categoryId, label);
 		} else {
 			validateCategoryId(categoryId);
 		}
