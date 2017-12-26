@@ -3,8 +3,8 @@ java::import -package java.util HashMap Map Date
 java::import -package java.util ArrayList List
 java::import -package java.util HashSet Set
 java::import -package java.util Arrays
-java::import -package com.ilimi.graph.dac.model Node
-java::import -package com.ilimi.graph.common DateUtils
+java::import -package org.ekstep.graph.dac.model Node
+java::import -package org.ekstep.graph.common DateUtils
 
 set graph_id "domain"
 set object_type "Content"

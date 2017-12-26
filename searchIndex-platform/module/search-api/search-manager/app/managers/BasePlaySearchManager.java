@@ -19,13 +19,13 @@ import org.ekstep.search.router.SearchRequestRouterPool;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.util.LogTelemetryEventUtil;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.util.LogTelemetryEventUtil;
+import org.ekstep.graph.common.enums.GraphHeaderParams;
 
 import akka.actor.ActorRef;
 import play.libs.F;
@@ -39,7 +39,7 @@ public class BasePlaySearchManager extends Results {
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 	
 	private static final String ekstep = "org.ekstep";
-	private static final String ilimi = "com.ilimi";
+	private static final String ilimi = "org.ekstep";
 	private static final String java = "java.";
 	private static final String default_err_msg = "Something went wrong in server while processing the request";
 

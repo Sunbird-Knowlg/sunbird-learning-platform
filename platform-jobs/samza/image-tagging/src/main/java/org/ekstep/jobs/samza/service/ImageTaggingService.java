@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.ImageWorkflowEnums;
 import org.ekstep.jobs.samza.util.JSONUtils;
@@ -24,8 +25,6 @@ import org.ekstep.jobs.samza.util.OptimizerUtil;
 import org.ekstep.jobs.samza.util.VisionApi;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-
-import com.ilimi.graph.dac.model.Node;
 
 public class ImageTaggingService implements ISamzaService {
 

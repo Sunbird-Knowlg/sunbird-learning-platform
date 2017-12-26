@@ -1,5 +1,6 @@
 package org.ekstep.content.client;
 	
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.concrete.processor.AssetsValidatorProcessor;
 import org.ekstep.content.concrete.processor.EmbedControllerProcessor;
 import org.ekstep.content.concrete.processor.GlobalizeAssetProcessor;
@@ -8,8 +9,6 @@ import org.ekstep.content.concrete.processor.MissingAssetValidatorProcessor;
 import org.ekstep.content.concrete.processor.MissingControllerValidatorProcessor;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.processor.ContentPipelineProcessor;
-
-import com.ilimi.common.logger.PlatformLogger;
 
 public class PipelineRequestorClient {
 	

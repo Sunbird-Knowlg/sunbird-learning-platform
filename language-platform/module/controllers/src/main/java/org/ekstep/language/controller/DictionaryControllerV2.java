@@ -11,6 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
@@ -27,11 +32,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.enums.GraphDACParams;
 
 /**
  * End points for v2 word CRUD operations and relation CRUD operations. V2
@@ -389,7 +389,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.common.controller.BaseController#getAPIVersion()
+	 * @see org.ekstep.common.controller.BaseController#getAPIVersion()
 	 */
 	protected String getAPIVersion() {
 		return API_VERSION_2;

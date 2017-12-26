@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ilimi.common.controller.BaseController;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.exception.ResponseCode;
+import org.ekstep.common.controller.BaseController;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ResponseCode;
 
 @Controller
 @RequestMapping("health")

@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.TelemetryBEAccessEvent;
+import org.ekstep.common.logger.PlatformLogger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.TelemetryBEAccessEvent;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.util.LogTelemetryEventUtil;
 
 public class TelemetryAccessEventUtil {
 

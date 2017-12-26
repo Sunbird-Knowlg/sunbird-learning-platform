@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.21</version>
+			<version>0.0.22</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>word-enrichment</artifactId>
-			<version>0.0.21</version>
+			<version>0.0.22</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

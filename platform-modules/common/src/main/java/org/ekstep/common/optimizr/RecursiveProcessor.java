@@ -8,8 +8,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
 
 /**
  *

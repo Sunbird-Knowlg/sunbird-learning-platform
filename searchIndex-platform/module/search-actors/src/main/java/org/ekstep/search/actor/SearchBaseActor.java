@@ -3,18 +3,19 @@ package org.ekstep.search.actor;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.ilimi.common.dto.CoverageIgnore;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.MiddlewareException;
-import com.ilimi.common.exception.ResourceNotFoundException;
-import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.MiddlewareException;
+import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
+
+import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
@@ -23,7 +24,7 @@ public abstract class SearchBaseActor extends UntypedActor {
 
     
     private static final String ekstep = "org.ekstep.";
-    private static final String ilimi = "com.ilimi.";
+    private static final String ilimi = "org.ekstep.";
     private static final String java = "java.";
     private static final String default_err_msg = "Something went wrong in server while processing the request";
     

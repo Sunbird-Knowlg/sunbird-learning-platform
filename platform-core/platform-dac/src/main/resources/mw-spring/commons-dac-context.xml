@@ -9,9 +9,9 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-4.2.xsd">
        
-    <bean id="applicationContext" class="com.ilimi.util.ApplicationContextUtils" />
-	<context:component-scan base-package="com.ilimi.dac.*" />
+    <bean id="applicationContext" class="org.ekstep.util.ApplicationContextUtils" />
+	<context:component-scan base-package="org.ekstep.dac.*" />
 	<context:annotation-config />
 
-	<bean id="auditHistoryEsDao" class="com.ilimi.dac.impl.entity.dao.AuditHistoryEsDao"/>
+	<bean id="auditHistoryEsDao" class="org.ekstep.dac.impl.entity.dao.AuditHistoryEsDao"/>
 </beans>

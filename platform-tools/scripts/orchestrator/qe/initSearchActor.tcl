@@ -1,7 +1,7 @@
 package require java
 java::import -package java.util HashMap Map
 java::import -package org.ekstep.search.router SearchRequestRouterPool
-java::import -package com.ilimi.common.router RequestRouterPool
+java::import -package org.ekstep.common.router RequestRouterPool
 
 set baseActorSystem [java::call RequestRouterPool getActorSystem]
 set searchActorSystem [java::call SearchRequestRouterPool init $baseActorSystem]

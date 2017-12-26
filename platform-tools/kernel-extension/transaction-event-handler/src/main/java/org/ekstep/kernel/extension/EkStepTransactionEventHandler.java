@@ -1,11 +1,9 @@
 package org.ekstep.kernel.extension;
 
+import org.ekstep.common.logger.PlatformLogger;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
-
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.util.ProcessTransactionData;
 
 
 @SuppressWarnings("rawtypes")

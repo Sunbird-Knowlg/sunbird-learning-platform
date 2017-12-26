@@ -2,21 +2,21 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.ilimi</groupId>
-		<artifactId>ilimi-graph-engine</artifactId>
+		<groupId>org.ekstep</groupId>
+		<artifactId>ekstep-graph-engine</artifactId>
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>graph-dac-api</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>graph-cache-mgr</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>graph-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
@@ -27,25 +27,10 @@
 			<version>3.3.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j</artifactId>
-			<version>3.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j-kernel</artifactId>
-			<version>3.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j-io</artifactId>
-			<version>3.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.11</artifactId>
-			<version>0.10.0.1</version>
-			<scope>compile</scope>
+		    <groupId>log4j</groupId>
+		    <artifactId>log4j</artifactId>
+		    <version>1.2.15</version>
+		    	<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>jmxri</artifactId>
@@ -70,7 +55,7 @@
 		<dependency>
 			<groupId>org.neo4j.driver</groupId>
 			<artifactId>neo4j-java-driver</artifactId>
-			<version>1.1.0</version>
+			<version>1.4.5</version>
 		</dependency>
 		<dependency>
 			<groupId>net.iot-solutions.graphdb</groupId>

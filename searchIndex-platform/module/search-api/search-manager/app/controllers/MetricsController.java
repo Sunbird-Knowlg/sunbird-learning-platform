@@ -1,6 +1,6 @@
 package controllers;
 
-import com.ilimi.common.dto.Request;
+import org.ekstep.common.dto.Request;
 
 import managers.PlaySearchManager;
 import play.libs.F.Promise;

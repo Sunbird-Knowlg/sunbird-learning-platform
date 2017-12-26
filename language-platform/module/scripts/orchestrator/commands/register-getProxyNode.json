@@ -14,7 +14,7 @@
     }
   ],
   "actorPath": {
-    "manager": "com.ilimi.graph.engine.mgr.impl.SearchManagerImpl",
+    "manager": "org.ekstep.graph.engine.mgr.impl.SearchManagerImpl",
     "operation": "getProxyNode",
     "router": "SEARCH_REQUEST_ROUTER"
   }

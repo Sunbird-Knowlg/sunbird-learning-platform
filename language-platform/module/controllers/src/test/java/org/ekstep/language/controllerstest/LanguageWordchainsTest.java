@@ -11,6 +11,8 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
@@ -30,8 +32,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
 
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)

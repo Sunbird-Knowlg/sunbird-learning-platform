@@ -6,6 +6,7 @@ import static com.jayway.restassured.http.ContentType.JSON;
 import java.util.ArrayList;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;

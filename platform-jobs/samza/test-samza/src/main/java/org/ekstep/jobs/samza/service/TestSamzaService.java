@@ -7,8 +7,8 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
 
 public class TestSamzaService implements ISamzaService {
 

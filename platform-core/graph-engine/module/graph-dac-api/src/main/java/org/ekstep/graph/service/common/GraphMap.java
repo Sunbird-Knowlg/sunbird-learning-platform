@@ -3,7 +3,7 @@ package org.ekstep.graph.service.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ilimi.common.exception.ClientException;
+import org.ekstep.common.exception.ClientException;
 
 public class GraphMap {
 

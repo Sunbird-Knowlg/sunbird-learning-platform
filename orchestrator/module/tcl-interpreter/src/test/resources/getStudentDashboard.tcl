@@ -7,7 +7,7 @@ and for each enrolled course, gets the following details: \
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
-java::import -package com.ilimi.common.dto Response
+java::import -package org.ekstep.common.dto Response
 
 # command to get list of all courses for the given user_id. This command returns Response object
 set resp_get_courses [ums_getcourses $user_id]

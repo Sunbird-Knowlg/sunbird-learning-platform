@@ -11,7 +11,8 @@ import static org.hamcrest.CoreMatchers.is;
 
 import java.util.Random;
 
-import com.ilimi.common.Platform;
+import org.ekstep.common.Platform;
+
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;

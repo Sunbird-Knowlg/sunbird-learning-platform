@@ -12,6 +12,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.jobs.samza.service.WordEnrichmentService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.language.common.LanguageMap;
@@ -27,8 +29,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 
 public class WordEnrichmentServiceTest extends BaseTest{
 	
@@ -195,7 +195,7 @@ public class WordEnrichmentServiceTest extends BaseTest{
 			assertEquals((Double)meta.get("word_complexity"), new Double(0.8));
 			//update synset metadata like category
 			String synsetRequest = "{\"nodeType\":\"DATA_NODE\",\"identifier\":\""+pmId+"\", \"objectType\":\"Synset\",\"metadata\":{\"category\":\"Thing\"}}";
-			Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
+			Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("org.ekstep.graph.dac.model.Node"));		
 			String synsetId = updateNode(pmId, synsetNodeObj, BaseTest.ka_languageId);
 			String synsetUpdateEventMsg="{\"ets\":1505489002231,\"nodeUniqueId\":\""+synsetId+"\",\"transactionData\":{\"properties\":{\"category\":{\"ov\":\"Place\",\"nv\":\"Thing\"}}},\"operationType\":\"UPDATE\",\"graphId\":\""+ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"createdOn\":\"2017-09-15T20:53:22.231+0530\",\"objectType\":\"synset\"}";
 			WordEnrichmentTest(synsetUpdateEventMsg);
