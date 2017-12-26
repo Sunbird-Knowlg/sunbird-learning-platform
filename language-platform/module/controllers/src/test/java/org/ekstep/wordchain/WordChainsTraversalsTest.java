@@ -46,7 +46,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 	static GraphDatabaseService graphDb = getGraphDb(graphId);
 	List<String> lemmaList = new ArrayList<String>();
 	Set<String> wordsSet = new HashSet<String>();
-	public static final Label NODE_LABEL = org.ekstep.graph.dac.enums.Label.NODE;
+	public static final Label NODE_LABEL = Label.label("NODE");
 
 	// @Test
 	public void traverse() throws Exception {

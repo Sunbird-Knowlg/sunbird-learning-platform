@@ -8,7 +8,7 @@ import org.neo4j.graphdb.Transaction;
 
 public class TestGraph {
 	
-	public static final Label NODE_LABEL = org.ekstep.graph.dac.enums.Label.NODE;
+	public static final Label NODE_LABEL = Label.label("NODE");
 	
 	public static void createNode(GraphDatabaseService graphDb) {
 		try (Transaction tx = graphDb.beginTx()) {

@@ -1,4 +1,4 @@
-package org.ekstep.graph.dac.util;
+package org.ekstep.kernel.extension;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,7 +16,6 @@ import org.ekstep.common.util.LogAsyncGraphEvent;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.AuditProperties;
 import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.enums.Label;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -29,6 +28,7 @@ public class ProcessTransactionData {
 	
 	protected String graphId;
 	protected GraphDatabaseService graphDb;
+	private String nodeLabel = "NODE";
 
 	public ProcessTransactionData(String graphId, GraphDatabaseService graphDb) {
 		this.graphId = graphId;
@@ -49,7 +49,7 @@ public class ProcessTransactionData {
 	
 	private  String getGraphId(Node node) {
 		for(org.neo4j.graphdb.Label lable :node.getLabels()){
-			if(!lable.name().equals(Label.NODE.name())){
+			if(!lable.name().equals(nodeLabel)){
 				return lable.name();
 			}
 		}
@@ -58,7 +58,7 @@ public class ProcessTransactionData {
 	
 	private  String getGraphId(Iterable<LabelEntry> labels) {
 		for(org.neo4j.graphdb.event.LabelEntry lable :labels){
-			if(!lable.label().name().equals(Label.NODE.name())){
+			if(!lable.label().name().equals(nodeLabel)){
 				return lable.label().name();
 			}
 		}
