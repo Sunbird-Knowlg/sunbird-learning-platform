@@ -1,14 +1,9 @@
 package com.ilimi.dialcode.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
-
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -74,8 +69,6 @@ public class DialCodeStoreUtil {
 			Session session=CassandraConnector.getSession();
 			String query=getInsertQuery(channel, publisher, batchCode, codeMap);
 			session.execute(query);
-			//System.out.println("DIAL Code Stored Successfully..");
-			
 		}catch(Exception e){
 			PlatformLogger.log("Exception Occured while inserting Dial Codes to Cassandra : ", e.getMessage(), e);
 		}
@@ -103,6 +96,56 @@ public class DialCodeStoreUtil {
 			throw new ResourceNotFoundException("ERR_DIALCODE_INFO", "Dial Code Not Found.");
 		
 		return dialCodeObj;
+	}
+	
+	public static String updateData(String dialCodeId,String publisher,String metadata ){
+		String id=null;
+		
+		try {
+			Session session=CassandraConnector.getSession();
+			
+			StringBuilder updateQuery = new StringBuilder();
+			updateQuery.append("update ");
+			updateQuery.append(getKeyspaceName()+"."+getKeyspaceTable()+" set ");
+			updateQuery.append("publisher='"+publisher+"', ");
+			updateQuery.append("metadata='"+metadata+"' ");
+			updateQuery.append("where identifier='"+dialCodeId+"'");
+			
+			ResultSet rs=session.execute(updateQuery.toString());
+			
+			if (null != rs) {
+				id=dialCodeId;
+			}
+			
+		} catch (Exception e) {
+			PlatformLogger.log("Exception Occured while updating  Dial Code ( "+dialCodeId+") : ", e.getMessage(), e);
+		}
+		return id;
+	}
+	
+	public static String updateData(String dialCodeId){
+		String id=null;
+		
+		try {
+			Session session=CassandraConnector.getSession();
+			
+			StringBuilder updateQuery = new StringBuilder();
+			updateQuery.append("update ");
+			updateQuery.append(getKeyspaceName()+"."+getKeyspaceTable()+" set ");
+			updateQuery.append("status='"+DialCodeEnum.Live.name()+"', ");
+			updateQuery.append("published_on='"+LocalDateTime.now()+"' ");
+			updateQuery.append("where identifier='"+dialCodeId+"'");
+			
+			ResultSet rs=session.execute(updateQuery.toString());
+			
+			if (null != rs) {
+				id=dialCodeId;
+			}
+			
+		} catch (Exception e) {
+			PlatformLogger.log("Exception Occured while publishing  Dial Code ( "+dialCodeId+") : ", e.getMessage(), e);
+		}
+		return id;
 	}
 	
 	

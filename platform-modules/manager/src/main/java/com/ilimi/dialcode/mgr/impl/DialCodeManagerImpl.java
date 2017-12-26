@@ -1,5 +1,6 @@
 package com.ilimi.dialcode.mgr.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.Gson;
 import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
@@ -45,7 +48,8 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 		if(null==map.get(DialCodeEnum.publisher.name()) || StringUtils.isBlank((String)map.get(DialCodeEnum.publisher.name())))
 			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Publisher is Manadatory", ResponseCode.CLIENT_ERROR);
 		if(null==map.get(DialCodeEnum.batchCode.name()) || StringUtils.isBlank((String)map.get(DialCodeEnum.batchCode.name())))
-			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Batch Code is Manadatory", ResponseCode.CLIENT_ERROR);
+			map.put(DialCodeEnum.batchCode.name(), LocalDateTime.now().toString());
+			//return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Batch Code is Manadatory", ResponseCode.CLIENT_ERROR);
 		if(null==map.get(DialCodeEnum.count.name()))
 			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Count is Manadatory.", ResponseCode.CLIENT_ERROR);
 		Integer count=0;
@@ -103,8 +107,31 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 
 	@Override
 	public Response updateDialCode(String dialCodeId, String channelId, Map<String, Object> map) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if (null == map)
+			return ERROR("ERR_INVALID_DIALCODE_UPDATE_REQUEST", "Invalid Request", ResponseCode.CLIENT_ERROR);
+		
+		DialCode dialCode=DialCodeStoreUtil.readDialCode(dialCodeId);
+		
+		if(!channelId.equalsIgnoreCase(dialCode.getChannel()))
+			return ERROR("ERR_DIALCODE_UPDATE_REQUEST", "Invalid Channel Id.", ResponseCode.CLIENT_ERROR);
+		
+		if(dialCode.getStatus().equalsIgnoreCase(DialCodeEnum.Live.name()))
+			return ERROR("ERR_DIALCODE_UPDATE_REQUEST", "Dial Code with Live status can't be updated.", ResponseCode.CLIENT_ERROR);
+		
+		String publisher=(String)map.get(DialCodeEnum.publisher.name());
+		if(StringUtils.isBlank(publisher)){
+			publisher=dialCode.getPublisher();
+		}
+		String metaData=new Gson().toJson(map.get(DialCodeEnum.metadata.name()));
+		String dialCodeIdentifier=DialCodeStoreUtil.updateData(dialCodeId,publisher,metaData);
+		
+		if(StringUtils.isBlank(dialCodeIdentifier)){
+			return ERROR("ERR_DIALCODE_UPDATE_REQUEST", "Internal Server Error", ResponseCode.CLIENT_ERROR);
+		}
+		
+		Response resp = new Response();
+		resp.put("identifier",dialCodeIdentifier);
+		return resp;
 	}
 
 	@Override
@@ -115,8 +142,21 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 
 	@Override
 	public Response publishDialCode(String dialCodeId, String channelId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		Response resp=null;
+		DialCode dialCode=DialCodeStoreUtil.readDialCode(dialCodeId);
+		
+		if(!channelId.equalsIgnoreCase(dialCode.getChannel()))
+			return ERROR("ERR_DIALCODE_PUBLISH_REQUEST", "Invalid Channel Id.", ResponseCode.CLIENT_ERROR);
+		
+		String dialCodeIdentifier=DialCodeStoreUtil.updateData(dialCodeId);
+		
+		if(StringUtils.isBlank(dialCodeIdentifier)){
+			return ERROR("ERR_DIALCODE_PUBLISH_REQUEST", "Internal Server Error", ResponseCode.CLIENT_ERROR);
+		}
+		
+		resp = new Response();
+		resp.put("identifier",dialCodeIdentifier);
+		return resp;
 	}
 
 }
