@@ -4,7 +4,7 @@
     	"name":"node",
     	"index": 0,
     	"routingParam": true,
-        "datatype": "com.ilimi.graph.dac.model.Node"
+        "datatype": "org.ekstep.graph.dac.model.Node"
     }],
     "body": ""
 }

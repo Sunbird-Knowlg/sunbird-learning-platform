@@ -34,7 +34,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>learning-actors</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
@@ -45,7 +45,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>platform-dac</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>

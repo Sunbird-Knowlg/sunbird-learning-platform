@@ -6,19 +6,19 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
 
 /**
  * The Class YoutubeMimeTypeManager is a implementation of IMimeTypeManager for
@@ -34,7 +34,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#upload(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
@@ -58,7 +58,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#publish(org.ekstep.graph.dac.model
 	 * .Node)
 	 */
 	@Override
@@ -94,7 +94,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#review(com.ilimi.graph.dac.model.
+	 * org.ekstep.taxonomy.mgr.IMimeTypeManager#review(org.ekstep.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override

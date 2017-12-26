@@ -6,9 +6,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.RequestParams;
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.RequestParams;
+import org.ekstep.common.logger.PlatformLogger;
 
 import play.mvc.Controller;
 import play.mvc.Http.RequestBody;

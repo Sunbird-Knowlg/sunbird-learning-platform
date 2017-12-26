@@ -240,6 +240,18 @@
             "draft": false
         },
         {
+          "propertyName": "themes",
+          "title": "Themes",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 45}",
+          "indexed": true
+        },
+        {
           "propertyName": "keywords",
           "title": "Keywords",
           "description": "",

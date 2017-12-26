@@ -1,13 +1,12 @@
 package org.ekstep.language.actor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.IndowordnetUtil;
-
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.logger.PlatformLogger;
 
 import akka.actor.ActorRef;
 
@@ -26,7 +25,7 @@ public class IndowordnetActor extends LanguageBaseActor {
     private IndowordnetUtil util = new IndowordnetUtil();
 
     /* (non-Javadoc)
-     * @see com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
+     * @see org.ekstep.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
      */
     @Override
     public void onReceive(Object msg) throws Exception {
@@ -67,7 +66,7 @@ public class IndowordnetActor extends LanguageBaseActor {
     }
     
     /* (non-Javadoc)
-     * @see com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common.dto.Request, akka.actor.ActorRef)
+     * @see org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(org.ekstep.common.dto.Request, akka.actor.ActorRef)
      */
     @Override
     protected void invokeMethod(Request request, ActorRef parent) {

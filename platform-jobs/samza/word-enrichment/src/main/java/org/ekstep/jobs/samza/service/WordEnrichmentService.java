@@ -28,7 +28,7 @@ public class WordEnrichmentService implements ISamzaService {
 	@SuppressWarnings("unused")
 	private Config config = null;
 	private static final List<String> syncableSynsetProperties = 
-		    Collections.unmodifiableList(Arrays.asList("category", "pictures", "gloss"));
+		    Collections.unmodifiableList(Arrays.asList("category", "pictures", "gloss", "themes"));
 
 	@Override
 	public void initialize(Config config) throws Exception {

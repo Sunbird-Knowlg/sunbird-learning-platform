@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 
 // TODO: Auto-generated Javadoc
 /**

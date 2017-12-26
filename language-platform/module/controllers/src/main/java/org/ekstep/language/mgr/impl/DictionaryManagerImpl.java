@@ -28,8 +28,33 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.MiddlewareException;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.graph.common.JSONUtils;
+import org.ekstep.graph.dac.enums.AuditProperties;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.enums.SystemProperties;
+import org.ekstep.graph.dac.model.Filter;
+import org.ekstep.graph.dac.model.MetadataCriterion;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.dac.model.SearchConditions;
+import org.ekstep.graph.dac.model.SearchCriteria;
+import org.ekstep.graph.dac.model.Sort;
+import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.graph.model.node.MetadataDefinition;
+import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
@@ -43,36 +68,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ilimi.common.controller.BaseController;
-import com.ilimi.common.dto.CoverageIgnore;
-import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.MiddlewareException;
-import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.mgr.ConvertGraphNode;
-import com.ilimi.graph.common.JSONUtils;
-import com.ilimi.graph.dac.enums.AuditProperties;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.Filter;
-import com.ilimi.graph.dac.model.MetadataCriterion;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.model.SearchConditions;
-import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.model.Sort;
-//import com.ilimi.graph.dac.model.TagCriterion;
-import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.graph.model.node.DefinitionDTO;
-import com.ilimi.graph.model.node.MetadataDefinition;
-import com.ilimi.graph.model.node.RelationDefinition;
+import org.ekstep.common.controller.BaseController;
+import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.NodeDTO;
+import org.ekstep.common.mgr.ConvertGraphNode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -566,7 +565,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 * (non-Javadoc)
 	 * 
 	 * @see org.ekstep.language.mgr.IDictionaryManager#list(java.lang.String,
-	 * java.lang.String, com.ilimi.common.dto.Request, java.lang.String)
+	 * java.lang.String, org.ekstep.common.dto.Request, java.lang.String)
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response list(String languageId, String objectType, Request request, String version) {
@@ -1331,7 +1330,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 * 
 	 * @see
 	 * org.ekstep.language.mgr.IDictionaryManager#createWordV2(java.lang.String,
-	 * java.lang.String, com.ilimi.common.dto.Request, boolean)
+	 * java.lang.String, org.ekstep.common.dto.Request, boolean)
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
@@ -2050,7 +2049,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 * (non-Javadoc)
 	 * 
 	 * @see org.ekstep.language.mgr.IDictionaryManager#transliterate(java.lang
-	 * .String, com.ilimi.common.dto.Request, boolean)
+	 * .String, org.ekstep.common.dto.Request, boolean)
 	 */
 	@Override
 	@CoverageIgnore
@@ -2075,7 +2074,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 * 
 	 * @see
 	 * org.ekstep.language.mgr.IDictionaryManager#partialUpdateWordV2(java.lang.
-	 * String, java.lang.String, java.lang.String, com.ilimi.common.dto.Request,
+	 * String, java.lang.String, java.lang.String, org.ekstep.common.dto.Request,
 	 * boolean)
 	 */
 	@SuppressWarnings("unchecked")
@@ -2285,9 +2284,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					.get(LanguageParams.otherMeanings.name());
 			
 			wordRequestMap.remove(LanguageParams.otherMeanings.name());
+			
+			List<String> keywords = (List<String>) wordRequestMap.get(LanguageParams.tags.name());
 			wordRequestMap.remove(LanguageParams.tags.name());
 
 			Node word = new Node(wordIdentifier, SystemNodeTypes.DATA_NODE.name(), "Word");
+			if (keywords != null) {
+				word.setTags(keywords);
+			}
 
 			word.setMetadata(wordRequestMap);
 
@@ -2333,7 +2337,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 				//check/update primary meaning of all synonym words in primary meaning
 				if (primaryMeaningSynonym != null) {
-					List<String> synonyms = getRelatedWordLemmaFrom(primaryMeaningSynonym);
+					List<String> synonyms = getRelatedWordLemmaFrom(languageId, primaryMeaningSynonym);
 					//List<Node> synonmNodes = searchWords(languageId, synonms);
 					for (String synonym : synonyms) {
 						Node pmSynonymWord = (Node) lemmaWordMap.get(synonym);
@@ -2425,13 +2429,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 	/**
 	 * Gets the related word lemma from.
-	 *
+	 * @param languageId TODO
 	 * @param meaningObj
 	 *            the meaning obj
+	 *
 	 * @return the related word lemma from
 	 */
 	@SuppressWarnings({ "unchecked", "static-access" })
-	private List<String> getRelatedWordLemmaFrom(Map<String, Object> meaningObj) {
+	private List<String> getRelatedWordLemmaFrom(String languageId, Map<String, Object> meaningObj) {
 
 		List<String> lemmas = new ArrayList<>();
 
@@ -2445,6 +2450,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					}
 					if (lemma != null) {
 						lemma = lemma.trim();
+						if(languageId.equalsIgnoreCase("en"))
+							lemma = lemma.toLowerCase();
 						word.put(LanguageParams.lemma.name(), lemma);
 						lemmas.add(lemma);
 					}
@@ -2458,25 +2465,26 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 	/**
 	 * Gets the all lemma.
-	 *
+	 * @param languageId TODO
 	 * @param wordRequestMap
 	 *            the word request map
+	 *
 	 * @return the all lemma
 	 */
 	@SuppressWarnings("unchecked")
-	private List<String> getAllLemma(Map<String, Object> wordRequestMap) {
+	private List<String> getAllLemma(String languageId, Map<String, Object> wordRequestMap) {
 		List<String> lemmas = new ArrayList<>();
 
 		Map<String, Object> primaryMeaning = (Map<String, Object>) wordRequestMap
 				.get(LanguageParams.primaryMeaning.name());
 		if (null != primaryMeaning)
-			lemmas.addAll(getRelatedWordLemmaFrom(primaryMeaning));
+			lemmas.addAll(getRelatedWordLemmaFrom(languageId, primaryMeaning));
 
 		List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) wordRequestMap
 				.get(LanguageParams.otherMeanings.name());
 		if (null != otherMeanings && !otherMeanings.isEmpty())
 			for (Map<String, Object> otherMeaning : otherMeanings)
-				lemmas.addAll(getRelatedWordLemmaFrom(otherMeaning));
+				lemmas.addAll(getRelatedWordLemmaFrom(languageId, otherMeaning));
 
 		return lemmas;
 	}
@@ -2527,7 +2535,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	private Map<String, Object> getLemmaWordMap(String languageId, Map<String, Object> wordRequestMap) {
 
 		Map<String, Object> lemmaWordMap = new HashMap<>();
-		List<String> lemmas = getAllLemma(wordRequestMap);
+		List<String> lemmas = getAllLemma(languageId, wordRequestMap);
 		List<Node> words = new ArrayList<>();
 		if (lemmas != null && lemmas.size() > 0)
 			words = searchWords(languageId, lemmas);
@@ -2803,16 +2811,20 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			meaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 		}
 		
-		List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
+		// commented on 30-Nov for keyword/themes model change
+		//List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
 		meaningMap.remove(LanguageParams.tags.name());
-
+		meaningMap.remove(LanguageParams.keywords.name());
+		
 		// set synset metadata
 		synset.setMetadata(meaningMap);
 		
+
+		// commented on 30-Nov for keyword/themes model change
 		// set synset tags
-		if (tags != null) {
+		/*if (tags != null) {
 			synset.setTags(tags);
-		}
+		}*/
 
 		return synset;
 
@@ -3074,6 +3086,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			return null;
 		Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Word.name());
 		Map<String, Object> metadata = new HashMap<String, Object>();
+		if(languageId.equalsIgnoreCase("en"))
+			lemma = lemma.toLowerCase();
 		metadata.put(LEMMA_PROPERTY, lemma);
 		metadata.put(ATTRIB_STATUS, "Draft");
 		node.setMetadata(metadata);

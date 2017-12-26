@@ -89,6 +89,9 @@ public interface IWordnetConstants {
 	/** The attrib sources. */
 	String ATTRIB_SOURCES = "sources";
 
+	/** The attrib sources. */
+	String ATTRIB_THEMES = "themes";
+
 	/** The attrib source iwn. */
 	String ATTRIB_SOURCE_IWN = "IndoWordnet";
 

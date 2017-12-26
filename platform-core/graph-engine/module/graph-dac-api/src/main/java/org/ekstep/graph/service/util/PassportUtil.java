@@ -1,10 +1,9 @@
 package org.ekstep.graph.service.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-
-import com.ilimi.common.Platform;
-import com.ilimi.common.logger.PlatformLogger;
 
 public class PassportUtil {
 

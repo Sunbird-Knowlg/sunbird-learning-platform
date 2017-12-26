@@ -1,5 +1,5 @@
 {
     "name": "create_search_property",
     "type": "COMMAND",
-    "cmdClass": "com.ilimi.orchestrator.interpreter.command.CreateSearchProperty"
+    "cmdClass": "org.ekstep.orchestrator.interpreter.command.CreateSearchProperty"
 }

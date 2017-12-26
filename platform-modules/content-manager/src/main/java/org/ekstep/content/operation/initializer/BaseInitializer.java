@@ -1,6 +1,8 @@
 package org.ekstep.content.operation.initializer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -8,10 +10,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.BasePipeline;
 import org.ekstep.content.util.JSONContentParser;
 import org.ekstep.content.util.XMLContentParser;
-
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Node;
 
 /**
  * The Class BaseInitializer is a BaseClass for all Initializers, extends

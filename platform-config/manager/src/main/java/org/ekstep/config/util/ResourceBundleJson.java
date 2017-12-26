@@ -12,7 +12,7 @@ import org.ekstep.common.util.AWSUploader;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.ilimi.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.CoverageIgnore;
 import com.opencsv.CSVReader;
 
 public class ResourceBundleJson {

@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.slugs.Slug;
 
 import com.amazonaws.AmazonClientException;
@@ -28,7 +29,6 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * arguments - operation: createStorage, uploadFiles - storageName: name of the

@@ -11,7 +11,7 @@
       "name": "grade_level_complexity",
       "index": 1,
       "routingParam": false,
-      "datatype": "com.ilimi.graph.dac.model.Node"
+      "datatype": "org.ekstep.graph.dac.model.Node"
 
     }
   ],

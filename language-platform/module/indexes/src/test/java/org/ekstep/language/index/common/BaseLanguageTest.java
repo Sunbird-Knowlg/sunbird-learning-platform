@@ -7,19 +7,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.apache.commons.io.IOUtils;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.common.enums.GraphEngineParams;
+import org.ekstep.graph.common.enums.GraphHeaderParams;
+import org.ekstep.graph.engine.router.ActorBootstrap;
+import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.neo4j.graphdb.GraphDatabaseService;
-
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.common.enums.GraphEngineParams;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.dac.util.Neo4jGraphFactory;
-import com.ilimi.graph.engine.router.ActorBootstrap;
-import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class BaseLanguageTest {
 
@@ -43,25 +40,27 @@ public class BaseLanguageTest {
 		deleteGraph();
 	}
 		
-	protected static void createGraph(){
+	protected static void createGraph() {
+		/*
 		if (!Neo4jGraphFactory.graphExists(TEST_LANGUAGE)) 
-			Neo4jGraphFactory.createGraph(TEST_LANGUAGE);
+		Neo4jGraphFactory.createGraph(TEST_LANGUAGE);
 		if (!Neo4jGraphFactory.graphExists(TEST_COMMON_LANGUAGE)) 
-			Neo4jGraphFactory.createGraph(TEST_COMMON_LANGUAGE);	
-	}
+		Neo4jGraphFactory.createGraph(TEST_COMMON_LANGUAGE);	
+		*/}
 
-	protected static void deleteGraph(){
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(TEST_LANGUAGE);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(TEST_LANGUAGE);
-        }
-        Neo4jGraphFactory.deleteGraph(TEST_LANGUAGE);
-        graphDb = Neo4jGraphFactory.getGraphDb(TEST_COMMON_LANGUAGE);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(TEST_COMMON_LANGUAGE);
-        }
-        Neo4jGraphFactory.deleteGraph(TEST_COMMON_LANGUAGE);
-	}
+	protected static void deleteGraph() {
+		/*
+		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(TEST_LANGUAGE);
+		if (null != graphDb) {
+		Neo4jGraphFactory.shutdownGraph(TEST_LANGUAGE);
+		}
+		Neo4jGraphFactory.deleteGraph(TEST_LANGUAGE);
+		graphDb = Neo4jGraphFactory.getGraphDb(TEST_COMMON_LANGUAGE);
+		if (null != graphDb) {
+		Neo4jGraphFactory.shutdownGraph(TEST_COMMON_LANGUAGE);
+		}
+		Neo4jGraphFactory.deleteGraph(TEST_COMMON_LANGUAGE);
+		*/}
 	
 	protected static void createDefinition() throws IOException{
 		File folder = new File(definitionFolder);

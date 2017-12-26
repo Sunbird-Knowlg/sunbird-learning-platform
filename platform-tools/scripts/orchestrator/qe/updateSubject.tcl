@@ -2,7 +2,7 @@ package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package java.util Date
-java::import -package com.ilimi.graph.dac.model Node
+java::import -package org.ekstep.graph.dac.model Node
 
 proc proc_isNotNull {value} {
 	set exist false

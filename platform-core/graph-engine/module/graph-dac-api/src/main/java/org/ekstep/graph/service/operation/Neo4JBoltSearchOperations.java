@@ -8,13 +8,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Property;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.model.Graph;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.dac.model.SearchCriteria;
+import org.ekstep.graph.dac.model.SubGraph;
+import org.ekstep.graph.dac.model.Traverser;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
-import org.ekstep.graph.service.common.Neo4JOperation;
 import org.ekstep.graph.service.util.DriverUtil;
-import org.ekstep.graph.service.util.QueryUtil;
+import org.ekstep.graph.service.util.SearchQueryGenerationUtil;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
@@ -22,20 +34,6 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.graphdb.Direction;
-
-import com.ilimi.common.dto.Property;
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.exception.ResourceNotFoundException;
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.model.Graph;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.model.SubGraph;
-import com.ilimi.graph.dac.model.Traverser;
 
 public class Neo4JBoltSearchOperations {
 
@@ -52,10 +50,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the node by id
 	 */
-	public Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
-		PlatformLogger.log("Graph Id: "+ graphId);
-		PlatformLogger.log("Node Id: " + nodeId);
-		PlatformLogger.log("Get Tags ? " + getTags);
+	public static Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
+		PlatformLogger.log("Graph Id: " + graphId + "\nNode Id: " + nodeId + "\nGet Tags:" + getTags);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -69,21 +65,18 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 			parameterMap.put(GraphDACParams.getTags.name(), getTags);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_BY_ID, parameterMap));
+			StatementResult result = session
+					.run(SearchQueryGenerationUtil.generateGetNodeByIdCypherQuery(parameterMap));
 			if (null == result || !result.hasNext())
 				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
 						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]");
 
-			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
@@ -93,12 +86,9 @@ public class Neo4JBoltSearchOperations {
 				if (null != record)
 					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 			}
-			PlatformLogger.log("Node Map: ", nodeMap);
-			PlatformLogger.log("Relation Map: ", relationMap);
-			PlatformLogger.log("Start Node Map: ", startNodeMap);
-			PlatformLogger.log("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Node Map: ", nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
+					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 
-			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					node = new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
@@ -122,11 +112,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the node by unique id
 	 */
-	public Node getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Node Id: ", nodeId);
-		PlatformLogger.log("Get Tags ? ", getTags);
-
+	public static Node getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Request request) {
+		PlatformLogger.log("Graph Id: " + graphId + "\nNode Id: " + nodeId + "\nGet Tags:" + getTags);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -145,9 +132,6 @@ public class Neo4JBoltSearchOperations {
 			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 			PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 			try (Session session = driver.session()) {
-				PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-				PlatformLogger.log("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
 				parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
@@ -155,12 +139,11 @@ public class Neo4JBoltSearchOperations {
 				parameterMap.put(GraphDACParams.request.name(), request);
 
 				StatementResult result = session
-						.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_BY_UNIQUE_ID, parameterMap));
+						.run(SearchQueryGenerationUtil.generateGetNodeByUniqueIdCypherQuery(parameterMap));
 				if (null == result || !result.hasNext())
 					throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
 							DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]: "+ nodeId);
 
-				PlatformLogger.log("Initializing the Result Maps.");
 				Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 				Map<Long, Object> relationMap = new HashMap<Long, Object>();
 				Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
@@ -170,11 +153,8 @@ public class Neo4JBoltSearchOperations {
 					if (null != record)
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
-				PlatformLogger.log("Node Map: ", nodeMap);
-				PlatformLogger.log("Relation Map: ", relationMap);
-				PlatformLogger.log("Start Node Map: ", startNodeMap);
-				PlatformLogger.log("End Node Map: ", endNodeMap);
-				PlatformLogger.log("Initializing Node.");
+				PlatformLogger.log("Node Map: ", nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
+						+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 				if (!nodeMap.isEmpty()) {
 					for (Entry<Long, Object> entry : nodeMap.entrySet())
 						node = new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
@@ -202,11 +182,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the nodes by property
 	 */
-	public List<Node> getNodesByProperty(String graphId, Property property, Boolean getTags, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Property: ", property);
-		PlatformLogger.log("Get Tags ? ", getTags);
-
+	public static List<Node> getNodesByProperty(String graphId, Property property, Boolean getTags, Request request) {
+		PlatformLogger.log("Graph Id: " + graphId + "\nProperty: " + property + "\nGet Tags:" + getTags);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -220,9 +197,6 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.property.name(), property);
@@ -230,8 +204,7 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			StatementResult result = session
-					.run(QueryUtil.getQuery(Neo4JOperation.GET_NODES_BY_PROPERTY, parameterMap));
-			PlatformLogger.log("Initializing the Result Maps.");
+					.run(SearchQueryGenerationUtil.generateGetNodesByPropertyCypherQuery(parameterMap));
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
@@ -243,12 +216,9 @@ public class Neo4JBoltSearchOperations {
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			PlatformLogger.log("Node Map: ", nodeMap);
-			PlatformLogger.log("Relation Map: ", relationMap);
-			PlatformLogger.log("Start Node Map: ", startNodeMap);
-			PlatformLogger.log("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Node Map: ", nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
+					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 
-			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
@@ -270,10 +240,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the node by unique ids
 	 */
-	public List<Node> getNodeByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Search Criteria: ", searchCriteria);
-
+	public static List<Node> getNodeByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request) {
+		PlatformLogger.log("Graph Id: ", graphId + "\nSearch Criteria: " + searchCriteria);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -289,18 +257,14 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.searchCriteria.name(), searchCriteria);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			String query = QueryUtil.getQuery(Neo4JOperation.GET_NODES_BY_SEARCH_CRITERIA, parameterMap);
+			String query = SearchQueryGenerationUtil.generateGetNodeByUniqueIdsCypherQuery(parameterMap);
 			Map<String, Object> params = searchCriteria.getParams();
 			StatementResult result = session.run(query, params);
-			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
@@ -312,12 +276,9 @@ public class Neo4JBoltSearchOperations {
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			PlatformLogger.log("Node Map: ", nodeMap);
-			PlatformLogger.log("Relation Map: ", relationMap);
-			PlatformLogger.log("Start Node Map: ", startNodeMap);
-			PlatformLogger.log("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Node Map: ", nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
+					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 
-			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
@@ -328,19 +289,15 @@ public class Neo4JBoltSearchOperations {
 		return nodes;
 	}
 
-	public List<Map<String, Object>> executeQueryForProps(String graphId, String query, List<String> propKeys) {
+	public static List<Map<String, Object>> executeQueryForProps(String graphId, String query, List<String> propKeys) {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(), DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Execute Query For Nodes' Operation Failed.]");
 		List<Map<String, Object>> propsList = new ArrayList<Map<String, Object>>();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 
 			StatementResult result = session.run(query);
-			PlatformLogger.log("Initializing the Result Maps.");
 			if (null != result) {
 				for (Record record : result.list()) {
 					if (null != record) {
@@ -373,10 +330,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the node property
 	 */
-	public Property getNodeProperty(String graphId, String nodeId, String key, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Node Id: ", nodeId);
-		PlatformLogger.log("Property (Key): ", key);
+	public static Property getNodeProperty(String graphId, String nodeId, String key, Request request) {
+		PlatformLogger.log("Graph Id: " + graphId + "\nNode Id: " + nodeId + "\nProperty (Key): " + key);
 
 
 		if (StringUtils.isBlank(graphId))
@@ -395,16 +350,14 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 			parameterMap.put(GraphDACParams.key.name(), key);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_PROPERTY, parameterMap));
+			StatementResult result = session
+					.run(SearchQueryGenerationUtil.generateGetNodePropertyCypherQuery(parameterMap));
 			if (null != result) {
 				for (Record record : result.list()) {
 					PlatformLogger.log("'Get Node Property' Operation Finished.", record);
@@ -428,9 +381,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the all nodes
 	 */
-	public List<Node> getAllNodes(String graphId, Request request) {
+	public static List<Node> getAllNodes(String graphId, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
-
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -440,15 +392,12 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_ALL_NODES, parameterMap));
-			PlatformLogger.log("Initializing the Result Maps.");
+			StatementResult result = session
+					.run(SearchQueryGenerationUtil.generateGetAllNodesCypherQuery(parameterMap));
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
@@ -460,12 +409,9 @@ public class Neo4JBoltSearchOperations {
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			PlatformLogger.log("Node Map: ", nodeMap);
-			PlatformLogger.log("Relation Map: ", relationMap);
-			PlatformLogger.log("Start Node Map: ", startNodeMap);
-			PlatformLogger.log("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Node Map: " + nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
+					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 
-			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
@@ -485,9 +431,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the all relations
 	 */
-	public List<Relation> getAllRelations(String graphId, Request request) {
+	public static List<Relation> getAllRelations(String graphId, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
-
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -497,15 +442,12 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_ALL_RELATIONS, parameterMap));
-			PlatformLogger.log("Initializing the Result Maps.");
+			StatementResult result = session
+					.run(SearchQueryGenerationUtil.generateGetAllRelationsCypherQuery(parameterMap));
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
@@ -516,11 +458,9 @@ public class Neo4JBoltSearchOperations {
 						getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			PlatformLogger.log("Relation Map: ", relationMap);
-			PlatformLogger.log("Start Node Map: ", startNodeMap);
-			PlatformLogger.log("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Relation Map: " + relationMap + "\nStart Node Map: " + startNodeMap + "\nEnd Node Map: "
+					+ endNodeMap);
 
-			PlatformLogger.log("Initializing Node.");
 			if (!relationMap.isEmpty()) {
 				for (Entry<Long, Object> entry : relationMap.entrySet())
 					relations.add(new Relation(graphId, (org.neo4j.driver.v1.types.Relationship) entry.getValue(),
@@ -548,13 +488,11 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the relation property
 	 */
-	public Property getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
+	public static Property getRelationProperty(String graphId, String startNodeId, String relationType,
+			String endNodeId,
 			String key, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", startNodeId);
-		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("End Node Id: ", endNodeId);
-		PlatformLogger.log("Property (Key): ", key);
+		PlatformLogger.log("Graph Id: " + graphId + "\nStart Node Id: " + startNodeId + "\nRelation Type: "
+				+ relationType + "\nEnd Node Id: " + endNodeId + "\nProperty (Key): " + key);
 
 
 		if (StringUtils.isBlank(graphId))
@@ -581,9 +519,6 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -593,7 +528,7 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			StatementResult result = session
-					.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION_PROPERTY, parameterMap));
+					.run(SearchQueryGenerationUtil.generateGetRelationPropertyCypherQuery(parameterMap));
 			if (null != result) {
 				for (Record record : result.list()) {
 					PlatformLogger.log("'Get Relation Property' Operation Finished.", record);
@@ -608,11 +543,9 @@ public class Neo4JBoltSearchOperations {
 		return property;
 	}
 	
-	public Relation getRelationById(String graphId, Long relationId, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Relation Id: ", relationId);
+	public static Relation getRelationById(String graphId, Long relationId, Request request) {
+		PlatformLogger.log("Graph Id: " + graphId + "\nRelation Id: " + relationId);
 
-		
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Get Relation By Id' Operation Failed.]");
@@ -625,15 +558,13 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.identifier.name(), relationId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 			
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION_BY_ID, parameterMap));
-			PlatformLogger.log("Initializing the Result Maps.");
+			StatementResult result = session
+					.run(SearchQueryGenerationUtil.generateGetRelationByIdCypherQuery(parameterMap));
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
@@ -644,11 +575,9 @@ public class Neo4JBoltSearchOperations {
 						getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			PlatformLogger.log("Relation Map: ", relationMap);
-			PlatformLogger.log("Start Node Map: ", startNodeMap);
-			PlatformLogger.log("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Relation Map: " + relationMap + "\nStart Node Map: " + startNodeMap + "\nEnd Node Map: "
+					+ endNodeMap);
 
-			PlatformLogger.log("Initializing Node.");
 			if (!relationMap.isEmpty()) {
 				for (Entry<Long, Object> entry : relationMap.entrySet())
 					relation = new Relation(graphId, (org.neo4j.driver.v1.types.Relationship) entry.getValue(),
@@ -673,13 +602,10 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the relation
 	 */
-	public Relation getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
+	public static Relation getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
 			Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", startNodeId);
-		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("End Node Id: ", endNodeId);
-
+		PlatformLogger.log("Graph Id: " + graphId + "\nStart Node Id: " + startNodeId + "\nRelation Type: "
+				+ relationType + "\nEnd Node Id: ", endNodeId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -701,9 +627,6 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -711,12 +634,12 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.endNodeId.name(), endNodeId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 			
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION, parameterMap));
+			StatementResult result = session
+					.run(SearchQueryGenerationUtil.generateGetRelationCypherQuery(parameterMap));
 			if (null == result || !result.hasNext())
 				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
 						DACErrorMessageConstants.NODE_NOT_FOUND + " | [No Relation found.]");
 
-			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
@@ -725,11 +648,9 @@ public class Neo4JBoltSearchOperations {
 				if (null != record)
 					getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 			}
-			PlatformLogger.log("Relation Map: ", relationMap);
-			PlatformLogger.log("Start Node Map: ", startNodeMap);
-			PlatformLogger.log("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Relation Map: " + relationMap + "\nStart Node Map: " + startNodeMap + "\nEnd Node Map: "
+					+ endNodeMap);
 
-			PlatformLogger.log("Initializing Node.");
 			if (!relationMap.isEmpty()) {
 				for (Entry<Long, Object> entry : relationMap.entrySet())
 					relation = new Relation(graphId, (org.neo4j.driver.v1.types.Relationship) entry.getValue(),
@@ -755,12 +676,10 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the map
 	 */
-	public Map<String, Object> checkCyclicLoop(String graphId, String startNodeId, String relationType,
+	public static Map<String, Object> checkCyclicLoop(String graphId, String startNodeId, String relationType,
 			String endNodeId, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", startNodeId);
-		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Graph Id: " + graphId + "\nStart Node Id: " + startNodeId + "\nRelation Type: "
+				+ relationType + "\nEnd Node Id: " + endNodeId);
 
 
 		if (StringUtils.isBlank(graphId))
@@ -783,9 +702,6 @@ public class Neo4JBoltSearchOperations {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -793,7 +709,8 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.endNodeId.name(), endNodeId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.CHECK_CYCLIC_LOOP, parameterMap));
+			StatementResult result = session
+					.run(SearchQueryGenerationUtil.generateCheckCyclicLoopCypherQuery(parameterMap));
 			if (null != result && result.hasNext()) {
 				cyclicLoopMap.put(GraphDACParams.loop.name(), new Boolean(true));
 				cyclicLoopMap.put(GraphDACParams.message.name(),
@@ -820,12 +737,9 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the list
 	 */
-	public List<Map<String, Object>> executeQuery(String graphId, String query, Map<String, Object> paramMap,
+	public static List<Map<String, Object>> executeQuery(String graphId, String query, Map<String, Object> paramMap,
 			Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Query: ", query);
-		PlatformLogger.log("Param Map: ", paramMap);
-
+		PlatformLogger.log("Graph Id: " + graphId + "\nQuery: " + query + "\nParam Map: ", paramMap);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -844,15 +758,13 @@ public class Neo4JBoltSearchOperations {
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.cypherQuery.name(), query);
 			parameterMap.put(GraphDACParams.paramMap.name(), paramMap);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.EXECUTE_QUERY, parameterMap),
+			StatementResult result = session.run(SearchQueryGenerationUtil.generateExecuteQueryCypherQuery(parameterMap),
 					paramMap);
 			for (Record record : result.list()) {
 				PlatformLogger.log("'Execute Query' Operation Finished.", record);
@@ -883,7 +795,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the list
 	 */
-	public List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request) {
+	public static List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags,
+			Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Search Criteria: ", searchCriteria);
 		PlatformLogger.log("Get Tags ? ", getTags);
@@ -906,20 +819,17 @@ public class Neo4JBoltSearchOperations {
 			boolean returnNode = true;
 			if (null != fields && !fields.isEmpty())
 				returnNode = false;
-			
-			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.searchCriteria.name(), searchCriteria);
 			parameterMap.put(GraphDACParams.getTags.name(), getTags);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			String query = QueryUtil.getQuery(Neo4JOperation.SEARCH_NODES, parameterMap);
+			String query = SearchQueryGenerationUtil.generateSearchNodesCypherQuery(parameterMap);
 			PlatformLogger.log("Search Query: " + query);
 			Map<String, Object> params = searchCriteria.getParams();
 			PlatformLogger.log("Search Params: " + params);
 			StatementResult result = session.run(query, params);
-			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new LinkedHashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
@@ -938,12 +848,9 @@ public class Neo4JBoltSearchOperations {
 					}
 				}
 			}
-			PlatformLogger.log("Node Map: " + nodeMap);
-			PlatformLogger.log("Relation Map: " + relationMap);
-			PlatformLogger.log("Start Node Map: " + startNodeMap);
-			PlatformLogger.log("End Node Map: " + endNodeMap);
+			PlatformLogger.log("Node Map: " + nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
+					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 
-			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
@@ -965,7 +872,7 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the nodes count
 	 */
-	public Long getNodesCount(String graphId, SearchCriteria searchCriteria, Request request) {
+	public static Long getNodesCount(String graphId, SearchCriteria searchCriteria, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Search Criteria: ", searchCriteria);
 
@@ -984,14 +891,13 @@ public class Neo4JBoltSearchOperations {
 		try (Session session = driver.session()) {
 			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			PlatformLogger.log("Populating Parameter Map.");
 			searchCriteria.setCountQuery(true);
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.searchCriteria.name(), searchCriteria);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			String query = QueryUtil.getQuery(Neo4JOperation.GET_NODES_COUNT, parameterMap);
+			String query = SearchQueryGenerationUtil.generateGetNodesCountCypherQuery(parameterMap);
 			Map<String, Object> params = searchCriteria.getParams();
 			StatementResult result = session.run(query, params);
 			if (null != result) {
@@ -1017,7 +923,7 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the sub graph
 	 */
-	public SubGraph traverse(String graphId, Traverser traverser, Request request) {
+	public static SubGraph traverse(String graphId, Traverser traverser, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Traverser: ", traverser);
 
@@ -1046,7 +952,7 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the graph
 	 */
-	public Graph traverseSubGraph(String graphId, Traverser traverser, Request request) {
+	public static Graph traverseSubGraph(String graphId, Traverser traverser, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Traverser: ", traverser);
 
@@ -1079,7 +985,8 @@ public class Neo4JBoltSearchOperations {
 	 *            the request
 	 * @return the sub graph
 	 */
-	public Graph getSubGraph(String graphId, String startNodeId, String relationType, Integer depth, Request request) {
+	public static Graph getSubGraph(String graphId, String startNodeId, String relationType, Integer depth,
+			Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Start Node Id: ", startNodeId);
 		PlatformLogger.log("Relation Type: ", relationType);
@@ -1104,7 +1011,7 @@ public class Neo4JBoltSearchOperations {
 		return subGraph;
 	}
 
-	private void getRecordValues(Record record, Map<Long, Object> nodeMap, Map<Long, Object> relationMap,
+	private static void getRecordValues(Record record, Map<Long, Object> nodeMap, Map<Long, Object> relationMap,
 			Map<Long, Object> startNodeMap, Map<Long, Object> endNodeMap) {
 		if (null != nodeMap) {
 			Value nodeValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);

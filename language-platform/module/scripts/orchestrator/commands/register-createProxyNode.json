@@ -9,13 +9,13 @@
     },
     {
       "name": "node",
-      "datatype": "com.ilimi.graph.dac.model.Node",
+      "datatype": "org.ekstep.graph.dac.model.Node",
       "index": 1,
       "routingParam": false
     }
   ],
   "actorPath": {
-    "manager": "com.ilimi.graph.engine.mgr.impl.NodeManagerImpl",
+    "manager": "org.ekstep.graph.engine.mgr.impl.NodeManagerImpl",
     "operation": "createProxyNode",
     "router": "GRAPH_REQUEST_ROUTER"
   }

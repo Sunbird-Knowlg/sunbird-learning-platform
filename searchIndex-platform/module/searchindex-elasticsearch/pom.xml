@@ -19,7 +19,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>ekstep-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>

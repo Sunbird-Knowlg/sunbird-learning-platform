@@ -7,16 +7,15 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Controller;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class EmbedControllerProcessor.
@@ -55,7 +54,7 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	 * @see org.ekstep.taxonomy.content.processor.AbstractProcessor#process(org.ekstep.taxonomy.content.entity.Plugin)
 	 */
 	@Override
 	protected Plugin process(Plugin plugin) {
