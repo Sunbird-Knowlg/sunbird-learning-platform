@@ -1,4 +1,4 @@
-package org.ilimi.wordchain;
+package org.ekstep.wordchain;
 
 
 import java.io.File;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Filter;
@@ -34,8 +35,6 @@ import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.graphdb.traversal.Uniqueness;
-
-import org.ekstep.common.mgr.BaseManager;
 
 public class WordChainsTraversalsTest extends BaseManager {
 

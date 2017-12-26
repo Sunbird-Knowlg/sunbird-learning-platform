@@ -1,4 +1,4 @@
-package org.ilimi.wordchain;
+package org.ekstep.wordchain;
 
 
 import org.neo4j.graphdb.RelationshipType;
