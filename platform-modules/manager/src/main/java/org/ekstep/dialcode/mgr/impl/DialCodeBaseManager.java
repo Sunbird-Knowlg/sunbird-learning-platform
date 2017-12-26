@@ -1,6 +1,6 @@
-package com.ilimi.dialcode.mgr.impl;
+package org.ekstep.dialcode.mgr.impl;
 
-import com.ilimi.common.mgr.BaseManager;
+import org.ekstep.common.mgr.BaseManager;
 
 /**
  * @author gauraw

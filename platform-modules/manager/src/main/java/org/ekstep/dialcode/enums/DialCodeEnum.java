@@ -1,4 +1,4 @@
-package com.ilimi.dialcode.enums;
+package org.ekstep.dialcode.enums;
 
 /**
  * @author gauraw

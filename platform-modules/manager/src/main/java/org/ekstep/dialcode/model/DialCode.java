@@ -1,7 +1,6 @@
-package com.ilimi.dialcode.model;
+package org.ekstep.dialcode.model;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Map;
 
 /**

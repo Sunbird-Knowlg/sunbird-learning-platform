@@ -1,21 +1,23 @@
-package com.ilimi.dialcode.mgr.impl;
+package org.ekstep.dialcode.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.dialcode.enums.DialCodeEnum;
+import org.ekstep.dialcode.mgr.IDialCodeManager;
+import org.ekstep.dialcode.model.DialCode;
+import org.ekstep.dialcode.util.DialCodeStoreUtil;
+import org.ekstep.dialcode.util.SeqRandomGenerator;
 import org.springframework.stereotype.Component;
+
 import com.google.gson.Gson;
-import com.ilimi.common.Platform;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.dialcode.enums.DialCodeEnum;
-import com.ilimi.dialcode.mgr.IDialCodeManager;
-import com.ilimi.dialcode.model.DialCode;
-import com.ilimi.dialcode.util.DialCodeStoreUtil;
-import com.ilimi.dialcode.util.SeqRandomGenerator;
 
 /**
  * The Class <code>DialCodeManagerImpl</code> is the implementation of

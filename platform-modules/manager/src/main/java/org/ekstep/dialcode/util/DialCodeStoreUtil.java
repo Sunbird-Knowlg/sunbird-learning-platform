@@ -1,4 +1,4 @@
-package com.ilimi.dialcode.util;
+package org.ekstep.dialcode.util;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.cassandra.connector.util.CassandraConnector;
+import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.dialcode.enums.DialCodeEnum;
+import org.ekstep.dialcode.model.DialCode;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.cassandra.connector.util.CassandraConnector;
-import com.ilimi.common.Platform;
-import com.ilimi.common.exception.ResourceNotFoundException;
-import com.ilimi.dialcode.enums.DialCodeEnum;
-import com.ilimi.dialcode.model.DialCode;
 
 /**
  * Util Class for all Dial Code CRUD Operation on Cassandra.

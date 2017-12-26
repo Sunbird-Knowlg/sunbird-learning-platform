@@ -1,9 +1,9 @@
-package com.ilimi.dialcode.mgr;
+package org.ekstep.dialcode.mgr;
 
 import java.util.Map;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.dialcode.mgr.impl.DialCodeManagerImpl;
+import org.ekstep.common.dto.Response;
+import org.ekstep.dialcode.mgr.impl.DialCodeManagerImpl;
 
 /**
  * The Interface IDialCodeManager is the Contract for the operations that can be

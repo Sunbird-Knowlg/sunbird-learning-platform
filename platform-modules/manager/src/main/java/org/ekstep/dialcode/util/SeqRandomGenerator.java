@@ -1,4 +1,4 @@
-package com.ilimi.dialcode.util;
+package org.ekstep.dialcode.util;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
