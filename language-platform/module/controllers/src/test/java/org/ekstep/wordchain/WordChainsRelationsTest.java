@@ -30,7 +30,7 @@ public class WordChainsRelationsTest {
 	Map<String, Node> endsWithRelationNodeMap = new HashMap<String, Node>();
 	String graphId = "wcpnew";
 	final String pbObjType = "Phonetic_Boundary";
-	public static final Label NODE_LABEL = org.ekstep.graph.dac.enums.Label.NODE;
+	public static final Label NODE_LABEL = Label.label("NODE");
 
 	//@Test
 	public void createPBandFormRelations() throws Exception {
