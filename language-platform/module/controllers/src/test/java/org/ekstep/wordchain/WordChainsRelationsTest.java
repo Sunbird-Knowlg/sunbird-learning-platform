@@ -1,4 +1,4 @@
-package org.ilimi.wordchain;
+package org.ekstep.wordchain;
 
 import java.io.File;
 import java.util.ArrayList;

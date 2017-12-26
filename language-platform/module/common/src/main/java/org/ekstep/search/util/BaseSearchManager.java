@@ -1,6 +1,7 @@
-package org.esktep.search.util;
+package org.ekstep.search.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -9,8 +10,6 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.search.router.SearchRequestRouterPool;
-
-import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
