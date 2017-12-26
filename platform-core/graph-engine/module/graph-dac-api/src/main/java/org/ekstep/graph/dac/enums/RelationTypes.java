@@ -9,6 +9,7 @@ public enum RelationTypes {
     SEQUENCE_MEMBERSHIP("hasSequenceMember"),
     ASSOCIATED_TO("associatedTo"),
     SUB_SET("hasSubSet"),
+	CO_OCCURRENCE("co-occurrence"),
     PRE_REQUISITE("pre-requisite"),
     SYNONYM("synonym"),
     ANTONYM("hasAntonym"),
