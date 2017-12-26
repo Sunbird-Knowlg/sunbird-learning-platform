@@ -1533,4 +1533,36 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					"Error! Status cannot be set while updating the Content.");
 		}
 	}
+	
+	/**
+	 * This Method will update Content Node with DIAL Code.
+	 * 
+	 * Added for DIAL Code Implementation 
+	 * 
+	 * @author gauraw
+	 * 
+	 * 
+	 * */
+	public Response linkDialCode(String contentId,Map<String,Object>map) throws Exception{
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		Response responseNode = getDataNode(GRAPH_ID, contentId);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+					"Content not found with id: " + contentId);
+		Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
+		
+		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		map.put("versionKey", graphPassportKey);
+		try {
+			Node graphObj = ConvertToGraphNode.convertToGraphNode(map, definition, contentNode);
+			graphObj.setGraphId(GRAPH_ID);
+			graphObj.setIdentifier(contentId);
+			graphObj.setObjectType(CONTENT_OBJECT_TYPE);
+			Response updateResponse = updateDataNode(graphObj);
+			return updateResponse;
+		} catch (Exception e) {
+			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
+		}
+		
+	}
 }
