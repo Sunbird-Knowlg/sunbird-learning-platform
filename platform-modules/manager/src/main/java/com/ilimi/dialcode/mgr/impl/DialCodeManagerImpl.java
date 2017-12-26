@@ -48,7 +48,7 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 		if(null==map.get(DialCodeEnum.publisher.name()) || StringUtils.isBlank((String)map.get(DialCodeEnum.publisher.name())))
 			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Publisher is Manadatory", ResponseCode.CLIENT_ERROR);
 		if(null==map.get(DialCodeEnum.batchCode.name()) || StringUtils.isBlank((String)map.get(DialCodeEnum.batchCode.name())))
-			map.put(DialCodeEnum.batchCode.name(), LocalDateTime.now().toString());
+			map.put(DialCodeEnum.batchCode.name(), String.valueOf(System.currentTimeMillis()));
 			//return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Batch Code is Manadatory", ResponseCode.CLIENT_ERROR);
 		if(null==map.get(DialCodeEnum.count.name()))
 			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Count is Manadatory.", ResponseCode.CLIENT_ERROR);
