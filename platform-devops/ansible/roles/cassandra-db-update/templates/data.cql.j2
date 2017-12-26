@@ -23,3 +23,19 @@ CREATE TABLE IF NOT EXISTS script_store.script_data (
   reqmap text,
   PRIMARY KEY (name)
 );
+
+CREATE KEYSPACE IF NOT EXISTS dialcode_store WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '3'};
+
+CREATE TABLE IF NOT EXISTS dialcode_store.dial_code (
+identifier text,
+dialcode_index int,
+publisher text,
+channel text,
+batchCode text,
+metadata text,
+count int,
+status text,
+generated_on text,
+published_on text, 
+primary key(identifier)
+);
