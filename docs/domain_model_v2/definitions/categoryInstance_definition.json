@@ -167,10 +167,10 @@
         {
             "relationName": "hasSequenceMember",
             "objectTypes": [
-                "RootConcept"
+                "Domain"
             ],
-            "title": "rootconcept",
-            "description": "root concepts which has sequence relationship with this categoryInstance",
+            "title": "domain",
+            "description": "Domain which has sequence relationship with this categoryInstance",
             "required": false,
             "renderingHints": "{ 'order': 17 }"
         }],
