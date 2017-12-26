@@ -4,11 +4,16 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * Model Class for DIAL Code
+ * 
+ * @author gauraw
+ *
+ */
 public class DialCode implements Serializable {
 
-	
 	private static final long serialVersionUID = 6038730711148121947L;
-	
+
 	private String identifier;
 	private String channel;
 	private String publisher;
@@ -17,10 +22,10 @@ public class DialCode implements Serializable {
 	private int count;
 	private String generatedOn;
 	private String publishedOn;
-	private Map<String,Object> metadata;
-	
-	public DialCode(){
-		
+	private Map<String, Object> metadata;
+
+	public DialCode() {
+
 	}
 
 	public String getIdentifier() {
@@ -86,7 +91,6 @@ public class DialCode implements Serializable {
 	public void setMetadata(Map<String, Object> metadata) {
 		this.metadata = metadata;
 	}
-	
 
 	public int getCount() {
 		return count;
@@ -95,5 +99,5 @@ public class DialCode implements Serializable {
 	public void setCount(int count) {
 		this.count = count;
 	}
-	
+
 }

@@ -18,12 +18,12 @@ import com.ilimi.dialcode.mgr.impl.DialCodeManagerImpl;
 public interface IDialCodeManager {
 
 	Response generateDialCode(Map<String, Object> map, String channelId) throws Exception;
-	
+
 	Response readDialCode(String dialCodeId) throws Exception;
-	
-	Response updateDialCode(String dialCodeId,String channelId, Map<String, Object> map) throws Exception;
-	
-	Response listDialCode(Map<String, Object> map) throws Exception;
-	
-	Response publishDialCode(String dialCodeId,String channelId ) throws Exception;
+
+	Response updateDialCode(String dialCodeId, String channelId, Map<String, Object> map) throws Exception;
+
+	Response listDialCode(String channelId, Map<String, Object> map) throws Exception;
+
+	Response publishDialCode(String dialCodeId, String channelId) throws Exception;
 }

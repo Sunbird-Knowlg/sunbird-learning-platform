@@ -27,8 +27,8 @@ import com.ilimi.dialcode.mgr.IDialCodeManager;
  */
 @Controller
 @RequestMapping("/v3/dialcode")
-public class DialCodeV3Controller extends BaseController{
-	 
+public class DialCodeV3Controller extends BaseController {
+
 	@Autowired
 	private IDialCodeManager dialCodeManager;
 
@@ -41,7 +41,8 @@ public class DialCodeV3Controller extends BaseController{
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/generate", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> generateDialCode(@RequestBody Map<String, Object> requestMap,@RequestHeader(value = "X-Channel-Id") String channelId) {
+	public ResponseEntity<Response> generateDialCode(@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = "X-Channel-Id") String channelId) {
 
 		String apiId = "ekstep.dialcode.generate";
 		Request request = getRequest(requestMap);
@@ -86,7 +87,7 @@ public class DialCodeV3Controller extends BaseController{
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> updateDialCode(@PathVariable(value = "id") String dialCodeId,
-			@RequestBody Map<String, Object> requestMap,@RequestHeader(value = "X-Channel-Id") String channelId) {
+			@RequestBody Map<String, Object> requestMap, @RequestHeader(value = "X-Channel-Id") String channelId) {
 		String apiId = "ekstep.dialcode.update";
 		Request request = getRequest(requestMap);
 		try {
@@ -107,19 +108,21 @@ public class DialCodeV3Controller extends BaseController{
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> listDialCode(@RequestBody Map<String, Object> requestMap) {
+	public ResponseEntity<Response> listDialCode(@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = "X-Channel-Id") String channelId) {
 		String apiId = "ekstep.dialcode.list";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("search");
-			Response response = dialCodeManager.listDialCode(map);
+			Response response = dialCodeManager.listDialCode(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured while Performing List Operation for Dial Codes : " , e.getMessage(), e);
+			PlatformLogger.log("Exception Occured while Performing List Operation for Dial Codes : ", e.getMessage(),
+					e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param dialCodeId
@@ -130,13 +133,14 @@ public class DialCodeV3Controller extends BaseController{
 	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> publishDialCode(@PathVariable(value = "id") String dialCodeId,
-			@RequestHeader(value = "user-id") String userId,@RequestHeader(value = "X-Channel-Id") String channelId) {
+			@RequestHeader(value = "user-id") String userId, @RequestHeader(value = "X-Channel-Id") String channelId) {
 		String apiId = "ekstep.dialcode.publish";
 		try {
 			Response response = dialCodeManager.publishDialCode(dialCodeId, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured while Performing Publish Operation on Dial Code : " , e.getMessage(), e);
+			PlatformLogger.log("Exception Occured while Performing Publish Operation on Dial Code : ", e.getMessage(),
+					e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

@@ -1535,7 +1535,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 	
 	/**
-	 * This Method will update Content Node with DIAL Code.
+	 * This Method will update Content Node with DIAL Code in Neo4j.
 	 * 
 	 * Added for DIAL Code Implementation 
 	 * 
