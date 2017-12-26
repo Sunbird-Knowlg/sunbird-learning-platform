@@ -8,13 +8,13 @@ import java.util.Map;
 import org.ekstep.jobs.samza.service.ObjectLifecycleService;
 import org.ekstep.learning.util.ControllerUtil;
 import org.junit.Test;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.jobs.samza.model.Event;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 
 import static org.junit.Assert.assertEquals;
 

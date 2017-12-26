@@ -2,29 +2,21 @@
 	<init system="ActorSystem">
 		<init-routers>
 			<init-router name="RequestRouter" count="4"
-				class="com.ilimi.graph.engine.router.RequestRouter"></init-router>
-			<init-router name="DACRouter" count="4"
-				class="com.ilimi.graph.engine.router.DACRequestRouter"></init-router>
+				class="org.ekstep.graph.engine.router.RequestRouter"></init-router>
 		</init-routers>
 	</init>
 	<graph-managers>
-		<manager classes="com.ilimi.graph.engine.mgr.impl.GraphMgrImpl">
+		<manager classes="org.ekstep.graph.engine.mgr.impl.GraphMgrImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
-		<manager classes="com.ilimi.graph.engine.mgr.impl.NodeManagerImpl">
+		<manager classes="org.ekstep.graph.engine.mgr.impl.NodeManagerImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
-		<manager classes="com.ilimi.graph.engine.mgr.impl.CollectionManagerImpl">
+		<manager classes="org.ekstep.graph.engine.mgr.impl.CollectionManagerImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
-		<manager classes="com.ilimi.graph.engine.mgr.impl.SearchManagerImpl">
+		<manager classes="org.ekstep.graph.engine.mgr.impl.SearchManagerImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
 	</graph-managers>
-	<dac-managers>
-		<manager
-			classes="com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl,com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl,com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl">
-			<graph id="*" count="4"></graph>
-		</manager>
-	</dac-managers>
 </actor-config>

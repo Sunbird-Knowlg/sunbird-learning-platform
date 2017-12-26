@@ -6,7 +6,7 @@ package org.ekstep.common.optimizr;
 
 import java.text.DecimalFormat;
 
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.logger.PlatformLogger;
 
 /**
  *

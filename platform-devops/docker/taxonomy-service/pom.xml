@@ -20,7 +20,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>ekstep-service</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>war</type>			
@@ -65,7 +65,7 @@
 					<configuration>
 					  <artifactItems>
 						<artifactItem>
-						  <groupId>com.ilimi</groupId>
+						  <groupId>org.ekstep</groupId>
 						  <artifactId>learning-service</artifactId>
 						  <version>1.0-SNAPSHOT</version>
 						  <type>war</type>

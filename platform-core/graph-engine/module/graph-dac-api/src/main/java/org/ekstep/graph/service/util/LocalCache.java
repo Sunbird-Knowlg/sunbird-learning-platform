@@ -3,9 +3,9 @@ package org.ekstep.graph.service.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ilimi.common.Platform;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.util.CacheKeyGenerator;
+import org.ekstep.common.Platform;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.cache.util.CacheKeyGenerator;
 
 /**
  * The Class LocalCache, is used to cache any object in current java instance

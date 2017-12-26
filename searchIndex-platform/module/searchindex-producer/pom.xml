@@ -68,7 +68,7 @@
 			<classifier>jdk15</classifier>
 		</dependency>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>platform-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>

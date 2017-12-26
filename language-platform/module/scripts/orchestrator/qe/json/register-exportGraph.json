@@ -7,7 +7,7 @@
     },{
     	"name":"search_criteria",
     	"index": 1,
-		"datatype": "com.ilimi.graph.dac.model.SearchCriteria",
+		"datatype": "org.ekstep.graph.dac.model.SearchCriteria",
     	"routingParam": false
     }],
     "requestPath": {

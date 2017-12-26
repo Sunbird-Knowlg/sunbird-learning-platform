@@ -1,5 +1,5 @@
 {
     "name": "get_syllables_word",
     "type": "COMMAND",
-    "cmdClass": "com.ilimi.orchestrator.interpreter.command.GetSyllables"
+    "cmdClass": "org.ekstep.orchestrator.interpreter.command.GetSyllables"
 }

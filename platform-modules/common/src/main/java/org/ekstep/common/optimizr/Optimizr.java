@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.optimizr.audio.MonoChannelProcessor;
 import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
 import org.ekstep.common.util.HttpDownloadUtility;
-
-import com.ilimi.common.logger.PlatformLogger;
 
 public class Optimizr {
 

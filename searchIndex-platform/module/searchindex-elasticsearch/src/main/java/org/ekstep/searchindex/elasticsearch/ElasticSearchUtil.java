@@ -12,13 +12,14 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.searchindex.transformer.IESResultTransformer;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
-import com.ilimi.common.Platform;
-import com.ilimi.common.logger.PlatformLogger;
+
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;

@@ -1,22 +1,22 @@
 package org.ekstep.learning.router;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.MiddlewareException;
+import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.learning.actor.ContentStoreActor;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.MiddlewareException;
-import com.ilimi.common.exception.ResourceNotFoundException;
-import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.router.RequestRouterPool;
+import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -40,7 +40,7 @@ public class LearningRequestRouter extends UntypedActor {
 	/** The logger. */
 	
 	private static final String ekstep = "org.ekstep.";
-	private static final String ilimi = "com.ilimi.";
+	private static final String ilimi = "org.ekstep.";
 	private static final String java = "java.";
 	private static final String default_err_msg = "Something went wrong in server while processing the request";
 

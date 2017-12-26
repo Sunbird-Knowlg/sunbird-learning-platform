@@ -4,8 +4,7 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-
-import com.ilimi.common.Platform;
+import org.ekstep.common.Platform;
 
 // TODO: Auto-generated Javadoc
 /**

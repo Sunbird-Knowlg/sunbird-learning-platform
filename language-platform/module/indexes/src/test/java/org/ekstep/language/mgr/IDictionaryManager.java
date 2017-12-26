@@ -1,7 +1,7 @@
 package org.ekstep.language.mgr;
 
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
 
 public interface IDictionaryManager {
 

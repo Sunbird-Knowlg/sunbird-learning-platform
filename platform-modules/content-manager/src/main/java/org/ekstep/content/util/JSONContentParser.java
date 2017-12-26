@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ElementMap;
 import org.ekstep.content.entity.Controller;
@@ -24,8 +26,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.MiddlewareException;
 
 /**
  * The Class JSONContentParser is a utility 

@@ -7,7 +7,7 @@ import org.ekstep.search.router.SearchRequestRouterPool;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.Response;
+import org.ekstep.common.dto.Response;
 
 import play.Application;
 import play.GlobalSettings;
@@ -38,8 +38,8 @@ public class Global extends GlobalSettings {
 				call.onRedeem((r) -> {
 					try {
 						JsonNode requestData = request.body().asJson();
-						com.ilimi.common.dto.Request req = mapper.convertValue(requestData,
-								com.ilimi.common.dto.Request.class);
+						org.ekstep.common.dto.Request req = mapper.convertValue(requestData,
+								org.ekstep.common.dto.Request.class);
 
 						byte[] body = JavaResultExtractor.getBody(r, 0l);
 						Response responseObj = mapper.readValue(body, Response.class);

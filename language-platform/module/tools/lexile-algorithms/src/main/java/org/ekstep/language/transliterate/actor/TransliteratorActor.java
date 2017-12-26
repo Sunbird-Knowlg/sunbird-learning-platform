@@ -6,17 +6,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.WordCacheUtil;
 import org.ekstep.language.util.WordUtil;
-
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.dac.model.Node;
 
 import akka.actor.ActorRef;
 
@@ -39,7 +38,7 @@ public class TransliteratorActor extends LanguageBaseActor {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
 	 */
 	@Override
 	public void onReceive(Object msg) throws Exception {
@@ -129,7 +128,7 @@ public class TransliteratorActor extends LanguageBaseActor {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
+	 * org.ekstep.graph.common.mgr.BaseGraphManager#invokeMethod(org.ekstep.common
 	 * .dto.Request, akka.actor.ActorRef)
 	 */
 	@Override

@@ -11,6 +11,9 @@ import java.util.Set;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -19,10 +22,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ResponseCode;
 
 @Ignore
 public class SoftConstraintsTest extends BaseSearchActorsTest {

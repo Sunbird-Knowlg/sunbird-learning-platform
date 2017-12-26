@@ -16,14 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordInfoBean;
 import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.WordUtil;
-
-import com.ilimi.common.Platform;
-import com.ilimi.common.exception.ClientException;
 
 /**
  * SSFParser parses files in Simple Shakti Format(SSF) and retrieves citations,

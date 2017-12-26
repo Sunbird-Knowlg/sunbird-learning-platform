@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.ilimi.common.Platform;
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.Platform;
+import org.ekstep.common.logger.PlatformLogger;
 
 /**
  * @author Rajiv Ranjan

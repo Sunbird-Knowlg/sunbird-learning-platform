@@ -9,9 +9,9 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
 
 /**
  * @author Rajiv Ranjan

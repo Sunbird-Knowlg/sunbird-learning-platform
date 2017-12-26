@@ -17,6 +17,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.language.cache.GradeComplexityCache;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.ComplexityMeasures;
@@ -27,8 +28,6 @@ import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
-
-import com.ilimi.graph.dac.model.Node;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -493,11 +492,11 @@ public class ParagraphMeasures {
 	 * @return the suitable grade summary info
 	 */
 	public static List<Map<String, String>> getSuitableGradeSummaryInfo(String languageId, Double value) {
-		List<com.ilimi.graph.dac.model.Node> suitableGrade = GradeComplexityCache.getInstance()
+		List<org.ekstep.graph.dac.model.Node> suitableGrade = GradeComplexityCache.getInstance()
 				.getSuitableGrades(languageId, value);
 		List<Map<String, String>> suitableGradeSummary = new ArrayList<Map<String, String>>();
 		if (suitableGrade != null) {
-			for (com.ilimi.graph.dac.model.Node sg : suitableGrade) {
+			for (org.ekstep.graph.dac.model.Node sg : suitableGrade) {
 				Map<String, String> gradeInfo = new HashMap<>();
 				gradeInfo.put("grade", (String) sg.getMetadata().get("gradeLevel"));
 				gradeInfo.put("languageLevel", (String) sg.getMetadata().get("languageLevel"));

@@ -1,5 +1,5 @@
 {
     "name": "get_text_from_unicode",
     "type": "COMMAND",
-    "cmdClass": "com.ilimi.orchestrator.interpreter.command.GetTextFromUnicode"
+    "cmdClass": "org.ekstep.orchestrator.interpreter.command.GetTextFromUnicode"
 }

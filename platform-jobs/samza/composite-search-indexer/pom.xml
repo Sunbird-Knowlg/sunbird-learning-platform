@@ -13,7 +13,7 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>composite-search-indexer</artifactId>
-	<version>0.0.21</version>
+	<version>0.0.22</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
@@ -34,7 +34,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>learning-actors</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
@@ -45,7 +45,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ilimi</groupId>
+			<groupId>org.ekstep</groupId>
 			<artifactId>platform-dac</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>

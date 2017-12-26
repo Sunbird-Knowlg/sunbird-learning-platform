@@ -11,10 +11,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.ekstep.common.logger.LoggerEnum;
+import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.slugs.Slug;
-
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * A utility that downloads a file from a URL.

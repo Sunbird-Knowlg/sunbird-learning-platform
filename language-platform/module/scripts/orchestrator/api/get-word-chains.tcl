@@ -13,7 +13,7 @@ package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package java.util HashSet Set
-java::import -package com.ilimi.graph.dac.model Node
+java::import -package org.ekstep.graph.dac.model Node
 
 #get ruleScript name from the rule Object
 set ruleScript [$ruleObject get "ruleScript"]

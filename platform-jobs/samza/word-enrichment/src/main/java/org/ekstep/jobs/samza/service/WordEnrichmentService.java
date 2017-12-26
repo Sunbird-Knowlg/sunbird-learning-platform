@@ -28,7 +28,7 @@ public class WordEnrichmentService implements ISamzaService {
 	@SuppressWarnings("unused")
 	private Config config = null;
 	private static final List<String> syncableSynsetProperties = 
-		    Collections.unmodifiableList(Arrays.asList("category", "pictures", "gloss"));
+		    Collections.unmodifiableList(Arrays.asList("category", "pictures", "gloss", "themes"));
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -200,7 +200,8 @@ public class WordEnrichmentService implements ISamzaService {
 				if (propertyMap != null && propertyMap.getKey() != null) {
 					String propertyName = (String) propertyMap.getKey();
 					if (syncableSynsetProperties.stream().anyMatch(propertyName::equalsIgnoreCase)){
-						if (StringUtils.equalsIgnoreCase("pictures", propertyName)) {
+						if (StringUtils.equalsIgnoreCase("pictures", propertyName)
+								|| StringUtils.equalsIgnoreCase("themes", propertyName)) {
 							List<String> newValue = (List<String>) ((Map<String, Object>) propertyMap.getValue()).get("nv");
 							List<String> oldValue = (List<String>) ((Map<String, Object>) propertyMap.getValue()).get("ov");
 							if(newValue == null || oldValue == null)
