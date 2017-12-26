@@ -150,7 +150,6 @@ public class Graph extends AbstractDomainObject {
 			// get all sets
 			List<Node> setNodes = getAllSetObjects(req);
 			if (null != setNodes && !setNodes.isEmpty()) {
-				System.out.println("Total sets: " + setNodes.size());
 				for (Node node : setNodes) {
 					List<String> memberIds = new ArrayList<String>();
 					if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
@@ -162,7 +161,6 @@ public class Graph extends AbstractDomainObject {
 						}
 					}
 					if (null != memberIds && !memberIds.isEmpty()) {
-						System.out.println("Loading set: " + node.getIdentifier() + ", members: " + memberIds.size());
 						String setId = node.getIdentifier();
 						SetCacheManager.createSet(graphId, setId, memberIds);
 					}
@@ -182,7 +180,6 @@ public class Graph extends AbstractDomainObject {
 			} else {
 				List<Node> defNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
 				if (null != defNodes && !defNodes.isEmpty()) {
-					System.out.println("Total def nodes: " + defNodes.size());
 					for (Node defNode : defNodes) {
 						DefinitionNode node = new DefinitionNode(manager, defNode);
 						node.loadToCache(defNodesReq);

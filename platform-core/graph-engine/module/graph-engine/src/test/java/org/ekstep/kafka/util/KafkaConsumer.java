@@ -48,7 +48,6 @@ public class KafkaConsumer extends Thread{
         while(it.hasNext() && running){
     		try {
     			String messageData = new String(it.next().message());
-    			System.out.println(messageData);
     			Map<String, Object> messageObj = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
     			});
     			message.putRecentMessage(messageObj);
@@ -58,8 +57,6 @@ public class KafkaConsumer extends Thread{
     		}
         }
         consumerConnector.shutdown();
-        System.out.println(Thread.currentThread().getName()+" got stopped!");
-
     }
 
     public void stopExecuting(){

@@ -19,7 +19,6 @@ public class SetCacheManagerTest {
 		Assert.assertEquals("setMember_1", berforeMemberList.get(0));
 		SetCacheManager.dropSet("domain", "set_94");
 		List<String> afterMemberList = SetCacheManager.getSetMembers("domain", "set_94");
-		System.out.println("afterMemberList" + afterMemberList);
 		Assert.assertTrue(afterMemberList.isEmpty());
 	}
 	

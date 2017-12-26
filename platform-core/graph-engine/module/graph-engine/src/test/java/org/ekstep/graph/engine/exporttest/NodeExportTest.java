@@ -35,7 +35,6 @@ public class NodeExportTest {
         Future<Object> future = Patterns.ask(reqRouter, "init", timeout);
         Object response = Await.result(future, t.duration());
         Thread.sleep(2000);
-        System.out.println("Response from request router: " + response);
         return reqRouter;
     }
     
@@ -53,7 +52,6 @@ public class NodeExportTest {
             Response response = (Response) obj;
             InputStreamValue isV = (InputStreamValue) response.get(GraphEngineParams.input_stream.name());
             ByteArrayInputStream is = (ByteArrayInputStream) isV.getInputStream();
-            System.out.println("Result: \n" + new String(IOUtils.toByteArray(is)));
             
         } catch (Exception e) {
             e.printStackTrace();

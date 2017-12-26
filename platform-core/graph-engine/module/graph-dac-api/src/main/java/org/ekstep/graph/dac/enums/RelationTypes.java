@@ -5,14 +5,11 @@ import org.apache.commons.lang3.StringUtils;
 public enum RelationTypes {
 
     HIERARCHY("isParentOf"), 
-    CONSTITUENCY("hasConstituent"), 
     SET_MEMBERSHIP("hasMember"), 
     SEQUENCE_MEMBERSHIP("hasSequenceMember"),
     ASSOCIATED_TO("associatedTo"),
     SUB_SET("hasSubSet"),
-    CO_OCCURRENCE("co-occurrence"),
     PRE_REQUISITE("pre-requisite"),
-    SUPERSEDED("superseded"),
     SYNONYM("synonym"),
     ANTONYM("hasAntonym"),
     HYPERNYM("hasHypernym"),
@@ -24,8 +21,7 @@ public enum RelationTypes {
     WORKER("hasWorker"),
     ACTION("hasAction"),
     OBJECT("actionOn"),
-    CONVERSE("hasConverse"),
-    PROPOSITION("proposition");
+	CONVERSE("hasConverse");
 
     private String relationName;
 

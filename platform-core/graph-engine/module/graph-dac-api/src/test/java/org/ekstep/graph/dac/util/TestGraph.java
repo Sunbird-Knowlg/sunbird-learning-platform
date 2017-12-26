@@ -53,6 +53,5 @@ public class TestGraph {
 			relationship.setProperty("FP", "YES");
 			tx.success();
 		}
-		System.out.println("Done successfully");
 	}
 }

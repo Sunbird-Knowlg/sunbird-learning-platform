@@ -246,7 +246,7 @@ public class ActorBootstrap {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                System.out.println("Shutting down Actor System...");
+                PlatformLogger.log("Shutting down Actor System...");
                 system.shutdown();
             }
         });

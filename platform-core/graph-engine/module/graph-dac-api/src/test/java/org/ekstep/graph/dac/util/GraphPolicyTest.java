@@ -414,7 +414,6 @@ public class GraphPolicyTest {
 		scalaMap.put("Title", "Learn java as Programming Language");
         request.setRequest(scalaMap);
 		Node res = Neo4JBoltNodeOperations.upsertRootNode(graphId, request);
-		System.out.println(res.getIdentifier()+ res.getMetadata());
 	}
 	
 	@Test
@@ -647,7 +646,6 @@ public class GraphPolicyTest {
 		nodes.add("DotNet001");
 		Neo4JBoltGraphOperations.createIncomingRelations(graphId, nodes, "SCALA001", relationType, request);
 		Relation rel = Neo4JBoltSearchOperations.getRelation(graphId, "DotNet001", relationType, "Spring001", request);
-		System.out.println(rel.getRelationType() + rel.getEndNodeId() + rel.getStartNodeId());
 	}
 	
 	@Test
@@ -816,7 +814,6 @@ public class GraphPolicyTest {
 //	@Test
 	public void getSubGraph(){
 		Graph res = Neo4JBoltSearchOperations.getSubGraph(graphId, "JAVA001", relationType, 0, null);
-		System.out.println(res.getNodes());
 	}
 	
 //	@AfterClass
