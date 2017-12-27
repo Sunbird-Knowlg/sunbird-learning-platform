@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.dto.TelemetryBEAccessEvent;
 import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.telemetry.TelemetryGenerator;
 
@@ -14,68 +13,61 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TelemetryAccessEventUtil {
 
-	
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public static void writeTelemetryEventLog(Map<String, Object> data) {
-		try {
-			if (data != null) {
-				long timeDuration = System.currentTimeMillis() - (long) data.get("StartTime");
-				Request request = (Request) data.get("Request");
-				Response response = (Response) data.get("Response");
-				
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("rid", response.getId());
-				params.put("uip", (String) data.get("RemoteAddress"));
-				params.put("url", (String)data.get("path"));
-				params.put("size", (int) data.get("ContentLength"));
-				params.put("duration", timeDuration);
-				params.put("status", (int) data.get("Status"));
-				params.put("protocol", data.get("Protocol"));
-				params.put("method", (String) data.get("Method"));
-				if (null != request) {
-					params.put("req", request.getRequest());
-				}
-				
-				Map<String, String> context = new HashMap<String, String>();
-				if (null != data.get("X-Session-ID")) {
-					context.put("sid", (String) data.get("X-Session-ID"));
-				} else if (null != request && null != request.getParams()) {
-					if(null != request.getParams().getSid()){
-						context.put("sid", request.getParams().getSid());
-					}
-				}
-				if (null != data.get("X-Consumer-ID")) {
-					context.put("cid", (String) data.get("X-Consumer-ID"));
-				} else if (null != request && null != request.getParams()) {
-					if(null != request.getParams().getCid()){
-						context.put("cid", request.getParams().getCid());
-					}
-				}
-				if (null != data.get("X-Device-ID")) {
-					context.put("did", (String) data.get("X-Device-ID"));
-				} else if (null != request && null != request.getParams()) {
-					if(null != request.getParams().getDid()){
-						context.put("did", request.getParams().getDid());
-					}
-				}
-				if (null != data.get("X-Authenticated-Userid")) {
-					context.put("uid", (String) data.get("X-Authenticated-Userid"));
-				} else if (null != request && null != request.getParams()) {
-					if(null != request.getParams().getUid()){
-						context.put("uid", request.getParams().getUid());
-					}
-				}
-				
-				TelemetryGenerator.apiAccess(params, context);
+		if (data != null) {
+			long timeDuration = System.currentTimeMillis() - (long) data.get("StartTime");
+			Request request = (Request) data.get("Request");
+			Response response = (Response) data.get("Response");
+
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("rid", response.getId());
+			params.put("uip", (String) data.get("RemoteAddress"));
+			params.put("url", (String) data.get("path"));
+			params.put("size", (int) data.get("ContentLength"));
+			params.put("duration", timeDuration);
+			params.put("status", (int) data.get("Status"));
+			params.put("protocol", data.get("Protocol"));
+			params.put("method", (String) data.get("Method"));
+			if (null != request) {
+				params.put("req", request.getRequest());
 			}
-		} catch (NullPointerException e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
-			e.printStackTrace();
-		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
-			e.printStackTrace();
+
+			Map<String, String> context = new HashMap<String, String>();
+			context.put("env", (String) data.get("env"));
+			if (null != data.get("X-Session-ID")) {
+				context.put("sid", (String) data.get("X-Session-ID"));
+			} else if (null != request && null != request.getParams()) {
+				if (null != request.getParams().getSid()) {
+					context.put("sid", request.getParams().getSid());
+				}
+			}
+			if (null != data.get("X-Consumer-ID")) {
+				context.put("cid", (String) data.get("X-Consumer-ID"));
+			} else if (null != request && null != request.getParams()) {
+				if (null != request.getParams().getCid()) {
+					context.put("cid", request.getParams().getCid());
+				}
+			}
+			if (null != data.get("X-Device-ID")) {
+				context.put("did", (String) data.get("X-Device-ID"));
+			} else if (null != request && null != request.getParams()) {
+				if (null != request.getParams().getDid()) {
+					context.put("did", request.getParams().getDid());
+				}
+			}
+			if (null != data.get("X-Authenticated-Userid")) {
+				context.put("uid", (String) data.get("X-Authenticated-Userid"));
+			} else if (null != request && null != request.getParams()) {
+				if (null != request.getParams().getUid()) {
+					context.put("uid", request.getParams().getUid());
+				}
+			}
+
+			TelemetryGenerator.apiAccess(params, context);
 		}
+
 	}
 
 	public static void writeTelemetryEventLog(RequestWrapper requestWrapper, ResponseWrapper responseWrapper) {
@@ -83,20 +75,21 @@ public class TelemetryAccessEventUtil {
 		Request request = null;
 		try {
 			data.put("StartTime", requestWrapper.getAttribute("startTime"));
+			data.put("env", requestWrapper.getAttribute("env"));
 			String body = requestWrapper.getBody();
 			if (body.contains("request") && body.length() > 0 && !body.contains("SCRIPT")) {
 				request = mapper.readValue(body, Request.class);
-			}else if (null != body) {
-					int index = body.indexOf("filename=");
-					String fileName = "";
-					if (index > 0) {
-						fileName = body.substring(index + 10, body.indexOf("\"", index+10));
-						request = new Request();
-						Map<String, Object> req = new HashMap<String,Object>();
-						req.put("fileName", fileName);
-						request.setRequest(req);
-					}
-					
+			} else if (null != body) {
+				int index = body.indexOf("filename=");
+				String fileName = "";
+				if (index > 0) {
+					fileName = body.substring(index + 10, body.indexOf("\"", index + 10));
+					request = new Request();
+					Map<String, Object> req = new HashMap<String, Object>();
+					req.put("fileName", fileName);
+					request.setRequest(req);
+				}
+
 			}
 			Response response = null;
 			byte responseContent[] = responseWrapper.getData();
@@ -120,7 +113,7 @@ public class TelemetryAccessEventUtil {
 			writeTelemetryEventLog(data);
 		} catch (IOException e) {
 			PlatformLogger.log("Exception", e.getMessage(), e);
-		
+
 		}
 
 	}

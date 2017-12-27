@@ -56,6 +56,8 @@ public class ResponseFilter implements Filter {
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
+			requestWrapper.setAttribute("env", "language-service");
+			
 			chain.doFilter(requestWrapper, responseWrapper);
 			
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);

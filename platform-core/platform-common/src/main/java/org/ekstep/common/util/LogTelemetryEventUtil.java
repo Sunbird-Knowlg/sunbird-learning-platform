@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.dto.Request;
-import org.ekstep.common.dto.TelemetryBEAccessEvent;
 import org.ekstep.common.dto.TelemetryBEEvent;
 import org.ekstep.common.dto.TelemetryPBIEvent;
 import org.ekstep.common.logger.PlatformLogger;

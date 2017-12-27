@@ -1,15 +1,10 @@
 package org.ekstep.telemetry;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Stream;
-
-import javax.management.ImmutableDescriptor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +48,7 @@ public class TelemetryGenerator {
 	
 	private static Context getContext(Map<String, String> context) {
 		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get("channel");
-		String env = "dev";
+		String env = context.get("env");
 		Context eventContext = new Context(channel, env, new Producer("org.ekstep.platform", "1.0"));
 		String sid = context.get("sid");
 		if (StringUtils.isNotBlank(sid))
