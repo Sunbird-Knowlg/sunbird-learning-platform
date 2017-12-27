@@ -4,13 +4,14 @@ import org.apache.commons.lang3.StringUtils;
 
 public enum RelationTypes {
 
-    HIERARCHY("isParentOf"), 
+	HIERARCHY("isParentOf"), CONSTITUENCY("hasConstituent"), 
     SET_MEMBERSHIP("hasMember"), 
     SEQUENCE_MEMBERSHIP("hasSequenceMember"),
     ASSOCIATED_TO("associatedTo"),
     SUB_SET("hasSubSet"),
 	CO_OCCURRENCE("co-occurrence"),
     PRE_REQUISITE("pre-requisite"),
+	SUPERSEDED("superseded"),
     SYNONYM("synonym"),
     ANTONYM("hasAntonym"),
     HYPERNYM("hasHypernym"),

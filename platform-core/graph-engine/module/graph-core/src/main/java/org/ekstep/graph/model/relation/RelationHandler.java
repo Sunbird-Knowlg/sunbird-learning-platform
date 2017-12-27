@@ -17,6 +17,8 @@ public class RelationHandler {
         if (StringUtils.isNotBlank(relationType) && RelationTypes.isValidRelationType(relationType)) {
             if (StringUtils.equals(RelationTypes.HIERARCHY.relationName(), relationType)) {
                 return new HierarchyRelation(manager, graphId, startNodeId, endNodeId);
+			} else if (StringUtils.equals(RelationTypes.CONSTITUENCY.relationName(), relationType)) {
+				return new ConstituentRelation(manager, graphId, startNodeId, endNodeId);
             } else if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), relationType)) {
                 return new AssociationRelation(manager, graphId, startNodeId, endNodeId, metadata);
             } else if (StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), relationType)) {
@@ -29,6 +31,8 @@ public class RelationHandler {
 				return new CoOccurrenceRelation(manager, graphId, startNodeId, endNodeId);
             } else if (StringUtils.equals(RelationTypes.PRE_REQUISITE.relationName(), relationType)) {
                 return new PreRequisiteRelation(manager, graphId, startNodeId, endNodeId);
+			} else if (StringUtils.equals(RelationTypes.SUPERSEDED.relationName(), relationType)) {
+				return new SupersededRelation(manager, graphId, startNodeId, endNodeId);
 			} else {
 				return new PropositionRelation(manager, graphId, startNodeId, relationType, endNodeId, metadata);
             }
