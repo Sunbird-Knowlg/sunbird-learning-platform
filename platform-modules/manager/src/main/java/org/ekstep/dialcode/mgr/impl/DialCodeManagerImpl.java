@@ -61,7 +61,7 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 					ResponseCode.CLIENT_ERROR);
 		}
 
-		int maxCount = Integer.parseInt(Platform.config.getString("MAX_NO_OF_ALLOWED_DIALCODE_PER_REQUEST"));
+		int maxCount = Platform.config.getInt("max.no.of.allowed.dialcode.per.request");
 
 		if (count > maxCount) {
 			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Maximum allowed value for Count is " + maxCount,
