@@ -27,12 +27,11 @@ public class Telemetry {
 		this.edata = edata;
 	}
 
-	public Telemetry(String eid, Actor actor, Context context, Target object, Map<String, Object> edata) {
+	public Telemetry(String eid, Actor actor, Context context, Map<String, Object> edata) {
 		super();
 		this.eid = eid;
 		this.actor = actor;
 		this.context = context;
-		this.object = object;
 		this.edata = edata;
 	}
 

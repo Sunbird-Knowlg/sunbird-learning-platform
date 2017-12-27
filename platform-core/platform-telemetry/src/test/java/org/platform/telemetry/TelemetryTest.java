@@ -16,9 +16,8 @@ public class TelemetryTest {
 		
 		Actor actor = new Actor("Learning-Platform", "1.0");
 		Context context = new Context("in.ekstep", "local");
-		Target object = new Target("content-service", "service");
 		Map<String, Object> edata = new HashMap<String, Object>();
-		Telemetry tel = new Telemetry("LOG", actor, context, object, edata);
+		Telemetry tel = new Telemetry("LOG", actor, context, edata);
 		ObjectMapper mapper = new ObjectMapper();
 		String json = mapper.writeValueAsString(tel);
 		System.out.println("Telemetry: "+ json);
