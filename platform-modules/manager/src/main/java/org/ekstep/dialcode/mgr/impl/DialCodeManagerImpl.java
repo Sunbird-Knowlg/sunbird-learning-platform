@@ -99,7 +99,7 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 			String countStr = (String) map.get(DialCodeEnum.count.name());
 			if (StringUtils.isNotBlank(countStr)) {
 				int count = Integer.parseInt(countStr);
-				int maxCount = Platform.config.getInt("max.allowed.dialcodes");
+				int maxCount = Platform.config.getInt("dialcode.max_count");
 
 				if (count > maxCount) {
 					throw new ClientException("Count is exceeding Max count");
