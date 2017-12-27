@@ -15,7 +15,6 @@ import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.neo4j.driver.v1.exceptions.ClientException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -37,8 +36,7 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 	/**
 	 * 
 	 */
-	@Autowired
-	public DialCodeManagerImpl() {
+	static {
 		double maxIndex;
 		try {
 			maxIndex = DialCodeStoreUtil.getDialCodeIndex();
@@ -114,7 +112,7 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 
 	}
 
-	private void setMaxIndex(Double maxIndex) {
+	private static void setMaxIndex(Double maxIndex) {
 		RedisStoreUtil.saveNodeProperty("domain", "dialcode", "max_index", maxIndex.toString());
 	}
 
