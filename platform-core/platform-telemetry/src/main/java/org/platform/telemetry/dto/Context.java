@@ -14,10 +14,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class Context {
 
-	public Context(String channel, String env) {
+	public Context(String channel, String env, Producer pdata) {
 		super();
 		this.channel = channel;
 		this.env = env;
+		this.pdata = pdata;
 	}
 	
 	String channel;
