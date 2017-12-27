@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.platform.telemetry.dto;
+package org.ekstep.telemetry.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

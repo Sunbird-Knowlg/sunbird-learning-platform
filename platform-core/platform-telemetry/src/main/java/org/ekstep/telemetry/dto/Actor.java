@@ -1,4 +1,4 @@
-package org.platform.telemetry.dto;
+package org.ekstep.telemetry.dto;
 
 /**
  * 

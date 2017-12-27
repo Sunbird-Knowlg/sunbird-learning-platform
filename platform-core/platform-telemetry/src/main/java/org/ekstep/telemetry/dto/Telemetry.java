@@ -1,4 +1,4 @@
-package org.platform.telemetry.dto;
+package org.ekstep.telemetry.dto;
 
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package org.platform.telemetry.dto;
+package org.ekstep.telemetry.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -10,61 +10,52 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  */
 
 @JsonInclude(Include.NON_NULL)
-public class Producer {
-
-	public Producer(String id, String ver) {
+public class Target {
+	
+	public Target(String id, String type) {
 		super();
 		this.id = id;
-		this.ver = ver;
+		this.type = type;
 	}
-
+	
 	String id;
-	String pid;
+	String type;
 	String ver;
-
 	/**
 	 * @return the id
 	 */
 	public String getId() {
 		return id;
 	}
-
 	/**
-	 * @param id
-	 *            the id to set
+	 * @param id the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
 	}
-
 	/**
-	 * @return the pid
+	 * @return the type
 	 */
-	public String getPid() {
-		return pid;
+	public String getType() {
+		return type;
 	}
-
 	/**
-	 * @param pid
-	 *            the pid to set
+	 * @param type the type to set
 	 */
-	public void setPid(String pid) {
-		this.pid = pid;
+	public void setType(String type) {
+		this.type = type;
 	}
-
 	/**
 	 * @return the ver
 	 */
 	public String getVer() {
 		return ver;
 	}
-
 	/**
-	 * @param ver
-	 *            the ver to set
+	 * @param ver the ver to set
 	 */
 	public void setVer(String ver) {
 		this.ver = ver;
 	}
-
+	
 }

@@ -1,12 +1,12 @@
-package org.platform.telemetry;
+package org.ekstep.platform.telemetry;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.platform.telemetry.dto.Actor;
-import org.platform.telemetry.dto.Context;
-import org.platform.telemetry.dto.Producer;
-import org.platform.telemetry.dto.Telemetry;
+import org.ekstep.telemetry.dto.Actor;
+import org.ekstep.telemetry.dto.Context;
+import org.ekstep.telemetry.dto.Producer;
+import org.ekstep.telemetry.dto.Telemetry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

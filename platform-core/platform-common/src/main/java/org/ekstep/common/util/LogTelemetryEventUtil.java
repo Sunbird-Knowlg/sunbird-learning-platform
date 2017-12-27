@@ -114,28 +114,6 @@ public class LogTelemetryEventUtil {
 		return jsonMessage;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static String logAccessEvent(TelemetryBEAccessEvent accessData) {
-		TelemetryBEEvent te = new TelemetryBEEvent();
-		long unixTime = System.currentTimeMillis();
-		te.setEid("BE_ACCESS");
-		te.setEts(unixTime);
-		te.setMid(mid);
-		te.setVer("2.0");
-		te.setPdata("org.ekstep.content.platform", accessData.getContext().get("did"), "1.0", "");
-		String jsonMessage = null;
-		try {
-		Map<String, Object> eData = mapper.convertValue(accessData, Map.class);
-		te.setEdata(eData);
-			jsonMessage = mapper.writeValueAsString(te);
-			if (StringUtils.isNotBlank(jsonMessage))
-				telemetryEventLogger.info(jsonMessage);
-		} catch (Exception e) {
-			PlatformLogger.log("Error logging BE_ACCESS event" + e.getMessage(),null,e);
-		}
-		return jsonMessage;
-	}
-	
 	public static String logObjectLifecycleEvent(String objectId, Map<String, Object> metadata){
 			TelemetryBEEvent te = new TelemetryBEEvent();
 			Map<String,Object> data = new HashMap<String,Object>();
