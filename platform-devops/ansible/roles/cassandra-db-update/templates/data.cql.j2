@@ -28,7 +28,7 @@ CREATE KEYSPACE IF NOT EXISTS dialcode_store WITH replication = {'class': 'Simpl
 
 CREATE TABLE IF NOT EXISTS dialcode_store.dial_code (
 identifier text,
-dialcode_index int,
+dialcode_index double,
 publisher text,
 channel text,
 batchCode text,
