@@ -94,7 +94,7 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 	 */
 	private int getCount(Map<String, Object> map) {
 		try {
-			String countStr = (String) map.get(DialCodeEnum.count.name());
+			String countStr = String.valueOf(map.get(DialCodeEnum.count.name()));
 			if (StringUtils.isNotBlank(countStr)) {
 				int count = Integer.parseInt(countStr);
 				int maxCount = Platform.config.getInt("dialcode.max_count");
