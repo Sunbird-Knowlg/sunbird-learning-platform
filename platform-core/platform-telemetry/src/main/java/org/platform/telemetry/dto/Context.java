@@ -23,6 +23,10 @@ public class Context {
 	String channel;
 	Producer pdata;
 	String env;
+	String sid;
+	String did;
+	
+	
 	/**
 	 * @return the channel
 	 */
@@ -58,6 +62,30 @@ public class Context {
 	 */
 	public void setEnv(String env) {
 		this.env = env;
+	}
+	/**
+	 * @return the sid
+	 */
+	public String getSid() {
+		return sid;
+	}
+	/**
+	 * @param sid the sid to set
+	 */
+	public void setSid(String sid) {
+		this.sid = sid;
+	}
+	/**
+	 * @return the did
+	 */
+	public String getDid() {
+		return did;
+	}
+	/**
+	 * @param did the did to set
+	 */
+	public void setDid(String did) {
+		this.did = did;
 	}
 	
 }
