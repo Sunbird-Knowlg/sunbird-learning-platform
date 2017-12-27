@@ -1,10 +1,7 @@
 package org.ekstep.dialcode.mgr.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -13,8 +10,12 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.dialcode.model.DialCode;
+import org.ekstep.dialcode.model.DialCodesModel;
 import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.neo4j.driver.v1.exceptions.ClientException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -32,6 +33,22 @@ import com.google.gson.Gson;
 @Component
 public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCodeManager {
 
+
+	/**
+	 * 
+	 */
+	@Autowired
+	public DialCodeManagerImpl() {
+		double maxIndex;
+		try {
+			maxIndex = DialCodeStoreUtil.getDialCodeIndex();
+			setMaxIndex(maxIndex);
+		} catch (Exception e) {
+
+		}
+
+	}
+
 	/**
 	 * Generate Dial Code
 	 * 
@@ -41,56 +58,75 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 	 */
 	@Override
 	public Response generateDialCode(Map<String, Object> map, String channelId) throws Exception {
+		DialCodesModel dialCodesModel;
+		Map<Double, String> dialCodeMap;
+
+		String ERROR_CODE = "ERR_INVALID_DIALCODE_GENERATE_REQUEST";
 		if (null == map)
-			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		if (null == map.get(DialCodeEnum.publisher.name())
-				|| StringUtils.isBlank((String) map.get(DialCodeEnum.publisher.name())))
-			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Publisher is Manadatory", ResponseCode.CLIENT_ERROR);
-		if (null == map.get(DialCodeEnum.batchCode.name())
-				|| StringUtils.isBlank((String) map.get(DialCodeEnum.batchCode.name())))
+			return ERROR(ERROR_CODE, "Invalid Request", ResponseCode.CLIENT_ERROR);
+		if (StringUtils.isBlank((String) map.get(DialCodeEnum.publisher.name())))
+			return ERROR(ERROR_CODE, "Publisher is Manadatory", ResponseCode.CLIENT_ERROR);
+
+		int count = getCount(map);
+
+		if (StringUtils.isBlank((String) map.get(DialCodeEnum.batchCode.name())))
 			map.put(DialCodeEnum.batchCode.name(), String.valueOf(System.currentTimeMillis()));
-		if (null == map.get(DialCodeEnum.count.name()))
-			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Count is Manadatory.", ResponseCode.CLIENT_ERROR);
-		Integer count = 0;
-
-		// Validation for Empty Count or Count having Character
-		try {
-			count = Integer.parseInt(String.valueOf(map.get(DialCodeEnum.count.name())));
-		} catch (NumberFormatException e) {
-			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Count must be a positive Number.",
-					ResponseCode.CLIENT_ERROR);
-		}
-
-		int maxCount = Platform.config.getInt("max.no.of.allowed.dialcode.per.request");
-
-		if (count > maxCount) {
-			return ERROR("ERR_INVALID_DIALCODE_GENERATE_REQUEST", "Maximum allowed value for Count is " + maxCount,
-					ResponseCode.CLIENT_ERROR);
-		}
-
-		Map<Integer, String> dialCodeMap = new HashMap<Integer, String>();
-		List<String> list;
 
 		synchronized (this) {
-			Integer startIndex = DialCodeStoreUtil.getDialCodeIndex();
-
-			Set<String> dialCodes = SeqRandomGenerator.generate(++startIndex, count);
-
-			for (String code : dialCodes) {
-				dialCodeMap.put(startIndex++, code);
-			}
-
-			list = new ArrayList<String>(dialCodeMap.values());
-
-			// Store DIAL Codes in Cassandra
-			DialCodeStoreUtil.saveDialCode(channelId, (String) map.get(DialCodeEnum.publisher.name()),
-					(String) map.get(DialCodeEnum.batchCode.name()), dialCodeMap);
+			Double startIndex = getMaxIndex();
+			dialCodesModel = SeqRandomGenerator.generate(++startIndex, count);
+			dialCodeMap = dialCodesModel.getDialCodes();
+			setMaxIndex(dialCodesModel.getMaxIndex());
 		}
+
+		// Store DIAL Codes in Cassandra
+		DialCodeStoreUtil.saveDialCode(channelId, (String) map.get(DialCodeEnum.publisher.name()),
+				(String) map.get(DialCodeEnum.batchCode.name()), dialCodeMap);
 
 		Response resp = new Response();
 		resp.put("count", dialCodeMap.size());
-		resp.put("dialcodes", list);
+		resp.put("dialcodes", dialCodeMap.values());
 		return resp;
+
+	}
+
+	/**
+	 * @param map
+	 * @return
+	 */
+	private int getCount(Map<String, Object> map) {
+		try {
+			String countStr = (String) map.get(DialCodeEnum.count.name());
+			if (StringUtils.isNotBlank(countStr)) {
+				int count = Integer.parseInt(countStr);
+				int maxCount = Platform.config.getInt("max.allowed.dialcodes");
+
+				if (count > maxCount) {
+					throw new ClientException("Count is exceeding Max count");
+				}
+				return count;
+			} else {
+				throw new ClientException("count is empty.");
+			}
+		} catch (Exception e) {
+			throw new ClientException("Invalid count.");
+		}
+
+	}
+
+	private void setMaxIndex(Double maxIndex) {
+		RedisStoreUtil.saveNodeProperty("domain", "dialcode", "max_index", maxIndex.toString());
+	}
+
+	private Double getMaxIndex() throws Exception {
+		String indexStr = RedisStoreUtil.getNodeProperty("domain", "dialcode", "max_index");
+		if (StringUtils.isNotBlank(indexStr)) {
+			return Double.parseDouble(indexStr);
+		} else {
+			double maxIndex = DialCodeStoreUtil.getDialCodeIndex();
+			setMaxIndex(maxIndex);
+			return maxIndex;
+		}
 
 	}
 

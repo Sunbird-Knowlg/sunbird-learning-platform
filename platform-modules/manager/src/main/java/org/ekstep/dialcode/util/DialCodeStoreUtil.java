@@ -47,8 +47,8 @@ public class DialCodeStoreUtil {
 	}
 
 	// get dialcode index from cassandra
-	public static Integer getDialCodeIndex() throws Exception {
-		Integer dialcode_index = 0;
+	public static Double getDialCodeIndex() throws Exception {
+		Double dialcode_index = 0.0;
 		Session session = CassandraConnector.getSession();
 		String query = "select max(dialcode_index) as dialcode_index from " + getKeyspaceName() + "."
 				+ getKeyspaceTable() + ";";
@@ -56,14 +56,14 @@ public class DialCodeStoreUtil {
 		if (null != rs) {
 			while (rs.iterator().hasNext()) {
 				Row row = rs.iterator().next();
-				dialcode_index = row.getInt("dialcode_index");
+				dialcode_index = row.getDouble("dialcode_index");
 			}
 		}
 
 		return dialcode_index;
 	}
 
-	public static void saveDialCode(String channel, String publisher, String batchCode, Map<Integer, String> codeMap)
+	public static void saveDialCode(String channel, String publisher, String batchCode, Map<Double, String> codeMap)
 			throws Exception {
 		Session session = CassandraConnector.getSession();
 		String query = getInsertQuery(channel, publisher, batchCode, codeMap);
@@ -149,10 +149,10 @@ public class DialCodeStoreUtil {
 	}
 
 	private static String getInsertQuery(String channel, String publisher, String batchCode,
-			Map<Integer, String> codeMap) {
+			Map<Double, String> codeMap) {
 		StringBuilder insertQuery = new StringBuilder();
 		insertQuery.append("BEGIN BATCH ");
-		for (Integer key : codeMap.keySet()) {
+		for (Double key : codeMap.keySet()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("insert into " + getKeyspaceName() + "." + getKeyspaceTable());
 			sb.append("(identifier,batchcode,channel,count,dialcode_index,generated_on,publisher,status) values(");

@@ -1,10 +1,11 @@
 package org.ekstep.dialcode.util;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.dialcode.model.DialCodesModel;
 
 public class SeqRandomGenerator {
 
@@ -15,8 +16,9 @@ public class SeqRandomGenerator {
 	private static final Double length = 6.0;
 	private static final BigDecimal largePrimeNumber = new BigDecimal(1679979167);
 
-	public static Set<String> generate(double startIndex, double count) {
-		Set<String> codes = new HashSet<String>();
+	public static DialCodesModel generate(double startIndex, double count) {
+		DialCodesModel dialCodesModel = new DialCodesModel();
+		Map<Double, String> codes = new HashMap<Double, String>();
 		int totalChars = alphabet.length;
 		BigDecimal exponent = BigDecimal.valueOf(totalChars);
 		exponent = exponent.pow(length.intValue());
@@ -28,11 +30,13 @@ public class SeqRandomGenerator {
 			String code = baseN(num, totalChars);
 			if (code.length() == length) {
 				codesCount += 1;
-				codes.add(code);
+				codes.put(lastIndex, code);
 			}
 			lastIndex += 1;
 		}
-		return codes;
+		dialCodesModel.setDialCodes(codes);
+		dialCodesModel.setMaxIndex(lastIndex);
+		return dialCodesModel;
 	}
 
 	private static String baseN(BigDecimal num, int base) {
@@ -43,4 +47,5 @@ public class SeqRandomGenerator {
 		String val = baseN(new BigDecimal(div), base);
 		return StringUtils.stripStart(val, stripChars) + alphabet[num.remainder(new BigDecimal(base)).intValue()];
 	}
+
 }
