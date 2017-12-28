@@ -45,10 +45,10 @@ public class ResponseFilter implements Filter {
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		else
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
-		
+
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
-		
+
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			PlatformLogger.log("Path: " + requestWrapper.getServletPath(),
@@ -56,7 +56,7 @@ public class ResponseFilter implements Filter {
 
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-			
+
 			requestWrapper.setAttribute("env", getEnv(requestWrapper));
 
 			chain.doFilter(requestWrapper, responseWrapper);
@@ -69,11 +69,21 @@ public class ResponseFilter implements Filter {
 			chain.doFilter(httpRequest, response);
 		}
 	}
-	
+
 	private String getEnv(RequestWrapper requestWrapper) {
 		String path = requestWrapper.getRequestURI();
-		String env = path.split("/")[3];
-		return env;
+		if (path.contains("/v3/definitions") || path.contains("/v3/import") || path.contains("/v3/export")
+				|| path.contains("/taxonomy/")) {
+			return "core";
+		}
+		if (path.contains("/sync/") || path.contains("v3/system")) {
+			return "system";
+		}
+		if (path.contains("/domain")) {
+			return "domain";
+		} else {
+			return path.split("/")[3];
+		}
 	}
 
 	@Override
