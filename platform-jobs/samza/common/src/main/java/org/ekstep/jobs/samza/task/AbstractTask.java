@@ -18,10 +18,9 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
-
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.Platform;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 
 public abstract class AbstractTask implements StreamTask, InitableTask, WindowableTask {
 
@@ -83,7 +82,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 
 	public void preProcess(Map<String, Object> message, MessageCollector collector, Map<String, Object> execution, int maxIterationCount, int iterationCount) {
 		if (isInvalidMessage(message)) {
-			String event = generateEvent(LoggerEnum.ERROR.name(), "Samza job de-serialization error", message);
+			String event = generateEvent(Level.ERROR.name(), "Samza job de-serialization error", message);
 			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("backend_telemetry_topic")), event));
 		}
 		try {

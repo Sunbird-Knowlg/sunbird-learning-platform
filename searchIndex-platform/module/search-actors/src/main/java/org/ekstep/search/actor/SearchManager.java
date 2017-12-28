@@ -16,8 +16,6 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.Modes;
@@ -27,7 +25,8 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
-
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
@@ -182,7 +181,7 @@ public class SearchManager extends SearchBaseActor {
 						softConstraints = mapper.readValue(constraintString, Map.class);
 					}
 				} catch (Exception e) {
-					PlatformLogger.log("Invalid soft Constraints", e.getMessage(), e, LoggerEnum.ERROR.name());
+					PlatformLogger.log("Invalid soft Constraints", e.getMessage(), e, Level.ERROR.name());
 				}
 			}
 			PlatformLogger.log("Soft Constraints with only Mode: " , softConstraints);
@@ -209,7 +208,7 @@ public class SearchManager extends SearchBaseActor {
 						}
 					}
 				} catch (Exception e) {
-					PlatformLogger.log("Invalid soft Constraints", e.getMessage(), e, LoggerEnum.WARN.name());
+					PlatformLogger.log("Invalid soft Constraints", e.getMessage(), e, Level.WARN.name());
 				}
 				searchObj.setSoftConstraints(softConstraintMap);
 			}

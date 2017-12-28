@@ -10,12 +10,11 @@ import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.router.RequestRouterPool;
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.ITaxonomyManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 @Controller
 @RequestMapping("/v2/domains")

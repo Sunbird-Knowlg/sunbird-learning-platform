@@ -15,8 +15,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
@@ -28,7 +26,8 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
-
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.dto.NodeDTO;
 
 public class PublishTask implements Runnable {
@@ -57,7 +56,7 @@ public class PublishTask implements Runnable {
 
 	// TODO: add try catch here.
 	private void publishContent(Node node) throws Exception{
-		PlatformLogger.log("Publish processing start for content", node.getIdentifier(), LoggerEnum.INFO.name());
+		PlatformLogger.log("Publish processing start for content", node.getIdentifier(), Level.INFO.name());
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"), COLLECTION_CONTENT_MIMETYPE)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			if (!nodes.isEmpty()) {
@@ -68,9 +67,9 @@ public class PublishTask implements Runnable {
 			
 		}
 		publishNode(node, (String) node.getMetadata().get("mimeType"));
-		PlatformLogger.log("Publish processing done for content", node.getIdentifier(), LoggerEnum.INFO.name());
+		PlatformLogger.log("Publish processing done for content", node.getIdentifier(), Level.INFO.name());
 		
-		PlatformLogger.log("Content enrichment start for content", node.getIdentifier(), LoggerEnum.INFO.name());
+		PlatformLogger.log("Content enrichment start for content", node.getIdentifier(), Level.INFO.name());
 		
 		String nodeId = node.getIdentifier().replace(".img", "");
 		Node publishedNode = util.getNode("domain", nodeId);
@@ -78,7 +77,7 @@ public class PublishTask implements Runnable {
 			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 			publishedNode.getMetadata().put("versionKey", versionKey);
 			processCollection(publishedNode);
-			PlatformLogger.log("Content enrichment done for content", node.getIdentifier(), LoggerEnum.INFO.name());
+			PlatformLogger.log("Content enrichment done for content", node.getIdentifier(), Level.INFO.name());
 		}
 	}
 	
@@ -357,7 +356,7 @@ public class PublishTask implements Runnable {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(), ContentErrorMessageConstants.INVALID_CONTENT
 					+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
 		String nodeId = node.getIdentifier().replace(".img", "");
-		PlatformLogger.log("Publish processing start for node", nodeId, LoggerEnum.INFO.name());
+		PlatformLogger.log("Publish processing start for node", nodeId, Level.INFO.name());
 		try {
 			setContentBody(node, mimeType);
 			this.parameterMap.put(ContentWorkflowPipelineParams.node.name(), node);

@@ -15,10 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 

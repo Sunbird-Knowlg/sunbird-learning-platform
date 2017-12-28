@@ -17,9 +17,9 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.actor.ActorRef;
 
@@ -147,7 +147,7 @@ public class BaseDACMgr {
 
 	public Response ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier,
 			Object vo) {
-		PlatformLogger.log(errorCode + ", " + errorMessage, null, LoggerEnum.ERROR.name());
+		PlatformLogger.log(errorCode + ", " + errorMessage, null, Level.ERROR.name());
 		Response response = new Response();
 		response.put(responseIdentifier, vo);
 		response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -185,7 +185,7 @@ public class BaseDACMgr {
 	}
 
 	public Response ERROR(String errorCode, String errorMessage, ResponseCode code, ActorRef parent) {
-		PlatformLogger.log(errorCode + ", " + errorMessage, null, LoggerEnum.ERROR.name());
+		PlatformLogger.log(errorCode + ", " + errorMessage, null, Level.ERROR.name());
 		return getErrorResponse(errorCode, errorMessage, code);
 	}
 

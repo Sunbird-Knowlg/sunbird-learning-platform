@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.telemetry.logger.TelemetryLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,7 @@ public class TelemetryAccessEventUtil {
 
 			Map<String, String> context = new HashMap<String, String>();
 			context.put("env", (String) data.get("env"));
+			context.put("channel", (String) ExecutionContext.getCurrent().getGlobalContext().get("channel"));
 			if (null != data.get("X-Session-ID")) {
 				context.put("sid", (String) data.get("X-Session-ID"));
 			} else if (null != request && null != request.getParams()) {

@@ -4,10 +4,9 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.router.RequestRouterPool;
 
 

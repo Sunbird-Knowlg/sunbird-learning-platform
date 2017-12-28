@@ -20,6 +20,7 @@ import org.ekstep.graph.enums.ImportType;
 import org.ekstep.graph.importer.InputStreamValue;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.ControllerUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.junit.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -29,7 +30,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
 
 
 abstract public class BaseTest {

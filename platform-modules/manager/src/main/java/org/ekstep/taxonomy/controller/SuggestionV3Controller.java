@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.enums.SuggestionCodeConstants;
 import org.ekstep.taxonomy.mgr.ISuggestionManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * The Class SuggestionV3Controller is main entry point for all,

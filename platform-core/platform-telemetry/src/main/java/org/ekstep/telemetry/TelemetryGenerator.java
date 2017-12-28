@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.telemetry.dto.Actor;
 import org.ekstep.telemetry.dto.Context;
 import org.ekstep.telemetry.dto.Producer;
@@ -51,9 +48,9 @@ public class TelemetryGenerator {
 	}
 
 	private static Context getContext(Map<String, String> context) {
-		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get("channel");
+		String channel = (String) context.get("channel");
 		String env = context.get("env");
-		Context eventContext = new Context(channel, env, new Producer("org.ekstep.platform", "1.0"));
+		Context eventContext = new Context(channel, env, new Producer("org.ekstep.learning.platform", "1.0"));
 		String sid = context.get("sid");
 		if (StringUtils.isNotBlank(sid))
 			eventContext.setSid(sid);

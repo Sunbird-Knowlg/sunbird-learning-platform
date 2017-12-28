@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class DefinitionSyncScheduler {
 	

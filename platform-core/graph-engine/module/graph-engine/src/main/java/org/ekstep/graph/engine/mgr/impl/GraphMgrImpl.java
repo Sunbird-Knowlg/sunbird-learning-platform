@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.enums.GraphEngineParams;
@@ -22,6 +21,7 @@ import org.ekstep.graph.exception.GraphRelationErrorCodes;
 import org.ekstep.graph.model.Graph;
 import org.ekstep.graph.model.IRelation;
 import org.ekstep.graph.model.relation.RelationHandler;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.actor.ActorRef;
 

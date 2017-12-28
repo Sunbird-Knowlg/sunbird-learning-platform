@@ -5,8 +5,8 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.imgscalr.Scalr;
 
 /**
@@ -81,7 +81,7 @@ public class ThumbnailGenerator {
             boolean success = generate(file);
             return success;
         } catch (Exception ex) {
-            PlatformLogger.log("Failed to generate thumbnail for " + inFile, ex.getMessage(), LoggerEnum.ERROR.name());
+            PlatformLogger.log("Failed to generate thumbnail for " + inFile, ex.getMessage(), Level.ERROR.name());
             return false;
         }
     }
@@ -106,7 +106,7 @@ public class ThumbnailGenerator {
             boolean success = generate(inFile, outFile);
             return success;
         } catch (Exception ex) {
-            PlatformLogger.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),LoggerEnum.ERROR.name());
+            PlatformLogger.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),Level.ERROR.name());
             return false;
         }
     }
@@ -146,7 +146,7 @@ public class ThumbnailGenerator {
                     done = false;
                 }
             } catch (Exception ex) {
-                PlatformLogger.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),LoggerEnum.ERROR.name());
+                PlatformLogger.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),Level.ERROR.name());
                 done = false;
             }
         }

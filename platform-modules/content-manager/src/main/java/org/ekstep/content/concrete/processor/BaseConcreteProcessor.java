@@ -16,8 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.entity.Controller;
 import org.ekstep.content.entity.Media;
@@ -30,7 +28,8 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.mgr.BaseManager;
 
 /**
@@ -392,7 +391,7 @@ public class BaseConcreteProcessor extends BaseManager {
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			PlatformLogger.log("Base Path Already Exist: " , path.getFileName(), e, LoggerEnum.WARN.name());
+			PlatformLogger.log("Base Path Already Exist: " , path.getFileName(), e, Level.WARN.name());
 		} catch (Exception e) {
 			exist = false;
 			PlatformLogger.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);

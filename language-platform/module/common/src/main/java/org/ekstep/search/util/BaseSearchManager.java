@@ -7,9 +7,9 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.search.router.SearchRequestRouterPool;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;

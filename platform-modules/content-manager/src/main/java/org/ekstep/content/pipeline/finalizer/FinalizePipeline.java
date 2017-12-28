@@ -7,7 +7,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.operation.finalizer.BundleFinalizer;
@@ -15,6 +14,7 @@ import org.ekstep.content.operation.finalizer.PublishFinalizer;
 import org.ekstep.content.operation.finalizer.ReviewFinalizer;
 import org.ekstep.content.operation.finalizer.UploadFinalizer;
 import org.ekstep.content.pipeline.BasePipeline;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 
 /**

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ekstep.common.Platform;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 
 public class Configuration {
 
@@ -22,7 +20,7 @@ public class Configuration {
             if(Platform.config.hasPath("graph.ids"))
             	graphIds = Platform.config.getStringList("graph.ids");
         } catch (Exception e) {
-        	PlatformLogger.log("Error! While Loading Graph Properties.", e.getMessage(),LoggerEnum.ERROR.name());
+        	e.getMessage();
         }
     }
     

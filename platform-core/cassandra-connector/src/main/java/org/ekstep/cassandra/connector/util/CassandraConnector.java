@@ -2,8 +2,8 @@ package org.ekstep.cassandra.connector.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
@@ -24,7 +24,7 @@ public class CassandraConnector {
 		try{
 			String host = Platform.config.getString("cassandra.host");
 			int port = Platform.config.getInt("cassandra.port");
-			PlatformLogger.log("Fetching cassandra properties from configPath" + host + port, null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Fetching cassandra properties from configPath" + host + port, null, Level.INFO.name());
 			if (StringUtils.isBlank(host))
 				host = "localhost";					
 			if (port <= 0)

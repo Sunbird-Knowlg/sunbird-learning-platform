@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
@@ -32,6 +31,7 @@ import org.ekstep.taxonomy.enums.SuggestionCodeConstants;
 import org.ekstep.taxonomy.enums.SuggestionConstants;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.mgr.ISuggestionManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * The Class SuggestionManager provides implementations of the various

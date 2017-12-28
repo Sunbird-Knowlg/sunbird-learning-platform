@@ -1,6 +1,6 @@
 package org.ekstep.dac;
 
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.modelmapper.ModelMapper;
 
 

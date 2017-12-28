@@ -4,9 +4,9 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.mgr.IDictionaryManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

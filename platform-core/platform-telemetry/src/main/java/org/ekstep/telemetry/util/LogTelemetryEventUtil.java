@@ -1,4 +1,4 @@
-package org.ekstep.common.util;
+package org.ekstep.telemetry.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -9,9 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.dto.Request;
-import org.ekstep.common.dto.TelemetryBEEvent;
 import org.ekstep.common.dto.TelemetryPBIEvent;
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.dto.TelemetryBEEvent;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

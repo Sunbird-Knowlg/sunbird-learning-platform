@@ -19,7 +19,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ElementMap;
 import org.ekstep.content.entity.Controller;
@@ -30,6 +29,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;

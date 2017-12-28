@@ -17,9 +17,9 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

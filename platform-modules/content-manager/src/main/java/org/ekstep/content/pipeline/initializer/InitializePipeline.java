@@ -5,7 +5,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.operation.initializer.BundleInitializer;
@@ -13,6 +12,7 @@ import org.ekstep.content.operation.initializer.PublishInitializer;
 import org.ekstep.content.operation.initializer.ReviewInitializer;
 import org.ekstep.content.operation.initializer.UploadInitializer;
 import org.ekstep.content.pipeline.BasePipeline;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 
 /**

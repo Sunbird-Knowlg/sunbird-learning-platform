@@ -26,8 +26,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -48,6 +46,8 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -110,7 +110,7 @@ public class BasePipeline extends BaseManager {
 		Response response = new Response();
 		if (null != node) {
 			PlatformLogger.log("Update Node " + node.getIdentifier() + ".", node,
-					null, LoggerEnum.INFO.name());
+					null, Level.INFO.name());
 			Cloner cloner = new Cloner();
 			Node clonedNode = cloner.deepClone(node);
 			Request updateReq = getRequest(clonedNode.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
@@ -121,7 +121,7 @@ public class BasePipeline extends BaseManager {
 			response = getResponse(updateReq);
 		}
 		PlatformLogger.log("Returning Response For Update Node", response,
-				null, LoggerEnum.INFO.name());
+				null, Level.INFO.name());
 		return response;
 	}
 
@@ -136,7 +136,7 @@ public class BasePipeline extends BaseManager {
 	 */
 	protected Response updateContentBody(String contentId, String body) {
 		PlatformLogger.log("Update Content Body For Content Id: " + contentId + ".", null,
-				null, LoggerEnum.INFO.name());
+				null, Level.INFO.name());
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
 		request.setOperation(ContentStoreOperations.updateContentBody.name());
@@ -294,7 +294,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				PlatformLogger.log("Error! While getting the file size from AWS", key, e,LoggerEnum.WARN.name());
+				PlatformLogger.log("Error! While getting the file size from AWS", key, e,Level.WARN.name());
 			}
 		}
 		return bytes;
@@ -315,7 +315,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return sdf.format(date);
 			} catch (Exception e) {
-				PlatformLogger.log("Error! While Converting the Date Format.", date, e, LoggerEnum.WARN.name());
+				PlatformLogger.log("Error! While Converting the Date Format.", date, e, Level.WARN.name());
 			}
 		}
 		return null;

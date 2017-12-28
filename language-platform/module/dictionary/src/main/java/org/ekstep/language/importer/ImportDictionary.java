@@ -20,11 +20,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.language.enums.Enums.ObjectType;
 import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class ImportDictionary {
 

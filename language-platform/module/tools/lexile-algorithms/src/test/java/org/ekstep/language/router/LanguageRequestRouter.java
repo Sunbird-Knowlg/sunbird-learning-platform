@@ -10,13 +10,12 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.actor.LexileMeasuresActor;
-
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
@@ -101,7 +100,7 @@ public class LanguageRequestRouter extends UntypedActor {
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), LoggerEnum.WARN.name());
+        PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), Level.WARN.name());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());
