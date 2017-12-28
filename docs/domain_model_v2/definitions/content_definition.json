@@ -1481,7 +1481,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "JSON",
+					"dataType": "List",
 					"propertyName": "dialcodes",
 					"title": "Dial Codes for Content",
 					"description": "Array of DialCodes Linked to Content",
