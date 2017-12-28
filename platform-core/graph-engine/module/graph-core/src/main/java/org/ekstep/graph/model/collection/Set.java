@@ -607,7 +607,7 @@ public class Set extends AbstractCollection {
 				dacRequest.put(GraphDACParams.collection_id.name(), setId);
 				dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
 				dacRequest.put(GraphDACParams.members.name(), memberIds);
-				manager.returnResponse(Futures.successful(graphMgr.createCollection(dacRequest)), getParent());
+				graphMgr.createCollection(dacRequest);
 			}
 			req.getContext().get(GraphDACParams.graph_id.name());
 			SetCacheManager.createSet(graphId, setId, memberIds);
