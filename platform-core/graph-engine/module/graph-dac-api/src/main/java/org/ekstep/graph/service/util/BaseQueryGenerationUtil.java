@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
@@ -21,6 +20,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class BaseQueryGenerationUtil {
 

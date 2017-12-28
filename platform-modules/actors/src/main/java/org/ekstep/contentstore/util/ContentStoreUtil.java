@@ -15,9 +15,9 @@ import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
-import org.ekstep.common.util.LogAsyncGraphEvent;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -173,7 +173,7 @@ public class ContentStoreUtil {
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("select blobAsText(").append(property).append(") as ");
 			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " + getKeyspaceName() +"."+keyspaceTable  +  " where content_id = ?");
-			PlatformLogger.log("Fetched keyspace names for get Operation: " + getKeyspaceName() + keyspaceTable, null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Fetched keyspace names for get Operation: " + getKeyspaceName() + keyspaceTable, null, Level.INFO.name());
 		}
 		return sb.toString();
 	}
@@ -202,7 +202,7 @@ public class ContentStoreUtil {
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("UPDATE " + getKeyspaceName() +"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
 			sb.append(property.trim()).append(" = textAsBlob(?) where content_id = ?");
-			PlatformLogger.log("Fetched keyspace names for update Operation: " + getKeyspaceName() + keyspaceTable, null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Fetched keyspace names for update Operation: " + getKeyspaceName() + keyspaceTable, null, Level.INFO.name());
 		}
 		return sb.toString();
 	}

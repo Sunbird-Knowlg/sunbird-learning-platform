@@ -5,7 +5,6 @@ import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -16,6 +15,7 @@ import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.NodeUpdateMode;
 import org.ekstep.graph.service.util.DefinitionNodeUtil;
 import org.ekstep.graph.service.util.PassportUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 

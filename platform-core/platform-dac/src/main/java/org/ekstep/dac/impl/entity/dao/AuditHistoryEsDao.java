@@ -8,11 +8,11 @@ import java.util.Map;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.dac.enums.AuditHistoryConstants;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

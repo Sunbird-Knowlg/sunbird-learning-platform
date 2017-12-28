@@ -1,6 +1,6 @@
 package org.ekstep.kernel.extension;
 
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;

@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
@@ -22,6 +21,7 @@ import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.ITaxonomyManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 @Component
 public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager {

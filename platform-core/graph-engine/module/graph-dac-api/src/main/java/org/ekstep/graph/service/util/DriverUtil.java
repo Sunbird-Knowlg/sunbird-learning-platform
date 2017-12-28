@@ -6,9 +6,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.GraphOperation;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
 

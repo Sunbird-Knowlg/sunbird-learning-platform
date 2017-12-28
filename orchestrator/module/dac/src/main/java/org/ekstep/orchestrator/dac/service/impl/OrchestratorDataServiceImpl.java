@@ -12,7 +12,6 @@ import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.connector.util.CassandraConnectorStoreParam;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.ResultSet;
@@ -21,6 +20,7 @@ import com.datastax.driver.core.Session;
 import org.ekstep.orchestrator.dac.model.OrchestratorScript;
 import org.ekstep.orchestrator.dac.model.ScriptTypes;
 import org.ekstep.orchestrator.dac.service.IOrchestratorDataService;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 @Component
 public class OrchestratorDataServiceImpl implements IOrchestratorDataService {

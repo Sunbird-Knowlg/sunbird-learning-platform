@@ -10,8 +10,6 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.language.actor.EnrichActor;
 import org.ekstep.language.actor.IndexesActor;
 import org.ekstep.language.actor.IndowordnetActor;
@@ -22,7 +20,8 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.actor.LexileMeasuresActor;
 import org.ekstep.language.services.ImportActor;
 import org.ekstep.language.transliterate.actor.TransliteratorActor;
-
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
@@ -182,7 +181,7 @@ public class LanguageRequestRouter extends UntypedActor {
 	 *            the parent
 	 */
 	protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-		PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), LoggerEnum.WARN.name());
+		PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), Level.WARN.name());
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus(StatusType.failed.name());

@@ -12,7 +12,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.mgr.impl.SetCacheManager;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
@@ -23,6 +22,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.dispatch.Futures;
 import scala.concurrent.ExecutionContext;

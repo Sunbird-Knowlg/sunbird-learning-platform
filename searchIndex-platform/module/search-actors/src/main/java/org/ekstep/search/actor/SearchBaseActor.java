@@ -12,9 +12,8 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;

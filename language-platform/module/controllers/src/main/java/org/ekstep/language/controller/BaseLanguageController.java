@@ -9,11 +9,10 @@ import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.router.RequestRouterPool;

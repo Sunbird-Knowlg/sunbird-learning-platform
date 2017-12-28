@@ -1,9 +1,8 @@
 package org.ekstep.orchestrator.interpreter.command;
 
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
-
 import org.ekstep.orchestrator.interpreter.ICommand;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;

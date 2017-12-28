@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Property;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -15,6 +14,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
 public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {

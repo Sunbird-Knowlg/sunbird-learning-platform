@@ -11,10 +11,10 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -92,7 +92,7 @@ public class ConfigV3Controller extends BaseController {
 					response.put(languageId, map);
 					PlatformLogger.log("getResourceBundle | successResponse" , response.getResponseCode());
 				} catch (Exception e) {
-					PlatformLogger.log("getResourceBundle | Exception" + e.getMessage(), e, LoggerEnum.WARN.name());
+					PlatformLogger.log("getResourceBundle | Exception" + e.getMessage(), e, Level.WARN.name());
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -131,7 +131,7 @@ public class ConfigV3Controller extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
-				PlatformLogger.log("Get Ordinals | Exception" , e.getMessage(), e, LoggerEnum.WARN.name());
+				PlatformLogger.log("Get Ordinals | Exception" , e.getMessage(), e, Level.WARN.name());
 			}
 			PlatformLogger.log("Get Ordinals | Response" , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);

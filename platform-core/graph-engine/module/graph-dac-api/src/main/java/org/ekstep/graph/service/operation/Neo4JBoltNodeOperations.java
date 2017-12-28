@@ -11,8 +11,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.DateUtils;
@@ -30,6 +28,8 @@ import org.ekstep.graph.service.request.validator.Neo4JBoltAuthorizationValidato
 import org.ekstep.graph.service.request.validator.Neo4jBoltValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.NodeQueryGenerationUtil;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
@@ -554,19 +554,19 @@ public class Neo4JBoltNodeOperations {
 		if (null != request && null != request.getContext()) {
 			String channel = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
 			PlatformLogger.log("Channel from request: " + channel + " for content: " + node.getIdentifier(), null,
-					LoggerEnum.DEBUG.name());
+					Level.DEBUG.name());
 			if (StringUtils.isNotBlank(channel))
 				node.getMetadata().put(GraphDACParams.channel.name(), channel);
 
 			String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
 			PlatformLogger.log("ConsumerId from request: " + consumerId + " for content: " + node.getIdentifier(), null,
-					LoggerEnum.DEBUG.name());
+					Level.DEBUG.name());
 			if (StringUtils.isNotBlank(consumerId))
 				node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
 
 			String appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
 			PlatformLogger.log("App Id from request: " + appId + " for content: " + node.getIdentifier(), null,
-					LoggerEnum.DEBUG.name());
+					Level.DEBUG.name());
 			if (StringUtils.isNotBlank(appId))
 				node.getMetadata().put(GraphDACParams.appId.name(), appId);
 		}

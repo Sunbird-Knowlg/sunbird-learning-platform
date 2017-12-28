@@ -1,4 +1,4 @@
-package org.ekstep.common.util;
+package org.ekstep.telemetry.util;
 
 import java.util.List;
 import java.util.Map;

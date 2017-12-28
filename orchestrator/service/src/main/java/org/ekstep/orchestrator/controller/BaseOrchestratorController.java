@@ -14,12 +14,12 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.PlatformLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.ekstep.orchestrator.dac.model.OrchestratorScript;
 import org.ekstep.orchestrator.interpreter.exception.ExecutionErrorCodes;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public abstract class BaseOrchestratorController {
     

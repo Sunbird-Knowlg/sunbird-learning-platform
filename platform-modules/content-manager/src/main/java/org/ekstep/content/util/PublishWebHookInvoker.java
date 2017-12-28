@@ -13,9 +13,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Request;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.S3PropertyReader;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.dto.CoverageIgnore;
 
 @CoverageIgnore

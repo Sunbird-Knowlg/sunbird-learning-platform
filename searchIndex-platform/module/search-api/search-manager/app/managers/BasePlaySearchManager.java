@@ -24,7 +24,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.util.LogTelemetryEventUtil;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 
 import akka.actor.ActorRef;

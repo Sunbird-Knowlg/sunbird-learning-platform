@@ -13,8 +13,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.searchindex.transformer.IESResultTransformer;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

@@ -4,12 +4,12 @@ import java.util.Map;
 
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.neo4j.driver.internal.InternalNode;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;

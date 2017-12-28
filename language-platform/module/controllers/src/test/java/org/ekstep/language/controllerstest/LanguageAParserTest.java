@@ -13,8 +13,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
@@ -26,6 +24,8 @@ import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.common.LanguageCommonTestHelper;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -88,7 +88,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.put(GraphDACParams.node.name(), word);
 		res = LanguageCommonTestHelper.getResponse(request);
 		if (!res.getParams().getStatus().equalsIgnoreCase("successful")) {
-			PlatformLogger.log("Error!",res.getParams().getErr() + res.getParams().getErrmsg(), LoggerEnum.WARN.name());
+			PlatformLogger.log("Error!",res.getParams().getErr() + res.getParams().getErrmsg(), Level.WARN.name());
 		}
 		Assert.assertEquals("successful", res.getParams().getStatus());
 

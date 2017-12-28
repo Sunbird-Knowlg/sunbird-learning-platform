@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
@@ -31,6 +30,7 @@ import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.ekstep.language.wordchian.WordChainUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.stereotype.Component;
 
 

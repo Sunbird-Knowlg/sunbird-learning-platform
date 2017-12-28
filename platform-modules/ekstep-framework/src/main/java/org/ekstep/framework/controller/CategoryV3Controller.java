@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.framework.mgr.ICategoryManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * This is the entry point for all CRUD operations related to category API.

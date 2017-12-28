@@ -18,7 +18,6 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.UnzipUtility;
@@ -33,6 +32,7 @@ import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 
 public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {

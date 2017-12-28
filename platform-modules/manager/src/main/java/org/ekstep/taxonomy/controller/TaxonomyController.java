@@ -13,8 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.enums.ImportType;
@@ -34,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.ITaxonomyManager;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 @Controller
 @RequestMapping("/taxonomy")
@@ -45,15 +45,15 @@ public class TaxonomyController extends BaseController {
 	@PostConstruct
 	public void postConstruct() {
 		if (Platform.config.hasPath("cache.graphs_list")) {
-			PlatformLogger.log("Loading definition nodes to in-memory cache.", null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Loading definition nodes to in-memory cache.", null, Level.INFO.name());
 			List<String> graphIds = Platform.config.getStringList("cache.graphs_list");
 			for (String graphId: graphIds) {
-				PlatformLogger.log("Loading definition nodes to in-memory cache for graph: "+graphId, null, LoggerEnum.INFO.name());
+				PlatformLogger.log("Loading definition nodes to in-memory cache for graph: "+graphId, null, Level.INFO.name());
 				taxonomyManager.findAllDefinitions(graphId);
 			}
-			PlatformLogger.log("Loading definition nodes to in-memory cache is complete.", null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Loading definition nodes to in-memory cache is complete.", null, Level.INFO.name());
 		} else {
-			PlatformLogger.log("Not loading definition nodes to in-memory cache because configuration is not available.", null, LoggerEnum.WARN.name());
+			PlatformLogger.log("Not loading definition nodes to in-memory cache because configuration is not available.", null, Level.WARN.name());
 		}
 	}
 	

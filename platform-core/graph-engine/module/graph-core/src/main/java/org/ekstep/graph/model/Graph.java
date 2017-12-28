@@ -25,7 +25,6 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
 import org.ekstep.graph.cache.mgr.impl.SetCacheManager;
 import org.ekstep.graph.common.enums.GraphEngineParams;
@@ -55,6 +54,7 @@ import org.ekstep.graph.reader.GraphReaderFactory;
 import org.ekstep.graph.reader.JsonGraphReader;
 import org.ekstep.graph.writer.GraphWriterFactory;
 import org.ekstep.graph.writer.RDFGraphWriter;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.dispatch.Futures;
 import akka.util.Timeout;

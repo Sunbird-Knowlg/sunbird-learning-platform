@@ -15,10 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 	
@@ -56,6 +56,8 @@ public class ResponseFilter implements Filter {
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
+			requestWrapper.setAttribute("env", getEnv(requestWrapper));
+			
 			chain.doFilter(requestWrapper, responseWrapper);
 			
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
@@ -67,6 +69,12 @@ public class ResponseFilter implements Filter {
 		}
 	}
 
+	private String getEnv(RequestWrapper requestWrapper) {
+		String path = requestWrapper.getRequestURI();
+		String env = path.split("/")[3];
+		return env;
+	}
+	
 	@Override
 	public void destroy() {
 

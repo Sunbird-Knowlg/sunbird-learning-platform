@@ -1,5 +1,6 @@
 package org.ekstep.jobs.samza.task;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.samza.config.Config;
@@ -38,12 +39,23 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 	@SuppressWarnings("unchecked")
 	@Override
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
-		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
+		Map<String, Object> outgoingMap = getMessage(envelope);
 		try {
 			auditHistoryMsgProcessor.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
 			metrics.incFailedCounter();
 			LOGGER.error("Message processing failed", outgoingMap, e);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getMessage(IncomingMessageEnvelope envelope) {
+		try {
+			return (Map<String, Object>) envelope.getMessage();
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("Invalid message:" + envelope.getMessage(), e);
+			return new HashMap<String, Object>();
 		}
 	}
 

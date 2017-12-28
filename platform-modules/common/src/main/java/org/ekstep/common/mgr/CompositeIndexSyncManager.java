@@ -13,8 +13,6 @@ import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.PlatformLogger;
-import org.ekstep.common.util.LogAsyncGraphEvent;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
@@ -22,7 +20,8 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 import org.ekstep.common.enums.CompositeSearchErrorCodes;
 import org.ekstep.common.enums.CompositeSearchParams;
 
