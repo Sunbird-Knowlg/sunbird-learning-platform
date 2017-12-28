@@ -56,7 +56,7 @@ public class ResponseFilter implements Filter {
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-			requestWrapper.setAttribute("env", "language-service");
+			requestWrapper.setAttribute("env", getEnv(requestWrapper));
 			
 			chain.doFilter(requestWrapper, responseWrapper);
 			
@@ -69,6 +69,12 @@ public class ResponseFilter implements Filter {
 		}
 	}
 
+	private String getEnv(RequestWrapper requestWrapper) {
+		String path = requestWrapper.getRequestURI();
+		String env = path.split("/")[3];
+		return env;
+	}
+	
 	@Override
 	public void destroy() {
 

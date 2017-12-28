@@ -32,7 +32,7 @@ public class TelemetryAccessEventUtil {
 			params.put("protocol", data.get("Protocol"));
 			params.put("method", (String) data.get("Method"));
 			if (null != request) {
-				params.put("req", request.getRequest());
+				params.put("req", getRequestString(request));
 			}
 
 			Map<String, String> context = new HashMap<String, String>();
@@ -72,6 +72,16 @@ public class TelemetryAccessEventUtil {
 
 	}
 
+	
+	private static String getRequestString(Request request) {
+		try {
+			return mapper.writeValueAsString(request.getRequest());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static void writeTelemetryEventLog(RequestWrapper requestWrapper, ResponseWrapper responseWrapper) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		Request request = null;
@@ -106,7 +116,7 @@ public class TelemetryAccessEventUtil {
 			data.put("ContentLength", responseContent.length);
 			data.put("Status", responseWrapper.getStatus());
 			data.put("Protocol", requestWrapper.getProtocol());
-			data.put("path", requestWrapper.getRequestURI().toString());
+			data.put("path", requestWrapper.getRequestURI());
 			data.put("Method", requestWrapper.getMethod());
 			data.put("X-Session-ID", requestWrapper.getHeader("X-Session-ID"));
 			data.put("X-Consumer-ID", requestWrapper.getHeader("X-Consumer-ID"));

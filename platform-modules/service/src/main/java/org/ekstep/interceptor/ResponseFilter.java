@@ -56,7 +56,8 @@ public class ResponseFilter implements Filter {
 
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-			requestWrapper.setAttribute("env", "learning-service");
+			
+			requestWrapper.setAttribute("env", getEnv(requestWrapper));
 
 			chain.doFilter(requestWrapper, responseWrapper);
 
@@ -67,6 +68,12 @@ public class ResponseFilter implements Filter {
 					" | Remote Address: " + request.getRemoteAddr() + " | Params: " + request.getParameterMap());
 			chain.doFilter(httpRequest, response);
 		}
+	}
+	
+	private String getEnv(RequestWrapper requestWrapper) {
+		String path = requestWrapper.getRequestURI();
+		String env = path.split("/")[3];
+		return env;
 	}
 
 	@Override

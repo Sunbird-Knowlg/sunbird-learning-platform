@@ -121,7 +121,7 @@ public class PlatformLogger {
 		if (exception != null) {
 			eks.put("stacktrace", ExceptionUtils.getStackTrace(exception));
 		}
-		te.setEid(Level.BE_LOG.name());
+		te.setEid("BE_LOG");
 		te.setEts(unixTime);
 		te.setMid(mid);
 		te.setVer("2.0");
