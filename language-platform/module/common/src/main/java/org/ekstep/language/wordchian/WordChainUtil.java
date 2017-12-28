@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Node;
@@ -12,6 +11,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.util.WordUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * The Class WordChainUtil, provides functionality to update the word with

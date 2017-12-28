@@ -1,4 +1,4 @@
-package org.ekstep.common.dto;
+package org.ekstep.telemetry.dto;
 
 import java.util.HashMap;
 import java.util.Map;

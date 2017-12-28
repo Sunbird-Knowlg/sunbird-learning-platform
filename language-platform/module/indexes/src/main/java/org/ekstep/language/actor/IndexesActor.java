@@ -15,7 +15,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -28,7 +27,7 @@ import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 import akka.actor.ActorRef;

@@ -8,10 +8,9 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.router.RequestRouterPool;

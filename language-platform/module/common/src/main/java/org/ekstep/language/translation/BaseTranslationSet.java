@@ -8,7 +8,6 @@ import java.util.Map;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Filter;
@@ -21,7 +20,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.enums.CollectionTypes;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
-
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.mgr.BaseManager;
 
 public class BaseTranslationSet extends BaseManager{

@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
 import org.ekstep.graph.cache.util.CacheKeyGenerator;
 import org.ekstep.graph.cache.util.RedisKeysEnum;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * 

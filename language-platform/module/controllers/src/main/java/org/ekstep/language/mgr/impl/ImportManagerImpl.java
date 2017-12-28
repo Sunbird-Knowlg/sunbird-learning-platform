@@ -28,7 +28,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -54,6 +53,7 @@ import org.ekstep.language.models.WordModel;
 import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.stereotype.Component;
 
 /**

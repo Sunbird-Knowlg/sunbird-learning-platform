@@ -2,8 +2,6 @@ package org.ekstep.orchestrator.interpreter.command;
 
 import java.util.Map;
 
-import org.ekstep.common.util.LogTelemetryEventUtil;
-
 import org.ekstep.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
@@ -33,7 +31,6 @@ public class LogContentLifecycleEvent extends BaseSystemCommand implements IComm
                     String contentId = tclObject1.toString();
                     Object obj2 = ReflectObject.get(interp, tclObject2);
                     Map<String, Object> metadataMap = (Map<String, Object>) obj2;
-                    LogTelemetryEventUtil.logContentLifecycleEvent(contentId, metadataMap);
                     interp.setResult(true);
                 }
             } catch (Exception e) {

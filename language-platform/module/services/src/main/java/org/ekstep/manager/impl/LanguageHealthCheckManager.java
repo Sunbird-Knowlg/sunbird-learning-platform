@@ -11,13 +11,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.ekstep.common.mgr.HealthCheckManager;
 import org.ekstep.orchestrator.dac.service.IOrchestratorDataService;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 @Component
 public class LanguageHealthCheckManager extends HealthCheckManager {
@@ -93,7 +93,7 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
-			PlatformLogger.log("Exception", e.getMessage(), LoggerEnum.WARN.name());
+			PlatformLogger.log("Exception", e.getMessage(), Level.WARN.name());
     			check.put("healthy", false);
     			check.put("err", "503"); // error code, if any
     			check.put("errmsg", "Cassandra connection is not available"); 

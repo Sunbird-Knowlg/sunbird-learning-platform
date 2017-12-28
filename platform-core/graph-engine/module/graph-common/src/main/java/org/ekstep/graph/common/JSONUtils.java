@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

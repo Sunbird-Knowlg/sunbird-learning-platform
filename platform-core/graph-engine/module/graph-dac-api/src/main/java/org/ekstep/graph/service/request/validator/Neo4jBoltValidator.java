@@ -1,13 +1,13 @@
 package org.ekstep.graph.service.request.validator;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.NodeUpdateMode;
 import org.ekstep.graph.service.util.LocalCache;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class Neo4jBoltValidator extends Neo4JBoltDataVersionKeyValidator {
 

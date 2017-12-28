@@ -6,13 +6,13 @@ import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public abstract class BaseContentManager extends BaseManager {
 

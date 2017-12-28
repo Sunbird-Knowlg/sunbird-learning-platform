@@ -11,9 +11,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.slugs.Slug;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * A utility that downloads a file from a URL.
@@ -117,7 +117,7 @@ public class HttpDownloadUtility {
 				}
 		}
 
-		PlatformLogger.log("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'.", fileURL, LoggerEnum.WARN.name());
+		PlatformLogger.log("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'.", fileURL, Level.WARN.name());
 		return null;
 	}
 

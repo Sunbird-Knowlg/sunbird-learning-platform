@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ExtractionType;
@@ -16,6 +15,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 
 /**

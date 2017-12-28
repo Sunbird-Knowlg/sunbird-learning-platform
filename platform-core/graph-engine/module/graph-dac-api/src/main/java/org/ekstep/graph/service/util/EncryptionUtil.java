@@ -5,7 +5,7 @@ import java.security.Key;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;

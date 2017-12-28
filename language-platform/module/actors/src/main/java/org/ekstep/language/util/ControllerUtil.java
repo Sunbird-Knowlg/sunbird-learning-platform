@@ -15,7 +15,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -28,6 +27,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.stereotype.Component;
 
 import org.ekstep.common.enums.TaxonomyErrorCodes;

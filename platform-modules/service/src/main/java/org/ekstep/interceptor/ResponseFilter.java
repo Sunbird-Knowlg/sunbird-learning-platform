@@ -15,10 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 
@@ -45,10 +45,10 @@ public class ResponseFilter implements Filter {
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		else
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
-		
+
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
-		
+
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			PlatformLogger.log("Path: " + requestWrapper.getServletPath(),
@@ -56,6 +56,8 @@ public class ResponseFilter implements Filter {
 
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
+
+			requestWrapper.setAttribute("env", getEnv(requestWrapper));
 
 			chain.doFilter(requestWrapper, responseWrapper);
 
@@ -65,6 +67,22 @@ public class ResponseFilter implements Filter {
 			PlatformLogger.log("Path: " + httpRequest.getServletPath(),
 					" | Remote Address: " + request.getRemoteAddr() + " | Params: " + request.getParameterMap());
 			chain.doFilter(httpRequest, response);
+		}
+	}
+
+	private String getEnv(RequestWrapper requestWrapper) {
+		String path = requestWrapper.getRequestURI();
+		if (path.contains("/v3/definitions") || path.contains("/v3/import") || path.contains("/v3/export")
+				|| path.contains("/taxonomy/")) {
+			return "core";
+		}
+		if (path.contains("/sync/") || path.contains("v3/system")) {
+			return "system";
+		}
+		if (path.contains("/domain")) {
+			return "domain";
+		} else {
+			return path.split("/")[3];
 		}
 	}
 

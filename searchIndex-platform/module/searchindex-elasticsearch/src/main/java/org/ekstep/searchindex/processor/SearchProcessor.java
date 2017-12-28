@@ -9,12 +9,12 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import com.google.gson.internal.LinkedTreeMap;
 

@@ -23,7 +23,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.optimizr.ThumbnailGenerator;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
@@ -41,6 +40,7 @@ import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.dac.dto.AuditHistoryRecord;
 import org.ekstep.dac.enums.CommonDACParams;
 import org.ekstep.dac.impl.IAuditHistoryEsService;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import org.ekstep.taxonomy.enums.AuditLogErrorCodes;
 import org.ekstep.taxonomy.mgr.IAuditHistoryManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 
 /**

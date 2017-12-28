@@ -6,12 +6,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.contentstore.util.ContentStoreUtil;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.actor.ActorRef;
 

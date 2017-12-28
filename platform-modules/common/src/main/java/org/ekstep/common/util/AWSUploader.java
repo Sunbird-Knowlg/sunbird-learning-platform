@@ -11,8 +11,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.slugs.Slug;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;

@@ -11,8 +11,6 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
@@ -20,7 +18,8 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.router.RequestRouterPool;
@@ -56,7 +55,7 @@ public class PublishManager extends BaseManager {
 					+ "' Started Successfully!");
 			if (Platform.config.hasPath("content.publish_task.enabled")) {
 				if (Platform.config.getBoolean("content.publish_task.enabled")) {
-					PlatformLogger.log("Publish task execution starting for content Id: " + contentId, null, LoggerEnum.INFO.name());
+					PlatformLogger.log("Publish task execution starting for content Id: " + contentId, null, Level.INFO.name());
 					executor.submit(new PublishTask(contentId, parameterMap));
 				}
 			}

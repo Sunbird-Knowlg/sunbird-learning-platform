@@ -3,10 +3,10 @@ package org.ekstep.language.batch.controller;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.language.batch.mgr.IBatchManager;
 import org.ekstep.language.batch.mgr.IWordnetCSVManager;
 import org.ekstep.language.controller.BaseLanguageController;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

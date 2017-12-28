@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.IContentManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * The Class ContentV2Controller, is the main entry point for the High Level

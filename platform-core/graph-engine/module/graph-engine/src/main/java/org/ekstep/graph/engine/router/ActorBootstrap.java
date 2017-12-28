@@ -9,12 +9,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.engine.mgr.impl.CollectionManagerImpl;
 import org.ekstep.graph.engine.mgr.impl.GraphMgrImpl;
 import org.ekstep.graph.engine.mgr.impl.NodeManagerImpl;
 import org.ekstep.graph.engine.mgr.impl.SearchManagerImpl;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -45,7 +45,7 @@ public class ActorBootstrap {
             document.getDocumentElement().normalize();
             loadConfiguration();
         } catch (Exception e) {
-			PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), LoggerEnum.ERROR.name());
+			PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), Level.ERROR.name());
         }
     }
 
