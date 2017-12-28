@@ -1046,15 +1046,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
 		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
 		boolean isUnlistedState = StringUtils.equalsIgnoreCase("Unlisted", status);
-		boolean logEvent = false;
+		
 		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
 			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus);
 			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus);
 			if ((updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
 				map.put("lastSubmittedOn", DateUtils.format(new Date()));
-			if (!StringUtils.equalsIgnoreCase(status, inputStatus))
-				logEvent = true;
 		}
 
 		boolean checkError = false;
@@ -1105,12 +1103,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return createResponse;
 
 		createResponse.put(GraphDACParams.node_id.name(), originalId);
-		if (logEvent) {
-			metadata.putAll(map);
-			metadata.put("prevState", status);
-			LogTelemetryEventUtil.logContentLifecycleEvent(originalId, metadata);
-		}
-
+		
 		if (null != externalProps && !externalProps.isEmpty()) {
 			Response externalPropsResponse = updateContentProperties(contentId, externalProps);
 			if (checkError(externalPropsResponse))

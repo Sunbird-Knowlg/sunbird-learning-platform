@@ -329,7 +329,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		PlatformLogger.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
-		LogTelemetryEventUtil.logContentLifecycleEvent(contentId, newNode.getMetadata());
 		return response;
 	}
 

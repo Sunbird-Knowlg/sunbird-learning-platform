@@ -19,7 +19,6 @@ public class LogTelemetryEventUtil {
 
 	
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
-	private static final Logger objectLifecycleEventLogger = LogManager.getLogger("ObjectLifecycleLogger");
 	private static final Logger instructionEventLogger = LogManager.getLogger("InstructionEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
@@ -74,38 +73,6 @@ public class LogTelemetryEventUtil {
 			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event" + e.getMessage(),null, e);
 		}
 		return jsonMessage;
-	}
-	
-	public static String logObjectLifecycleEvent(String objectId, Map<String, Object> metadata){
-			TelemetryBEEvent te = new TelemetryBEEvent();
-			Map<String,Object> data = new HashMap<String,Object>();
-			te.setEid("BE_OBJECT_LIFECYCLE");
-			long ets = (long)metadata.get("ets");
-			te.setEts(ets);
-			te.setVer("2.0");
-			te.setChannel((String)metadata.get("channel"));
-			te.setPdata("org.ekstep.platform", "", "1.0", "");
-			data.put("id", objectId);
-			data.put("parentid", metadata.get("parentid"));
-			data.put("parenttype", metadata.get("parenttype"));
-			data.put("type", metadata.get("objectType"));
-			data.put("subtype", metadata.get("subtype"));
-			data.put("code", metadata.get("code"));
-			data.put("name", metadata.get("name"));
-			data.put("state", metadata.get("state"));
-			data.put("prevstate", metadata.get("prevstate"));
-			te.setEdata(data);
-			String mid = getMD5Hash(te, data);
-			te.setMid(mid);
-			String jsonMessage = null;
-			try {
-				jsonMessage = mapper.writeValueAsString(te);
-				if (StringUtils.isNotBlank(jsonMessage))
-					objectLifecycleEventLogger.info(jsonMessage);
-			} catch (Exception e) {
-				PlatformLogger.log("Error logging OBJECT_LIFECYCLE event: " +e.getMessage(),null, e);
-			}
-			return jsonMessage;
 	}
 	
 	public static String getMD5Hash(TelemetryBEEvent event, Map<String,Object> data){

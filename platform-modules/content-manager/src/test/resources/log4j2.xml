@@ -72,23 +72,6 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
-		<RollingRandomAccessFile name="ObjectLifecycleEventAppender" fileName="/data/logs/object_lifecycle_event.log"
-			filePattern="/data/logs/object_lifecycle_event-%d{MM-dd-yyyy-hh}-%i.log">
-			<PatternLayout>
-				<Pattern>%d %msg%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<SizeBasedTriggeringPolicy size="250 MB" />
-				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
-				<OnStartupTriggeringPolicy />
-			</Policies>
-			<DefaultRolloverStrategy>
-                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="object_lifecycle_event-*.log" />
-                    <IfLastModified age="7d" />
-                </Delete>
-            </DefaultRolloverStrategy>
-		</RollingRandomAccessFile>
 
 		<RollingRandomAccessFile name="InstructionEventAppender" fileName="/data/logs/instruction_event_mw.log"
 			filePattern="/data/logs/instruction_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
@@ -118,9 +101,6 @@
 		</Logger>
 		<Logger name="GraphEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="GraphEventAppender" />
-		</Logger>
-		<Logger name="ObjectLifecycleLogger" level="INFO" additivity="false">
-			<AppenderRef ref="ObjectLifecycleEventAppender" />
 		</Logger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
