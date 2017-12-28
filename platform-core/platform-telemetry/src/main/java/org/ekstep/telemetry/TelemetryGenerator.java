@@ -19,10 +19,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TelemetryGenerator {
 
-	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
-	private static ObjectMapper mapper = new ObjectMapper();
 	
-	public static void apiAccess(Map<String, Object> params, Map<String, String> context) {
+	private static ObjectMapper mapper = new ObjectMapper();
+
+	public static String access(Map<String, Object> params, Map<String, String> context) {
+		String event = "";
 		try {
 			String actorId = context.get("cid");
 			Actor actor = new Actor(actorId, "System");
@@ -30,22 +31,25 @@ public class TelemetryGenerator {
 			Map<String, Object> edata = new HashMap<String, Object>();
 			edata.put("type", "api_access");
 			edata.put("level", "INFO");
-			edata.put("message","");
+			edata.put("message", "");
 			edata.put("params", getParamsList(params));
 			Telemetry tel = new Telemetry("LOG", actor, eventContext, edata);
 
-			String event = mapper.writeValueAsString(tel);
-			telemetryEventLogger.info(event);
+			event = mapper.writeValueAsString(tel);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return event;
 	}
-	
+
 	public static String log() {
 		return null;
 	}
-	
-	
+
+	public static String search() {
+		return null;
+	}
+
 	private static Context getContext(Map<String, String> context) {
 		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get("channel");
 		String env = context.get("env");
@@ -56,14 +60,14 @@ public class TelemetryGenerator {
 		String did = context.get("did");
 		if (StringUtils.isNotBlank(did))
 			eventContext.setDid(did);
-		
+
 		return eventContext;
 	}
-	
+
 	private static List<Map<String, Object>> getParamsList(Map<String, Object> params) {
 		List<Map<String, Object>> paramsList = new ArrayList<Map<String, Object>>();
 		if (null != params && !params.isEmpty()) {
-			for(Entry<String, Object> entry : params.entrySet()) {
+			for (Entry<String, Object> entry : params.entrySet()) {
 				Map<String, Object> param = new HashMap<String, Object>();
 				param.put(entry.getKey(), entry.getValue());
 				paramsList.add(param);

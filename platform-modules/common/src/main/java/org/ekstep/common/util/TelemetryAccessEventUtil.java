@@ -7,7 +7,7 @@ import java.util.Map;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.logger.PlatformLogger;
-import org.ekstep.telemetry.TelemetryGenerator;
+import org.ekstep.telemetry.logger.TelemetryLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -65,7 +65,7 @@ public class TelemetryAccessEventUtil {
 				}
 			}
 
-			TelemetryGenerator.apiAccess(params, context);
+			TelemetryLogger.access(params, context);
 		}
 
 	}
