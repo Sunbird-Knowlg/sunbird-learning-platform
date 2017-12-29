@@ -8,14 +8,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.graph.common.enums.GraphEngineParams;
-import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.engine.router.ActorBootstrap;
 import org.ekstep.graph.engine.router.GraphEngineActorPoolMgr;
-import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.service.util.DriverUtil;
+import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -23,10 +20,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
 import akka.actor.ActorRef;
-import akka.pattern.Patterns;
 import akka.util.Timeout;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -37,7 +31,7 @@ public class TestSetUp {
 
 	static ClassLoader classLoader = TestSetUp.class.getClassLoader();
 	static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
-
+	private static TaxonomyManagerImpl taxonomyMgr = new TaxonomyManagerImpl();
 	private static GraphDatabaseService graphDb = null;
 
 	private static String NEO4J_SERVER_ADDRESS = "localhost:7687";
@@ -108,21 +102,13 @@ public class TestSetUp {
 			for (String path : paths) {
 				File file = new File(classLoader.getResource(path).getFile());
 				String definition = FileUtils.readFileToString(file);
-				createDefinition(Platform.config.getString(TestParams.graphId.name()), definition);
+				createDefinition("domain", definition);
 			}
 		}
 	}
 
 	private static void createDefinition(String graphId, String definition) throws Exception {
-		Request request = new Request();
-		request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-		request.setManagerName(GraphEngineManagers.NODE_MANAGER);
-		request.setOperation("importDefinitions");
-		request.put(GraphEngineParams.input_stream.name(), definition);
-		Future<Object> response = Patterns.ask(reqRouter, request, timeout);
-		Object obj = Await.result(response, t.duration());
-
-		Response resp = (Response) obj;
+		Response resp = taxonomyMgr.updateDefinition(graphId, definition);
 		if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
 			System.out.println(resp.getParams().getErr() + " :: " + resp.getParams().getErrmsg());
 		}

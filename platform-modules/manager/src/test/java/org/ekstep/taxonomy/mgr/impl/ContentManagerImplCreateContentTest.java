@@ -10,9 +10,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.util.DriverUtil;
+import org.ekstep.taxonomy.mgr.IContentManager;
+import org.ekstep.test.common.TestSetUp;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.driver.v1.Driver;
@@ -23,16 +25,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import org.ekstep.taxonomy.mgr.IContentManager;
 
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentManagerImplCreateContentTest {
+public class ContentManagerImplCreateContentTest extends TestSetUp {
 
 	@Autowired
 	IContentManager contentManager;
 	
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		loadDefinition("definitions/concept_definition.json", "definitions/content_definition.json",
+				"definitions/dimension_definition.json");
+	}
+
 	@AfterClass
 	public static void afterClass() {
 		Driver driver = DriverUtil.getDriver("domain", GraphOperation.WRITE);
