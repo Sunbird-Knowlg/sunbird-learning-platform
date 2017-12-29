@@ -1,7 +1,10 @@
 package org.ekstep.interceptor;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,10 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 	
@@ -56,6 +59,8 @@ public class ResponseFilter implements Filter {
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
+			requestWrapper.setAttribute("env", getEnv(requestWrapper));
+			
 			chain.doFilter(requestWrapper, responseWrapper);
 			
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
@@ -67,6 +72,25 @@ public class ResponseFilter implements Filter {
 		}
 	}
 
+	private String getEnv(RequestWrapper requestWrapper) {
+		String path = requestWrapper.getRequestURI();
+		List<String> pathSplitted = Arrays.asList(path.split("/"));
+		pathSplitted = pathSplitted.stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+		String defaultEnv = pathSplitted.contains("v3") ? pathSplitted.get(pathSplitted.indexOf("v3"))
+				: pathSplitted.get(pathSplitted.size() - 2);
+
+		if (path.contains("/tools") || path.contains("/v3/search") ) {
+			return "core";
+		} else if (path.contains("/health")) {
+			return "system";			
+		}
+		else {
+			return defaultEnv.substring(0, defaultEnv.length()-2);
+		}
+	}
+	
 	@Override
 	public void destroy() {
 

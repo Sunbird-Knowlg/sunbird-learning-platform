@@ -43,7 +43,6 @@ import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
@@ -73,6 +72,7 @@ import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
 import org.ekstep.search.util.CompositeSearchUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.stereotype.Component;
 
 import net.sf.json.util.JSONBuilder;

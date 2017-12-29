@@ -34,8 +34,6 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.common.JSONUtils;
@@ -64,6 +62,8 @@ import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -3402,7 +3402,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if (checkError(wordResponse)) {
 					errorMessages.add(wordUtil.getErrorMessage(wordResponse));
 					PlatformLogger.log("ClientException during bulk word update for word:" + word.toString(),
-							wordUtil.getErrorMessage(wordResponse), null, LoggerEnum.ERROR.name());
+							wordUtil.getErrorMessage(wordResponse), null, Level.ERROR.name());
 				}
 				String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
 				if (nodeId != null) {

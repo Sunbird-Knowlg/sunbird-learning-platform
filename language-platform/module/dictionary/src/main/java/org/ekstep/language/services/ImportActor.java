@@ -4,12 +4,12 @@ import java.io.InputStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.importer.ImportDictionary;
 import org.ekstep.language.models.DictionaryObject;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.actor.ActorRef;
 

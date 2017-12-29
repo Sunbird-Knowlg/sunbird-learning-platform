@@ -8,8 +8,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  *
@@ -52,7 +52,7 @@ public class RecursiveProcessor implements Processor {
                             stats.update(type, rawSize, redSize);
                         }
                         catch (Exception ex) {
-                        	PlatformLogger.log("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName(), null, LoggerEnum.WARN.name());
+                        	PlatformLogger.log("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName(), null, Level.WARN.name());
                         }
                     }
                 }

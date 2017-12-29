@@ -14,8 +14,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

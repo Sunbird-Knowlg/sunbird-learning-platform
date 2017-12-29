@@ -16,8 +16,6 @@ import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +27,8 @@ import org.ekstep.orchestrator.interpreter.OrchestratorRequest;
 import org.ekstep.orchestrator.interpreter.command.AkkaCommand;
 import org.ekstep.orchestrator.interpreter.command.ScriptCommand;
 import org.ekstep.orchestrator.interpreter.exception.ExecutionErrorCodes;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.actor.UntypedActor;
 import tcl.lang.Command;
@@ -220,7 +220,7 @@ public class TclExecutorActor extends UntypedActor {
 			String msg = "";
 			switch (code) {
 			case TCL.ERROR:
-				PlatformLogger.log("tcl interpretation error" , interpreter.getResult().toString(), LoggerEnum.WARN.name());
+				PlatformLogger.log("tcl interpretation error" , interpreter.getResult().toString(), Level.WARN.name());
 				msg = interpreter.getResult().toString();
 				if(StringUtils.contains(msg, "tcl.lang.TclException") || StringUtils.contains(msg, "java.")){
 					msg = "| Invalid request format |";

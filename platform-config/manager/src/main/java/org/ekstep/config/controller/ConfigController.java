@@ -11,10 +11,10 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,7 +54,7 @@ public class ConfigController extends BaseController {
 					PlatformLogger.log("Resourcebundles fetched : ", map.keySet());
 					resourcebundles.put(langId, map);
 				} catch (Exception e) {
-					PlatformLogger.log("Error in fetching all ResourceBundles from s3", e.getMessage(), e, LoggerEnum.WARN.name());
+					PlatformLogger.log("Error in fetching all ResourceBundles from s3", e.getMessage(), e, Level.WARN.name());
 				}
 			}
 			response.put("resourcebundles", resourcebundles);
@@ -67,7 +67,7 @@ public class ConfigController extends BaseController {
 			PlatformLogger.log("get All ResourceBundles | Response: " , response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("getAllResources | Exception" + e.getMessage(), null, e, LoggerEnum.WARN.name());
+			PlatformLogger.log("getAllResources | Exception" + e.getMessage(), null, e, Level.WARN.name());
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -95,7 +95,7 @@ public class ConfigController extends BaseController {
 					response.put(languageId, map);
 					PlatformLogger.log("getResourceBundle | successResponse" , response);
 				} catch (Exception e) {
-					PlatformLogger.log("getResourceBundle | Exception" , e.getMessage(), e, LoggerEnum.WARN.name());
+					PlatformLogger.log("getResourceBundle | Exception" , e.getMessage(), e, Level.WARN.name());
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -106,7 +106,7 @@ public class ConfigController extends BaseController {
 				response.setParams(params);
 				response.getResponseCode();
 				response.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
-				PlatformLogger.log("getResourceBundle | FailureResponse" , response, LoggerEnum.WARN.name());
+				PlatformLogger.log("getResourceBundle | FailureResponse" , response, Level.WARN.name());
 				return getResponseEntity(response, apiId, null);
 			}
 		} catch (Exception e){
@@ -135,7 +135,7 @@ public class ConfigController extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
-				PlatformLogger.log("Get Ordinals | Exception" , e.getMessage(), e, LoggerEnum.WARN.name());
+				PlatformLogger.log("Get Ordinals | Exception" , e.getMessage(), e, Level.WARN.name());
 			}
 			PlatformLogger.log("Get Ordinals | Response" , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);

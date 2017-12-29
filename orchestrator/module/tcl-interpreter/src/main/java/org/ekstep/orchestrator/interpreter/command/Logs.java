@@ -1,9 +1,8 @@
 package org.ekstep.orchestrator.interpreter.command;
 
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
-
 import org.ekstep.orchestrator.interpreter.ICommand;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -22,7 +21,7 @@ public class Logs extends BaseSystemCommand implements ICommand, Command {
                     throw new TclException(interp, "Null arguments to " + getCommandName());
                 } else {
                     String logMessage = tclObject1.toString();
-                    PlatformLogger.log("TclLogMessage", logMessage, LoggerEnum.ERROR.name());
+                    PlatformLogger.log("TclLogMessage", logMessage, Level.ERROR.name());
                     interp.setResult(true);
                 }
             } catch (Exception e) {

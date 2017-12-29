@@ -12,7 +12,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.mgr.impl.SetCacheManager;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
@@ -32,6 +31,7 @@ import org.ekstep.graph.model.node.MetadataNode;
 import org.ekstep.graph.model.node.RelationNode;
 import org.ekstep.graph.model.node.ValueNode;
 import org.ekstep.graph.model.relation.UsedBySetRelation;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
@@ -607,7 +607,7 @@ public class Set extends AbstractCollection {
 				dacRequest.put(GraphDACParams.collection_id.name(), setId);
 				dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
 				dacRequest.put(GraphDACParams.members.name(), memberIds);
-				manager.returnResponse(Futures.successful(graphMgr.createCollection(dacRequest)), getParent());
+				graphMgr.createCollection(dacRequest);
 			}
 			req.getContext().get(GraphDACParams.graph_id.name());
 			SetCacheManager.createSet(graphId, setId, memberIds);

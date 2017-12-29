@@ -24,11 +24,9 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
-import org.ekstep.common.util.LogTelemetryEventUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentMetadata;
@@ -70,6 +68,8 @@ import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -1046,15 +1046,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
 		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
 		boolean isUnlistedState = StringUtils.equalsIgnoreCase("Unlisted", status);
-		boolean logEvent = false;
+		
 		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
 			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus);
 			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus);
 			if ((updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
 				map.put("lastSubmittedOn", DateUtils.format(new Date()));
-			if (!StringUtils.equalsIgnoreCase(status, inputStatus))
-				logEvent = true;
 		}
 
 		boolean checkError = false;
@@ -1105,12 +1103,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return createResponse;
 
 		createResponse.put(GraphDACParams.node_id.name(), originalId);
-		if (logEvent) {
-			metadata.putAll(map);
-			metadata.put("prevState", status);
-			LogTelemetryEventUtil.logContentLifecycleEvent(originalId, metadata);
-		}
-
+		
 		if (null != externalProps && !externalProps.isEmpty()) {
 			Response externalPropsResponse = updateContentProperties(contentId, externalProps);
 			if (checkError(externalPropsResponse))

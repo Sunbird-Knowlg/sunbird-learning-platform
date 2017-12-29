@@ -4,45 +4,47 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="RollingFileAppender" fileName="/data/logs/graph.log"
-			filePattern="/data/logs/graph-%d{MM-dd-yyyy-hh}-%i.log">
-			<PatternLayout>
-				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
-				</Pattern>
-			</PatternLayout>
-			<Policies>
-				<TimeBasedTriggeringPolicy interval="24"
-					modulate="true" />
-			</Policies>
-		</RollingFile>
-		<RollingFile name="PerfLogAppender" fileName="/data/logs/perf.log"
-			filePattern="/data/logs/perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
-			<PatternLayout>
-				<Pattern>%d [%t] - %msg%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<OnStartupTriggeringPolicy />
-			</Policies>
-		</RollingFile>
-		<RollingRandomAccessFile name="KafkaMessageAppender" fileName="/data/logs/Kafka_messages.log"
-			filePattern="/data/logs/Kafka_messages-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="GraphEventAppender"
+			fileName="/data/logs/graphengine_event_mw.log" filePattern="/data/logs/graphengine_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="graphengine_event_mw-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
+		<RollingFile name="PerfLogAppender" fileName="/data/logs/graphengine-perf_mw.log"
+			filePattern="/data/logs/graphengine-perf_mw-%d{MM-dd-yyyy-hh}-%i.log">
+			<PatternLayout>
+				<Pattern>%d [%t] - %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="graphengine-perf_mw-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+		</RollingFile>
 	</Appenders>
 	<Loggers>
-		<AsyncLogger name="KafkaMessageLogger" level="INFO" additivity="false">
-			<AppenderRef ref="KafkaMessageAppender" />
-		</AsyncLogger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>
 		<Root level="INFO">
-			<AppenderRef ref="RollingFileAppender" />
+			<AppenderRef ref="GraphEventAppender" />
 		</Root>
 	</Loggers>
 </Configuration>

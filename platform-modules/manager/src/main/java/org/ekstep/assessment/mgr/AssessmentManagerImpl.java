@@ -14,7 +14,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
@@ -42,6 +41,7 @@ import org.ekstep.assessment.util.AssessmentValidator;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 @Component
 public class AssessmentManagerImpl extends BaseManager implements IAssessmentManager {

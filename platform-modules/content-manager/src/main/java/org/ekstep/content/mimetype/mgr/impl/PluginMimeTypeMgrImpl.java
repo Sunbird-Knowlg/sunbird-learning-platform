@@ -12,8 +12,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -24,6 +22,8 @@ import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -38,11 +38,11 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		PlatformLogger.log("Uploaded File: " , uploadFile.getName(), null, LoggerEnum.INFO.name());
+		PlatformLogger.log("Uploaded File: " , uploadFile.getName(), null, Level.INFO.name());
 
 		ContentValidator validator = new ContentValidator();
 		if (validator.isValidPluginPackage(uploadFile)) {
-			PlatformLogger.log("Calling Upload Content For Node ID: " + contentId, null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Calling Upload Content For Node ID: " + contentId, null, Level.INFO.name());
 			String basePath = getBasePath(contentId);
 			// Extract the ZIP File 
 			extractContentPackage(uploadFile, basePath);
@@ -96,7 +96,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
 					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
 		}
-		PlatformLogger.log("pluginId:" + pluginId + "ManifestId:" + id, null, LoggerEnum.INFO.name());
+		PlatformLogger.log("pluginId:" + pluginId + "ManifestId:" + id, null, Level.INFO.name());
 		if (!StringUtils.equals(pluginId, id))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
 					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);

@@ -1,5 +1,6 @@
 package org.ekstep.jobs.samza.task;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.samza.config.Config;
@@ -45,12 +46,23 @@ public class ObjectLifecycleTask implements StreamTask, InitableTask, Windowable
 	@Override
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 
-		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
+		Map<String, Object> message = getMessage(envelope);
 		try {
 			service.processMessage(message, metrics, collector);
 		} catch (Exception ex) {
 			metrics.incFailedCounter();
 			LOGGER.error("Message processing failed", message, ex);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getMessage(IncomingMessageEnvelope envelope) {
+		try {
+			return (Map<String, Object>) envelope.getMessage();
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("Invalid message:" + envelope.getMessage(), e);
+			return new HashMap<String, Object>();
 		}
 	}
 }

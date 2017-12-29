@@ -8,13 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
-import org.ekstep.common.util.LogTelemetryEventUtil;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
 public class ReviewFinalizer extends BaseFinalizer {
 
@@ -88,18 +88,18 @@ public class ReviewFinalizer extends BaseFinalizer {
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
 		String publishType = null;
 		if (BooleanUtils.isTrue(isPublishOperation)) {
-			PlatformLogger.log("Changing the Content Status to 'Pending'.", LoggerEnum.INFO.name());
+			PlatformLogger.log("Changing the Content Status to 'Pending'.", Level.INFO.name());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Pending.name());
 			publishType = (String)node.getMetadata().get("publish_type");
 			node.getMetadata().remove("publish_type");
 		} else {
-			PlatformLogger.log("Changing the Content Status to 'Review'.", LoggerEnum.INFO.name());
+			PlatformLogger.log("Changing the Content Status to 'Review'.", Level.INFO.name());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Review.name());
 		}
 		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.FlagDraft.name())){
-			PlatformLogger.log("Setting status to flagReview from previous state : " + prevState, LoggerEnum.INFO.name());
+			PlatformLogger.log("Setting status to flagReview from previous state : " + prevState, Level.INFO.name());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.FlagReview.name());
 		}
 		// Clean-Up
@@ -108,7 +108,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
 		
-		PlatformLogger.log("Updating the Node: ", node.getIdentifier(), LoggerEnum.INFO.name());
+		PlatformLogger.log("Updating the Node: ", node.getIdentifier(), Level.INFO.name());
 		Response response = updateContentNode(contentId, newNode, null);
 		PlatformLogger.log("Generating Telemetry Event. | [Content ID: " + contentId + "]", node);
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);

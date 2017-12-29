@@ -26,7 +26,8 @@
 		<module>cassandra-connector</module>
 		<module>graph-engine</module>
 		<module>platform-dac</module>
-	</modules>
+    		<module>platform-telemetry</module>
+  </modules>
 
 	<dependencies>
 	</dependencies>

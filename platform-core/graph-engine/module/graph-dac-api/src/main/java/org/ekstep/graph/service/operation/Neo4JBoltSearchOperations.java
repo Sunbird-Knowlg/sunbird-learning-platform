@@ -11,8 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Property;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ResourceNotFoundException;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Graph;
@@ -27,6 +25,8 @@ import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.SearchQueryGenerationUtil;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
@@ -126,7 +126,7 @@ public class Neo4JBoltSearchOperations {
 		
 		Node node = (Node) NodeCacheManager.getDataNode(graphId, nodeId);
 		if (null != node) {
-			PlatformLogger.log("Fetched node from in-memory cache: "+node.getIdentifier(), null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Fetched node from in-memory cache: "+node.getIdentifier(), null, Level.INFO.name());
 			return node;
 		} else {
 			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
@@ -161,7 +161,7 @@ public class Neo4JBoltSearchOperations {
 								startNodeMap, endNodeMap);
 				}
 				if (StringUtils.equalsIgnoreCase("Concept", node.getObjectType())) {
-					PlatformLogger.log("Saving concept to in-memory cache: "+node.getIdentifier(), null, LoggerEnum.INFO.name());
+					PlatformLogger.log("Saving concept to in-memory cache: "+node.getIdentifier(), null, Level.INFO.name());
 					NodeCacheManager.saveDataNode(graphId, node.getIdentifier(), node);
 				}
 			}

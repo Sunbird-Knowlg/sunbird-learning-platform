@@ -1,7 +1,6 @@
 package org.ekstep.taxonomy.controller;
 
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.IAuditHistoryManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * The Class AuditHistoryController, is the main entry point for the High Level

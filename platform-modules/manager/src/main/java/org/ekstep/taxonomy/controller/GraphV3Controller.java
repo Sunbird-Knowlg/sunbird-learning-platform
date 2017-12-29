@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.enums.ImportType;
@@ -31,6 +30,7 @@ import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.mgr.ITaxonomyManager;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 @Controller
 @RequestMapping("/v3/system")

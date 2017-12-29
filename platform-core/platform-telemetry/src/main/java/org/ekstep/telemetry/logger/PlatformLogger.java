@@ -1,4 +1,4 @@
-package org.ekstep.common.logger;
+package org.ekstep.telemetry.logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
-import org.ekstep.common.dto.TelemetryBEEvent;
+import org.ekstep.telemetry.dto.TelemetryBEEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,14 +28,14 @@ public class PlatformLogger {
 	 * To log only message.
 	 */
 	public static void log(String message) {
-		log(message, null, LoggerEnum.DEBUG.name());
+		log(message, null, Level.DEBUG.name());
 	}
 	
 	/**
 	 * To log message with some data.
 	 */
 	public static void log(String message, Object data) {
-		log(message, data, LoggerEnum.DEBUG.name());
+		log(message, data, Level.DEBUG.name());
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class PlatformLogger {
 	 * To log exception with message and data.
 	 */
 	public static void log(String message, Object data, Throwable e) {
-		backendLog(message,  data, e, LoggerEnum.ERROR.name());
+		backendLog(message,  data, e, Level.ERROR.name());
 	}
 
 	/**
@@ -61,22 +61,22 @@ public class PlatformLogger {
 
 	private static void info(String message,  Object data) {
 		if (rootLogger.isInfoEnabled())
-			rootLogger.info(getBELogEvent(LoggerEnum.INFO.name(), message, data));
+			rootLogger.info(getBELogEvent(Level.INFO.name(), message, data));
 	}
 
 	private static void debug(String message,  Object data) {
 		if (rootLogger.isDebugEnabled())
-			rootLogger.debug(getBELogEvent(LoggerEnum.DEBUG.name(), message, data));
+			rootLogger.debug(getBELogEvent(Level.DEBUG.name(), message, data));
 	}
 
 	private static void error(String message,  Object data, Throwable exception) {
 		if (rootLogger.isErrorEnabled())
-			rootLogger.error(getBELogEvent(LoggerEnum.ERROR.name(), message, data, exception));
+			rootLogger.error(getBELogEvent(Level.ERROR.name(), message, data, exception));
 	}
 
 	private static void warn(String message, Object data, Throwable exception) {
 		if (rootLogger.isWarnEnabled())
-			rootLogger.warn(getBELogEvent(LoggerEnum.WARN.name(), message, data, exception));
+			rootLogger.warn(getBELogEvent(Level.WARN.name(), message, data, exception));
 	}
 
 	private static void backendLog(String message,  Object data, Throwable e, String logLevel) {
@@ -121,7 +121,7 @@ public class PlatformLogger {
 		if (exception != null) {
 			eks.put("stacktrace", ExceptionUtils.getStackTrace(exception));
 		}
-		te.setEid(LoggerEnum.BE_LOG.name());
+		te.setEid("BE_LOG");
 		te.setEts(unixTime);
 		te.setMid(mid);
 		te.setVer("2.0");

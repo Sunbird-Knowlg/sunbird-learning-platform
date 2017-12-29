@@ -10,8 +10,6 @@ import java.util.TreeMap;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
@@ -20,7 +18,8 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.language.common.enums.LanguageParams;
-
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.common.mgr.BaseManager;
 
 /**
@@ -127,7 +126,7 @@ public class GradeComplexityCache extends BaseManager {
 			}
 			PlatformLogger.log("completed loadGradeLevelComplexity with " + nodes.size() + " nodes for the language" + languageId);
 		} else {
-			PlatformLogger.log("error in getting GradeLevelComplexity nodes from graph, message: ", getErrorMessage(searchRes), LoggerEnum.WARN.name());
+			PlatformLogger.log("error in getting GradeLevelComplexity nodes from graph, message: ", getErrorMessage(searchRes), Level.WARN.name());
 		}
 
 	}
@@ -178,7 +177,7 @@ public class GradeComplexityCache extends BaseManager {
 					"completed loadGradeLevelComplexity for the language: " + languageId + " and node_id: " + node_id);
 		}else {
 			PlatformLogger.log(
-					"error in getting GradeLevelComplexity node("+node_id+") from graph, message: " , getErrorMessage(findRes), LoggerEnum.WARN.name());
+					"error in getting GradeLevelComplexity node("+node_id+") from graph, message: " , getErrorMessage(findRes), Level.WARN.name());
 		}
 
 

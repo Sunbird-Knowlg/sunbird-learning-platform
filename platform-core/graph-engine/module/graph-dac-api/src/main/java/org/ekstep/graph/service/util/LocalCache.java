@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ekstep.common.Platform;
-import org.ekstep.common.logger.PlatformLogger;
 import org.ekstep.graph.cache.util.CacheKeyGenerator;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * The Class LocalCache, is used to cache any object in current java instance

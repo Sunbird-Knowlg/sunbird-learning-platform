@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.Level;
+import org.ekstep.telemetry.logger.PlatformLogger;
 
 import net.sf.junidecode.Junidecode;
 
@@ -37,7 +37,7 @@ public class Slug {
                 return newFile;
             }
         } catch (Exception e) {
-            PlatformLogger.log("Error creating slug of the file: " + f, e.getMessage(), LoggerEnum.ERROR.name());
+            PlatformLogger.log("Error creating slug of the file: " + f, e.getMessage(), Level.ERROR.name());
         }
         return f;
     }
