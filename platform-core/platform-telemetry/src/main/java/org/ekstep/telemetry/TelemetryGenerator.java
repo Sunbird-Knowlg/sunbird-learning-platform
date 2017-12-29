@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TelemetryGenerator {
 
-	
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static Producer producer = new Producer("org.ekstep.learning.platform", "1.0");
 
 	public static String access(Map<String, Object> params, Map<String, String> context) {
 		String event = "";
@@ -50,7 +50,7 @@ public class TelemetryGenerator {
 	private static Context getContext(Map<String, String> context) {
 		String channel = (String) context.get("channel");
 		String env = context.get("env");
-		Context eventContext = new Context(channel, env, new Producer("org.ekstep.learning.platform", "1.0"));
+		Context eventContext = new Context(channel, env, producer);
 		String sid = context.get("sid");
 		if (StringUtils.isNotBlank(sid))
 			eventContext.setSid(sid);

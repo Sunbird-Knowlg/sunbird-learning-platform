@@ -56,7 +56,6 @@ public class ResponseFilter implements Filter {
 
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-
 			requestWrapper.setAttribute("env", getEnv(requestWrapper));
 
 			chain.doFilter(requestWrapper, responseWrapper);
@@ -76,7 +75,8 @@ public class ResponseFilter implements Filter {
 				|| path.contains("/taxonomy/")) {
 			return "core";
 		}
-		if (path.contains("/sync/") || path.contains("v3/system")) {
+		if (path.contains("/sync/") || path.contains("v3/system") || path.contains("/health")
+				|| path.contains("/v3/languages/list")) {
 			return "system";
 		}
 		if (path.contains("/domain")) {
