@@ -56,7 +56,6 @@ public class ResponseFilter implements Filter {
 
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-
 			requestWrapper.setAttribute("env", getEnv(requestWrapper));
 
 			chain.doFilter(requestWrapper, responseWrapper);
