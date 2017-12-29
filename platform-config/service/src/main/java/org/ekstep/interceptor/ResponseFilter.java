@@ -22,8 +22,6 @@ import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 
-	
-
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 
@@ -47,29 +45,38 @@ public class ResponseFilter implements Filter {
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		else
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
-		
+
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
 
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-			PlatformLogger.log("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap());
-			
+			PlatformLogger.log("Path: " + requestWrapper.getServletPath() + " | Remote Address: "
+					+ request.getRemoteAddr() + " | Params: " + request.getParameterMap());
+
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-			requestWrapper.setAttribute("env", "config");
+			requestWrapper.setAttribute("env", getEnv(requestWrapper));
 			chain.doFilter(requestWrapper, responseWrapper);
-			
+
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
 			PlatformLogger.log("Path: " + httpRequest.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap());
+					+ " | Params: " + request.getParameterMap());
 			chain.doFilter(request, response);
 		}
 	}
-	
+
+	private String getEnv(RequestWrapper requestWrapper) {
+		String path = requestWrapper.getRequestURI();
+		if (path.contains("/health")) {
+			return "system";
+		} else {
+			return "config";
+		}
+	}
+
 	@Override
 	public void destroy() {
 
