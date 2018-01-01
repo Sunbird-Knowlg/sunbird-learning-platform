@@ -1,10 +1,7 @@
 package org.ekstep.interceptor;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -74,21 +71,15 @@ public class ResponseFilter implements Filter {
 
 	private String getEnv(RequestWrapper requestWrapper) {
 		String path = requestWrapper.getRequestURI();
-		List<String> pathSplitted = Arrays.asList(path.split("/"));
-		pathSplitted = pathSplitted.stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
-		String defaultEnv = pathSplitted.contains("v3") ? pathSplitted.get(pathSplitted.indexOf("v3"))
-				: pathSplitted.get(pathSplitted.size() - 2);
 
-		if (path.contains("/tools") || path.contains("/v3/search") ) {
-			return "core";
-		} else if (path.contains("/health")) {
-			return "system";			
+		if (path.contains("/health") || path.contains("/sync") || path.contains("/definitions")) {
+			return "system";
+		} else if (path.contains("/tools")) {
+			return "tools";
+		} else {
+			return "wordnet";
 		}
-		else {
-			return defaultEnv.substring(0, defaultEnv.length()-2);
-		}
+
 	}
 	
 	@Override
