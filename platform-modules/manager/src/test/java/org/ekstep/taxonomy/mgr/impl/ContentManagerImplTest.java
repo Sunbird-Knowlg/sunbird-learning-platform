@@ -20,9 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.taxonomy.content.common.BaseTestUtil;
 import org.ekstep.taxonomy.content.common.TestParams;
 import org.ekstep.taxonomy.content.common.TestSetup;
+import org.ekstep.test.common.TestSetUp;
 
-@Ignore
-public class ContentManagerImplTest extends TestSetup {
+//@Ignore
+public class ContentManagerImplTest extends TestSetUp {
 
 	static ContentManagerImpl contentManager = new ContentManagerImpl();
 
@@ -49,14 +50,13 @@ public class ContentManagerImplTest extends TestSetup {
 
 	@BeforeClass
 	public static void beforeSetupTestSuit() throws Exception {
-		System.out.println("ContentManagerImplTest -- Before");
+		loadDefinition("definitions/content_definition.json", "definitions/concept_definition.json", "definitions/dimension_definition.json","definitions/domain_definition.json");
 		seedContent();
 
 	}
 
 	@AfterClass
 	public static void afterCleanData() {
-		System.out.println("ContentManagerImplTest -- After");
 	}
 
 	/*
@@ -81,6 +81,7 @@ public class ContentManagerImplTest extends TestSetup {
 	/*
 	 * Create Content with body
 	 */
+	@Ignore
 	@Test
 	public void testCreateContent_02() {
 		try {
@@ -504,6 +505,7 @@ public class ContentManagerImplTest extends TestSetup {
 	/*
 	 * Upload ECML Content
 	 */
+	@Ignore
 	@Test
 	public void testUploadContent_01() {
 		try {

@@ -8,10 +8,11 @@ import java.util.Random;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
+import org.ekstep.test.common.TestSetUp;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -26,8 +27,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import org.ekstep.taxonomy.content.common.TestSetup;
-
 /**
  * @author Rashmi
  * 
@@ -38,17 +37,24 @@ import org.ekstep.taxonomy.content.common.TestSetup;
  * each of the operation
  */
 
-@Ignore
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentitemTest extends TestSetup {
+public class AssessmentitemTest extends TestSetUp {
 
 	@Autowired
 	private WebApplicationContext context;
 	private MockMvc mockMvc;
 	private ResultActions actions;
+
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		loadDefinition("definitions/concept_definition.json", "definitions/content_definition.json",
+				"definitions/dimension_definition.json", "definitions/item_definition.json",
+				"definitions/itemset_definition.json");
+	}
 
 	@Before
 	public void setup() {

@@ -15,6 +15,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,9 +24,10 @@ import org.junit.rules.ExpectedException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.taxonomy.content.common.TestSetup;
+import org.ekstep.test.common.TestSetUp;
 
-@Ignore
-public class EpubMimeTypeMgrTest extends TestSetup {
+//@Ignore
+public class EpubMimeTypeMgrTest extends TestSetUp {
 
 	ContentManagerImpl mgr = new ContentManagerImpl();
 	String createEpubContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
@@ -34,6 +36,11 @@ public class EpubMimeTypeMgrTest extends TestSetup {
 	private String PENDING = "Pending";
 	ObjectMapper mapper = new ObjectMapper();
 	String node_id = "";
+	
+	@BeforeClass
+	public static void init() throws Exception{
+		loadDefinition("definitions/content_definition.json", "definitions/concept_definition.json", "definitions/dimension_definition.json","definitions/domain_definition.json");
+	}
 	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -68,6 +75,7 @@ public class EpubMimeTypeMgrTest extends TestSetup {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Ignore
 	@Test
 	public void testReviewForEpubContent() {
 		ClassLoader classLoader = getClass().getClassLoader();
@@ -94,6 +102,7 @@ public class EpubMimeTypeMgrTest extends TestSetup {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Ignore
 	@Test
 	public void testPublishForEpubContent() throws InterruptedException {
 		ClassLoader classLoader = getClass().getClassLoader();

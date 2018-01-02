@@ -16,7 +16,9 @@ import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
+import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -25,8 +27,6 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransactionTerminatedException;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-
-import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 
 public class TestSetup{
@@ -54,6 +54,7 @@ public class TestSetup{
 
 	@AfterClass
 	public static void afterTest() {
+		DriverUtil.closeDrivers();
 		tearEmbeddedNeo4JSetup();
 		tearEmbeddedCassandraSetup();
 	}
@@ -66,6 +67,7 @@ public class TestSetup{
 	}
 
 	private static void clearEmbeddedCassandraTables() {
+		EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
 //		Collection<TableMetadata> tables = cassandra.cluster.getMetadata().getKeyspace(CASSANDRA_KEYSPACE).getTables();
 //		tables.forEach(table -> cassandra.session.execute(QueryBuilder.truncate(table)));
 	}
@@ -164,7 +166,8 @@ public class TestSetup{
 //			cassandra = new CassandraCQLUnit(dataSet);
 			 try {
 				 System.out.println("Starting Cassandra");
-				 EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 100000L);
+				EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 2000000L);// startEmbeddedCassandra("/cassandra-unit.yaml",
+																				// 100000L);
 				System.out.println("Started Cassandra");
 			} catch (TTransportException | IOException e) {
 				// TODO Auto-generated catch block
