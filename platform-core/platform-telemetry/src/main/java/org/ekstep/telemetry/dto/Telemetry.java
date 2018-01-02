@@ -42,7 +42,6 @@ public class Telemetry {
 	Actor actor;
 	Context context;
 	Target object;
-	@JsonInclude(Include.NON_NULL)
 	Map<String, Object> edata;
 	List<String> tags;
 
