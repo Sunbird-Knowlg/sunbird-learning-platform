@@ -1869,7 +1869,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 			if (StringUtils.isNotBlank(primaryMeaningId))
 				createProxyNodeAndTranslationSet(primaryMeaningId, LanguageParams.translations.name(), indowordnetId,
-						englishTranslationId);
+						englishTranslationId, languageId);
 
 			// create Word
 			item.remove(LanguageParams.primaryMeaning.name());
@@ -2631,16 +2631,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param graphId
 	 * @param indowordId
 	 * @param englishTranslationId
+	 * @param language_id TODO
 	 */
-	private void createProxyNodeAndTranslationSet(String primaryMeaningId, String graphId, int indowordId,
-			int englishTranslationId) {
+	public void createProxyNodeAndTranslationSet(String primaryMeaningId, String graphId, int indowordId,
+			int englishTranslationId, String language_id) {
 		String operation = "createProxyNodeAndTranslation";
 		Request proxyReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, operation);
 		boolean proxy = proxyNodeExists(graphId, primaryMeaningId);
 		Node node = new Node(primaryMeaningId, SystemNodeTypes.PROXY_NODE.name(), LanguageParams.Synset.name());
 		node.setGraphId(graphId);
 		Map<String, Object> proxyMeta = new HashMap<>();
-		proxyMeta.put("language_id", graphId);
+		proxyMeta.put("language_id", language_id);
 		node.setMetadata(proxyMeta);
 		proxyReq.put(GraphDACParams.node.name(), node);
 		proxyReq = createTranslationCollection(proxyReq, graphId, indowordId, primaryMeaningId);

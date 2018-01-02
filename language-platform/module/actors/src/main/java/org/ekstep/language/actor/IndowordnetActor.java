@@ -50,7 +50,23 @@ public class IndowordnetActor extends LanguageBaseActor {
                 	}
                 	util.loadWords(languageId, batchSize, maxRecords, offset);
                 	OK(getSender());
-                }else {
+				} else if (StringUtils.equalsIgnoreCase(LanguageOperations.importIndowordnetTranslations.name(),
+						operation)) {
+                	int batchSize = 1000;
+                	int maxRecords = 50000;
+                	int offset = 0;
+                	if(request.get(LanguageParams.batch_size.name()) != null){
+                		batchSize = (int) request.get(LanguageParams.batch_size.name());
+                	}
+                	if(request.get(LanguageParams.max_records.name()) != null){
+                		maxRecords = (int) request.get(LanguageParams.max_records.name());
+                	}
+                	if(request.get(LanguageParams.offset.name()) != null){
+                		offset = (int) request.get(LanguageParams.offset.name());
+                	}
+					util.loadTranslations(languageId, batchSize, maxRecords, offset);
+                	OK(getSender());
+				} else {
                     PlatformLogger.log("Unsupported operation: " + operation);
                     unhandled(msg);
                 }

@@ -232,6 +232,40 @@ public class ImportController extends BaseLanguageController {
 	}
 
 	/**
+	 * Create translations for Import wordnet data
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param map
+	 *            the map
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/translations/indowordnet/{languageId:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> importTranslations(@PathVariable(value = "languageId") String languageId,
+			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+		String apiId = "ekstep.language.translations.indowordnet.import";
+		Request request = getRequestObject(map);
+
+		request.setManagerName(LanguageActorNames.INDOWORDNET_ACTOR.name());
+		request.setOperation(LanguageOperations.importIndowordnetTranslations.name());
+		request.getContext().put(LanguageParams.language_id.name(), languageId);
+		PlatformLogger.log("List | Request: " + request);
+		try {
+			controllerUtil.makeAsyncLanguageRequest(request);
+			Response response = new Response();
+			PlatformLogger.log("List | Response: " + response);
+			return getResponseEntity(response, apiId,
+					(null != request.getParams()) ? request.getParams().getMsgid() : null);
+		} catch (Exception e) {
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId,
+					(null != request.getParams()) ? request.getParams().getMsgid() : null);
+		}
+	}
+	/**
 	 * Enrich words by updating posList, wordComplexity, lexileMeasures and
 	 * frequencyCount
 	 *
