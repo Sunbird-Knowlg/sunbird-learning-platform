@@ -40,9 +40,11 @@ public class TelemetryGenerator {
 		edata.put("type", type);
 		edata.put("level", level);
 		edata.put("message", message);
-		edata.put("pageid", pageid);
-		edata.put("params", params);
-		Telemetry telemetry = new Telemetry("ERROR", actor, eventContext, edata);
+		if (StringUtils.isNotBlank(pageid))
+			edata.put("pageid", pageid);
+		if (null != params && !params.isEmpty())
+			edata.put("params", params);
+		Telemetry telemetry = new Telemetry("LOG", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 	}
 	
@@ -59,8 +61,10 @@ public class TelemetryGenerator {
 		edata.put("err", code);
 		edata.put("errtype", type);
 		edata.put("stacktrace", stacktrace);
-		edata.put("pageid", pageid);
-		edata.put("object", object);
+		if (StringUtils.isNotBlank(pageid))
+			edata.put("pageid", pageid);
+		if (null != object)
+			edata.put("object", object);
 		Telemetry telemetry = new Telemetry("ERROR", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 
@@ -75,7 +79,7 @@ public class TelemetryGenerator {
 	}
 
 	private static Context getContext(Map<String, String> context) {
-		String channel = (String) context.get("channel");
+		String channel = (String) context.get(TelemetryParams.CHANNEL.name());
 		String env = context.get("env");
 		Context eventContext = new Context(channel, env, producer);
 		String sid = context.get("sid");

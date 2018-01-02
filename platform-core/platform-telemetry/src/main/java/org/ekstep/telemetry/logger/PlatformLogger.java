@@ -8,6 +8,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 
@@ -109,6 +110,7 @@ public class PlatformLogger {
 		Map<String, String> context = new HashMap<String, String>();
 		String cid = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ACTOR.name());
 		context.put(TelemetryParams.ACTOR.name(), cid);
+		context.put(TelemetryParams.CHANNEL.name(), (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
 		context.put("env", "content");
 		if (exception != null) {
 			String code = "SYSTEM_ERROR";
