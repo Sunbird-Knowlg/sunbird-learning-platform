@@ -2,15 +2,14 @@ package org.ekstep.telemetry.logger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
-import org.ekstep.telemetry.dto.TelemetryBEEvent;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.telemetry.TelemetryGenerator;
+import org.ekstep.telemetry.TelemetryParams;
 
 /**
  * This is the custom logger implementation to carryout platform Logging. This
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class PlatformLogger {
 
-	private static ObjectMapper mapper = new ObjectMapper();
 	private static Logger rootLogger = (Logger) LogManager.getLogger("DefaultPlatformLogger");
 
 	/**
@@ -99,40 +97,26 @@ public class PlatformLogger {
 	}
 
 	private static String getBELogEvent(String logLevel, String message, Object data) {
-		String logData = getBELog(logLevel, message, data, null);
-		return logData;
+		return getBELog(logLevel, message, data, null);
+		
 	}
 
 	private static String getBELogEvent(String logLevel, String message, Object data, Throwable e) {
-		String logData = getBELog(logLevel, message, data, e);
-		return logData;
+		return getBELog(logLevel, message, data, e);
 	}
 
 	public static String getBELog(String logLevel, String message, Object data, Throwable exception) {
-		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
-		TelemetryBEEvent te = new TelemetryBEEvent();
-		long unixTime = System.currentTimeMillis();
-		Map<String, Object> eks = new HashMap<String, Object>();
-		eks.put("level", logLevel);
-		eks.put("message", message);
-		if (data != null) {
-			eks.put("data", data);
-		}
+		Map<String, String> context = new HashMap<String, String>();
+		String cid = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ACTOR.name());
+		context.put(TelemetryParams.ACTOR.name(), cid);
+		context.put("env", "content");
 		if (exception != null) {
-			eks.put("stacktrace", ExceptionUtils.getStackTrace(exception));
+			String code = "SYSTEM_ERROR";
+			// TODO: get code from exception.
+			return TelemetryGenerator.error(context, code, "system", ExceptionUtils.getStackTrace(exception));
+		} else {
+			// TODO: Object data should become params. 
+			return TelemetryGenerator.log(context, "system", logLevel, message);
 		}
-		te.setEid("BE_LOG");
-		te.setEts(unixTime);
-		te.setMid(mid);
-		te.setVer("2.0");
-		te.setPdata("org.ekstep.learning.platform", "", "1.0", "");
-		String jsonMessage = null;
-		try {
-			te.setEdata(eks);
-			jsonMessage = mapper.writeValueAsString(te);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return jsonMessage;
 	}
 }

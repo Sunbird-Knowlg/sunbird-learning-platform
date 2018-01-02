@@ -20,7 +20,7 @@ public class TelemetryGenerator {
 	private static Producer producer = new Producer("org.ekstep.learning.platform", "1.0");
 
 	public static String access(Map<String, Object> params, Map<String, String> context) {
-		String actorId = context.get("cid");
+		String actorId = context.get(TelemetryParams.ACTOR.name());
 		Actor actor = new Actor(actorId, "System");
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
@@ -33,7 +33,7 @@ public class TelemetryGenerator {
 	}
 	
 	public static String log(Map<String, String> context, String type, String level, String message, String pageid, List<Map<String, Object>> params) {
-		String actorId = context.get("cid");
+		String actorId = context.get(TelemetryParams.ACTOR.name());
 		Actor actor = new Actor(actorId, "System");
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
@@ -52,7 +52,7 @@ public class TelemetryGenerator {
 
 	public static String error(Map<String, String> context, String code, String type, String stacktrace, String pageid,
 			Object object) {
-		String actorId = context.get("cid");
+		String actorId = context.get(TelemetryParams.ACTOR.name());
 		Actor actor = new Actor(actorId, "System");
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();

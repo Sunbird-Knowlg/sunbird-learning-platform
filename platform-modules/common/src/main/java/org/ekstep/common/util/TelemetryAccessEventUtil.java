@@ -8,6 +8,7 @@ import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.logger.PlatformLogger;
 import org.ekstep.telemetry.logger.TelemetryLogger;
 
@@ -47,10 +48,14 @@ public class TelemetryAccessEventUtil {
 				}
 			}
 			if (null != data.get("X-Consumer-ID")) {
-				context.put("cid", (String) data.get("X-Consumer-ID"));
+				String consumerId = (String) data.get("X-Consumer-ID");
+				context.put(TelemetryParams.ACTOR.name(), consumerId);
+				ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ACTOR.name(), consumerId);
 			} else if (null != request && null != request.getParams()) {
 				if (null != request.getParams().getCid()) {
-					context.put("cid", request.getParams().getCid());
+					String consumerId = request.getParams().getCid();
+					context.put(TelemetryParams.ACTOR.name(), consumerId);
+					ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ACTOR.name(), consumerId);
 				}
 			}
 			if (null != data.get("X-Device-ID")) {
