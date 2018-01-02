@@ -110,8 +110,13 @@ public class PlatformLogger {
 	public static String getBELog(String logLevel, String message, Object data, Throwable exception) {
 		Map<String, String> context = new HashMap<String, String>();
 		String cid = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ACTOR.name());
+		if (StringUtils.isBlank(cid))
+			cid = "org.ekstep.learning.platform";
 		context.put(TelemetryParams.ACTOR.name(), cid);
-		context.put(TelemetryParams.CHANNEL.name(), (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
+		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
+		if (StringUtils.isBlank(channel))
+			channel = "in.ekstep";
+		context.put(TelemetryParams.CHANNEL.name(), channel);
 		String env = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ENV.name());
 		if (StringUtils.isBlank(env))
 			env = "system";
