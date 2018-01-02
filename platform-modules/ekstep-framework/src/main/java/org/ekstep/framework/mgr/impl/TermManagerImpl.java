@@ -35,6 +35,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.ITermManager#createTerm(java.lang.String, java.util.Map)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response createTerm(String scopeId, String categoryId, Map<String, Object> request) {
 		if (null == request)
@@ -46,7 +47,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
-			validateMasterTerm(categoryId, label);
+			//validateMasterTerm(categoryId, label);  commented to remove term validation with master term
 		} else {
 			validateCategoryId(categoryId);
 		}
@@ -58,7 +59,8 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
 
-		setRelations(categoryId, request);
+		if(!request.containsKey("parent") || ((List<Object>)request.get("parent")).isEmpty())
+			setRelations(categoryId, request);
 		return create(request, TERM_OBJECT_TYPE);
 	}
 
@@ -75,22 +77,23 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			validateCategoryId(categoryId);
 		}
 		termId = generateIdentifier(categoryId, termId);
-		if (validateScopeNode(termId, categoryId)) {
+		//if (validateScopeNode(termId, categoryId)) {
 			return read(termId, TERM_OBJECT_TYPE, TermEnum.term.name());
-		} else {
-			throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
-		}
+		//} else {
+		//	throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
+		//}
 
 	}
 
 	/* (non-Javadoc)
 	 * @see org.ekstep.framework.mgr.ITermManager#updateCategory(java.lang.String, java.util.Map)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public Response updateTerm(String scopeId, String categoryId, String termId, Map<String, Object> map) {
-		if (null == map)
+	public Response updateTerm(String scopeId, String categoryId, String termId, Map<String, Object> request) {
+		if (null == request)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		if (map.containsKey(TermEnum.label.name()))
+		if (request.containsKey(TermEnum.label.name()))
 			return ERROR("ERR_SERVER_ERROR", "Term Label cannot be updated", ResponseCode.SERVER_ERROR);
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
@@ -99,11 +102,24 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			validateCategoryId(categoryId);
 		}
 		termId = generateIdentifier(categoryId, termId);
-		if (validateScopeNode(termId, categoryId)) {
-			return update(termId, TERM_OBJECT_TYPE, map);
-		} else {
-			throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
+		
+		if(!request.containsKey("parent") || ((List<Object>)request.get("parent")).isEmpty()) {
+			setRelations(categoryId, request);
+			request.put("parent", null);
+		}else {
+			Response responseNode = getDataNode(GRAPH_ID, categoryId);
+			Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
+			String objectType = dataNode.getObjectType();
+			if(StringUtils.equalsIgnoreCase(StringUtils.lowerCase(objectType), "categoryinstance")) {
+				request.put("categoryinstance", null);
+			}
 		}
+		
+		//if (validateScopeNode(termId, categoryId)) {
+			return update(termId, TERM_OBJECT_TYPE, request);
+		//} else {
+		//	throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
+		//}
 
 	}
 
@@ -199,6 +215,8 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 				if (!StringUtils.equalsIgnoreCase(termId, node.getIdentifier())) {
 					throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
 				}
+			}else {
+				throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
 			}
 		} else {
 			throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");

@@ -142,7 +142,7 @@
 				"title": "categoryinstance",
 				"description": "CategoryInstance using the term",
 				"required": false,
-				"renderingHints": "{ 'order': 7}"
+				"renderingHints": "{ 'order': 8}"
 			},
 			{
 				"relationName": "associatedTo",
@@ -152,7 +152,27 @@
 				"title": "content",
 				"description": "Content associated with the term",
 				"required": false,
-				"renderingHints": "{ 'order': 7}"
+				"renderingHints": "{ 'order': 9}"
+			},
+			{
+				"relationName": "hasSequenceMember",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "parent",
+				"description": "Parent terms (in sorted order)",
+				"required": false,
+				"renderingHints": "{ 'order': 10}"
+			},
+			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "parentterms",
+				"description": "terms with which current term is associated",
+				"required": false,
+				"renderingHints": "{ 'order': 11}"
 			}
 			],
 			"outRelations":[
@@ -162,19 +182,19 @@
 					"Term"
 				],
 				"title": "children",
-				"description": "Child term items (in sorted order)",
+				"description": "Child terms (in sorted order)",
 				"required": false,
-				"renderingHints": "{ 'order': 8}"
+				"renderingHints": "{ 'order': 12}"
 			},
 			{
 				"relationName": "associatedTo",
 				"objectTypes": [
 					"Term"
 				],
-				"title": "terms",
+				"title": "childterms",
 				"description": "terms associated with the current term",
 				"required": false,
-				"renderingHints": "{ 'order': 9}"
+				"renderingHints": "{ 'order': 13}"
 			}	
 			],
 			"systemTags": [],

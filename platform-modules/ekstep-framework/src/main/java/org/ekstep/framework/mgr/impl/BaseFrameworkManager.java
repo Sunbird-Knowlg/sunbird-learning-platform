@@ -16,6 +16,7 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.slugs.Slug;
+
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
@@ -113,7 +114,7 @@ public class BaseFrameworkManager extends BaseManager {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
-
+	
 	protected Response retire(String identifier, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		Response getNodeResponse = getDataNode(GRAPH_ID, identifier);
@@ -248,10 +249,6 @@ public class BaseFrameworkManager extends BaseManager {
 			for (Relation rel : inRelations) {
 				if (StringUtils.equalsIgnoreCase(identifier, rel.getStartNodeId()))
 					return true;
-				else {
-					return false;
-				}
-
 			}
 		}
 		return false;
@@ -259,19 +256,16 @@ public class BaseFrameworkManager extends BaseManager {
 
 	private MetadataCriterion getMetadata(String scopeId, Map<String, Object> map, String objectType) {
 		List<Filter> filters = new ArrayList<Filter>();
+		List<MetadataCriterion> metadataCriterion = new ArrayList<>();
 		Filter filter = null;
 		boolean defaultSearch = true;
 
 		if ((null != map) && !map.isEmpty()) {
 			for (String key : map.keySet()) {
-				if (StringUtils.equalsIgnoreCase(key, FrameworkEnum.status.name())
-						&& StringUtils.isNotBlank((String) map.get(key))) {
-					defaultSearch = false;
-					filter = new Filter(FrameworkEnum.status.name(), SearchConditions.OP_IN, map.get(key));
-					filters.add(filter);
-				}
 				if (StringUtils.isNotBlank((String) map.get(key))) {
-					filter = new Filter(key, SearchConditions.OP_IN, map.get(key));
+					if (StringUtils.equalsIgnoreCase(key, FrameworkEnum.status.name()))
+						defaultSearch = false;
+					filter = new Filter(key.toLowerCase(), SearchConditions.OP_IN, map.get(key));
 					filters.add(filter);
 				}
 			}
@@ -283,13 +277,15 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 
 		if (StringUtils.isNotBlank(scopeId)) {
-			for (String identifier : getChildren(scopeId, objectType)) {
-				filter = new Filter(FrameworkEnum.identifier.name(), SearchConditions.OP_IN, identifier);
-				filters.add(filter);
-			}
-		}
-		return MetadataCriterion.create(filters);
+            List<Filter> identifierFilter = new ArrayList<>();
+            for (String identifier : getChildren(scopeId, objectType)) {
+                filter = new Filter(FrameworkEnum.identifier.name(), SearchConditions.OP_EQUAL, identifier);
+                identifierFilter.add(filter);
+            }
 
+            metadataCriterion.add(MetadataCriterion.create(identifierFilter, SearchConditions.LOGICAL_OR));
+        }
+		return MetadataCriterion.create(filters, metadataCriterion, SearchConditions.LOGICAL_AND);
 	}
 
 	/**
