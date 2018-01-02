@@ -155,11 +155,10 @@ public class DialCodeStoreUtil {
 		for (Double key : codeMap.keySet()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("insert into " + getKeyspaceName() + "." + getKeyspaceTable());
-			sb.append("(identifier,batchcode,channel,count,dialcode_index,generated_on,publisher,status) values(");
+			sb.append("(identifier,batchcode,channel,dialcode_index,generated_on,publisher,status) values(");
 			sb.append("'" + codeMap.get(key) + "',");
 			sb.append("'" + batchCode + "',");
 			sb.append("'" + channel + "',");
-			sb.append("0,");
 			sb.append(key + ",");
 			sb.append("'" + LocalDateTime.now() + "',");
 			sb.append("'" + publisher + "',");
@@ -178,7 +177,6 @@ public class DialCodeStoreUtil {
 		dialCodeObj.setPublisher(row.getString(DialCodeEnum.publisher.name()));
 		dialCodeObj.setBatchCode(row.getString(DialCodeEnum.batchCode.name()));
 		dialCodeObj.setStatus(row.getString(DialCodeEnum.status.name()));
-		dialCodeObj.setCount(row.getInt(DialCodeEnum.count.name()));
 		dialCodeObj.setGeneratedOn(row.getString(DialCodeEnum.generated_on.name()));
 		dialCodeObj.setPublishedOn(row.getString(DialCodeEnum.published_on.name()));
 
