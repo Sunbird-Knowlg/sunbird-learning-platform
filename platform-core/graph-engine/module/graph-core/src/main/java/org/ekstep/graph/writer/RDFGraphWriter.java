@@ -171,7 +171,6 @@ public class RDFGraphWriter implements GraphWriter {
 			}
 		}
 		writer.endRDF();
-		System.out.println("out.toString():" + out.toString());
 		InputStream inputStream = new ByteArrayInputStream(out.toString().getBytes());
 		return inputStream;
 	}

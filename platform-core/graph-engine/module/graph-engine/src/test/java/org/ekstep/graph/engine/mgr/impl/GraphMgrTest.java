@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Request;
@@ -33,6 +35,7 @@ public class GraphMgrTest {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+    private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
 
     private ActorRef initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
@@ -41,7 +44,7 @@ public class GraphMgrTest {
         Future<Object> future = Patterns.ask(reqRouter, "init", timeout);
         Object response = Await.result(future, t.duration());
         Thread.sleep(2000);
-        System.out.println("Response from request router: " + response);
+        logger.info("Response from request router: " + response);
         return reqRouter;
     }
 
@@ -65,7 +68,7 @@ public class GraphMgrTest {
 
             handleFutureBlock(req, "importGraph", GraphDACParams.graph_id.name());
             long t2 = System.currentTimeMillis();
-            System.out.println("Import Time: " + (t2 - t1));
+            logger.info("Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,7 +90,7 @@ public class GraphMgrTest {
             OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
             ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
             FileUtils.writeByteArrayToFile(new File("A vocational education course.json"), os.toByteArray());
-            System.out.println("Result: \n" + new String(os.toByteArray())); // Prints
+            logger.info("Result: \n" + new String(os.toByteArray())); // Prints
                                                                              // the
                                                                              // string
                                                                              // content
@@ -114,9 +117,9 @@ public class GraphMgrTest {
             Future<Object> req = Patterns.ask(reqRouter, request, t);
             Object arg1 = Await.result(req, t.duration());
             long t2 = System.currentTimeMillis();
-            System.out.println("Load Time: " + (t2 - t1));
+            logger.info("Load Time: " + (t2 - t1));
             ObjectMapper mapper = new ObjectMapper();
-            System.out.println("Result:" + mapper.writeValueAsString(arg1));
+            logger.info("Result:" + mapper.writeValueAsString(arg1));
 
             Thread.sleep(15000);
         } catch (Exception e) {
@@ -137,9 +140,9 @@ public class GraphMgrTest {
             Future<Object> req = Patterns.ask(reqRouter, request, t);
             Object arg1 = Await.result(req, t.duration());
             long t2 = System.currentTimeMillis();
-            System.out.println("Validate Time: " + (t2 - t1));
+            logger.info("Validate Time: " + (t2 - t1));
             ObjectMapper mapper = new ObjectMapper();
-            System.out.println("Result:" + mapper.writeValueAsString(arg1));
+            logger.info("Result:" + mapper.writeValueAsString(arg1));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -207,7 +210,7 @@ public class GraphMgrTest {
             Future<Object> req = Patterns.ask(reqRouter, request, timeout);
             Object arg1 = Await.result(req, t.duration());
             ObjectMapper mapper = new ObjectMapper();
-            System.out.println("Result:" + mapper.writeValueAsString(arg1));
+            logger.info("Result:" + mapper.writeValueAsString(arg1));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -248,9 +251,9 @@ public class GraphMgrTest {
             System.out.println(operation + " response: " + arg1);
             if (arg1 instanceof Response) {
                 Response ar = (Response) arg1;
-                System.out.println(ar.getResult());
-                System.out.println(ar.get(param));
-                System.out.println(ar.getParams());
+                logger.info(ar.getResult());
+                logger.info(ar.get(param));
+                logger.info(ar.getParams());
             }
         } catch (Exception e) {
             e.printStackTrace();

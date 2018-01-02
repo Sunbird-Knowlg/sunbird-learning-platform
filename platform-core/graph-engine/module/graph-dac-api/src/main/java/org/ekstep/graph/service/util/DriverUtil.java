@@ -77,7 +77,7 @@ public class DriverUtil {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				System.out.println("Closing Neo4j Graph Driver...");
+				PlatformLogger.log("Closing Neo4j Graph Driver...");
 				if (null != driver)
 					driver.close();
 			}

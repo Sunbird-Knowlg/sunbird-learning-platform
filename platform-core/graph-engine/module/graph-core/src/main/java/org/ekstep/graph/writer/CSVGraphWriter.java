@@ -127,10 +127,6 @@ public class CSVGraphWriter implements GraphWriter {
 		return "";
 	}
 
-	public static void main(String[] args) {
-		System.out.println(StringEscapeUtils.escapeCsv("<theme></theme>"));
-	}
-
 	@SuppressWarnings("rawtypes")
 	private String stringify(List list, String delim) {
 		if (null != list && !list.isEmpty()) {

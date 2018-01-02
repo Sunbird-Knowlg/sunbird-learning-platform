@@ -27,7 +27,7 @@ public class SearchNodesTest {
     //@BeforeTest
     public void init() throws Exception {
         String logFileName = SCENARIO_NAME + "_" + System.currentTimeMillis();
-        System.out.println("Logs are captured in " + logFileName + ".log file.");
+        logger.info("Logs are captured in " + logFileName + ".log file.");
         LoggerUtil.config(logFileName);
         reqRouter = TestUtil.initReqRouter();
         searchAllNodes();

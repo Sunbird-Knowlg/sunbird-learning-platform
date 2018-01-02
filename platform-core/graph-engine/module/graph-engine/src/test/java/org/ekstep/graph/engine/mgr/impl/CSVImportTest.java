@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.commons.io.FileUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -31,6 +33,7 @@ public class CSVImportTest {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+    private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
 
     private ActorRef initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
@@ -39,7 +42,7 @@ public class CSVImportTest {
         Future<Object> future = Patterns.ask(reqRouter, "init", timeout);
         Object response = Await.result(future, t.duration());
         Thread.sleep(2000);
-        System.out.println("Response from request router: " + response);
+        logger.info("Response from request router: " + response);
         return reqRouter;
     }
 
@@ -63,7 +66,7 @@ public class CSVImportTest {
 
             handleFutureBlock(req, "importDefinitions", GraphDACParams.graph_id.name());
             long t2 = System.currentTimeMillis();
-            System.out.println("Import Time: " + (t2 - t1));
+            logger.info("Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,11 +94,11 @@ public class CSVImportTest {
             Response response = (Response) obj;
             OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
             if(osV == null) {
-                System.out.println(response.getResult());
+                logger.info(response.getResult());
             } else {
                 ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
                 FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
-                System.out.println("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
+                logger.info("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
             }
             Thread.sleep(15000);
         } catch (Exception e) {
@@ -109,12 +112,12 @@ public class CSVImportTest {
             System.out.println(operation + " response: " + arg1);
             if (arg1 instanceof Response) {
                 Response ar = (Response) arg1;
-                System.out.println(ar.getResult());
-                System.out.println(ar.get(param));
-                System.out.println(ar.getParams());
+                logger.info(ar.getResult());
+                logger.info(ar.get(param));
+                logger.info(ar.getParams());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 }

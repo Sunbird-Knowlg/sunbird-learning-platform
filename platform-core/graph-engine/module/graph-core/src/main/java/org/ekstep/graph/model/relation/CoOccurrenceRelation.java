@@ -14,18 +14,18 @@ import org.ekstep.graph.exception.GraphRelationErrorCodes;
 
 public class CoOccurrenceRelation extends AbstractRelation {
 
-    public CoOccurrenceRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId) {
-        super(manager, graphId, startNodeId, endNodeId);
-    }
+	public CoOccurrenceRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId) {
+		super(manager, graphId, startNodeId, endNodeId);
+	}
 
-    @Override
-    public String getRelationType() {
-        return RelationTypes.CO_OCCURRENCE.relationName();
-    }
+	@Override
+	public String getRelationType() {
+		return RelationTypes.CO_OCCURRENCE.relationName();
+	}
 
-    @Override
+	@Override
 	public Map<String, List<String>> validateRelation(Request request) {
-        try {
+		try {
 
 			List<String> futures = new ArrayList<String>();
 			// Check node types: start node type should be data node.
@@ -34,21 +34,21 @@ public class CoOccurrenceRelation extends AbstractRelation {
 			Node endNode = getNode(request, this.endNodeId);
 			String startNodeMsg = getNodeTypeFuture(this.startNodeId, startNode,
 					new String[] { SystemNodeTypes.DATA_NODE.name() });
-            futures.add(startNodeMsg);
+			futures.add(startNodeMsg);
 			String endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode,
 					new String[] { SystemNodeTypes.DATA_NODE.name() });
-            futures.add(endNodeMsg);
+			futures.add(endNodeMsg);
 
-            // check if the relation is valid between object type definitions.
+			// check if the relation is valid between object type definitions.
 			String objectType = getObjectTypeFuture(startNode);
 			String endNodeObjectType = getObjectTypeFuture(endNode);
 			String objectTypeMessages = validateObjectTypes(objectType, endNodeObjectType, request);
-            futures.add(objectTypeMessages);
+			futures.add(objectTypeMessages);
 
 			return getMessageMap(futures);
-        } catch (Exception e) {
-            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
-        }
-    }
+		} catch (Exception e) {
+			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
+		}
+	}
 
 }

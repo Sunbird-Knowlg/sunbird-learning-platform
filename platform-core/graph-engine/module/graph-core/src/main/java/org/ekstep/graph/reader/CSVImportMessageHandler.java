@@ -29,7 +29,6 @@ public class CSVImportMessageHandler {
 	public CSVImportMessageHandler(InputStream inputStream) throws Exception {
 		// StringWriter writer = new StringWriter();
 		// IOUtils.copy(inputStream, writer, "UTF-8");
-		// System.out.println("Is:"+writer.toString());
 
 		try (InputStreamReader isReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
 			csvReader = new CSVParser(isReader, csvFileFormat);

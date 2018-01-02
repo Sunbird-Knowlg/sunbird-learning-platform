@@ -124,7 +124,7 @@ public class TestSetUp {
 
 		Response resp = (Response) obj;
 		if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
-			System.out.println(resp.getParams().getErr() + " :: " + resp.getParams().getErrmsg());
+			
 		}
 	}
 }

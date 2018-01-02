@@ -3,6 +3,8 @@ package org.ekstep.graph.engine.loadtest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
@@ -18,12 +20,13 @@ import scala.concurrent.duration.Duration;
 public class TestUtil {
 
     public static Timeout timeout = new Timeout(Duration.create(50, TimeUnit.SECONDS));
+    private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
 
     public static ActorRef initReqRouter() throws Exception {
         ActorBootstrap.getActorSystem();
         ActorRef reqRouter = GraphEngineActorPoolMgr.getRequestRouter();
         Thread.sleep(2000);
-        System.out.println("Request Router: " + reqRouter);
+        logger.info("Request Router: " + reqRouter);
         return reqRouter;
     }
 
@@ -96,13 +99,13 @@ public class TestUtil {
             if (arg1 instanceof Response) {
                 Response ar = (Response) arg1;
                 if (StringUtils.isNotBlank(param)) {
-                    System.out.println(ar.getResult());
-                    System.out.println(ar.get(param));
+                    logger.info(ar.getResult());
+                    logger.info(ar.get(param));
                 }
-                System.out.println(ar.getParams());
+                logger.info(ar.getParams());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 }
