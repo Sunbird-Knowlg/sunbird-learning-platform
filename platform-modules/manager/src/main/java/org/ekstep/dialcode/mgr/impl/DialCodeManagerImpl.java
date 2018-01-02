@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.mgr.IDialCodeManager;
@@ -14,7 +15,6 @@ import org.ekstep.dialcode.model.DialCodesModel;
 import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
-import org.neo4j.driver.v1.exceptions.ClientException;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -100,14 +100,14 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 				int maxCount = Platform.config.getInt("dialcode.max_count");
 
 				if (count > maxCount) {
-					throw new ClientException("Count is exceeding Max count");
+					throw new ClientException("ERR_INVALID_DIALCODE_COUNT","Count is exceeding Max count");
 				}
 				return count;
 			} else {
-				throw new ClientException("count is empty.");
+				throw new ClientException("ERR_INVALID_DIALCODE_COUNT","count is empty.");
 			}
 		} catch (Exception e) {
-			throw new ClientException("Invalid count.");
+			throw new ClientException("ERR_INVALID_DIALCODE_COUNT","Invalid count.");
 		}
 
 	}
