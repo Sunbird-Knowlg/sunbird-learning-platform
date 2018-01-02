@@ -10,7 +10,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.telemetry.logger.TelemetryLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -73,8 +72,7 @@ public class TelemetryAccessEventUtil {
 					context.put("uid", request.getParams().getUid());
 				}
 			}
-
-			TelemetryLogger.access(params, context);
+			PlatformLogger.access(context, params);
 		}
 
 	}

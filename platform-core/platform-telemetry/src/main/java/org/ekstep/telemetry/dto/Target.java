@@ -18,9 +18,9 @@ public class Target {
 		this.type = type;
 	}
 	
-	String id;
-	String type;
-	String ver;
+	private String id;
+	private String type;
+	private String ver;
 	/**
 	 * @return the id
 	 */

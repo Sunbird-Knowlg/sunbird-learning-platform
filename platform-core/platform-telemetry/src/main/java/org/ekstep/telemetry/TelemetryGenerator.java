@@ -14,12 +14,24 @@ import org.ekstep.telemetry.dto.Telemetry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * {@link TelemetryGenerator} uses context and other parameters to generate event JSON in string format.
+ * @author Mahesh
+ *
+ */
+
 public class TelemetryGenerator {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Producer producer = new Producer("org.ekstep.learning.platform", "1.0");
 
-	public static String access(Map<String, Object> params, Map<String, String> context) {
+	/**
+	 * To generate api_access LOG telemetry JSON string.
+	 * @param context
+	 * @param params
+	 * @return
+	 */
+	public static String access(Map<String, String> context, Map<String, Object> params) {
 		String actorId = context.get(TelemetryParams.ACTOR.name());
 		Actor actor = new Actor(actorId, "System");
 		Context eventContext = getContext(context);
@@ -32,6 +44,16 @@ public class TelemetryGenerator {
 		return getTelemetry(telemetry);
 	}
 	
+	/**
+	 * To generate normal LOG telemetry JSON string with all params.
+	 * @param context
+	 * @param type
+	 * @param level
+	 * @param message
+	 * @param pageid
+	 * @param params
+	 * @return
+	 */
 	public static String log(Map<String, String> context, String type, String level, String message, String pageid, List<Map<String, Object>> params) {
 		String actorId = context.get(TelemetryParams.ACTOR.name());
 		Actor actor = new Actor(actorId, "System");
@@ -48,10 +70,28 @@ public class TelemetryGenerator {
 		return getTelemetry(telemetry);
 	}
 	
+	/**
+	 * To generate normal LOG telemetry JSON string with required params.
+	 * @param context
+	 * @param type
+	 * @param level
+	 * @param message
+	 * @return
+	 */
 	public static String log(Map<String, String> context, String type, String level, String message) {
 		return log(context, type, level, message, null, null);
 	}
 
+	/**
+	 * To generate ERROR telemetry JSON string with all params.
+	 * @param context
+	 * @param code
+	 * @param type
+	 * @param stacktrace
+	 * @param pageid
+	 * @param object
+	 * @return
+	 */
 	public static String error(Map<String, String> context, String code, String type, String stacktrace, String pageid,
 			Object object) {
 		String actorId = context.get(TelemetryParams.ACTOR.name());
@@ -70,11 +110,24 @@ public class TelemetryGenerator {
 
 	}
 
+	/**
+	 * To generate ERROR telemetry JSON string with required params.
+	 * @param context
+	 * @param code
+	 * @param type
+	 * @param stacktrace
+	 * @return
+	 */
 	public static String error(Map<String, String> context, String code, String type, String stacktrace) {
 		return error(context, code, type, stacktrace, null, null);
 	}
 
-	public static String search() {
+	
+	public static String search(Map<String, String> context) {
+		return null;
+	}
+	
+	public static String audit(Map<String, String> context) {
 		return null;
 	}
 

@@ -21,11 +21,11 @@ public class Context {
 		this.pdata = pdata;
 	}
 	
-	String channel;
-	Producer pdata;
-	String env;
-	String sid;
-	String did;
+	private String channel;
+	private Producer pdata;
+	private String env;
+	private String sid;
+	private String did;
 	
 	
 	/**

@@ -13,8 +13,8 @@ public class Actor {
 		this.id = id;
 		this.type = type;
 	}
-	String id;
-	String type;
+	private String id;
+	private String type;
 	
 	/**
 	 * @return the id

@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.exception.MiddlewareException;
@@ -14,46 +14,72 @@ import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 
 /**
- * This is the custom logger implementation to carryout platform Logging. This
- * class holds methods used to log Events which are pushed to kafka
+ * This is the custom logger implementation to carry out platform Logging. This
+ * class holds methods used to log events which are pushed to Kafka topic.
  * 
- * @author Rashmi
+ * @author Rashmi & Mahesh
  *
  */
 public class PlatformLogger {
 
-	private static Logger rootLogger = (Logger) LogManager.getLogger("DefaultPlatformLogger");
+	private static final Logger rootLogger = (Logger) LogManager.getLogger("DefaultPlatformLogger");
+	private static final Logger telemetryLogger = LogManager.getLogger("TelemetryEventLogger");
 
 	/**
-	 * To log only message.
+	 * To log api_access as a telemetry event.
+	 * @param context
+	 * @param params
+	 */
+	
+	public static void access(Map<String, String> context, Map<String, Object> params) {
+		String event = TelemetryGenerator.access(context, params);
+		if (StringUtils.isNotBlank(event))
+			telemetryLogger.info(event);
+	}
+
+	/**
+	 * To log only message as a telemetry event.
+	 * @param message
 	 */
 	public static void log(String message) {
 		log(message, null, Level.DEBUG.name());
 	}
 	
 	/**
-	 * To log message with some data.
+	 * To log message with params as a telemetry event.
+	 * @param message
+	 * @param data
 	 */
 	public static void log(String message, Object data) {
 		log(message, data, Level.DEBUG.name());
 	}
 
 	/**
-	 * To log message, data in used defined log level.
+	 * To log message, params in user defined log level as a telemetry event.
+	 * @param message
+	 * @param data
+	 * @param logLevel
 	 */
 	public static void log(String message,Object data, String logLevel) {
 		backendLog(message,  data, null, logLevel);
 	}
 
 	/**
-	 * To log exception with message and data.
+	 * To log exception with message and params as a telemetry event.
+	 * @param message
+	 * @param data
+	 * @param e
 	 */
 	public static void log(String message, Object data, Throwable e) {
 		backendLog(message,  data, e, Level.ERROR.name());
 	}
 
 	/**
-	 * To log exception with message and data for user specific log level.
+	 * To log exception with message and params for user specified log level as a telemetry event.
+	 * @param message
+	 * @param data
+	 * @param e
+	 * @param logLevel
 	 */
 	public static void log(String message,  Object data, Exception e, String logLevel) {
 		backendLog(message,  data, e, logLevel);
@@ -125,7 +151,7 @@ public class PlatformLogger {
 	}
 	
 	private static String getContextValue(String key, String defaultValue) {
-		String value = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ACTOR.name());
+		String value = (String) ExecutionContext.getCurrent().getGlobalContext().get(key);
 		if (StringUtils.isBlank(value))
 			return defaultValue;
 		else 
