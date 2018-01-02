@@ -38,7 +38,8 @@ public class TelemetryAccessEventUtil {
 			}
 
 			Map<String, String> context = new HashMap<String, String>();
-			context.put("env", (String) data.get("env"));
+			context.put(TelemetryParams.ENV.name(), (String) data.get("env"));
+			ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ENV.name(), (String) data.get("env"));
 			context.put(TelemetryParams.CHANNEL.name(), (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
 			if (null != data.get("X-Session-ID")) {
 				context.put("sid", (String) data.get("X-Session-ID"));

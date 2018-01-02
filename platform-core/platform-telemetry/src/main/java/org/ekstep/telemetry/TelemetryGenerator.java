@@ -80,7 +80,7 @@ public class TelemetryGenerator {
 
 	private static Context getContext(Map<String, String> context) {
 		String channel = (String) context.get(TelemetryParams.CHANNEL.name());
-		String env = context.get("env");
+		String env = context.get(TelemetryParams.ENV.name());
 		Context eventContext = new Context(channel, env, producer);
 		String sid = context.get("sid");
 		if (StringUtils.isNotBlank(sid))

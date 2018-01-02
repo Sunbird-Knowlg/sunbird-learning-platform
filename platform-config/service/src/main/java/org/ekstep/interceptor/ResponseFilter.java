@@ -18,6 +18,7 @@ import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
+import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
@@ -56,7 +57,9 @@ public class ResponseFilter implements Filter {
 
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-			requestWrapper.setAttribute("env", getEnv(requestWrapper));
+			String env = getEnv(requestWrapper);
+			ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ENV.name(), env);
+			requestWrapper.setAttribute("env", env);
 			chain.doFilter(requestWrapper, responseWrapper);
 
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);

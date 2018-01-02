@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
+import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 
@@ -111,10 +112,15 @@ public class PlatformLogger {
 		String cid = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ACTOR.name());
 		context.put(TelemetryParams.ACTOR.name(), cid);
 		context.put(TelemetryParams.CHANNEL.name(), (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
-		context.put("env", "content");
+		String env = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ENV.name());
+		if (StringUtils.isBlank(env))
+			env = "system";
+		context.put(TelemetryParams.ENV.name(), env);
 		if (exception != null) {
 			String code = "SYSTEM_ERROR";
-			// TODO: get code from exception.
+			if (exception instanceof MiddlewareException) {
+				code = ((MiddlewareException) exception).getErrCode();
+			}
 			return TelemetryGenerator.error(context, code, "system", ExceptionUtils.getStackTrace(exception));
 		} else {
 			// TODO: Object data should become params. 
