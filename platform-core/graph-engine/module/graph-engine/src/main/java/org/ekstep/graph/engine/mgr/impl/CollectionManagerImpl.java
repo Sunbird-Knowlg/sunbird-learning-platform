@@ -9,7 +9,6 @@ import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.mgr.ICollectionManager;
 import org.ekstep.graph.engine.router.GraphEngineActorPoolMgr;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
@@ -52,7 +51,6 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
     @Override
     public void createSet(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        SearchCriteria criteria = (SearchCriteria) request.get(GraphDACParams.criteria.name());
         List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         String setObjectType = (String) request.get(GraphDACParams.object_type.name());
         String memberObjectType = (String) request.get(GraphDACParams.member_type.name());
@@ -65,7 +63,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
             if (validateRequired(memberIds)) {
                 set = new Set(this, graphId, null, setObjectType, memberObjectType, node.getMetadata(), memberIds);
             } else {
-                set = new Set(this, graphId, null, setObjectType, node.getMetadata(), criteria);
+				set = new Set(this, graphId, null, setObjectType, node.getMetadata());
             }
             set.setInRelations(node.getInRelations());
             set.setOutRelations(node.getOutRelations());
@@ -79,7 +77,6 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
     @Override
     public void updateSet(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        SearchCriteria criteria = (SearchCriteria) request.get(GraphDACParams.criteria.name());
         List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         String setObjectType = (String) request.get(GraphDACParams.object_type.name());
         String memberObjectType = (String) request.get(GraphDACParams.member_type.name());
@@ -92,7 +89,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
             if (validateRequired(memberIds)) {
                 set = new Set(this, graphId, node.getIdentifier(), setObjectType, memberObjectType, node.getMetadata(), memberIds);
             } else {
-                set = new Set(this, graphId, node.getIdentifier(), setObjectType, node.getMetadata(), criteria);
+				set = new Set(this, graphId, node.getIdentifier(), setObjectType, node.getMetadata());
             }
             set.setInRelations(node.getInRelations());
             set.setOutRelations(node.getOutRelations());

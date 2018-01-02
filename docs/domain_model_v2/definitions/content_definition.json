@@ -1480,6 +1480,19 @@
 					"indexed": true
 				},
 				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "dialcodes",
+					"title": "Dial Codes for Content",
+					"description": "Array of DialCodes Linked to Content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"propertyName": "optStatus",
 					"title": "Optimization Status",
 					"description": "",

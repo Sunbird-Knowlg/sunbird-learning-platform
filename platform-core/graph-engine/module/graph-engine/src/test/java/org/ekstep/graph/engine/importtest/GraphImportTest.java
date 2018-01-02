@@ -37,7 +37,6 @@ public class GraphImportTest {
         Future<Object> future = Patterns.ask(reqRouter, "init", timeout);
         Object response = Await.result(future, t.duration());
         Thread.sleep(2000);
-        System.out.println("Response from request router: " + response);
     }
     
     //@Test(priority =1, dataProvider="definitions", dataProviderClass=GraphImportDataProvider.class)
@@ -56,7 +55,7 @@ public class GraphImportTest {
             Patterns.ask(reqRouter, request, t);
 
             long t2 = System.currentTimeMillis();
-            System.out.println(message+" Import Time: " + (t2 - t1));
+            //System.out.println(message+" Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,14 +80,13 @@ public class GraphImportTest {
             Object obj = Await.result(req, t.duration());
             Response response = (Response) obj;
 //            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
-            System.out.println(response.getResult());
+//            System.out.println(response.getResult());
 //            if(osV == null) {
 //                System.out.println(response.getResult());
 //            } else {
 //                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
 //                FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
-//            }
-            System.out.println(message+" imported.");
+//            System.out.println(message+" imported.");
             Thread.sleep(10000);
         } catch (Exception e) {
             e.printStackTrace();

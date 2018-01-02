@@ -486,22 +486,18 @@ public class NodeMgrImplTest extends TestSetUp {
 	private void handleDefintionDto(Future<Object> response, String operation) {
 		try {
 			Object arg1 = Await.result(response, t.duration());
-			System.out.println("----------------------");
-			System.out.println(operation + " response: " + arg1);
 			if (arg1 instanceof Response) {
 				Response ar = (Response) arg1;
 				// System.out.println(ar.getResult());
 				
-				@SuppressWarnings("unchecked")
-				List<DefinitionDTO> dtos = (List<DefinitionDTO>) ar.getResult().get("definition_nodes");
-				for(DefinitionDTO dto : dtos) {
-					System.out.println(dto.getIdentifier() + " : : " + dto.getObjectType());
+				// @SuppressWarnings("unchecked")
+				// List<DefinitionDTO> dtos = (List<DefinitionDTO>) ar.getResult().get("definition_nodes");
+				// for(DefinitionDTO dto : dtos) {
+				// 	System.out.println(dto.getIdentifier() + " : : " + dto.getObjectType());
 
-				}
-				
-				System.out.println(ar.getParams());
+				// }
 			}
-			System.out.println("----------------------");
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -511,12 +507,8 @@ public class NodeMgrImplTest extends TestSetUp {
 
 		try {
 			Object arg1 = Await.result(req, t.duration());
-			System.out.println("----------------------");
-			System.out.println(operation + " response: " + arg1);
 			if (arg1 instanceof Response) {
 				Response ar = (Response) arg1;
-				System.out.println(ar.getResult());
-				System.out.println(ar.getParams());
 
 				if (null != param) {
 					// System.out.println(ar.get(param));
@@ -535,7 +527,7 @@ public class NodeMgrImplTest extends TestSetUp {
 
 			} else {
 			}
-			System.out.println("----------------------");
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

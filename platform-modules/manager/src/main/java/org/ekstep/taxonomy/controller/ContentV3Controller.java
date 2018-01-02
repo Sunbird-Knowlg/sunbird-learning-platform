@@ -375,6 +375,28 @@ public class ContentV3Controller extends BaseController {
 		}
 	}
 	
+	/**
+	 * Controller Method to Link QR Code (DIAL Code) with Content
+	 * 
+	 * @author gauraw
+	 * 
+	 * */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/dialcode/link/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> linkDialCode(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.content.dialcode.link";
+		try {
+				Map<String,Object> map=(Map<String, Object>)requestMap.get("request");
+				Response response = contentManager.linkDialCode(contentId,map);
+				return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Exception occured while Linking Dial Code with Content (Id :"+contentId+") : ", e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
 	protected String getAPIVersion() {
 		return API_VERSION_3;
 	}

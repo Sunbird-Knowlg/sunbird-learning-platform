@@ -214,7 +214,18 @@
           "indexed": false
         }
       ],
-      "inRelations": [],
+      "inRelations": [
+        {
+          "relationName": "hasSequenceMember",
+          "title": "categoryInstance",
+          "description": "Category Instance that this domain belongs to",
+          "required": true,
+          "objectTypes": [
+            "CategoryInstance"
+          ],
+          "renderingHints": "{'order': 26}"
+        }
+      ],
       "outRelations": [
         {
           "relationName": "isParentOf",

@@ -16,31 +16,58 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TelemetryGenerator {
 
-	
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static Producer producer = new Producer("org.ekstep.learning.platform", "1.0");
 
 	public static String access(Map<String, Object> params, Map<String, String> context) {
-		String event = "";
-		try {
-			String actorId = context.get("cid");
-			Actor actor = new Actor(actorId, "System");
-			Context eventContext = getContext(context);
-			Map<String, Object> edata = new HashMap<String, Object>();
-			edata.put("type", "api_access");
-			edata.put("level", "INFO");
-			edata.put("message", "");
-			edata.put("params", getParamsList(params));
-			Telemetry tel = new Telemetry("LOG", actor, eventContext, edata);
-
-			event = mapper.writeValueAsString(tel);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return event;
+		String actorId = context.get("cid");
+		Actor actor = new Actor(actorId, "System");
+		Context eventContext = getContext(context);
+		Map<String, Object> edata = new HashMap<String, Object>();
+		edata.put("type", "api_access");
+		edata.put("level", "INFO");
+		edata.put("message", "");
+		edata.put("params", getParamsList(params));
+		Telemetry telemetry = new Telemetry("LOG", actor, eventContext, edata);
+		return getTelemetry(telemetry);
+	}
+	
+	public static String log(Map<String, String> context, String type, String level, String message, String pageid, List<Map<String, Object>> params) {
+		String actorId = context.get("cid");
+		Actor actor = new Actor(actorId, "System");
+		Context eventContext = getContext(context);
+		Map<String, Object> edata = new HashMap<String, Object>();
+		edata.put("type", type);
+		edata.put("level", level);
+		edata.put("message", message);
+		edata.put("pageid", pageid);
+		edata.put("params", params);
+		Telemetry telemetry = new Telemetry("ERROR", actor, eventContext, edata);
+		return getTelemetry(telemetry);
+	}
+	
+	public static String log(Map<String, String> context, String type, String level, String message) {
+		return log(context, type, level, message, null, null);
 	}
 
-	public static String log() {
-		return null;
+	public static String error(Map<String, String> context, String code, String type, String stacktrace, String pageid,
+			Object object) {
+		String actorId = context.get("cid");
+		Actor actor = new Actor(actorId, "System");
+		Context eventContext = getContext(context);
+		Map<String, Object> edata = new HashMap<String, Object>();
+		edata.put("err", code);
+		edata.put("errtype", type);
+		edata.put("stacktrace", stacktrace);
+		edata.put("pageid", pageid);
+		edata.put("object", object);
+		Telemetry telemetry = new Telemetry("ERROR", actor, eventContext, edata);
+		return getTelemetry(telemetry);
+
+	}
+
+	public static String error(Map<String, String> context, String code, String type, String stacktrace) {
+		return error(context, code, type, stacktrace, null, null);
 	}
 
 	public static String search() {
@@ -50,7 +77,7 @@ public class TelemetryGenerator {
 	private static Context getContext(Map<String, String> context) {
 		String channel = (String) context.get("channel");
 		String env = context.get("env");
-		Context eventContext = new Context(channel, env, new Producer("org.ekstep.learning.platform", "1.0"));
+		Context eventContext = new Context(channel, env, producer);
 		String sid = context.get("sid");
 		if (StringUtils.isNotBlank(sid))
 			eventContext.setSid(sid);
@@ -71,5 +98,15 @@ public class TelemetryGenerator {
 			}
 		}
 		return paramsList;
+	}
+
+	private static String getTelemetry(Telemetry telemetry) {
+		String event = "";
+		try {
+			event = mapper.writeValueAsString(telemetry);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return event;
 	}
 }

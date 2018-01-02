@@ -23,13 +23,11 @@ public class Neo4jBoltDataVersionKeyValidatorTest {
 	//@Test
 	public void test(){
 		Map<String, Object> nodeMeta = getNeo4jNodeProperty("en", "44347");
-		System.out.println(nodeMeta);
 		Node node =new Node("en", nodeMeta);
 		Neo4jBoltValidator validator = new Neo4jBoltValidator();
 		Assert.assertEquals(true, validator.validateUpdateOperation("en", node));
 		
 		Map<String, Object> nodeMeta2 = getNeo4jNodeProperty("domain", "org.ekstep.nov23.story.2");
-		System.out.println(nodeMeta2);
 		node =new Node("domain", nodeMeta2);
 		Assert.assertEquals(true, validator.validateUpdateOperation("domain", node));
 		Map<String, Object> md = new HashMap<>(node.getMetadata());

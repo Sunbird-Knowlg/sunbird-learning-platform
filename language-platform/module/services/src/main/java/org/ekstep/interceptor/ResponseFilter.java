@@ -71,8 +71,15 @@ public class ResponseFilter implements Filter {
 
 	private String getEnv(RequestWrapper requestWrapper) {
 		String path = requestWrapper.getRequestURI();
-		String env = path.split("/")[3];
-		return env;
+
+		if (path.contains("/health") || path.contains("/sync") || path.contains("/definitions")) {
+			return "system";
+		} else if (path.contains("/tools")) {
+			return "tools";
+		} else {
+			return "wordnet";
+		}
+
 	}
 	
 	@Override
