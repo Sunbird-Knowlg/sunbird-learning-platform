@@ -109,18 +109,9 @@ public class PlatformLogger {
 
 	public static String getBELog(String logLevel, String message, Object data, Throwable exception) {
 		Map<String, String> context = new HashMap<String, String>();
-		String cid = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ACTOR.name());
-		if (StringUtils.isBlank(cid))
-			cid = "org.ekstep.learning.platform";
-		context.put(TelemetryParams.ACTOR.name(), cid);
-		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
-		if (StringUtils.isBlank(channel))
-			channel = "in.ekstep";
-		context.put(TelemetryParams.CHANNEL.name(), channel);
-		String env = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ENV.name());
-		if (StringUtils.isBlank(env))
-			env = "system";
-		context.put(TelemetryParams.ENV.name(), env);
+		context.put(TelemetryParams.ACTOR.name(), getContextValue(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform"));
+		context.put(TelemetryParams.CHANNEL.name(), getContextValue(HeaderParam.CHANNEL_ID.name(), "in.ekstep"));
+		context.put(TelemetryParams.ENV.name(), getContextValue(TelemetryParams.ENV.name(), "system"));
 		if (exception != null) {
 			String code = "SYSTEM_ERROR";
 			if (exception instanceof MiddlewareException) {
@@ -131,5 +122,13 @@ public class PlatformLogger {
 			// TODO: Object data should become params. 
 			return TelemetryGenerator.log(context, "system", logLevel, message);
 		}
+	}
+	
+	private static String getContextValue(String key, String defaultValue) {
+		String value = (String) ExecutionContext.getCurrent().getGlobalContext().get(TelemetryParams.ACTOR.name());
+		if (StringUtils.isBlank(value))
+			return defaultValue;
+		else 
+			return value;
 	}
 }
