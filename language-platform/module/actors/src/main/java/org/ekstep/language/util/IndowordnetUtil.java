@@ -390,8 +390,8 @@ public class IndowordnetUtil {
 										englishTranslationId, languageGraphId);
 							
 							long synsetEndTime = System.currentTimeMillis();
-							System.out.println(
-									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
+							//System.out.println(
+								//	"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
 							PlatformLogger.log(e.getMessage(), null, e);
 							e.printStackTrace();
