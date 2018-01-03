@@ -2,6 +2,7 @@ package org.ekstep.taxonomy.mgr.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -1536,14 +1537,95 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * 
 	 * 
 	 * */
-	public Response linkDialCode(String contentId,Map<String,Object>map) throws Exception{
+	public Response linkDialCode(Map<String,Object>map) throws Exception{
+		Response resp=null;
+		String reqType=getRequestType(map);
+		if(StringUtils.equals("single", reqType) || StringUtils.equals("multipleDialCode", reqType)){
+			resp=updateDialCodesToContent(map);
+		}else if(StringUtils.equals("multipleContents", reqType)){
+			resp=updateDialCodeToContents(map);
+		}
+		return resp;
+	}
+	
+	private String getRequestType(Map<String,Object>map) throws Exception{
+		String requestType="";
+		Object dialCode=map.get("dialcodes");
+		Object contents=map.get("contents");
+		
+		if(dialCode instanceof String && contents instanceof String){
+			requestType="single";
+		}else if(dialCode instanceof List && contents instanceof String){
+			requestType="multipleDialCode";
+		}else if(dialCode instanceof String && contents instanceof List){
+			requestType="multipleContents";
+		}else if(dialCode instanceof List && contents instanceof List){
+			throw new ClientException("ERR_INVALID_DIALCODE_LINK_REQUEST","Invalid Request. dialcodes and contents both can't be List.");
+		}
+		
+		if(StringUtils.isBlank(requestType)){
+			throw new ClientException("ERR_INVALID_DIALCODE_LINK_REQUEST","Invalid Request");
+		}
+		
+		return requestType;
+	}
+	
+	private Response updateDialCodesToContent(Map<String,Object> reqMap){
+		String contentId=(String)reqMap.get("contents");
+		List<String> dialCodes=null;
+		Object obj=reqMap.get("dialcodes");
+		
+		if(obj instanceof String)
+			dialCodes=new ArrayList<String>(Arrays.asList((String)reqMap.get("dialcodes")));
+		if(obj instanceof List)
+			dialCodes=new ArrayList<String>((ArrayList<String>)reqMap.get("dialcodes"));
+		
+		Map<String,Object> map=new HashMap<String,Object>();
+		map.put("dialcodes", dialCodes);
+		
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		Response responseNode = getDataNode(GRAPH_ID, contentId);
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 					"Content not found with id: " + contentId);
 		Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
+		return updateDialCode(map,definition,contentNode,contentId);
+	}
+	
+	private Response updateDialCodeToContents(Map<String,Object> reqMap) throws Exception{
+		Response resp;
+		boolean isNodeUpdated=false;
+		String dialCode=(String)reqMap.get("dialcodes");
+		List<String> contentIds=(ArrayList<String>)reqMap.get("contents");
 		
+		for(String contentId:contentIds){
+			Map<String,Object> map=new HashMap<String,Object>();
+			map.put("dialcodes", Arrays.asList(dialCode));
+			DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+			Response responseNode = getDataNode(GRAPH_ID, contentId);
+			if (checkError(responseNode))
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+						"Content not found with id: " + contentId);
+			Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
+			resp= updateDialCode(map,definition,contentNode,contentId);
+			if (!checkError(responseNode))
+				isNodeUpdated=true;
+			
+		}
+		if(isNodeUpdated){
+			resp=new Response();
+			resp.setParams(getSucessStatus());
+			resp.setResponseCode(ResponseCode.OK);
+			return resp;
+		}else{
+			resp=new Response();
+			resp.setParams(getErrorStatus("ERR_DIALCODE_LINK_REQUEST", "Internal Server Error"));
+			resp.setResponseCode(ResponseCode.SERVER_ERROR);
+			return resp;
+		}	
+	}
+	
+	private Response updateDialCode(Map<String,Object> map,DefinitionDTO definition,Node contentNode, String contentId){
 		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 		map.put("versionKey", graphPassportKey);
 		try {
@@ -1556,6 +1638,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} catch (Exception e) {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
-		
-	}
+	 }
+	
 }

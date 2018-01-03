@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-@Ignore
+//@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -57,7 +57,7 @@ public class DialCodeV3ControllerTest extends TestSetupUtil{
 	private static String dialCode;
 
 	private static String cassandraScript_1="CREATE KEYSPACE IF NOT EXISTS dialcode_store_test WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'};";
-	private static String cassandraScript_2="CREATE TABLE IF NOT EXISTS dialcode_store_test.dial_code_test (identifier text,dialcode_index double,publisher text,channel text,batchCode text,metadata text,count int,status text,generated_on text,published_on text, primary key(identifier));";
+	private static String cassandraScript_2="CREATE TABLE IF NOT EXISTS dialcode_store_test.dial_code_test (identifier text,dialcode_index double,publisher text,channel text,batchCode text,metadata text,status text,generated_on text,published_on text, primary key(identifier));";
 	
 	
 	private static  String generateDialCodeReq_1 = "{\"request\": {\"dialcodes\": {\"count\":2,\"publisher\": \"testPublisher\",\"batchCode\":\"ka_math_std1\"}}}";
@@ -159,4 +159,264 @@ public class DialCodeV3ControllerTest extends TestSetupUtil{
 				.content(generateDialCodeReqInvalidCount));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
+	
+	/*
+	 * Scenario 5 : Generate Dial Code with valid url,Invalid request body.
+	 * 
+	 * Given: Valid url and Invalid request body.
+	 * When: Generate DIAL Code API hits.
+	 * Then:  400 - Client Error. Invalid Request
+	 * 
+	 */
+	@Test
+	public void testDialCode_05() throws Exception {
+		String path = basePath + "/generate";
+		String req="{\"request\": {}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 6 : Read Dial Code with valid url and valid identifier.
+	 * 
+	 * Given: Valid url and valid identifier.
+	 * When: Read DIAL Code API hits.
+	 * Then:  200 - OK . DIAL Code details will be returned as Response.
+	 * 
+	 */
+	@Test
+	public void testDialCode_06() throws Exception {
+		String path = basePath + "/read/"+dialCode;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
+		System.out.println("Response:::::::::"+actions.andReturn().getResponse().getContentAsString());
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 7 : Read Dial Code with valid url and Invalid identifier.
+	 * 
+	 * Given: Valid url and Invalid identifier.
+	 * When: Read DIAL Code API hits.
+	 * Then:  404 - ResurceNotFoundException . Client Error
+	 * 
+	 */
+	@Test
+	public void testDialCode_07() throws Exception {
+		String path = basePath + "/read/"+"ABC11111111";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 8 : Read Dial Code with Invalid url and valid identifier.
+	 * 
+	 * Given: Invalid url and valid identifier.
+	 * When: Read DIAL Code API hits.
+	 * Then:  404 - Invalid Request
+	 * 
+	 */
+	@Test
+	public void testDialCode_08() throws Exception {
+		String path = basePath + "/rea/"+dialCode;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 09 : Update Dial Code with Valid url, valid request body and valid identifier.
+	 * 
+	 * Given: valid url,valid request body and valid identifier.
+	 * When: Update DIAL Code API hits.
+	 * Then:  200 - OK
+	 * 
+	 */
+	
+	@Test
+	public void testDialCode_09() throws Exception {
+		String path = basePath + "/update/"+dialCode;
+		String req="{\"request\": {\"dialcode\": {\"publisher\": \"testPublisheUpdated\",\"metadata\": {\"class\":\"std2\",\"subject\":\"Math\",\"board\":\"AP CBSE\"}}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 10 : Update Dial Code with Invalid url, valid request body and valid identifier.
+	 * 
+	 * Given: Invalid url,valid request body and valid identifier.
+	 * When: Update DIAL Code API hits.
+	 * Then:  404 - Invalid Request
+	 * 
+	 */
+	
+	@Test
+	public void testDialCode_10() throws Exception {
+		String path = basePath + "/updat/"+dialCode;
+		String req="{\"request\": {\"dialcode\": {\"publisher\": \"testPublisheUpdated\",\"metadata\": {\"class\":\"std2\",\"subject\":\"Math\",\"board\":\"AP CBSE\"}}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 11 : Update Dial Code with Valid url, valid request body and Invalid identifier.
+	 * 
+	 * Given: Valid url,valid request body and Invalid identifier.
+	 * When: Update DIAL Code API hits.
+	 * Then:  404 - Resource Not Found
+	 * 
+	 */
+	
+	@Test
+	public void testDialCode_11() throws Exception {
+		String path = basePath + "/update/"+"ABCTEST";
+		String req="{\"request\": {\"dialcode\": {\"publisher\": \"testPublisheUpdated\",\"metadata\": {\"class\":\"std2\",\"subject\":\"Math\",\"board\":\"AP CBSE\"}}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 12 : Update Dial Code with Valid url, Invalid request body and valid identifier.
+	 * 
+	 * Given: Valid url,Invalid request body and valid identifier.
+	 * When: Update DIAL Code API hits.
+	 * Then:  400 - Client Error. Invalid Request
+	 * 
+	 */
+	
+	@Test
+	public void testDialCode_12() throws Exception {
+		String path = basePath + "/update/"+dialCode;
+		String req="{\"request\": {\"dialcodess\": {\"publisher\": \"testPublisheUpdated\",\"metadata\": {\"class\":\"std2\",\"subject\":\"Math\",\"board\":\"AP CBSE\"}}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+	
+	
+	
+	
+	/*
+	 * Scenario 13 : Publish Dial Code with valid url and valid identifier.
+	 * 
+	 * Given: valid url and valid identifier.
+	 * When: Publish DIAL Code API hits.
+	 * Then:  200 - OK
+	 * 
+	 */
+	@Test
+	public void testDialCode_13() throws Exception {
+		String path = basePath + "/publish/"+dialCode;
+		String req="{}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest").header("user-id", "test")
+				.content(req));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 14: Publish Dial Code with Invalid url and valid identifier.
+	 * 
+	 * Given: Invalid url and valid identifier.
+	 * When: Publish DIAL Code API hits.
+	 * Then:  404 - Invalid Request
+	 * 
+	 */
+	@Test
+	public void testDialCode_14() throws Exception {
+		String path = basePath + "/publis/"+dialCode;
+		String req="{}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest").header("user-id", "test")
+				.content(req));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 15 : Publish Dial Code with Valid url and Invalid identifier.
+	 * 
+	 * Given: valid url and Invalid identifier.
+	 * When: Publish DIAL Code API hits.
+	 * Then:  404 - Resource Not Found
+	 * 
+	 */
+	@Test
+	public void testDialCode_15() throws Exception {
+		String path = basePath + "/publish/"+"TEST1111";
+		String req="{}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest").header("user-id", "test")
+				.content(req));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 16 : List Dial Code with Valid url and Valid Request Body
+	 * 
+	 * Given: valid url and valid request body
+	 * When: List DIAL Code API hits.
+	 * Then:  200 - OK
+	 * 
+	 */
+	@Test
+	public void testDialCode_16() throws Exception {
+		String path = basePath + "/list/";
+		String req="{\"request\": {\"search\": {\"status\":\"Draft\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 17 : List Dial Code with Invalid url and Valid Request Body
+	 * 
+	 * Given: Invalid url and valid request body
+	 * When: List DIAL Code API hits.
+	 * Then:  404 - Invalid Request
+	 * 
+	 */
+	@Test
+	public void testDialCode_17() throws Exception {
+		String path = basePath + "/lis/";
+		String req="{\"request\": {\"search\": {\"status\":\"Draft\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 18 : List Dial Code with valid url and Invalid Request Body
+	 * 
+	 * Given: Valid url and Invalid request body
+	 * When: List DIAL Code API hits.
+	 * Then:  400 - Invalid Request
+	 * 
+	 */
+	@Test
+	public void testDialCode_18() throws Exception {
+		String path = basePath + "/list/";
+		String req="{\"request\": {\"searchs\": {\"status\":\"Draft\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	/*
+	 * Scenario 19 : List Dial Code with valid url and Invalid Request Body (Invalid Criteria)
+	 * 
+	 * Given: Valid url and Invalid request body
+	 * When: List DIAL Code API hits.
+	 * Then:  200 - OK . Empty Result
+	 * 
+	 */
+	@Test
+	public void testDialCode_19() throws Exception {
+		String path = basePath + "/list/";
+		String req="{\"request\": {\"search\": {\"status\":\"Test\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelTest")
+				.content(req));
+		System.out.println("Response:::::::::"+actions.andReturn().getResponse().getContentAsString());
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+	
+	
 }

@@ -227,6 +227,6 @@ public interface IContentManager {
 	Response updateAllContentNodes(String contentId, Map<String, Object> map) throws Exception;
 	
 	// Method for QR Code Linking with Content
-	Response linkDialCode(String contentId, Map<String, Object> map) throws Exception;
+	Response linkDialCode(Map<String, Object> map) throws Exception;
 
 }
