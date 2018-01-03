@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.AuthToken;
 import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.exceptions.ClientException;
@@ -21,7 +21,7 @@ public class AuthTokenUtil {
 
 		// Fetching Authentication Type for Neo4J
 		String authType = DACConfigurationConstants.NEO4J_SERVER_AUTH_TYPE;
-		PlatformLogger.log("Neo4J Authentication Type: " + authType);
+		TelemetryManager.log("Neo4J Authentication Type: " + authType);
 
 		if (!isValidConfiguration(authType))
 			throw new ClientException(DACErrorCodeConstants.INVALID_CONFIG.name(),

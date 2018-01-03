@@ -12,7 +12,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.GradeLevelComplexityUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 
@@ -39,7 +39,7 @@ public class LanguageCacheActor extends LanguageBaseActor {
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		// TODO Auto-generated method stub
-		PlatformLogger.log("Received Command: " + msg);
+		TelemetryManager.log("Received Command: " + msg);
 		Request request = (Request) msg;
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
@@ -60,12 +60,12 @@ public class LanguageCacheActor extends LanguageBaseActor {
 				util.validateComplexityRange(languageId, gradeLevelComplexity);
 				OK(getSender());
 			} else {
-				PlatformLogger.log("Unsupported operation: " + operation);
+				TelemetryManager.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error in enrich actor", e.getMessage(), e);
+			TelemetryManager.log("Error in enrich actor", e.getMessage(), e);
 			handleException(e, getSender());
 		}
 

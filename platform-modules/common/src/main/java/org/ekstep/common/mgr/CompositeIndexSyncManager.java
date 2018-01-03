@@ -20,7 +20,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 import org.ekstep.common.enums.CompositeSearchErrorCodes;
 import org.ekstep.common.enums.CompositeSearchParams;
@@ -61,7 +61,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
-		PlatformLogger.log("Composite index sync : " + graphId);
+		TelemetryManager.log("Composite index sync : " + graphId);
 		Response response = OK();
 
 		// if object type is given, sync only objects of the given type
@@ -96,7 +96,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_IDENTIFIER.name(),
 					"Identifier is blank.");
-		PlatformLogger.log("Composite index sync : " + graphId , " | Identifier: " + identifiers);
+		TelemetryManager.log("Composite index sync : " + graphId , " | Identifier: " + identifiers);
 		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
 		if (null != identifiers && identifiers.length > 0) {
 			for (String identifier : identifiers) {
@@ -109,7 +109,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 							"Object not found: " + identifier);
 				}
 			}
-			PlatformLogger.log("Sync messages count : " , lstMessages.size());
+			TelemetryManager.log("Sync messages count : " , lstMessages.size());
 		}
 		return pushMessageToKafka(lstMessages);
 	}

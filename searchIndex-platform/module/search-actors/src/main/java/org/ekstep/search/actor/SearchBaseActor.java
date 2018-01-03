@@ -13,7 +13,7 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
@@ -63,7 +63,7 @@ public abstract class SearchBaseActor extends UntypedActor {
 
     @CoverageIgnore
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo, ActorRef parent) {
-        PlatformLogger.log("Error", errorCode , errorMessage);
+        TelemetryManager.log("Error", errorCode , errorMessage);
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -73,7 +73,7 @@ public abstract class SearchBaseActor extends UntypedActor {
 
     @CoverageIgnore
     public void handleException(Throwable e, ActorRef parent) {
-        PlatformLogger.log("Error", e.getMessage());
+        TelemetryManager.log("Error", e.getMessage());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());
@@ -83,7 +83,7 @@ public abstract class SearchBaseActor extends UntypedActor {
         } else {
             params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
         }
-        PlatformLogger.log("Exception occured in class :"+ e.getClass().getName() , e.getMessage());
+        TelemetryManager.log("Exception occured in class :"+ e.getClass().getName() , e.getMessage());
         params.setErrmsg(setErrMessage(e));
         response.setParams(params);
         setResponseCode(response, e);
@@ -123,11 +123,11 @@ public abstract class SearchBaseActor extends UntypedActor {
     protected String setErrMessage(Throwable e){
     	Class<? extends Throwable> className = e.getClass();
         if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	PlatformLogger.log("Setting error message sent from class " + className , e.getMessage());
+        	TelemetryManager.log("Setting error message sent from class " + className , e.getMessage());
         	return e.getMessage();
         }
         else if(className.getName().startsWith(java)){
-        	PlatformLogger.log("Setting default err msg " + className , e.getMessage());
+        	TelemetryManager.log("Setting default err msg " + className , e.getMessage());
         	return default_err_msg;
         }
         return null;

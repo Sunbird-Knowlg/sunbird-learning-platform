@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.framework.mgr.ICategoryInstanceManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * This is the entry point for all CRUD operations related to categoryInstance for Framework API.
@@ -54,7 +54,7 @@ public class FrameworkCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for Categoryinstance ", apiId, null);
 		    }
 		} catch (Exception e) {
-			PlatformLogger.log("Create category instance", e.getMessage(), e);
+			TelemetryManager.log("Create category instance", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -79,7 +79,7 @@ public class FrameworkCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for Categoryinstance ", apiId, null);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Read category instance", e.getMessage(), e);
+			TelemetryManager.log("Read category instance", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -108,7 +108,7 @@ public class FrameworkCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for Categoryinstance ", apiId, null);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Update category", e.getMessage(), e);
+			TelemetryManager.log("Update category", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -134,7 +134,7 @@ public class FrameworkCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId: " + frameworkId + " for Categoryinstance ", apiId, null);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("search category instance | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("search category instance | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -158,7 +158,7 @@ public class FrameworkCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_FRAMEWORK_ID", "Invalid FrameworkId:  " + frameworkId + " for Categoryinstance ", apiId, null);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("retire category instance | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("retire category instance | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

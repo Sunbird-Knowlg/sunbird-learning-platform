@@ -31,7 +31,7 @@ import org.ekstep.taxonomy.enums.SuggestionCodeConstants;
 import org.ekstep.taxonomy.enums.SuggestionConstants;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.mgr.ISuggestionManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class SuggestionManager provides implementations of the various
@@ -70,14 +70,14 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	public Response saveSuggestion(Map<String, Object> request) {
 		Response response = new Response();
 		try {
-			PlatformLogger.log("Fetching identifier from request");
+			TelemetryManager.log("Fetching identifier from request");
 			String identifier = (String) request.get(SuggestionCodeConstants.objectId.name());
 			Node node = util.getNode(SuggestionConstants.GRAPH_ID, identifier);
 			if (null != node) {
-				PlatformLogger.log("saving the suggestions to elastic search index" + identifier);
+				TelemetryManager.log("saving the suggestions to elastic search index" + identifier);
 				response = saveSuggestionToEs(request);
 				if (checkError(response)) {
-					PlatformLogger.log("Erroneous Response.");
+					TelemetryManager.log("Erroneous Response.");
 					return response;
 				}
 			} else {
@@ -85,13 +85,13 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 						"Content_Id doesnt exists | Invalid Content_id");
 			}
 		} catch (ClientException e) {
-			PlatformLogger.log("Error occured while processing request | Not a valid request", e.getMessage(),e);
+			TelemetryManager.log("Error occured while processing request | Not a valid request", e.getMessage(),e);
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ClientException(SuggestionCodeConstants.INVALID_REQUEST.name(), "Error! Invalid Request");
 		}
-		PlatformLogger.log("Returning response from saveSuggestion" + response.getResponseCode());
+		TelemetryManager.log("Returning response from saveSuggestion" + response.getResponseCode());
 		return response;
 	}
 
@@ -105,20 +105,20 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	public Response readSuggestion(String objectId, String startTime, String endTime, String status) {
 		Response response = new Response();
 		try {
-			PlatformLogger.log("Checking if received parameters are empty or not" , objectId);
+			TelemetryManager.log("Checking if received parameters are empty or not" , objectId);
 			List<Object> result = getSuggestionByObjectId(objectId, startTime, endTime, status);
 			response.setParams(getSucessStatus());
 			response.put(SuggestionCodeConstants.suggestions.name(), result);
-			PlatformLogger.log("Fetching response from elastic search" + result.size());
+			TelemetryManager.log("Fetching response from elastic search" + result.size());
 			if (checkError(response)) {
-				PlatformLogger.log("Erroneous Response.");
+				TelemetryManager.log("Erroneous Response.");
 				return response;
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Exception occured while fetching suggestions for contentId", e.getMessage(), e);
+			TelemetryManager.log("Exception occured while fetching suggestions for contentId", e.getMessage(), e);
 			throw e;
 		}
-		PlatformLogger.log("Response received from the readSuggestion" , response.getResponseCode());
+		TelemetryManager.log("Response received from the readSuggestion" , response.getResponseCode());
 		return response;
 	}
 
@@ -136,7 +136,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			
 			String suggestionResponse = es.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
 					SuggestionConstants.SUGGESTION_INDEX_TYPE, suggestion_id);
-			PlatformLogger.log("Result of suggestion using Id: " + suggestionResponse);
+			TelemetryManager.log("Result of suggestion using Id: " + suggestionResponse);
 			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
 			Map<String, Object> paramsMap = (Map) suggestionObject.get(SuggestionCodeConstants.params.name());
 			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
@@ -148,7 +148,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			
 			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.APPROVE_STATUS);
 			String requestString = mapper.writeValueAsString(requestMap);
-			PlatformLogger.log("request for suggestion approval: " + requestString);
+			TelemetryManager.log("request for suggestion approval: " + requestString);
 			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
 					requestString, suggestion_id);
 			response.setParams(getSucessStatus());
@@ -165,15 +165,15 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			}
 			
 		} catch (ClientException e) {
-			PlatformLogger.log("throwing exception received" + e.getMessage(), e);
+			TelemetryManager.log("throwing exception received" + e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			PlatformLogger.log("Server Exception occured while processing request" , e.getMessage(), e);
+			TelemetryManager.log("Server Exception occured while processing request" , e.getMessage(), e);
 			throw new ServerException(SuggestionCodeConstants.SERVER_ERROR.name(),
 					"Error! Something went wrong while processing", e);
 		}
-		PlatformLogger.log("Returning response from approve suggestion" + response.getResponseCode());
+		TelemetryManager.log("Returning response from approve suggestion" + response.getResponseCode());
 		return response;
 	}
 
@@ -190,7 +190,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		try {
 			String suggestionResponse = es.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
 					SuggestionConstants.SUGGESTION_INDEX_TYPE, suggestion_id);
-			PlatformLogger.log("Result of suggestion using Id: " + suggestionResponse);
+			TelemetryManager.log("Result of suggestion using Id: " + suggestionResponse);
 			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
 			String currentStatus = (String) suggestionObject.get(SuggestionCodeConstants.status.name());
 			
@@ -205,20 +205,20 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			response.put("suggestion_id", suggestion_id);
 			response.put("message", "suggestion rejected successfully");
 			if (checkError(response)) {
-				PlatformLogger.log("Erroneous Response.");
+				TelemetryManager.log("Erroneous Response.");
 				return response;
 			}
 		} catch (ClientException e) {
-			PlatformLogger.log("throwing exception received" , e.getMessage(), e);
+			TelemetryManager.log("throwing exception received" , e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			PlatformLogger.log("Server Exception occured while processing request" , e.getMessage(), e);
+			TelemetryManager.log("Server Exception occured while processing request" , e.getMessage(), e);
 			throw new ServerException(SuggestionCodeConstants.SERVER_ERROR.name(),
 					"Error! Something went wrong while processing", e);
 		}
 
-		PlatformLogger.log("Returning response from rejectSuggestion" + response.getResponseCode());
+		TelemetryManager.log("Returning response from rejectSuggestion" + response.getResponseCode());
 		return response;
 	}
 
@@ -238,7 +238,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			String suggestionId = null;
 			Map<String, Object> requestMap = (Map) map.get(SuggestionCodeConstants.request.name());
 			Map<String, Object> contentReq = (Map) requestMap.get(SuggestionCodeConstants.content.name());
-			PlatformLogger.log("Fetching fields to be retrived from request" + contentReq);
+			TelemetryManager.log("Fetching fields to be retrived from request" + contentReq);
 			if (contentReq.containsKey(SuggestionCodeConstants.status.name()))
 				status = (String) contentReq.get(SuggestionCodeConstants.status.name());
 			if (contentReq.containsKey(SuggestionCodeConstants.suggestedBy.name()))
@@ -246,26 +246,26 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			if (contentReq.containsKey(SuggestionCodeConstants.suggestion_id.name()))
 				suggestionId = (String) contentReq.get(SuggestionCodeConstants.suggestion_id.name());
 
-			PlatformLogger.log("calling getSuggestion method to get suggestions based on search criteria" + status
+			TelemetryManager.log("calling getSuggestion method to get suggestions based on search criteria" + status
 					+ suggestedBy + suggestionId);
 			List<Object> list = getSuggestionsList(status, suggestedBy, suggestionId);
 
-			PlatformLogger.log("Result from suggestion list API" + list);
+			TelemetryManager.log("Result from suggestion list API" + list);
 			response.setParams(getSucessStatus());
 			response.put("suggestions", list);
 			if (checkError(response)) {
-				PlatformLogger.log("Erroneous Response.");
+				TelemetryManager.log("Erroneous Response.");
 				return response;
 			}
 		} catch (ClientException e) {
-			PlatformLogger.log("throwing exception received" , e.getMessage(), e);
+			TelemetryManager.log("throwing exception received" , e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
-			PlatformLogger.log("Server Exception occured while processing request" , e.getMessage(), e);
+			TelemetryManager.log("Server Exception occured while processing request" , e.getMessage(), e);
 			throw new ServerException(SuggestionCodeConstants.SERVER_ERROR.name(),
 					"Error! Something went wrong while processing", e);
 		}
-		PlatformLogger.log("Returning response from list suggestion" + response.getResponseCode());
+		TelemetryManager.log("Returning response from list suggestion" + response.getResponseCode());
 		return response;
 	}
 
@@ -280,15 +280,15 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	 */
 	private Response saveSuggestionToEs(Map<String, Object> entity_map) throws IOException {
 		Response response = new Response();
-		PlatformLogger.log("creating suggestion index in elastic search" + SuggestionConstants.SUGGESTION_INDEX);
+		TelemetryManager.log("creating suggestion index in elastic search" + SuggestionConstants.SUGGESTION_INDEX);
 		createIndex();
-		PlatformLogger.log("Adding document to suggestion index" , entity_map);
+		TelemetryManager.log("Adding document to suggestion index" , entity_map);
 		String identifier = addDocument(entity_map);
 
-		PlatformLogger.log("Checking if suggestion_if is returned from response" + identifier);
+		TelemetryManager.log("Checking if suggestion_if is returned from response" + identifier);
 		if (StringUtils.isNotBlank(identifier)) {
 			response = setResponse(response, identifier);
-			PlatformLogger.log("returning response from save suggestion" , response);
+			TelemetryManager.log("returning response from save suggestion" , response);
 			return response;
 		}
 		return null;
@@ -308,7 +308,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 				+ "\",     \"analysis\": {       \"analyzer\": {         \"sg_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"sg_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
 		String mappings = "{ \"" + SuggestionConstants.SUGGESTION_INDEX_TYPE
 				+ "\" : {    \"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"sg_index_analyzer\",            \"search_analyzer\": \"sg_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"sg_index_analyzer\",        \"search_analyzer\": \"sg_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }}";
-		PlatformLogger.log("Creating Suggestion Index : " + SuggestionConstants.SUGGESTION_INDEX);
+		TelemetryManager.log("Creating Suggestion Index : " + SuggestionConstants.SUGGESTION_INDEX);
 		es.addIndex(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE, settings,
 				mappings);
 	}
@@ -327,21 +327,21 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		if (StringUtils.isNoneBlank(suggestionId)) {
 			request.put(SuggestionCodeConstants.suggestion_id.name(), suggestionId);
-			PlatformLogger.log("Checking if document is empty : " + request);
+			TelemetryManager.log("Checking if document is empty : " + request);
 
 			if (!request.isEmpty()) {
 				request.put(SuggestionCodeConstants.createdOn.name(), df.format(new Date()));
 				request.put(SuggestionCodeConstants.status.name(), "new");
 				document = mapper.writeValueAsString(request);
-				PlatformLogger.log("converting request map to string : " + document);
+				TelemetryManager.log("converting request map to string : " + document);
 			}
 			if (StringUtils.isNotBlank(document)) {
 				es.addDocumentWithId(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
 						suggestionId, document);
-				PlatformLogger.log("Adding document to Suggetion Index : " + document);
+				TelemetryManager.log("Adding document to Suggetion Index : " + document);
 			}
 		}
-		PlatformLogger.log("Returning suggestionId as response to saved suggestion" + suggestionId);
+		TelemetryManager.log("Returning suggestionId as response to saved suggestion" + suggestionId);
 		return suggestionId;
 	}
 
@@ -357,7 +357,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	 * @return The response
 	 */
 	private Response setResponse(Response response, String suggestionId) {
-		PlatformLogger.log("Setting response" + suggestionId);
+		TelemetryManager.log("Setting response" + suggestionId);
 		response.setParams(getSucessStatus());
 		response.getResult().put("suggestion_id", suggestionId);
 		response.setResponseCode(response.getResponseCode());
@@ -386,9 +386,9 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		search.setSortBy(sortBy);
-		PlatformLogger.log("setting search criteria to fetch records from ES" + search);
+		TelemetryManager.log("setting search criteria to fetch records from ES" + search);
 		List<Object> suggestionResult = search(search);
-		PlatformLogger.log("list of fields returned from ES based on search query" + suggestionResult);
+		TelemetryManager.log("list of fields returned from ES based on search query" + suggestionResult);
 		return suggestionResult;
 	}
 
@@ -413,9 +413,9 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		search.setSortBy(sortBy);
-		PlatformLogger.log("setting search criteria to fetch records from ES" + search);
+		TelemetryManager.log("setting search criteria to fetch records from ES" + search);
 		List<Object> suggestionResult = search(search);
-		PlatformLogger.log("list of fields returned from ES based on search query" + suggestionResult);
+		TelemetryManager.log("list of fields returned from ES based on search query" + suggestionResult);
 		return suggestionResult;
 	}
 
@@ -447,7 +447,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			String suggestedBy, String suggestion_id) {
 		List<Map> properties = new ArrayList<Map>();
 
-		PlatformLogger.log("setting search criteria for start_date");
+		TelemetryManager.log("setting search criteria for start_date");
 		if (StringUtils.isNotBlank(start_date)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE);
@@ -457,7 +457,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			property.put("values", range_map);
 			properties.add(property);
 		}
-		PlatformLogger.log("setting search criteria for end_date");
+		TelemetryManager.log("setting search criteria for end_date");
 		if (StringUtils.isNotBlank(end_date)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE);
@@ -467,7 +467,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			property.put("values", range_map);
 			properties.add(property);
 		}
-		PlatformLogger.log("setting search criteria for objectId");
+		TelemetryManager.log("setting search criteria for objectId");
 		if (StringUtils.isNotBlank(objectId)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
@@ -475,7 +475,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			property.put("values", Arrays.asList(objectId));
 			properties.add(property);
 		}
-		PlatformLogger.log("setting search criteria for status");
+		TelemetryManager.log("setting search criteria for status");
 		if (StringUtils.isNotBlank(status)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
@@ -483,7 +483,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			property.put("values", Arrays.asList(status));
 			properties.add(property);
 		}
-		PlatformLogger.log("setting search criteria for suggestedBy");
+		TelemetryManager.log("setting search criteria for suggestedBy");
 		if (StringUtils.isNotBlank(suggestedBy)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
@@ -491,7 +491,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			property.put("values", Arrays.asList(suggestedBy));
 			properties.add(property);
 		}
-		PlatformLogger.log("setting search criteria for suggestion_id");
+		TelemetryManager.log("setting search criteria for suggestion_id");
 		if (StringUtils.isNotBlank(suggestion_id)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
@@ -499,7 +499,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			property.put("values", Arrays.asList(suggestion_id));
 			properties.add(property);
 		}
-		PlatformLogger.log("returning the search filters" + properties);
+		TelemetryManager.log("returning the search filters" + properties);
 		return properties;
 	}
 
@@ -515,12 +515,12 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	public List<Object> search(SearchDTO search) {
 		List<Object> result = new ArrayList<Object>();
 		try {
-			PlatformLogger.log("sending search request to search processor" + search);
+			TelemetryManager.log("sending search request to search processor" + search);
 			result = (List<Object>) processor.processSearchQuery(search, false,
 					SuggestionConstants.SUGGESTION_INDEX);
-			PlatformLogger.log("result from search processor" + result);
+			TelemetryManager.log("result from search processor" + result);
 		} catch (Exception e) {
-			PlatformLogger.log("error while processing the search request", e.getMessage(), e);
+			TelemetryManager.log("error while processing the search request", e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return result;

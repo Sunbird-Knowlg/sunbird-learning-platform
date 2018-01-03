@@ -30,8 +30,8 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
 import com.rits.cloning.Cloner;
@@ -111,7 +111,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
-		PlatformLogger.log("Compression Applied ? " + isCompressionApplied);
+		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
 		String artifactUrl = null;
 		String downloadUrl = null;
@@ -129,7 +129,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
 					+ ContentConfigurationConstants.DEFAULT_ZIP_EXTENSION;
-			PlatformLogger.log("Zip File Name: " + zipFileName, null, Level.INFO.name());
+			TelemetryManager.log("Zip File Name: " + zipFileName, null, Level.INFO.name());
 			createZipPackage(basePath, zipFileName);
 			// Upload Package
 			File packageFile = new File(zipFileName);
@@ -161,9 +161,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		// node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(),
 		// 1);
 
-		PlatformLogger.log("setting compatability level for textbook", null, Level.INFO.name());
+		TelemetryManager.log("setting compatability level for textbook", null, Level.INFO.name());
 
-		PlatformLogger.log("setting compatability level for youtube, pdf and doc and epub", null, Level.INFO.name());
+		TelemetryManager.log("setting compatability level for youtube, pdf and doc and epub", null, Level.INFO.name());
 		String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
 		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())
 				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())
@@ -173,7 +173,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				|| StringUtils.containsIgnoreCase(mimeType, "x-url"))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 
-		PlatformLogger.log("setting compatability level for course and course unit", null, Level.INFO.name());
+		TelemetryManager.log("setting compatability level for course and course unit", null, Level.INFO.name());
 		if (StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.Course.name())
@@ -182,7 +182,7 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentWorkflowPipelineParams.CourseUnit.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		
-		PlatformLogger.log("setting compatability level for lesson plan and lesson plan unit", null, Level.INFO.name());
+		TelemetryManager.log("setting compatability level for lesson plan and lesson plan unit", null, Level.INFO.name());
 		if (StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.LessonPlan.name())
@@ -191,7 +191,7 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentWorkflowPipelineParams.LessonPlanUnit.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 
-		PlatformLogger.log("checking is the contentType is Asset", null, Level.INFO.name());
+		TelemetryManager.log("checking is the contentType is Asset", null, Level.INFO.name());
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
@@ -212,7 +212,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			Cloner cloner = new Cloner();
 			List<Map<String, Object>> spineContents = cloner.deepClone(contents);
 
-			PlatformLogger.log("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier(), null,
+			TelemetryManager.log("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier(), null,
 					Level.INFO.name());
 			Map<String, Object> variants = new HashMap<String, Object>();
 			Map<Object, List<String>> downloadUrls = null;
@@ -222,7 +222,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 				System.out.println("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			} else {
-				PlatformLogger.log("Creating Full ECAR For Content Id: " + node.getIdentifier(), null,
+				TelemetryManager.log("Creating Full ECAR For Content Id: " + node.getIdentifier(), null,
 						Level.INFO.name());
 				String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
 				
@@ -232,10 +232,10 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 				downloadUrl = urlArray[IDX_S3_URL];
 				s3Key = urlArray[IDX_S3_KEY];
-				PlatformLogger.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
+				TelemetryManager.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
 			}
 			
-			PlatformLogger.log("Creating Spine ECAR For Content Id: " + node.getIdentifier(), null,
+			TelemetryManager.log("Creating Spine ECAR For Content Id: " + node.getIdentifier(), null,
 					Level.INFO.name());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.SPINE);
@@ -246,10 +246,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
 
-			PlatformLogger.log("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+			TelemetryManager.log("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
 
-			PlatformLogger.log("Adding variants to Content Id: " + node.getIdentifier());
+			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 			
 			// if collection full ECAR creation disabled set spine as download url.
@@ -265,7 +265,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			File packageFile = (File) artifact;
 			if (packageFile.exists())
 				packageFile.delete();
-			PlatformLogger.log("Deleting Local Artifact Package File: " + packageFile.getAbsolutePath(), null,
+			TelemetryManager.log("Deleting Local Artifact Package File: " + packageFile.getAbsolutePath(), null,
 					Level.INFO.name());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
 
@@ -296,10 +296,10 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		try {
-			PlatformLogger.log("Deleting the temporary folder: " + basePath);
+			TelemetryManager.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
-			PlatformLogger.log("Error deleting the temporary folder: " + basePath, null, e);
+			TelemetryManager.log("Error deleting the temporary folder: " + basePath, null, e);
 		}
 
 		// Setting default version key for internal node update
@@ -314,7 +314,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setInRelations(node.getInRelations());
 		newNode.setOutRelations(node.getOutRelations());
 
-		PlatformLogger.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]", null,
+		TelemetryManager.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]", null,
 				Level.INFO.name());
 		Response response = migrateContentImageObjectData(contentId, newNode);
 
@@ -326,7 +326,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		getResponse(request);
 
 		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
-		PlatformLogger.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		return response;
@@ -339,14 +339,14 @@ public class PublishFinalizer extends BaseFinalizer {
 				URL url = new URL(s3Url);
 				s3Key = url.getPath();
 			} catch (Exception e) {
-				PlatformLogger.log("Something Went Wrong While Getting 's3Key' from s3Url." + s3Url, null, e);
+				TelemetryManager.log("Something Went Wrong While Getting 's3Key' from s3Url." + s3Url, null, e);
 			}
 		}
 		return s3Key;
 	}
 
 	private String getBundleFileName(String contentId, Node node, EcarPackageType packageType) {
-		PlatformLogger.log("Generating Bundle File Name For ECAR Package Type: " + packageType.name(), null,
+		TelemetryManager.log("Generating Bundle File Name For ECAR Package Type: " + packageType.name(), null,
 				Level.INFO.name());
 		String fileName = "";
 		if (null != node && null != node.getMetadata() && null != packageType) {
@@ -361,24 +361,24 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private Response migrateContentImageObjectData(String contentId, Node contentImage) {
-		PlatformLogger.log("Content Image: ", contentImage);
+		TelemetryManager.log("Content Image: ", contentImage);
 		Response response = new Response();
 		if (null != contentImage && StringUtils.isNotBlank(contentId)) {
 			String contentImageId = contentId + ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 			
-			PlatformLogger.log("Fetching the Content Image Node for actual state . | [Content Id: " + contentImageId + "]", null,
+			TelemetryManager.log("Fetching the Content Image Node for actual state . | [Content Id: " + contentImageId + "]", null,
 					Level.INFO.name());
 			Response getDataNodeResponse = getDataNode(contentImage.getGraphId(), contentImageId);
 			Node dbNode = (Node) getDataNodeResponse.get(ContentWorkflowPipelineParams.node.name());
 			
-			PlatformLogger.log("Setting the Metatdata for Image Node . | [Content Id: " + contentImageId + "]", null,
+			TelemetryManager.log("Setting the Metatdata for Image Node . | [Content Id: " + contentImageId + "]", null,
 					Level.INFO.name());
 			// Setting the Appropriate Metadata
 			contentImage.setIdentifier(contentId);
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			
 			String publishType = (String) contentImage.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
-			PlatformLogger.log("In migrateContentImageObjectData ******* publishType: " + publishType + " ***", null,  Level.INFO.name());
+			TelemetryManager.log("In migrateContentImageObjectData ******* publishType: " + publishType + " ***", null,  Level.INFO.name());
 			if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
 				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
 			} else {
@@ -390,7 +390,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				contentImage.setOutRelations(dbNode.getOutRelations());
 			}
 				
-			PlatformLogger.log("Migrating the Content Body. | [Content Id: " + contentId + "]", null,
+			TelemetryManager.log("Migrating the Content Body. | [Content Id: " + contentId + "]", null,
 					Level.INFO.name());
 			String imageBody = getContentBody(contentImageId);
 			if (StringUtils.isNotBlank(imageBody)) {
@@ -401,7 +401,7 @@ public class PublishFinalizer extends BaseFinalizer {
 									+ "]");
 			}
 
-			PlatformLogger.log("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]", null,
+			TelemetryManager.log("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]", null,
 					Level.INFO.name());
 			response = updateNode(contentImage);
 			if (checkError(response))
@@ -410,7 +410,7 @@ public class PublishFinalizer extends BaseFinalizer {
 								+ "]");
 		}
 
-		PlatformLogger.log("Returning the Response Object After Migrating the Content Body and Metadata.", response,
+		TelemetryManager.log("Returning the Response Object After Migrating the Content Body and Metadata.", response,
 				null, Level.INFO.name());
 		return response;
 	}

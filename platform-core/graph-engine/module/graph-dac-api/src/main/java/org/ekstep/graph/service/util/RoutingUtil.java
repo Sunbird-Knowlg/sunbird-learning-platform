@@ -6,14 +6,14 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
 public class RoutingUtil {
 
 	public static String getRoute(String graphId, GraphOperation graphOperation) {
-		PlatformLogger.log("Graph Id: ", graphId);
+		TelemetryManager.log("Graph Id: ", graphId);
 
 		// Checking Graph Id for 'null' or 'Empty'
 		if (StringUtils.isBlank(graphId))
@@ -29,11 +29,11 @@ public class RoutingUtil {
 			} else if (Platform.config.hasPath(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID)) {
 				routeUrl = Platform.config.getString(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID);
 			} else {
-				PlatformLogger.log("Graph connection configuration not defined.", Level.WARN.name());
+				TelemetryManager.log("Graph connection configuration not defined.", Level.WARN.name());
 			}
-			PlatformLogger.log("Request path for graph: " + graphId + " | URL: " + routeUrl);
+			TelemetryManager.log("Request path for graph: " + graphId + " | URL: " + routeUrl);
 		} catch (Exception e) {
-			PlatformLogger.log("Error fetching location from graph.properties", null, e);
+			TelemetryManager.log("Error fetching location from graph.properties", null, e);
 		}
 		return routeUrl;
 	}

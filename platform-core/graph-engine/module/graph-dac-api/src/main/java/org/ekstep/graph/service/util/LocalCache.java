@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.ekstep.common.Platform;
 import org.ekstep.graph.cache.util.CacheKeyGenerator;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class LocalCache, is used to cache any object in current java instance
@@ -43,7 +43,7 @@ public class LocalCache {
 		 */
 		protected CacheObject(Object value) {
 			this.value = value;
-			PlatformLogger.log("Local cache object value=" + value.toString() + "createOn=" + createOn);
+			TelemetryManager.log("Local cache object value=" + value.toString() + "createOn=" + createOn);
 		}
 	}
 
@@ -74,7 +74,7 @@ public class LocalCache {
 		else {
 			long now = System.currentTimeMillis();
 			if (now - c.createOn > ttl) {
-				PlatformLogger.log("Local cache object value=" + c.value.toString() + "createOn=" + c.createOn
+				TelemetryManager.log("Local cache object value=" + c.value.toString() + "createOn=" + c.createOn
 						+ " is expired now");
 				cacheMap.remove(key);
 				return null;
@@ -95,7 +95,7 @@ public class LocalCache {
 
 		CacheObject cacheObj = new CacheObject(value);
 		cacheMap.put(key, cacheObj);
-		PlatformLogger.log("Local cache object value=" + cacheObj.value.toString() + "cacheObj.createOn="
+		TelemetryManager.log("Local cache object value=" + cacheObj.value.toString() + "cacheObj.createOn="
 				+ cacheObj.createOn + " is set now");
 	}
 

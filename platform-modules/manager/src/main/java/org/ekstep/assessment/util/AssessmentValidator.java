@@ -7,8 +7,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import org.ekstep.assessment.enums.AssessmentItemType;
@@ -123,7 +123,7 @@ public class AssessmentValidator extends BaseManager {
     			}
     		}
     	} catch (Exception e) {
-    		PlatformLogger.log("invalid responses definition.", e.getMessage(), Level.ERROR.name());
+    		TelemetryManager.log("invalid responses definition.", e.getMessage(), Level.ERROR.name());
     		errorMessages.add("invalid responses definition");
     	}
     }

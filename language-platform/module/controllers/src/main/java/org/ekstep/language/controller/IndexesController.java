@@ -13,7 +13,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -79,15 +79,15 @@ public class IndexesController extends BaseLanguageController {
 			request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 			request.setOperation(LanguageOperations.loadCitations.name());
 			request.getContext().put(LanguageParams.language_id.name(), languageId);
-			PlatformLogger.log("List | Request: " + request);
+			TelemetryManager.log("List | Request: " + request);
 
 
 			Response response = getBulkOperationResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} finally {
@@ -95,7 +95,7 @@ public class IndexesController extends BaseLanguageController {
 				if (null != zipStream)
 					zipStream.close();
 			} catch (IOException e) {
-				PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+				TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 			}
 		}
 	}
@@ -122,14 +122,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.citationsCount.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -156,14 +156,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.citations.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -190,14 +190,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.getRootWords.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -224,14 +224,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.getWordId.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " ,e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " ,e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -257,15 +257,15 @@ public class IndexesController extends BaseLanguageController {
 
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		request.setOperation(LanguageOperations.getIndexInfo.name());
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -292,14 +292,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.addWordIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -326,14 +326,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getBulkOperationResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -358,14 +358,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.getWordMetrics.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -391,14 +391,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.wordWildCard.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -424,14 +424,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.morphologicalVariants.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -457,14 +457,14 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.rootWordInfo.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -491,10 +491,10 @@ public class IndexesController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.wordInfo.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			String csv = (String) response.getResult().get(LanguageParams.word_info.name());
 			if (StringUtils.isNotBlank(csv)) {
 				resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -504,7 +504,7 @@ public class IndexesController extends BaseLanguageController {
 				resp.getOutputStream().close();
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 		}
 	}
 

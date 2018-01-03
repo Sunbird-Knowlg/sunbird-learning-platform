@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.framework.mgr.ITermManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * @author pradyumna
@@ -49,7 +49,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.createTerm(frameworkId, categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("create term", e.getMessage(), e);
+			TelemetryManager.log("create term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -71,7 +71,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.readTerm(frameworkId, termId, categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Read term", e.getMessage(), e);
+			TelemetryManager.log("Read term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -98,7 +98,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.updateTerm(frameworkId, categoryId, termId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Update term", e.getMessage(), e);
+			TelemetryManager.log("Update term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -123,7 +123,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.searchTerms(frameworkId, categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Search terms", e.getMessage(), e);
+			TelemetryManager.log("Search terms", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -145,7 +145,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.retireTerm(frameworkId, categoryId, termId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("retire term", e.getMessage(), e);
+			TelemetryManager.log("retire term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

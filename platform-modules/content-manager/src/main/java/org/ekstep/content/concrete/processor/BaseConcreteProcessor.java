@@ -28,8 +28,8 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.mgr.BaseManager;
 
 /**
@@ -367,7 +367,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
-			PlatformLogger.log("Validating the Base Path: " , path);
+			TelemetryManager.log("Validating the Base Path: " , path);
 			isValid = isPathExist(Paths.get(path));
 		} catch (InvalidPathException | NullPointerException e) {
 			isValid = false;
@@ -386,15 +386,15 @@ public class BaseConcreteProcessor extends BaseManager {
 		boolean exist = true;
 		try {
 			if (null != path) {
-				PlatformLogger.log("Creating the Base Path: " + path.getFileName());
+				TelemetryManager.log("Creating the Base Path: " + path.getFileName());
 				if (!Files.exists(path))
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			PlatformLogger.log("Base Path Already Exist: " , path.getFileName(), e, Level.WARN.name());
+			TelemetryManager.log("Base Path Already Exist: " , path.getFileName(), e, Level.WARN.name());
 		} catch (Exception e) {
 			exist = false;
-			PlatformLogger.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
+			TelemetryManager.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
 		}
 		return exist;
 	}

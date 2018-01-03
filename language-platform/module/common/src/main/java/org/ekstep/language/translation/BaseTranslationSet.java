@@ -20,7 +20,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.enums.CollectionTypes;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.mgr.BaseManager;
 
 public class BaseTranslationSet extends BaseManager{
@@ -41,7 +41,7 @@ public class BaseTranslationSet extends BaseManager{
 	
 	@SuppressWarnings("unchecked")
 	public String getTranslationSet(String wordnetId){
-		PlatformLogger.log("Logging data:"+wordnetId);
+		TelemetryManager.log("Logging data:"+wordnetId);
 		Node node = null;
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.SET.name());
@@ -69,7 +69,7 @@ public class BaseTranslationSet extends BaseManager{
 	
 	@SuppressWarnings("unchecked")
 	public String getTranslationSetWithMember(String id, String wordnetId){
-		PlatformLogger.log("Logging data: "+id+": "+wordnetId);
+		TelemetryManager.log("Logging data: "+id+": "+wordnetId);
 		Node node = null;
 		RelationCriterion rc = new RelationCriterion("hasMember","Synset");
 		List<String> identifiers = new ArrayList<String>();
@@ -101,7 +101,7 @@ public class BaseTranslationSet extends BaseManager{
 	}
 	
 	public String createTranslationSetCollection(){
-		PlatformLogger.log("Creating new set!!!!!!!!!!!!!!!!!");
+		TelemetryManager.log("Creating new set!!!!!!!!!!!!!!!!!");
         Request setReq = getRequest(graphId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
         //setReq.put(GraphDACParams.criteria.name(), getItemSetCriteria(node));
 
@@ -168,7 +168,7 @@ public class BaseTranslationSet extends BaseManager{
 
 	
 	public void removeProxyNodeFromTranslationSet(String setId){
-		PlatformLogger.log("Deleting relation : " + setId + " --> " + proxyNode.getIdentifier());
+		TelemetryManager.log("Deleting relation : " + setId + " --> " + proxyNode.getIdentifier());
         Request setReq = getRequest(graphId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
         setReq.put(GraphDACParams.member_id.name(), proxyNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), setId);

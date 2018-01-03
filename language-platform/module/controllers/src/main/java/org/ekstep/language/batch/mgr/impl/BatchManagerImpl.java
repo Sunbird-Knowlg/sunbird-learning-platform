@@ -30,7 +30,7 @@ import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.ekstep.language.wordchian.WordChainUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 
@@ -72,7 +72,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			PlatformLogger.log("CorrectWordnetData starts from " + startPosistion + " - " + BATCH + " words");
+			TelemetryManager.log("CorrectWordnetData starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				List<String> words = new ArrayList<String>();
 				Map<String, Node> nodeMap = new HashMap<String, Node>();
@@ -85,7 +85,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 				if (!checkError(langRes)) {
 					featureMap = (Map<String, WordComplexity>) langRes.get(LanguageParams.word_features.name());
 					if (null != featureMap)
-						PlatformLogger.log("Word features returned for " + featureMap.size() + " words");
+						TelemetryManager.log("Word features returned for " + featureMap.size() + " words");
 				}
 				for (Node node : nodes) {
 					Object pictures = null;
@@ -128,14 +128,14 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							try {
 								wordChainUtil.updateWordSet(languageId, node, wc);
 							} catch (Exception e) {
-								PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+								TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 							}
 						}
 					}
 					try {
 						wordUtil.getWordComplexity(node, languageId);
 					} catch (Exception e) {
-						PlatformLogger.log("Update wordcomplexity error : " + node.getIdentifier() , e.getMessage(),
+						TelemetryManager.log("Update wordcomplexity error : " + node.getIdentifier() , e.getMessage(),
 								e);
 						Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 						updateReq.put(GraphDACParams.node.name(), node);
@@ -143,14 +143,14 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 						try {
 							getResponse(updateReq);
 						} catch (Exception ex) {
-							PlatformLogger.log("Update error : " + node.getIdentifier() , ex.getMessage(), ex);
+							TelemetryManager.log("Update error : " + node.getIdentifier() , ex.getMessage(), ex);
 						}
 					}
 				}
-				PlatformLogger.log("CorrectWordnetData complete from " + startPosistion + " - " + BATCH + " words");
+				TelemetryManager.log("CorrectWordnetData complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}
@@ -171,7 +171,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			PlatformLogger.log("UpdatePictures starts from " + startPosistion + " - " + BATCH + " words");
+			TelemetryManager.log("UpdatePictures starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				for (Node node : nodes) {
 					Object pictures = null;
@@ -199,13 +199,13 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					try {
 						getResponse(updateReq);
 					} catch (Exception e) {
-						PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 					}
 				}
-				PlatformLogger.log("UpdatePictures complete from " + startPosistion + " - " + BATCH + " words");
+				TelemetryManager.log("UpdatePictures complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}
@@ -226,7 +226,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			PlatformLogger.log("cleanupWordNetData starts from " + startPosistion + " - " + BATCH + " words");
+			TelemetryManager.log("cleanupWordNetData starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				List<String> list = new ArrayList<String>();
 				list.add(ATTRIB_SOURCE_IWN);
@@ -249,7 +249,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							try {
 								getResponse(updateReq);
 							} catch (Exception e) {
-								PlatformLogger.log("Update error : " + wordNode.getIdentifier() , e.getMessage(), e);
+								TelemetryManager.log("Update error : " + wordNode.getIdentifier() , e.getMessage(), e);
 							}
 						}
 					} else {
@@ -258,14 +258,14 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 						try {
 							getResponse(deleteReq);
 						} catch (Exception e) {
-							PlatformLogger.log("Delete error : " + node.getIdentifier() , e.getMessage(), e);
+							TelemetryManager.log("Delete error : " + node.getIdentifier() , e.getMessage(), e);
 						}
 					}
 				}
-				PlatformLogger.log("cleanupWordNetData complete from " + startPosistion + " - " + BATCH + " words");
+				TelemetryManager.log("cleanupWordNetData complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}
@@ -293,7 +293,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, start, batch);
-			PlatformLogger.log("updateWordChain starts from " + start + " - " + batch + " words");
+			TelemetryManager.log("updateWordChain starts from " + start + " - " + batch + " words");
 			fetchCount += batch;
 			if (null != nodes && !nodes.isEmpty()) {
 				List<String> words = new ArrayList<String>();
@@ -307,7 +307,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 				if (!checkError(langRes)) {
 					featureMap = (Map<String, WordComplexity>) langRes.get(LanguageParams.word_features.name());
 					if (null != featureMap)
-						PlatformLogger.log("Word features returned for " + featureMap.size() + " words");
+						TelemetryManager.log("Word features returned for " + featureMap.size() + " words");
 
 				}
 				for (Node node : nodes) {
@@ -320,12 +320,12 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							try {
 								wordChainUtil.updateWordSet(languageId, node, wc);
 							} catch (Exception e) {
-								PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+								TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 							}
 						}
 					}
 				}
-				PlatformLogger.log("updateWordChain complete from " + start + " - " + batch + " words");
+				TelemetryManager.log("updateWordChain complete from " + start + " - " + batch + " words");
 				start += batch;
 				if (null != total && fetchCount >= total) {
 					found = false;
@@ -333,7 +333,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 				}
 
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}
@@ -426,7 +426,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			PlatformLogger.log("setPrimaryMeaning starts from " + startPosistion + " - " + BATCH + " words");
+			TelemetryManager.log("setPrimaryMeaning starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				for (Node node : nodes) {
 					Map<String, Object> metadata = node.getMetadata();
@@ -460,13 +460,13 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					try {
 						getResponse(updateReq);
 					} catch (Exception e) {
-						PlatformLogger.log("Update error : " + wordNode.getIdentifier(),  e.getMessage(), e);
+						TelemetryManager.log("Update error : " + wordNode.getIdentifier(),  e.getMessage(), e);
 					}
 				}
-				PlatformLogger.log("setPrimaryMeaning complete from " + startPosistion + " - " + BATCH + " words");
+				TelemetryManager.log("setPrimaryMeaning complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}
@@ -486,7 +486,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			PlatformLogger.log("updatePosList starts from " + startPosistion + " - " + BATCH + " words");
+			TelemetryManager.log("updatePosList starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				for (Node node : nodes) {
 					WordnetUtil.updatePOS(node);
@@ -496,13 +496,13 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					try {
 						getResponse(updateReq);
 					} catch (Exception e) {
-						PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 					}
 				}
-				PlatformLogger.log("updatePosList complete from " + startPosistion + " - " + BATCH + " words");
+				TelemetryManager.log("updatePosList complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}
@@ -523,19 +523,19 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			PlatformLogger.log("updateWordComplexity starts from " + startPosistion + " - " + BATCH + " words");
+			TelemetryManager.log("updateWordComplexity starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				for (Node node : nodes) {
 					try {
 						wordUtil.getWordComplexity(node, languageId);
 					} catch (Exception e) {
-						PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 					}
 				}
-				PlatformLogger.log("updateWordComplexity complete from " + startPosistion + " - " + BATCH + " words");
+				TelemetryManager.log("updateWordComplexity complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}
@@ -557,7 +557,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			PlatformLogger.log("updateWordFeatures starts from " + startPosistion + " - " + BATCH + " words");
+			TelemetryManager.log("updateWordFeatures starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				List<String> words = new ArrayList<String>();
 				Map<String, Node> nodeMap = new HashMap<String, Node>();
@@ -572,7 +572,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
 							.get(LanguageParams.word_features.name());
 					if (null != featureMap && !featureMap.isEmpty()) {
-						PlatformLogger.log("Word features returned for " + featureMap.size() + " words");
+						TelemetryManager.log("Word features returned for " + featureMap.size() + " words");
 						for (Entry<String, WordComplexity> entry : featureMap.entrySet()) {
 							Node node = nodeMap.get(entry.getKey());
 							WordComplexity wc = entry.getValue();
@@ -589,16 +589,16 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 								try {
 									getResponse(updateReq);
 								} catch (Exception e) {
-									PlatformLogger.log("Update error : " + node.getIdentifier() ,e.getMessage(), e);
+									TelemetryManager.log("Update error : " + node.getIdentifier() ,e.getMessage(), e);
 								}
 							}
 						}
 					}
 				}
-				PlatformLogger.log("updateWordFeatures complete from " + startPosistion + " - " + BATCH + " words");
+				TelemetryManager.log("updateWordFeatures complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}
@@ -620,21 +620,21 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			PlatformLogger.log("updateFrequencyCounts starts from " + startPosistion + " - " + BATCH + " words");
+			TelemetryManager.log("updateFrequencyCounts starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				String[] groupBy = new String[] { "pos", "sourceType", "source", "grade" };
 				List<String> words = new ArrayList<String>();
 				Map<String, Node> nodeMap = new HashMap<String, Node>();
 				controllerUtil.getNodeMap(nodes, nodeMap, words);
 				if (null != words && !words.isEmpty()) {
-					PlatformLogger.log("Total words: " + nodes.size());
+					TelemetryManager.log("Total words: " + nodes.size());
 					Map<String, Object> indexesMap = new HashMap<String, Object>();
 					Map<String, Object> wordInfoMap = new HashMap<String, Object>();
 					List<String> groupList = Arrays.asList(groupBy);
 					controllerUtil.getIndexInfo(languageId, indexesMap, words, groupList);
-					PlatformLogger.log("indexesMap size: " + indexesMap.size());
+					TelemetryManager.log("indexesMap size: " + indexesMap.size());
 					controllerUtil.getWordInfo(languageId, wordInfoMap, words);
-					PlatformLogger.log("wordInfoMap size: " + wordInfoMap.size());
+					TelemetryManager.log("wordInfoMap size: " + wordInfoMap.size());
 					if (null != nodeMap && !nodeMap.isEmpty()) {
 						for (Entry<String, Node> entry : nodeMap.entrySet()) {
 							Node node = entry.getValue();
@@ -680,16 +680,16 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 								try {
 									getResponse(updateReq);
 								} catch (Exception e) {
-									PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+									TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 								}
 							}
 						}
 					}
 				}
-				PlatformLogger.log("updateFrequencyCounts complete from " + startPosistion + " - " + BATCH + " words");
+				TelemetryManager.log("updateFrequencyCounts complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				PlatformLogger.log("No more words");
+				TelemetryManager.log("No more words");
 				found = false;
 				break;
 			}

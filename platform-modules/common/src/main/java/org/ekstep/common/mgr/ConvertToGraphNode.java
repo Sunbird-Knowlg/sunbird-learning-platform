@@ -13,7 +13,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.RelationDefinition;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.dto.NodeDTO;
 
 public class ConvertToGraphNode {
@@ -138,7 +138,7 @@ public class ConvertToGraphNode {
                     	if (!map.containsKey(value)) {
                     		if (null == inRelations)
                     			inRelations = new ArrayList<Relation>();
-                    		PlatformLogger.log("adding " + value + " to inRelations");
+                    		TelemetryManager.log("adding " + value + " to inRelations");
                     		inRelations.add(inRel);
                     	}
                     }
@@ -152,7 +152,7 @@ public class ConvertToGraphNode {
                     	if (!map.containsKey(value)) {
                     		if (null == outRelations)
                     			outRelations = new ArrayList<Relation>();
-                    		PlatformLogger.log("adding " + value + " to outRelations");
+                    		TelemetryManager.log("adding " + value + " to outRelations");
                     		outRelations.add(outRel);
                     	}
                     }

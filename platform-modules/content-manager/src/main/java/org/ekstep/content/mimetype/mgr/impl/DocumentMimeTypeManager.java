@@ -18,7 +18,7 @@ import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -41,8 +41,8 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadedFile, boolean isAsync) {
-		PlatformLogger.log("Uploaded File: " + uploadedFile.getName());
-		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier());
+		TelemetryManager.log("Uploaded File: " + uploadedFile.getName());
+		TelemetryManager.log("Calling Upload Content For Node ID: " + node.getIdentifier());
 		File file = null;
 		try {
 			String mimeType = (String)node.getMetadata().get("mimeType");
@@ -79,7 +79,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
 		Response response = new Response();
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
@@ -87,18 +87,18 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " , contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		TelemetryManager.log("Review Operation Finished Successfully for Node ID: " , contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
@@ -113,13 +113,13 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
 
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: " , contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: " , contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 
@@ -134,19 +134,19 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile) {
 		try {
 			Response response = new Response();
-			PlatformLogger.log("Verifying the MimeTypes.");
+			TelemetryManager.log("Verifying the MimeTypes.");
 			String mimeType = (String) node.getMetadata().get("mimeType");
 			ContentValidator validator = new ContentValidator();
 			if(validator.exceptionChecks(mimeType, uploadedFile)){
 				
-				PlatformLogger.log("Calling Upload Content Node For Node ID: " , contentId);
+				TelemetryManager.log("Calling Upload Content Node For Node ID: " , contentId);
 				String[] urlArray = uploadArtifactToAWS(uploadedFile, contentId);
 	
 				node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 				node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
 	
-				PlatformLogger.log("Calling 'updateContentNode' for Node ID: " , contentId);
+				TelemetryManager.log("Calling 'updateContentNode' for Node ID: " , contentId);
 				response = updateContentNode(contentId, node, urlArray[1]);
 				if (!checkError(response)) {
 					return response;

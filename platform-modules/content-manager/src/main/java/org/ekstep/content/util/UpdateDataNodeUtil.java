@@ -8,7 +8,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.mgr.BaseManager;
 
 /*
@@ -18,10 +18,10 @@ import org.ekstep.common.mgr.BaseManager;
 public class UpdateDataNodeUtil extends BaseManager {
 
 	public Response updateDataNode(Node node) {
-		PlatformLogger.log("Node: ", node);
+		TelemetryManager.log("Node: ", node);
 		Response response = new Response();
 		if (node != null) {
-			PlatformLogger.log("Updating Data Node Id: " + node.getIdentifier());
+			TelemetryManager.log("Updating Data Node Id: " + node.getIdentifier());
 			
 			// Setting default version key for internal node update
 			String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
@@ -35,7 +35,7 @@ public class UpdateDataNodeUtil extends BaseManager {
 			response = getResponse(updateReq);
 		}
 
-		PlatformLogger.log("Returning Response of 'updateDataNode' Call.");
+		TelemetryManager.log("Returning Response of 'updateDataNode' Call.");
 		return response;
 	}
 

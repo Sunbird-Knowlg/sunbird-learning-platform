@@ -40,7 +40,7 @@ import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -77,7 +77,7 @@ public class BaseFinalizer extends BasePipeline {
 
 				// checks if node contains appIcon and downloads File
 				if (!StringUtils.isBlank(appIcon)) {
-					PlatformLogger.log("Content Id: " + node.getIdentifier() + " | App Icon: " + appIcon);
+					TelemetryManager.log("Content Id: " + node.getIdentifier() + " | App Icon: " + appIcon);
 					File appIconFile = HttpDownloadUtility.downloadFile(appIcon, basePath);
 
 					// checks if file is not empty and isFile nd generates
@@ -92,7 +92,7 @@ public class BaseFinalizer extends BasePipeline {
 
 							// uploads thumbfile to s3 and set node metadata
 							if (thumbFile.exists()) {
-								PlatformLogger.log("Thumbnail created for Content Id: " + node.getIdentifier());
+								TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
 								String folderName = S3PropertyReader.getProperty(s3Artifact);
 								String[] urlArray = uploadToAWS(thumbFile,
 										getUploadFolderName(node.getIdentifier(), folderName));
@@ -103,17 +103,17 @@ public class BaseFinalizer extends BasePipeline {
 								}
 								try {
 									thumbFile.delete();
-									PlatformLogger.log("Deleted local Thumbnail file");
+									TelemetryManager.log("Deleted local Thumbnail file");
 								} catch (Exception e) {
-									PlatformLogger.log("Error! While deleting the Thumbnail File.", thumbFile, e);
+									TelemetryManager.log("Error! While deleting the Thumbnail File.", thumbFile, e);
 								}
 							}
 						}
 						try {
 							appIconFile.delete();
-							PlatformLogger.log("Deleted local AppIcon file");
+							TelemetryManager.log("Deleted local AppIcon file");
 						} catch (Exception e) {
-							PlatformLogger.log("Error! While deleting the App Icon File.", appIcon, e);
+							TelemetryManager.log("Error! While deleting the App Icon File.", appIcon, e);
 						}
 					}
 				}
@@ -123,7 +123,7 @@ public class BaseFinalizer extends BasePipeline {
 							.get(ContentWorkflowPipelineParams.screenshots.name());
 					if (null != stageIconsStr) {
 						List<String> stageIcons = Arrays.asList(stageIconsStr);
-						PlatformLogger.log("Processing Stage Icons" + stageIcons);
+						TelemetryManager.log("Processing Stage Icons" + stageIcons);
 						String path = basePath + File.separator + ContentWorkflowPipelineParams.screenshots.name();
 						if (null != stageIcons && !stageIcons.isEmpty()) {
 							List<String> stageIconsS3Url = new ArrayList<>();
@@ -138,7 +138,7 @@ public class BaseFinalizer extends BasePipeline {
 						}
 					}
 				} catch (Exception e) {
-					PlatformLogger.log("Error!Unable to downnload Stage Icon for Content Id:", e.getMessage(), e);
+					TelemetryManager.log("Error!Unable to downnload Stage Icon for Content Id:", e.getMessage(), e);
 					throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 							ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR
 									+ " | [Unable to download Stage Icon for Content Id: '" + node.getIdentifier()
@@ -147,7 +147,7 @@ public class BaseFinalizer extends BasePipeline {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Unable to download appIcon for content Id", e.getMessage(), e);
+			TelemetryManager.log("Error! Unable to download appIcon for content Id", e.getMessage(), e);
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.APP_ICON_DOWNLOAD_ERROR
 							+ " | [Unable to Download App Icon for Content Id: '" + node.getIdentifier() + "' ]",
@@ -174,7 +174,7 @@ public class BaseFinalizer extends BasePipeline {
 	private File downloadStageIconFiles(String basePath, String stageIconFile, String stageIconId) {
 		File file = null;
 		try {
-			PlatformLogger.log("Downloading stageIcons");
+			TelemetryManager.log("Downloading stageIcons");
 			String base64Image = stageIconFile.split(",")[1];
 			String mimeType = stageIconFile.split(";")[0];
 			mimeType = mimeType.split(":")[1];
@@ -194,9 +194,9 @@ public class BaseFinalizer extends BasePipeline {
 			file = new File(basePath + File.separator + stageIconId);
 
 			ImageIO.write(bufferedImage, mimeType, file);
-			PlatformLogger.log("StageIcon Downloaded File ", stageIconId);
+			TelemetryManager.log("StageIcon Downloaded File ", stageIconId);
 		} catch (Exception e) {
-			PlatformLogger.log("Something went wrong when downloading base64 image", e.getMessage(), e);
+			TelemetryManager.log("Something went wrong when downloading base64 image", e.getMessage(), e);
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR + " | [Unable to Upload File.]");
 		}
@@ -214,16 +214,16 @@ public class BaseFinalizer extends BasePipeline {
 				stageIconId = stageIconFile.substring((stageIconFile.indexOf("/stage") + 7), stageIconFile.length());
 			}
 			HttpURLConnection httpConn = null;
-			PlatformLogger.log("Start Downloading for File: " + stageIconId);
+			TelemetryManager.log("Start Downloading for File: " + stageIconId);
 
 			URL url = new URL(stageIconFile);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
-			PlatformLogger.log("Response Code: " + responseCode);
+			TelemetryManager.log("Response Code: " + responseCode);
 
 			// always check HTTP response code first
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				PlatformLogger.log("Response is OK.");
+				TelemetryManager.log("Response is OK.");
 				BufferedReader br = new BufferedReader(new InputStreamReader((httpConn.getInputStream())));
 				StringBuilder sb = new StringBuilder();
 				String output;
@@ -236,7 +236,7 @@ public class BaseFinalizer extends BasePipeline {
 				String base64Data = (String) dataMap.get("result");
 				File stageIcon = downloadStageIconFiles(basePath, base64Data, stageIconId);
 				if (stageIcon.exists()) {
-					PlatformLogger.log("Thumbnail created for Content Id: " + node.getIdentifier());
+					TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
 					String folderName = S3PropertyReader.getProperty(s3Artifact) + "/"
 							+ ContentWorkflowPipelineParams.screenshots.name();
 					String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
@@ -244,11 +244,11 @@ public class BaseFinalizer extends BasePipeline {
 						thumbUrl = urlArray[IDX_S3_URL];
 					}
 					stageIcon.delete();
-					PlatformLogger.log("Deleted local Thumbnail file");
+					TelemetryManager.log("Deleted local Thumbnail file");
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While Processing the StageIcon File.", e.getMessage(), e);
+			TelemetryManager.log("Error! While Processing the StageIcon File.", e.getMessage(), e);
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | [Unable to Upload File.]");
 		}
@@ -277,10 +277,10 @@ public class BaseFinalizer extends BasePipeline {
 						ContentErrorMessageConstants.INVALID_ECML_TYPE
 								+ " | [System is in a fix between (XML & JSON) ECML Type.]");
 
-			PlatformLogger.log("ECML File Type: " + ecmlType);
+			TelemetryManager.log("ECML File Type: " + ecmlType);
 			File file = new File(basePath + File.separator + ContentConfigurationConstants.DEFAULT_ECML_FILE_NAME
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR + ecmlType);
-			PlatformLogger.log("Creating ECML File With Name: " + file.getAbsolutePath());
+			TelemetryManager.log("Creating ECML File With Name: " + file.getAbsolutePath());
 			FileUtils.writeStringToFile(file, ecml);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.ECML_FILE_WRITE.name(),
@@ -301,7 +301,7 @@ public class BaseFinalizer extends BasePipeline {
 	protected String getECMLString(Plugin ecrf, String ecmlType) {
 		String ecml = "";
 		if (null != ecrf) {
-			PlatformLogger.log("Converting ECML From ECRF Object.");
+			TelemetryManager.log("Converting ECML From ECRF Object.");
 			if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.ecml.name())) {
 				ECRFToXMLConvertor convertor = new ECRFToXMLConvertor();
 				ecml = convertor.getContentXmlString(ecrf);
@@ -322,7 +322,7 @@ public class BaseFinalizer extends BasePipeline {
 	 */
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
-			PlatformLogger.log("Creating Zip File: ", zipFileName);
+			TelemetryManager.log("Creating Zip File: ", zipFileName);
 			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
 			appZip.generateFileList(new File(basePath));
 			appZip.zipIt(zipFileName);
@@ -330,8 +330,8 @@ public class BaseFinalizer extends BasePipeline {
 	}
 
 	protected Node getNodeForOperation(String taxonomyId, Node node) {
-		PlatformLogger.log("Taxonomy Id: " + taxonomyId);
-		PlatformLogger.log("Content Node: " + node);
+		TelemetryManager.log("Taxonomy Id: " + taxonomyId);
+		TelemetryManager.log("Content Node: " + node);
 		Node nodeForOperation = new Node();
 		if (null != node && null != node.getMetadata() && StringUtils.isNotBlank(taxonomyId)) {
 			String status = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
@@ -342,14 +342,14 @@ public class BaseFinalizer extends BasePipeline {
 				nodeForOperation = node;
 			else {
 				String contentImageId = getContentImageIdentifier(node.getIdentifier());
-				PlatformLogger.log("Fetching the Content Node. | [Content ID: " + node.getIdentifier() + "]");
+				TelemetryManager.log("Fetching the Content Node. | [Content ID: " + node.getIdentifier() + "]");
 
-				PlatformLogger.log("Fetching the Content Image Node for Content Id: " + node.getIdentifier());
+				TelemetryManager.log("Fetching the Content Image Node for Content Id: " + node.getIdentifier());
 				Response response = getDataNode(taxonomyId, contentImageId);
 				if (!checkError(response)) {
 					// Content Image Node is Available so assigning it as node
 					nodeForOperation = (Node) response.get(GraphDACParams.node.name());
-					PlatformLogger.log(
+					TelemetryManager.log(
 							"Getting Content Image Node and assigning it as node" + nodeForOperation.getIdentifier());
 				} else {
 					nodeForOperation = createContentImageNode(taxonomyId, contentImageId, node);
@@ -358,7 +358,7 @@ public class BaseFinalizer extends BasePipeline {
 		}
 		String body = getContentBody(nodeForOperation.getIdentifier());
 		nodeForOperation.getMetadata().put(ContentAPIParams.body.name(), body);
-		PlatformLogger.log("Body fetched from content store");
+		TelemetryManager.log("Body fetched from content store");
 		return nodeForOperation;
 
 	}
@@ -379,9 +379,9 @@ public class BaseFinalizer extends BasePipeline {
 	}
 
 	protected Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
-		PlatformLogger.log("Taxonomy Id: " + taxonomyId);
-		PlatformLogger.log("Content Id: " + contentImageId);
-		PlatformLogger.log("Node: ", node);
+		TelemetryManager.log("Taxonomy Id: " + taxonomyId);
+		TelemetryManager.log("Content Id: " + contentImageId);
+		TelemetryManager.log("Node: ", node);
 
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(),
 				ContentConfigurationConstants.CONTENT_IMAGE_OBJECT_TYPE);
@@ -399,18 +399,18 @@ public class BaseFinalizer extends BasePipeline {
 							+ "]");
 		Response resp = getDataNode(taxonomyId, contentImageId);
 		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
-		PlatformLogger.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
+		TelemetryManager.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
 		return nodeData;
 	}
 
 	protected Response createDataNode(Node node) {
-		PlatformLogger.log("Node :", node);
+		TelemetryManager.log("Node :", node);
 		Response response = new Response();
 		if (null != node) {
 			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
 			request.put(GraphDACParams.node.name(), node);
 
-			PlatformLogger.log("Creating the Node ID: " + node.getIdentifier());
+			TelemetryManager.log("Creating the Node ID: " + node.getIdentifier());
 			response = getResponse(request);
 		}
 		return response;

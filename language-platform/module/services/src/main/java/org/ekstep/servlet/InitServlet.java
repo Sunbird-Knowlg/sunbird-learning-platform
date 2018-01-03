@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServlet;
 
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.router.RequestRouterPool;
 
 public class InitServlet extends HttpServlet {
@@ -19,7 +19,7 @@ private static final long serialVersionUID = 8162107839763607722L;
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         // Initialising Request Router Pool
-        PlatformLogger.log("Initialising Language Request Router Pool");
+        TelemetryManager.log("Initialising Language Request Router Pool");
         LanguageRequestRouterPool.init();
         SearchRequestRouterPool.init(RequestRouterPool.getActorSystem());
     }

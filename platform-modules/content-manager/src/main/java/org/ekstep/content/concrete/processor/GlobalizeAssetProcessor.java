@@ -26,7 +26,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class GlobalizeAssetProcessor.
@@ -79,14 +79,14 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
-			PlatformLogger.log("ECRF Object (Plugin): ", plugin);
+			TelemetryManager.log("ECRF Object (Plugin): ", plugin);
 			if (null != plugin) {
-				PlatformLogger.log("Starting the Process. | [Content Id '" + contentId + "']");
+				TelemetryManager.log("Starting the Process. | [Content Id '" + contentId + "']");
 				List<Media> medias = getMedia(plugin);
-				PlatformLogger.log("Total Medias: " + medias.size() + " | [Content Id '" + contentId + "']");
+				TelemetryManager.log("Total Medias: " + medias.size() + " | [Content Id '" + contentId + "']");
 				Map<String, String> uploadedAssetsMap = uploadAssets(medias);
 				Manifest manifest = plugin.getManifest();
-				PlatformLogger.log("Setting the Medias in Manifest. | [Content Id '" + contentId + "']");
+				TelemetryManager.log("Setting the Medias in Manifest. | [Content Id '" + contentId + "']");
 				if (null != manifest)
 					manifest.setMedias(getUpdatedMediaWithUrl(uploadedAssetsMap, medias));
 			}
@@ -132,14 +132,14 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 	 *             thrown by erroneous condition while executing the threads.
 	 */
 	private Map<String, String> uploadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
-		PlatformLogger.log("Medias: ", medias);
+		TelemetryManager.log("Medias: ", medias);
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != medias && StringUtils.isNotBlank(basePath)) {
-			PlatformLogger.log("Starting the Fan-out for Upload. | [Content Id '" + contentId + "']");
+			TelemetryManager.log("Starting the Fan-out for Upload. | [Content Id '" + contentId + "']");
 			ExecutorService pool = Executors.newFixedThreadPool(10);
 			List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(medias.size());
 			for (final Media media : medias) {
-				PlatformLogger.log("Adding All Medias as Task fro Upload. | [Content Id '" + contentId + "']");
+				TelemetryManager.log("Adding All Medias as Task fro Upload. | [Content Id '" + contentId + "']");
 				tasks.add(new Callable<Map<String, String>>() {
 					public Map<String, String> call() throws Exception {
 						Map<String, String> uploadMap = new HashMap<String, String>();
@@ -154,7 +154,7 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 								uploadFile = new File(
 										basePath + File.separator + ContentWorkflowPipelineParams.assets.name()
 												+ File.separator + media.getSrc());
-							PlatformLogger.log("Upload File: | [Content Id '" + contentId + "']");
+							TelemetryManager.log("Upload File: | [Content Id '" + contentId + "']");
 							String[] uploadedFileUrl;
 							if (uploadFile.exists()) {
 								String folderName = S3PropertyReader.getProperty(s3Content) + "/"
@@ -163,8 +163,8 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 								/*String folderName = ContentConfigurationConstants.FOLDER_NAME + "/"
 										+ Slug.makeSlug(contentId, true);
 								String path = getFolderPath(media.getSrc());*/
-								PlatformLogger.log("Folder to Upload: " + folderName + "| [Content Id '" + contentId + "']");
-								PlatformLogger.log("Path to Upload: " + path + "| [Content Id '" + contentId + "']");
+								TelemetryManager.log("Folder to Upload: " + folderName + "| [Content Id '" + contentId + "']");
+								TelemetryManager.log("Path to Upload: " + path + "| [Content Id '" + contentId + "']");
 								if (StringUtils.isNotBlank(path))
 									folderName = folderName + "/" + path;
 								folderName = folderName + "/" + System.currentTimeMillis();
@@ -174,7 +174,7 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 											uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);
 							}
 						}
-						PlatformLogger.log("Download Finished for Media Id: " + media.getId() + " | [Content Id '" + contentId
+						TelemetryManager.log("Download Finished for Media Id: " + media.getId() + " | [Content Id '" + contentId
 								+ "']");
 						return uploadMap;
 					}
@@ -188,7 +188,7 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 			}
 			pool.shutdown();
 		}
-		PlatformLogger.log("Returning the Map of Uploaded Assets. | [Content Id '" + contentId + "']");
+		TelemetryManager.log("Returning the Map of Uploaded Assets. | [Content Id '" + contentId + "']");
 		return map;
 	}
 }

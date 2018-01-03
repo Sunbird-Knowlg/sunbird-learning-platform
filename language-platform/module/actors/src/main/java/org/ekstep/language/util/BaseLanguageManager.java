@@ -10,7 +10,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.router.RequestRouterPool;
@@ -78,7 +78,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception",e.getMessage(), e);
+			TelemetryManager.log("Exception",e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -103,7 +103,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured", e.getMessage(), e);
+			TelemetryManager.log("Exception Occured", e.getMessage(), e);
 			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -160,7 +160,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 					return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 				}
 			} catch (Exception e) {
-				PlatformLogger.log("Exception", e.getMessage(), e);
+				TelemetryManager.log("Exception", e.getMessage(), e);
 				throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 			}
 		} else {

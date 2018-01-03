@@ -6,7 +6,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -57,11 +57,11 @@ public class SearchControllerV2 extends BaseController {
 		Request request = getRequest(map);
 		try {
 			Response response = dictionaryManager.list(languageId, LanguageObjectTypes.Word.name(), request, version);
-			PlatformLogger.log("Search | Response: " + response);
+			TelemetryManager.log("Search | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("Search | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Search | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

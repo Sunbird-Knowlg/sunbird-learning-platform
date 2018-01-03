@@ -12,7 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.slugs.Slug;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -76,14 +76,14 @@ public class AWSUploader {
 		AmazonS3Client s3 = new AmazonS3Client();
 		String key = file.getName();
 		String bucketName = getBucketName();
-		PlatformLogger.log("Fetching bucket name:" , bucketName);
+		TelemetryManager.log("Fetching bucket name:" , bucketName);
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
 			s3.setRegion(region);
 		s3.putObject(new PutObjectRequest(bucketName + "/" + folderName, key, file));
 		s3.setObjectAcl(bucketName + "/" + folderName, key, CannedAccessControlList.PublicRead);
 		URL url = s3.getUrl(bucketName, folderName + "/" + key);
-		PlatformLogger.log("AWS Upload '" + file.getName() + "' complete");
+		TelemetryManager.log("AWS Upload '" + file.getName() + "' complete");
 		return new String[] { folderName + "/" + key, url.toURI().toString() };
 	}
 
@@ -104,11 +104,11 @@ public class AWSUploader {
 
 	public static List<String> getObjectList(String prefix, String bucketType) {
 		AmazonS3 s3 = new AmazonS3Client();
-		PlatformLogger.log("Reading s3 Bucket and Region" , getBucketName(bucketType) + " : " + s3Environment);
+		TelemetryManager.log("Reading s3 Bucket and Region" , getBucketName(bucketType) + " : " + s3Environment);
 		String bucketName = getBucketName(bucketType);
 		ObjectListing listing = s3.listObjects(bucketName, prefix);
 		List<S3ObjectSummary> summaries = listing.getObjectSummaries();
-		PlatformLogger.log("SummaryData returned from s3 object Listing" , summaries.size());
+		TelemetryManager.log("SummaryData returned from s3 object Listing" , summaries.size());
 		List<String> fileList = new ArrayList<String>();
 		while (listing.isTruncated()) {
 			listing = s3.listNextBatchOfObjects(listing);
@@ -117,7 +117,7 @@ public class AWSUploader {
 		for (S3ObjectSummary data : summaries) {
 			fileList.add(data.getKey());
 		}
-		PlatformLogger.log("resource bundles fileList returned from s3" , fileList);
+		TelemetryManager.log("resource bundles fileList returned from s3" , fileList);
 		return fileList;
 	}
 
@@ -125,8 +125,8 @@ public class AWSUploader {
 		String s3Region = Regions.AP_SOUTHEAST_1.name();
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
 		String bucketName = getBucketName();
-		PlatformLogger.log("Existing url:" + url);
-		PlatformLogger.log("Fetching bucket name for updating urls:" + bucketName);
+		TelemetryManager.log("Existing url:" + url);
+		TelemetryManager.log("Fetching bucket name for updating urls:" + bucketName);
 		if (bucketRegion != null && bucketName != null) {
 			String oldPublicStringV1 = oldPublicBucketName + dotOper + s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws;
 			String oldPublicStringV2 = s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws + forwardSlash + oldPublicBucketName;
@@ -140,7 +140,7 @@ public class AWSUploader {
 			url = url.replaceAll(oldPublicStringV2, newString);
 			url = url.replaceAll(oldConfigStringV1, newString);
 			url = url.replaceAll(oldConfigStringV2, newString);
-			PlatformLogger.log("Updated bucket url:" , url);
+			TelemetryManager.log("Updated bucket url:" , url);
 		}
 		return url;
 	}
@@ -153,22 +153,22 @@ public class AWSUploader {
 			// Copying object
 			CopyObjectRequest copyObjRequest = new CopyObjectRequest(sourceBucketName, sourceKey, destinationBucketName,
 					destinationKey);
-			PlatformLogger.log("[AWS UPLOADER UTILITY | Copy Objects] : Copying object.");
+			TelemetryManager.log("[AWS UPLOADER UTILITY | Copy Objects] : Copying object.");
 			s3client.copyObject(copyObjRequest);
 			s3client.setObjectAcl(destinationBucketName, destinationKey, CannedAccessControlList.PublicRead);
 		} catch (AmazonServiceException ase) {
-			PlatformLogger.log("Caught an AmazonServiceException, " + "which means your request made it "
+			TelemetryManager.log("Caught an AmazonServiceException, " + "which means your request made it "
 					+ "to Amazon S3, but was rejected with an error " + "response for some reason.");
-			PlatformLogger.log("Error Message:    " + ase.getMessage());
-			PlatformLogger.log("HTTP Status Code: " + ase.getStatusCode());
-			PlatformLogger.log("AWS Error Code:   " + ase.getErrorCode());
-			PlatformLogger.log("Error Type:       " + ase.getErrorType());
-			PlatformLogger.log("Request ID:       " + ase.getRequestId());
+			TelemetryManager.log("Error Message:    " + ase.getMessage());
+			TelemetryManager.log("HTTP Status Code: " + ase.getStatusCode());
+			TelemetryManager.log("AWS Error Code:   " + ase.getErrorCode());
+			TelemetryManager.log("Error Type:       " + ase.getErrorType());
+			TelemetryManager.log("Request ID:       " + ase.getRequestId());
 		} catch (AmazonClientException ace) {
-			PlatformLogger.log("Caught an AmazonClientException, " + "which means the client encountered "
+			TelemetryManager.log("Caught an AmazonClientException, " + "which means the client encountered "
 					+ "an internal error while trying to " + " communicate with S3, "
 					+ "such as not being able to access the network.");
-			PlatformLogger.log("Error Message: " , ace.getMessage(), ace);
+			TelemetryManager.log("Error Message: " , ace.getMessage(), ace);
 		}
 		return isCopied;
 	}
@@ -181,15 +181,15 @@ public class AWSUploader {
 			ObjectListing objectListing = s3client
 					.listObjects(new ListObjectsRequest().withBucketName(sourceBucketName).withPrefix(sourcePrefix));
 			for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-				PlatformLogger.log("[AWS UPLOADER UTILITY | Copying By Prefix]: " + objectSummary.getKey());
+				TelemetryManager.log("[AWS UPLOADER UTILITY | Copying By Prefix]: " + objectSummary.getKey());
 
 				// Source Key
 				String source = objectSummary.getKey();
-				PlatformLogger.log("[AWS UPLOADER UTILITY | Source]: " + source);
+				TelemetryManager.log("[AWS UPLOADER UTILITY | Source]: " + source);
 
 				// Destination Key
 				String destination = source.replace(sourcePrefix, destinationPrefix);
-				PlatformLogger.log("[AWS UPLOADER UTILITY | Destination]: " + destination);
+				TelemetryManager.log("[AWS UPLOADER UTILITY | Destination]: " + destination);
 
 				// Copying the Objects
 				CopyObjectRequest copyObjRequest = new CopyObjectRequest(sourceBucketName, source,
@@ -201,18 +201,18 @@ public class AWSUploader {
 				map.put(source, destination);
 			}
 		} catch (AmazonServiceException ase) {
-			PlatformLogger.log("Caught an AmazonServiceException, " + "which means your request made it "
+			TelemetryManager.log("Caught an AmazonServiceException, " + "which means your request made it "
 					+ "to Amazon S3, but was rejected with an error " + "response for some reason.");
-			PlatformLogger.log("Error Message:    " + ase.getMessage());
-			PlatformLogger.log("HTTP Status Code: " + ase.getStatusCode());
-			PlatformLogger.log("AWS Error Code:   " + ase.getErrorCode());
-			PlatformLogger.log("Error Type:       " + ase.getErrorType());
-			PlatformLogger.log("Request ID:       " + ase.getRequestId());
+			TelemetryManager.log("Error Message:    " + ase.getMessage());
+			TelemetryManager.log("HTTP Status Code: " + ase.getStatusCode());
+			TelemetryManager.log("AWS Error Code:   " + ase.getErrorCode());
+			TelemetryManager.log("Error Type:       " + ase.getErrorType());
+			TelemetryManager.log("Request ID:       " + ase.getRequestId());
 		} catch (AmazonClientException ace) {
-			PlatformLogger.log("Caught an AmazonClientException, " + "which means the client encountered "
+			TelemetryManager.log("Caught an AmazonClientException, " + "which means the client encountered "
 					+ "an internal error while trying to " + " communicate with S3, "
 					+ "such as not being able to access the network.", ace.getMessage(), ace);
-			PlatformLogger.log("Error Message: " , ace.getMessage(), ace);
+			TelemetryManager.log("Error Message: " , ace.getMessage(), ace);
 		}
 		return map;
 	}

@@ -9,7 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.ekstep.common.optimizr.audio.MonoChannelProcessor;
 import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
 import org.ekstep.common.util.HttpDownloadUtility;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class Optimizr {
 
@@ -24,10 +24,10 @@ public class Optimizr {
 	}
 	
 	public File optimizeECAR(String url)  throws Exception{
-		PlatformLogger.log("optimizeECAR URL" , url);
+		TelemetryManager.log("optimizeECAR URL" , url);
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File ecarFile = HttpDownloadUtility.downloadFile(url, tempFileDwn);
-		PlatformLogger.log("optimizeECAR ecarFile -" ,  ecarFile.getPath());
+		TelemetryManager.log("optimizeECAR ecarFile -" ,  ecarFile.getPath());
 		return optimizeECAR(ecarFile);
 	}
 	

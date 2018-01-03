@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Controller
 @RequestMapping("/v1/library")
@@ -36,17 +36,17 @@ public class LibraryController extends BaseController {
             @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "library.upload";
-        PlatformLogger.log("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
+        TelemetryManager.log("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
         try {
             String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
             Response response = contentManager.upload(id, "domain", uploadedFile, null);
-            PlatformLogger.log("Upload | Response: " , response);
+            TelemetryManager.log("Upload | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
+            TelemetryManager.log("Upload | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -56,12 +56,12 @@ public class LibraryController extends BaseController {
     public ResponseEntity<Response> publish(@PathVariable(value = "id") String libraryId,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "library.publish";
-        PlatformLogger.log("Publish library | Library Id : " , libraryId);
+        TelemetryManager.log("Publish library | Library Id : " , libraryId);
         try {
             Response response = contentManager.publish(graphId, libraryId, null);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            PlatformLogger.log("Publish | Exception: " , e.getMessage(), e);
+            TelemetryManager.log("Publish | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

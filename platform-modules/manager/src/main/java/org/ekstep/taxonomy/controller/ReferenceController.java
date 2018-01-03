@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.IReferenceManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Controller
 @RequestMapping("/v2/reference")
@@ -32,17 +32,17 @@ public class ReferenceController extends BaseController {
 	public ResponseEntity<Response> uploadReferenceDocument(@PathVariable(value = "referenceId") String referenceId,
 			@RequestParam(value = "file", required = true) MultipartFile file) {
 		String apiId = "media.upload";
-		PlatformLogger.log("Upload | File: " + file);
+		TelemetryManager.log("Upload | File: " + file);
 		try {
 			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
 			File uploadedFile = new File(name);
 			file.transferTo(uploadedFile);
 			Response response = referenceManager.uploadReferenceDocument(uploadedFile, referenceId);
-			PlatformLogger.log("Upload | Response: " , response);
+			TelemetryManager.log("Upload | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Upload | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

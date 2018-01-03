@@ -3,7 +3,7 @@ package org.ekstep.language.controller;
 import org.ekstep.common.dto.Response;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -34,10 +34,10 @@ public class SynsetControllerV3 extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".info";
 		try {
 			Response response = dictionaryManager.getSynsetV3(languageId, objectId);
-			PlatformLogger.log("Find | Response: " , response);
+			TelemetryManager.log("Find | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Find | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Find | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

@@ -15,8 +15,8 @@ import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.search.actor.DefinitionSyncScheduler;
 import org.ekstep.search.actor.HealthCheckManager;
 import org.ekstep.search.actor.SearchManager;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
@@ -87,7 +87,7 @@ public class SearchRequestRouter extends UntypedActor{
                 parent.tell(arg0, getSelf());
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
-                PlatformLogger.log(
+                TelemetryManager.log(
                         request.getManagerName()  , request.getOperation() + ", SUCCESS, " + params.toString());
             }
         }, getContext().dispatcher());
@@ -101,7 +101,7 @@ public class SearchRequestRouter extends UntypedActor{
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        PlatformLogger.log(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), Level.WARN.name());
+        TelemetryManager.log(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), Level.WARN.name());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

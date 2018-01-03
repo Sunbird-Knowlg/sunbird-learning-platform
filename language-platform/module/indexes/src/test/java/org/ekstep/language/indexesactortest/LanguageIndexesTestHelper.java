@@ -19,7 +19,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -139,7 +139,7 @@ public class LanguageIndexesTestHelper {
 	                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 	            }
 	        } catch (Exception e) {
-	            PlatformLogger.log("Exception", e.getMessage(), e);
+	            TelemetryManager.log("Exception", e.getMessage(), e);
 	            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 	        }   
 	    }
@@ -155,7 +155,7 @@ public class LanguageIndexesTestHelper {
 	                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 	            }
 	        } catch (Exception e) {
-	            PlatformLogger.log("Exception",e.getMessage(), e);
+	            TelemetryManager.log("Exception",e.getMessage(), e);
 	            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 	        }   
 	    }

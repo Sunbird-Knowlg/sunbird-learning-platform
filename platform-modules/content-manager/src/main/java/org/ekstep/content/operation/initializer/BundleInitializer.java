@@ -19,7 +19,7 @@ import org.ekstep.content.pipeline.finalizer.FinalizePipeline;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -85,7 +85,7 @@ public class BundleInitializer extends BaseInitializer {
 	@SuppressWarnings("unchecked")
 	public Response initialize(Map<String, Object> parameterMap) {
 		Response response = new Response();
-		PlatformLogger.log("Fetching the Parameters From BundleInitializer.");
+		TelemetryManager.log("Fetching the Parameters From BundleInitializer.");
 		List<Node> nodes = (List<Node>) parameterMap.get(ContentWorkflowPipelineParams.nodes.name());
 		List<String> contentIdList = (List<String>) parameterMap
 				.get(ContentWorkflowPipelineParams.contentIdList.name());
@@ -104,7 +104,7 @@ public class BundleInitializer extends BaseInitializer {
 		if (StringUtils.isBlank(manifestVersion))
 			manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
 
-		PlatformLogger.log("Total Input Content Ids: " , contentIdList.size());
+		TelemetryManager.log("Total Input Content Ids: " , contentIdList.size());
 
 		// Validate the availability of all the Requested Contents
 		if (nodes.size() < contentIdList.size())
@@ -115,10 +115,10 @@ public class BundleInitializer extends BaseInitializer {
 		// also)
 		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 		List<String> childrenIds = new ArrayList<String>();
-		PlatformLogger.log("Populating the Recursive (Children) Contents.");
+		TelemetryManager.log("Populating the Recursive (Children) Contents.");
 		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
 
-		PlatformLogger.log("Total Content To Bundle: " , nodes.size());
+		TelemetryManager.log("Total Content To Bundle: " , nodes.size());
 		ContentValidator validator = new ContentValidator();
 		Map<String, Object> bundleMap = new HashMap<String, Object>();
 		for (Node node : nodes) {
@@ -137,13 +137,13 @@ public class BundleInitializer extends BaseInitializer {
 						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()));
 				ecmlContent = (null == ecmlContent) ? false : ecmlContent;
 
-				PlatformLogger.log("Is ECML Mime-Type? " + ecmlContent);
-				PlatformLogger.log("Processing Content Id: " + node.getIdentifier());
+				TelemetryManager.log("Is ECML Mime-Type? " + ecmlContent);
+				TelemetryManager.log("Processing Content Id: " + node.getIdentifier());
 
 				// Setting Attribute Value
 				this.basePath = getBasePath(node.getIdentifier());
 				this.contentId = node.getIdentifier();
-				PlatformLogger.log("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
+				TelemetryManager.log("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
 
 				// Check if Compression Required
 				boolean isCompressRequired = ecmlContent && isCompressRequired(node);

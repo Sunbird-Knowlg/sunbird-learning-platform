@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.framework.mgr.ITermManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * @author pradyumna
@@ -47,7 +47,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.createTerm(null, categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured while creating term (Create term API): ", e.getMessage(), e);
+			TelemetryManager.log("Exception Occured while creating term (Create term API): ", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -67,7 +67,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.readTerm(null, termId, categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Read term", e.getMessage(), e);
+			TelemetryManager.log("Read term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -92,7 +92,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.updateTerm(null, categoryId, termId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Update term", e.getMessage(), e);
+			TelemetryManager.log("Update term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -115,7 +115,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.searchTerms(null, categoryID, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Search terms", e.getMessage(), e);
+			TelemetryManager.log("Search terms", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -135,7 +135,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.retireTerm(null, categoryId, termId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("retire term", e.getMessage(), e);
+			TelemetryManager.log("retire term", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

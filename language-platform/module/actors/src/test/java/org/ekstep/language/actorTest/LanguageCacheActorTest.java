@@ -18,7 +18,7 @@ import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,10 +41,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " , request);
+		TelemetryManager.log("List | Request: " , request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " , response);		
+		TelemetryManager.log("List | Response: " , response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List<Node> gradeLevelComplexities = (List<Node>) result
@@ -64,10 +64,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 
-        PlatformLogger.log("List | Request: " + request);
+        TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);		
+		TelemetryManager.log("List | Response: " + response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 	
@@ -84,10 +84,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(LanguageParams.node_id.name(), node2);
-        PlatformLogger.log("List | Request: " + request);
+        TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);		
+		TelemetryManager.log("List | Response: " + response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		getGradeLevelComplexityTest();
 	}
@@ -108,10 +108,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(LanguageParams.node_id.name(), node2);
-        PlatformLogger.log("List | Request: " + request);
+        TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);		
+		TelemetryManager.log("List | Response: " + response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		
 		newGradeLevelcomplexity.getMetadata().put("averageComplexity",(double) 35);
@@ -122,10 +122,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(LanguageParams.grade_level_complexity.name(), newGradeLevelcomplexity);
-        PlatformLogger.log("List | Request: " + request);
+        TelemetryManager.log("List | Request: " + request);
 		response = LanguageRequestRepsonseHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);		
+		TelemetryManager.log("List | Response: " + response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 
 		
@@ -152,10 +152,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(LanguageParams.grade_level_complexity.name(), newGradeLevelcomplexity);
-        PlatformLogger.log("List | Request: " + request);
+        TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);		
+		TelemetryManager.log("List | Response: " + response);		
 		Assert.assertEquals("failed", response.getParams().getStatus());
 
 		

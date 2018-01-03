@@ -9,7 +9,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IParserManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -64,11 +64,11 @@ public class ParserController extends BaseController {
             Integer limit = (Integer) request.get("limit");
             Response response = parserManger.parseContent(languageId, content, wordSuggestions, false, translations,
                     equivalentWords, limit);
-            PlatformLogger.log("Parser | Response: " + response);
+            TelemetryManager.log("Parser | Response: " + response);
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            PlatformLogger.log("Parser | Exception: " , e.getMessage(), e);
+            TelemetryManager.log("Parser | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }

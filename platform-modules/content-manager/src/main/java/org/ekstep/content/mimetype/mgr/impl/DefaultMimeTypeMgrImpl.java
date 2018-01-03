@@ -18,7 +18,7 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 
@@ -46,24 +46,24 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
-		PlatformLogger.log("Uploaded File: " + uploadFile.getName());
+		TelemetryManager.log("Node: ", node.getIdentifier());
+		TelemetryManager.log("Uploaded File: " + uploadFile.getName());
 
 		Response response = new Response();
 		try {
-			PlatformLogger.log("Verifying the MimeTypes.");
+			TelemetryManager.log("Verifying the MimeTypes.");
 			Tika tika = new Tika(new MimeTypes());
 			String mimeType = tika.detect(uploadFile);
 			String nodeMimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-			PlatformLogger.log("Uploaded Asset MimeType: ", mimeType);
+			TelemetryManager.log("Uploaded Asset MimeType: ", mimeType);
 			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType))
-				PlatformLogger.log("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
+				TelemetryManager.log("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
 						+ mimeType + " | Node (Object) MimeType: " + nodeMimeType + "]");
 
-			PlatformLogger.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
+			TelemetryManager.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 			String[] urlArray = uploadArtifactToAWS(uploadFile, node.getIdentifier());
 
-			PlatformLogger.log("Updating the Content Node for Node ID: ", node.getIdentifier());
+			TelemetryManager.log("Updating the Content Node for Node ID: ", node.getIdentifier());
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
@@ -109,30 +109,30 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
+		TelemetryManager.log("Node: ", node.getIdentifier());
 
 		Response response = new Response();
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
+		TelemetryManager.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: ", contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: ", contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		PlatformLogger.log("Review Operation Finished Successfully for Node ID: ", contentId);
+		TelemetryManager.log("Review Operation Finished Successfully for Node ID: ", contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: ", contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: ", contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: ", contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: ", contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
@@ -140,13 +140,13 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: " + contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: " + contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

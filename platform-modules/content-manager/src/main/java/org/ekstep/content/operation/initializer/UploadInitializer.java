@@ -22,7 +22,7 @@ import org.ekstep.content.util.JSONContentParser;
 import org.ekstep.content.util.XMLContentParser;
 import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -173,7 +173,7 @@ public class UploadInitializer extends BaseInitializer {
 					ContentErrorMessageConstants.MULTIPLE_ECML_FILES_FOUND + " | [index.json and index.ecml]");
 
 		try {
-			PlatformLogger.log("Reading ECML File.");
+			TelemetryManager.log("Reading ECML File.");
 			if (jsonECMLFile.exists())
 				fileString = FileUtils.readFileToString(jsonECMLFile);
 			else if (xmlECMLFilePath.exists())
@@ -197,7 +197,7 @@ public class UploadInitializer extends BaseInitializer {
 			type = ContentWorkflowPipelineParams.json.name();
 		else if (new File(basePath + File.separator + XML_ECML_FILE_NAME).exists())
 			type = ContentWorkflowPipelineParams.ecml.name();
-		PlatformLogger.log("ECML Type: " + type);
+		TelemetryManager.log("ECML Type: " + type);
 		return type;
 	}
 }

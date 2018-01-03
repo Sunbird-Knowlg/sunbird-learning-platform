@@ -10,7 +10,7 @@ import org.ekstep.content.pipeline.BasePipeline;
 import org.ekstep.content.util.JSONContentParser;
 import org.ekstep.content.util.XMLContentParser;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class BaseInitializer is a BaseClass for all Initializers, extends
@@ -34,7 +34,7 @@ public class BaseInitializer extends BasePipeline {
 	protected boolean isCompressRequired(Node node) {
 		boolean required = false;
 		if (null != node && null != node.getMetadata()) {
-			PlatformLogger.log("Compression Required Check For Content Id: " + node.getIdentifier());
+			TelemetryManager.log("Compression Required Check For Content Id: " + node.getIdentifier());
 			String contentBody = (String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name());
 			String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 			if (StringUtils.isBlank(artifactUrl) && StringUtils.isBlank(contentBody))
@@ -94,7 +94,7 @@ public class BaseInitializer extends BasePipeline {
 			else
 				throw new ClientException(ContentErrorCodeConstants.INVALID_BODY.name(),
 						ContentErrorMessageConstants.INVALID_CONTENT_BODY);
-			PlatformLogger.log("ECML Type: " + type);
+			TelemetryManager.log("ECML Type: " + type);
 		}
 		return type;
 	}

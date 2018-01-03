@@ -72,7 +72,7 @@ import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
 import org.ekstep.search.util.CompositeSearchUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import net.sf.json.util.JSONBuilder;
@@ -211,7 +211,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		map.put("request", lemmaMap);
 		Request request = getRequest(map);
 		Response response = list(languageId, LanguageObjectTypes.Word.name(), request);
-		PlatformLogger.log("Search | Response: " + response);
+		TelemetryManager.log("Search | Response: " + response);
 		List<Map<String, Object>> list = (List<Map<String, Object>>) response.get("words");
 		if (list != null && !list.isEmpty()) {
 			Map<String, Object> wordMap = list.get(0);
@@ -273,7 +273,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Exception occurred", e.getMessage(), e);
+			TelemetryManager.log("Error! Exception occurred", e.getMessage(), e);
 			dateTimeString = "";
 		}
 		return dateTimeString;
@@ -355,7 +355,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 								}
 							}
 						} else {
-							PlatformLogger.log("Unable to add word to graph");
+							TelemetryManager.log("Unable to add word to graph");
 						}
 					}
 				}
@@ -1097,7 +1097,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		}
-		PlatformLogger.log("returning nodemap size: " + nodeMap.size());
+		TelemetryManager.log("returning nodemap size: " + nodeMap.size());
 		return nodeMap;
 	}
 
@@ -1145,7 +1145,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		}
-		PlatformLogger.log("returning nodemap size: " + nodeMap.size());
+		TelemetryManager.log("returning nodemap size: " + nodeMap.size());
 		return nodeMap;
 	}
 
@@ -1310,7 +1310,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error!Exception occured", e.getMessage(), e);
+			TelemetryManager.log("Error!Exception occured", e.getMessage(), e);
 			errorMessages.add(e.getMessage());
 		}
 	}
@@ -1451,7 +1451,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					}
 					addSynonymRelation(languageId, wordMap.get(LanguageParams.identifier.name()).toString(), primaryMeaningId, new ArrayList<>());
 				} catch (Exception e) {
-					PlatformLogger.log("Error!Exception ", e.getMessage(), e);
+					TelemetryManager.log("Error!Exception ", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -1925,7 +1925,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error!Exception", e.getMessage(), e);
+			TelemetryManager.log("Error!Exception", e.getMessage(), e);
 			e.printStackTrace();
 			errorMessages.add(e.getMessage());
 		}
@@ -2366,7 +2366,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						Double complexity = getWordComplexity(node, languageId);
 						map.put(lemma, complexity);
 					} catch (Exception e) {
-						PlatformLogger.log("Exception", e.getMessage(), e);
+						TelemetryManager.log("Exception", e.getMessage(), e);
 						map.put(lemma, null);
 					}
 				} else {
@@ -2651,7 +2651,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		} else {
 			id = "" + indowordId;
 		}
-		PlatformLogger.log("Primary meaning id and indowordnetid:" + primaryMeaningId + ":" + id);
+		TelemetryManager.log("Primary meaning id and indowordnetid:" + primaryMeaningId + ":" + id);
 		boolean create = false;
 		String nodeId = getTranslationSetWithMember(primaryMeaningId, id, graphId);
 		if (nodeId == null) {
@@ -2660,7 +2660,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				create = true;
 			}
 			if (!create) {
-				PlatformLogger.log("Translation set already exists for indowordnetid:" + nodeId);
+				TelemetryManager.log("Translation set already exists for indowordnetid:" + nodeId);
 				proxyReq.put(GraphDACParams.collection_id.name(), nodeId);
 			}
 			proxyReq.put("create", create);
@@ -2668,10 +2668,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			Response res = getResponse(proxyReq);
 			if (!checkError(res)) {
 				String proxyId = (String) res.get("node_id");
-				PlatformLogger.log("Proxy node created:" + proxyId);
+				TelemetryManager.log("Proxy node created:" + proxyId);
 			}
 		} else {
-			PlatformLogger.log("Translation set already exists with this member:" + nodeId);
+			TelemetryManager.log("Translation set already exists with this member:" + nodeId);
 		}
 	}
 
@@ -2710,7 +2710,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 */
 	@SuppressWarnings("unchecked")
 	public String getTranslationSet(String wordnetId, String graphId) {
-		PlatformLogger.log("Logging wordnet id for getting translation set:" + wordnetId);
+		TelemetryManager.log("Logging wordnet id for getting translation set:" + wordnetId);
 		Node node = null;
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.SET.name());
@@ -2746,7 +2746,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 */
 	@SuppressWarnings("unchecked")
 	public String getTranslationSetWithMember(String id, String wordnetId, String graphId) {
-		PlatformLogger.log("Logging synsetid and wordnetid for getting with member:" + id + ":" + wordnetId);
+		TelemetryManager.log("Logging synsetid and wordnetid for getting with member:" + id + ":" + wordnetId);
 		Node node = null;
 		RelationCriterion rc = new RelationCriterion("hasMember", "Synset");
 		List<String> identifiers = new ArrayList<String>();
@@ -2872,9 +2872,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					continue;
 				}
 			}
-			PlatformLogger.log("importExampleSentences |"+
+			TelemetryManager.log("importExampleSentences |"+
 					count + " words found in input file, " + wordDetailMap.size() + " words loaded into map");
-			PlatformLogger.log("importExampleSentences |  words found in file are "+wordDetailMap.toString());
+			TelemetryManager.log("importExampleSentences |  words found in file are "+wordDetailMap.toString());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -2929,7 +2929,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					updateReq.put(GraphDACParams.node_id.name(), synset.getIdentifier());
 					Response updateRes = getResponse(updateReq);
 					if (checkError(updateRes)) {
-						PlatformLogger.log("error while uploading example sentences for synset:"+ synsetId +" word:"+ wordId, "error message:"+updateRes.getResult().toString());
+						TelemetryManager.log("error while uploading example sentences for synset:"+ synsetId +" word:"+ wordId, "error message:"+updateRes.getResult().toString());
 					}
 				}
 				
@@ -2940,7 +2940,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				wordDetailsMap.remove(lemma);
 			}
 		}
-		PlatformLogger.log("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
+		TelemetryManager.log("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
 		return wordIds;
 	}
 	

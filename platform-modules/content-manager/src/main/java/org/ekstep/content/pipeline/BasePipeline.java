@@ -46,8 +46,8 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -109,7 +109,7 @@ public class BasePipeline extends BaseManager {
 	protected Response updateNode(Node node) {
 		Response response = new Response();
 		if (null != node) {
-			PlatformLogger.log("Update Node " + node.getIdentifier() + ".", node,
+			TelemetryManager.log("Update Node " + node.getIdentifier() + ".", node,
 					null, Level.INFO.name());
 			Cloner cloner = new Cloner();
 			Node clonedNode = cloner.deepClone(node);
@@ -120,7 +120,7 @@ public class BasePipeline extends BaseManager {
 			updateReq.put(GraphDACParams.node_id.name(), clonedNode.getIdentifier());
 			response = getResponse(updateReq);
 		}
-		PlatformLogger.log("Returning Response For Update Node", response,
+		TelemetryManager.log("Returning Response For Update Node", response,
 				null, Level.INFO.name());
 		return response;
 	}
@@ -135,7 +135,7 @@ public class BasePipeline extends BaseManager {
 	 * @return response of updatedContentBody request
 	 */
 	protected Response updateContentBody(String contentId, String body) {
-		PlatformLogger.log("Update Content Body For Content Id: " + contentId + ".", null,
+		TelemetryManager.log("Update Content Body For Content Id: " + contentId + ".", null,
 				null, Level.INFO.name());
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -161,14 +161,14 @@ public class BasePipeline extends BaseManager {
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				Response response = (Response) obj;
-				PlatformLogger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
+				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
 						, " | Result: " + response.getResult().keySet());
 				return response;
 			} else {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Something went wrong" , e.getMessage(), e);
+			TelemetryManager.log("Error! Something went wrong" , e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something went wrong while processing the request", e);
 		}
 	}
@@ -182,7 +182,7 @@ public class BasePipeline extends BaseManager {
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
-			PlatformLogger.log("Validating the Base Path: " + path);
+			TelemetryManager.log("Validating the Base Path: " + path);
 			isValid = isPathExist(Paths.get(path));
 		} catch (InvalidPathException | NullPointerException e) {
 			isValid = false;
@@ -202,15 +202,15 @@ public class BasePipeline extends BaseManager {
 		boolean exist = true;
 		try {
 			if (null != path) {
-				PlatformLogger.log("Creating the Base Path: " + path.getFileName());
+				TelemetryManager.log("Creating the Base Path: " + path.getFileName());
 				if (!Files.exists(path))
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			PlatformLogger.log("Base Path Already Exist: " + path.getFileName());
+			TelemetryManager.log("Base Path Already Exist: " + path.getFileName());
 		} catch (Exception e) {
 			exist = false;
-			PlatformLogger.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
+			TelemetryManager.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
 		}
 		return exist;
 	}
@@ -294,7 +294,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				PlatformLogger.log("Error! While getting the file size from AWS", key, e,Level.WARN.name());
+				TelemetryManager.log("Error! While getting the file size from AWS", key, e,Level.WARN.name());
 			}
 		}
 		return bytes;
@@ -315,7 +315,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return sdf.format(date);
 			} catch (Exception e) {
-				PlatformLogger.log("Error! While Converting the Date Format.", date, e, Level.WARN.name());
+				TelemetryManager.log("Error! While Converting the Date Format.", date, e, Level.WARN.name());
 			}
 		}
 		return null;
@@ -425,10 +425,10 @@ public class BasePipeline extends BaseManager {
 			List<String> childrenIds, boolean onlyLive) {
 		Map<String, Node> nodeMap = new HashMap<String, Node>();
 		if (null != nodes && !nodes.isEmpty()) {
-			PlatformLogger.log("Starting Data Collection For Bundling...");
+			TelemetryManager.log("Starting Data Collection For Bundling...");
 			List<Node> childrenNodes = new ArrayList<Node>();
 			for (Node node : nodes) {
-				PlatformLogger.log("Collecting Hierarchical Bundling Data For Content Id: " + node.getIdentifier());
+				TelemetryManager.log("Collecting Hierarchical Bundling Data For Content Id: " + node.getIdentifier());
 				getContentRecursive(graphId, childrenNodes, node, nodeMap, childrenIds, ctnts, onlyLive);
 			}
 			nodes.addAll(childrenNodes);
@@ -527,7 +527,7 @@ public class BasePipeline extends BaseManager {
 	 * @return Response of the search
 	 */
 	protected Response searchNodes(String taxonomyId, List<String> contentIds) {
-		PlatformLogger.log("Searching Nodes For Bundling...");
+		TelemetryManager.log("Searching Nodes For Bundling...");
 		ContentSearchCriteria criteria = new ContentSearchCriteria();
 		List<Filter> filters = new ArrayList<Filter>();
 		Filter filter = new Filter(ContentWorkflowPipelineParams.identifier.name(), SearchConditions.OP_IN, contentIds);

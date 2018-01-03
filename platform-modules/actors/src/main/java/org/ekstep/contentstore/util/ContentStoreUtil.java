@@ -15,8 +15,8 @@ import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
 import com.datastax.driver.core.BoundStatement;
@@ -54,13 +54,13 @@ public class ContentStoreUtil {
 	}
 
 	public static String getContentProperty(String contentId, String property) {
-		PlatformLogger.log("GetContentProperty | Content: " + contentId + " | Property: " + property);
+		TelemetryManager.log("GetContentProperty | Content: " + contentId + " | Property: " + property);
 		Session session = CassandraConnector.getSession();
 		String query = getSelectQuery(property);
 		if (StringUtils.isBlank(query))
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
 					"Invalid property name. Please specify a valid property name");
-		PlatformLogger.log("GetContentProperty | Query: " , query);
+		TelemetryManager.log("GetContentProperty | Query: " , query);
 		PreparedStatement ps = session.prepare(query);
 		BoundStatement bound = ps.bind(contentId);
 		try {
@@ -73,7 +73,7 @@ public class ContentStoreUtil {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Executing Get Content Property.",e.getMessage(),  e);
+			TelemetryManager.log("Error! Executing Get Content Property.",e.getMessage(),  e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
 					"Error fetching property from Content Store.");
 		}
@@ -81,13 +81,13 @@ public class ContentStoreUtil {
 	}
 	
 	public static Map<String, Object> getContentProperties(String contentId, List<String> properties) {
-		PlatformLogger.log("GetContentProperties | Content: " + contentId + " | Properties: " + properties);
+		TelemetryManager.log("GetContentProperties | Content: " + contentId + " | Properties: " + properties);
 		Session session = CassandraConnector.getSession();
 		String query = getSelectQuery(properties);
 		if (StringUtils.isBlank(query))
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
 					"Invalid properties list. Please specify a valid list of property names");
-		PlatformLogger.log("GetContentProperties | Query: " , query);
+		TelemetryManager.log("GetContentProperties | Query: " , query);
 		PreparedStatement ps = session.prepare(query);
 		BoundStatement bound = ps.bind(contentId);
 		try {
@@ -104,7 +104,7 @@ public class ContentStoreUtil {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Executing Get Content Property.", e.getMessage(), e);
+			TelemetryManager.log("Error! Executing Get Content Property.", e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
 					"Error fetching property from Content Store.");
 		}
@@ -112,13 +112,13 @@ public class ContentStoreUtil {
 	}
 	
 	public static void updateContentProperty(String contentId, String property, String value) {
-		PlatformLogger.log("UpdateContentProperty | Content: " + contentId + " | Property: " + property + " - Value: " + value);
+		TelemetryManager.log("UpdateContentProperty | Content: " + contentId + " | Property: " + property + " - Value: " + value);
 		Session session = CassandraConnector.getSession();
 		String query = getUpdateQuery(property);
 		if (StringUtils.isBlank(query))
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
 					"Invalid property name. Please specify a valid property name");
-		PlatformLogger.log("UpdateContentProperty | Query: " , query);
+		TelemetryManager.log("UpdateContentProperty | Query: " , query);
 		PreparedStatement ps = session.prepare(query);
 		BoundStatement bound = ps.bind(value, contentId);
 		try {
@@ -126,17 +126,17 @@ public class ContentStoreUtil {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put(property, value);
 			List<Map<String, Object>> nodeMessage = createKafkaMessage(contentId, map);
-			PlatformLogger.log("Logging event to kafka on body changes" + nodeMessage);
+			TelemetryManager.log("Logging event to kafka on body changes" + nodeMessage);
 			LogAsyncGraphEvent.pushMessageToLogger(nodeMessage);
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Executing Update Content Property.", e.getMessage(), e);
+			TelemetryManager.log("Error! Executing Update Content Property.", e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
 					"Error updating property in Content Store.");
 		}
 	}
 
 	public static void updateContentProperties(String contentId, Map<String, Object> map) {
-		PlatformLogger.log("UpdateContentProperties | Content: " + contentId + " | Properties: " + map);
+		TelemetryManager.log("UpdateContentProperties | Content: " + contentId + " | Properties: " + map);
 		Session session = CassandraConnector.getSession();
 		if (null == map || map.isEmpty())
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
@@ -145,7 +145,7 @@ public class ContentStoreUtil {
 		if (StringUtils.isBlank(query))
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
 					"Invalid property values. Please specify valid property values");
-		PlatformLogger.log("UpdateContentProperties | Query: " , query);
+		TelemetryManager.log("UpdateContentProperties | Query: " , query);
 		PreparedStatement ps = session.prepare(query);
 		Object[] values = new Object[map.size() + 1];
 		int i = 0;
@@ -159,10 +159,10 @@ public class ContentStoreUtil {
 		try {
 			session.execute(bound);
 			List<Map<String, Object>> nodeMessage = createKafkaMessage(contentId, map);
-			PlatformLogger.log("Logging event to kafka on body change" , nodeMessage);
+			TelemetryManager.log("Logging event to kafka on body change" , nodeMessage);
 			LogAsyncGraphEvent.pushMessageToLogger(nodeMessage);
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Executing Update Content Property.", e.getMessage(), e);
+			TelemetryManager.log("Error! Executing Update Content Property.", e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
 					"Error updating property in Content Store.");
 		}
@@ -173,7 +173,7 @@ public class ContentStoreUtil {
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("select blobAsText(").append(property).append(") as ");
 			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " + getKeyspaceName() +"."+keyspaceTable  +  " where content_id = ?");
-			PlatformLogger.log("Fetched keyspace names for get Operation: " + getKeyspaceName() + keyspaceTable, null, Level.INFO.name());
+			TelemetryManager.log("Fetched keyspace names for get Operation: " + getKeyspaceName() + keyspaceTable, null, Level.INFO.name());
 		}
 		return sb.toString();
 	}
@@ -202,7 +202,7 @@ public class ContentStoreUtil {
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("UPDATE " + getKeyspaceName() +"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
 			sb.append(property.trim()).append(" = textAsBlob(?) where content_id = ?");
-			PlatformLogger.log("Fetched keyspace names for update Operation: " + getKeyspaceName() + keyspaceTable, null, Level.INFO.name());
+			TelemetryManager.log("Fetched keyspace names for update Operation: " + getKeyspaceName() + keyspaceTable, null, Level.INFO.name());
 		}
 		return sb.toString();
 	}
@@ -227,7 +227,7 @@ public class ContentStoreUtil {
 	
 	private static List<Map<String, Object>> createKafkaMessage(String contentId, Map<String,Object> map) {
 		if(null == map){
-			PlatformLogger.log("Returning null as the map is is null" , map);
+			TelemetryManager.log("Returning null as the map is is null" , map);
 			return null;
 		}
 		else{	
@@ -239,7 +239,7 @@ public class ContentStoreUtil {
 					Map<String,Object> valueMap = new HashMap<String,Object>();
 					valueMap.put("ov", null);
 					valueMap.put("nv", entry.getValue());
-					PlatformLogger.log("Adding propertiesMap to log kafka message" , valueMap);
+					TelemetryManager.log("Adding propertiesMap to log kafka message" , valueMap);
 					propertiesMap.put(entry.getKey(), valueMap);
 			}
 			transactionMap.put(CompositeSearchParams.properties.name(), propertiesMap);
@@ -256,7 +256,7 @@ public class ContentStoreUtil {
 			dataMap.put(CompositeSearchParams.audit.name(), false);
 			dataMap.put(CompositeSearchParams.ets.name(), System.currentTimeMillis());
 			dataMap.put(CompositeSearchParams.createdOn.name(), df.format(new Date()));
-			PlatformLogger.log("Adding dataMap to list" , dataMap);
+			TelemetryManager.log("Adding dataMap to list" , dataMap);
 			listMap.add(dataMap);
 			return listMap;
 		}

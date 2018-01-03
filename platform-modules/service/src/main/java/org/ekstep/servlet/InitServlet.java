@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServlet;
 
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.router.RequestRouterPool;
 
 
@@ -20,7 +20,7 @@ public class InitServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         // Initialising Request Router Pool
-        PlatformLogger.log("Initialising Request Router Pool");
+        TelemetryManager.log("Initialising Request Router Pool");
         LearningRequestRouterPool.init();
         SearchRequestRouterPool.init(RequestRouterPool.getActorSystem());
     }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * This is the entry point for all CRUD operations related to channel API.
@@ -47,7 +47,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.createChannel(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Create Channel", e.getMessage(), e);
+			TelemetryManager.log("Create Channel", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -65,7 +65,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.readChannel(channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Read Channel", e.getMessage(), e);
+			TelemetryManager.log("Read Channel", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -88,7 +88,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.updateChannel(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Update Channel", e.getMessage(), e);
+			TelemetryManager.log("Update Channel", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -110,7 +110,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.listChannel((Map)request.get("search"));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("List Channel | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("List Channel | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -126,10 +126,10 @@ public class ChannelV3Controller extends BaseController {
 		String apiId = "ekstep.learning.channel.retire";
 		try {
 			Response response = channelManager.retireChannel(channelId);
-			PlatformLogger.log("retire channel | Response: " + response);
+			TelemetryManager.log("retire channel | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("retire channel | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("retire channel | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

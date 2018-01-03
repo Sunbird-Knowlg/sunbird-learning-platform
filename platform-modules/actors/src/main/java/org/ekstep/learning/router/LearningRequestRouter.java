@@ -13,8 +13,8 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.learning.actor.ContentStoreActor;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
@@ -119,7 +119,7 @@ public class LearningRequestRouter extends UntypedActor {
 				parent.tell(arg0, getSelf());
 				Response res = (Response) arg0;
 				ResponseParams params = res.getParams();
-				PlatformLogger.log(
+				TelemetryManager.log(
 						request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString());
 			}
 		}, getContext().dispatcher());
@@ -143,7 +143,7 @@ public class LearningRequestRouter extends UntypedActor {
 	 *            the parent
 	 */
 	protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-		PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , ", ERROR: " + e.getMessage(), Level.WARN.name());
+		TelemetryManager.log(request.getManagerName() + "," + request.getOperation() , ", ERROR: " + e.getMessage(), Level.WARN.name());
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus(StatusType.failed.name());
@@ -162,10 +162,10 @@ public class LearningRequestRouter extends UntypedActor {
 	private String setErrMessage(Throwable e) {
 		Class<? extends Throwable> className = e.getClass();
 		if (className.getName().contains(ekstep) || className.getName().contains(ilimi)) {
-			PlatformLogger.log("Setting error message sent from class " + className + e.getMessage());
+			TelemetryManager.log("Setting error message sent from class " + className + e.getMessage());
 			return e.getMessage();
 		} else if (className.getName().startsWith(java)) {
-			PlatformLogger.log("Setting default err msg " + className + e.getMessage());
+			TelemetryManager.log("Setting default err msg " + className + e.getMessage());
 			return default_err_msg;
 		}
 		return "";

@@ -6,7 +6,7 @@ package org.ekstep.common.optimizr;
 
 import java.text.DecimalFormat;
 
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  *
@@ -31,11 +31,11 @@ public class Statistics {
 
     public void print() {
         System.out.println("---- Summary ----");
-        PlatformLogger.log("    Compressed Zip: before - " + toMB(rawSize) + ", after - " + toMB(redSize) + " %n");
-        PlatformLogger.log("    Audio Files: " +audioAssets + ", before - " + toMB(audioSizeRaw) + ", after - " + toMB(audioSizeRed) + ", %n");
-        PlatformLogger.log("    Audio Files: " +imageAssets + ", before - " + toMB(imageSizeRaw) + ", after - " + toMB(imageSizeRed) + ", %n");
-        PlatformLogger.log("    Video Files: " +videoAssets + ", before - " + toMB(videoSizeRaw) + ", after - " + toMB(videoSizeRed) + ", %n");
-        PlatformLogger.log("    Optimized in" + (end - begin) + " ms %n");
+        TelemetryManager.log("    Compressed Zip: before - " + toMB(rawSize) + ", after - " + toMB(redSize) + " %n");
+        TelemetryManager.log("    Audio Files: " +audioAssets + ", before - " + toMB(audioSizeRaw) + ", after - " + toMB(audioSizeRed) + ", %n");
+        TelemetryManager.log("    Audio Files: " +imageAssets + ", before - " + toMB(imageSizeRaw) + ", after - " + toMB(imageSizeRed) + ", %n");
+        TelemetryManager.log("    Video Files: " +videoAssets + ", before - " + toMB(videoSizeRaw) + ", after - " + toMB(videoSizeRed) + ", %n");
+        TelemetryManager.log("    Optimized in" + (end - begin) + " ms %n");
         System.out.printf("    Optimization Ratio: %.2f%% of original %n", (redSize * 100.0 / rawSize));
         System.out.printf("    Compressed Zip: before - %s, after - %s %n", toMB(rawSize), toMB(redSize));
         System.out.printf("    Audio Files: %d, before - %s, after - %s, %n", audioAssets, toMB(audioSizeRaw), toMB(audioSizeRed));

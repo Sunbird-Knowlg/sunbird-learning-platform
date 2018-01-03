@@ -2,7 +2,7 @@ package org.ekstep.orchestrator.interpreter.command;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.orchestrator.interpreter.ICommand;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -37,7 +37,7 @@ public class GetResponseValue implements ICommand, Command {
 					interp.setResult(tclResp);
 				}
 			} catch (Exception e) {
-				PlatformLogger.log("Exception", e.getMessage(), e);
+				TelemetryManager.log("Exception", e.getMessage(), e);
 				throw new TclException(interp, "Unable to read response: " + e.getMessage());
 			}
 		} else {

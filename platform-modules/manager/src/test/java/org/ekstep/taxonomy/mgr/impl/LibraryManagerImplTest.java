@@ -26,7 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -57,10 +57,10 @@ public class LibraryManagerImplTest extends BaseController{
 					.file(mockMultipartFile).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
-			PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Upload | Exception: " , e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		PlatformLogger.log("Upload | Response: " , resp);
+		TelemetryManager.log("Upload | Response: " , resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		String actualArtifactUrl = (String)(((Map<String,Object>)((Map<String,Object>)resp.getResult().get("updated_node")).get("metadata")).get("artifactUrl"));
 		String expectedArtifactUrl  = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/.*";
@@ -78,10 +78,10 @@ public class LibraryManagerImplTest extends BaseController{
 			Assert.assertEquals(200, actions.andReturn().getResponse()
 					.getStatus());
 		} catch (Exception e) {
-			PlatformLogger.log("Publish | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Publish | Exception: " , e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		PlatformLogger.log("Publish | Response: " , resp);
+		TelemetryManager.log("Publish | Response: " , resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
 	

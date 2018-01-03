@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.ICompositeSearchManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Controller
 @RequestMapping("/v3/sync")
@@ -36,12 +36,12 @@ public class LearningDataSyncV3Controller extends BaseController {
 			@RequestParam(name = "delete", required = false, defaultValue = "false") boolean delete,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.composite-search.sync";
-		PlatformLogger.log(apiId + " | Graph : " + graphId , " | ObjectType: " + objectType);
+		TelemetryManager.log(apiId + " | Graph : " + graphId , " | ObjectType: " + objectType);
 		try {
 			Response response = compositeSearchManager.sync(graphId, objectType, start, total, delete);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Error: " , apiId, e);
+			TelemetryManager.log("Error: " , apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -51,7 +51,7 @@ public class LearningDataSyncV3Controller extends BaseController {
 	public ResponseEntity<Response> syncObject(@RequestParam(name = "graph_id", required = true) String graphId,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.composite-search.sync-object";
-		PlatformLogger.log(apiId + " | Graph : " + graphId + " | request body: " + map);
+		TelemetryManager.log(apiId + " | Graph : " + graphId + " | request body: " + map);
 		try {
 			String[] identifiers =null;
 			if (map.get("request") != null && ((Map) map.get("request")).get("identifiers") != null) {
@@ -62,7 +62,7 @@ public class LearningDataSyncV3Controller extends BaseController {
 			Response response = compositeSearchManager.syncObject(graphId, identifiers);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Error: ", apiId, e);
+			TelemetryManager.log("Error: ", apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

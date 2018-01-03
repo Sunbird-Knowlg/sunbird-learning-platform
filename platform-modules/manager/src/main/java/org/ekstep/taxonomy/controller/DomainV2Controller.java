@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.ITaxonomyManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Controller
 @RequestMapping("/v2/domains")
@@ -34,15 +34,15 @@ public class DomainV2Controller extends BaseController {
             @RequestParam(value = "depth", required = false, defaultValue = "5") Integer depth,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "ekstep.domain.graph";
-        PlatformLogger.log("domain.graph | Id: " + id + " | user-id: " + userId);
+        TelemetryManager.log("domain.graph | Id: " + id + " | user-id: " + userId);
         try {
             List<String> relations = new ArrayList<String>();
             relations.add(RelationTypes.HIERARCHY.relationName());
             Response response = taxonomyManager.getSubGraph("domain", id, depth, relations);
-            PlatformLogger.log("Domain Graph | Response: " , response);
+            TelemetryManager.log("Domain Graph | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            PlatformLogger.log("Domain Graph | Exception: " , e.getMessage(), e);
+            TelemetryManager.log("Domain Graph | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

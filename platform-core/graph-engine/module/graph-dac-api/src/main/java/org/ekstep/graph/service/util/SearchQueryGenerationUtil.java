@@ -10,7 +10,7 @@ import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.dac.model.Traverser;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
 public class SearchQueryGenerationUtil {
@@ -33,7 +33,7 @@ public class SearchQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Get Node By Id Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Node By Id Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -57,7 +57,7 @@ public class SearchQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Get Node By Unique Id Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Node By Unique Id Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -81,7 +81,7 @@ public class SearchQueryGenerationUtil {
 					+ "'}) OPTIONAL MATCH (ee)-[r]-() RETURN ee, r, startNode(r) as __startNode, endNode(r) as __endNode");
 		}
 
-		PlatformLogger.log("Returning Get Nodes By Property Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Nodes By Property Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -104,7 +104,7 @@ public class SearchQueryGenerationUtil {
 			query.append(searchCriteria.getQuery());
 		}
 
-		PlatformLogger.log("Returning Get Node By Unique Ids Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Node By Unique Ids Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -133,7 +133,7 @@ public class SearchQueryGenerationUtil {
 					+ "'}) OPTIONAL MATCH (ee)-[r]-() RETURN ee." + key + " as " + key + "");
 		}
 
-		PlatformLogger.log("Returning Get Node Property Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Node Property Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -149,7 +149,7 @@ public class SearchQueryGenerationUtil {
 					+ ") OPTIONAL MATCH (ee)-[r]-() RETURN ee, r, startNode(r) as __startNode, endNode(r) as __endNode");
 		}
 
-		PlatformLogger.log("Returning Get All Nodes Cypher Query: " + query);
+		TelemetryManager.log("Returning Get All Nodes Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -166,7 +166,7 @@ public class SearchQueryGenerationUtil {
 					+ ") RETURN r, startNode(r) as __startNode, endNode(r) as __endNode");
 		}
 
-		PlatformLogger.log("Returning Get All Relations Cypher Query: " + query);
+		TelemetryManager.log("Returning Get All Relations Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -208,7 +208,7 @@ public class SearchQueryGenerationUtil {
 					+ ": '" + endNodeId + "'}) RETURN r." + key + " as " + key + "");
 		}
 
-		PlatformLogger.log("Returning Get Relation Property Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Relation Property Cypher Query: " + query);
 		return query.toString();
 	}
 	
@@ -229,7 +229,7 @@ public class SearchQueryGenerationUtil {
 			query.append("MATCH ()-[r]-() where ID(r)= " + id + " RETURN r, startNode(r) as __startNode, endNode(r) as __endNode");
 		}
 
-		PlatformLogger.log("Returning Get Relation By Id Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Relation By Id Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -264,7 +264,7 @@ public class SearchQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Get Relation Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Relation Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -301,7 +301,7 @@ public class SearchQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Check Cyclic Loop Cypher Query: " + query);
+		TelemetryManager.log("Returning Check Cyclic Loop Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -327,7 +327,7 @@ public class SearchQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Execute Query, Cypher Query: " + query);
+		TelemetryManager.log("Returning Execute Query, Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -350,7 +350,7 @@ public class SearchQueryGenerationUtil {
 			query.append(cypherQuery);
 		}
 
-		PlatformLogger.log("Returning search Nodes Cypher Query: " + query);
+		TelemetryManager.log("Returning search Nodes Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -371,7 +371,7 @@ public class SearchQueryGenerationUtil {
 			query.append(searchCriteria.getQuery());
 		}
 
-		PlatformLogger.log("Returning Nodes Count Cypher Query: " + query);
+		TelemetryManager.log("Returning Nodes Count Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -389,7 +389,7 @@ public class SearchQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_TRAVERSER + " | ['Traverse' Query Generation Failed.]");
 		}
 
-		PlatformLogger.log("Returning Traverse Cypher Query: " + query);
+		TelemetryManager.log("Returning Traverse Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -409,7 +409,7 @@ public class SearchQueryGenerationUtil {
 								+ " | ['Traverse Sub Graph' Query Generation Failed.]");
 		}
 
-		PlatformLogger.log("Returning Traverse Sub Graph Cypher Query: " + query);
+		TelemetryManager.log("Returning Traverse Sub Graph Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -439,7 +439,7 @@ public class SearchQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_DEPTH + " | ['Get Sub Graph' Query Generation Failed.]");
 		}
 
-		PlatformLogger.log("Returning Get Sub Graph Cypher Query: " + query);
+		TelemetryManager.log("Returning Get Sub Graph Cypher Query: " + query);
 		return query.toString();
 	}
 

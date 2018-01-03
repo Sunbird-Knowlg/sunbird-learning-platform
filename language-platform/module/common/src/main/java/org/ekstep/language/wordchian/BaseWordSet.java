@@ -24,7 +24,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.mgr.BaseManager;
 
 /**
@@ -80,7 +80,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 */
 	@SuppressWarnings("unchecked")
 	protected String getWordSet(String lemma, String type) {
-		PlatformLogger.log("get Word Set (" + type + ") lemma " + lemma);
+		TelemetryManager.log("get Word Set (" + type + ") lemma " + lemma);
 
 		Node node = null;
 		SearchCriteria sc = new SearchCriteria();
@@ -102,10 +102,10 @@ public abstract class BaseWordSet extends BaseManager {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && nodes.size() > 0) {
 				node = nodes.get(0);
-				PlatformLogger.log("got  WordSet id " , node.getIdentifier());
+				TelemetryManager.log("got  WordSet id " , node.getIdentifier());
 				return node.getIdentifier();
 			}
-			PlatformLogger.log("WordSet is not found");
+			TelemetryManager.log("WordSet is not found");
 			return null;
 		}
 	}
@@ -121,7 +121,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 */
 	protected String createWordSetCollection(String setLemma, String setType) {
 
-		PlatformLogger.log("creating Word Set (" + setType + ") lemma " + setLemma);
+		TelemetryManager.log("creating Word Set (" + setType + ") lemma " + setLemma);
 
 		Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
 		Map<String, Object> metadata = new HashMap<String, Object>();
@@ -151,7 +151,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the collection id
 	 */
 	protected void addMemberToSet(String collectionId) {
-		PlatformLogger.log("adding word " + wordNode.getIdentifier() + "as member to wordSet " , collectionId);
+		TelemetryManager.log("adding word " + wordNode.getIdentifier() + "as member to wordSet " , collectionId);
 
 		Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "addMember");
 
@@ -174,7 +174,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the relation type
 	 */
 	protected void createRelation(String startNodeId, String endNodeId, String relationType) {
-		PlatformLogger.log("createRelation " , relationType + " between sets " + startNodeId + " and " + endNodeId);
+		TelemetryManager.log("createRelation " , relationType + " between sets " + startNodeId + " and " + endNodeId);
 
 		Request req = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
 		req.put(GraphDACParams.start_node_id.name(), startNodeId);
@@ -271,7 +271,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the set id
 	 */
 	protected void removeWordFromWordSet(String setId){
-		PlatformLogger.log("Deleting relation : " , setId + " --> " + wordNode.getIdentifier());
+		TelemetryManager.log("Deleting relation : " , setId + " --> " + wordNode.getIdentifier());
         Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
         setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), setId);

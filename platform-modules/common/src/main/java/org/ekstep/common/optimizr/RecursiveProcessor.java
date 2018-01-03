@@ -8,8 +8,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  *
@@ -46,13 +46,13 @@ public class RecursiveProcessor implements Processor {
                 for (Processor proc : processors) {
                     if (proc.isApplicable(type)) {
                         try {
-                        	PlatformLogger.log("Processing file: " + file.getName());
+                        	TelemetryManager.log("Processing file: " + file.getName());
                             File output = proc.process(file);
                             if (output != null) redSize = output.length();
                             stats.update(type, rawSize, redSize);
                         }
                         catch (Exception ex) {
-                        	PlatformLogger.log("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName(), null, Level.WARN.name());
+                        	TelemetryManager.log("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName(), null, Level.WARN.name());
                         }
                     }
                 }

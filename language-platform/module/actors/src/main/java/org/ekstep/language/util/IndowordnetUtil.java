@@ -19,7 +19,7 @@ import org.ekstep.language.model.LanguageSynsetData;
 import org.ekstep.language.model.SynsetData;
 import org.ekstep.language.model.SynsetDataLite;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -126,7 +126,7 @@ public class IndowordnetUtil {
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							PlatformLogger.log(e.getMessage(), null, e);
+							TelemetryManager.log(e.getMessage(), null, e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
@@ -145,7 +145,7 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					PlatformLogger.log(e.getMessage(), null, e);
+					TelemetryManager.log(e.getMessage(), null, e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -393,7 +393,7 @@ public class IndowordnetUtil {
 							//System.out.println(
 								//	"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							PlatformLogger.log(e.getMessage(), null, e);
+							TelemetryManager.log(e.getMessage(), null, e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
@@ -410,7 +410,7 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					PlatformLogger.log(e.getMessage(), null, e);
+					TelemetryManager.log(e.getMessage(), null, e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -476,7 +476,7 @@ public class IndowordnetUtil {
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			PlatformLogger.log(e.getMessage(), null, e);
+			TelemetryManager.log(e.getMessage(), null, e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

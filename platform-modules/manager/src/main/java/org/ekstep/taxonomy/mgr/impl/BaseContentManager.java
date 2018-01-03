@@ -12,7 +12,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public abstract class BaseContentManager extends BaseManager {
 
@@ -43,12 +43,12 @@ public abstract class BaseContentManager extends BaseManager {
 		status.add(TaxonomyAPIParams.Pending.name());
 		boolean isProccssing = checkNodeStatus(node, status);
 		if (BooleanUtils.isTrue(isProccssing)) {
-			PlatformLogger.log("Given Content is in Processing Status.");
+			TelemetryManager.log("Given Content is in Processing Status.");
 			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
 					"Operation Denied! | [Cannot Apply '"+ operation +"' Operation on the Content in '" + 
 							(String)node.getMetadata().get(TaxonomyAPIParams.status.name()) + "' Status.] ");
 		} else {
-			PlatformLogger.log("Given Content is not in " + (String)node.getMetadata().get(TaxonomyAPIParams.status.name()) + " Status.");
+			TelemetryManager.log("Given Content is not in " + (String)node.getMetadata().get(TaxonomyAPIParams.status.name()) + " Status.");
 		}
 	}
 	
@@ -73,7 +73,7 @@ public abstract class BaseContentManager extends BaseManager {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Something Went Wrong While Checking the is Under Processing Status.", null, e);
+			TelemetryManager.log("Something Went Wrong While Checking the is Under Processing Status.", null, e);
 		}
 		return inGivenStatus;
 	}

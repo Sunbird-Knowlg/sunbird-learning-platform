@@ -29,7 +29,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -372,9 +372,9 @@ public class XMLContentParser {
 				return output.substring(output.indexOf("?>") + 2); // remove <?xml version="1.0" encoding="UTF-8"?>
 			}
 		} catch (TransformerException e) {
-			PlatformLogger.log(ContentErrorMessageConstants.XML_TRANSFORMATION_ERROR, e);
+			TelemetryManager.log(ContentErrorMessageConstants.XML_TRANSFORMATION_ERROR, e);
 		} catch (IOException e) {
-			PlatformLogger.log(ContentErrorMessageConstants.STRING_WRITER_AUTO_CLOSE_ERROR, e);
+			TelemetryManager.log(ContentErrorMessageConstants.STRING_WRITER_AUTO_CLOSE_ERROR, e);
 		}
 		return node.getTextContent();
 	}

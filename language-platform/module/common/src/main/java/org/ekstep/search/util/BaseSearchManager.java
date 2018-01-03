@@ -9,7 +9,7 @@ import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.search.router.SearchRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -69,7 +69,7 @@ public class BaseSearchManager {
                 return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            PlatformLogger.log("Exception", e.getMessage(), e);
+            TelemetryManager.log("Exception", e.getMessage(), e);
             return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
         }
     }

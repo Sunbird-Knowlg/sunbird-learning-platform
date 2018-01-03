@@ -8,7 +8,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -99,7 +99,7 @@ public class PhoneticBoundarySet extends BaseWordSet {
 		String actualLemma;
 		String connectingLemma;
 
-		PlatformLogger.log("create " + type + " set " + lemma + "for the word"
+		TelemetryManager.log("create " + type + " set " + lemma + "for the word"
 				+ (String) wordNode.getMetadata().get(LanguageParams.lemma.name()));
 
 		if (type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name())) {

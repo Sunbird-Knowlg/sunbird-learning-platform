@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 import org.ekstep.common.mgr.HealthCheckManager;
 import org.ekstep.orchestrator.dac.service.IOrchestratorDataService;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Component
 public class LanguageHealthCheckManager extends HealthCheckManager {
@@ -93,7 +93,7 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
-			PlatformLogger.log("Exception", e.getMessage(), Level.WARN.name());
+			TelemetryManager.log("Exception", e.getMessage(), Level.WARN.name());
     			check.put("healthy", false);
     			check.put("err", "503"); // error code, if any
     			check.put("errmsg", "Cassandra connection is not available"); 

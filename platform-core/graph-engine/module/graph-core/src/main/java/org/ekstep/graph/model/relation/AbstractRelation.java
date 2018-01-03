@@ -19,7 +19,7 @@ import org.ekstep.graph.exception.GraphRelationErrorCodes;
 import org.ekstep.graph.model.AbstractDomainObject;
 import org.ekstep.graph.model.IRelation;
 import org.ekstep.graph.model.cache.DefinitionCache;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.dispatch.Futures;
 import scala.concurrent.Future;
@@ -65,7 +65,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 				manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
 			}
         } catch (Exception e) {
-        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_CREATE.name() + " Error occured while creating the relation", null, e);
+        	TelemetryManager.log(GraphRelationErrorCodes.ERR_RELATION_CREATE.name() + " Error occured while creating the relation", null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Error occured while creating the Relation", e);
         }
     }
@@ -92,7 +92,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 			Future<Object> response = Futures.successful(graphMgr.deleteRelation(request));
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_DELETE.name() + " Error occured while deleting the relation" + e.getMessage(), null, e);
+        	TelemetryManager.log(GraphRelationErrorCodes.ERR_RELATION_DELETE.name() + " Error occured while deleting the relation" + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_DELETE.name(), "Error occured while deleting the relation", e);
         }
     }
@@ -123,7 +123,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 				manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
 			}
         } catch (Exception e) {
-        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + " Error Validating the relation "+ e.getMessage(), null, e);
+        	TelemetryManager.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + " Error Validating the relation "+ e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(),"Error Validating the relation", e);
         }
     }
@@ -160,7 +160,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 			Future<Object> response = Futures.successful(searchMgr.getRelationProperty(request));
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name() + " Error in fetching the relation properties" + e.getMessage(), null, e);
+        	TelemetryManager.log(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name() + " Error in fetching the relation properties" + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), "Error in fetching the relation properties", e);
         }
     }
@@ -202,7 +202,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 				return null;
 			}
         } catch (Exception e) {
-        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error occured while validating the relation " + e.getMessage(), null, e);
+        	TelemetryManager.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error occured while validating the relation " + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), "Error occured while validating the relation", e);
         }
     }
@@ -232,7 +232,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 			}
 
         } catch (Exception e) {
-        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + " Error occured while validing the relation" + e.getMessage(), null, e);
+        	TelemetryManager.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + " Error occured while validing the relation" + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), "Error occured while validing the relation", e);
         }
     }

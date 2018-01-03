@@ -19,7 +19,7 @@ import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
 import org.ekstep.telemetry.TelemetryParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class ResponseFilter implements Filter {
 	
@@ -52,7 +52,7 @@ public class ResponseFilter implements Filter {
 
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-			PlatformLogger.log("Path: " + requestWrapper.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
+			TelemetryManager.log("Path: " + requestWrapper.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
 			+ " | Params: " + request.getParameterMap());
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
@@ -66,7 +66,7 @@ public class ResponseFilter implements Filter {
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
-			PlatformLogger.log("Path: " + httpRequest.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
+			TelemetryManager.log("Path: " + httpRequest.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
 			+ " | Params: " + request.getParameterMap());
 			chain.doFilter(request, response);
 		}

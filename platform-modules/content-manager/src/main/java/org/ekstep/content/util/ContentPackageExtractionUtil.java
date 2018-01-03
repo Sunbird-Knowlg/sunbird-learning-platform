@@ -31,7 +31,7 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class ContentPackageExtractionUtil.
@@ -78,16 +78,16 @@ public class ContentPackageExtractionUtil {
 	}
 
 	public void copyExtractedContentPackage(String contentId, Node node, ExtractionType extractionType) {
-		PlatformLogger.log("Node: ", node);
-		PlatformLogger.log("Extraction Type: ", extractionType);
+		TelemetryManager.log("Node: ", node);
+		TelemetryManager.log("Extraction Type: ", extractionType);
 
 		// Validating the Parameters
-		PlatformLogger.log("Validating Node Object.");
+		TelemetryManager.log("Validating Node Object.");
 		if (null == node)
 			throw new ClientException(ContentErrorCodes.INVALID_NODE.name(),
 					"Error! Content (Node Object) cannot be 'null'");
 
-		PlatformLogger.log("Validating Extraction Type.");
+		TelemetryManager.log("Validating Extraction Type.");
 		if (null == extractionType)
 			throw new ClientException(ContentErrorCodes.INVALID_EXTRACTION.name(),
 					"Error! Invalid Content Extraction Type.");
@@ -102,22 +102,22 @@ public class ContentPackageExtractionUtil {
 
 			// Fetching Environment Name
 			String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
-			PlatformLogger.log("Currently Working Environment: " + s3Environment);
+			TelemetryManager.log("Currently Working Environment: " + s3Environment);
 
 			// Fetching Bucket Name
 			String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET);
-			PlatformLogger.log("Current Storage Space Bucket Name: " + s3Bucket);
+			TelemetryManager.log("Current Storage Space Bucket Name: " + s3Bucket);
 			
 			// Fetching Source Prefix For Copy Objects in S3
 			String sourcePrefix = getExtractionPath(contentId, node, ExtractionType.snapshot);
-			PlatformLogger.log("Source Prefix: " + sourcePrefix);
+			TelemetryManager.log("Source Prefix: " + sourcePrefix);
 
 			// Fetching Destination Prefix For Copy Objects in S3
 			String destinationPrefix = getExtractionPath(contentId, node, extractionType);
-			PlatformLogger.log("Source Prefix: " + destinationPrefix);
+			TelemetryManager.log("Source Prefix: " + destinationPrefix);
 
 			// Copying Objects
-			PlatformLogger.log("Copying Objects...STARTED");
+			TelemetryManager.log("Copying Objects...STARTED");
 			ExecutorService pool = null;
 			try {
 				pool = Executors.newFixedThreadPool(1);
@@ -128,12 +128,12 @@ public class ContentPackageExtractionUtil {
 					}
 				});
 			} catch (Exception e) {
-				PlatformLogger.log("Error sending Content2Vec request", e.getMessage(), e);
+				TelemetryManager.log("Error sending Content2Vec request", e.getMessage(), e);
 			} finally {
 				if (null != pool)
 					pool.shutdown();
 			}
-			PlatformLogger.log("Copying Objects...DONE | Under: " + destinationPrefix);
+			TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
 		}
 	}
 
@@ -146,16 +146,16 @@ public class ContentPackageExtractionUtil {
 	 *            the extraction type
 	 */
 	public void extractContentPackage(String contentId, Node node, ExtractionType extractionType, boolean slugFile) {
-		PlatformLogger.log("Node: ", node);
-		PlatformLogger.log("Extraction Type: ", extractionType);
+		TelemetryManager.log("Node: ", node);
+		TelemetryManager.log("Extraction Type: ", extractionType);
 
 		// Validating the Parameters
-		PlatformLogger.log("Validating Node Object.");
+		TelemetryManager.log("Validating Node Object.");
 		if (null == node)
 			throw new ClientException(ContentErrorCodes.INVALID_NODE.name(),
 					"Error! Content (Node Object) cannot be 'null'");
 
-		PlatformLogger.log("Validating Extraction Type.");
+		TelemetryManager.log("Validating Extraction Type.");
 		if (null == extractionType)
 			throw new ClientException(ContentErrorCodes.INVALID_EXTRACTION.name(),
 					"Error! Invalid Content Extraction Type.");
@@ -169,7 +169,7 @@ public class ContentPackageExtractionUtil {
 			throw new ClientException(ContentErrorCodes.INVALID_ECAR.name(), "Error! Invalid ECAR Url.");
 
 		if (extractableMimeTypes.containsKey(mimeType)) {
-			PlatformLogger.log("Given Content Belongs to Extractable Category of MimeTypes.");
+			TelemetryManager.log("Given Content Belongs to Extractable Category of MimeTypes.");
 			String extractionBasePath = getBasePath(contentId);
 			String contentPackageDownloadPath = getBasePath(contentId);
 			try {
@@ -186,21 +186,21 @@ public class ContentPackageExtractionUtil {
 				// Extract Content Package
 				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
-				PlatformLogger.log(
+				TelemetryManager.log(
 						"Error! While Unzipping the Content Package [Content Package Extraction to Storage Space]",
 						e.getMessage(), e);
 			} finally {
 				try {
-					PlatformLogger.log("Deleting Locally Extracted File.");
+					TelemetryManager.log("Deleting Locally Extracted File.");
 					File dir = new File(contentPackageDownloadPath);
 					if (dir.exists())
 						dir.delete();
 				} catch (SecurityException e) {
-					PlatformLogger.log(
+					TelemetryManager.log(
 							"Error! While Deleting the Local Download Directory: " + contentPackageDownloadPath,
 							e.getMessage(), e);
 				} catch (Exception e) {
-					PlatformLogger.log("Error! Something Went Wrong While Deleting the Local Download Directory: "
+					TelemetryManager.log("Error! Something Went Wrong While Deleting the Local Download Directory: "
 							+ contentPackageDownloadPath, e.getMessage(), e);
 				}
 			}
@@ -220,31 +220,31 @@ public class ContentPackageExtractionUtil {
 	public void extractContentPackage(String contentId, Node node, File uploadedFile, ExtractionType extractionType,
 			boolean slugFile) {
 		uploadedFile = Slug.createSlugFile(uploadedFile);
-		PlatformLogger.log("Node: " + node);
-		PlatformLogger.log("Uploaded File: " + uploadedFile.getName() + " - " + uploadedFile.exists() + " - "
+		TelemetryManager.log("Node: " + node);
+		TelemetryManager.log("Uploaded File: " + uploadedFile.getName() + " - " + uploadedFile.exists() + " - "
 				+ uploadedFile.getAbsolutePath());
-		PlatformLogger.log("Extraction Type: " + extractionType);
+		TelemetryManager.log("Extraction Type: " + extractionType);
 
 		// Validating the Parameters
-		PlatformLogger.log("Validating Node Object.");
+		TelemetryManager.log("Validating Node Object.");
 		if (null == node)
 			throw new ClientException(ContentErrorCodes.INVALID_NODE.name(),
 					"Error! Content (Node Object) cannot be 'null'");
 
-		PlatformLogger.log("Validating Uploaded File.");
+		TelemetryManager.log("Validating Uploaded File.");
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-		PlatformLogger.log("Mime Type: " + mimeType);
+		TelemetryManager.log("Mime Type: " + mimeType);
 		if (!uploadedFile.exists()
 				|| (!isValidSnapshotFile(uploadedFile.getName()) && extractableMimeTypes.containsKey(mimeType)))
 			throw new ClientException(ContentErrorCodes.INVALID_FILE.name(), "Error! File doesn't Exist.");
 
-		PlatformLogger.log("Validating Extraction Type.");
+		TelemetryManager.log("Validating Extraction Type.");
 		if (null == extractionType)
 			throw new ClientException(ContentErrorCodes.INVALID_EXTRACTION.name(),
 					"Error! Invalid Content Extraction Type.");
 
 		if (extractableMimeTypes.containsKey(mimeType)) {
-			PlatformLogger.log("Given Content Belongs to Extractable MimeType Category.");
+			TelemetryManager.log("Given Content Belongs to Extractable MimeType Category.");
 			String extractionBasePath = getBasePath(contentId);
 			try {
 				UnzipUtility unzipUtility = new UnzipUtility();
@@ -260,7 +260,7 @@ public class ContentPackageExtractionUtil {
 					try {
 						FileUtils.deleteDirectory(new File(h5pLibraryDownloadPath));
 					} catch (Exception e) {
-						PlatformLogger.log("Unable to Delete H5P Library Directory.", null, e);
+						TelemetryManager.log("Unable to Delete H5P Library Directory.", null, e);
 					}
 					// UnZip the Content Package
 					unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath + "/content");
@@ -272,9 +272,9 @@ public class ContentPackageExtractionUtil {
 				// Extract Content Package
 				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
-				PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
+				TelemetryManager.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
 			} catch (Exception e) {
-				PlatformLogger.log("Error! Something Went Wrong While Extracting the Content Package File.",
+				TelemetryManager.log("Error! Something Went Wrong While Extracting the Content Package File.",
 						e.getMessage(), e);
 			}
 		}
@@ -285,7 +285,7 @@ public class ContentPackageExtractionUtil {
 		if (StringUtils.isBlank(path))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
 					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");
-		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
+		TelemetryManager.log("Fetched H5P Library Path: " + path, null, "INFO");
 		return path;
 	}
 
@@ -326,16 +326,16 @@ public class ContentPackageExtractionUtil {
 					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
 		} finally {
 			try {
-				PlatformLogger.log("Total Uploaded Files: " + lstUploadedFilesUrl.size());
-				PlatformLogger.log("Deleting Locally Extracted File.");
+				TelemetryManager.log("Total Uploaded Files: " + lstUploadedFilesUrl.size());
+				TelemetryManager.log("Deleting Locally Extracted File.");
 				File dir = new File(basePath);
 				if (dir.exists())
 					dir.delete();
 			} catch (SecurityException e) {
-				PlatformLogger.log("Error! While Deleting the Local Extraction Directory: " + basePath, e.getMessage(),
+				TelemetryManager.log("Error! While Deleting the Local Extraction Directory: " + basePath, e.getMessage(),
 						e);
 			} catch (Exception e) {
-				PlatformLogger.log(
+				TelemetryManager.log(
 						"Error! Something Went Wrong While Deleting the Local Extraction Directory: " + basePath,
 						e.getMessage(), e);
 			}
@@ -350,11 +350,11 @@ public class ContentPackageExtractionUtil {
 	 */
 	private void cleanUpAWSFolder(String AWSFolderPath) {
 		try {
-			PlatformLogger.log("Cleaning AWS Folder Path: " + AWSFolderPath);
+			TelemetryManager.log("Cleaning AWS Folder Path: " + AWSFolderPath);
 			if (StringUtils.isNoneBlank(AWSFolderPath))
 				AWSUploader.deleteFile(AWSFolderPath);
 		} catch (Exception ex) {
-			PlatformLogger.log("Error! While Cleanup of Half Extracted Folder from S3.", ex.getMessage(), ex);
+			TelemetryManager.log("Error! While Cleanup of Half Extracted Folder from S3.", ex.getMessage(), ex);
 		}
 	}
 
@@ -375,9 +375,9 @@ public class ContentPackageExtractionUtil {
 	 */
 	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath, String basePath, boolean slugFile)
 			throws InterruptedException, ExecutionException {
-		PlatformLogger.log("Files: ", files);
-		PlatformLogger.log("AWS Folder Path: ", AWSFolderPath);
-		PlatformLogger.log("Local Base Path of Extraction: ", basePath);
+		TelemetryManager.log("Files: ", files);
+		TelemetryManager.log("AWS Folder Path: ", AWSFolderPath);
+		TelemetryManager.log("Local Base Path of Extraction: ", basePath);
 
 		// Validating Parameters
 		if (null == files || files.size() < 1)
@@ -389,11 +389,11 @@ public class ContentPackageExtractionUtil {
 					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
 
 		List<String> lstUploadedFileUrls = new ArrayList<String>();
-		PlatformLogger.log("Starting the Fan-out for Upload.");
+		TelemetryManager.log("Starting the Fan-out for Upload.");
 		ExecutorService pool = Executors.newFixedThreadPool(10);
 		List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(files.size());
 
-		PlatformLogger.log("Adding All Files to Upload.");
+		TelemetryManager.log("Adding All Files to Upload.");
 		for (final File file : files) {
 			tasks.add(new Callable<Map<String, String>>() {
 				public Map<String, String> call() throws Exception {
@@ -403,7 +403,7 @@ public class ContentPackageExtractionUtil {
 						String path = getFolderPath(file, basePath);
 						if (StringUtils.isNotBlank(path))
 							folderName += File.separator + path;
-						PlatformLogger.log("Folder Name For Storage Space Extraction: ", folderName);
+						TelemetryManager.log("Folder Name For Storage Space Extraction: ", folderName);
 						String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file, slugFile);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
@@ -451,7 +451,7 @@ public class ContentPackageExtractionUtil {
 				pathSuffix = version;
 			}
 		}
-		PlatformLogger.log("Path Suffix: " + pathSuffix);
+		TelemetryManager.log("Path Suffix: " + pathSuffix);
 		switch (mimeType) {
 		case "application/vnd.ekstep.ecml-archive":
 			path += contentFolder + File.separator + ContentAPIParams.ecml.name() + File.separator + contentId + DASH
@@ -472,7 +472,7 @@ public class ContentPackageExtractionUtil {
 		default:
 			break;
 		}
-		PlatformLogger.log("Storage Space Path: " + path);
+		TelemetryManager.log("Storage Space Path: " + path);
 		return path;
 	}
 
@@ -503,11 +503,11 @@ public class ContentPackageExtractionUtil {
 	private String getFolderPath(File file, String basePath) {
 		String path = "";
 		String filePath = file.getAbsolutePath();
-		PlatformLogger.log("Cleaned File Path: " + filePath + "[Get Folder Path]");
+		TelemetryManager.log("Cleaned File Path: " + filePath + "[Get Folder Path]");
 		String base = new File(basePath).getPath();
 		path = filePath.replace(base, "");
 		path = FilenameUtils.getPathNoEndSeparator(path);
-		PlatformLogger.log("Cleaned Base Path: " + base + "[Get Folder Path]");
+		TelemetryManager.log("Cleaned Base Path: " + base + "[Get Folder Path]");
 		return path;
 	}
 

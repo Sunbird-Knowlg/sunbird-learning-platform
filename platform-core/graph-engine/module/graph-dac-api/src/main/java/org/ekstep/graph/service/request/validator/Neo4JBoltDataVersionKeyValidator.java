@@ -15,7 +15,7 @@ import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.NodeUpdateMode;
 import org.ekstep.graph.service.util.DefinitionNodeUtil;
 import org.ekstep.graph.service.util.PassportUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 
@@ -28,7 +28,7 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 			// Fetching Version Check Mode ('OFF', 'STRICT', 'LENIENT')
 			versionCheckMode = DefinitionNodeUtil.getMetadataValue(graphId, node.getObjectType(),
 					GraphDACParams.versionCheckMode.name());
-			PlatformLogger.log("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
+			TelemetryManager.log("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
 					+ node.getObjectType());
 			// Checking if the 'versionCheckMode' Property is not specified,
 			// then default Mode is OFF
@@ -36,7 +36,7 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 				versionCheckMode = NodeUpdateMode.OFF.name();
 			RedisStoreUtil.saveNodeProperty(graphId, node.getObjectType(), GraphDACParams.versionCheckMode.name(),
 					versionCheckMode);
-			PlatformLogger.log("Saving " + versionCheckMode + "for object type" + node.getObjectType() + ", graphId "
+			TelemetryManager.log("Saving " + versionCheckMode + "for object type" + node.getObjectType() + ", graphId "
 					+ graphId + " into Redis cache");
 
 		}
@@ -45,7 +45,7 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 		// or 'LENIENT'.
 		// If Number of Modes are increasing then the Condition should
 		// be checked for 'OFF' Mode Only.
-		PlatformLogger.log("versionCheckMode " + versionCheckMode + "for object type" + node.getObjectType()
+		TelemetryManager.log("versionCheckMode " + versionCheckMode + "for object type" + node.getObjectType()
 				+ ", object id" + node.getIdentifier());
 		if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
 				|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
@@ -56,7 +56,7 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 				// New node... not found in the graph
 				if (null == neo4jNode)
 					return true;
-				PlatformLogger.log("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name())
+				TelemetryManager.log("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name())
 						+ " | [Node Id: '" + node.getIdentifier() + "']");
 
 				graphVersionKey = (String) neo4jNode.get(GraphDACParams.versionKey.name());
@@ -67,31 +67,31 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 			}
 
 			boolean isValidVersionKey = isValidVersionKey(graphId, node, graphVersionKey, lastUpdateOn);
-			PlatformLogger.log("Is Valid Version Key ? " + isValidVersionKey);
+			TelemetryManager.log("Is Valid Version Key ? " + isValidVersionKey);
 
 			if (!isValidVersionKey) {
 				// Checking for Strict Mode
-				PlatformLogger.log(
+				TelemetryManager.log(
 						"Checking for Node Update Operation Mode is 'STRICT' for Node Id: " + node.getIdentifier());
 				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
 					throw new ClientException(DACErrorCodeConstants.ERR_STALE_VERSION_KEY.name(),
 							DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR + " | [Unable to Update the Data.]");
 
 				// Checking for Lenient Mode
-				PlatformLogger.log(
+				TelemetryManager.log(
 						"Checking for Node Update Operation Mode is 'LENIENT' for Node Id: " + node.getIdentifier());
 				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode))
 					node.getMetadata().put(GraphDACParams.NODE_UPDATE_STATUS.name(),
 							GraphDACParams.STALE_DATA_UPDATED.name());
 
-				PlatformLogger.log("Update Operation is Valid for Node Id: " + node.getIdentifier());
+				TelemetryManager.log("Update Operation is Valid for Node Id: " + node.getIdentifier());
 			}
 		}
 
 		// Update Operation is Valid
 		isValidUpdateOperation = true;
 
-		PlatformLogger.log("Is Valid Update Operation ? " + isValidUpdateOperation);
+		TelemetryManager.log("Is Valid Update Operation ? " + isValidUpdateOperation);
 
 		return isValidUpdateOperation;
 	}
@@ -100,7 +100,7 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 
 		boolean isValidVersionKey = false;
 		String versionKey = (String) node.getMetadata().get(GraphDACParams.versionKey.name());
-		PlatformLogger
+		TelemetryManager
 				.log("Data Node Version Key Value: " + versionKey + " | [Node Id: '" + node.getIdentifier() + "']");
 		if (StringUtils.isBlank(versionKey))
 			throw new ClientException(DACErrorCodeConstants.BLANK_VERSION.name(),
@@ -113,11 +113,11 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 						DACErrorMessageConstants.INVALID_LAST_UPDATED_ON_TIMESTAMP + " | [Node Id: "
 								+ node.getIdentifier() + "]");
 
-			PlatformLogger.log("Fetched 'lastUpdatedOn' Property from  Node Id: " + node.getIdentifier()
+			TelemetryManager.log("Fetched 'lastUpdatedOn' Property from  Node Id: " + node.getIdentifier()
 					+ " as 'lastUpdatedOn': " + lastUpdateOn);
 
 			graphVersionKey = String.valueOf(DateUtils.parse(lastUpdateOn).getTime());
-			PlatformLogger.log(
+			TelemetryManager.log(
 					"'lastUpdatedOn' Time Stamp: " + graphVersionKey + " | [Node Id: '" + node.getIdentifier() + "']");
 
 		}

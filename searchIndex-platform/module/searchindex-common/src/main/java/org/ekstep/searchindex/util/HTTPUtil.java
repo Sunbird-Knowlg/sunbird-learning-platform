@@ -16,8 +16,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.ekstep.common.Platform;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class HTTPUtil {
 
@@ -29,7 +29,7 @@ public class HTTPUtil {
 		HttpResponse response = client.execute(request);
 		if (response.getStatusLine().getStatusCode() != 200) {
 			//System.out.println("URL is " + url + "Status Code: " + response.getStatusLine().getStatusCode());
-			PlatformLogger.log("URL is " + url + "Status Code: " + response.getStatusLine().getStatusCode(), null, Level.INFO.name());
+			TelemetryManager.log("URL is " + url + "Status Code: " + response.getStatusLine().getStatusCode(), null, Level.INFO.name());
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
 					+ response.getStatusLine().getReasonPhrase());
 		}

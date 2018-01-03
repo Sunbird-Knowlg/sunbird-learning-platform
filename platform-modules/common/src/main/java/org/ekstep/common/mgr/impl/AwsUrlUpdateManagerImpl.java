@@ -18,7 +18,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import org.ekstep.common.enums.AwsUrlUpdateErrorCodes;
@@ -154,7 +154,7 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
-			PlatformLogger.log("Updating the Node id with AWS url: " + node.getIdentifier());
+			TelemetryManager.log("Updating the Node id with AWS url: " + node.getIdentifier());
 			Response updateRes = getResponse(updateReq);
 			if (checkError(updateRes)){
 				failedNodes.add(node.getIdentifier());

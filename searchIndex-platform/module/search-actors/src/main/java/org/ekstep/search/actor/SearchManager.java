@@ -25,8 +25,8 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
@@ -70,12 +70,12 @@ public class SearchManager extends SearchBaseActor {
 				Map<String, Object> lstResult = processor.multiSynsetDocSearch(synsetIdList);
 				OK(lstResult, parent);
 			} else {
-				PlatformLogger.log("Unsupported operation: " + operation);
+				TelemetryManager.log("Unsupported operation: " + operation);
 				throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error in SearchManager actor", e.getMessage(), e);
+			TelemetryManager.log("Error in SearchManager actor", e.getMessage(), e);
 			handleException(e, getSender());
 		} finally {
 			if (null != processor)
@@ -88,7 +88,7 @@ public class SearchManager extends SearchBaseActor {
 		SearchDTO searchObj = new SearchDTO();
 		try {
 			Map<String, Object> req = request.getRequest();
-			PlatformLogger.log("Search Request: " , req);
+			TelemetryManager.log("Search Request: " , req);
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
 			int limit = getLimitValue(req.get(CompositeSearchParams.limit.name()));
 			Boolean fuzzySearch = (Boolean) request.get("fuzzy");
@@ -181,13 +181,13 @@ public class SearchManager extends SearchBaseActor {
 						softConstraints = mapper.readValue(constraintString, Map.class);
 					}
 				} catch (Exception e) {
-					PlatformLogger.log("Invalid soft Constraints", e.getMessage(), e, Level.ERROR.name());
+					TelemetryManager.log("Invalid soft Constraints", e.getMessage(), e, Level.ERROR.name());
 				}
 			}
-			PlatformLogger.log("Soft Constraints with only Mode: " , softConstraints);
+			TelemetryManager.log("Soft Constraints with only Mode: " , softConstraints);
 			if (null != softConstraints && !softConstraints.isEmpty()) {
 				Map<String, Object> softConstraintMap = new HashMap<>();
-				PlatformLogger.log("SoftConstraints:" , softConstraints);
+				TelemetryManager.log("SoftConstraints:" , softConstraints);
 				try {
 					for (String key : softConstraints.keySet()) {
 						if (filters.containsKey(key) && null != filters.get(key)) {
@@ -208,14 +208,14 @@ public class SearchManager extends SearchBaseActor {
 						}
 					}
 				} catch (Exception e) {
-					PlatformLogger.log("Invalid soft Constraints", e.getMessage(), e, Level.WARN.name());
+					TelemetryManager.log("Invalid soft Constraints", e.getMessage(), e, Level.WARN.name());
 				}
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
-            PlatformLogger.log("SoftConstraints"+ searchObj.getSoftConstraints());
+            TelemetryManager.log("SoftConstraints"+ searchObj.getSoftConstraints());
             
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
-			PlatformLogger.log("Fields: " , fieldsSearch);
+			TelemetryManager.log("Fields: " , fieldsSearch);
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
@@ -233,7 +233,7 @@ public class SearchManager extends SearchBaseActor {
 
 			if (null != req.get(CompositeSearchParams.offset.name())) {
 				int offset = (Integer) req.get(CompositeSearchParams.offset.name());
-				PlatformLogger.log("Offset: " + offset);
+				TelemetryManager.log("Offset: " + offset);
 				searchObj.setOffset(offset);
 			}
 
@@ -509,7 +509,7 @@ public class SearchManager extends SearchBaseActor {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
-		PlatformLogger.log("Logging search Response :" , searchResponse.entrySet());
+		TelemetryManager.log("Logging search Response :" , searchResponse.entrySet());
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
@@ -552,7 +552,7 @@ public class SearchManager extends SearchBaseActor {
 				respResult.put(entry.getKey(), entry.getValue());
 			}
 		}
-		PlatformLogger.log("Search Result", respResult);
+		TelemetryManager.log("Search Result", respResult);
 		return respResult;
 	}
 

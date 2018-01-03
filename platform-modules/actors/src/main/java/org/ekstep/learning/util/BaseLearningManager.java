@@ -10,7 +10,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.router.RequestRouterPool;
@@ -73,7 +73,7 @@ public abstract class BaseLearningManager extends BaseManager {
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception",e.getMessage(), e);
+			TelemetryManager.log("Exception",e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
@@ -98,7 +98,7 @@ public abstract class BaseLearningManager extends BaseManager {
 				return ERROR(LearningErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 			throw new ServerException(LearningErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}

@@ -21,7 +21,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -238,7 +238,7 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 				mimeType = tika.detect(file);
 			}
 		} catch (IOException e) {
-			PlatformLogger.log(ContentErrorMessageConstants.FILE_READ_ERROR, file.getName(), e);
+			TelemetryManager.log(ContentErrorMessageConstants.FILE_READ_ERROR, file.getName(), e);
 		}
 		return mimeType;
 	}

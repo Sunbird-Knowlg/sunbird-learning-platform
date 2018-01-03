@@ -20,7 +20,7 @@ import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.ekstep.language.util.ElasticSearchUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -51,10 +51,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -92,10 +92,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeWordComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -123,10 +123,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeTextComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -160,10 +160,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.getWordFeatures.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -196,10 +196,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.getWordFeatures.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -228,10 +228,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.loadLanguageVectors.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);

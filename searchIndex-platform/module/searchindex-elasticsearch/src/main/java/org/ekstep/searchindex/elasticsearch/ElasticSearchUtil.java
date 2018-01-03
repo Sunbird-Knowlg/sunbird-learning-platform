@@ -14,7 +14,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.searchindex.transformer.IESResultTransformer;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -131,7 +131,7 @@ public class ElasticSearchUtil {
 			throws IOException {
 		Index index = new Index.Builder(document).index(indexName).type(documentType).id(documentId).build();
 		client.execute(index);
-		PlatformLogger.log("Added " + documentId + " to index " + indexName);
+		TelemetryManager.log("Added " + documentId + " to index " + indexName);
 	}
 
 	public void addIndex(String indexName, String documentType, String settings, String mappings) throws IOException {
@@ -389,8 +389,8 @@ public class ElasticSearchUtil {
 
 	@SuppressWarnings("unused")
 	public SearchResult search(String IndexName, String query) throws IOException {
-		PlatformLogger.log("searching in ES index: "+ IndexName);
-		PlatformLogger.log("getting query to search from ES" , query);
+		TelemetryManager.log("searching in ES index: "+ IndexName);
+		TelemetryManager.log("getting query to search from ES" , query);
 		Search search = new Search.Builder(query).addIndex(IndexName).setParameter("size", resultLimit).setParameter("from", offset).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
@@ -399,7 +399,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		PlatformLogger.log("search result" + result);
+		TelemetryManager.log("search result" + result);
 		return result;
 	}
 

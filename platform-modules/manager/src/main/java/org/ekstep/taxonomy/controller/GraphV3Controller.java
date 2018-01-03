@@ -30,7 +30,7 @@ import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.mgr.ITaxonomyManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Controller
 @RequestMapping("/v3/system")
@@ -48,23 +48,23 @@ public class GraphV3Controller extends BaseController {
 			@RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
 			HttpServletResponse resp) {
 		String apiId = "ekstep.graph.import";
-		PlatformLogger.log("Create | Id: " + id + " | File: " + file + " | user-id: " + userId);
+		TelemetryManager.log("Create | Id: " + id + " | File: " + file + " | user-id: " + userId);
 		InputStream stream = null;
 		try {
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = taxonomyManager.create(id, stream);
-			PlatformLogger.log("Create | Response: " , response);
+			TelemetryManager.log("Create | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			if (null != stream)
 				try {
 					stream.close();
 				} catch (IOException e) {
-					PlatformLogger.log("Error1 While Closing the Stream.", e.getMessage(), e);
+					TelemetryManager.log("Error1 While Closing the Stream.", e.getMessage(), e);
 				}
 		}
 	}
@@ -76,7 +76,7 @@ public class GraphV3Controller extends BaseController {
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String format = ImportType.CSV.name();
 		String apiId = "ekstep.graph.export";
-		PlatformLogger.log("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
+		TelemetryManager.log("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
 		try {
 			Request req = getRequest(map);
 			try {
@@ -99,9 +99,9 @@ public class GraphV3Controller extends BaseController {
 					resp.getOutputStream().close();
 				}
 			}
-			PlatformLogger.log("Export | Response: " , response);
+			TelemetryManager.log("Export | Response: " , response);
 		} catch (Exception e) {
-			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
 		}
 	}
 
@@ -110,13 +110,13 @@ public class GraphV3Controller extends BaseController {
 	public ResponseEntity<Response> updateDefinition(@PathVariable(value = "id") String id, @RequestBody String json,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.definition.update";
-		PlatformLogger.log("update Definition | Id: " + id + " | user-id: " + userId);
+		TelemetryManager.log("update Definition | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.updateDefinition(id, json);
-			PlatformLogger.log("update Definition | Response: " , response);
+			TelemetryManager.log("update Definition | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("update Definition | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("update Definition | Exception: " , e.getMessage(), e);
 			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
@@ -128,13 +128,13 @@ public class GraphV3Controller extends BaseController {
 			 @RequestParam(value = "graphId", required = true, defaultValue = "domain") String graphId,
 			 @RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.definition.read";
-		PlatformLogger.log("Find Definition | Id: " + graphId + " | Object Type: " + objectType + " | user-id: " + userId);
+		TelemetryManager.log("Find Definition | Id: " + graphId + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findDefinition(graphId, objectType);
-			PlatformLogger.log("Find Definition | Response: " , response);
+			TelemetryManager.log("Find Definition | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Find Definition | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Find Definition | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -145,13 +145,13 @@ public class GraphV3Controller extends BaseController {
 			@RequestParam(value = "graphId", required = true, defaultValue = "domain") String graphId,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.definition.list";
-		PlatformLogger.log("Find All Definitions | Id: " + graphId + " | user-id: " + userId);
+		TelemetryManager.log("Find All Definitions | Id: " + graphId + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findAllDefinitions(graphId);
-			PlatformLogger.log("Find All Definitions | Response: " , response);
+			TelemetryManager.log("Find All Definitions | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Find All Definitions | Exception: " , e.getMessage(), e);
+			TelemetryManager.log("Find All Definitions | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -168,7 +168,7 @@ public class GraphV3Controller extends BaseController {
 			Response response = contentManager.updateAllContentNodes(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

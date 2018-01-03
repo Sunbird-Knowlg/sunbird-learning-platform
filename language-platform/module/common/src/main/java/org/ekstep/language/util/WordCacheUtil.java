@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -131,12 +131,12 @@ public class WordCacheUtil {
 	 *            the words arpabets stream
 	 */
 	public static void loadWordArpabetCollection(InputStream wordsArpabetsStream) {
-		PlatformLogger.log("inside loadWordArpabetCollection");
+		TelemetryManager.log("inside loadWordArpabetCollection");
 		Map<String, String> wordArpabetCacheMap = parseInputStream(wordsArpabetsStream);
 		if (wordArpabetCacheMap.size() > 0) {
 			loadRedisCache(wordArpabetCacheMap);
 		}
-		PlatformLogger.log("completed loadWordArpabetCollection");
+		TelemetryManager.log("completed loadWordArpabetCollection");
 	}
 
 	/**
@@ -275,7 +275,7 @@ public class WordCacheUtil {
 	 * @return the arpabets
 	 */
 	public static String getArpabets(String word) {
-		PlatformLogger.log("GetArpabets - word " + word);
+		TelemetryManager.log("GetArpabets - word " + word);
 
 		Jedis jedis = getRedisConncetion();
 		word = word.toUpperCase();
@@ -304,7 +304,7 @@ public class WordCacheUtil {
 			returnConnection(jedis);
 		}
 
-		PlatformLogger.log("GetArpabets - arpabets " + arpabetsOfWord);
+		TelemetryManager.log("GetArpabets - arpabets " + arpabetsOfWord);
 		return arpabetsOfWord;
 	}
 
@@ -317,7 +317,7 @@ public class WordCacheUtil {
 	 * @return the similar sound words
 	 */
 	public static Set<String> getSimilarSoundWords(String word) {
-		PlatformLogger.log("GetSimilarSoundWords - word " + word);
+		TelemetryManager.log("GetSimilarSoundWords - word " + word);
 
 		Jedis jedis = getRedisConncetion();
 		String Arpabets = getArpabets(word);
@@ -333,7 +333,7 @@ public class WordCacheUtil {
 		} finally {
 			returnConnection(jedis);
 		}
-		PlatformLogger.log("GetSimilarSoundWords - similarSoundWords size " + similarSoundWords.size());
+		TelemetryManager.log("GetSimilarSoundWords - similarSoundWords size " + similarSoundWords.size());
 
 		return similarSoundWords;
 	}

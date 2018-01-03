@@ -68,7 +68,7 @@ import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
 import akka.actor.ActorRef;
@@ -160,7 +160,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unused")
 	@Override
 	public Response upload(String contentId, String taxonomyId, File uploadedFile, String mimeType) {
-		PlatformLogger.log("Graph ID: " + taxonomyId + "Content ID: "+contentId);
+		TelemetryManager.log("Graph ID: " + taxonomyId + "Content ID: "+contentId);
 	
 		
 		
@@ -176,7 +176,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null == uploadedFile)
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 						"Upload file is blank.");
-			PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
+			TelemetryManager.log("Uploaded File: ", uploadedFile.getAbsolutePath());
 			
 			if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
@@ -192,8 +192,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				updateMimeType = true;
 			}
 
-			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-			PlatformLogger.log(
+			TelemetryManager.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			TelemetryManager.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
@@ -213,7 +213,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		} catch (Exception e) {
 			String message = "Something went wrong while processing uploaded file.";
-			PlatformLogger.log(message, null, e);
+			TelemetryManager.log(message, null, e);
 			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
 		} finally {
 			if (null != uploadedFile && uploadedFile.exists())
@@ -229,7 +229,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	@Override
 	public Response upload(String contentId, String taxonomyId, String fileUrl, String mimeType) {
-		PlatformLogger
+		TelemetryManager
 				.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:" + fileUrl);
 		boolean updateMimeType = false;
 		try {
@@ -252,7 +252,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				updateMimeType = true;
 			}
 
-			PlatformLogger.log(
+			TelemetryManager.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
@@ -272,7 +272,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		} catch (Exception e) {
 			String message = "Something went wrong while processing uploaded file.";
-			PlatformLogger.log(message, null, e);
+			TelemetryManager.log(message, null, e);
 			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
 		}
 	}
@@ -302,37 +302,37 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response bundle(Request request, String taxonomyId, String version) {
-		PlatformLogger.log("Request Object: ", request);
-		PlatformLogger.log("Graph ID: " + taxonomyId);
-		PlatformLogger.log("Version: " + version);
+		TelemetryManager.log("Request Object: ", request);
+		TelemetryManager.log("Graph ID: " + taxonomyId);
+		TelemetryManager.log("Version: " + version);
 
 		String bundleFileName = (String) request.get("file_name");
 		List<String> contentIds = (List<String>) request.get("content_identifiers");
-		PlatformLogger.log("Bundle File Name: " + bundleFileName);
-		PlatformLogger.log("Total No. of Contents: ", contentIds.size());
+		TelemetryManager.log("Bundle File Name: " + bundleFileName);
+		TelemetryManager.log("Total No. of Contents: ", contentIds.size());
 		if (contentIds.size() > 1 && StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
 					"ECAR file name should not be blank");
 
-		PlatformLogger.log("Fetching all the Nodes.");
+		TelemetryManager.log("Fetching all the Nodes.");
 		Response response = searchNodes(taxonomyId, contentIds);
 		Response listRes = copyResponse(response);
 		if (checkError(response)) {
-			PlatformLogger.log("Erroneous Response.");
+			TelemetryManager.log("Erroneous Response.");
 			return response;
 		} else {
 			List<Object> list = (List<Object>) response.get(ContentAPIParams.contents.name());
 			List<Node> nodes = new ArrayList<Node>();
 			List<Node> imageNodes = new ArrayList<Node>();
 			if (null != list && !list.isEmpty()) {
-				PlatformLogger.log("Iterating Over the List.");
+				TelemetryManager.log("Iterating Over the List.");
 				for (Object obj : list) {
 					List<Node> nodelist = (List<Node>) obj;
 					if (null != nodelist && !nodelist.isEmpty())
 						nodes.addAll(nodelist);
 				}
 
-				PlatformLogger.log("Validating the Input Nodes.");
+				TelemetryManager.log("Validating the Input Nodes.");
 				validateInputNodesForBundling(nodes);
 
 				for (Node node : nodes) {
@@ -344,7 +344,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					String body = getContentBody(node.getIdentifier());
 					node.getMetadata().put(ContentAPIParams.body.name(), body);
 					imageNodes.add(node);
-					PlatformLogger.log("Body fetched from content store");
+					TelemetryManager.log("Body fetched from content store");
 				}
 				if (imageNodes.size() == 1 && StringUtils.isBlank(bundleFileName))
 					bundleFileName = (String) imageNodes.get(0).getMetadata().get(ContentAPIParams.name.name()) + "_"
@@ -352,9 +352,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 			bundleFileName = Slug.makeSlug(bundleFileName, true);
 			String fileName = bundleFileName + ".ecar";
-			PlatformLogger.log("Bundle File Name: " + bundleFileName);
+			TelemetryManager.log("Bundle File Name: " + bundleFileName);
 
-			PlatformLogger.log("Preparing the Parameter Map for 'Bundle' Pipeline.");
+			TelemetryManager.log("Preparing the Parameter Map for 'Bundle' Pipeline.");
 			InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(ContentAPIParams.nodes.name(), imageNodes);
@@ -362,10 +362,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
 			parameterMap.put(ContentAPIParams.manifestVersion.name(), DEFAULT_CONTENT_MANIFEST_VERSION);
 
-			PlatformLogger.log("Calling Content Workflow 'Bundle' Pipeline.");
+			TelemetryManager.log("Calling Content Workflow 'Bundle' Pipeline.");
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
 
-			PlatformLogger.log("Returning Response.");
+			TelemetryManager.log("Returning Response.");
 			return listRes;
 		}
 	}
@@ -412,8 +412,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.lang.String)
 	 */
 	public Response optimize(String taxonomyId, String contentId) {
-		PlatformLogger.log("Graph ID: " + taxonomyId);
-		PlatformLogger.log("Content ID: " + contentId);
+		TelemetryManager.log("Graph ID: " + taxonomyId);
+		TelemetryManager.log("Content ID: " + contentId);
 
 		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
@@ -422,20 +422,20 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
 		Node node = getNodeForOperation(taxonomyId, contentId, "optimize");
-		PlatformLogger.log("Got Node: ", node);
+		TelemetryManager.log("Got Node: ", node);
 
 		isNodeUnderProcessing(node, "Optimize");
 
-		PlatformLogger.log("Given Content is not in Processing Status.");
+		TelemetryManager.log("Given Content is not in Processing Status.");
 
 		String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
-		PlatformLogger.log("Content Status: " + status);
+		TelemetryManager.log("Content Status: " + status);
 		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status) || !StringUtils.equalsIgnoreCase(ContentAPIParams.Unlisted.name(), status))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
 					"UnPublished content cannot be optimized");
 
 		String downloadUrl = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
-		PlatformLogger.log("Download Url: " + downloadUrl);
+		TelemetryManager.log("Download Url: " + downloadUrl);
 		if (StringUtils.isBlank(downloadUrl))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
 					"ECAR file not available for content");
@@ -445,7 +445,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					"Content package is not an ECAR file");
 
 		String optStatus = (String) node.getMetadata().get(ContentAPIParams.optStatus.name());
-		PlatformLogger.log("Optimization Process Status: " + optStatus);
+		TelemetryManager.log("Optimization Process Status: " + optStatus);
 		if (StringUtils.equalsIgnoreCase(ContentAPIParams.Processing.name(), optStatus))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
 					"Content optimization is in progress. Please try after the current optimization is complete");
@@ -454,23 +454,23 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		updateDataNode(node);
 		Optimizr optimizr = new Optimizr();
 		try {
-			PlatformLogger.log("Invoking the Optimizer For Content Id: " + contentId);
+			TelemetryManager.log("Invoking the Optimizer For Content Id: " + contentId);
 			File minEcar = optimizr.optimizeECAR(downloadUrl);
-			PlatformLogger.log("Optimized File: " + minEcar.getName() + " | [Content Id: " + contentId + "]");
+			TelemetryManager.log("Optimized File: " + minEcar.getName() + " | [Content Id: " + contentId + "]");
 
 			String folder = getFolderName(downloadUrl);
-			PlatformLogger.log("Folder Name: " + folder + " | [Content Id: " + contentId + "]");
+			TelemetryManager.log("Folder Name: " + folder + " | [Content Id: " + contentId + "]");
 
 			String[] arr = AWSUploader.uploadFile(folder, minEcar);
 			response.put("url", arr[1]);
-			PlatformLogger.log("URL: " + arr[1] + " | [Content Id: " + contentId + "]");
+			TelemetryManager.log("URL: " + arr[1] + " | [Content Id: " + contentId + "]");
 
-			PlatformLogger.log("Updating the Optimization Status. | [Content Id: " + contentId + "]");
+			TelemetryManager.log("Updating the Optimization Status. | [Content Id: " + contentId + "]");
 			node.getMetadata().put(ContentAPIParams.optStatus.name(), "Complete");
 			updateDataNode(node);
-			PlatformLogger.log("Node Updated. | [Content Id: " + contentId + "]");
+			TelemetryManager.log("Node Updated. | [Content Id: " + contentId + "]");
 
-			PlatformLogger.log("Directory Cleanup. | [Content Id: " + contentId + "]");
+			TelemetryManager.log("Directory Cleanup. | [Content Id: " + contentId + "]");
 			FileUtils.deleteDirectory(minEcar.getParentFile());
 		} catch (Exception e) {
 			node.getMetadata().put(ContentAPIParams.optStatus.name(), "Error");
@@ -514,7 +514,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return the response
 	 */
 	private Response updateDataNode(Node node) {
-		PlatformLogger.log("[updateNode] | Node: ", node);
+		TelemetryManager.log("[updateNode] | Node: ", node);
 		Response response = new Response();
 		if (null != node) {
 			String contentId = node.getIdentifier();
@@ -525,16 +525,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				node.setIdentifier(node.getIdentifier() + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
 			}
 
-			PlatformLogger.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
+			TelemetryManager.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
 			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
-			PlatformLogger.log("Updating the Node ID: " + node.getIdentifier());
+			TelemetryManager.log("Updating the Node ID: " + node.getIdentifier());
 			response = getResponse(updateReq);
 
 			response.put(TaxonomyAPIParams.node_id.name(), contentId);
-			PlatformLogger.log("Returning Node Update Response.");
+			TelemetryManager.log("Returning Node Update Response.");
 		}
 		return response;
 	}
@@ -546,7 +546,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.lang.String)
 	 */
 	public Response publish(String taxonomyId, String contentId, Map<String, Object> requestMap) {
-		PlatformLogger.log("Graph ID: " + taxonomyId + " | Content ID: " + contentId);
+		TelemetryManager.log("Graph ID: " + taxonomyId + " | Content ID: " + contentId);
 
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
@@ -556,11 +556,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Response response = new Response();
 
 		Node node = getNodeForOperation(taxonomyId, contentId, "publish");
-		PlatformLogger.log("Got Node: ", node);
+		TelemetryManager.log("Got Node: ", node);
 
 		isNodeUnderProcessing(node, "Publish");
 
-		PlatformLogger.log("Given Content is not in Processing Status.");
+		TelemetryManager.log("Given Content is not in Processing Status.");
 
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
@@ -568,7 +568,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			node.getMetadata().putAll(requestMap);
 		}
 		if (StringUtils.isNotBlank(publisher)) {
-			PlatformLogger.log("LastPublishedBy: " + publisher);
+			TelemetryManager.log("LastPublishedBy: " + publisher);
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), publisher);
 		} else {
 			node.getMetadata().put("lastPublishedBy", null);
@@ -586,11 +586,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					"Error occured during content publish");
 		}
 
-		PlatformLogger.log("Returning 'Response' Object.");
+		TelemetryManager.log("Returning 'Response' Object.");
 		if (StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")) {
 			String identifier = (String) response.getResult().get("node_id");
 			String new_identifier = identifier.replace(".img", "");
-			PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
+			TelemetryManager.log("replacing image id with content id in response" + identifier + new_identifier);
 			response.getResult().replace("node_id", identifier, new_identifier);
 		}
 		return response;
@@ -598,11 +598,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	@Override
 	public Response review(String taxonomyId, String contentId, Request request) {
-		PlatformLogger.log("Graph Id: ", taxonomyId);
-		PlatformLogger.log("Content Id: ", contentId);
-		PlatformLogger.log("Request: ", request);
+		TelemetryManager.log("Graph Id: ", taxonomyId);
+		TelemetryManager.log("Content Id: ", contentId);
+		TelemetryManager.log("Request: ", request);
 
-		PlatformLogger.log("Validating The Input Parameter.");
+		TelemetryManager.log("Validating The Input Parameter.");
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
@@ -611,42 +611,42 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Response response = new Response();
 
 		Node node = getNodeForOperation(taxonomyId, contentId, "review");
-		PlatformLogger.log("Node: ", node);
+		TelemetryManager.log("Node: ", node);
 
 		isNodeUnderProcessing(node, "Review");
 
-		PlatformLogger.log("Given Content is not in Processing Status.");
+		TelemetryManager.log("Given Content is not in Processing Status.");
 
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
-		PlatformLogger.log("Body Fetched From Content Store.");
+		TelemetryManager.log("Body Fetched From Content Store.");
 
-		PlatformLogger.log("Putting the last Submitted On TimeStamp.");
+		TelemetryManager.log("Putting the last Submitted On TimeStamp.");
 		node.getMetadata().put(TaxonomyAPIParams.lastSubmittedOn.name(), DateUtils.formatCurrentDate());
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		if (StringUtils.isBlank(mimeType)) {
 			mimeType = "assets";
 		}
-		PlatformLogger.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
+		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 
-		PlatformLogger.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
+		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		String contentType = (String) node.getMetadata().get("contentType");
 		IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 
 		response = mimeTypeManager.review(contentId, node, false);
 
-		PlatformLogger.log("Returning 'Response' Object: ", response);
+		TelemetryManager.log("Returning 'Response' Object: ", response);
 		return response;
 	}
 
 	@Override
 	public Response getHierarchy(String graphId, String contentId, String mode) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Content Id: ", contentId);
+		TelemetryManager.log("Graph Id: ", graphId);
+		TelemetryManager.log("Content Id: ", contentId);
 		Node node = getContentNode(graphId, contentId, mode);
 
-		PlatformLogger.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
+		TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
 		Map<String, Object> map = getContentHierarchyRecursive(graphId, node, definition, mode);
 		Map<String, Object> dataMap = contentCleanUp(map);
@@ -698,10 +698,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
 		if (map.containsKey(TaxonomyAPIParams.identifier.name())) {
 			String identifier = (String) map.get(TaxonomyAPIParams.identifier.name());
-			PlatformLogger.log("Checking if identifier ends with .img" + identifier);
+			TelemetryManager.log("Checking if identifier ends with .img" + identifier);
 			if (StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
 				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
-				PlatformLogger.log("replacing image id with content id in response " + identifier + newIdentifier);
+				TelemetryManager.log("replacing image id with content id in response " + identifier + newIdentifier);
 				map.replace(TaxonomyAPIParams.identifier.name(), identifier, newIdentifier);
 			}
 		}
@@ -715,7 +715,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Response responseNode = getDataNode(graphId, contentImageId);
 			if (!checkError(responseNode)) {
 				Node content = (Node) responseNode.get(GraphDACParams.node.name());
-				PlatformLogger.log("Got draft version of node: ", content);
+				TelemetryManager.log("Got draft version of node: ", content);
 				return content;
 			}
 		}
@@ -725,7 +725,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					"Content not found with id: " + contentId);
 
 		Node content = (Node) responseNode.get(GraphDACParams.node.name());
-		PlatformLogger.log("Got Node: ", content);
+		TelemetryManager.log("Got Node: ", content);
 		return content;
 	}
 
@@ -796,14 +796,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				Response response = (Response) obj;
-				PlatformLogger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
+				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
 						+ " | Result: " + response.getResult().keySet());
 				return response;
 			} else {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Something went wrong", e.getMessage(), e);
+			TelemetryManager.log("Error! Something went wrong", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
@@ -816,19 +816,19 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	private Node getNodeForOperation(String taxonomyId, String contentId, String operation) {
-		PlatformLogger.log("Taxonomy Id: " + taxonomyId + " | Content Id: " + contentId);
+		TelemetryManager.log("Taxonomy Id: " + taxonomyId + " | Content Id: " + contentId);
 		Node node = new Node();
 
-		PlatformLogger.log("Fetching the Content Node. | [Content ID: " + contentId + "]");
+		TelemetryManager.log("Fetching the Content Node. | [Content ID: " + contentId + "]");
 		String contentImageId = getContentImageIdentifier(contentId);
 		Response response = getDataNode(taxonomyId, contentImageId);
 		if (checkError(response)) {
-			PlatformLogger.log("Unable to Fetch Content Image Node for Content Id: " + contentId);
+			TelemetryManager.log("Unable to Fetch Content Image Node for Content Id: " + contentId);
 
-			PlatformLogger.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
+			TelemetryManager.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
 			response = getDataNode(taxonomyId, contentId);
 
-			PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
 			if (checkError(response))
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
@@ -845,7 +845,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
 									+ "' does not Exist.]");
 
-				PlatformLogger.log("Fetched Content Node: ", node);
+				TelemetryManager.log("Fetched Content Node: ", node);
 				String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 				if (StringUtils.isNotBlank(status)
 						&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
@@ -856,17 +856,17 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else {
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
-			PlatformLogger.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
+			TelemetryManager.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
 		}
 
-		PlatformLogger.log("Returning the Node for Operation with Identifier: " + node.getIdentifier());
+		TelemetryManager.log("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
 	}
 
 	private Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
-		PlatformLogger.log("Taxonomy Id: " + taxonomyId);
-		PlatformLogger.log("Content Id: " + contentImageId);
-		PlatformLogger.log("Node: ", node);
+		TelemetryManager.log("Taxonomy Id: " + taxonomyId);
+		TelemetryManager.log("Content Id: " + contentImageId);
+		TelemetryManager.log("Node: ", node);
 
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
 		imageNode.setGraphId(taxonomyId);
@@ -883,18 +883,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 							+ "]");
 		Response resp = getDataNode(taxonomyId, contentImageId);
 		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
-		PlatformLogger.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
+		TelemetryManager.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
 		return nodeData;
 	}
 
 	private Response createDataNode(Node node) {
-		PlatformLogger.log("Node :", node);
+		TelemetryManager.log("Node :", node);
 		Response response = new Response();
 		if (null != node) {
 			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
 			request.put(GraphDACParams.node.name(), node);
 
-			PlatformLogger.log("Creating the Node ID: " + node.getIdentifier());
+			TelemetryManager.log("Creating the Node ID: " + node.getIdentifier());
 			response = getResponse(request);
 		}
 		return response;
@@ -1012,15 +1012,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		Response getNodeResponse = getDataNode(GRAPH_ID, contentImageId);
 		if (checkError(getNodeResponse)) {
-			PlatformLogger.log("Content image not found: " + contentImageId);
+			TelemetryManager.log("Content image not found: " + contentImageId);
 			isImageObjectCreationNeeded = true;
 			getNodeResponse = getDataNode(GRAPH_ID, contentId);
-			PlatformLogger.log("Content node response: " + getNodeResponse);
+			TelemetryManager.log("Content node response: " + getNodeResponse);
 		} else
 			imageObjectExists = true;
 
 		if (checkError(getNodeResponse)) {
-			PlatformLogger.log("Content not found: " + contentId);
+			TelemetryManager.log("Content not found: " + contentId);
 			return getNodeResponse;
 		}
 
@@ -1038,7 +1038,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
-		PlatformLogger.log("Graph node found: " + graphNode.getIdentifier());
+		TelemetryManager.log("Graph node found: " + graphNode.getIdentifier());
 		Map<String, Object> metadata = graphNode.getMetadata();
 		String status = (String) metadata.get("status");
 		boolean isReviewState = StringUtils.equalsIgnoreCase("Review", status);
@@ -1066,11 +1066,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				if (null != lastUpdatedBy)
 					metadata.put("lastUpdatedBy", lastUpdatedBy);
 				graphNode.setGraphId(GRAPH_ID);
-				PlatformLogger.log("Creating content image: " + graphNode.getIdentifier());
+				TelemetryManager.log("Creating content image: " + graphNode.getIdentifier());
 				createResponse = createDataNode(graphNode);
 				checkError = checkError(createResponse);
 				if (!checkError) {
-					PlatformLogger.log("Updating external props for: " + contentImageId);
+					TelemetryManager.log("Updating external props for: " + contentImageId);
 					Response bodyResponse = getContentProperties(contentId, externalPropsList);
 					checkError = checkError(bodyResponse);
 					if (!checkError) {
@@ -1092,7 +1092,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		if (checkError)
 			return createResponse;
-		PlatformLogger.log("Updating content node: " + contentId);
+		TelemetryManager.log("Updating content node: " + contentId);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 		domainObj.setGraphId(GRAPH_ID);
 		domainObj.setIdentifier(contentId);
@@ -1130,13 +1130,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String graphId, String contentId, String mode, List<String> fields) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Content Id: ", contentId);
+		TelemetryManager.log("Graph Id: ", graphId);
+		TelemetryManager.log("Content Id: ", contentId);
 		Response response = new Response();
 
 		Node node = getContentNode(graphId, contentId, mode);
 
-		PlatformLogger.log("Fetching the Data For Content Id: " + node.getIdentifier());
+		TelemetryManager.log("Fetching the Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
 		List<String> externalPropsList = getExternalPropsList(definition);
 		if (null == fields)
@@ -1264,7 +1264,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
 				Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
 				request.put(GraphDACParams.nodes.name(), nodes);
-				PlatformLogger.log("Sending bulk update request | Total nodes: " + nodes.size());
+				TelemetryManager.log("Sending bulk update request | Total nodes: " + nodes.size());
 				Response response = getResponse(request);
 				if (StringUtils.isNotBlank(rootNodeId)) {
 					if (StringUtils.endsWithIgnoreCase(rootNodeId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
@@ -1376,7 +1376,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		else {
 			response = getDataNode(taxonomyId, contentId);
 
-			PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
 			if (checkError(response)) {
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");

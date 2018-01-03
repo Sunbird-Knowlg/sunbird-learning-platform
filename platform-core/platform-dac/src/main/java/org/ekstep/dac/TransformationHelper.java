@@ -1,6 +1,6 @@
 package org.ekstep.dac;
 
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.modelmapper.ModelMapper;
 
 
@@ -59,7 +59,7 @@ public class TransformationHelper {
         try {
             modelMapper.createTypeMap(source, destination);
         } catch (Exception ex) {
-            PlatformLogger.log("Failed to register type map", ex);
+            TelemetryManager.log("Failed to register type map", ex);
         }
     }
 }

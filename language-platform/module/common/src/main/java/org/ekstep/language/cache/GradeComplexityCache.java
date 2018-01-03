@@ -18,8 +18,8 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.mgr.BaseManager;
 
 /**
@@ -105,7 +105,7 @@ public class GradeComplexityCache extends BaseManager {
 	 */
 	@SuppressWarnings("unchecked")
 	public void loadGradeLevelComplexity(String languageId) {
-		PlatformLogger.log("loadGradeLevelComplexity for the language" + languageId);
+		TelemetryManager.log("loadGradeLevelComplexity for the language" + languageId);
 		SearchCriteria sc = new SearchCriteria();
 		sc.setObjectType("GradeLevelComplexity");
 		sc.addMetadata(MetadataCriterion.create(
@@ -124,9 +124,9 @@ public class GradeComplexityCache extends BaseManager {
 				gradeComplexitySortedCacheMap.put(languageId, sortedGradeComplexityMap);
 				gradeComplexityMatrixMap.put(languageId, gradeComplexityMatrix);
 			}
-			PlatformLogger.log("completed loadGradeLevelComplexity with " + nodes.size() + " nodes for the language" + languageId);
+			TelemetryManager.log("completed loadGradeLevelComplexity with " + nodes.size() + " nodes for the language" + languageId);
 		} else {
-			PlatformLogger.log("error in getting GradeLevelComplexity nodes from graph, message: ", getErrorMessage(searchRes), Level.WARN.name());
+			TelemetryManager.log("error in getting GradeLevelComplexity nodes from graph, message: ", getErrorMessage(searchRes), Level.WARN.name());
 		}
 
 	}
@@ -141,7 +141,7 @@ public class GradeComplexityCache extends BaseManager {
 	 *            the node id
 	 */
 	public void loadGradeLevelComplexity(String languageId, String node_id) {
-		PlatformLogger.log("loadGradeLevelComplexity for the language: " + languageId + " and node_id: " + node_id);
+		TelemetryManager.log("loadGradeLevelComplexity for the language: " + languageId + " and node_id: " + node_id);
 		Request request = getRequest(languageGraphName, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		request.put(GraphDACParams.node_id.name(), node_id);
 		request.put(GraphDACParams.get_tags.name(), true);
@@ -173,10 +173,10 @@ public class GradeComplexityCache extends BaseManager {
 			loadGradeLevelComplexityIntoCache(gradeLevelComplexity, sortedGradeComplexityMap, gradeComplexityMatrix);
 			gradeComplexitySortedCacheMap.put(languageId, sortedGradeComplexityMap);
 			gradeComplexityMatrixMap.put(languageId, gradeComplexityMatrix);
-			PlatformLogger.log(
+			TelemetryManager.log(
 					"completed loadGradeLevelComplexity for the language: " + languageId + " and node_id: " + node_id);
 		}else {
-			PlatformLogger.log(
+			TelemetryManager.log(
 					"error in getting GradeLevelComplexity node("+node_id+") from graph, message: " , getErrorMessage(findRes), Level.WARN.name());
 		}
 
@@ -193,7 +193,7 @@ public class GradeComplexityCache extends BaseManager {
 	 * @return the suitable grades
 	 */
 	public List<Node> getSuitableGrades(String languageId, Double complexity) {
-		PlatformLogger.log("getSuitableGrades for the language: " + languageId + " and complexity: " + complexity);
+		TelemetryManager.log("getSuitableGrades for the language: " + languageId + " and complexity: " + complexity);
 		TreeMap<Double, List<Node>> sortedGradeComplexityMap = (TreeMap<Double, List<Node>>) gradeComplexitySortedCacheMap
 				.get(languageId);
 		if (sortedGradeComplexityMap == null) {
@@ -221,7 +221,7 @@ public class GradeComplexityCache extends BaseManager {
 	 * @return the grade level complexity
 	 */
 	public List<Node> getGradeLevelComplexity(String languageId) {
-		PlatformLogger.log("getGradeLevelComplexity for the language: " + languageId);
+		TelemetryManager.log("getGradeLevelComplexity for the language: " + languageId);
 		TreeMap<Double, List<Node>> sortedGradeComplexityMap = (TreeMap<Double, List<Node>>) gradeComplexitySortedCacheMap
 				.get(languageId);
 		if (sortedGradeComplexityMap == null) {
@@ -254,7 +254,7 @@ public class GradeComplexityCache extends BaseManager {
 	 * @return the grade level complexity
 	 */
 	public Double getGradeLevelComplexity(String languageId, String gradeLevel, String languageLevel) {
-		PlatformLogger.log("getGradeLevelComplexity for the language: " + languageId +", gradeLevel: "+ gradeLevel+", languageLevel: "+languageLevel);
+		TelemetryManager.log("getGradeLevelComplexity for the language: " + languageId +", gradeLevel: "+ gradeLevel+", languageLevel: "+languageLevel);
 		Map<String, Map<String, Node>> matirx = gradeComplexityMatrixMap.get(languageId);
 		if (matirx != null) {
 			Map<String, Node> gradeLevelComplexityMap = matirx.get(gradeLevel);

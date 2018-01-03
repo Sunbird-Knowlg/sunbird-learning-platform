@@ -13,7 +13,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
 import org.ekstep.graph.model.node.RelationDefinition;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.dto.NodeDTO;
 
 public class ConvertGraphNode {
@@ -30,7 +30,7 @@ public class ConvertGraphNode {
                         if (fieldList.contains(entry.getKey()))
                         	if (jsonProps.contains(entry.getKey().toLowerCase())) {
                         		Object val = JSONUtils.convertJSONString((String) entry.getValue());
-                        		PlatformLogger.log("JSON Property " + entry.getKey() + " converted value is " + val);
+                        		TelemetryManager.log("JSON Property " + entry.getKey() + " converted value is " + val);
                                 if (null != val)
                                 	map.put(entry.getKey(), val);
                         	} else 
@@ -43,7 +43,7 @@ public class ConvertGraphNode {
                             key = new String(c);
                             if (jsonProps.contains(key.toLowerCase())) {
                             	Object val = JSONUtils.convertJSONString((String) entry.getValue());
-                            	PlatformLogger.log("JSON Property " + key + " converted value is " + val);
+                            	TelemetryManager.log("JSON Property " + key + " converted value is " + val);
                                 if (null != val)
                                 	map.put(key, val);
                             } else
@@ -179,7 +179,7 @@ public class ConvertGraphNode {
                 }
             }
         }
-        PlatformLogger.log("JSON properties: " , props);
+        TelemetryManager.log("JSON properties: " , props);
         return props;
     }
     

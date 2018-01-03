@@ -15,7 +15,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class EmbedControllerProcessor.
@@ -81,12 +81,12 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 				if (null != controllers) {
 					for (Controller controller : controllers) {
 						if (StringUtils.isBlank(controller.getcData())) {
-							PlatformLogger.log("There is No Existing In-Line Controller.");
+							TelemetryManager.log("There is No Existing In-Line Controller.");
 							Map<String, Object> data = controller.getData();
 							if (null != data) {
 								String id = (String) data.get(ContentWorkflowPipelineParams.id.name());
 								String type = (String) data.get(ContentWorkflowPipelineParams.type.name());
-								PlatformLogger.log("Controller Id: " + id + " | type: " + type);
+								TelemetryManager.log("Controller Id: " + id + " | type: " + type);
 								if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(type)) {
 									File file = null;
 									if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), type))
@@ -98,7 +98,7 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 												basePath + File.separator + ContentWorkflowPipelineParams.data.name()
 														+ File.separator + id + ".json");
 									if (null != file && file.exists()) {
-										PlatformLogger.log("Reading Controller File: " + file.getPath());
+										TelemetryManager.log("Reading Controller File: " + file.getPath());
 										controller.setcData(FileUtils.readFileToString(file));
 									}
 								}

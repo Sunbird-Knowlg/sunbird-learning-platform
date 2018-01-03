@@ -9,7 +9,7 @@ import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.importer.ImportDictionary;
 import org.ekstep.language.models.DictionaryObject;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 
@@ -19,7 +19,7 @@ public class ImportActor extends LanguageBaseActor {
 
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		PlatformLogger.log("Received Command: " , msg);
+		TelemetryManager.log("Received Command: " , msg);
 		if (msg instanceof Request) {
 			Request request = (Request) msg;
 			String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
@@ -33,14 +33,14 @@ public class ImportActor extends LanguageBaseActor {
 						OK(LanguageParams.dictionary.name(), dictionaryObject, getSender());
 					}
 				} else {
-					PlatformLogger.log("Unsupported operation: " , operation);
+					TelemetryManager.log("Unsupported operation: " , operation);
 					unhandled(msg);
 				}
 			} catch (Exception e) {
 				handleException(e, getSender());
 			}
 		} else {
-			PlatformLogger.log("Unsupported operation!");
+			TelemetryManager.log("Unsupported operation!");
 			unhandled(msg);
 		}
 

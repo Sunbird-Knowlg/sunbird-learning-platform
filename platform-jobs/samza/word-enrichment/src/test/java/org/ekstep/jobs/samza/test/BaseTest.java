@@ -20,7 +20,7 @@ import org.ekstep.graph.enums.ImportType;
 import org.ekstep.graph.importer.InputStreamValue;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.ControllerUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -117,10 +117,10 @@ abstract public class BaseTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				graph_id);
 		request.put(GraphEngineParams.input_stream.name(), contentString);
-		PlatformLogger.log("List | Request: " , request);
+		TelemetryManager.log("List | Request: " , request);
 		Response response = util.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " ,response);
+		TelemetryManager.log("List | Response: " ,response);
 		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
@@ -134,10 +134,10 @@ abstract public class BaseTest {
 					graph_id);
 			request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 			request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(stream));
-			PlatformLogger.log("List | Request: " , request);
+			TelemetryManager.log("List | Request: " , request);
 			Response response = util.getResponse(
 					request);
-			PlatformLogger.log("List | Response: " ,response);
+			TelemetryManager.log("List | Response: " ,response);
 			
 			Assert.assertEquals("successful", response.getParams().getStatus());
 			
@@ -171,10 +171,10 @@ abstract public class BaseTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				graphId);
 		request.put(GraphDACParams.node_id.name(), wordId);
-		PlatformLogger.log("List | Request: " , request);
+		TelemetryManager.log("List | Request: " , request);
 		Response response = util.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " ,response);
+		TelemetryManager.log("List | Response: " ,response);
 		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		return (Node) response.get(GraphDACParams.node.name());
@@ -245,7 +245,7 @@ abstract public class BaseTest {
 					graphId);
 			Response resp = util.getResponse(
 					request);
-			PlatformLogger.log("List | Response: " ,resp);
+			TelemetryManager.log("List | Response: " ,resp);
 			
 			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());

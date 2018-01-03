@@ -24,7 +24,7 @@ import org.ekstep.language.enums.Enums.ObjectType;
 import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class ImportDictionary {
 
@@ -191,7 +191,7 @@ public class ImportDictionary {
 				if (null != reader)
 					reader.close();
 			} catch (IOException e) {
-				PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+				TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 			}
 		}
 
@@ -299,11 +299,11 @@ public class ImportDictionary {
 			}
 			bw.flush();
 		} catch (UnsupportedEncodingException e) {
-			PlatformLogger.log("Error! Unsupported File Encoding.", e.getMessage(), e);
+			TelemetryManager.log("Error! Unsupported File Encoding.", e.getMessage(), e);
 		} catch (FileNotFoundException e) {
-			PlatformLogger.log("Error! File Does not Exist.", e.getMessage(), e);
+			TelemetryManager.log("Error! File Does not Exist.", e.getMessage(), e);
 		} catch (IOException e) {
-			PlatformLogger.log("Error! While Handling the File.", e.getMessage(), e);
+			TelemetryManager.log("Error! While Handling the File.", e.getMessage(), e);
 		}
 	}
 

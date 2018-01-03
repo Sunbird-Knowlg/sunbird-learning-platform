@@ -53,7 +53,7 @@ import org.ekstep.language.models.WordModel;
 import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 /**
@@ -96,7 +96,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			});
 			return list;
 		} catch (Exception e) {
-			PlatformLogger.log("Exception",e.getMessage(), e);
+			TelemetryManager.log("Exception",e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return null;
@@ -118,7 +118,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					});
 			return list;
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return null;
@@ -190,7 +190,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			}
 			asyncUpdate(nodeIDcache.values(), languageId);
 		} catch (Exception ex) {
-			PlatformLogger.log("Exception", ex.getMessage(), ex);
+			TelemetryManager.log("Exception", ex.getMessage(), ex);
 			errorMessages.append(", ").append(ex.getMessage());
 		} finally {
 			File zipFileDirectory = new File(tempFileDwn);
@@ -200,7 +200,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					delete(zipFileDirectory);
 				} catch (IOException e) {
-					PlatformLogger.log("Exception", e.getMessage(), e);
+					TelemetryManager.log("Exception", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -550,13 +550,13 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		if (null == stream)
 			throw new ClientException(LanguageErrorCodes.ERR_SOURCE_EMPTY_INPUT_STREAM.name(),
 					"Source object is emtpy");
-		PlatformLogger.log("Import : " + stream);
+		TelemetryManager.log("Import : " + stream);
 		Request request = getLanguageRequest(languageId, LanguageActorNames.IMPORT_ACTOR.name(),
 				LanguageOperations.transformWordNetData.name());
 		request.put(LanguageParams.format.name(), LanguageParams.CSVInputStream);
 		request.put(LanguageParams.input_stream.name(), stream);
 		request.put(LanguageParams.source_type.name(), LanguageSourceTypeMap.getSourceType(sourceId));
-		PlatformLogger.log("Import | Request: " + request);
+		TelemetryManager.log("Import | Request: " + request);
 		Response importRes = getLanguageResponse(request);
 		return importRes;
 	}
@@ -581,7 +581,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			}
 			controllerUtil.makeLanguageAsyncRequest(request);
 		} catch (IOException e) {
-			PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+			TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 		}
 	}
 
@@ -619,8 +619,8 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Synset object is emtpy");
 		if (null == wordStream)
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Word object is emtpy");
-		PlatformLogger.log("Enrich | Synset : " + synsetStream);
-		PlatformLogger.log("Enrich | Word : " + wordStream);
+		TelemetryManager.log("Enrich | Synset : " + synsetStream);
+		TelemetryManager.log("Enrich | Word : " + wordStream);
 
 		// Indices : Note- Change the value of index if there is change in CSV
 		// File structure
@@ -665,7 +665,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					wordContentBuffer.append(line);
 					wordContentBuffer.append(NEW_LINE);
 				} catch (ArrayIndexOutOfBoundsException e) {
-					PlatformLogger.log("Exception" + e.getMessage(), e);
+					TelemetryManager.log("Exception" + e.getMessage(), e);
 					continue;
 				}
 			}
@@ -701,7 +701,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					synsetContentBuffer.append(line);
 					synsetContentBuffer.append(NEW_LINE);
 				} catch (ArrayIndexOutOfBoundsException e) {
-					PlatformLogger.log("Exception", e.getMessage(), e);
+					TelemetryManager.log("Exception", e.getMessage(), e);
 					continue;
 				}
 			}
@@ -736,7 +736,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			importDataAsync(synsetContent, languageId, taskId);
 			return OK("wordList", wordIdList);
 		} catch (IOException e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 			e.printStackTrace();
 		} finally {
 			line = "";
@@ -744,7 +744,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					br.close();
 				} catch (IOException e) {
-					PlatformLogger.log("Exception", e.getMessage(), e);
+					TelemetryManager.log("Exception", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -752,7 +752,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					reader.close();
 				} catch (IOException e) {
-					PlatformLogger.log("Exception", e.getMessage(), e);
+					TelemetryManager.log("Exception", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -932,7 +932,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 							break;
 						}
 					} catch (Exception e) {
-						PlatformLogger.log("Exception", e.getMessage(), e);
+						TelemetryManager.log("Exception", e.getMessage(), e);
 						e.printStackTrace();
 						continue;
 					}
@@ -984,7 +984,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (null == stream)
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Input Zip object is emtpy");
-		PlatformLogger.log("Import language CSV : " + stream);
+		TelemetryManager.log("Import language CSV : " + stream);
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
 		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 		request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(stream));
@@ -999,7 +999,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					String csv = new String(bos.toByteArray());
 					response.put(LanguageParams.response.name(), csv);
 				} catch (IOException e) {
-					PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+					TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 				}
 			}
 			return response;
@@ -1020,7 +1020,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		if (StringUtils.isBlank(json))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
 					"Definition nodes JSON is empty");
-		PlatformLogger.log("Update Definition : " + languageId);
+		TelemetryManager.log("Update Definition : " + languageId);
 		Request request = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
 		request.put(GraphEngineParams.input_stream.name(), json);
 		return getResponse(request);
@@ -1036,7 +1036,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	public Response findAllDefinitions(String id) {
 		if (StringUtils.isBlank(id))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-		PlatformLogger.log("Get All Definitions : " + id);
+		TelemetryManager.log("Get All Definitions : " + id);
 		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getAllDefinitions");
 		return getResponse(request);
 	}
@@ -1054,7 +1054,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is empty");
-		PlatformLogger.log("Get Definition : " + id + " : Object Type : " + objectType);
+		TelemetryManager.log("Get Definition : " + id + " : Object Type : " + objectType);
 		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinitionFromCache",
 				GraphDACParams.object_type.name(), objectType);
 		return getResponse(request);

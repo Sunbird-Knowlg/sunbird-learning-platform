@@ -18,8 +18,8 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.router.RequestRouterPool;
@@ -55,7 +55,7 @@ public class PublishManager extends BaseManager {
 					+ "' Started Successfully!");
 			if (Platform.config.hasPath("content.publish_task.enabled")) {
 				if (Platform.config.getBoolean("content.publish_task.enabled")) {
-					PlatformLogger.log("Publish task execution starting for content Id: " + contentId, null, Level.INFO.name());
+					TelemetryManager.log("Publish task execution starting for content Id: " + contentId, null, Level.INFO.name());
 					executor.submit(new PublishTask(contentId, parameterMap));
 				}
 			}
@@ -122,12 +122,12 @@ public class PublishManager extends BaseManager {
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				response = (Response) obj;
-				PlatformLogger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() + " | Result: "
+				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() + " | Result: "
 						+ response.getResult().keySet());
 				return response;
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Something went wrong", e.getMessage(), e);
+			TelemetryManager.log("Error! Something went wrong", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 		return response;

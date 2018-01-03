@@ -24,7 +24,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -78,11 +78,11 @@ public abstract class BaseController {
     protected String setMessage(Exception e){
     	Class<? extends Exception> className = e.getClass();
         if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	PlatformLogger.log("Setting error message sent from class " + className , e.getMessage(), e);
+        	TelemetryManager.log("Setting error message sent from class " + className , e.getMessage(), e);
         	return e.getMessage();
         }
         else if(className.getName().startsWith(java)){
-        	PlatformLogger.log("Setting default err msg " + className , e.getMessage(), e);
+        	TelemetryManager.log("Setting default err msg " + className , e.getMessage(), e);
         	return default_err_msg;
         }
         return "";
@@ -268,7 +268,7 @@ public abstract class BaseController {
     		try {
     		list = Arrays.asList(array);
     		} catch (Exception e) {
-				PlatformLogger.log("Error! Something went wrong while converting array to list.", array, e);
+				TelemetryManager.log("Error! Something went wrong while converting array to list.", array, e);
 			}
     	}
     	return list;

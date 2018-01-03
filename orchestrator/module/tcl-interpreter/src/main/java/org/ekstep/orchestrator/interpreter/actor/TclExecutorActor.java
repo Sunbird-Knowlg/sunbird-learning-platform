@@ -27,8 +27,8 @@ import org.ekstep.orchestrator.interpreter.OrchestratorRequest;
 import org.ekstep.orchestrator.interpreter.command.AkkaCommand;
 import org.ekstep.orchestrator.interpreter.command.ScriptCommand;
 import org.ekstep.orchestrator.interpreter.exception.ExecutionErrorCodes;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.UntypedActor;
 import tcl.lang.Command;
@@ -130,7 +130,7 @@ public class TclExecutorActor extends UntypedActor {
 						} catch (MiddlewareException e) {
 							throw e;
 						} catch (Exception e) {
-							PlatformLogger.log("Error initialising command: " , script.getName(), e);
+							TelemetryManager.log("Error initialising command: " , script.getName(), e);
 						}
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));
@@ -220,7 +220,7 @@ public class TclExecutorActor extends UntypedActor {
 			String msg = "";
 			switch (code) {
 			case TCL.ERROR:
-				PlatformLogger.log("tcl interpretation error" , interpreter.getResult().toString(), Level.WARN.name());
+				TelemetryManager.log("tcl interpretation error" , interpreter.getResult().toString(), Level.WARN.name());
 				msg = interpreter.getResult().toString();
 				if(StringUtils.contains(msg, "tcl.lang.TclException") || StringUtils.contains(msg, "java.")){
 					msg = "| Invalid request format |";

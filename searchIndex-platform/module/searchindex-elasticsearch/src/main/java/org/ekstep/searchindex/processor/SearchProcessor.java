@@ -14,7 +14,7 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -45,7 +45,7 @@ public class SearchProcessor {
 				response.put("results", results);
 			}
 		}
-		PlatformLogger.log(response.toString());
+		TelemetryManager.log(response.toString());
 		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
 				.getValue("aggregations");
 		if (aggregations != null && !aggregations.isEmpty()) {
@@ -872,9 +872,9 @@ public class SearchProcessor {
 		Map<String, Object> res_map = new HashMap<String, Object>();
 		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		PlatformLogger.log(" search query: " + query);
+		TelemetryManager.log(" search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
-		PlatformLogger.log("search result from elastic search" + searchResult);
+		TelemetryManager.log("search result from elastic search" + searchResult);
 		Map<String, Object> result_map = (Map) searchResult.getValue("hits");
 		List<Map<String, Object>> result = (List) result_map.get("hits");
 		for (Map<String, Object> map : result) {
@@ -886,7 +886,7 @@ public class SearchProcessor {
 
 			}
 		}
-		PlatformLogger.log("search response size: " + response.size());
+		TelemetryManager.log("search response size: " + response.size());
 		return response;
 	}
 
@@ -904,7 +904,7 @@ public class SearchProcessor {
 			object = Arrays.asList();
 		}
 		}catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 		}
 		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object()
 				.key("query").array();

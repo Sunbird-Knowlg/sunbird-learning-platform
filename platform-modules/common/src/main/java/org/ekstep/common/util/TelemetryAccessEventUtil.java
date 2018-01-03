@@ -9,7 +9,7 @@ import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.telemetry.TelemetryParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -72,7 +72,7 @@ public class TelemetryAccessEventUtil {
 					context.put("uid", request.getParams().getUid());
 				}
 			}
-			PlatformLogger.access(context, params);
+			TelemetryManager.access(context, params);
 		}
 
 	}
@@ -129,7 +129,7 @@ public class TelemetryAccessEventUtil {
 			data.put("X-Authenticated-Userid", requestWrapper.getHeader("X-Authenticated-Userid"));
 			writeTelemetryEventLog(data);
 		} catch (IOException e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 
 		}
 

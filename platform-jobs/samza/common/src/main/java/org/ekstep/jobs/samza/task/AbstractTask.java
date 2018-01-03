@@ -18,8 +18,8 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.handler.Level;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.common.Platform;
 
 public abstract class AbstractTask implements StreamTask, InitableTask, WindowableTask {
@@ -175,7 +175,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	}
 	
 	private String generateEvent(String logLevel, String message, Map<String, Object> data) {
-		String event = PlatformLogger.getBELog(logLevel, message, data, null);
+		String event = TelemetryManager.getBELog(logLevel, message, data, null);
 		return event;
 	}
 

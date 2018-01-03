@@ -22,7 +22,7 @@ import org.ekstep.language.measures.meta.PhonologicVectors;
 import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.DefinitionDTOCache;
 import org.ekstep.language.util.WordUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 
@@ -36,7 +36,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		Request request = (Request) msg;
-		PlatformLogger.log(request.getRequestId() + " | Received Command: " , request);
+		TelemetryManager.log(request.getRequestId() + " | Received Command: " , request);
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {
@@ -107,7 +107,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 				DefinitionDTOCache.syncDefintion(definitionName, languageId);
 				OK(getSender());
 			} else {
-				PlatformLogger.log("Unsupported operation: " + operation);
+				TelemetryManager.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}

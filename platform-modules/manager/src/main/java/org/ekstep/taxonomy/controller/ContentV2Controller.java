@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class ContentV2Controller, is the main entry point for the High Level
@@ -62,13 +62,13 @@ public class ContentV2Controller extends BaseController {
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.info";
-		PlatformLogger.log(
+		TelemetryManager.log(
 				"Executing Content Get API (Java Version) (API Version V2) For Content Id: " + contentId + ".", null,
 				"INFO");
 		Response response;
-		PlatformLogger.log("Content GetById | Content Id : " + contentId);
+		TelemetryManager.log("Content GetById | Content Id : " + contentId);
 		try {
-			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
+			TelemetryManager.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
 			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -81,7 +81,7 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.create";
-		PlatformLogger.log("Executing Content Create API (Java Version) (API Version V2).", requestMap, "INFO");
+		TelemetryManager.log("Executing Content Create API (Java Version) (API Version V2).", requestMap, "INFO");
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
@@ -98,7 +98,7 @@ public class ContentV2Controller extends BaseController {
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.update";
-		PlatformLogger.log(
+		TelemetryManager.log(
 				"Executing Content Update API (Java Version) (API Version V2) For Content Id: " + contentId + ".",
 				requestMap, "INFO");
 		Request request = getRequest(requestMap);
@@ -107,7 +107,7 @@ public class ContentV2Controller extends BaseController {
 			Response response = contentManager.updateContent(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -133,7 +133,7 @@ public class ContentV2Controller extends BaseController {
 			@RequestParam(value = "fileUrl", required = false) String fileUrl,
 			@RequestParam(value = "mimeType", required = false) String mimeType) {
 		String apiId = "ekstep.learning.content.upload";
-		PlatformLogger.log("Upload Content | Content Id: " + contentId);
+		TelemetryManager.log("Upload Content | Content Id: " + contentId);
 		if (StringUtils.isBlank(fileUrl) && null == file) {
 			return getExceptionResponseEntity(
 					new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_RESOURCE.name(),
@@ -143,7 +143,7 @@ public class ContentV2Controller extends BaseController {
 			try {
 				if (StringUtils.isNotBlank(fileUrl)) {
 					Response response = contentManager.upload(contentId, graphId, fileUrl, mimeType);
-					PlatformLogger.log("Upload | Response: ", response.getResponseCode());
+					TelemetryManager.log("Upload | Response: ", response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				} else {
 					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_"
@@ -151,11 +151,11 @@ public class ContentV2Controller extends BaseController {
 					File uploadedFile = new File(name);
 					file.transferTo(uploadedFile);
 					Response response = contentManager.upload(contentId, "domain", uploadedFile, mimeType);
-					PlatformLogger.log("Upload | Response: ", response);
+					TelemetryManager.log("Upload | Response: ", response);
 					return getResponseEntity(response, apiId, null);
 				}
 			} catch (Exception e) {
-				PlatformLogger.log("Upload | Exception: ", e.getMessage(), e);
+				TelemetryManager.log("Upload | Exception: ", e.getMessage(), e);
 				return getExceptionResponseEntity(e, apiId, null);
 			}
 		}
@@ -176,9 +176,9 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.learning.content.publish";
-		PlatformLogger.log("Publish content | Content Id : " + contentId);
+		TelemetryManager.log("Publish content | Content Id : " + contentId);
 		try {
-			PlatformLogger.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
+			TelemetryManager.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
 			Response response = contentManager.publish(graphId, contentId, null);
 
 			return getResponseEntity(response, apiId, null);
@@ -202,9 +202,9 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.learning.content.optimize";
-		PlatformLogger.log("Optimize content | Content Id : " + contentId);
+		TelemetryManager.log("Optimize content | Content Id : " + contentId);
 		try {
-			PlatformLogger.log("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
+			TelemetryManager.log("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
 			Response response = contentManager.optimize(graphId, contentId);
 
 			return getResponseEntity(response, apiId, null);
@@ -231,14 +231,14 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.archive";
-		PlatformLogger.log("Create Content Bundle");
+		TelemetryManager.log("Create Content Bundle");
 		try {
 			Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
 			request.put(ContentAPIParams.version.name(), "v2");
 
-			PlatformLogger.log("Calling the Manager for 'Bundle' Operation");
+			TelemetryManager.log("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
-			PlatformLogger.log("Archive | Response: " + response);
+			TelemetryManager.log("Archive | Response: " + response);
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -259,9 +259,9 @@ public class ContentV2Controller extends BaseController {
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
-		PlatformLogger.log("Content Hierarchy | Content Id : " + contentId);
+		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			PlatformLogger.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
+			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
 			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -275,7 +275,7 @@ public class ContentV2Controller extends BaseController {
 	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.upload.url";
-		PlatformLogger.log("Upload URL content | Content Id : " + contentId);
+		TelemetryManager.log("Upload URL content | Content Id : " + contentId);
 		Response response;
 		try {
 			Request request = getRequest(map);
@@ -311,7 +311,7 @@ public class ContentV2Controller extends BaseController {
 			Response response = contentManager.updateHierarchy(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

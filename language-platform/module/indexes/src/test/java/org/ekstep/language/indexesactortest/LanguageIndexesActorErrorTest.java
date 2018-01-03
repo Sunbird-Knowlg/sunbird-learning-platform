@@ -18,7 +18,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.index.common.BaseLanguageTest;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -90,10 +90,10 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation("rootWordsError");
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -114,10 +114,10 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response;
 		response = LanguageIndexesTestHelper.getBulkOperationResponse(request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -137,10 +137,10 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.wordWildCard.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);

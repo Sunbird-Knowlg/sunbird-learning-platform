@@ -41,7 +41,7 @@ import org.ekstep.assessment.util.AssessmentValidator;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Component
 public class AssessmentManagerImpl extends BaseManager implements IAssessmentManager {
@@ -671,7 +671,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log(
+			TelemetryManager.log(
 					"error in replaceMediaItemsWithLowVariants while checking media for replacing with low variants, message= "
 							, e.getMessage(), e);
 			e.printStackTrace();

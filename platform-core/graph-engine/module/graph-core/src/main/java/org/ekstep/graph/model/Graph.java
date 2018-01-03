@@ -54,7 +54,7 @@ import org.ekstep.graph.reader.GraphReaderFactory;
 import org.ekstep.graph.reader.JsonGraphReader;
 import org.ekstep.graph.writer.GraphWriterFactory;
 import org.ekstep.graph.writer.RDFGraphWriter;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.dispatch.Futures;
 import akka.util.Timeout;
@@ -793,9 +793,9 @@ public class Graph extends AbstractDomainObject {
 					if (null != outputStream)
 						outputStream.close();
 				} catch (IOException e1) {
-					PlatformLogger.log("Error! While Closing the Input Stream.", null, e);
+					TelemetryManager.log("Error! While Closing the Input Stream.", null, e);
 				}
-				PlatformLogger.log("Error! While Reading the Data.", null, e);
+				TelemetryManager.log("Error! While Reading the Data.", null, e);
 			}
 			Response response = new Response();
 			ResponseParams params = new ResponseParams();
@@ -808,7 +808,7 @@ public class Graph extends AbstractDomainObject {
 				if (null != outputStream)
 					outputStream.close();
 			} catch (IOException e) {
-				PlatformLogger.log("Error! While Closing the Input Stream.", null, e);
+				TelemetryManager.log("Error! While Closing the Input Stream.", null, e);
 			}
 
 			manager.returnResponse(Futures.successful(response), getParent());

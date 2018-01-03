@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -71,7 +71,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 
 	public static Properties getAppProperties() {
 		if (applicationContextUtils.appProperties == null) {
-			PlatformLogger.log("loading app.properties at ApplicationContextUtils...");
+			TelemetryManager.log("loading app.properties at ApplicationContextUtils...");
 			ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
 			Properties props = (Properties) appCtx.getBean("appProperties");
 			applicationContextUtils.appProperties = props;

@@ -27,7 +27,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -114,7 +114,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -130,7 +130,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 *            the task id
 	 */
 	public void importNodesFromStreamAsync(String wordContent, String languageId, String taskId) {
-		PlatformLogger.log("importNodesFromStreamAsync | wordContent =" + wordContent + " | languageId =" + languageId
+		TelemetryManager.log("importNodesFromStreamAsync | wordContent =" + wordContent + " | languageId =" + languageId
 			+ " | taskId =" + taskId);
 		try (InputStream in = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8))) {
 			Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
@@ -139,10 +139,10 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			if (taskId != null) {
 				request.put(GraphEngineParams.task_id.name(), taskId);
 			}
-			PlatformLogger.log("making async request to GRAPH_MANAGER | operation = importGraph");
+			TelemetryManager.log("making async request to GRAPH_MANAGER | operation = importGraph");
 			makeAsyncRequest(request);
 		} catch (IOException e) {
-			PlatformLogger.log("Error! While Closing the Input Stream.",e.getMessage(), e);
+			TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(), e);
 		}
 	}
 
@@ -157,7 +157,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -173,7 +173,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 *            the task id
 	 */
 	public void importNodesFromStreamAsync(InputStream in, String languageId, String taskId) {
-		PlatformLogger.log("importNodesFromStreamAsync | InputStream | languageId =" + languageId + " | taskId =" + taskId);
+		TelemetryManager.log("importNodesFromStreamAsync | InputStream | languageId =" + languageId + " | taskId =" + taskId);
 
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
 		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
@@ -182,7 +182,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			request.put(GraphEngineParams.task_id.name(), taskId);
 		}
 
-		PlatformLogger.log("making async request to GRAPH_MANAGER | operation = importGraph");
+		TelemetryManager.log("making async request to GRAPH_MANAGER | operation = importGraph");
 		makeAsyncRequest(request);
 	}
 
@@ -208,7 +208,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @return the string
 	 */
 	public String importNodesFromStream(String wordContent, String languageId) {
-		PlatformLogger.log("importNodesFromStream | wordContent =" + wordContent + " | languageId =" + languageId);
+		TelemetryManager.log("importNodesFromStream | wordContent =" + wordContent + " | languageId =" + languageId);
 		InputStream in = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
 		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
@@ -218,10 +218,10 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			response = getResponse(request);
 			String taskId = (String) response.get(GraphEngineParams.task_id.name());
 
-			PlatformLogger.log("importNodesFromStream complete | response taskId =" + taskId);
+			TelemetryManager.log("importNodesFromStream complete | response taskId =" + taskId);
 			return taskId;
 		} catch (Exception e) {
-			PlatformLogger.log("error in importNodesFromStream , msg" , e.getMessage(), e);
+			TelemetryManager.log("error in importNodesFromStream , msg" , e.getMessage(), e);
 		}
 		return null;
 	}
@@ -234,17 +234,17 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @return the string
 	 */
 	public String createTaskNode(String languageId) {
-		PlatformLogger.log("createTaskNode | languageId =" + languageId);
+		TelemetryManager.log("createTaskNode | languageId =" + languageId);
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createTaskNode");
 		Response response;
 		try {
 			response = getResponse(request);
 			String taskId = (String) response.get(GraphEngineParams.task_id.name());
 
-			PlatformLogger.log("createTaskNode complete | response taskId =" + taskId);
+			TelemetryManager.log("createTaskNode complete | response taskId =" + taskId);
 			return taskId;
 		} catch (Exception e) {
-			PlatformLogger.log("error in createTaskNode" , e.getMessage(), e);
+			TelemetryManager.log("error in createTaskNode" , e.getMessage(), e);
 		}
 		return null;
 	}
@@ -486,7 +486,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 						indexesMap.putAll(map);
 					}
 				}
-				PlatformLogger.log("getIndexInfo complete starts from " + start + " | " + batch + " words");
+				TelemetryManager.log("getIndexInfo complete starts from " + start + " | " + batch + " words");
 				start += 100;
 				batch += 100;
 				if (batch > words.size())
@@ -528,7 +528,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 						wordInfoMap.putAll(map);
 					}
 				}
-				PlatformLogger.log("getWordInfo complete starts from " + start + " | " + batch + " words");
+				TelemetryManager.log("getWordInfo complete starts from " + start + " | " + batch + " words");
 				start += 100;
 				batch += 100;
 				if (batch > words.size())
@@ -548,7 +548,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 *            the language id
 	 */
 	public void importWordsAndSynsets(String wordContent, String synsetContent, String languageId) {
-		PlatformLogger.log("importWordsAndSynsets | wordContent = " + wordContent + " | synsetContent = " + synsetContent
+		TelemetryManager.log("importWordsAndSynsets | wordContent = " + wordContent + " | synsetContent = " + synsetContent
 				+ " | languageId =" + languageId);
 		try (InputStream wordsInputStream = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
 				InputStream synsetsInputStream = new ByteArrayInputStream(
@@ -557,10 +557,10 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 					LanguageOperations.importWordsAndSynsets.name());
 			request.put(LanguageParams.words_input_stream.name(), new InputStreamValue(wordsInputStream));
 			request.put(LanguageParams.synset_input_stream.name(), new InputStreamValue(synsetsInputStream));
-			PlatformLogger.log("making async request to IMPORT_ACTOR operation importWordsAndSynsets");
+			TelemetryManager.log("making async request to IMPORT_ACTOR operation importWordsAndSynsets");
 			makeAsyncRequest(request);
 		} catch (IOException e) {
-			PlatformLogger.log("Error! While Closing the Input Stream.",e.getMessage(),  e);
+			TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(),  e);
 		}
 	}
 

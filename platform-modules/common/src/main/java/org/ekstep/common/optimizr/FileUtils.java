@@ -17,7 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  *
@@ -49,7 +49,7 @@ public class FileUtils {
 
         try {
             // Open the zip file
-        	PlatformLogger.log("extract | file =" + zfile.getName() + " | outputFolder =" + outputFolder);
+        	TelemetryManager.log("extract | file =" + zfile.getName() + " | outputFolder =" + outputFolder);
             ZipFile zipFile = new ZipFile(zfile);
             Enumeration<?> enu = zipFile.entries();
             while (enu.hasMoreElements()) {
@@ -96,7 +96,7 @@ public class FileUtils {
     }
 
     public static void compress(String zipFileName, String dir) throws Exception {
-    	PlatformLogger.log("compress | zipFileName =" + zipFileName + " | dir =" + dir);
+    	TelemetryManager.log("compress | zipFileName =" + zipFileName + " | dir =" + dir);
     	File dirObj = new File(dir);
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName, false));
         System.out.println("Creating : " + zipFileName);

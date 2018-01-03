@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 
 import org.ekstep.orchestrator.dac.model.OrchestratorScript;
 import org.ekstep.orchestrator.interpreter.exception.ExecutionErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public abstract class BaseOrchestratorController {
     
@@ -78,11 +78,11 @@ public abstract class BaseOrchestratorController {
     private String setErrMessage(Exception e) {
     	Class<? extends Throwable> className = e.getClass();
         if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	PlatformLogger.log("Setting error message sent from class " + className , e.getMessage(), e);
+        	TelemetryManager.log("Setting error message sent from class " + className , e.getMessage(), e);
         	return e.getMessage();
         }
         else if(className.getName().startsWith(java)){
-        	PlatformLogger.log("Setting default err msg " + className , e.getMessage(), e);
+        	TelemetryManager.log("Setting default err msg " + className , e.getMessage(), e);
         	return default_err_msg;
         }
 		return null;
