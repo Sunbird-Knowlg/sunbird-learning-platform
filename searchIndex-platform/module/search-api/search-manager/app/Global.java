@@ -58,10 +58,14 @@ public class Global extends GlobalSettings {
 						data.put("Protocol", request.secure() ? "HTTPS" : "HTTP");
 						data.put("Method", request.method());
 						data.put("X-Session-ID", request.getHeader("X-Session-ID"));
-						data.put("X-Consumer-ID", request.getHeader("X-Consumer-ID"));
+						String consumerId = request.getHeader("X-Consumer-ID");
+						data.put("X-Consumer-ID", consumerId);
 						data.put("X-Device-ID", request.getHeader("X-Device-ID"));
 						data.put("X-Authenticated-Userid", request.getHeader("X-Authenticated-Userid"));
+						if (StringUtils.isNotBlank(consumerId))
+							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
 						data.put("env", "search");
+						data.put("path", request.uri());
 						String channelId = request.getHeader("X-Channel-ID");
 						if (StringUtils.isNotBlank(channelId))
 							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
