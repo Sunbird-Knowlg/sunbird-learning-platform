@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Property;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
@@ -17,6 +18,7 @@ import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.GraphDacErrorParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Node;
@@ -44,8 +46,7 @@ public class Neo4JBoltNodeOperations {
 	private static Neo4JBoltAuthorizationValidator authorizationValidator = new Neo4JBoltAuthorizationValidator();
 
 	@SuppressWarnings("unchecked")
-	public static Node upsertNode(String graphId, Node node,
-			Request request) {
+	public static Node upsertNode(String graphId, Node node, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Graph Engine Node: ", node);
 
@@ -86,9 +87,8 @@ public class Neo4JBoltNodeOperations {
 						CypherQueryConfigurationConstants.COMMA);
 				Map<String, Object> statementParameters = (Map<String, Object>) ((Map<String, Object>) entry.getValue())
 						.get(GraphDACParams.paramValueMap.name());
-				try ( Transaction tx = session.beginTransaction() )
-				{
-				//StatementResult result = session.run(statementTemplate, statementParameters);
+				try (Transaction tx = session.beginTransaction()) {
+					// StatementResult result = session.run(statementTemplate, statementParameters);
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					for (Record record : result.list()) {
@@ -114,16 +114,17 @@ public class Neo4JBoltNodeOperations {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
-			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
-					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			if (!(e instanceof MiddlewareException)) {
+				PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
+				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			}
 		}
 		return node;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Node addNode(String graphId, Node node,
-			Request request) {
+	public static Node addNode(String graphId, Node node, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Graph Engine Node: ", node);
 
@@ -158,8 +159,8 @@ public class Neo4JBoltNodeOperations {
 						CypherQueryConfigurationConstants.COMMA);
 				Map<String, Object> statementParameters = (Map<String, Object>) ((Map<String, Object>) entry.getValue())
 						.get(GraphDACParams.paramValueMap.name());
-				try ( Transaction tx = session.beginTransaction() ){
-					//StatementResult result = session.run(statementTemplate, statementParameters);
+				try (Transaction tx = session.beginTransaction()) {
+					// StatementResult result = session.run(statementTemplate, statementParameters);
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					for (Record record : result.list()) {
@@ -184,23 +185,24 @@ public class Neo4JBoltNodeOperations {
 					}
 				} catch (org.neo4j.driver.v1.exceptions.ClientException e) {
 					if (StringUtils.equalsIgnoreCase("Neo.ClientError.Schema.ConstraintValidationFailed", e.code()))
-						throw new ClientException("ConstraintValidationFailed",
+						throw new ClientException(GraphDacErrorParams.CONSTRAINT_VALIDATION_FAILED.name(),
 								"Object already exists with identifier: " + node.getIdentifier());
 					else
 						throw new ServerException(e.code(), e.getMessage());
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
-			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
-					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			if (!(e instanceof MiddlewareException)) {
+				PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
+				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			}
 		}
 		return node;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Node updateNode(String graphId, Node node,
-			Request request) {
+	public static Node updateNode(String graphId, Node node, Request request) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Graph Engine Node: ", node);
 
@@ -242,8 +244,8 @@ public class Neo4JBoltNodeOperations {
 						CypherQueryConfigurationConstants.COMMA);
 				Map<String, Object> statementParameters = (Map<String, Object>) ((Map<String, Object>) entry.getValue())
 						.get(GraphDACParams.paramValueMap.name());
-				try ( Transaction tx = session.beginTransaction() ){
-					//StatementResult result = session.run(statementTemplate, statementParameters);
+				try (Transaction tx = session.beginTransaction()) {
+					// StatementResult result = session.run(statementTemplate, statementParameters);
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					if (null == result || !result.hasNext())
@@ -273,9 +275,11 @@ public class Neo4JBoltNodeOperations {
 			}
 
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
-			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
-					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			if (!(e instanceof MiddlewareException)) {
+				PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
+				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			}
 		}
 		return node;
 	}
@@ -328,8 +332,7 @@ public class Neo4JBoltNodeOperations {
 		node.getMetadata().put(property.getPropertyName(), property.getPropertyValue());
 		node.getMetadata().put(AuditProperties.lastUpdatedOn.name(), date);
 		if (!StringUtils.isBlank(date))
-			node.getMetadata().put(GraphDACParams.versionKey.name(),
-					Long.toString(DateUtils.parse(date).getTime()));
+			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 		updateNode(graphId, node, request);
 		// CHECK - write driver and session created for this - END
 	}
@@ -361,8 +364,7 @@ public class Neo4JBoltNodeOperations {
 		node.getMetadata().putAll(metadata);
 		node.getMetadata().put(AuditProperties.lastUpdatedOn.name(), date);
 		if (!StringUtils.isBlank(date))
-			node.getMetadata().put(GraphDACParams.versionKey.name(),
-					Long.toString(DateUtils.parse(date).getTime()));
+			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 		updateNode(graphId, node, request);
 		// CHECK - write driver and session created for this - END
 	}
@@ -393,8 +395,9 @@ public class Neo4JBoltNodeOperations {
 			parameterMap.put(GraphDACParams.key.name(), key);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			try ( Transaction tx = session.beginTransaction() ){
-				StatementResult result = tx.run(NodeQueryGenerationUtil.generateRemovePropertyValueCypherQuery(parameterMap));
+			try (Transaction tx = session.beginTransaction()) {
+				StatementResult result = tx
+						.run(NodeQueryGenerationUtil.generateRemovePropertyValueCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
 					PlatformLogger.log("Remove Property Value Operation | ", record);
@@ -435,8 +438,9 @@ public class Neo4JBoltNodeOperations {
 			parameterMap.put(GraphDACParams.keys.name(), keys);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			try ( Transaction tx = session.beginTransaction() ) {
-				StatementResult result = tx.run(NodeQueryGenerationUtil.generateRemovePropertyValuesCypherQuery(parameterMap));
+			try (Transaction tx = session.beginTransaction()) {
+				StatementResult result = tx
+						.run(NodeQueryGenerationUtil.generateRemovePropertyValuesCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
 					PlatformLogger.log("Update Property Values Operation | ", record);
@@ -470,8 +474,9 @@ public class Neo4JBoltNodeOperations {
 			parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			try ( Transaction tx = session.beginTransaction() ){
-				//StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_NODE, parameterMap));
+			try (Transaction tx = session.beginTransaction()) {
+				// StatementResult result =
+				// session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_NODE, parameterMap));
 				StatementResult result = tx.run(NodeQueryGenerationUtil.generateDeleteNodeCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
@@ -524,8 +529,9 @@ public class Neo4JBoltNodeOperations {
 			parameterMap.put(GraphDACParams.rootNode.name(), node);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			try ( Transaction tx = session.beginTransaction() ) {
-				StatementResult result = tx.run(NodeQueryGenerationUtil.generateUpsertRootNodeCypherQuery(parameterMap));
+			try (Transaction tx = session.beginTransaction()) {
+				StatementResult result = tx
+						.run(NodeQueryGenerationUtil.generateUpsertRootNodeCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
 					PlatformLogger.log("Upsert Root Node Operation | ", record);
