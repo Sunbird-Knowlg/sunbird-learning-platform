@@ -8,5 +8,5 @@ package org.ekstep.graph.dac.enums;
  *
  */
 public enum GraphDacErrorParams {
-	CONSTRAINT_VALIDATION_FAILED
+	CONSTRAINT_VALIDATION_FAILED;
 }
