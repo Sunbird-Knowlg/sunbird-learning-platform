@@ -1608,8 +1608,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						"Content not found with id: " + contentId);
 			Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
 			resp= updateDialCode(map,definition,contentNode,contentId);
-			if (!checkError(responseNode))
+			if (!checkError(responseNode)){
 				isNodeUpdated=true;
+			}else{
+				isNodeUpdated=false;
+			}
 			
 		}
 		if(isNodeUpdated){
