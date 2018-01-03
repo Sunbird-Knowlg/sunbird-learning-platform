@@ -284,6 +284,8 @@ public class Neo4JBoltNodeOperations {
 				PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			} else {
+				throw e;
 			}
 		}
 		return node;
