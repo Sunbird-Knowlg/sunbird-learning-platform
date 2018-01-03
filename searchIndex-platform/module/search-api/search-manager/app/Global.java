@@ -7,6 +7,10 @@ import org.ekstep.search.router.SearchRequestRouterPool;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Response;
 
 import play.Application;
@@ -57,6 +61,12 @@ public class Global extends GlobalSettings {
 						data.put("X-Consumer-ID", request.getHeader("X-Consumer-ID"));
 						data.put("X-Device-ID", request.getHeader("X-Device-ID"));
 						data.put("X-Authenticated-Userid", request.getHeader("X-Authenticated-Userid"));
+						data.put("env", "search");
+						String channelId = request.getHeader("X-Channel-ID");
+						if (StringUtils.isNotBlank(channelId))
+							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
+						else
+							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
 						TelemetryAccessEventUtil.writeTelemetryEventLog(data);
 						accessLogger.info(request.remoteAddress() + " " + request.host() + " " + request.method() + " "
 								+ request.uri() + " " + r.status() + " " + body.length);
