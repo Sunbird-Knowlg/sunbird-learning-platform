@@ -382,17 +382,17 @@ public class ContentV3Controller extends BaseController {
 	 * 
 	 * */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/dialcode/link/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> linkDialCode(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> requestMap) {
+	public ResponseEntity<Response> linkDialCode(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.content.dialcode.link";
+		Request request = getRequest(requestMap);
 		try {
-				Map<String,Object> map=(Map<String, Object>)requestMap.get("request");
-				Response response = contentManager.linkDialCode(contentId,map);
+				Map<String,Object> map=(Map<String, Object>)requestMap.get("dialcode");
+				Response response = contentManager.linkDialCode(map);
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception occured while Linking Dial Code with Content (Id :"+contentId+") : ", e.getMessage(), e);
+			TelemetryManager.log("Exception occured while Linking Dial Code with Content: ", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
