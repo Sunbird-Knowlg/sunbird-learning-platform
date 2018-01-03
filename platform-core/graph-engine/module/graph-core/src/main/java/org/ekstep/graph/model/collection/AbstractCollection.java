@@ -171,7 +171,7 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     }
 
 	protected Node getNodeObject(Request req, ExecutionContext ec, String setId) {
-		Request request = new Request();
+		Request request = new Request(req);
 		request.put(GraphDACParams.node_id.name(), setId);
 		Response res = searchMgr.getNodeByUniqueId(request);
 		Node node = null;
