@@ -18,6 +18,7 @@ import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
+import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -25,7 +26,7 @@ public class ResponseFilter implements Filter {
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-
+		TelemetryGenerator.setComponent("learning-service");
 	}
 
 	@Override

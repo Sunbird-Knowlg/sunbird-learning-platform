@@ -25,6 +25,11 @@ public class TelemetryGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Producer producer = new Producer("org.ekstep.learning.platform", "1.0");
 
+	
+	public static void setComponent(String component) {
+		producer.setPid(component);
+	}
+	
 	/**
 	 * To generate api_access LOG telemetry JSON string.
 	 * @param context

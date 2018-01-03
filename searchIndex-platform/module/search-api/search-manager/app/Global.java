@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.ekstep.common.util.TelemetryAccessEventUtil;
 import org.ekstep.search.router.SearchRequestRouterPool;
+import org.ekstep.telemetry.TelemetryGenerator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +32,7 @@ public class Global extends GlobalSettings {
 
 	public void onStart(Application app) {
 		SearchRequestRouterPool.init();
+		TelemetryGenerator.setComponent("search-service");
 	}
 
 	@SuppressWarnings("rawtypes")
