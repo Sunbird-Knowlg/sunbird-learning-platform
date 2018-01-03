@@ -388,7 +388,7 @@ public class ContentV3Controller extends BaseController {
 		String apiId = "ekstep.content.dialcode.link";
 		Request request = getRequest(requestMap);
 		try {
-				Map<String,Object> map=(Map<String, Object>)requestMap.get("dialcode");
+				Map<String,Object> map=(Map<String, Object>)request.get("dialcode");
 				Response response = contentManager.linkDialCode(map);
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
