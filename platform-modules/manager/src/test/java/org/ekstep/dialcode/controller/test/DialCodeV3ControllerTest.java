@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-@Ignore
+//@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -56,10 +56,6 @@ public class DialCodeV3ControllerTest extends TestSetupUtil{
 	
 	private static String dialCode;
 
-	private static String cassandraScript_1="CREATE KEYSPACE IF NOT EXISTS dialcode_store_test WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'};";
-	private static String cassandraScript_2="CREATE TABLE IF NOT EXISTS dialcode_store_test.dial_code_test (identifier text,dialcode_index double,publisher text,channel text,batchCode text,metadata text,status text,generated_on text,published_on text, primary key(identifier));";
-	
-	
 	private static  String generateDialCodeReq_1 = "{\"request\": {\"dialcodes\": {\"count\":2,\"publisher\": \"testPublisher\",\"batchCode\":\"ka_math_std1\"}}}";
 	private static  String generateDialCodeReq_2 = "{\"request\": {\"dialcodes\": {\"count\":200,\"publisher\": \"testPub11\",\"batchCode\":\"ap_match_std2\"}}}";
 	
@@ -69,8 +65,6 @@ public class DialCodeV3ControllerTest extends TestSetupUtil{
 	
 	@BeforeClass
 	public static void setup() throws Exception {
-		//loadDefinition("definitions/content_definition.json");
-		setupEmbeddedCassandra(cassandraScript_1,cassandraScript_2);
 		generateDIALCode();
 	}
 	
@@ -84,6 +78,7 @@ public class DialCodeV3ControllerTest extends TestSetupUtil{
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static void generateDIALCode() throws Exception{
 		String dialCodeGenReq="{\"count\":1,\"publisher\": \"testPublisher\",\"batchCode\":\"test_math_std1\"}";
 		String channelId="channelTest";
@@ -391,6 +386,7 @@ public class DialCodeV3ControllerTest extends TestSetupUtil{
 	 * Then:  400 - Invalid Request
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void testDialCode_18() throws Exception {
 		String path = basePath + "/list/";
@@ -408,6 +404,7 @@ public class DialCodeV3ControllerTest extends TestSetupUtil{
 	 * Then:  200 - OK . Empty Result
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void testDialCode_19() throws Exception {
 		String path = basePath + "/list/";
