@@ -37,8 +37,7 @@ public class TelemetryGenerator {
 	 * @return
 	 */
 	public static String access(Map<String, String> context, Map<String, Object> params) {
-		String actorId = context.get(TelemetryParams.ACTOR.name());
-		Actor actor = new Actor(actorId, "System");
+		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
 		edata.put("type", "api_access");
@@ -60,8 +59,7 @@ public class TelemetryGenerator {
 	 * @return
 	 */
 	public static String log(Map<String, String> context, String type, String level, String message, String pageid, List<Map<String, Object>> params) {
-		String actorId = context.get(TelemetryParams.ACTOR.name());
-		Actor actor = new Actor(actorId, "System");
+		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
 		edata.put("type", type);
@@ -99,8 +97,7 @@ public class TelemetryGenerator {
 	 */
 	public static String error(Map<String, String> context, String code, String type, String stacktrace, String pageid,
 			Object object) {
-		String actorId = context.get(TelemetryParams.ACTOR.name());
-		Actor actor = new Actor(actorId, "System");
+		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
 		edata.put("err", code);
@@ -134,6 +131,14 @@ public class TelemetryGenerator {
 	
 	public static String audit(Map<String, String> context) {
 		return null;
+	}
+	
+	private static Actor getActor(Map<String, String> context) {
+		String actorId = context.get(TelemetryParams.ACTOR.name());
+		if (StringUtils.isBlank(actorId))
+			actorId = "org.ekstep.learning.platform";
+		return new Actor(actorId, "System");
+		
 	}
 
 	private static Context getContext(Map<String, String> context) {
