@@ -27,27 +27,29 @@ public class App {
 		List<Row> rows = rs.all();
 		System.out.println("Before ::::::::::::::::::::::::::::::::::");
 		System.out.println("Count :" + rows.size());
-		PreparedStatement pstmt = session.prepare(insert);
 
-		for (Row row : rows) {
+		boolean testrun = true;
+		if (Platform.config.hasPath("test.run"))
+			testrun = Platform.config.getBoolean("test.run");
 
-			System.out.println("Name :" + row.getString(0) + " |\\| ReqMap : " + row.getString(2));
+		if (!testrun) {
+			PreparedStatement pstmt = session.prepare(insert);
+			for (Row row : rows) {
+				System.out.println("Name :" + row.getString(0) + " |\\| ReqMap : " + row.getString(2));
+				session.execute(pstmt.bind(row.getString(0), row.getString(1),
+						row.getString(2).replaceAll("com.ilimi", "org.ekstep")));
+			}
 
-			session.execute(pstmt.bind(row.getString(0), row.getString(1),
-					row.getString(2).replaceAll("com.ilimi", "org.ekstep")));
+			System.out.println("\n");
+			rs = null;
 
-		}
-
-		System.out.println("\n");
-		rs = null;
-
-		rs = session.execute("SELECT name, type, reqmap from " + toKeyspace + ".script_data");
-		rows = rs.all();
-		System.out.println("After ::::::::::::::::::::::::::::::::::");
-		System.out.println("Count :" + rows.size());
-		for (Row row : rows) {
-
-			System.out.println("Name :" + row.getString(0) + " |\\| ReqMap : " + row.getString(2));
+			rs = session.execute("SELECT name, type, reqmap from " + toKeyspace + ".script_data");
+			rows = rs.all();
+			System.out.println("After ::::::::::::::::::::::::::::::::::");
+			System.out.println("Count :" + rows.size());
+			for (Row row : rows) {
+				System.out.println("Name :" + row.getString(0) + " |\\| ReqMap : " + row.getString(2));
+			}
 		}
 		CassandraConnector.close();
 	}
