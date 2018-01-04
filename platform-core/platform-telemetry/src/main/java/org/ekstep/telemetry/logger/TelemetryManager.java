@@ -91,45 +91,35 @@ public class TelemetryManager {
 		if (StringUtils.isNotBlank(logLevel)) {
 			switch (logLevel) {
 			case "INFO":
-				info(message, data);
+				log(Level.INFO.name(), message, data, e);
 				break;
 			case "DEBUG":
-				debug(message, data);
+				log(Level.DEBUG.name(), message, data, e);
 				break;
 			case "WARN":
-				warn(message, data, e);
+				log(Level.WARN.name(), message, data, e);
 				break;
 			case "ERROR":
-				error(message, data, e);
+				log(Level.ERROR.name(), message, data, e);
+				break;
+			case "TRACE":
+				log(Level.TRACE.name(), message, data, e);
+				break;
+			case "FATAL":
+				log(Level.FATAL.name(), message, data, e);
 				break;
 			}
 		}
 	}
 
-	private static void info(String message, Object data) {
-		log(Level.INFO.name(), message, data, null);
-	}
-
-	private static void debug(String message, Object data) {
-		log(Level.DEBUG.name(), message, data, null);
-	}
-
-	private static void error(String message, Object data, Throwable exception) {
-		log(Level.ERROR.name(), message, data, exception);
-	}
-
-	private static void warn(String message, Object data, Throwable exception) {
-		log(Level.WARN.name(), message, data, exception);
-	}
-
-	private static void log(String logLevel, String message, Object data, Throwable exception) {
+	private static void log(String logLevel, String message, Object data, Throwable e) {
 		Map<String, String> context = getContext();
-		if (exception != null) {
+		if (e != null) {
 			String code = "SYSTEM_ERROR";
-			if (exception instanceof MiddlewareException) {
-				code = ((MiddlewareException) exception).getErrCode();
+			if (e instanceof MiddlewareException) {
+				code = ((MiddlewareException) e).getErrCode();
 			}
-			telemetryHandler.error(context, code, "system", ExceptionUtils.getStackTrace(exception));
+			telemetryHandler.error(context, code, "system", ExceptionUtils.getStackTrace(e));
 		} else {
 			// TODO: Object data should become params.
 			telemetryHandler.log(context, "system", logLevel, message);

@@ -32,7 +32,6 @@ import com.google.gson.Gson;
 @Component
 public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCodeManager {
 
-
 	/**
 	 * 
 	 */
@@ -63,19 +62,17 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 		if (null == map)
 			return ERROR(ERROR_CODE, "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (StringUtils.isBlank((String) map.get(DialCodeEnum.publisher.name())))
-			return ERROR(ERROR_CODE, "Publisher is Manadatory", ResponseCode.CLIENT_ERROR);
+			return ERROR(ERROR_CODE, "Publisher is manadatory", ResponseCode.CLIENT_ERROR);
 
 		int count = getCount(map);
 
 		if (StringUtils.isBlank((String) map.get(DialCodeEnum.batchCode.name())))
 			map.put(DialCodeEnum.batchCode.name(), String.valueOf(System.currentTimeMillis()));
 
-		synchronized (this) {
-			Double startIndex = getMaxIndex();
-			dialCodesModel = SeqRandomGenerator.generate(++startIndex, count);
-			dialCodeMap = dialCodesModel.getDialCodes();
-			setMaxIndex(dialCodesModel.getMaxIndex());
-		}
+		Double startIndex = getMaxIndex();
+		dialCodesModel = SeqRandomGenerator.generate(++startIndex, count);
+		dialCodeMap = dialCodesModel.getDialCodes();
+		setMaxIndex(dialCodesModel.getMaxIndex());
 
 		// Store DIAL Codes in Cassandra
 		DialCodeStoreUtil.saveDialCode(channelId, (String) map.get(DialCodeEnum.publisher.name()),
@@ -98,16 +95,15 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 			if (StringUtils.isNotBlank(countStr)) {
 				int count = Integer.parseInt(countStr);
 				int maxCount = Platform.config.getInt("dialcode.max_count");
-
 				if (count > maxCount) {
-					throw new ClientException("ERR_INVALID_DIALCODE_COUNT","Count is exceeding Max count");
+					throw new ClientException("ERR_INVALID_DIALCODE_COUNT", "Count is exceeding max count");
 				}
 				return count;
 			} else {
-				throw new ClientException("ERR_INVALID_DIALCODE_COUNT","count is empty.");
+				throw new ClientException("ERR_INVALID_DIALCODE_COUNT", "count is empty.");
 			}
 		} catch (Exception e) {
-			throw new ClientException("ERR_INVALID_DIALCODE_COUNT","Invalid count.");
+			throw new ClientException("ERR_INVALID_DIALCODE_COUNT", "Invalid count.");
 		}
 
 	}
