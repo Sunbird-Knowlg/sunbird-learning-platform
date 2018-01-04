@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.dialcode.model.DialCodesModel;
+import org.ekstep.dialcode.model.DialCodesBatch;
 
 public class SeqRandomGenerator {
 
@@ -16,8 +16,8 @@ public class SeqRandomGenerator {
 	private static final Double length = 6.0;
 	private static final BigDecimal largePrimeNumber = new BigDecimal(1679979167);
 
-	public static DialCodesModel generate(double startIndex, double count) {
-		DialCodesModel dialCodesModel = new DialCodesModel();
+	public static DialCodesBatch generate(double startIndex, double count) {
+		DialCodesBatch dialCodesBatch = new DialCodesBatch();
 		Map<Double, String> codes = new HashMap<Double, String>();
 		int totalChars = alphabet.length;
 		BigDecimal exponent = BigDecimal.valueOf(totalChars);
@@ -34,9 +34,9 @@ public class SeqRandomGenerator {
 			}
 			lastIndex += 1;
 		}
-		dialCodesModel.setDialCodes(codes);
-		dialCodesModel.setMaxIndex(lastIndex);
-		return dialCodesModel;
+		dialCodesBatch.setDialCodes(codes);
+		dialCodesBatch.setMaxIndex(lastIndex);
+		return dialCodesBatch;
 	}
 
 	private static String baseN(BigDecimal num, int base) {

@@ -9,7 +9,7 @@ import java.util.Map;
  * @author pradyumna
  *
  */
-public class DialCodesModel {
+public class DialCodesBatch {
 
 	Map<Double, String> dialCodes;
 	double maxIndex;

@@ -11,7 +11,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.dialcode.model.DialCode;
-import org.ekstep.dialcode.model.DialCodesModel;
+import org.ekstep.dialcode.model.DialCodesBatch;
 import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
@@ -55,7 +55,7 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 	 */
 	@Override
 	public Response generateDialCode(Map<String, Object> map, String channelId) throws Exception {
-		DialCodesModel dialCodesModel;
+		DialCodesBatch dialCodesBatch;
 		Map<Double, String> dialCodeMap;
 
 		String ERROR_CODE = "ERR_INVALID_DIALCODE_GENERATE_REQUEST";
@@ -70,9 +70,9 @@ public class DialCodeManagerImpl extends DialCodeBaseManager implements IDialCod
 			map.put(DialCodeEnum.batchCode.name(), String.valueOf(System.currentTimeMillis()));
 
 		Double startIndex = getMaxIndex();
-		dialCodesModel = SeqRandomGenerator.generate(++startIndex, count);
-		dialCodeMap = dialCodesModel.getDialCodes();
-		setMaxIndex(dialCodesModel.getMaxIndex());
+		dialCodesBatch = SeqRandomGenerator.generate(++startIndex, count);
+		dialCodeMap = dialCodesBatch.getDialCodes();
+		setMaxIndex(dialCodesBatch.getMaxIndex());
 
 		// Store DIAL Codes in Cassandra
 		DialCodeStoreUtil.saveDialCode(channelId, (String) map.get(DialCodeEnum.publisher.name()),
