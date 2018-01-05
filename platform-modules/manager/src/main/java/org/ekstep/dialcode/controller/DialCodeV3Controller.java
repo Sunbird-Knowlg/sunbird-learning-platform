@@ -18,9 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * Controller Class for All CRUD Operation of QR Codes (DIAL Code).
- * 
- * This class is entry point for all operation related to DIAL Code.
+ * Controller Class for All CRUD Operation of QR Codes (DIAL Code). This class
+ * is entry point for all operation related to DIAL Code.
  * 
  * @author gauraw
  *
@@ -29,20 +28,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/v3/dialcode")
 public class DialCodeV3Controller extends BaseController {
 
+	private static final String CHANNEL_ID = "X-Channel-Id";
+
 	@Autowired
 	private IDialCodeManager dialCodeManager;
 
 	/**
-	 * Generate Dial Codes.
-	 * 
 	 * @param requestMap
+	 * @param channelId
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/generate", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> generateDialCode(@RequestBody Map<String, Object> requestMap,
-			@RequestHeader(value = "X-Channel-Id") String channelId) {
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 
 		String apiId = "ekstep.dialcode.generate";
 		Request request = getRequest(requestMap);
@@ -57,10 +57,7 @@ public class DialCodeV3Controller extends BaseController {
 	}
 
 	/**
-	 * Fetch Dial Code Details
-	 * 
 	 * @param dialCodeId
-	 * 
 	 * @return
 	 */
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
@@ -77,7 +74,6 @@ public class DialCodeV3Controller extends BaseController {
 	}
 
 	/**
-	 * 
 	 * @param dialCodeId
 	 * @param requestMap
 	 * @param channelId
@@ -87,7 +83,8 @@ public class DialCodeV3Controller extends BaseController {
 	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> updateDialCode(@PathVariable(value = "id") String dialCodeId,
-			@RequestBody Map<String, Object> requestMap, @RequestHeader(value = "X-Channel-Id") String channelId) {
+			@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.dialcode.update";
 		Request request = getRequest(requestMap);
 		try {
@@ -101,15 +98,15 @@ public class DialCodeV3Controller extends BaseController {
 	}
 
 	/**
-	 * 
 	 * @param requestMap
+	 * @param channelId
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> listDialCode(@RequestBody Map<String, Object> requestMap,
-			@RequestHeader(value = "X-Channel-Id") String channelId) {
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.dialcode.list";
 		Request request = getRequest(requestMap);
 		try {
@@ -124,16 +121,14 @@ public class DialCodeV3Controller extends BaseController {
 	}
 
 	/**
-	 * 
 	 * @param dialCodeId
-	 * @param userId
 	 * @param channelId
 	 * @return
 	 */
 	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> publishDialCode(@PathVariable(value = "id") String dialCodeId,
-			@RequestHeader(value = "user-id") String userId, @RequestHeader(value = "X-Channel-Id") String channelId) {
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.dialcode.publish";
 		try {
 			Response response = dialCodeManager.publishDialCode(dialCodeId, channelId);
