@@ -1,9 +1,0 @@
----
-# tasks file for imagemagick
-- name: install imagemagick
-  become: yes
-  apt: name=imagemagick state=present update_cache=yes
-  tags:
-       - learning
-       - total
-
