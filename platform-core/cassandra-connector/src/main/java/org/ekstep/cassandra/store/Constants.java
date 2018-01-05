@@ -1,4 +1,4 @@
-package org.ekstep.cassandra.connector.util;
+package org.ekstep.cassandra.store;
 
 /*
  * @author pradyumna
@@ -32,5 +32,6 @@ public interface Constants {
 	public static final String SEMICOLON = ";";
 	public static final String IF_EXISTS = " IF EXISTS;";
 	public static final String IF_NOT_EXISTS = " IF NOT EXISTS;";
+	public static final String SELECT = "SELECT";
 	
 }
