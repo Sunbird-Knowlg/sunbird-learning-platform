@@ -5,5 +5,5 @@ package org.ekstep.dialcode.enums;
  *
  */
 public enum DialCodeEnum {
-	channel,publisher,count,batchCode,Draft,status, Live,identifier,dialcode,dialcodes,generated_on,published_on,metadata;
+	channel, publisher, count, batchCode, Draft, status, Live, identifier, dialcode, dialcodes, generated_on, published_on, metadata, search;
 }
