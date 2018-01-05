@@ -5,6 +5,7 @@ import java.util.Map;
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +44,10 @@ public class DialCodeV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> generateDialCode(@RequestBody Map<String, Object> requestMap,
 			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
-
 		String apiId = "ekstep.dialcode.generate";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("dialcodes");
+			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.dialcodes.name());
 			Response response = dialCodeManager.generateDialCode(map, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -88,7 +88,7 @@ public class DialCodeV3Controller extends BaseController {
 		String apiId = "ekstep.dialcode.update";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("dialcode");
+			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.dialcode.name());
 			Response response = dialCodeManager.updateDialCode(dialCodeId, channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -110,7 +110,7 @@ public class DialCodeV3Controller extends BaseController {
 		String apiId = "ekstep.dialcode.list";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("search");
+			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.search.name());
 			Response response = dialCodeManager.listDialCode(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
