@@ -1,5 +1,0 @@
-use orchestrator_db;
-
-db.createCollection("scripts");
-
-db.scripts.createIndex( { "name": 1 }, { unique: true } );

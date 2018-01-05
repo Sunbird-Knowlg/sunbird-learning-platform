@@ -1,4 +1,0 @@
-- hosts: "{{remote}}"
-  gather_facts: no
-  roles:
-        - neo4j-migration-export

@@ -1,3 +1,0 @@
-- hosts: cassandra
-  roles:
-    - cassandra-db-update

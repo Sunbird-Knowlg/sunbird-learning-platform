@@ -1,5 +1,0 @@
-- hosts: "{{remote}}"
-  remote_user: learning
-  roles: 
-        - java
-        - neo4j-cluster
