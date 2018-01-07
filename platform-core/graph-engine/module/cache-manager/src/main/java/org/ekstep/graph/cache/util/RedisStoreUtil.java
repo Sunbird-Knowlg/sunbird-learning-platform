@@ -35,9 +35,15 @@ public class RedisStoreUtil {
 		Jedis jedis = getRedisConncetion();
 		try {
 			String redisKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
+			System.out.println("redisKey:::::::::::" + redisKey);
 			String value = jedis.get(redisKey);
+			// Long l = jedis.incr(redisKey);
+			System.out.println("value from redis:;;" + value);
+			// System.out.println("incr value from redis:;;" + l);
 			return value;
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
 			returnConnection(jedis);
@@ -90,6 +96,20 @@ public class RedisStoreUtil {
 
 		} catch (Exception e) {
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
+	public static Double getNodePropertyIncVal(String graphId, String objectId, String nodeProperty) {
+
+		Jedis jedis = getRedisConncetion();
+		try {
+			String redisKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
+			Double value = Double.valueOf(jedis.incr(redisKey));
+			return value;
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
 			returnConnection(jedis);
 		}

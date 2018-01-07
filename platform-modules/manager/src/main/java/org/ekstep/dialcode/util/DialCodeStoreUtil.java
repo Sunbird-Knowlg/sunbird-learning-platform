@@ -2,13 +2,17 @@ package org.ekstep.dialcode.util;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
+import org.ekstep.cassandra.store.CassandraStoreUtil;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.dialcode.common.DialCodeErrorCodes;
+import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.model.DialCode;
 
@@ -19,119 +23,84 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Util Class for all Dial Code CRUD Operation on Cassandra.
+ * This Class is for all Dial Code CRUD Operation on Cassandra.
  * 
  * @author gauraw
  *
  */
 public class DialCodeStoreUtil {
 
-	private static String keyspaceName = "";
-	private static String keyspaceTable = "";
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	// get keyspace name
-	public static String getKeyspaceName() {
-		if (StringUtils.isBlank(keyspaceName) && Platform.config.hasPath("dialcode.keyspace.name"))
+	public static String getKeyspaceName(String keyspace) {
+		if (StringUtils.equals(keyspace, DialCodeEnum.dialcode.name()))
 			return Platform.config.getString("dialcode.keyspace.name");
-		else
-			return keyspaceName;
+		if (StringUtils.equals(keyspace, DialCodeEnum.publisher.name()))
+			return Platform.config.getString("publisher.keyspace.name");
+		if (StringUtils.equals(keyspace, DialCodeEnum.system_config.name()))
+			return Platform.config.getString("system.config.keyspace.name");
+		return null;
 	}
 
-	// get table name
-	public static String getKeyspaceTable() {
-		if (StringUtils.isBlank(keyspaceTable) && Platform.config.hasPath("dialcode.keyspace.table"))
+	public static String getKeyspaceTable(String table) {
+		if (StringUtils.equals(table, DialCodeEnum.dialcode.name()))
 			return Platform.config.getString("dialcode.keyspace.table");
-		else
-			return keyspaceTable;
+		if (StringUtils.equals(table, DialCodeEnum.publisher.name()))
+			return Platform.config.getString("publisher.keyspace.table");
+		if (StringUtils.equals(table, DialCodeEnum.system_config.name()))
+			return Platform.config.getString("system.config.table");
+		return null;
 	}
 
-	// get dialcode index from cassandra
 	public static Double getDialCodeIndex() throws Exception {
-		Double dialcode_index = 0.0;
-		Session session = CassandraConnector.getSession();
-		String query = "select max(dialcode_index) as dialcode_index from " + getKeyspaceName() + "."
-				+ getKeyspaceTable() + ";";
-		ResultSet rs = session.execute(query);
-		if (null != rs) {
-			while (rs.iterator().hasNext()) {
-				Row row = rs.iterator().next();
-				dialcode_index = row.getDouble("dialcode_index");
-			}
-		}
-
-		return dialcode_index;
+		List<Row> rows = CassandraStoreUtil.read(getKeyspaceName(DialCodeEnum.system_config.name()),
+				getKeyspaceTable(DialCodeEnum.system_config.name()), DialCodeEnum.prop_key.name(),
+				DialCodeEnum.dialcode_max_index.name());
+		Row row = rows.get(0);
+		return Double.valueOf(row.getString(DialCodeEnum.prop_value.name()));
 	}
 
-	public static void saveDialCode(String channel, String publisher, String batchCode, Map<Double, String> codeMap)
+	public static void setDialCodeIndex() throws Exception {
+		List<Row> rows = CassandraStoreUtil.read(getKeyspaceName(DialCodeEnum.system_config.name()),
+				getKeyspaceTable(DialCodeEnum.system_config.name()), DialCodeEnum.prop_key.name(),
+				DialCodeEnum.dialcode_max_index.name());
+		Row row = rows.get(0);
+		double maxIndex = Double.valueOf(row.getString(DialCodeEnum.prop_value.name()));
+		++maxIndex;
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put(DialCodeEnum.prop_value.name(), String.valueOf((int) maxIndex));
+		CassandraStoreUtil.update(getKeyspaceName(DialCodeEnum.system_config.name()),
+				getKeyspaceTable(DialCodeEnum.system_config.name()), DialCodeEnum.prop_key.name(),
+				DialCodeEnum.dialcode_max_index.name(), data);
+	}
+
+	public static void save(String channel, String publisher, String batchCode, String dialCode, Double dialCodeIndex)
 			throws Exception {
-		Session session = CassandraConnector.getSession();
-		String query = getInsertQuery(channel, publisher, batchCode, codeMap);
-		session.execute(query);
+		Map<String, Object> data = getInsertData(channel, publisher, batchCode, dialCode, dialCodeIndex);
+		CassandraStoreUtil.insert(getKeyspaceName(DialCodeEnum.dialcode.name()),
+				getKeyspaceTable(DialCodeEnum.dialcode.name()), dialCode, data);
 	}
 
-	public static DialCode readDialCode(String dialCode) throws Exception {
+	public static DialCode read(String dialCode) throws Exception {
 		DialCode dialCodeObj = null;
-
-		Session session = CassandraConnector.getSession();
-		String query = "select * from " + getKeyspaceName() + "." + getKeyspaceTable() + " where identifier='"
-				+ dialCode + "'";
-		ResultSet rs = session.execute(query);
-		if (null != rs) {
-			while (rs.iterator().hasNext()) {
-				Row row = rs.iterator().next();
-				dialCodeObj = setDialCodeData(row);
-			}
+		try {
+			List<Row> rows = CassandraStoreUtil.read(getKeyspaceName(DialCodeEnum.dialcode.name()),
+					getKeyspaceTable(DialCodeEnum.dialcode.name()), DialCodeEnum.identifier.name(), dialCode);
+			Row row = rows.get(0);
+			dialCodeObj = setDialCodeData(row);
+		} catch (Exception e) {
+			throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_INFO,
+					DialCodeErrorMessage.ERR_DIALCODE_INFO);
 		}
-
-		if (null == dialCodeObj)
-			throw new ResourceNotFoundException("ERR_DIALCODE_INFO", "Dial Code Not Found.");
-
 		return dialCodeObj;
 	}
 
-	public static String updateData(String dialCodeId, String publisher, String metadata) {
-		String id = null;
-		Session session = CassandraConnector.getSession();
-
-		StringBuilder updateQuery = new StringBuilder();
-		updateQuery.append("update ");
-		updateQuery.append(getKeyspaceName() + "." + getKeyspaceTable() + " set ");
-		updateQuery.append("publisher='" + publisher + "', ");
-		updateQuery.append("metadata='" + metadata + "' ");
-		updateQuery.append("where identifier='" + dialCodeId + "'");
-
-		ResultSet rs = session.execute(updateQuery.toString());
-
-		if (null != rs) {
-			id = dialCodeId;
-		}
-
-		return id;
+	public static void update(String id, Map<String, Object> data) throws Exception {
+		CassandraStoreUtil.update(getKeyspaceName(DialCodeEnum.dialcode.name()),
+				getKeyspaceTable(DialCodeEnum.dialcode.name()), DialCodeEnum.identifier.name(), id, data);
 	}
 
-	public static String updateData(String dialCodeId) {
-		String id = null;
-
-		Session session = CassandraConnector.getSession();
-
-		StringBuilder updateQuery = new StringBuilder();
-		updateQuery.append("update ");
-		updateQuery.append(getKeyspaceName() + "." + getKeyspaceTable() + " set ");
-		updateQuery.append("status='" + DialCodeEnum.Live.name() + "', ");
-		updateQuery.append("published_on='" + LocalDateTime.now() + "' ");
-		updateQuery.append("where identifier='" + dialCodeId + "'");
-
-		ResultSet rs = session.execute(updateQuery.toString());
-
-		if (null != rs) {
-			id = dialCodeId;
-		}
-
-		return id;
-	}
-
-	public static List<DialCode> getDialCodeList(String channelId, Map<String, Object> map) throws Exception {
+	public static List<DialCode> list(String channelId, Map<String, Object> map) throws Exception {
 		DialCode dialCodeObj = null;
 		List<DialCode> list = new ArrayList<DialCode>();
 		String listQuery = getListQuery(channelId, map);
@@ -144,33 +113,23 @@ public class DialCodeStoreUtil {
 				list.add(dialCodeObj);
 			}
 		}
-
 		return list;
 	}
 
-	private static String getInsertQuery(String channel, String publisher, String batchCode,
-			Map<Double, String> codeMap) {
-		StringBuilder insertQuery = new StringBuilder();
-		insertQuery.append("BEGIN BATCH ");
-		for (Double key : codeMap.keySet()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("insert into " + getKeyspaceName() + "." + getKeyspaceTable());
-			sb.append("(identifier,batchcode,channel,dialcode_index,generated_on,publisher,status) values(");
-			sb.append("'" + codeMap.get(key) + "',");
-			sb.append("'" + batchCode + "',");
-			sb.append("'" + channel + "',");
-			sb.append(key + ",");
-			sb.append("'" + LocalDateTime.now() + "',");
-			sb.append("'" + publisher + "',");
-			sb.append("'" + DialCodeEnum.Draft.name() + "');");
-			insertQuery.append(sb.toString());
-		}
-		insertQuery.append(" APPLY BATCH;");
-		return insertQuery.toString();
+	private static Map<String, Object> getInsertData(String channel, String publisher, String batchCode,
+			String dialCode, Double dialCodeIndex) {
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put(DialCodeEnum.identifier.name(), dialCode);
+		data.put(DialCodeEnum.channel.name(), channel);
+		data.put(DialCodeEnum.publisher.name(), publisher);
+		data.put(DialCodeEnum.batchcode.name(), batchCode);
+		data.put(DialCodeEnum.dialcode_index.name(), dialCodeIndex);
+		data.put(DialCodeEnum.status.name(), DialCodeEnum.Draft.name());
+		data.put(DialCodeEnum.generated_on.name(), LocalDateTime.now().toString());
+		return data;
 	}
 
 	private static DialCode setDialCodeData(Row row) throws Exception {
-
 		DialCode dialCodeObj = new DialCode();
 		dialCodeObj.setIdentifier(row.getString(DialCodeEnum.identifier.name()));
 		dialCodeObj.setChannel(row.getString(DialCodeEnum.channel.name()));
@@ -179,13 +138,11 @@ public class DialCodeStoreUtil {
 		dialCodeObj.setStatus(row.getString(DialCodeEnum.status.name()));
 		dialCodeObj.setGeneratedOn(row.getString(DialCodeEnum.generated_on.name()));
 		dialCodeObj.setPublishedOn(row.getString(DialCodeEnum.published_on.name()));
-
 		String metadata = row.getString(DialCodeEnum.metadata.name());
 		Map<String, Object> metaData = null;
 		if (!StringUtils.isBlank(metadata)) {
 			metaData = mapper.readValue(metadata, new TypeReference<Map<String, Object>>() {
 			});
-
 		}
 		dialCodeObj.setMetadata(metaData);
 		return dialCodeObj;
@@ -193,18 +150,16 @@ public class DialCodeStoreUtil {
 
 	private static String getListQuery(String channelId, Map<String, Object> map) {
 		StringBuilder listQuery = new StringBuilder();
-		listQuery.append("select * from " + getKeyspaceName() + "." + getKeyspaceTable() + " where ");
+		listQuery.append("select * from " + getKeyspaceName(DialCodeEnum.dialcode.name()) + "."
+				+ getKeyspaceTable(DialCodeEnum.dialcode.name()) + " where ");
 		listQuery.append("channel='" + channelId + "' ");
-
 		for (String key : map.keySet()) {
 			String value = (String) map.get(key);
-
 			if (!StringUtils.isBlank(value)) {
 				listQuery.append(" and " + key + "='" + value + "'");
 			}
 		}
 		listQuery.append(" allow filtering;");
-
 		return listQuery.toString();
 	}
 }

@@ -48,6 +48,7 @@ public class CassandraStoreUtil {
 			}
 			Set<String> keySet = request.keySet();
 			String query = getPreparedStatement(keyspaceName, tableName, keySet);
+			System.out.println("insert query:::::" + query);
 			Session session = CassandraConnector.getSession();
 			PreparedStatement statement = session.prepare(query);
 			BoundStatement boundStatement = new BoundStatement(statement);
@@ -60,6 +61,8 @@ public class CassandraStoreUtil {
 			session.execute(boundStatement.bind(array));
 			logTransactionEvent(keyspaceName, tableName, CassandraStoreParams.CREATE.name(), idValue, request);
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(),
 					"Error while inserting record", e);
 		}
