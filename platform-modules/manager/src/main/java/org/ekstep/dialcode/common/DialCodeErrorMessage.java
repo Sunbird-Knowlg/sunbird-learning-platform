@@ -17,4 +17,5 @@ public class DialCodeErrorMessage {
 	public static final String ERR_INVALID_CHANNEL_ID = "Invalid Channel Id.";
 	public static final String ERR_DIALCODE_UPDATE = "Dial Code with Live status can't be updated.";
 	public static final String ERR_INVALID_SEARCH_REQUEST = "Invalid Search Request";
+	public static final String ERR_DIALCODE_INFO = "Dial Code Not Found.";
 }

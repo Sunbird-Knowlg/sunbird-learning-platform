@@ -19,4 +19,6 @@ public class DialCodeErrorCodes {
 	public static final String ERR_INVALID_CHANNEL_ID = "ERR_INVALID_CHANNEL_ID";
 	public static final String ERR_DIALCODE_UPDATE = "ERR_DIALCODE_UPDATE";
 	public static final String ERR_INVALID_SEARCH_REQUEST = "ERR_INVALID_SEARCH_REQUEST";
+	public static final String ERR_DIALCODE_INFO = "ERR_DIALCODE_INFO";
+
 }
