@@ -61,7 +61,7 @@ public class SearchControllerV2 extends BaseController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("Search | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Search | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

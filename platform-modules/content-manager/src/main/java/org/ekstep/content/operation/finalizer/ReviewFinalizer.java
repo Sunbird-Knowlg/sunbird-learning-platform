@@ -88,18 +88,18 @@ public class ReviewFinalizer extends BaseFinalizer {
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
 		String publishType = null;
 		if (BooleanUtils.isTrue(isPublishOperation)) {
-			TelemetryManager.log("Changing the Content Status to 'Pending'.", Level.INFO.name());
+			TelemetryManager.info("Changing the Content Status to 'Pending' for content id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Pending.name());
 			publishType = (String)node.getMetadata().get("publish_type");
 			node.getMetadata().remove("publish_type");
 		} else {
-			TelemetryManager.log("Changing the Content Status to 'Review'.", Level.INFO.name());
+			TelemetryManager.info("Changing the Content Status to 'Review' for content id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Review.name());
 		}
 		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.FlagDraft.name())){
-			TelemetryManager.log("Setting status to flagReview from previous state : " + prevState, Level.INFO.name());
+			TelemetryManager.info("Setting status to flagReview from previous state : " + prevState + " for content id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.FlagReview.name());
 		}
 		// Clean-Up
@@ -107,10 +107,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
-		
-		TelemetryManager.log("Updating the Node: ", node.getIdentifier(), Level.INFO.name());
+
 		Response response = updateContentNode(contentId, newNode, null);
-		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]", node);
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
 		newNode.getMetadata().put("publish_type", publishType);
 		

@@ -124,7 +124,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
-			TelemetryManager.log("Error in enrich actor",e.getMessage(), e);
+			TelemetryManager.error("Error in enrich actor"+e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}
@@ -230,7 +230,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 						updateResponse.getParams().getErrmsg());
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error updating syllable list for " , word.getIdentifier(), e);
+			TelemetryManager.error("Error updating syllable list for " + word.getIdentifier(), e);
 		}
 		
 		long diff = System.currentTimeMillis() - startTime;
@@ -270,7 +270,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 									updateResponse.getParams().getErrmsg());
 						}
 					} catch (Exception e) {
-						TelemetryManager.log("Update error : " + word.getIdentifier(), e.getMessage(), e);
+						TelemetryManager.error("Update error : " + word.getIdentifier()+ e.getMessage(), e);
 					}
 				}
 			}
@@ -357,7 +357,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 							updateResponse.getParams().getErrmsg());
 				}
 			} catch (Exception e) {
-				TelemetryManager.log("Update error : " + word.getIdentifier(), e.getMessage(), e);
+				TelemetryManager.error("Update error : " + word.getIdentifier() +" " +  e.getMessage(), e);
 			}
 		}
 
@@ -430,7 +430,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 							updateResponse.getParams().getErrmsg());
 				}
 			} catch (Exception e) {
-				TelemetryManager.log("Update error : " + word.getIdentifier(), e.getMessage(), e);
+				TelemetryManager.error("Update error : " + word.getIdentifier() + " " + e.getMessage(), e);
 			}
 		}
 	}
@@ -595,8 +595,8 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 											updateResponse.getParams().getErrmsg());
 								}
 							} catch (Exception e) {
-								TelemetryManager.log("Update Frequency Counts error : " + node.getIdentifier() + " : "
-										, e.getMessage(), e);
+								TelemetryManager.error("Update Frequency Counts error : " + node.getIdentifier() + " : "
+										+ e.getMessage(), e);
 							}
 						}
 					}
@@ -642,7 +642,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 								updateResponse.getParams().getErrmsg());
 					}
 				} catch (Exception e) {
-					TelemetryManager.log("Update error : " + node.getIdentifier(), e.getMessage(), e);
+					TelemetryManager.error("Update error : " + node.getIdentifier() + " " + e.getMessage(), e);
 				}
 			}
 		}
@@ -676,7 +676,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 			try {
 				wordUtil.computeWordComplexity(node, languageId);
 			} catch (Exception e) {
-				TelemetryManager.log("Error updating word complexity for " ,node.getIdentifier(), e);
+				TelemetryManager.error("Error updating word complexity for " +node.getIdentifier(), e);
 			}
 		}
 	}
@@ -701,8 +701,8 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 			langReq.put(LanguageParams.word.name(), lemma);
 			Response langRes = controllerUtil.getLanguageResponse(langReq);
 			if (checkError(langRes)) {
-				TelemetryManager.log("errror in updateLexileMeasures, languageId =" + languageId + ", error message"
-						, langRes.getParams().getErrmsg(), "WARNlog");
+				TelemetryManager.warn("errror in updateLexileMeasures, languageId =" + languageId + ", error message "
+						+ langRes.getParams().getErrmsg());
 				return;
 			} else {
 				Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
@@ -720,7 +720,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 					try {
 						wordChainUtil.updateWordSet(languageId, node, wc);
 					} catch (Exception e) {
-						TelemetryManager.log("Update error : " + node.getIdentifier() ,e.getMessage(), e);
+						TelemetryManager.error("Update error : " + node.getIdentifier() +" " + e.getMessage(), e);
 					}
 				}
 			}

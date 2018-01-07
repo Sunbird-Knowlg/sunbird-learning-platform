@@ -13,7 +13,6 @@ import org.ekstep.graph.engine.mgr.impl.CollectionManagerImpl;
 import org.ekstep.graph.engine.mgr.impl.GraphMgrImpl;
 import org.ekstep.graph.engine.mgr.impl.NodeManagerImpl;
 import org.ekstep.graph.engine.mgr.impl.SearchManagerImpl;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,7 +44,7 @@ public class ActorBootstrap {
             document.getDocumentElement().normalize();
             loadConfiguration();
         } catch (Exception e) {
-			TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), Level.ERROR.name());
+			TelemetryManager.error("Error! While Closing the Input Stream: "+ e.getMessage());
         }
     }
 

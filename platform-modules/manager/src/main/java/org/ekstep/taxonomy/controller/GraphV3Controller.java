@@ -54,17 +54,17 @@ public class GraphV3Controller extends BaseController {
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = taxonomyManager.create(id, stream);
-			TelemetryManager.log("Create | Response: " , response);
+			TelemetryManager.log("Create | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			if (null != stream)
 				try {
 					stream.close();
 				} catch (IOException e) {
-					TelemetryManager.log("Error1 While Closing the Stream.", e.getMessage(), e);
+					TelemetryManager.error("Error1 While Closing the Stream:" + e.getMessage(), e);
 				}
 		}
 	}
@@ -99,9 +99,9 @@ public class GraphV3Controller extends BaseController {
 					resp.getOutputStream().close();
 				}
 			}
-			TelemetryManager.log("Export | Response: " , response);
+			TelemetryManager.log("Export | Response: " , response.getResult());
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 		}
 	}
 
@@ -113,10 +113,10 @@ public class GraphV3Controller extends BaseController {
 		TelemetryManager.log("update Definition | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.updateDefinition(id, json);
-			TelemetryManager.log("update Definition | Response: " , response);
+			TelemetryManager.log("update Definition | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("update Definition | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("update Definition | Exception: " + e.getMessage(), e);
 			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
@@ -131,10 +131,10 @@ public class GraphV3Controller extends BaseController {
 		TelemetryManager.log("Find Definition | Id: " + graphId + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findDefinition(graphId, objectType);
-			TelemetryManager.log("Find Definition | Response: " , response);
+			TelemetryManager.log("Find Definition | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find Definition | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Definition | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -148,10 +148,10 @@ public class GraphV3Controller extends BaseController {
 		TelemetryManager.log("Find All Definitions | Id: " + graphId + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findAllDefinitions(graphId);
-			TelemetryManager.log("Find All Definitions | Response: " , response);
+			TelemetryManager.log("Find All Definitions | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find All Definitions | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find All Definitions | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -168,7 +168,7 @@ public class GraphV3Controller extends BaseController {
 			Response response = contentManager.updateAllContentNodes(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

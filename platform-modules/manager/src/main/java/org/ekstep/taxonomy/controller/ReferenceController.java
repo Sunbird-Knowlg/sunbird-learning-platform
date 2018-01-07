@@ -39,10 +39,10 @@ public class ReferenceController extends BaseController {
 			File uploadedFile = new File(name);
 			file.transferTo(uploadedFile);
 			Response response = referenceManager.uploadReferenceDocument(uploadedFile, referenceId);
-			TelemetryManager.log("Upload | Response: " , response);
+			TelemetryManager.log("Upload | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Upload | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Upload | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

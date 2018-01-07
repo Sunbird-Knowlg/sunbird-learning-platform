@@ -87,7 +87,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 					return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 				}
 			} catch (Exception e) {
-				TelemetryManager.log("Exception",e.getMessage(), e);
+				TelemetryManager.error("Exception: " +e.getMessage(), e);
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 			}
 		} else {
@@ -115,19 +115,19 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		TelemetryManager.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: " , contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		TelemetryManager.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		TelemetryManager.log("Review Operation Finished Successfully for Node ID: " + contentId);
 		
 		if (!checkError(response)) {
 			if (BooleanUtils.isTrue(isAsync)) {
 				AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-				TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
+				TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 
 				response.put(ContentAPIParams.publishStatus.name(),
 						"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 			} else {
-				TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+				TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 				response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 			}
 		}
@@ -152,7 +152,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		parameterMap.put(ContentAPIParams.file.name(), uploadedFile);
 		parameterMap.put(ContentAPIParams.node.name(), node);
 
-		TelemetryManager.log("Calling the 'Upload' Initializer for Node ID: " , node.getIdentifier());
+		TelemetryManager.log("Calling the 'Upload' Initializer for Node ID: " + node.getIdentifier());
 		return pipeline.init(ContentAPIParams.upload.name(), parameterMap);
 	}
 	
@@ -178,15 +178,13 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 */
 	@Override
 	public Response review(String contentId,Node node, boolean isAsync) {
-		TelemetryManager.log("Node: ", node.getIdentifier());
-
 		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
-		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: " , contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: " + contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

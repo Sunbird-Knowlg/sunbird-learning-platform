@@ -73,7 +73,7 @@ public abstract class BaseContentManager extends BaseManager {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Something Went Wrong While Checking the is Under Processing Status.", null, e);
+			TelemetryManager.error("Something went wrong while checking the object whether it is under processing or not.", e);
 		}
 		return inGivenStatus;
 	}

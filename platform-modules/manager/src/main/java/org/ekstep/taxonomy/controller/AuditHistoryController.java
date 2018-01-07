@@ -66,7 +66,7 @@ public class AuditHistoryController extends BaseController {
 			TelemetryManager.log("Find Item | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -105,7 +105,7 @@ public class AuditHistoryController extends BaseController {
 			TelemetryManager.log("Find Item | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -140,10 +140,10 @@ public class AuditHistoryController extends BaseController {
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime, versionId);
-			TelemetryManager.log("Find Item | Response: " , response);
+			TelemetryManager.log("Find Item | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

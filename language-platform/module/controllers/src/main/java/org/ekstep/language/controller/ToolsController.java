@@ -54,7 +54,7 @@ public class ToolsController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -83,7 +83,7 @@ public class ToolsController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -113,7 +113,7 @@ public class ToolsController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -142,7 +142,7 @@ public class ToolsController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -173,7 +173,7 @@ public class ToolsController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -205,7 +205,7 @@ public class ToolsController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -227,7 +227,7 @@ public class ToolsController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

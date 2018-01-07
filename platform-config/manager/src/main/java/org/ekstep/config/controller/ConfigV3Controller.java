@@ -51,7 +51,7 @@ public class ConfigV3Controller extends BaseController {
 					});
 					resourcebundles.put(langId, map);
 				} catch (Exception e) {
-					TelemetryManager.log("Error in fetching all ResourceBundles from s3" , e.getMessage(), e);
+					TelemetryManager.error("Error in fetching all ResourceBundles from s3: " + e.getMessage(), e);
 				}
 			}
 			response.put("resourcebundles", resourcebundles);
@@ -61,10 +61,9 @@ public class ConfigV3Controller extends BaseController {
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("ttl", 24.0);
-			TelemetryManager.log("get All ResourceBundles | Response: " , response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("getAllResources | Exception" , e.getMessage(), e);
+			TelemetryManager.error("getAllResources | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -75,7 +74,7 @@ public class ConfigV3Controller extends BaseController {
 		String apiId = "ekstep.config.resourebundles.read";
 
 		try {
-			TelemetryManager.log("ResourceBundle | GET | languageId" , languageId);
+			TelemetryManager.log("ResourceBundle | GET | languageId: " + languageId);
 			Response response = new Response();
 			String data = HttpDownloadUtility
 					.readFromUrl(baseUrl + folderName + "/" + languageId + ".json");
@@ -90,9 +89,9 @@ public class ConfigV3Controller extends BaseController {
 					Map<String, Object> map = mapper.readValue(data, new TypeReference<Map<String, Object>>() {
 					});
 					response.put(languageId, map);
-					TelemetryManager.log("getResourceBundle | successResponse" , response.getResponseCode());
+					TelemetryManager.log("getResourceBundle | successResponse: " + response.getResponseCode());
 				} catch (Exception e) {
-					TelemetryManager.log("getResourceBundle | Exception" + e.getMessage(), e, Level.WARN.name());
+					TelemetryManager.error("getResourceBundle | Exception: " + e.getMessage(), e);
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -103,11 +102,11 @@ public class ConfigV3Controller extends BaseController {
 				response.setParams(params);
 				response.getResponseCode();
 				response.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
-				TelemetryManager.log("getResourceBundle | FailureResponse" , response);
+				TelemetryManager.log("getResourceBundle | FailureResponse for languageId: "+ languageId, response.getResult());
 				return getResponseEntity(response, apiId, null);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("getResourceBundle | Exception" , e.getMessage(), e);
+			TelemetryManager.error("getResourceBundle | Exception", e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -131,12 +130,12 @@ public class ConfigV3Controller extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
-				TelemetryManager.log("Get Ordinals | Exception" , e.getMessage(), e, Level.WARN.name());
+				TelemetryManager.error("Get Ordinals | Exception", e);
 			}
-			TelemetryManager.log("Get Ordinals | Response" , response.getResponseCode());
+			TelemetryManager.log("Get Ordinals | Response code: " + response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("getOrdinalsException" , e.getMessage(), e);
+			TelemetryManager.error("getOrdinalsException", e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -145,7 +144,7 @@ public class ConfigV3Controller extends BaseController {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
 		List<String> res = AWSUploader.getObjectList(folderName, "config");
-		TelemetryManager.log("ResourceBundle Urls fetched from s3" , res.size());
+		TelemetryManager.log("ResourceBundle Urls fetched from s3: " + res.size());
 		for (String data : res) {
 			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
 				apiUrl = baseUrl + data;

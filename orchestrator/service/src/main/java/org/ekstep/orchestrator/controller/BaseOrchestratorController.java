@@ -25,10 +25,6 @@ public abstract class BaseOrchestratorController {
     
     private static final String API_ID_PREFIX = "orchestrator";
     private static final String API_VERSION = "2.0";
-    private static final String ekstep = "org.ekstep.";
-    private static final String ilimi = "org.ekstep.";
-    private static final String java = "java.";
-    private static final String default_err_msg = "Something went wrong in server while processing the request";
     private static String envUrl = "";
     
     protected ObjectMapper mapper = new ObjectMapper();
@@ -76,16 +72,11 @@ public abstract class BaseOrchestratorController {
     }
 
     private String setErrMessage(Exception e) {
-    	Class<? extends Throwable> className = e.getClass();
-        if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	TelemetryManager.log("Setting error message sent from class " + className , e.getMessage(), e);
-        	return e.getMessage();
+        if(e instanceof MiddlewareException) {
+        		return e.getMessage();
+        } else {
+        		return "Something went wrong in server while processing the request";
         }
-        else if(className.getName().startsWith(java)){
-        	TelemetryManager.log("Setting default err msg " + className , e.getMessage(), e);
-        	return default_err_msg;
-        }
-		return null;
 	}
 
 	protected HttpStatus getHttpStatus(Exception e) {

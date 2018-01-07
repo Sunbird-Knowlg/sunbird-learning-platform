@@ -238,7 +238,7 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 				mimeType = tika.detect(file);
 			}
 		} catch (IOException e) {
-			TelemetryManager.log(ContentErrorMessageConstants.FILE_READ_ERROR, file.getName(), e);
+			TelemetryManager.error(ContentErrorMessageConstants.FILE_READ_ERROR + " : " + file.getName(), e);
 		}
 		return mimeType;
 	}

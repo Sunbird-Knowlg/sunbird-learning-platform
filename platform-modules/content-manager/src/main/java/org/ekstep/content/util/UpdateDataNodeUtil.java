@@ -18,7 +18,6 @@ import org.ekstep.common.mgr.BaseManager;
 public class UpdateDataNodeUtil extends BaseManager {
 
 	public Response updateDataNode(Node node) {
-		TelemetryManager.log("Node: ", node);
 		Response response = new Response();
 		if (node != null) {
 			TelemetryManager.log("Updating Data Node Id: " + node.getIdentifier());

@@ -81,7 +81,7 @@ public class ThumbnailGenerator {
             boolean success = generate(file);
             return success;
         } catch (Exception ex) {
-            TelemetryManager.log("Failed to generate thumbnail for " + inFile, ex.getMessage(), Level.ERROR.name());
+            TelemetryManager.error("Failed to generate thumbnail for " + inFile+ " :: Error message:" + ex.getMessage());
             return false;
         }
     }
@@ -106,7 +106,7 @@ public class ThumbnailGenerator {
             boolean success = generate(inFile, outFile);
             return success;
         } catch (Exception ex) {
-            TelemetryManager.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),Level.ERROR.name());
+            TelemetryManager.log("Failed to generate thumbnail for " + inFile.getName() + " :: Error message: "+ ex.getMessage());
             return false;
         }
     }
@@ -146,7 +146,7 @@ public class ThumbnailGenerator {
                     done = false;
                 }
             } catch (Exception ex) {
-                TelemetryManager.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),Level.ERROR.name());
+                TelemetryManager.log("Failed to generate thumbnail for " + inFile.getName() + " Error message: " + ex.getMessage());
                 done = false;
             }
         }

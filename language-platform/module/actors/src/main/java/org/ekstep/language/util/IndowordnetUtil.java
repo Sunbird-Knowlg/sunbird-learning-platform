@@ -19,6 +19,7 @@ import org.ekstep.language.model.LanguageSynsetData;
 import org.ekstep.language.model.SynsetData;
 import org.ekstep.language.model.SynsetDataLite;
 import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -126,7 +127,7 @@ public class IndowordnetUtil {
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							TelemetryManager.log(e.getMessage(), null, e);
+							TelemetryManager.error(e.getMessage(), e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
@@ -145,7 +146,7 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					TelemetryManager.log(e.getMessage(), null, e);
+					TelemetryManager.error(e.getMessage(), e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -155,13 +156,15 @@ public class IndowordnetUtil {
 
 			} while (true);
 			long totalEndTime = System.currentTimeMillis();
-			System.out.println("Status Update: Loaded " + totalCount + " synsets for language: " + language);
-			System.out.println("Total time taken for import: " + (totalEndTime - totalStartTime));
+			TelemetryManager.log("Status Update: Loaded " + totalCount + " synsets for language: " + language);
+			TelemetryManager.log("Total time taken for import: " + (totalEndTime - totalStartTime));
+			// TODO: 
 			if (!errorMessages.isEmpty()) {
-				System.out.println("Error Messages for Indowordnet import ********************************* ");
-				for (String errorMessage : errorMessages) {
-					System.out.println(errorMessage);
+				String error = "Error Messages for Indowordnet import: ## ";
+				for (String msg : errorMessages) {
+					error += msg + " ## ";
 				}
+				TelemetryManager.warn(error);
 			}
 		}
 	}
@@ -390,10 +393,9 @@ public class IndowordnetUtil {
 										englishTranslationId, languageGraphId);
 							
 							long synsetEndTime = System.currentTimeMillis();
-							//System.out.println(
-								//	"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
+							TelemetryManager.log("Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							TelemetryManager.log(e.getMessage(), null, e);
+							TelemetryManager.error(e.getMessage(), e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
@@ -410,7 +412,7 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					TelemetryManager.log(e.getMessage(), null, e);
+					TelemetryManager.error(e.getMessage(), e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -420,13 +422,14 @@ public class IndowordnetUtil {
 	
 			} while (true);
 			long totalEndTime = System.currentTimeMillis();
-			System.out.println("Status Update: Loaded " + totalCount + " synsets for language: " + language);
-			System.out.println("Total time taken for import: " + (totalEndTime - totalStartTime));
+			TelemetryManager.log("Status Update: Loaded " + totalCount + " synsets for language: " + language);
+			TelemetryManager.log("Total time taken for import: " + (totalEndTime - totalStartTime));
 			if (!errorMessages.isEmpty()) {
-				System.out.println("Error Messages for Indowordnet import ********************************* ");
-				for (String errorMessage : errorMessages) {
-					System.out.println(errorMessage);
+				String error = "Error Messages for Indowordnet import: ## ";
+				for (String msg : errorMessages) {
+					error += msg;
 				}
+				TelemetryManager.warn(error);
 			}
 		}
 	}
@@ -476,7 +479,7 @@ public class IndowordnetUtil {
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			TelemetryManager.log(e.getMessage(), null, e);
+			TelemetryManager.error(e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

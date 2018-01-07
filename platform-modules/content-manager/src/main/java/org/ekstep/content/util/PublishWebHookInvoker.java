@@ -59,7 +59,7 @@ public class PublishWebHookInvoker {
 				});
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error sending Content2Vec request", e.getMessage(), e);
+			TelemetryManager.error("Error sending Content2Vec request"+ e.getMessage(), e);
 		} finally {
 			if (null != pool)
 				pool.shutdown();
@@ -77,9 +77,9 @@ public class PublishWebHookInvoker {
 				post.setEntity(new StringEntity(body));
 			}
 			HttpResponse response = client.execute(post);
-			TelemetryManager.log("PublishWebHook API: " + url + " | responseCode: " , response.getStatusLine().getStatusCode());
+			TelemetryManager.log("PublishWebHook API: " + url + " | responseCode: " + response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
-			TelemetryManager.log("Error calling PublishWebHook api", e.getMessage(), e);
+			TelemetryManager.error("Error calling PublishWebHook api"+ e.getMessage(), e);
 		}
 	}
 }

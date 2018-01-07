@@ -79,7 +79,6 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
-			TelemetryManager.log("ECRF Object (Plugin): ", plugin);
 			if (null != plugin) {
 				TelemetryManager.log("Starting the Process. | [Content Id '" + contentId + "']");
 				List<Media> medias = getMedia(plugin);
@@ -132,7 +131,6 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 	 *             thrown by erroneous condition while executing the threads.
 	 */
 	private Map<String, String> uploadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
-		TelemetryManager.log("Medias: ", medias);
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != medias && StringUtils.isNotBlank(basePath)) {
 			TelemetryManager.log("Starting the Fan-out for Upload. | [Content Id '" + contentId + "']");

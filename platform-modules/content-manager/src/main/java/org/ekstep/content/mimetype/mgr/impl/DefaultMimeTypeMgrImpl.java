@@ -46,7 +46,6 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		TelemetryManager.log("Node: ", node.getIdentifier());
 		TelemetryManager.log("Uploaded File: " + uploadFile.getName());
 
 		Response response = new Response();
@@ -55,7 +54,7 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 			Tika tika = new Tika(new MimeTypes());
 			String mimeType = tika.detect(uploadFile);
 			String nodeMimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-			TelemetryManager.log("Uploaded Asset MimeType: ", mimeType);
+			TelemetryManager.log("Uploaded Asset MimeType: " + mimeType);
 			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType))
 				TelemetryManager.log("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
 						+ mimeType + " | Node (Object) MimeType: " + nodeMimeType + "]");
@@ -63,7 +62,7 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 			TelemetryManager.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 			String[] urlArray = uploadArtifactToAWS(uploadFile, node.getIdentifier());
 
-			TelemetryManager.log("Updating the Content Node for Node ID: ", node.getIdentifier());
+			TelemetryManager.log("Updating the Content Node for Node ID: " + node.getIdentifier());
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
@@ -109,8 +108,6 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		TelemetryManager.log("Node: ", node.getIdentifier());
-
 		Response response = new Response();
 		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
@@ -121,18 +118,18 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 		TelemetryManager.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: ", contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		TelemetryManager.log("Review Operation Finished Successfully for Node ID: ", contentId);
+		TelemetryManager.log("Review Operation Finished Successfully for Node ID: " + contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: ", contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: ", contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
@@ -140,7 +137,7 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);

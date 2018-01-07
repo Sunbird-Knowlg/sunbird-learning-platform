@@ -58,7 +58,7 @@ public class TelemetryGenerator {
 	 * @param params
 	 * @return
 	 */
-	public static String log(Map<String, String> context, String type, String level, String message, String pageid, List<Map<String, Object>> params) {
+	public static String log(Map<String, String> context, String type, String level, String message, String pageid, Map<String, Object> params) {
 		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
@@ -68,7 +68,7 @@ public class TelemetryGenerator {
 		if (StringUtils.isNotBlank(pageid))
 			edata.put("pageid", pageid);
 		if (null != params && !params.isEmpty())
-			edata.put("params", params);
+			edata.put("params", getParamsList(params));
 		Telemetry telemetry = new Telemetry("LOG", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 	}
@@ -130,6 +130,8 @@ public class TelemetryGenerator {
 	}
 	
 	public static String audit(Map<String, String> context) {
+		Actor actor = getActor(context);
+		Context eventContext = getContext(context);
 		return null;
 	}
 	

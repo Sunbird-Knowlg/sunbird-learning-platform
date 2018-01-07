@@ -367,7 +367,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
-			TelemetryManager.log("Validating the Base Path: " , path);
+			TelemetryManager.log("Validating the Base Path: " + path);
 			isValid = isPathExist(Paths.get(path));
 		} catch (InvalidPathException | NullPointerException e) {
 			isValid = false;
@@ -391,10 +391,10 @@ public class BaseConcreteProcessor extends BaseManager {
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			TelemetryManager.log("Base Path Already Exist: " , path.getFileName(), e, Level.WARN.name());
+			TelemetryManager.error("Base Path Already Exist: " + path.getFileName(), e);
 		} catch (Exception e) {
 			exist = false;
-			TelemetryManager.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
+			TelemetryManager.error("Error! Something went wrong while creating the path: " + path.getFileName(), e);
 		}
 		return exist;
 	}

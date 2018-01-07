@@ -105,7 +105,7 @@ public class BaseFinalizer extends BasePipeline {
 									thumbFile.delete();
 									TelemetryManager.log("Deleted local Thumbnail file");
 								} catch (Exception e) {
-									TelemetryManager.log("Error! While deleting the Thumbnail File.", thumbFile, e);
+									TelemetryManager.error("Error! While deleting the Thumbnail File: "+ thumbFile, e);
 								}
 							}
 						}
@@ -113,7 +113,7 @@ public class BaseFinalizer extends BasePipeline {
 							appIconFile.delete();
 							TelemetryManager.log("Deleted local AppIcon file");
 						} catch (Exception e) {
-							TelemetryManager.log("Error! While deleting the App Icon File.", appIcon, e);
+							TelemetryManager.error("Error! While deleting the App Icon File: "+ appIcon, e);
 						}
 					}
 				}
@@ -138,7 +138,7 @@ public class BaseFinalizer extends BasePipeline {
 						}
 					}
 				} catch (Exception e) {
-					TelemetryManager.log("Error!Unable to downnload Stage Icon for Content Id:", e.getMessage(), e);
+					TelemetryManager.error("Error!Unable to downnload Stage Icon for Content Id: " + node.getIdentifier(), e);
 					throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 							ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR
 									+ " | [Unable to download Stage Icon for Content Id: '" + node.getIdentifier()
@@ -147,7 +147,7 @@ public class BaseFinalizer extends BasePipeline {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error! Unable to download appIcon for content Id", e.getMessage(), e);
+			TelemetryManager.error("Error! Unable to download appIcon for content Id: "+ node.getIdentifier() , e);
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.APP_ICON_DOWNLOAD_ERROR
 							+ " | [Unable to Download App Icon for Content Id: '" + node.getIdentifier() + "' ]",
@@ -194,9 +194,9 @@ public class BaseFinalizer extends BasePipeline {
 			file = new File(basePath + File.separator + stageIconId);
 
 			ImageIO.write(bufferedImage, mimeType, file);
-			TelemetryManager.log("StageIcon Downloaded File ", stageIconId);
+			TelemetryManager.log("StageIcon Downloaded File: "+ stageIconId);
 		} catch (Exception e) {
-			TelemetryManager.log("Something went wrong when downloading base64 image", e.getMessage(), e);
+			TelemetryManager.error("Something went wrong when downloading base64 image", e);
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR + " | [Unable to Upload File.]");
 		}
@@ -248,7 +248,7 @@ public class BaseFinalizer extends BasePipeline {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error! While Processing the StageIcon File.", e.getMessage(), e);
+			TelemetryManager.error("Error! While Processing the StageIcon File.", e);
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | [Unable to Upload File.]");
 		}
@@ -322,7 +322,7 @@ public class BaseFinalizer extends BasePipeline {
 	 */
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
-			TelemetryManager.log("Creating Zip File: ", zipFileName);
+			TelemetryManager.log("Creating Zip File: "+ zipFileName);
 			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
 			appZip.generateFileList(new File(basePath));
 			appZip.zipIt(zipFileName);
@@ -330,8 +330,6 @@ public class BaseFinalizer extends BasePipeline {
 	}
 
 	protected Node getNodeForOperation(String taxonomyId, Node node) {
-		TelemetryManager.log("Taxonomy Id: " + taxonomyId);
-		TelemetryManager.log("Content Node: " + node);
 		Node nodeForOperation = new Node();
 		if (null != node && null != node.getMetadata() && StringUtils.isNotBlank(taxonomyId)) {
 			String status = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
@@ -379,10 +377,7 @@ public class BaseFinalizer extends BasePipeline {
 	}
 
 	protected Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
-		TelemetryManager.log("Taxonomy Id: " + taxonomyId);
-		TelemetryManager.log("Content Id: " + contentImageId);
-		TelemetryManager.log("Node: ", node);
-
+		TelemetryManager.log("Taxonomy Id: " + taxonomyId + " :: "+  "Content Id: " + contentImageId);
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(),
 				ContentConfigurationConstants.CONTENT_IMAGE_OBJECT_TYPE);
 		imageNode.setGraphId(taxonomyId);
@@ -404,7 +399,6 @@ public class BaseFinalizer extends BasePipeline {
 	}
 
 	protected Response createDataNode(Node node) {
-		TelemetryManager.log("Node :", node);
 		Response response = new Response();
 		if (null != node) {
 			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");

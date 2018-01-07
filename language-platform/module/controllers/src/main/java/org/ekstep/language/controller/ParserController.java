@@ -68,7 +68,7 @@ public class ParserController extends BaseController {
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            TelemetryManager.log("Parser | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Parser | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }

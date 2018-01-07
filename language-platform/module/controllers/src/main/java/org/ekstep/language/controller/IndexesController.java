@@ -87,7 +87,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} finally {
@@ -95,7 +95,7 @@ public class IndexesController extends BaseLanguageController {
 				if (null != zipStream)
 					zipStream.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+				TelemetryManager.error("Error! While Closing the Input Stream."+ e.getMessage(), e);
 			}
 		}
 	}
@@ -129,7 +129,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -163,7 +163,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -197,7 +197,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -231,7 +231,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " ,e.getMessage(), e);
+			TelemetryManager.error("List | Exception: "  + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -265,7 +265,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -299,7 +299,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -333,7 +333,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -365,7 +365,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -398,7 +398,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -431,7 +431,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -464,7 +464,7 @@ public class IndexesController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -504,7 +504,7 @@ public class IndexesController extends BaseLanguageController {
 				resp.getOutputStream().close();
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 		}
 	}
 

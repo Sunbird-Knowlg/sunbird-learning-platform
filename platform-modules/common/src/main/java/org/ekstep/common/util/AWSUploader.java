@@ -76,7 +76,7 @@ public class AWSUploader {
 		AmazonS3Client s3 = new AmazonS3Client();
 		String key = file.getName();
 		String bucketName = getBucketName();
-		TelemetryManager.log("Fetching bucket name:" , bucketName);
+		TelemetryManager.log("Fetching bucket name:" + bucketName);
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
 			s3.setRegion(region);
@@ -104,11 +104,11 @@ public class AWSUploader {
 
 	public static List<String> getObjectList(String prefix, String bucketType) {
 		AmazonS3 s3 = new AmazonS3Client();
-		TelemetryManager.log("Reading s3 Bucket and Region" , getBucketName(bucketType) + " : " + s3Environment);
+		TelemetryManager.log("Reading s3 Bucket and Region: " + getBucketName(bucketType) + " : " + s3Environment);
 		String bucketName = getBucketName(bucketType);
 		ObjectListing listing = s3.listObjects(bucketName, prefix);
 		List<S3ObjectSummary> summaries = listing.getObjectSummaries();
-		TelemetryManager.log("SummaryData returned from s3 object Listing" , summaries.size());
+		TelemetryManager.log("SummaryData returned from s3 object Listing: " + summaries.size());
 		List<String> fileList = new ArrayList<String>();
 		while (listing.isTruncated()) {
 			listing = s3.listNextBatchOfObjects(listing);
@@ -117,7 +117,7 @@ public class AWSUploader {
 		for (S3ObjectSummary data : summaries) {
 			fileList.add(data.getKey());
 		}
-		TelemetryManager.log("resource bundles fileList returned from s3" , fileList);
+		TelemetryManager.log("resource bundles fileList returned from s3" + fileList);
 		return fileList;
 	}
 
@@ -140,7 +140,7 @@ public class AWSUploader {
 			url = url.replaceAll(oldPublicStringV2, newString);
 			url = url.replaceAll(oldConfigStringV1, newString);
 			url = url.replaceAll(oldConfigStringV2, newString);
-			TelemetryManager.log("Updated bucket url:" , url);
+			TelemetryManager.log("Updated bucket url:" + url);
 		}
 		return url;
 	}
@@ -168,7 +168,7 @@ public class AWSUploader {
 			TelemetryManager.log("Caught an AmazonClientException, " + "which means the client encountered "
 					+ "an internal error while trying to " + " communicate with S3, "
 					+ "such as not being able to access the network.");
-			TelemetryManager.log("Error Message: " , ace.getMessage(), ace);
+			TelemetryManager.error("Error Message: " + ace.getMessage(), ace);
 		}
 		return isCopied;
 	}
@@ -209,10 +209,9 @@ public class AWSUploader {
 			TelemetryManager.log("Error Type:       " + ase.getErrorType());
 			TelemetryManager.log("Request ID:       " + ase.getRequestId());
 		} catch (AmazonClientException ace) {
-			TelemetryManager.log("Caught an AmazonClientException, " + "which means the client encountered "
+			TelemetryManager.error("Caught an AmazonClientException, " + "which means the client encountered "
 					+ "an internal error while trying to " + " communicate with S3, "
-					+ "such as not being able to access the network.", ace.getMessage(), ace);
-			TelemetryManager.log("Error Message: " , ace.getMessage(), ace);
+					+ "such as not being able to access the network: "+ ace.getMessage(), ace);
 		}
 		return map;
 	}

@@ -65,7 +65,7 @@ public class LanguageCacheActor extends LanguageBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error in enrich actor", e.getMessage(), e);
+			TelemetryManager.error("Error in enrich actor" + e.getMessage(), e);
 			handleException(e, getSender());
 		}
 

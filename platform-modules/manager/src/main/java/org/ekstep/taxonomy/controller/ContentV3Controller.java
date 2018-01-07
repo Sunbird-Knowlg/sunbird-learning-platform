@@ -82,7 +82,7 @@ public class ContentV3Controller extends BaseController {
 			Response response = contentManager.updateContent(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -118,7 +118,7 @@ public class ContentV3Controller extends BaseController {
 			try {
 				if (StringUtils.isNotBlank(fileUrl)) {
 					Response response = contentManager.upload(contentId, graphId, fileUrl, mimeType);
-					TelemetryManager.log("Upload | Response: ", response.getResponseCode());
+					TelemetryManager.log("Upload | Response: "+ response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				} else {
 					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE
@@ -127,11 +127,11 @@ public class ContentV3Controller extends BaseController {
 					file.transferTo(uploadedFile);
 					uploadedFile = new File(name);
 					Response response = contentManager.upload(contentId, graphId, uploadedFile, mimeType);
-					TelemetryManager.log("Upload | Response: ", response.getResponseCode());
+					TelemetryManager.log("Upload | Response: "+ response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				}
 			} catch (Exception e) {
-				TelemetryManager.log("Upload | Exception: ", e.getMessage(), e);
+				TelemetryManager.error("Upload | Exception: "+ e.getMessage(), e);
 				return getExceptionResponseEntity(e, apiId, null);
 			}
 		}
@@ -163,7 +163,7 @@ public class ContentV3Controller extends BaseController {
 
 			TelemetryManager.log("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
-			TelemetryManager.log("Archive | Response: ", response.getResponseCode());
+			TelemetryManager.log("Archive | Response: " + response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -190,8 +190,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		TelemetryManager.log("Publish content | Content Id : " + contentId);
 		try {
-			TelemetryManager.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]",
-					contentId);
+			TelemetryManager.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]" + contentId);
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
 			requestMap.put("publish_type", ContentWorkflowPipelineParams.Public.name().toLowerCase());
@@ -228,8 +227,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		TelemetryManager.log(" as Unlisted content | Content Id : " + contentId);
 		try {
-			TelemetryManager.log("Calling the Manager for 'Unlisted Publish' Operation | [Content Id " + contentId + "]",
-					contentId);
+			TelemetryManager.log("Calling the Manager for 'Unlisted Publish' Operation | [Content Id " + contentId + "]" + contentId);
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
 			requestMap.put("publish_type", ContentWorkflowPipelineParams.Unlisted.name().toLowerCase());
@@ -268,8 +266,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		TelemetryManager.log("Review content | Content Id : " + contentId);
 		try {
-			TelemetryManager.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]",
-					contentId);
+			TelemetryManager.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]" + contentId);
 			Request request = getRequest(map);
 			response = contentManager.review(graphId, contentId, request);
 			return getResponseEntity(response, apiId, null);
@@ -293,8 +290,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]",
-					contentId);
+			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]" + contentId);
 			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -318,8 +314,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		TelemetryManager.log("Content Find | Content Id : " + contentId);
 		try {
-			TelemetryManager.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]",
-					contentId);
+			TelemetryManager.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]" + contentId);
 			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -370,7 +365,7 @@ public class ContentV3Controller extends BaseController {
 			Response response = contentManager.updateHierarchy(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -392,7 +387,7 @@ public class ContentV3Controller extends BaseController {
 				Response response = contentManager.linkDialCode(map);
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception occured while Linking Dial Code with Content: ", e.getMessage(), e);
+			TelemetryManager.error("Exception occured while Linking Dial Code with Content: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

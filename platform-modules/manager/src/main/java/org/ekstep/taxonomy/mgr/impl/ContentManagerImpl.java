@@ -17,15 +17,20 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.optimizr.Optimizr;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -59,18 +64,11 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.springframework.stereotype.Component;
-
-import org.ekstep.common.dto.NodeDTO;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.telemetry.util.LogTelemetryEventUtil;
+import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -177,7 +175,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null == uploadedFile)
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 						"Upload file is blank.");
-			TelemetryManager.log("Uploaded File: ", uploadedFile.getAbsolutePath());
+			TelemetryManager.log("Uploaded File: "+ uploadedFile.getAbsolutePath());
 			
 			if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
@@ -214,7 +212,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		} catch (Exception e) {
 			String message = "Something went wrong while processing uploaded file.";
-			TelemetryManager.log(message, null, e);
+			TelemetryManager.error(message, e);
 			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
 		} finally {
 			if (null != uploadedFile && uploadedFile.exists())
@@ -273,7 +271,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		} catch (Exception e) {
 			String message = "Something went wrong while processing uploaded file.";
-			TelemetryManager.log(message, null, e);
+			TelemetryManager.error(message, e);
 			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
 		}
 	}
@@ -303,14 +301,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response bundle(Request request, String taxonomyId, String version) {
-		TelemetryManager.log("Request Object: ", request);
-		TelemetryManager.log("Graph ID: " + taxonomyId);
-		TelemetryManager.log("Version: " + version);
-
 		String bundleFileName = (String) request.get("file_name");
 		List<String> contentIds = (List<String>) request.get("content_identifiers");
 		TelemetryManager.log("Bundle File Name: " + bundleFileName);
-		TelemetryManager.log("Total No. of Contents: ", contentIds.size());
+		TelemetryManager.log("Total No. of Contents: "+ contentIds.size());
 		if (contentIds.size() > 1 && StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
 					"ECAR file name should not be blank");
@@ -423,8 +417,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
 		Node node = getNodeForOperation(taxonomyId, contentId, "optimize");
-		TelemetryManager.log("Got Node: ", node);
-
+		
 		isNodeUnderProcessing(node, "Optimize");
 
 		TelemetryManager.log("Given Content is not in Processing Status.");
@@ -515,7 +508,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return the response
 	 */
 	private Response updateDataNode(Node node) {
-		TelemetryManager.log("[updateNode] | Node: ", node);
 		Response response = new Response();
 		if (null != node) {
 			String contentId = node.getIdentifier();
@@ -547,7 +539,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.lang.String)
 	 */
 	public Response publish(String taxonomyId, String contentId, Map<String, Object> requestMap) {
-		TelemetryManager.log("Graph ID: " + taxonomyId + " | Content ID: " + contentId);
 
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
@@ -557,11 +548,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Response response = new Response();
 
 		Node node = getNodeForOperation(taxonomyId, contentId, "publish");
-		TelemetryManager.log("Got Node: ", node);
-
 		isNodeUnderProcessing(node, "Publish");
-
-		TelemetryManager.log("Given Content is not in Processing Status.");
 
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
@@ -599,11 +586,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	@Override
 	public Response review(String taxonomyId, String contentId, Request request) {
-		TelemetryManager.log("Graph Id: ", taxonomyId);
-		TelemetryManager.log("Content Id: ", contentId);
-		TelemetryManager.log("Request: ", request);
-
-		TelemetryManager.log("Validating The Input Parameter.");
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
@@ -612,7 +594,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Response response = new Response();
 
 		Node node = getNodeForOperation(taxonomyId, contentId, "review");
-		TelemetryManager.log("Node: ", node);
 
 		isNodeUnderProcessing(node, "Review");
 
@@ -637,14 +618,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		response = mimeTypeManager.review(contentId, node, false);
 
-		TelemetryManager.log("Returning 'Response' Object: ", response);
+		TelemetryManager.log("Returning 'Response' Object: ", response.getResult());
 		return response;
 	}
 
 	@Override
 	public Response getHierarchy(String graphId, String contentId, String mode) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Content Id: ", contentId);
 		Node node = getContentNode(graphId, contentId, mode);
 
 		TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
@@ -716,7 +695,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Response responseNode = getDataNode(graphId, contentImageId);
 			if (!checkError(responseNode)) {
 				Node content = (Node) responseNode.get(GraphDACParams.node.name());
-				TelemetryManager.log("Got draft version of node: ", content);
 				return content;
 			}
 		}
@@ -726,7 +704,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					"Content not found with id: " + contentId);
 
 		Node content = (Node) responseNode.get(GraphDACParams.node.name());
-		TelemetryManager.log("Got Node: ", content);
 		return content;
 	}
 
@@ -804,7 +781,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error! Something went wrong", e.getMessage(), e);
+			TelemetryManager.error("Error! Something went wrong: "+ e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
@@ -846,7 +823,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
 									+ "' does not Exist.]");
 
-				TelemetryManager.log("Fetched Content Node: ", node);
 				String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 				if (StringUtils.isNotBlank(status)
 						&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
@@ -865,9 +841,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	private Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
-		TelemetryManager.log("Taxonomy Id: " + taxonomyId);
-		TelemetryManager.log("Content Id: " + contentImageId);
-		TelemetryManager.log("Node: ", node);
 
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
 		imageNode.setGraphId(taxonomyId);
@@ -889,7 +862,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	private Response createDataNode(Node node) {
-		TelemetryManager.log("Node :", node);
 		Response response = new Response();
 		if (null != node) {
 			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
@@ -1131,8 +1103,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String graphId, String contentId, String mode, List<String> fields) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Content Id: ", contentId);
 		Response response = new Response();
 
 		Node node = getContentNode(graphId, contentId, mode);

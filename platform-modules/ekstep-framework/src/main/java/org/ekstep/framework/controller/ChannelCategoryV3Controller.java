@@ -2,9 +2,12 @@ package org.ekstep.framework.controller;
 
 import java.util.Map;
 
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.framework.mgr.ICategoryInstanceManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,10 +17,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.framework.mgr.ICategoryInstanceManager;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * This is the entry point for all CRUD operations related to categoryInstance for channel API.
@@ -54,7 +53,7 @@ public class ChannelCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for Category instance", apiId, null);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Create category instance", e.getMessage(), e);
+			TelemetryManager.error("Create category instance: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -78,7 +77,7 @@ public class ChannelCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for Category instance", apiId, null);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Read category instance", e.getMessage(), e);
+			TelemetryManager.error("Read category instance: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -106,7 +105,7 @@ public class ChannelCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for Categoryinstance", apiId, null);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Update category instance", e.getMessage(), e);
+			TelemetryManager.error("Update category instance: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -132,7 +131,7 @@ public class ChannelCategoryV3Controller extends BaseController {
 				throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for CategoryInstance", apiId, null);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("search category instance | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("search category instance | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -156,7 +155,7 @@ public class ChannelCategoryV3Controller extends BaseController {
 					throw new ClientException("ERR_INVALID_CHANNEL_ID", "Invalid channelId: " + channelId + " for Categoryinstance", apiId, null);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("retire category instance | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("retire category instance | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

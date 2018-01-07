@@ -152,7 +152,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 							}
 						}
 					}
-					TelemetryManager.log("Allotted Indices So Far: ", allottedIndices);
 					index = Collections.max(allottedIndices) + 1;
 				}
 
@@ -587,14 +586,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Integer index,
 			Map<String, Object> parameterMap) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", startNodeId);
-		TelemetryManager.log("End Node Id: ", endNodeId);
-		TelemetryManager.log("Relation Type: ", relationType);
-		TelemetryManager.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		TelemetryManager.log("End Node Object Variable: ", endNodeObjectVariableName);
-		TelemetryManager.log("Relationship Direction: ", direction.name());
-		TelemetryManager.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -653,14 +644,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getCreateRelationCypherQueryForCollection(String graphId, String startNodeId,
 			String endNodeId, String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Integer index) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", startNodeId);
-		TelemetryManager.log("End Node Id: ", endNodeId);
-		TelemetryManager.log("Relation Type: ", relationType);
-		TelemetryManager.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		TelemetryManager.log("End Node Object Variable: ", endNodeObjectVariableName);
-		TelemetryManager.log("Relationship Direction: ", direction.name());
-		TelemetryManager.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -704,14 +687,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getUpdateRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Map<String, Object> parameterMap) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", startNodeId);
-		TelemetryManager.log("End Node Id: ", endNodeId);
-		TelemetryManager.log("Relation Type: ", relationType);
-		TelemetryManager.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		TelemetryManager.log("End Node Object Variable: ", endNodeObjectVariableName);
-		TelemetryManager.log("Relationship Direction: ", direction.name());
-		TelemetryManager.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -749,13 +724,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getDeleteRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			RelationshipDirection direction) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", startNodeId);
-		TelemetryManager.log("End Node Id: ", endNodeId);
-		TelemetryManager.log("Relation Type: ", relationType);
-		TelemetryManager.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		TelemetryManager.log("End Node Object Variable: ", endNodeObjectVariableName);
-		TelemetryManager.log("Relationship Direction: ", direction.name());
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -780,14 +748,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getRemoveRelationMetadataCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String key, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			RelationshipDirection direction) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", startNodeId);
-		TelemetryManager.log("End Node Id: ", endNodeId);
-		TelemetryManager.log("Relation Type: ", relationType);
-		TelemetryManager.log("Relation Property Key: ", key);
-		TelemetryManager.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		TelemetryManager.log("End Node Object Variable: ", endNodeObjectVariableName);
-		TelemetryManager.log("Relationship Direction: ", direction.name());
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)

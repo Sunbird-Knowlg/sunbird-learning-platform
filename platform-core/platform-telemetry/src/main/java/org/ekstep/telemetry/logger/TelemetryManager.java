@@ -8,6 +8,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.exception.MiddlewareException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.handler.TelemetryHandler;
@@ -52,30 +53,89 @@ public class TelemetryManager {
 	 * @param message
 	 * @param data
 	 */
-	public static void log(String message, Object data) {
-		log(message, data, Level.DEBUG.name());
+	public static void log(String message, Map<String, Object> params) {
+		log(message, params, Level.DEBUG.name());
+	}
+	
+	/**
+	 * To log only message as a telemetry event.
+	 * 
+	 * @param message
+	 */
+	public static void info(String message) {
+		log(message, null, Level.INFO.name());
 	}
 
 	/**
-	 * To log message, params in user defined log level as a telemetry event.
+	 * To log message with params as a telemetry event.
 	 * 
 	 * @param message
 	 * @param data
-	 * @param logLevel
 	 */
-	public static void log(String message, Object data, String logLevel) {
-		log(message, data, null, logLevel);
+	public static void info(String message, Map<String, Object> params) {
+		log(message, params, Level.INFO.name());
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 */
+	
+	public static void warn(String message) {
+		log(message, null, Level.WARN.name());
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 * @param params
+	 */
+	
+	public static void warn(String message, Map<String, Object> params) {
+		log(message, params, Level.WARN.name());
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 */
+	public static void error(String message) {
+		log(message, null, Level.ERROR.name());
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 * @param params
+	 */
+	public static void error(String message, Map<String, Object> params) {
+		log(message, params, Level.ERROR.name());
 	}
 
 	/**
 	 * To log exception with message and params as a telemetry event.
 	 * 
 	 * @param message
-	 * @param data
 	 * @param e
 	 */
-	public static void log(String message, Object data, Throwable e) {
-		log(message, data, e, Level.ERROR.name());
+	public static void error(String message, Throwable e) {
+		error(message, e, null);
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 * @param e
+	 * @param object
+	 */
+	public static void error(String message, Throwable e, Object object) {
+		Map<String, String> context = getContext();
+		String stacktrace = ExceptionUtils.getStackTrace(e);
+		String code = ResponseCode.SERVER_ERROR.name();
+		if (e instanceof MiddlewareException) {
+			code = ((MiddlewareException) e).getErrCode();
+		}
+		telemetryHandler.error(context, code, "system", stacktrace, null, object);
 	}
 
 	/**
@@ -87,43 +147,9 @@ public class TelemetryManager {
 	 * @param e
 	 * @param logLevel
 	 */
-	public static void log(String message, Object data, Throwable e, String logLevel) {
-		if (StringUtils.isNotBlank(logLevel)) {
-			switch (logLevel) {
-			case "INFO":
-				log(Level.INFO.name(), message, data, e);
-				break;
-			case "DEBUG":
-				log(Level.DEBUG.name(), message, data, e);
-				break;
-			case "WARN":
-				log(Level.WARN.name(), message, data, e);
-				break;
-			case "ERROR":
-				log(Level.ERROR.name(), message, data, e);
-				break;
-			case "TRACE":
-				log(Level.TRACE.name(), message, data, e);
-				break;
-			case "FATAL":
-				log(Level.FATAL.name(), message, data, e);
-				break;
-			}
-		}
-	}
-
-	private static void log(String logLevel, String message, Object data, Throwable e) {
+	private static void log(String message, Map<String, Object> params, String logLevel) {
 		Map<String, String> context = getContext();
-		if (e != null) {
-			String code = "SYSTEM_ERROR";
-			if (e instanceof MiddlewareException) {
-				code = ((MiddlewareException) e).getErrCode();
-			}
-			telemetryHandler.error(context, code, "system", ExceptionUtils.getStackTrace(e));
-		} else {
-			// TODO: Object data should become params.
-			telemetryHandler.log(context, "system", logLevel, message);
-		}
+		telemetryHandler.log(context, "system", logLevel, message, null, params);
 	}
 
 	private static Map<String, String> getContext() {

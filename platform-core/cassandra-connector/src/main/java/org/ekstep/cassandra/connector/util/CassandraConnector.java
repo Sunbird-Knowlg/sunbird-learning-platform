@@ -2,7 +2,6 @@ package org.ekstep.cassandra.connector.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.datastax.driver.core.Cluster;
@@ -24,7 +23,7 @@ public class CassandraConnector {
 		try{
 			String host = Platform.config.getString("cassandra.host");
 			int port = Platform.config.getInt("cassandra.port");
-			TelemetryManager.log("Fetching cassandra properties from configPath" + host + port, null, Level.INFO.name());
+			TelemetryManager.info("Fetched cassandra properties from config - Path: " + host +":"+ port);
 			if (StringUtils.isBlank(host))
 				host = "localhost";					
 			if (port <= 0)
@@ -33,7 +32,7 @@ public class CassandraConnector {
 			session = cluster.connect();
 			registerShutdownHook();
 		} catch (Exception e) {
-			TelemetryManager.log("Error! While Loading Cassandra Properties.", e.getMessage(), e);
+			TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
 		}
 	}
 

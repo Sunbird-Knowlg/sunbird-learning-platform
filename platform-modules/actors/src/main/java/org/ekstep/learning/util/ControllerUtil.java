@@ -226,7 +226,7 @@ public class ControllerUtil extends BaseLearningManager {
 			String result = HTTPUtil.makeGetRequest(url);
 			hirerachyRes = mapper.readValue(result, Response.class);
 		} catch (Exception e) {
-			TelemetryManager.log(" Error while getting the Hirerachy of the node ", e.getMessage(), e);
+			TelemetryManager.error(" Error while getting the Hirerachy of the node: " + e.getMessage(), e);
 		}
 		return hirerachyRes;
 	}
@@ -257,7 +257,6 @@ public class ControllerUtil extends BaseLearningManager {
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility, s.compatibilityLevel as compatibilityLevel";
 		String query = MessageFormat.format(queryString, nodeId) + " UNION " + MessageFormat.format(queryString, imageNodeId) + " ORDER BY depth DESC;";
-		TelemetryManager.log("Query: "+query, null, Level.INFO.name());
         request.put(GraphDACParams.query.name(), query);
         List<String> props = new ArrayList<String>();
         props.add("identifier");
@@ -288,7 +287,7 @@ public class ControllerUtil extends BaseLearningManager {
 				}
 			}
 		}
-		TelemetryManager.log("Node children count:"+ nodes.size(), null, Level.INFO.name());
+		TelemetryManager.info("Node children count:"+ nodes.size());
 		return nodes;
 	}
 

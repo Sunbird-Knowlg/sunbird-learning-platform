@@ -74,7 +74,7 @@ public class ZipUtility {
 				zos.closeEntry();
 			}
 		} catch (IOException ex) {
-			TelemetryManager.log("Error! Something Went Wrong While Creating the ZIP File.", ex.getMessage(), ex);
+			TelemetryManager.error("Error! Something Went Wrong While Creating the ZIP File: "+ ex.getMessage(), ex);
 		}
 	}
 

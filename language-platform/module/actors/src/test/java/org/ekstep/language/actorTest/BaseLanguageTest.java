@@ -99,11 +99,9 @@ public class BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				graph_id);
 		request.put(GraphEngineParams.input_stream.name(), contentString);
-		TelemetryManager.log("List | Request: " , request);
 		Response response = LanguageCommonTestHelper.getResponse(
 				request);
-		TelemetryManager.log("List | Response: " , response);
-		
+
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 }

@@ -179,7 +179,7 @@ public class ConvertGraphNode {
                 }
             }
         }
-        TelemetryManager.log("JSON properties: " , props);
+        TelemetryManager.log("JSON properties: " + props);
         return props;
     }
     

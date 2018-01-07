@@ -61,7 +61,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 			TelemetryManager.log("Find | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

@@ -49,7 +49,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.createTerm(frameworkId, categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("create term", e.getMessage(), e);
+			TelemetryManager.error("create term"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -71,7 +71,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.readTerm(frameworkId, termId, categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Read term", e.getMessage(), e);
+			TelemetryManager.error("Read term"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -98,7 +98,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.updateTerm(frameworkId, categoryId, termId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Update term", e.getMessage(), e);
+			TelemetryManager.error("Update term" +e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -123,7 +123,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.searchTerms(frameworkId, categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Search terms", e.getMessage(), e);
+			TelemetryManager.error("Search terms"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -145,7 +145,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			Response response = termManager.retireTerm(frameworkId, categoryId, termId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("retire term", e.getMessage(), e);
+			TelemetryManager.error("retire term"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

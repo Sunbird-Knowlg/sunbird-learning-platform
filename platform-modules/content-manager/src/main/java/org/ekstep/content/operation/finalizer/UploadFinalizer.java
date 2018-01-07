@@ -100,7 +100,7 @@ public class UploadFinalizer extends BaseFinalizer {
 
 		// Get Content String
 		String ecml = getECMLString(ecrf, ContentWorkflowPipelineParams.ecml.name());
-		TelemetryManager.log("Generated ECML String From ECRF: " , ecml);
+		TelemetryManager.log("Generated ECML String From ECRF: " + ecml);
 
 		// Upload Package
 		String folderName = S3PropertyReader.getProperty(s3Artifact);
@@ -122,20 +122,20 @@ public class UploadFinalizer extends BaseFinalizer {
 		response = updateContentBody(node.getIdentifier(), ecml);
 		if (checkError(response))
 			return response;
-		TelemetryManager.log("Content Body Update Status: " , response.getResponseCode());
+		TelemetryManager.log("Content Body Update Status: " + response.getResponseCode());
 
 		// Update Node
 		response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
-		TelemetryManager.log("Content Node Update Status: " , response.getResponseCode());
+		TelemetryManager.log("Content Node Update Status: " + response.getResponseCode());
 		
 		if (!checkError(response))
 			response.put(GraphDACParams.node_id.name(), contentId);
 		
 		try {
-			TelemetryManager.log("Deleting the temporary folder: " , basePath);
+			TelemetryManager.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
-			TelemetryManager.log("Error deleting the temporary folder: " , basePath, e);
+			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
 		}
 		
 		return response;

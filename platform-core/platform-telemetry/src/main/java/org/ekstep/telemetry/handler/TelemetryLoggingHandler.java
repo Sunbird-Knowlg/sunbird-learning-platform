@@ -3,7 +3,6 @@
  */
 package org.ekstep.telemetry.handler;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,8 +44,8 @@ public class TelemetryLoggingHandler implements TelemetryHandler {
 	 */
 	@Override
 	public void log(Map<String, String> context, String type, String level, String message, String pageid,
-			List<Map<String, Object>> params) {
-		String event = TelemetryGenerator.log(context, type, level, message);
+			Map<String, Object> params) {
+		String event = TelemetryGenerator.log(context, type, level, message, pageid, params);
 		if (StringUtils.isNotBlank(event)) {
 			if (StringUtils.equalsIgnoreCase(Level.INFO.name(), level) && rootLogger.isInfoEnabled()) {
 				rootLogger.info(event);

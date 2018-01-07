@@ -1,6 +1,5 @@
 package org.ekstep.telemetry.handler;
 
-import java.util.List;
 import java.util.Map;
 
 import org.ekstep.telemetry.TelemetryGenerator;
@@ -36,7 +35,7 @@ public interface TelemetryHandler {
 	 * @param params
 	 */
 	public void log(Map<String, String> context, String type, String level, String message, String pageid,
-			List<Map<String, Object>> params);
+			Map<String, Object> params);
 
 	/**
 	 * To generate and handle normal LOG event having required properties of edata.

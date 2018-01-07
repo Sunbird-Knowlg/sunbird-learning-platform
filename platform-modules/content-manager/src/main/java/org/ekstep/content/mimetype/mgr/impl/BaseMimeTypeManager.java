@@ -320,7 +320,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				TelemetryManager.log("Error: While getting the file size from AWS", key, e);
+				TelemetryManager.error("Error: While getting the file size from AWS: " + key, e);
 			}
 		}
 		return bytes;
@@ -447,7 +447,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		try {
 			bytes = getFileSize(file) / 1024;
 		} catch (IOException e) {
-			TelemetryManager.log("Error: While Calculating the file size.",file.getName(), e);
+			TelemetryManager.error("Error: While Calculating the file size: "+file.getName(), e);
 		}
 		return bytes;
 	}
@@ -562,7 +562,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 	
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
-			TelemetryManager.log("Creating Zip File: ", zipFileName);
+			TelemetryManager.log("Creating Zip File: " + zipFileName);
 			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
 			appZip.generateFileList(new File(basePath));
 			appZip.zipIt(zipFileName);

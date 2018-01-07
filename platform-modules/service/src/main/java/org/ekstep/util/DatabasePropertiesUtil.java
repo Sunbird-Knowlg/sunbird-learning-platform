@@ -21,7 +21,7 @@ public class DatabasePropertiesUtil {
 		try {
 			prop.load(input);
 		} catch (IOException e) {
-			TelemetryManager.log("Exception",e.getMessage(), e);
+			TelemetryManager.error("Exception: "+e.getMessage(), e);
 		}
 	}
 	

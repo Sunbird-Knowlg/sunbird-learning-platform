@@ -62,9 +62,7 @@ public class ContentV2Controller extends BaseController {
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.info";
-		TelemetryManager.log(
-				"Executing Content Get API (Java Version) (API Version V2) For Content Id: " + contentId + ".", null,
-				"INFO");
+		TelemetryManager.info("Executing Content Get API (Java Version) (API Version V2) For Content Id: " + contentId + ".");
 		Response response;
 		TelemetryManager.log("Content GetById | Content Id : " + contentId);
 		try {
@@ -81,7 +79,7 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.create";
-		TelemetryManager.log("Executing Content Create API (Java Version) (API Version V2).", requestMap, "INFO");
+		TelemetryManager.info("Executing Content Create API (Java Version) (API Version V2).", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
@@ -98,16 +96,14 @@ public class ContentV2Controller extends BaseController {
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.update";
-		TelemetryManager.log(
-				"Executing Content Update API (Java Version) (API Version V2) For Content Id: " + contentId + ".",
-				requestMap, "INFO");
+		TelemetryManager.info("Executing Content Update API (Java Version) (API Version V2) For Content Id: " + contentId + ".", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
 			Response response = contentManager.updateContent(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -143,7 +139,7 @@ public class ContentV2Controller extends BaseController {
 			try {
 				if (StringUtils.isNotBlank(fileUrl)) {
 					Response response = contentManager.upload(contentId, graphId, fileUrl, mimeType);
-					TelemetryManager.log("Upload | Response: ", response.getResponseCode());
+					TelemetryManager.log("Upload | Response: " + response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				} else {
 					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_"
@@ -151,11 +147,11 @@ public class ContentV2Controller extends BaseController {
 					File uploadedFile = new File(name);
 					file.transferTo(uploadedFile);
 					Response response = contentManager.upload(contentId, "domain", uploadedFile, mimeType);
-					TelemetryManager.log("Upload | Response: ", response);
+					TelemetryManager.log("Upload | Response: ", response.getResult());
 					return getResponseEntity(response, apiId, null);
 				}
 			} catch (Exception e) {
-				TelemetryManager.log("Upload | Exception: ", e.getMessage(), e);
+				TelemetryManager.error("Upload | Exception: " + e.getMessage(), e);
 				return getExceptionResponseEntity(e, apiId, null);
 			}
 		}
@@ -311,7 +307,7 @@ public class ContentV2Controller extends BaseController {
 			Response response = contentManager.updateHierarchy(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

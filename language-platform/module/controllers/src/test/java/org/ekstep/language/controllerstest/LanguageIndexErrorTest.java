@@ -105,7 +105,6 @@ public class LanguageIndexErrorTest extends BaseLanguageTest{
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 			TelemetryManager.log("List | Response: " + response);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			ResponseEntity<Response> responseEntity = RequestResponseTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 			TelemetryManager.log("List | Response: " + responseEntity);
@@ -128,7 +127,6 @@ public class LanguageIndexErrorTest extends BaseLanguageTest{
 			RequestResponseTestHelper.getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			RequestResponseTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

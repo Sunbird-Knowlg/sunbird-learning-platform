@@ -18,7 +18,6 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
@@ -54,7 +53,7 @@ public class BaseDACMgr {
 	}
 
 	protected Response handleException(Throwable e) {
-		TelemetryManager.log("Exception occured in class:" + e.getClass().getName(), null, e);
+		TelemetryManager.error("Exception occured in class:" + e.getClass().getName(), e);
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus(StatusType.failed.name());
@@ -147,7 +146,7 @@ public class BaseDACMgr {
 
 	public Response ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier,
 			Object vo) {
-		TelemetryManager.log(errorCode + ", " + errorMessage, null, Level.ERROR.name());
+		TelemetryManager.error(errorCode + ", " + errorMessage);
 		Response response = new Response();
 		response.put(responseIdentifier, vo);
 		response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -185,7 +184,7 @@ public class BaseDACMgr {
 	}
 
 	public Response ERROR(String errorCode, String errorMessage, ResponseCode code, ActorRef parent) {
-		TelemetryManager.log(errorCode + ", " + errorMessage, null, Level.ERROR.name());
+		TelemetryManager.error(errorCode + ", " + errorMessage);
 		return getErrorResponse(errorCode, errorMessage, code);
 	}
 

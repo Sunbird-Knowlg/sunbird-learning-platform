@@ -671,9 +671,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.log(
+			TelemetryManager.error(
 					"error in replaceMediaItemsWithLowVariants while checking media for replacing with low variants, message= "
-							, e.getMessage(), e);
+							+ e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}

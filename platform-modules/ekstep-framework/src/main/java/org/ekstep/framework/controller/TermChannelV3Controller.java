@@ -50,7 +50,7 @@ public class TermChannelV3Controller extends BaseController {
 			return getResponseEntity(response, apiId, null);
 
 		} catch (Exception e) {
-			TelemetryManager.log("create term", e.getMessage(), e);
+			TelemetryManager.error("create term" + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -72,7 +72,7 @@ public class TermChannelV3Controller extends BaseController {
 			Response response = termManager.readTerm(channelId, termId, categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Read term", e.getMessage(), e);
+			TelemetryManager.error("Read term"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -99,7 +99,7 @@ public class TermChannelV3Controller extends BaseController {
 			Response response = termManager.updateTerm(channelId, categoryId, termId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Update term", e.getMessage(), e);
+			TelemetryManager.error("Update term"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -123,7 +123,7 @@ public class TermChannelV3Controller extends BaseController {
 			Response response = termManager.searchTerms(channelId, categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Search terms", e.getMessage(), e);
+			TelemetryManager.error("Search terms"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -145,7 +145,7 @@ public class TermChannelV3Controller extends BaseController {
 			Response response = termManager.retireTerm(channelId, categoryId, termId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("retire term", e.getMessage(), e);
+			TelemetryManager.error("retire term"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

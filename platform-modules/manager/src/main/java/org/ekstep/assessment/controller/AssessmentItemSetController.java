@@ -49,11 +49,11 @@ public class AssessmentItemSetController extends BaseController {
         TelemetryManager.log("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = assessmentManager.createItemSet(taxonomyId, request);
-            TelemetryManager.log("Create | Response: " , response);
+            TelemetryManager.log("Create | Response: " , response.getResult());
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -70,11 +70,11 @@ public class AssessmentItemSetController extends BaseController {
                 + " | user-id: " + userId);
         try {
             Response response = assessmentManager.updateItemSet(id, taxonomyId, request);
-            TelemetryManager.log("Update | Response: " , response);
+            TelemetryManager.log("Update | Response: " , response.getResult());
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            TelemetryManager.log("Update | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Update | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -91,10 +91,10 @@ public class AssessmentItemSetController extends BaseController {
                 + userId);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, false);
-            TelemetryManager.log("Find | Response: " , response);
+            TelemetryManager.log("Find | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Find | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Find | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -110,10 +110,10 @@ public class AssessmentItemSetController extends BaseController {
                 + userId);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, true);
-            TelemetryManager.log("Find | Response: " , response);
+            TelemetryManager.log("Find | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Find | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Find | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -128,10 +128,10 @@ public class AssessmentItemSetController extends BaseController {
         try {
             Request reqeust = getSearchRequest(map);
             Response response = assessmentManager.searchItemSets(taxonomyId, reqeust);
-            TelemetryManager.log("Search | Response: " , response);
+            TelemetryManager.log("Search | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Search | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Search | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -145,10 +145,10 @@ public class AssessmentItemSetController extends BaseController {
         TelemetryManager.log("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = assessmentManager.deleteItemSet(id, taxonomyId);
-            TelemetryManager.log("Delete | Response: " , response);
+            TelemetryManager.log("Delete | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Delete | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Delete | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

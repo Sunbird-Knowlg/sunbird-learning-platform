@@ -80,9 +80,6 @@ public class ReviewInitializer extends BaseInitializer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid or null Node.]");
 
-		TelemetryManager.log("Node: ", node);
-		TelemetryManager.log("Is ECML Content ? ", isECMLContent);
-
 		// Validating the Content Node
 		ContentValidator validator = new ContentValidator();
 		if (validator.isValidContentNode(node)) {

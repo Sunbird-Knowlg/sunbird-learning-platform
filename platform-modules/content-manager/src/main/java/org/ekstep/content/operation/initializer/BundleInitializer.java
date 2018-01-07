@@ -104,7 +104,7 @@ public class BundleInitializer extends BaseInitializer {
 		if (StringUtils.isBlank(manifestVersion))
 			manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
 
-		TelemetryManager.log("Total Input Content Ids: " , contentIdList.size());
+		TelemetryManager.log("Total Input Content Ids: " + contentIdList.size());
 
 		// Validate the availability of all the Requested Contents
 		if (nodes.size() < contentIdList.size())
@@ -118,7 +118,7 @@ public class BundleInitializer extends BaseInitializer {
 		TelemetryManager.log("Populating the Recursive (Children) Contents.");
 		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
 
-		TelemetryManager.log("Total Content To Bundle: " , nodes.size());
+		TelemetryManager.log("Total Content To Bundle: " + nodes.size());
 		ContentValidator validator = new ContentValidator();
 		Map<String, Object> bundleMap = new HashMap<String, Object>();
 		for (Node node : nodes) {

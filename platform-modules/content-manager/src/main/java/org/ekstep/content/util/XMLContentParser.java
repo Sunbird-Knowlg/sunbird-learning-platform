@@ -372,9 +372,9 @@ public class XMLContentParser {
 				return output.substring(output.indexOf("?>") + 2); // remove <?xml version="1.0" encoding="UTF-8"?>
 			}
 		} catch (TransformerException e) {
-			TelemetryManager.log(ContentErrorMessageConstants.XML_TRANSFORMATION_ERROR, e);
+			TelemetryManager.error(ContentErrorMessageConstants.XML_TRANSFORMATION_ERROR, e);
 		} catch (IOException e) {
-			TelemetryManager.log(ContentErrorMessageConstants.STRING_WRITER_AUTO_CLOSE_ERROR, e);
+			TelemetryManager.error(ContentErrorMessageConstants.STRING_WRITER_AUTO_CLOSE_ERROR, e);
 		}
 		return node.getTextContent();
 	}

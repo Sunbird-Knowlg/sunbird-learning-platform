@@ -78,9 +78,6 @@ public class ContentPackageExtractionUtil {
 	}
 
 	public void copyExtractedContentPackage(String contentId, Node node, ExtractionType extractionType) {
-		TelemetryManager.log("Node: ", node);
-		TelemetryManager.log("Extraction Type: ", extractionType);
-
 		// Validating the Parameters
 		TelemetryManager.log("Validating Node Object.");
 		if (null == node)
@@ -128,7 +125,7 @@ public class ContentPackageExtractionUtil {
 					}
 				});
 			} catch (Exception e) {
-				TelemetryManager.log("Error sending Content2Vec request", e.getMessage(), e);
+				TelemetryManager.error("Error sending Content2Vec request", e);
 			} finally {
 				if (null != pool)
 					pool.shutdown();
@@ -146,8 +143,6 @@ public class ContentPackageExtractionUtil {
 	 *            the extraction type
 	 */
 	public void extractContentPackage(String contentId, Node node, ExtractionType extractionType, boolean slugFile) {
-		TelemetryManager.log("Node: ", node);
-		TelemetryManager.log("Extraction Type: ", extractionType);
 
 		// Validating the Parameters
 		TelemetryManager.log("Validating Node Object.");
@@ -186,9 +181,8 @@ public class ContentPackageExtractionUtil {
 				// Extract Content Package
 				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
-				TelemetryManager.log(
-						"Error! While Unzipping the Content Package [Content Package Extraction to Storage Space]",
-						e.getMessage(), e);
+				TelemetryManager.error(
+						"Error! While unzipping the content package [Content Package Extraction to Storage Space]", e);
 			} finally {
 				try {
 					TelemetryManager.log("Deleting Locally Extracted File.");
@@ -196,12 +190,9 @@ public class ContentPackageExtractionUtil {
 					if (dir.exists())
 						dir.delete();
 				} catch (SecurityException e) {
-					TelemetryManager.log(
-							"Error! While Deleting the Local Download Directory: " + contentPackageDownloadPath,
-							e.getMessage(), e);
+					TelemetryManager.error("Error! While deleting the local download directory: " + contentPackageDownloadPath, e);
 				} catch (Exception e) {
-					TelemetryManager.log("Error! Something Went Wrong While Deleting the Local Download Directory: "
-							+ contentPackageDownloadPath, e.getMessage(), e);
+					TelemetryManager.error("Error! Something went wrong while deleting the local download directory: " + contentPackageDownloadPath, e);
 				}
 			}
 		}
@@ -260,7 +251,7 @@ public class ContentPackageExtractionUtil {
 					try {
 						FileUtils.deleteDirectory(new File(h5pLibraryDownloadPath));
 					} catch (Exception e) {
-						TelemetryManager.log("Unable to Delete H5P Library Directory.", null, e);
+						TelemetryManager.error("Unable to delete H5P library directory.",  e);
 					}
 					// UnZip the Content Package
 					unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath + "/content");
@@ -272,10 +263,9 @@ public class ContentPackageExtractionUtil {
 				// Extract Content Package
 				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
+				TelemetryManager.error("Error! While unzipping the content package file: "+ e.getMessage(), e);
 			} catch (Exception e) {
-				TelemetryManager.log("Error! Something Went Wrong While Extracting the Content Package File.",
-						e.getMessage(), e);
+				TelemetryManager.error("Error! Something went wrong while extracting the content package file.", e);
 			}
 		}
 	}
@@ -285,7 +275,7 @@ public class ContentPackageExtractionUtil {
 		if (StringUtils.isBlank(path))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
 					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");
-		TelemetryManager.log("Fetched H5P Library Path: " + path, null, "INFO");
+		TelemetryManager.info("Fetched H5P Library Path: " + path);
 		return path;
 	}
 
@@ -332,12 +322,9 @@ public class ContentPackageExtractionUtil {
 				if (dir.exists())
 					dir.delete();
 			} catch (SecurityException e) {
-				TelemetryManager.log("Error! While Deleting the Local Extraction Directory: " + basePath, e.getMessage(),
-						e);
+				TelemetryManager.error("Error! While deleting the local extraction directory: " + basePath, e);
 			} catch (Exception e) {
-				TelemetryManager.log(
-						"Error! Something Went Wrong While Deleting the Local Extraction Directory: " + basePath,
-						e.getMessage(), e);
+				TelemetryManager.error("Error! Something Went wrong while deleting the local extraction directory: " + basePath, e);
 			}
 		}
 	}
@@ -354,7 +341,7 @@ public class ContentPackageExtractionUtil {
 			if (StringUtils.isNoneBlank(AWSFolderPath))
 				AWSUploader.deleteFile(AWSFolderPath);
 		} catch (Exception ex) {
-			TelemetryManager.log("Error! While Cleanup of Half Extracted Folder from S3.", ex.getMessage(), ex);
+			TelemetryManager.error("Error! While Cleanup of Half Extracted Folder from S3: " + ex.getMessage(), ex);
 		}
 	}
 
@@ -375,9 +362,6 @@ public class ContentPackageExtractionUtil {
 	 */
 	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath, String basePath, boolean slugFile)
 			throws InterruptedException, ExecutionException {
-		TelemetryManager.log("Files: ", files);
-		TelemetryManager.log("AWS Folder Path: ", AWSFolderPath);
-		TelemetryManager.log("Local Base Path of Extraction: ", basePath);
 
 		// Validating Parameters
 		if (null == files || files.size() < 1)
@@ -403,7 +387,7 @@ public class ContentPackageExtractionUtil {
 						String path = getFolderPath(file, basePath);
 						if (StringUtils.isNotBlank(path))
 							folderName += File.separator + path;
-						TelemetryManager.log("Folder Name For Storage Space Extraction: ", folderName);
+						TelemetryManager.log("Folder Name For Storage Space Extraction: " + folderName);
 						String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file, slugFile);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);

@@ -17,7 +17,7 @@ public class DriverUtil {
 	private static Map<String, Driver> driverMap = new HashMap<String, Driver>();
 
 	public static Driver getDriver(String graphId, GraphOperation graphOperation) {
-		TelemetryManager.log("Get Driver for Graph Id: ", graphId);
+		TelemetryManager.log("Get Driver for Graph Id: "+ graphId);
 		String driverKey = graphId + DACConfigurationConstants.UNDERSCORE
 				+ StringUtils.lowerCase(graphOperation.name());
 		TelemetryManager.log("Driver Configuration Key: " + driverKey);
@@ -31,7 +31,7 @@ public class DriverUtil {
 	}
 
 	public static Driver loadDriver(String graphId, GraphOperation graphOperation) {
-		TelemetryManager.log("Loading driver for Graph Id: ", graphId);
+		TelemetryManager.log("Loading driver for Graph Id: "+ graphId);
 		String driverType = Platform.config.hasPath("neo4j.driver.type")
 				? Platform.config.getString("neo4j.driver.type")
 				: DACConfigurationConstants.NEO4J_SERVER_DRIVER_TYPE;

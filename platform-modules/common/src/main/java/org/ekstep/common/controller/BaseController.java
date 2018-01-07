@@ -78,11 +78,11 @@ public abstract class BaseController {
     protected String setMessage(Exception e){
     	Class<? extends Exception> className = e.getClass();
         if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	TelemetryManager.log("Setting error message sent from class " + className , e.getMessage(), e);
+        	TelemetryManager.error("Setting error message sent from class: " + className + " message:" + e.getMessage(), e);
         	return e.getMessage();
         }
         else if(className.getName().startsWith(java)){
-        	TelemetryManager.log("Setting default err msg " + className , e.getMessage(), e);
+        	TelemetryManager.error("Setting default err msg: " + className + " error: " + e.getMessage(), e);
         	return default_err_msg;
         }
         return "";
@@ -268,7 +268,7 @@ public abstract class BaseController {
     		try {
     		list = Arrays.asList(array);
     		} catch (Exception e) {
-				TelemetryManager.log("Error! Something went wrong while converting array to list.", array, e);
+				TelemetryManager.error("Error! Something went wrong while converting array to list: "+ array, e);
 			}
     	}
     	return list;

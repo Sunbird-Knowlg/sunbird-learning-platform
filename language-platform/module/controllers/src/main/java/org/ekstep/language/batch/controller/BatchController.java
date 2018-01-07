@@ -51,10 +51,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.correctWordnetData";
 		try {
 			Response response = batchManager.correctWordnetData(languageId);
-			TelemetryManager.log("correctWordnetData | Response: " , response);
+			TelemetryManager.log("correctWordnetData | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("correctWordnetData | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("correctWordnetData | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -72,10 +72,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.updatePictures";
 		try {
 			Response response = batchManager.updatePictures(languageId);
-			TelemetryManager.log("updatePictures | Response: " , response);
+			TelemetryManager.log("updatePictures | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("updatePictures | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("updatePictures | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -93,10 +93,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.cleanupWordNetData";
 		try {
 			Response response = batchManager.cleanupWordNetData(languageId);
-			TelemetryManager.log("cleanupWordNetData | Response: " , response);
+			TelemetryManager.log("cleanupWordNetData | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("cleanupWordNetData | Exception: " + e.getMessage(), e);
+			TelemetryManager.error("cleanupWordNetData | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -123,7 +123,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("updateWordChain | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("updateWordChain | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("updateWordChain | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -144,7 +144,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("setPrimaryMeaning | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("setPrimaryMeaning | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("setPrimaryMeaning | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -165,7 +165,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("updatePosList | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("updatePosList | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("updatePosList | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -186,7 +186,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("updateWordComplexity | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -207,7 +207,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("updateWordFeatures | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("updateWordFeatures | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("updateWordFeatures | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -228,7 +228,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("updateFrequencyCounts | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("updateFrequencyCounts | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("updateFrequencyCounts | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -253,7 +253,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("createWordnetCitations | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("createWordnetCitations | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("createWordnetCitations | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -280,7 +280,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("replaceWordnetIds | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("replaceWordnetIds | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("replaceWordnetIds | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -305,7 +305,7 @@ public class BatchController extends BaseLanguageController {
 			TelemetryManager.log("addWordnetIndexes | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("addWordnetIndexes | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("addWordnetIndexes | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

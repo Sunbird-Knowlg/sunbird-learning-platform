@@ -57,10 +57,9 @@ public class LibraryManagerImplTest extends BaseController{
 					.file(mockMultipartFile).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
-			TelemetryManager.log("Upload | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Upload | Exception: " + e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		TelemetryManager.log("Upload | Response: " , resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		String actualArtifactUrl = (String)(((Map<String,Object>)((Map<String,Object>)resp.getResult().get("updated_node")).get("metadata")).get("artifactUrl"));
 		String expectedArtifactUrl  = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/.*";
@@ -78,10 +77,9 @@ public class LibraryManagerImplTest extends BaseController{
 			Assert.assertEquals(200, actions.andReturn().getResponse()
 					.getStatus());
 		} catch (Exception e) {
-			TelemetryManager.log("Publish | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Publish | Exception: " + e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		TelemetryManager.log("Publish | Response: " , resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
 	

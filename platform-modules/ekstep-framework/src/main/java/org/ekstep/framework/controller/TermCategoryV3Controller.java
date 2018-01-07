@@ -47,7 +47,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.createTerm(null, categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while creating term (Create term API): ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while creating term (Create term API): "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -67,7 +67,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.readTerm(null, termId, categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Read term", e.getMessage(), e);
+			TelemetryManager.error("Read term" + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -92,7 +92,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.updateTerm(null, categoryId, termId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Update term", e.getMessage(), e);
+			TelemetryManager.error("Update term"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -115,7 +115,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.searchTerms(null, categoryID, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Search terms", e.getMessage(), e);
+			TelemetryManager.error("Search terms"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -135,7 +135,7 @@ public class TermCategoryV3Controller extends BaseController {
 			Response response = termManager.retireTerm(null, categoryId, termId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("retire term", e.getMessage(), e);
+			TelemetryManager.error("retire term: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

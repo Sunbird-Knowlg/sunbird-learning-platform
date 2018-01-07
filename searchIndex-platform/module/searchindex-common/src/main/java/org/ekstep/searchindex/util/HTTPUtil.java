@@ -29,7 +29,7 @@ public class HTTPUtil {
 		HttpResponse response = client.execute(request);
 		if (response.getStatusLine().getStatusCode() != 200) {
 			//System.out.println("URL is " + url + "Status Code: " + response.getStatusLine().getStatusCode());
-			TelemetryManager.log("URL is " + url + "Status Code: " + response.getStatusLine().getStatusCode(), null, Level.INFO.name());
+			TelemetryManager.info("URL is " + url + "Status Code: " + response.getStatusLine().getStatusCode());
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
 					+ response.getStatusLine().getReasonPhrase());
 		}

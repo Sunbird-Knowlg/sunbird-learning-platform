@@ -273,7 +273,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
 		} catch (Exception e) {
-			TelemetryManager.log("Error! Exception occurred", e.getMessage(), e);
+			TelemetryManager.error("Error! Exception occurred: "+ e.getMessage(), e);
 			dateTimeString = "";
 		}
 		return dateTimeString;
@@ -1310,7 +1310,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error!Exception occured", e.getMessage(), e);
+			TelemetryManager.error("Error!Exception occured: "+ e.getMessage(), e);
 			errorMessages.add(e.getMessage());
 		}
 	}
@@ -1451,7 +1451,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					}
 					addSynonymRelation(languageId, wordMap.get(LanguageParams.identifier.name()).toString(), primaryMeaningId, new ArrayList<>());
 				} catch (Exception e) {
-					TelemetryManager.log("Error!Exception ", e.getMessage(), e);
+					TelemetryManager.error("Error!Exception occured: "+ e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -1925,7 +1925,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error!Exception", e.getMessage(), e);
+			TelemetryManager.error("Error!Exception occured: "+ e.getMessage(), e);
 			e.printStackTrace();
 			errorMessages.add(e.getMessage());
 		}
@@ -2366,7 +2366,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						Double complexity = getWordComplexity(node, languageId);
 						map.put(lemma, complexity);
 					} catch (Exception e) {
-						TelemetryManager.log("Exception", e.getMessage(), e);
+						TelemetryManager.error("Error!Exception occured: "+ e.getMessage(), e);
 						map.put(lemma, null);
 					}
 				} else {
@@ -2929,7 +2929,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					updateReq.put(GraphDACParams.node_id.name(), synset.getIdentifier());
 					Response updateRes = getResponse(updateReq);
 					if (checkError(updateRes)) {
-						TelemetryManager.log("error while uploading example sentences for synset:"+ synsetId +" word:"+ wordId, "error message:"+updateRes.getResult().toString());
+						TelemetryManager.warn("error while uploading example sentences for synset:"+ synsetId +" word:"+ wordId + " error message:"+updateRes.getResult().toString());
 					}
 				}
 				

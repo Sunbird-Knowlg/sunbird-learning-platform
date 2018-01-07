@@ -191,7 +191,7 @@ public class ImportDictionary {
 				if (null != reader)
 					reader.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+				TelemetryManager.error("Error! While Closing the Input Stream: "+ e.getMessage(), e);
 			}
 		}
 
@@ -299,11 +299,11 @@ public class ImportDictionary {
 			}
 			bw.flush();
 		} catch (UnsupportedEncodingException e) {
-			TelemetryManager.log("Error! Unsupported File Encoding.", e.getMessage(), e);
+			TelemetryManager.error("Error! Unsupported File Encoding."+ e.getMessage(), e);
 		} catch (FileNotFoundException e) {
-			TelemetryManager.log("Error! File Does not Exist.", e.getMessage(), e);
+			TelemetryManager.error("Error! File Does not Exist."+ e.getMessage(), e);
 		} catch (IOException e) {
-			TelemetryManager.log("Error! While Handling the File.", e.getMessage(), e);
+			TelemetryManager.error("Error! While Handling the File."+ e.getMessage(), e);
 		}
 	}
 

@@ -53,8 +53,7 @@ public class ResponseFilter implements Filter {
 
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-			TelemetryManager.log("Path: " + requestWrapper.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap());
+			TelemetryManager.log("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr());
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
@@ -67,8 +66,7 @@ public class ResponseFilter implements Filter {
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
-			TelemetryManager.log("Path: " + httpRequest.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap());
+			TelemetryManager.log("Path: " + httpRequest.getServletPath()  +" | Remote Address: " + request.getRemoteAddr());
 			chain.doFilter(request, response);
 		}
 	}

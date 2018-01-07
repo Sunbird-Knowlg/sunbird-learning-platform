@@ -30,7 +30,6 @@ import org.ekstep.graph.service.request.validator.Neo4JBoltAuthorizationValidato
 import org.ekstep.graph.service.request.validator.Neo4jBoltValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.NodeQueryGenerationUtil;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
@@ -47,8 +46,6 @@ public class Neo4JBoltNodeOperations {
 
 	@SuppressWarnings("unchecked")
 	public static Node upsertNode(String graphId, Node node, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -102,20 +99,19 @@ public class Neo4JBoltNodeOperations {
 							try {
 								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 							} catch (Exception e) {
-								TelemetryManager.log("Error! While updating redis cache From Neo4J Node.", null, e);
+								TelemetryManager.error("Error! While updating redis cache From Neo4J node.", e);
 								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
 										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 							}
-							TelemetryManager.log("Bolt Neo4J Node: ", neo4JNode);
 						} catch (Exception e) {
-							TelemetryManager.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
+							TelemetryManager.error("Error! While Fetching 'versionKey' from Neo4J node.", e);
 						}
 					}
 				}
 			}
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
-				TelemetryManager.log("Error! While writing data to Neo4J Node.", null, e);
+				TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -127,8 +123,6 @@ public class Neo4JBoltNodeOperations {
 
 	@SuppressWarnings("unchecked")
 	public static Node addNode(String graphId, Node node, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -176,13 +170,12 @@ public class Neo4JBoltNodeOperations {
 							try {
 								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 							} catch (Exception e) {
-								TelemetryManager.log("Error! While updating redis cache From Neo4J Node.", null, e);
+								TelemetryManager.error("Error! While updating redis cache From Neo4J Node.", e);
 								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
 										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 							}
-							TelemetryManager.log("Bolt Neo4J Node: ", neo4JNode);
 						} catch (Exception e) {
-							TelemetryManager.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
+							TelemetryManager.error("Error! While Fetching 'versionKey' From Neo4J Node.", e);
 						}
 					}
 				} catch (org.neo4j.driver.v1.exceptions.ClientException e) {
@@ -195,7 +188,7 @@ public class Neo4JBoltNodeOperations {
 			}
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
-				TelemetryManager.log("Error! While writing data to Neo4J Node.", null, e);
+				TelemetryManager.error("Error! While writing data to Neo4J node.", e);
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			}
@@ -208,8 +201,6 @@ public class Neo4JBoltNodeOperations {
 
 	@SuppressWarnings("unchecked")
 	public static Node updateNode(String graphId, Node node, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -267,13 +258,12 @@ public class Neo4JBoltNodeOperations {
 							try {
 								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 							} catch (Exception e) {
-								TelemetryManager.log("Error! While updating redis cache From Neo4J Node.", null, e);
+								TelemetryManager.error("Error! While updating redis cache From Neo4J node.", e);
 								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
 										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 							}
-							TelemetryManager.log("Bolt Neo4J Node: ", neo4JNode);
 						} catch (Exception e) {
-							TelemetryManager.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
+							TelemetryManager.error("Error! While Fetching 'versionKey' From Neo4J Node.", e);
 						}
 					}
 				}
@@ -281,7 +271,7 @@ public class Neo4JBoltNodeOperations {
 
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
-				TelemetryManager.log("Error! While writing data to Neo4J Node.", null, e);
+				TelemetryManager.error("Error! While writing data to Neo4J node.",  e);
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -292,8 +282,6 @@ public class Neo4JBoltNodeOperations {
 	}
 
 	public static void importNodes(String graphId, List<Node> nodes, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Graph Engine Node List: ", nodes);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -313,9 +301,6 @@ public class Neo4JBoltNodeOperations {
 	}
 
 	public static void updatePropertyValue(String graphId, String nodeId, Property property, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", nodeId);
-		TelemetryManager.log("Property: ", property);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -346,10 +331,6 @@ public class Neo4JBoltNodeOperations {
 
 	public static void updatePropertyValues(String graphId, String nodeId, Map<String, Object> metadata,
 			Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", nodeId);
-		TelemetryManager.log("Properties (Metadata): ", metadata);
-
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | [Update Property Value Operation Failed.]");
@@ -377,9 +358,6 @@ public class Neo4JBoltNodeOperations {
 	}
 
 	public static void removePropertyValue(String graphId, String nodeId, String key, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", nodeId);
-		TelemetryManager.log("Property (Key to Remove): ", key);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -407,22 +385,19 @@ public class Neo4JBoltNodeOperations {
 						.run(NodeQueryGenerationUtil.generateRemovePropertyValueCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
-					TelemetryManager.log("Remove Property Value Operation | ", record);
+					TelemetryManager.log("Remove Property Value Operation | ", record.asMap());
 			}
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 
 		} catch (Exception e) {
-			TelemetryManager.log("Error! While writing data to Neo4J Node.", null, e);
+			TelemetryManager.error("Error! While writing data to Neo4J node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
 	}
 
 	public static void removePropertyValues(String graphId, String nodeId, List<String> keys, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", nodeId);
-		TelemetryManager.log("Property (Keys to Remove): ", keys);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -450,20 +425,18 @@ public class Neo4JBoltNodeOperations {
 						.run(NodeQueryGenerationUtil.generateRemovePropertyValuesCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
-					TelemetryManager.log("Update Property Values Operation | ", record);
+					TelemetryManager.log("Update Property Values Operation | ", record.asMap());
 			}
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 		} catch (Exception e) {
-			TelemetryManager.log("Error! While writing data to Neo4J Node.", null, e);
+			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
 	}
 
 	public static void deleteNode(String graphId, String nodeId, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", nodeId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -487,25 +460,24 @@ public class Neo4JBoltNodeOperations {
 				StatementResult result = tx.run(NodeQueryGenerationUtil.generateDeleteNodeCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
-					TelemetryManager.log("Delete Node Operation | ", record);
+					TelemetryManager.log("Delete Node Operation | ", record.asMap());
 			}
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 			try {
 				RedisStoreUtil.deleteNodeProperties(graphId, nodeId);
 			} catch (Exception e) {
-				TelemetryManager.log("Error! While deleting redis cache From Neo4J Node.", null, e);
+				TelemetryManager.error("Error! While deleting redis cache From Neo4J Node.", e);
 			}
 
 		} catch (Exception e) {
-			TelemetryManager.log("Error! While writing data to Neo4J Node.", null, e);
+			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
 	}
 
 	public static Node upsertRootNode(String graphId, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -541,10 +513,10 @@ public class Neo4JBoltNodeOperations {
 						.run(NodeQueryGenerationUtil.generateUpsertRootNodeCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
-					TelemetryManager.log("Upsert Root Node Operation | ", record);
+					TelemetryManager.log("Upsert Root Node Operation | ", record.asMap());
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error! While writing data to Neo4J Node.", null, e);
+			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -566,20 +538,17 @@ public class Neo4JBoltNodeOperations {
 	private static void setRequestContextToNode(Node node, Request request) {
 		if (null != request && null != request.getContext()) {
 			String channel = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
-			TelemetryManager.log("Channel from request: " + channel + " for content: " + node.getIdentifier(), null,
-					Level.DEBUG.name());
+			TelemetryManager.log("Channel from request: " + channel + " for content: " + node.getIdentifier());
 			if (StringUtils.isNotBlank(channel))
 				node.getMetadata().put(GraphDACParams.channel.name(), channel);
 
 			String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
-			TelemetryManager.log("ConsumerId from request: " + consumerId + " for content: " + node.getIdentifier(), null,
-					Level.DEBUG.name());
+			TelemetryManager.log("ConsumerId from request: " + consumerId + " for content: " + node.getIdentifier());
 			if (StringUtils.isNotBlank(consumerId))
 				node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
 
 			String appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
-			TelemetryManager.log("App Id from request: " + appId + " for content: " + node.getIdentifier(), null,
-					Level.DEBUG.name());
+			TelemetryManager.log("App Id from request: " + appId + " for content: " + node.getIdentifier());
 			if (StringUtils.isNotBlank(appId))
 				node.getMetadata().put(GraphDACParams.appId.name(), appId);
 		}

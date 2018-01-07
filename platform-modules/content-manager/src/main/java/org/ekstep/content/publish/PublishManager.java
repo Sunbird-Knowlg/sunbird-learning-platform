@@ -55,7 +55,7 @@ public class PublishManager extends BaseManager {
 					+ "' Started Successfully!");
 			if (Platform.config.hasPath("content.publish_task.enabled")) {
 				if (Platform.config.getBoolean("content.publish_task.enabled")) {
-					TelemetryManager.log("Publish task execution starting for content Id: " + contentId, null, Level.INFO.name());
+					TelemetryManager.info("Publish task execution starting for content Id: " + contentId);
 					executor.submit(new PublishTask(contentId, parameterMap));
 				}
 			}
@@ -127,8 +127,8 @@ public class PublishManager extends BaseManager {
 				return response;
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error! Something went wrong", e.getMessage(), e);
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
+			TelemetryManager.error("Error! Something went wrong:"+ e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), " System Error", e);
 		}
 		return response;
 	}

@@ -54,11 +54,11 @@ public class AssessmentItemController extends BaseController {
         TelemetryManager.log("Create Item | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = assessmentManager.createAssessmentItem(taxonomyId, request);
-            TelemetryManager.log("Create Item | Response: " , response);
+            TelemetryManager.log("Create Item | Response: " , response.getResult());
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            TelemetryManager.log("Create Item | Exception: " + e.getMessage(), e);
+            TelemetryManager.error("Create Item | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -75,11 +75,11 @@ public class AssessmentItemController extends BaseController {
                 + " | user-id: " + userId);
         try {
             Response response = assessmentManager.updateAssessmentItem(id, taxonomyId, request);
-            TelemetryManager.log("Update Item | Response: " , response);
+            TelemetryManager.log("Update Item | Response: " , response.getResult());
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            TelemetryManager.log("Update Item | Exception: " + e.getMessage(), e);
+            TelemetryManager.error("Update Item | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -96,10 +96,10 @@ public class AssessmentItemController extends BaseController {
                 + userId);
         try {
             Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields);
-            TelemetryManager.log("Find Item | Response: " , response);
+            TelemetryManager.log("Find Item | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Find Item | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -114,10 +114,10 @@ public class AssessmentItemController extends BaseController {
         try {
             Request reqeust = getSearchRequest(map);
             Response response = assessmentManager.searchAssessmentItems(taxonomyId, reqeust);
-            TelemetryManager.log("Search | Response: " , response);
+            TelemetryManager.log("Search | Response. " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Search | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Search | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -148,10 +148,10 @@ public class AssessmentItemController extends BaseController {
         TelemetryManager.log("Delete Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = assessmentManager.deleteAssessmentItem(id, taxonomyId);
-            TelemetryManager.log("Delete Item | Response: " , response);
+            TelemetryManager.log("Delete Item | Response. " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Delete Item | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Delete Item | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

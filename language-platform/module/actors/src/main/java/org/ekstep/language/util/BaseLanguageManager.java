@@ -78,7 +78,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception",e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -103,7 +103,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured", e.getMessage(), e);
+			TelemetryManager.error("Exception occured: "+ e.getMessage(), e);
 			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -160,7 +160,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 					return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 				}
 			} catch (Exception e) {
-				TelemetryManager.log("Exception", e.getMessage(), e);
+				TelemetryManager.error("Exception: " + e.getMessage(), e);
 				throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 			}
 		} else {

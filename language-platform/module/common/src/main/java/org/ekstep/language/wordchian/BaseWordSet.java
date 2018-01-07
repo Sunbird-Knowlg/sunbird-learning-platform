@@ -102,7 +102,7 @@ public abstract class BaseWordSet extends BaseManager {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && nodes.size() > 0) {
 				node = nodes.get(0);
-				TelemetryManager.log("got  WordSet id " , node.getIdentifier());
+				TelemetryManager.log("got  WordSet id " + node.getIdentifier());
 				return node.getIdentifier();
 			}
 			TelemetryManager.log("WordSet is not found");
@@ -151,7 +151,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the collection id
 	 */
 	protected void addMemberToSet(String collectionId) {
-		TelemetryManager.log("adding word " + wordNode.getIdentifier() + "as member to wordSet " , collectionId);
+		TelemetryManager.log("adding word " + wordNode.getIdentifier() + "as member to wordSet " + collectionId);
 
 		Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "addMember");
 
@@ -174,7 +174,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the relation type
 	 */
 	protected void createRelation(String startNodeId, String endNodeId, String relationType) {
-		TelemetryManager.log("createRelation " , relationType + " between sets " + startNodeId + " and " + endNodeId);
+		TelemetryManager.log("createRelation " + relationType + " between sets " + startNodeId + " and " + endNodeId);
 
 		Request req = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
 		req.put(GraphDACParams.start_node_id.name(), startNodeId);
@@ -271,7 +271,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the set id
 	 */
 	protected void removeWordFromWordSet(String setId){
-		TelemetryManager.log("Deleting relation : " , setId + " --> " + wordNode.getIdentifier());
+		TelemetryManager.log("Deleting relation : " + setId + " --> " + wordNode.getIdentifier());
         Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
         setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), setId);

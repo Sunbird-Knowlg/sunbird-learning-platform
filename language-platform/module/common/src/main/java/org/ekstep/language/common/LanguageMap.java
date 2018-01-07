@@ -41,7 +41,7 @@ public class LanguageMap {
 				languageGraphMap.put(value, key);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Exception!", e.getMessage(), e);
+			TelemetryManager.error("Error!Exception occured: "+ e.getMessage(), e);
 		}
 	}
 

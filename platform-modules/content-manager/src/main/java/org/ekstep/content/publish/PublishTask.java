@@ -56,7 +56,7 @@ public class PublishTask implements Runnable {
 
 	// TODO: add try catch here.
 	private void publishContent(Node node) throws Exception{
-		TelemetryManager.log("Publish processing start for content", node.getIdentifier(), Level.INFO.name());
+		TelemetryManager.info("Publish processing start for content" + node.getIdentifier());
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"), COLLECTION_CONTENT_MIMETYPE)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			if (!nodes.isEmpty()) {
@@ -67,9 +67,9 @@ public class PublishTask implements Runnable {
 			
 		}
 		publishNode(node, (String) node.getMetadata().get("mimeType"));
-		TelemetryManager.log("Publish processing done for content", node.getIdentifier(), Level.INFO.name());
+		TelemetryManager.info("Publish processing done for content: "+ node.getIdentifier());
 		
-		TelemetryManager.log("Content enrichment start for content", node.getIdentifier(), Level.INFO.name());
+		TelemetryManager.info("Content enrichment start for content: " + node.getIdentifier());
 		
 		String nodeId = node.getIdentifier().replace(".img", "");
 		Node publishedNode = util.getNode("domain", nodeId);
@@ -77,7 +77,7 @@ public class PublishTask implements Runnable {
 			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 			publishedNode.getMetadata().put("versionKey", versionKey);
 			processCollection(publishedNode);
-			TelemetryManager.log("Content enrichment done for content", node.getIdentifier(), Level.INFO.name());
+			TelemetryManager.log("Content enrichment done for content: " + node.getIdentifier());
 		}
 	}
 	
@@ -356,7 +356,7 @@ public class PublishTask implements Runnable {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(), ContentErrorMessageConstants.INVALID_CONTENT
 					+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
 		String nodeId = node.getIdentifier().replace(".img", "");
-		TelemetryManager.log("Publish processing start for node", nodeId, Level.INFO.name());
+		TelemetryManager.info("Publish processing start for node: "+ nodeId);
 		try {
 			setContentBody(node, mimeType);
 			this.parameterMap.put(ContentWorkflowPipelineParams.node.name(), node);
@@ -364,7 +364,7 @@ public class PublishTask implements Runnable {
 			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, null), nodeId);
 			pipeline.init(ContentWorkflowPipelineParams.publish.name(), this.parameterMap);
 		} catch (Exception e) {
-			TelemetryManager.log("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: " + nodeId
+			TelemetryManager.error("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: " + nodeId
 					+ "]", e);
 			node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());

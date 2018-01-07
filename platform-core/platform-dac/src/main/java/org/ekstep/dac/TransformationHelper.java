@@ -59,7 +59,7 @@ public class TransformationHelper {
         try {
             modelMapper.createTypeMap(source, destination);
         } catch (Exception ex) {
-            TelemetryManager.log("Failed to register type map", ex);
+            TelemetryManager.error("Failed to register type map", ex);
         }
     }
 }

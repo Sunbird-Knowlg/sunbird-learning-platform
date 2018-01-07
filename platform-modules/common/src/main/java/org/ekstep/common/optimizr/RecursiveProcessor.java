@@ -52,7 +52,7 @@ public class RecursiveProcessor implements Processor {
                             stats.update(type, rawSize, redSize);
                         }
                         catch (Exception ex) {
-                        	TelemetryManager.log("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName(), null, Level.WARN.name());
+                        	TelemetryManager.warn("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName());
                         }
                     }
                 }

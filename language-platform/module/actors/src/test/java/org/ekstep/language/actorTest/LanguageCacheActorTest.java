@@ -41,10 +41,8 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		TelemetryManager.log("List | Request: " , request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request);
-		TelemetryManager.log("List | Response: " , response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List<Node> gradeLevelComplexities = (List<Node>) result

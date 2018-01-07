@@ -114,13 +114,12 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	 */
 	@SuppressWarnings("unchecked")
 	private Map<String, String> processAssetsDownload(List<Media> medias) {
-		TelemetryManager.log("Medias to Download: ", medias);
 		Map<String, String> map = new HashMap<String, String>();
 		try {
-			TelemetryManager.log("Total Medias to Download: for [Content Id '" + contentId + "']", medias.size());
+			TelemetryManager.log("Total Medias to Download: for [Content Id '" + contentId + "']: " +  medias.size());
 
 			Map<String, Object> downloadResultMap = downloadAssets(medias);
-			TelemetryManager.log("Downloaded Result Map After the Firts Try: ",
+			TelemetryManager.log("Downloaded Result Map After the Firts Try: "+
 					downloadResultMap + " | [Content Id '" + contentId + "']");
 
 			Map<String, String> successMap = (Map<String, String>) downloadResultMap
@@ -175,7 +174,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	private Map<String, Object> downloadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != medias && !StringUtils.isBlank(basePath)) {
-			TelemetryManager.log("Starting Asset Download Fanout. | [Content Id '" + contentId + "']", contentId);
+			TelemetryManager.log("Starting Asset Download Fanout. | [Content Id '" + contentId + "']: "+ contentId);
 			final List<Media> skippedMediaDownloads = new ArrayList<Media>();
 			final Map<String, String> successfulMediaDownloads = new HashMap<String, String>();
 			ExecutorService pool = Executors.newFixedThreadPool(10);
@@ -228,15 +227,14 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 					successfulMediaDownloads.putAll(m);
 			}
 			pool.shutdown();
-			TelemetryManager.log("Successful Media Download Count for | [Content Id '" + contentId + "']",
+			TelemetryManager.log("Successful Media Download Count for | [Content Id '" + contentId + "']"+
 					successfulMediaDownloads.size());
-			TelemetryManager.log("Skipped Media Download Count: | [Content Id '" + contentId + "']",
+			TelemetryManager.log("Skipped Media Download Count: | [Content Id '" + contentId + "']" +
 					skippedMediaDownloads.size());
 			map.put(ContentWorkflowPipelineParams.success.name(), successfulMediaDownloads);
 			map.put(ContentWorkflowPipelineParams.skipped.name(), skippedMediaDownloads);
 		}
-		TelemetryManager.log("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']",
-				map.keySet());
+		TelemetryManager.log("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']", map);
 		return map;
 	}
 
@@ -244,13 +242,13 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		if (StringUtils.isNotBlank(src)) {
 			String env = S3PropertyReader.getProperty("s3.env");
 			String prefix = "";
-			TelemetryManager.log("Fetching s3 url from properties file fro environment:", env);
+			TelemetryManager.log("Fetching s3 url from properties file fro environment:"+ env);
 			prefix = S3PropertyReader.getProperty("s3.url." + env);
-			TelemetryManager.log("Fetching envioronment URL from properties file", prefix);
+			TelemetryManager.log("Fetching envioronment URL from properties file: "+ prefix);
 			if (!src.startsWith("http"))
 				src = prefix + src;
 		}
-		TelemetryManager.log("Returning src url", src);
+		TelemetryManager.log("Returning src url: "+ src);
 		return src;
 	}
 

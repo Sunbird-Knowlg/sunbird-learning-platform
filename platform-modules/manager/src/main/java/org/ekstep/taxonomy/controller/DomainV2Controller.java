@@ -39,10 +39,10 @@ public class DomainV2Controller extends BaseController {
             List<String> relations = new ArrayList<String>();
             relations.add(RelationTypes.HIERARCHY.relationName());
             Response response = taxonomyManager.getSubGraph("domain", id, depth, relations);
-            TelemetryManager.log("Domain Graph | Response: " , response);
+            TelemetryManager.log("Domain Graph | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Domain Graph | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Domain Graph | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

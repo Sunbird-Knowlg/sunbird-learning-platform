@@ -46,7 +46,7 @@ private ICategoryManager categoryManager;
 			Response response = categoryManager.createCategory(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create category", e.getMessage(), e);
+			TelemetryManager.error("Create category: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -64,7 +64,7 @@ private ICategoryManager categoryManager;
 			Response response = categoryManager.readCategory(categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Read category", e.getMessage(), e);
+			TelemetryManager.error("Read category: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -87,7 +87,7 @@ private ICategoryManager categoryManager;
 			Response response = categoryManager.updateCategory(categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Update category", e.getMessage(), e);
+			TelemetryManager.error("Update category: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -110,7 +110,7 @@ private ICategoryManager categoryManager;
 			TelemetryManager.log("search category | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("search category | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("search category | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -129,7 +129,7 @@ private ICategoryManager categoryManager;
 			TelemetryManager.log("retire category | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("retire category | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("retire category | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

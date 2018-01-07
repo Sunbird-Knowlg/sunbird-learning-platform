@@ -43,7 +43,7 @@ public class TransliteratorActor extends LanguageBaseActor {
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		Request request = (Request) msg;
-		TelemetryManager.log(request.getRequestId() + " | Received Command: " , request);
+		TelemetryManager.log(request.getRequestId() + " | Received Command: " , request.getRequest());
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {

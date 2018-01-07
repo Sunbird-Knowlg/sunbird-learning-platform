@@ -42,7 +42,7 @@ public class ConfigController extends BaseController {
 			Response response = new Response();
 			Map<String, Object> resourcebundles = new HashMap<String, Object>();
 			Map<String, String> urlMap = getUrlFromS3();
-			TelemetryManager.log("urls of resourcebundle files from s3", urlMap);
+			TelemetryManager.log("urls of resourcebundle files from s3: "+ urlMap);
 			for (Entry<String, String> entry : urlMap.entrySet()) {
 				String langMap = HttpDownloadUtility.readFromUrl(entry.getValue());
 				String langId = entry.getKey();
@@ -51,10 +51,10 @@ public class ConfigController extends BaseController {
 						continue;
 					Map<String, Object> map = mapper.readValue(langMap, new TypeReference<Map<String, Object>>() {
 					});
-					TelemetryManager.log("Resourcebundles fetched : ", map.keySet());
+					TelemetryManager.log("Resourcebundles fetched: "+ map.keySet());
 					resourcebundles.put(langId, map);
 				} catch (Exception e) {
-					TelemetryManager.log("Error in fetching all ResourceBundles from s3", e.getMessage(), e, Level.WARN.name());
+					TelemetryManager.error("Error in fetching all ResourceBundles from s3: "+ e.getMessage(), e);
 				}
 			}
 			response.put("resourcebundles", resourcebundles);
@@ -64,10 +64,10 @@ public class ConfigController extends BaseController {
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("ttl", 24.0);
-			TelemetryManager.log("get All ResourceBundles | Response: " , response + "Id" + apiId);
+			TelemetryManager.log("get All ResourceBundles | Response: " + response + " Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("getAllResources | Exception" + e.getMessage(), null, e, Level.WARN.name());
+			TelemetryManager.error("getAllResources | Exception" + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -78,10 +78,10 @@ public class ConfigController extends BaseController {
 		String apiId = "ekstep.config.resourebundles.info";
 
 		try {
-			TelemetryManager.log("ResourceBundle | GET | languageId" , languageId);
+			TelemetryManager.log("ResourceBundle | GET | languageId" + languageId);
 			Response response = new Response();
 			String data = HttpDownloadUtility.readFromUrl(baseUrl + folderName + "/" + languageId + ".json");
-			TelemetryManager.log("Resource bundle file read from url:", StringUtils.isNotBlank(data));
+			TelemetryManager.log("Resource bundle file read from url:" + StringUtils.isNotBlank(data));
 			if (StringUtils.isNotBlank(data)) {
 				ResponseParams params = new ResponseParams();
 				params.setErr("0");
@@ -93,9 +93,9 @@ public class ConfigController extends BaseController {
 					Map<String, Object> map = mapper.readValue(data, new TypeReference<Map<String, Object>>() {
 					});
 					response.put(languageId, map);
-					TelemetryManager.log("getResourceBundle | successResponse" , response);
+					TelemetryManager.log("getResourceBundle | successResponse: " , response.getResult());
 				} catch (Exception e) {
-					TelemetryManager.log("getResourceBundle | Exception" , e.getMessage(), e, Level.WARN.name());
+					TelemetryManager.error("getResourceBundle | Exception" + e.getMessage(), e);
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -106,11 +106,11 @@ public class ConfigController extends BaseController {
 				response.setParams(params);
 				response.getResponseCode();
 				response.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
-				TelemetryManager.log("getResourceBundle | FailureResponse" , response, Level.WARN.name());
+				TelemetryManager.warn("getResourceBundle | FailureResponse" , response.getResult());
 				return getResponseEntity(response, apiId, null);
 			}
 		} catch (Exception e){
-			TelemetryManager.log("getResourceBundle | Exception" , e.getMessage(), e);
+			TelemetryManager.error("getResourceBundle | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -123,7 +123,7 @@ public class ConfigController extends BaseController {
 		Response response = new Response();
 		try {
 			ordinals = HttpDownloadUtility.readFromUrl(baseUrl + "ordinals.json");
-			TelemetryManager.log("Ordinals data read from s3 url" , StringUtils.isNotBlank(ordinals));
+			TelemetryManager.log("Ordinals data read from s3 url" + StringUtils.isNotBlank(ordinals));
 			ResponseParams params = new ResponseParams();
 			params.setErr("0");
 			params.setStatus(StatusType.successful.name());
@@ -135,12 +135,12 @@ public class ConfigController extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
-				TelemetryManager.log("Get Ordinals | Exception" , e.getMessage(), e, Level.WARN.name());
+				TelemetryManager.error("Get Ordinals | Exception: " + e.getMessage(), e);
 			}
-			TelemetryManager.log("Get Ordinals | Response" , response.getResponseCode());
+			TelemetryManager.log("Get Ordinals | Response" + response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-				TelemetryManager.log("getOrdinalsException" , e.getMessage(), e);
+				TelemetryManager.error("getOrdinalsException" + e.getMessage(), e);
 				return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -149,7 +149,7 @@ public class ConfigController extends BaseController {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
 		List<String> res = AWSUploader.getObjectList(folderName, "config");
-		TelemetryManager.log("ResourceBundle Urls fetched from s3" , res.size());
+		TelemetryManager.log("ResourceBundle Urls fetched from s3" + res.size());
 		for (String data : res) {
 			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
 				apiUrl = baseUrl + data;

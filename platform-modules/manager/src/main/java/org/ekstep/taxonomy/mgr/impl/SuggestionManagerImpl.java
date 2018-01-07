@@ -85,7 +85,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 						"Content_Id doesnt exists | Invalid Content_id");
 			}
 		} catch (ClientException e) {
-			TelemetryManager.log("Error occured while processing request | Not a valid request", e.getMessage(),e);
+			TelemetryManager.error("Error occured while processing request | Not a valid request"+ e.getMessage(),e);
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -105,7 +105,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	public Response readSuggestion(String objectId, String startTime, String endTime, String status) {
 		Response response = new Response();
 		try {
-			TelemetryManager.log("Checking if received parameters are empty or not" , objectId);
+			TelemetryManager.log("Checking if received parameters are empty or not " + objectId);
 			List<Object> result = getSuggestionByObjectId(objectId, startTime, endTime, status);
 			response.setParams(getSucessStatus());
 			response.put(SuggestionCodeConstants.suggestions.name(), result);
@@ -115,10 +115,10 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 				return response;
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Exception occured while fetching suggestions for contentId", e.getMessage(), e);
+			TelemetryManager.error("Exception occured while fetching suggestions for contentId: " + e.getMessage(), e);
 			throw e;
 		}
-		TelemetryManager.log("Response received from the readSuggestion" , response.getResponseCode());
+		TelemetryManager.log("Response received from the readSuggestion: " + response.getResponseCode());
 		return response;
 	}
 
@@ -165,11 +165,11 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			}
 			
 		} catch (ClientException e) {
-			TelemetryManager.log("throwing exception received" + e.getMessage(), e);
+			TelemetryManager.error("throwing exception received: " + e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			TelemetryManager.log("Server Exception occured while processing request" , e.getMessage(), e);
+			TelemetryManager.error("Server Exception occured while processing request: " + e.getMessage(), e);
 			throw new ServerException(SuggestionCodeConstants.SERVER_ERROR.name(),
 					"Error! Something went wrong while processing", e);
 		}
@@ -209,11 +209,11 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 				return response;
 			}
 		} catch (ClientException e) {
-			TelemetryManager.log("throwing exception received" , e.getMessage(), e);
+			TelemetryManager.error("throwing exception received: " + e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			TelemetryManager.log("Server Exception occured while processing request" , e.getMessage(), e);
+			TelemetryManager.error("Server Exception occured while processing request: " + e.getMessage(), e);
 			throw new ServerException(SuggestionCodeConstants.SERVER_ERROR.name(),
 					"Error! Something went wrong while processing", e);
 		}
@@ -258,10 +258,10 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 				return response;
 			}
 		} catch (ClientException e) {
-			TelemetryManager.log("throwing exception received" , e.getMessage(), e);
+			TelemetryManager.error("throwing exception received: " + e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
-			TelemetryManager.log("Server Exception occured while processing request" , e.getMessage(), e);
+			TelemetryManager.error("Server Exception occured while processing request: " + e.getMessage(), e);
 			throw new ServerException(SuggestionCodeConstants.SERVER_ERROR.name(),
 					"Error! Something went wrong while processing", e);
 		}
@@ -288,7 +288,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		TelemetryManager.log("Checking if suggestion_if is returned from response" + identifier);
 		if (StringUtils.isNotBlank(identifier)) {
 			response = setResponse(response, identifier);
-			TelemetryManager.log("returning response from save suggestion" , response);
+			TelemetryManager.log("returning response from save suggestion" , response.getResult());
 			return response;
 		}
 		return null;
@@ -520,7 +520,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 					SuggestionConstants.SUGGESTION_INDEX);
 			TelemetryManager.log("result from search processor" + result);
 		} catch (Exception e) {
-			TelemetryManager.log("error while processing the search request", e.getMessage(), e);
+			TelemetryManager.error("error while processing the search request: "+ e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return result;

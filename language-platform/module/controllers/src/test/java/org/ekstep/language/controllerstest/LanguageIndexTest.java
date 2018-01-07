@@ -112,22 +112,17 @@ public class LanguageIndexTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addWordIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		TelemetryManager.log("List | Request: " , request);
 		try {
 			Response response = RequestResponseTestHelper.getResponse(request);
-			TelemetryManager.log("List | Response: " , response);
 			ResponseEntity<Response> responseEntity = RequestResponseTestHelper
 					.getResponseEntity(response, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			TelemetryManager.log("List | Response: " , response);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			ResponseEntity<Response> responseEntity = RequestResponseTestHelper
 					.getExceptionResponseEntity(e, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			TelemetryManager.log("List | Response: " , responseEntity);
 		}
 	}
 
@@ -143,16 +138,13 @@ public class LanguageIndexTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		TelemetryManager.log("List | Request: " , request);
 		try {
 			Response response = RequestResponseTestHelper
 					.getBulkOperationResponse(request);
-			TelemetryManager.log("List | Response: " , response);
 			RequestResponseTestHelper.getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
 			RequestResponseTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);

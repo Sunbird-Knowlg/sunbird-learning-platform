@@ -21,8 +21,6 @@ public class AsyncContentOperationUtil {
 	
 
 	public static void makeAsyncOperation(ContentOperations operation, String contentId, Map<String, Object> parameterMap) {
-		TelemetryManager.log("Content Operation: ", operation);
-		TelemetryManager.log("Parameter Map: ", parameterMap);
 
 		if (null == operation)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_OPERATION.name(),
@@ -52,8 +50,7 @@ public class AsyncContentOperationUtil {
 									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.upload.name(), parameterMap);
 						} catch (Exception e) {
-							TelemetryManager.log(
-									"Something Went Wrong While Performing 'Content Upload' Operation in Async Mode. | [Content Id: "
+							TelemetryManager.error("Something Went Wrong While Performing 'Content Upload' Operation in Async Mode. | [Content Id: "
 											+ node.getIdentifier() + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), e.getMessage());
 							node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
@@ -76,7 +73,7 @@ public class AsyncContentOperationUtil {
 									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.publish.name(), parameterMap);
 						} catch (Exception e) {
-							TelemetryManager.log(
+							TelemetryManager.error(
 									"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 											+ contentId + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
@@ -95,7 +92,7 @@ public class AsyncContentOperationUtil {
 							InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
 							pipeline.init(ContentWorkflowPipelineParams.bundle.name(), parameterMap);
 						} catch (Exception e) {
-							TelemetryManager.log(
+							TelemetryManager.error(
 									"Something Went Wrong While Performing 'Content Bundle' Operation in Async Mode.", e);
 						}
 					}
@@ -113,7 +110,7 @@ public class AsyncContentOperationUtil {
 									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.review.name(), parameterMap);
 						} catch (Exception e) {
-							TelemetryManager.log(
+							TelemetryManager.error(
 									"Something Went Wrong While Performing 'Content Review (Send For Review)' Operation in Async Mode. | [Content Id: "
 											+ node.getIdentifier() + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), e.getMessage());
@@ -130,7 +127,7 @@ public class AsyncContentOperationUtil {
 						break;
 					}
 				} catch (Exception e) {
-					TelemetryManager.log("Error! While Making Async Call for Content Operation: " + operation.name(), e);
+					TelemetryManager.error("Error! While Making Async Call for Content Operation: " + operation.name(), e);
 				}
 			}
 		};

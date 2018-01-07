@@ -25,7 +25,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 public class BaseQueryGenerationUtil {
 
 	protected static String getPropertyObject(Node node, String date, boolean isUpdateOperation) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
@@ -44,7 +43,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static String getPropertyObjectAttributeString(Node node) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && null != node.getMetadata() && !node.getMetadata().isEmpty()) {
@@ -62,8 +60,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static String getMatchCriteriaString(String graphId, Node node) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		String matchCriteria = "";
 		if (StringUtils.isNotBlank(graphId) && null != node) {
@@ -82,7 +78,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static Map<String, Object> getMetadataCypherQueryMap(Node node) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
@@ -92,7 +87,7 @@ public class BaseQueryGenerationUtil {
 			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
 				query.append(entry.getKey() + ": { MD_" + entry.getKey() + " }, ");
 
-				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: "+ entry.getValue());
 
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
@@ -120,7 +115,7 @@ public class BaseQueryGenerationUtil {
 				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
 						+ entry.getKey() + " }, ");
 
-				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: "+ entry.getValue());
 
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
@@ -137,7 +132,6 @@ public class BaseQueryGenerationUtil {
 	}
 	
 	protected static String getSystemPropertyString(Node node, String date) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
@@ -170,7 +164,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static Map<String, Object> getSystemPropertyQueryMap(Node node, String date) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
@@ -205,7 +198,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static String getAuditPropertyString(Node node, String date, boolean isUpdateOnly) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
@@ -229,7 +221,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static Map<String, Object> getAuditPropertyQueryMap(Node node, String date, boolean isUpdateOnly) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
@@ -257,7 +248,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static String getVersionKeyPropertyString(Node node, String date, boolean isUpdateOnly) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
 			// Adding 'versionKey' Property
@@ -272,7 +262,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static Map<String, Object> getVersionKeyPropertyQueryMap(Node node, String date, boolean isUpdateOnly) {
-		TelemetryManager.log("Graph Engine Node: ", node);
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
@@ -292,10 +281,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static String getOnCreateSetString(String objectVariableName, String date, Node node) {
-		TelemetryManager.log("Cypher Query Node Object Variable Name: ", objectVariableName);
-		TelemetryManager.log("Date: ", date);
-		TelemetryManager.log("Graph Engine Node: ", node);
-
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
 			if (StringUtils.isBlank(node.getIdentifier()))
@@ -351,9 +336,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static Map<String, Object> getOnCreateSetQueryMap(String objectVariableName, String date, Node node) {
-		TelemetryManager.log("Cypher Query Node Object Variable Name: ", objectVariableName);
-		TelemetryManager.log("Date: ", date);
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
@@ -372,7 +354,7 @@ public class BaseQueryGenerationUtil {
 				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
 						+ entry.getKey() + " }, ");
 
-				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: "+ entry.getValue());
 
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
@@ -436,9 +418,6 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static String getOnMatchSetString(String objectVariableName, String date, Node node) {
-		TelemetryManager.log("Cypher Query Node Object Variable Name: ", objectVariableName);
-		TelemetryManager.log("Date: ", date);
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
@@ -487,9 +466,6 @@ public class BaseQueryGenerationUtil {
 
 	protected static Map<String, Object> getOnMatchSetQueryMap(String objectVariableName, String date, Node node,
 			boolean merge) {
-		TelemetryManager.log("Cypher Query Node Object Variable Name: ", objectVariableName);
-		TelemetryManager.log("Date: ", date);
-		TelemetryManager.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
@@ -510,7 +486,7 @@ public class BaseQueryGenerationUtil {
 				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
 						+ entry.getKey() + " }, ");
 
-				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: "+ entry.getValue());
 
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());

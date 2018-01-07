@@ -70,7 +70,7 @@ public class ContentStoreActor extends BaseGraphManager {
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
-			TelemetryManager.log("Error in ContentStoreActor", e.getMessage(), e);
+			TelemetryManager.error("Error in ContentStoreActor: "+ e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}

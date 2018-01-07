@@ -21,6 +21,12 @@ public class Target {
 	private String id;
 	private String type;
 	private String ver;
+	private String subtype;
+	private String name;
+	private String code;
+	private Parent parent;
+	
+	
 	/**
 	 * @return the id
 	 */
@@ -56,6 +62,54 @@ public class Target {
 	 */
 	public void setVer(String ver) {
 		this.ver = ver;
+	}
+	/**
+	 * @return the subtype
+	 */
+	public String getSubtype() {
+		return subtype;
+	}
+	/**
+	 * @param subtype the subtype to set
+	 */
+	public void setSubtype(String subtype) {
+		this.subtype = subtype;
+	}
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	/**
+	 * @return the code
+	 */
+	public String getCode() {
+		return code;
+	}
+	/**
+	 * @param code the code to set
+	 */
+	public void setCode(String code) {
+		this.code = code;
+	}
+	/**
+	 * @return the parent
+	 */
+	public Parent getParent() {
+		return parent;
+	}
+	/**
+	 * @param parent the parent to set
+	 */
+	public void setParent(Parent parent) {
+		this.parent = parent;
 	}
 	
 }

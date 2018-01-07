@@ -216,14 +216,14 @@ public abstract class DictionaryController extends BaseLanguageController {
 			return getResponseEntity(response, apiId, null);
 		} catch (IOException e) {
 			e.printStackTrace();
-			TelemetryManager.log("loadWordsArpabetsMap | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("loadWordsArpabetsMap | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			if (null != wordsArpabetsStream)
 				try {
 					wordsArpabetsStream.close();
 				} catch (IOException e) {
-					TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+					TelemetryManager.error("Error! While Closing the Input Stream." + e.getMessage(), e);
 				}
 		}
 	}

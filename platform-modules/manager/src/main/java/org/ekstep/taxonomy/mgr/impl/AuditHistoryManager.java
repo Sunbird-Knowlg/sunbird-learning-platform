@@ -54,7 +54,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			Request request = new Request();
 			request.setRequest_id(audit.getRequestId());
 			request.put(CommonDACParams.audit_history_record.name(), audit);
-			TelemetryManager.log("Sending request to save Logs to DB" , request);
+			TelemetryManager.log("Sending request to save Logs to DB" , request.getRequest());
 			auditHistoryEsService.saveAuditHistoryLog(request);
 		} else {
 			TelemetryManager.log("Throws new exception on processing audit history record");
@@ -81,10 +81,10 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			request.put(CommonDACParams.start_date.name(), startTime);
 			request.put(CommonDACParams.end_date.name(), endTime);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception during creating request" , e.getMessage(), e);
+			TelemetryManager.error("Exception during creating request" + e.getMessage(), e);
 			e.printStackTrace();
 		}
-		TelemetryManager.log("Sending request to auditHistoryEsService" , request);
+		TelemetryManager.log("Sending request to auditHistoryEsService" , request.getRequest());
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLog(request, versionId);
@@ -115,17 +115,17 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			request.put(CommonDACParams.start_date.name(), startTime);
 			request.put(CommonDACParams.end_date.name(), endTime);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception during creating request" , e.getMessage(), e);
+			TelemetryManager.error("Exception during creating request" + e.getMessage(), e);
 			e.printStackTrace();
 		}
-		TelemetryManager.log("Sending request to auditHistoryEsService" , request);
+		TelemetryManager.log("Sending request to auditHistoryEsService" , request.getRequest());
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLogByObjectType(request, versionId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		TelemetryManager.log("Response received from the auditHistoryEsService as a result" , response);
+		TelemetryManager.log("Response received from the auditHistoryEsService as a result" , response.getResult());
 		return response;
 	}
 	
@@ -148,14 +148,14 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		request.put(CommonDACParams.start_date.name(), startTime);
 		request.put(CommonDACParams.end_date.name(), endTime);
 
-		TelemetryManager.log("Sending request to auditHistoryEsService" , request);
+		TelemetryManager.log("Sending request to auditHistoryEsService" , request.getRequest());
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLogByObjectId(request, versionId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		TelemetryManager.log("Response received from the auditHistoryEsService as a result" , response);
+		TelemetryManager.log("Response received from the auditHistoryEsService as a result" , response.getResult());
 		return response;
 	}
 
@@ -175,14 +175,14 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		}
 		request.put(CommonDACParams.time_stamp.name(), timeStamp);
 
-		TelemetryManager.log("Sending request to auditHistoryEsService" , request);
+		TelemetryManager.log("Sending request to auditHistoryEsService" , request.getRequest());
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditLogRecordById(request);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		TelemetryManager.log("Response received from the auditHistoryEsService as a result" , response);
+		TelemetryManager.log("Response received from the auditHistoryEsService as a result" , response.getResult());
 		return response;
 	}
 
@@ -195,7 +195,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		}
 		request.put(CommonDACParams.time_stamp.name(), timeStamp);
 
-		TelemetryManager.log("Sending request to auditHistoryESService" , request);
+		TelemetryManager.log("Sending request to auditHistoryESService" , request.getRequest());
 		Response response = null;
 		try {
 			response = auditHistoryEsService.deleteEsData(request);

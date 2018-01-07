@@ -51,7 +51,7 @@ public class DialCodeV3Controller extends BaseController {
 			Response response = dialCodeManager.generateDialCode(map, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while generating Dial Code : ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while generating Dial Code : "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -68,7 +68,7 @@ public class DialCodeV3Controller extends BaseController {
 			Response response = dialCodeManager.readDialCode(dialCodeId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while reading Dial Code details : ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while reading Dial Code details : "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -92,7 +92,7 @@ public class DialCodeV3Controller extends BaseController {
 			Response response = dialCodeManager.updateDialCode(dialCodeId, channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while updating Dial Code : ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while updating Dial Code : "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -114,8 +114,7 @@ public class DialCodeV3Controller extends BaseController {
 			Response response = dialCodeManager.listDialCode(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while Performing List Operation for Dial Codes : ", e.getMessage(),
-					e);
+			TelemetryManager.error("Exception Occured while Performing List Operation for Dial Codes : "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -134,7 +133,7 @@ public class DialCodeV3Controller extends BaseController {
 			Response response = dialCodeManager.publishDialCode(dialCodeId, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while Performing Publish Operation on Dial Code : ", e.getMessage(),
+			TelemetryManager.error("Exception Occured while Performing Publish Operation on Dial Code : "+ e.getMessage(),
 					e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}

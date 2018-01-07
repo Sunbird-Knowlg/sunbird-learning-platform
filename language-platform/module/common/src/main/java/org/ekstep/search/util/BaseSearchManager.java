@@ -69,7 +69,7 @@ public class BaseSearchManager {
                 return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            TelemetryManager.log("Exception", e.getMessage(), e);
+            TelemetryManager.error("Exception: "+ e.getMessage(), e);
             return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
         }
     }

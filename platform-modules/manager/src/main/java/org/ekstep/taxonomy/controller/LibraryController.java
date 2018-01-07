@@ -43,10 +43,10 @@ public class LibraryController extends BaseController {
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
             Response response = contentManager.upload(id, "domain", uploadedFile, null);
-            TelemetryManager.log("Upload | Response: " , response);
+            TelemetryManager.log("Upload | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Upload | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Upload | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -56,12 +56,12 @@ public class LibraryController extends BaseController {
     public ResponseEntity<Response> publish(@PathVariable(value = "id") String libraryId,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "library.publish";
-        TelemetryManager.log("Publish library | Library Id : " , libraryId);
+        TelemetryManager.log("Publish library | Library Id : " + libraryId);
         try {
             Response response = contentManager.publish(graphId, libraryId, null);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Publish | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Publish | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

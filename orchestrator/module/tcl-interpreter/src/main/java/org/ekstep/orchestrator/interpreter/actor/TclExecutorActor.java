@@ -130,7 +130,7 @@ public class TclExecutorActor extends UntypedActor {
 						} catch (MiddlewareException e) {
 							throw e;
 						} catch (Exception e) {
-							TelemetryManager.log("Error initialising command: " , script.getName(), e);
+							TelemetryManager.error("Error initialising command: "  + script.getName(), e);
 						}
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));
@@ -220,7 +220,7 @@ public class TclExecutorActor extends UntypedActor {
 			String msg = "";
 			switch (code) {
 			case TCL.ERROR:
-				TelemetryManager.log("tcl interpretation error" , interpreter.getResult().toString(), Level.WARN.name());
+				TelemetryManager.warn("tcl interpretation error" + interpreter.getResult().toString());
 				msg = interpreter.getResult().toString();
 				if(StringUtils.contains(msg, "tcl.lang.TclException") || StringUtils.contains(msg, "java.")){
 					msg = "| Invalid request format |";

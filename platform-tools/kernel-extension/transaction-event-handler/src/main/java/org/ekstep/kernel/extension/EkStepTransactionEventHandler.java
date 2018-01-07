@@ -20,9 +20,9 @@ public class EkStepTransactionEventHandler implements TransactionEventHandler {
 	@Override
 	public Void beforeCommit(TransactionData transactionData) throws Exception {
 		try {
-			TelemetryManager.log("Checking if the Current Instance is Master...." , db.isMaster());
+			TelemetryManager.log("Checking if the Current Instance is Master: " + db.isMaster());
 			if (db.isMaster()) {
-				TelemetryManager.log("Processing the Transaction as I am the Master." , db.role());
+				TelemetryManager.log("Processing the Transaction as I am the Master: " + db.role());
 				ProcessTransactionData processTransactionData = new ProcessTransactionData(
 						"domain", db);
 				processTransactionData.processTxnData(transactionData);

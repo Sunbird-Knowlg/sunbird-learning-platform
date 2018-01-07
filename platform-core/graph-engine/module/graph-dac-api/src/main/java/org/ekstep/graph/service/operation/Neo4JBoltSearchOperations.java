@@ -25,7 +25,6 @@ import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.SearchQueryGenerationUtil;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
@@ -51,7 +50,6 @@ public class Neo4JBoltSearchOperations {
 	 * @return the node by id
 	 */
 	public static Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
-		TelemetryManager.log("Graph Id: " + graphId + "\nNode Id: " + nodeId + "\nGet Tags:" + getTags);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -82,12 +80,10 @@ public class Neo4JBoltSearchOperations {
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			for (Record record : result.list()) {
-				TelemetryManager.log("'Get Node By Id' Operation Finished.", record);
+				TelemetryManager.log("'Get Node By Id' Operation Finished.", record.asMap());
 				if (null != record)
 					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 			}
-			TelemetryManager.log("Node Map: ", nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
-					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
@@ -95,7 +91,7 @@ public class Neo4JBoltSearchOperations {
 							startNodeMap, endNodeMap);
 			}
 		}
-		TelemetryManager.log("Returning Node By Id: ", node);
+		TelemetryManager.log("Returning Node By Id: ", node.getMetadata());
 		return node;
 	}
 
@@ -126,7 +122,7 @@ public class Neo4JBoltSearchOperations {
 		
 		Node node = (Node) NodeCacheManager.getDataNode(graphId, nodeId);
 		if (null != node) {
-			TelemetryManager.log("Fetched node from in-memory cache: "+node.getIdentifier(), null, Level.INFO.name());
+			TelemetryManager.info("Fetched node from in-memory cache: "+node.getIdentifier());
 			return node;
 		} else {
 			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
@@ -149,19 +145,18 @@ public class Neo4JBoltSearchOperations {
 				Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 				Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get Node By Unique Id' Operation Finished.", record);
+					TelemetryManager.log("'Get Node By Unique Id' Operation Finished.", record.asMap());
 					if (null != record)
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
-				TelemetryManager.log("Node Map: ", nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
-						+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
+
 				if (!nodeMap.isEmpty()) {
 					for (Entry<Long, Object> entry : nodeMap.entrySet())
 						node = new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 								startNodeMap, endNodeMap);
 				}
 				if (StringUtils.equalsIgnoreCase("Concept", node.getObjectType())) {
-					TelemetryManager.log("Saving concept to in-memory cache: "+node.getIdentifier(), null, Level.INFO.name());
+					TelemetryManager.info("Saving concept to in-memory cache: "+node.getIdentifier());
 					NodeCacheManager.saveDataNode(graphId, node.getIdentifier(), node);
 				}
 			}
@@ -211,13 +206,11 @@ public class Neo4JBoltSearchOperations {
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get Nodes By Property Id' Operation Finished.", record);
+					TelemetryManager.log("'Get Nodes By Property Id' Operation Finished.", record.asMap());
 					if (null != record)
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			TelemetryManager.log("Node Map: ", nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
-					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
@@ -225,7 +218,7 @@ public class Neo4JBoltSearchOperations {
 							startNodeMap, endNodeMap));
 			}
 		}
-		TelemetryManager.log("Returning Node By Property: ", nodes);
+		TelemetryManager.log("Returning Node By Property: " + nodes.size());
 		return nodes;
 	}
 
@@ -241,7 +234,6 @@ public class Neo4JBoltSearchOperations {
 	 * @return the node by unique ids
 	 */
 	public static List<Node> getNodeByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId + "\nSearch Criteria: " + searchCriteria);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -271,13 +263,11 @@ public class Neo4JBoltSearchOperations {
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get Nodes By Search Criteria' Operation Finished.", record);
+					TelemetryManager.log("'Get Nodes By Search Criteria' Operation Finished.", record.asMap());
 					if (null != record)
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			TelemetryManager.log("Node Map: ", nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
-					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
 
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
@@ -285,7 +275,7 @@ public class Neo4JBoltSearchOperations {
 							startNodeMap, endNodeMap));
 			}
 		}
-		TelemetryManager.log("Returning Node By Search Criteria: ", nodes);
+		TelemetryManager.log("Returning Node By Search Criteria: " + nodes.size());
 		return nodes;
 	}
 
@@ -360,7 +350,7 @@ public class Neo4JBoltSearchOperations {
 					.run(SearchQueryGenerationUtil.generateGetNodePropertyCypherQuery(parameterMap));
 			if (null != result) {
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get Node Property' Operation Finished.", record);
+					TelemetryManager.log("'Get Node Property' Operation Finished.", record.asMap());
 					if (null != record && null != record.get(key)) {
 						property.setPropertyName(key);
 						property.setPropertyValue(record.get(key));
@@ -368,7 +358,6 @@ public class Neo4JBoltSearchOperations {
 				}
 			}
 		}
-		TelemetryManager.log("Returning Node Property: ", property);
 		return property;
 	}
 
@@ -382,7 +371,6 @@ public class Neo4JBoltSearchOperations {
 	 * @return the all nodes
 	 */
 	public static List<Node> getAllNodes(String graphId, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -404,21 +392,19 @@ public class Neo4JBoltSearchOperations {
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get All Nodes' Operation Finished.", record);
+					TelemetryManager.log("'Get All Nodes' Operation Finished.", record.asMap());
 					if (null != record)
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			TelemetryManager.log("Node Map: " + nodeMap + "\nRelation Map: " + relationMap + "\nStart Node Map: "
-					+ startNodeMap + "\nEnd Node Map: " + endNodeMap);
-
+			
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 							startNodeMap, endNodeMap));
 			}
 		}
-		TelemetryManager.log("Returning All Nodes: ", nodes);
+		TelemetryManager.log("Returning All Nodes: " + nodes.size());
 		return nodes;
 	}
 
@@ -432,8 +418,7 @@ public class Neo4JBoltSearchOperations {
 	 * @return the all relations
 	 */
 	public static List<Relation> getAllRelations(String graphId, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-
+		
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Get All Relations' Operation Failed.]");
@@ -453,7 +438,7 @@ public class Neo4JBoltSearchOperations {
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get All Relations' Operation Finished.", record);
+					TelemetryManager.log("'Get All Relations' Operation Finished.", record.asMap());
 					if (null != record)
 						getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 				}
@@ -467,7 +452,7 @@ public class Neo4JBoltSearchOperations {
 							startNodeMap, endNodeMap));
 			}
 		}
-		TelemetryManager.log("Returning All Relations: ", relations);
+		TelemetryManager.log("Returning All Relations: " + relations.size());
 		return relations;
 	}
 
@@ -531,7 +516,7 @@ public class Neo4JBoltSearchOperations {
 					.run(SearchQueryGenerationUtil.generateGetRelationPropertyCypherQuery(parameterMap));
 			if (null != result) {
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get Relation Property' Operation Finished.", record);
+					TelemetryManager.log("'Get Relation Property' Operation Finished.", record.asMap());
 					if (null != record && null != record.get(key)) {
 						property.setPropertyName(key);
 						property.setPropertyValue(record.get(key));
@@ -539,7 +524,6 @@ public class Neo4JBoltSearchOperations {
 				}
 			}
 		}
-		TelemetryManager.log("Returning Relation Property: ", property);
 		return property;
 	}
 	
@@ -570,7 +554,7 @@ public class Neo4JBoltSearchOperations {
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get Relation' Operation Finished.", record);
+					TelemetryManager.log("'Get Relation' Operation Finished.", record.asMap());
 					if (null != record)
 						getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 				}
@@ -604,8 +588,6 @@ public class Neo4JBoltSearchOperations {
 	 */
 	public static Relation getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
 			Request request) {
-		TelemetryManager.log("Graph Id: " + graphId + "\nStart Node Id: " + startNodeId + "\nRelation Type: "
-				+ relationType + "\nEnd Node Id: ", endNodeId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -644,7 +626,7 @@ public class Neo4JBoltSearchOperations {
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			for (Record record : result.list()) {
-				TelemetryManager.log("'Get Relation' Operation Finished.", record);
+				TelemetryManager.log("'Get Relation' Operation Finished.", record.asMap());
 				if (null != record)
 					getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 			}
@@ -657,7 +639,6 @@ public class Neo4JBoltSearchOperations {
 							startNodeMap, endNodeMap);
 			}
 		}
-		TelemetryManager.log("Returning Relation: ", relation);
 		return relation;
 	}
 
@@ -767,7 +748,7 @@ public class Neo4JBoltSearchOperations {
 			StatementResult result = session.run(SearchQueryGenerationUtil.generateExecuteQueryCypherQuery(parameterMap),
 					paramMap);
 			for (Record record : result.list()) {
-				TelemetryManager.log("'Execute Query' Operation Finished.", record);
+				TelemetryManager.log("'Execute Query' Operation Finished.", record.asMap());
 				Map<String, Object> recordMap = record.asMap();
 				Map<String, Object> map = new HashMap<String, Object>();
 				if (null != recordMap && !recordMap.isEmpty()) {
@@ -778,7 +759,7 @@ public class Neo4JBoltSearchOperations {
 				}
 			}
 		}
-		TelemetryManager.log("Returning Execute Query Result: ", resultList);
+		TelemetryManager.log("Returning Execute Query Result: "+ resultList.size());
 		return resultList;
 	}
 
@@ -797,10 +778,6 @@ public class Neo4JBoltSearchOperations {
 	 */
 	public static List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags,
 			Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Search Criteria: ", searchCriteria);
-		TelemetryManager.log("Get Tags ? ", getTags);
-
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -837,7 +814,7 @@ public class Neo4JBoltSearchOperations {
 			if (null != result) {
 				TelemetryManager.log("'Search Nodes' result: " + result);
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Search Nodes' Operation Finished.", record);
+					TelemetryManager.log("'Search Nodes' Operation Finished.", record.asMap());
 					if (null != record) {
 						if (returnNode)
 							getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
@@ -873,10 +850,7 @@ public class Neo4JBoltSearchOperations {
 	 * @return the nodes count
 	 */
 	public static Long getNodesCount(String graphId, SearchCriteria searchCriteria, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Search Criteria: ", searchCriteria);
-
-
+		
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Get Nodes Count' Operation Failed.]");
@@ -902,13 +876,13 @@ public class Neo4JBoltSearchOperations {
 			StatementResult result = session.run(query, params);
 			if (null != result) {
 				for (Record record : result.list()) {
-					TelemetryManager.log("'Get Nodes Count' Operation Finished.", record);
+					TelemetryManager.log("'Get Nodes Count' Operation Finished.", record.asMap());
 					if (null != record && null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_COUNT_OBJECT))
 						count = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_COUNT_OBJECT).asLong();
 				}
 			}
 		}
-		TelemetryManager.log("Returning Nodes Count: ", count);
+		TelemetryManager.log("Returning Nodes Count: " + count);
 		return count;
 	}
 
@@ -924,10 +898,7 @@ public class Neo4JBoltSearchOperations {
 	 * @return the sub graph
 	 */
 	public static SubGraph traverse(String graphId, Traverser traverser, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Traverser: ", traverser);
-
-
+		
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Traverse' Operation Failed.]");
@@ -937,7 +908,6 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_TRAVERSER + " | ['Traverse' Operation Failed.]");
 
 		SubGraph subGraph = traverser.traverse();
-		TelemetryManager.log("Returning Sub Graph: ", subGraph);
 		return subGraph;
 	}
 
@@ -953,10 +923,7 @@ public class Neo4JBoltSearchOperations {
 	 * @return the graph
 	 */
 	public static Graph traverseSubGraph(String graphId, Traverser traverser, Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Traverser: ", traverser);
-
-
+		
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Traverse Sub Graph' Operation Failed.]");
@@ -966,7 +933,6 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_TRAVERSER + " | ['Traverse Sub Graph' Operation Failed.]");
 
 		Graph subGraph = traverser.getSubGraph();
-		TelemetryManager.log("Returning Graph : ", subGraph);
 		return subGraph;
 	}
 
@@ -987,11 +953,6 @@ public class Neo4JBoltSearchOperations {
 	 */
 	public static Graph getSubGraph(String graphId, String startNodeId, String relationType, Integer depth,
 			Request request) {
-		TelemetryManager.log("Graph Id: ", graphId);
-		TelemetryManager.log("Start Node Id: ", startNodeId);
-		TelemetryManager.log("Relation Type: ", relationType);
-		TelemetryManager.log("Depth: ", depth);
-
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -1007,7 +968,6 @@ public class Neo4JBoltSearchOperations {
 			traverser.toDepth(depth);
 		}
 		Graph subGraph = traverser.getSubGraph();
-		TelemetryManager.log("Returning Graph : ", subGraph);
 		return subGraph;
 	}
 

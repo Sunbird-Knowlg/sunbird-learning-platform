@@ -22,10 +22,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -46,17 +50,12 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.common.dto.NodeDTO;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.mgr.BaseManager;
-import org.ekstep.common.router.RequestRouterPool;
 import com.rits.cloning.Cloner;
 
 import akka.actor.ActorRef;
@@ -109,8 +108,6 @@ public class BasePipeline extends BaseManager {
 	protected Response updateNode(Node node) {
 		Response response = new Response();
 		if (null != node) {
-			TelemetryManager.log("Update Node " + node.getIdentifier() + ".", node,
-					null, Level.INFO.name());
 			Cloner cloner = new Cloner();
 			Node clonedNode = cloner.deepClone(node);
 			Request updateReq = getRequest(clonedNode.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
@@ -120,8 +117,6 @@ public class BasePipeline extends BaseManager {
 			updateReq.put(GraphDACParams.node_id.name(), clonedNode.getIdentifier());
 			response = getResponse(updateReq);
 		}
-		TelemetryManager.log("Returning Response For Update Node", response,
-				null, Level.INFO.name());
 		return response;
 	}
 
@@ -135,8 +130,7 @@ public class BasePipeline extends BaseManager {
 	 * @return response of updatedContentBody request
 	 */
 	protected Response updateContentBody(String contentId, String body) {
-		TelemetryManager.log("Update Content Body For Content Id: " + contentId + ".", null,
-				null, Level.INFO.name());
+		TelemetryManager.info("Update Content Body For Content Id: " + contentId + ".");
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
 		request.setOperation(ContentStoreOperations.updateContentBody.name());
@@ -162,13 +156,13 @@ public class BasePipeline extends BaseManager {
 			if (obj instanceof Response) {
 				Response response = (Response) obj;
 				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
-						, " | Result: " + response.getResult().keySet());
+						+ " | Result: " + response.getResult().keySet());
 				return response;
 			} else {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error! Something went wrong" , e.getMessage(), e);
+			TelemetryManager.error("Error! Something went wrong" + e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something went wrong while processing the request", e);
 		}
 	}
@@ -210,7 +204,7 @@ public class BasePipeline extends BaseManager {
 			TelemetryManager.log("Base Path Already Exist: " + path.getFileName());
 		} catch (Exception e) {
 			exist = false;
-			TelemetryManager.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
+			TelemetryManager.error("Error! Something went wrong while creating the path - " + path.getFileName(), e);
 		}
 		return exist;
 	}
@@ -294,7 +288,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While getting the file size from AWS", key, e,Level.WARN.name());
+				TelemetryManager.warn("Error! While getting the file size from AWS"+ key);
 			}
 		}
 		return bytes;
@@ -315,7 +309,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return sdf.format(date);
 			} catch (Exception e) {
-				TelemetryManager.log("Error! While Converting the Date Format.", date, e, Level.WARN.name());
+				TelemetryManager.error("Error! While Converting the Date Format."+ date, e);
 			}
 		}
 		return null;

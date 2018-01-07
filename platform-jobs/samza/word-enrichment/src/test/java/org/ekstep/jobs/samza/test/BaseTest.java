@@ -117,11 +117,8 @@ abstract public class BaseTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				graph_id);
 		request.put(GraphEngineParams.input_stream.name(), contentString);
-		TelemetryManager.log("List | Request: " , request);
 		Response response = util.getResponse(
 				request);
-		TelemetryManager.log("List | Response: " ,response);
-		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 	
@@ -134,11 +131,8 @@ abstract public class BaseTest {
 					graph_id);
 			request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 			request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(stream));
-			TelemetryManager.log("List | Request: " , request);
 			Response response = util.getResponse(
 					request);
-			TelemetryManager.log("List | Response: " ,response);
-			
 			Assert.assertEquals("successful", response.getParams().getStatus());
 			
 		} catch (Exception e) {
@@ -171,11 +165,8 @@ abstract public class BaseTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				graphId);
 		request.put(GraphDACParams.node_id.name(), wordId);
-		TelemetryManager.log("List | Request: " , request);
 		Response response = util.getResponse(
 				request);
-		TelemetryManager.log("List | Response: " ,response);
-		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		return (Node) response.get(GraphDACParams.node.name());
 		
@@ -245,8 +236,6 @@ abstract public class BaseTest {
 					graphId);
 			Response resp = util.getResponse(
 					request);
-			TelemetryManager.log("List | Response: " ,resp);
-			
 			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}

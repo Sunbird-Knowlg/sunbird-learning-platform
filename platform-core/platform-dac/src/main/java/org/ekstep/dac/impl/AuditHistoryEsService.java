@@ -78,7 +78,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	
 		AuditHistoryRecord auditRecord = (AuditHistoryRecord) request.get(CommonDACParams.audit_history_record.name());
 		
-		TelemetryManager.log("getting audit record from request object" , auditRecord);
+		TelemetryManager.log("getting audit record from request object:" , request.getRequest());
 		AuditHistoryEntity entity = new AuditHistoryEntity();
 		modelMapper.map(auditRecord, entity);
 		Map<String, Object> entity_map = objectMapper.convertValue(entity, Map.class);
@@ -86,7 +86,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 			TelemetryManager.log("sending entity object to audit history dao" , entity_map);
 			dao.save(entity_map);
 		} catch (IOException e) {
-			TelemetryManager.log("exception while proceesing audit history entity map", e.getMessage(), e);
+			TelemetryManager.error("exception while proceesing audit history entity map: "+ e.getMessage(), e);
 		}
 		return OK(CommonDACParams.audit_history_record_id.name(), entity.getId());
 	}
@@ -111,9 +111,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		search.setFields(setSearchCriteria(versionId));
 		search.setSortBy(sortBy);
-		TelemetryManager.log("creating search criteria to fetch audit history from ES" , search);
+		TelemetryManager.log("creating search criteria to fetch audit history from ES: " + search);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
-		TelemetryManager.log("list of fields returned from search result" , auditHistoryLogEntities);
+		TelemetryManager.log("list of fields returned from search result: " + auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
@@ -138,9 +138,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
-		TelemetryManager.log("setting search criteria to fetch audit records from ES" , search);
+		TelemetryManager.log("setting search criteria to fetch audit records from ES: " + search);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
-		TelemetryManager.log("list of fields returned from ES based on search query" , auditHistoryLogEntities);
+		TelemetryManager.log("list of fields returned from ES based on search query: " + auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 
 	}
@@ -166,9 +166,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
-		TelemetryManager.log("setting search criteria to fetch audit records from ES" , search);
+		TelemetryManager.log("setting search criteria to fetch audit records from ES: " + search);
 		List<Object> auditHistoryLogEntities = dao.search(search);
-		TelemetryManager.log("list of fields returned from ES based on search query" , auditHistoryLogEntities);
+		TelemetryManager.log("list of fields returned from ES based on search query: " + auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
@@ -191,9 +191,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
-		TelemetryManager.log("setting search criteria to fetch audit records from ES" , search);
+		TelemetryManager.log("setting search criteria to fetch audit records from ES: " + search);
 		List<Object> auditHistoryLogEntities = dao.search(search);
-		TelemetryManager.log("list of fields returned from ES based on search query" , auditHistoryLogEntities);
+		TelemetryManager.log("list of fields returned from ES based on search query: " + auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 	/*
@@ -205,14 +205,14 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 */
 	@Transactional
 	public Response deleteEsData(Request request) {
-		TelemetryManager.log("getting request to delete audit history records from ES" , request);
+		TelemetryManager.log("getting request to delete audit history records from ES", request.getRequest());
 		String timeStamp = (String) request.get(CommonDACParams.time_stamp.name());
 		String query = "{\"query\": {\"range\" : {\"createdOn\" : {\"lte\" :\"" +timeStamp+ "\"}}}}";
 		try {
-			TelemetryManager.log("Sending query to delete the data from ES" , query);
+			TelemetryManager.log("Sending query to delete the data from ES: " + query);
 			dao.delete(query);
 		} catch (IOException e) {
-			TelemetryManager.log("Exception occured", e.getMessage(),e);
+			TelemetryManager.error("Exception occured: "+ e.getMessage(),e);
 		}
 		return OK();
 	}
@@ -264,7 +264,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 				e.printStackTrace();
 			}
 		}
-		TelemetryManager.log("returning the setted response object" , respObj);
+		TelemetryManager.log("returning the setted response object: " + respObj);
 		return respObj;
 	}
 
@@ -310,7 +310,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 			else
 				fields.add("summary");
 		}
-		TelemetryManager.log("returning the search criteria fields" , fields.size());
+		TelemetryManager.log("returning the search criteria fields: " + fields.size());
 		return fields;
 	}
 
@@ -377,7 +377,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 			property.put("values", Arrays.asList(objectId));
 			properties.add(property);
 		}
-		TelemetryManager.log("returning the search filters" , properties.size());
+		TelemetryManager.log("returning the search filters: " + properties.size());
 		return properties;
 	}
 }

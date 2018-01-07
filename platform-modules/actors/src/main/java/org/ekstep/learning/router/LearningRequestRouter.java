@@ -120,7 +120,7 @@ public class LearningRequestRouter extends UntypedActor {
 				Response res = (Response) arg0;
 				ResponseParams params = res.getParams();
 				TelemetryManager.log(
-						request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString());
+						request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
 			}
 		}, getContext().dispatcher());
 
@@ -143,7 +143,7 @@ public class LearningRequestRouter extends UntypedActor {
 	 *            the parent
 	 */
 	protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-		TelemetryManager.log(request.getManagerName() + "," + request.getOperation() , ", ERROR: " + e.getMessage(), Level.WARN.name());
+		TelemetryManager.warn(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage());
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus(StatusType.failed.name());

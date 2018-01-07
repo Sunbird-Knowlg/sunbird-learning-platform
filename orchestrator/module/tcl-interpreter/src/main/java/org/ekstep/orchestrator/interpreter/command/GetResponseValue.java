@@ -37,7 +37,7 @@ public class GetResponseValue implements ICommand, Command {
 					interp.setResult(tclResp);
 				}
 			} catch (Exception e) {
-				TelemetryManager.log("Exception", e.getMessage(), e);
+				TelemetryManager.error("Exception: "+ e.getMessage(), e);
 				throw new TclException(interp, "Unable to read response: " + e.getMessage());
 			}
 		} else {

@@ -30,7 +30,7 @@ class ScheduledTask extends TimerTask {
 			if (null != map && !map.isEmpty()) {
 				String graphId = "domain";
 				for (String objectType : map.keySet()) {
-					TelemetryManager.log("Syncing definition : " , objectType);
+					TelemetryManager.log("Syncing definition : " + objectType);
 					ObjectDefinitionCache.resyncDefinition(objectType, graphId);
 				}
 			}

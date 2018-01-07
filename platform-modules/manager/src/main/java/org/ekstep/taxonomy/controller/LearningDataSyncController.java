@@ -36,12 +36,12 @@ public class LearningDataSyncController extends BaseController {
 			@RequestParam(name = "delete", required = false, defaultValue = "false") boolean delete,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.composite-search.sync";
-		TelemetryManager.log(apiId + " | Graph : " + graphId , " | ObjectType: " + objectType);
+		TelemetryManager.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
 		try {
 			Response response = compositeSearchManager.sync(graphId, objectType, start, total, delete);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Error: " , apiId, e);
+			TelemetryManager.error("Error: " + apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -62,7 +62,7 @@ public class LearningDataSyncController extends BaseController {
 			Response response = compositeSearchManager.syncObject(graphId, identifiers);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Error: ", apiId, e);
+			TelemetryManager.error("Error: "+ apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

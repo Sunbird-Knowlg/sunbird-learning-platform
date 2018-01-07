@@ -123,7 +123,7 @@ public class AssessmentValidator extends BaseManager {
     			}
     		}
     	} catch (Exception e) {
-    		TelemetryManager.log("invalid responses definition.", e.getMessage(), Level.ERROR.name());
+    		TelemetryManager.error("invalid responses definition: "+ e.getMessage(), e);
     		errorMessages.add("invalid responses definition");
     	}
     }

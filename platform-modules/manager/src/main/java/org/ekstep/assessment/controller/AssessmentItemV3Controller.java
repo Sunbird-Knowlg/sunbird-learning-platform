@@ -52,11 +52,11 @@ public class AssessmentItemV3Controller extends BaseController {
         TelemetryManager.log("Create Item | TaxonomyId: " + taxonomyId + " | Request: " + request);
         try {
             Response response = assessmentManager.createAssessmentItem(taxonomyId, request);
-            TelemetryManager.log("Create Item | Response: " , response);
+            TelemetryManager.log("Create Item | Response: " , response.getResult());
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            TelemetryManager.log("Create Item | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Create Item | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -77,11 +77,11 @@ public class AssessmentItemV3Controller extends BaseController {
         	criteria.setStartPosition(offset);
         	request.put(AssessmentAPIParams.assessment_search_criteria.name(), criteria);
             Response response = assessmentManager.searchAssessmentItems(taxonomyId, request);
-            TelemetryManager.log("List Items | Response: " , response);
+            TelemetryManager.log("List Items | Response: " , response.getResult());
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            TelemetryManager.log("Create Item | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Create Item | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -101,7 +101,7 @@ public class AssessmentItemV3Controller extends BaseController {
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            TelemetryManager.log("Update Item | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Update Item | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -119,7 +119,7 @@ public class AssessmentItemV3Controller extends BaseController {
             TelemetryManager.log("Find Item | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Find Item | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Find Item | Exception: "+ e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -136,7 +136,7 @@ public class AssessmentItemV3Controller extends BaseController {
             TelemetryManager.log("Search | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Search | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Search | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -152,7 +152,7 @@ public class AssessmentItemV3Controller extends BaseController {
             TelemetryManager.log("Delete Item | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Delete Item | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Delete Item | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

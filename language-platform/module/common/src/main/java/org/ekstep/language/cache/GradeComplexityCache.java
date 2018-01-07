@@ -126,7 +126,7 @@ public class GradeComplexityCache extends BaseManager {
 			}
 			TelemetryManager.log("completed loadGradeLevelComplexity with " + nodes.size() + " nodes for the language" + languageId);
 		} else {
-			TelemetryManager.log("error in getting GradeLevelComplexity nodes from graph, message: ", getErrorMessage(searchRes), Level.WARN.name());
+			TelemetryManager.warn("error in getting GradeLevelComplexity nodes from graph, message: " + getErrorMessage(searchRes));
 		}
 
 	}
@@ -176,8 +176,8 @@ public class GradeComplexityCache extends BaseManager {
 			TelemetryManager.log(
 					"completed loadGradeLevelComplexity for the language: " + languageId + " and node_id: " + node_id);
 		}else {
-			TelemetryManager.log(
-					"error in getting GradeLevelComplexity node("+node_id+") from graph, message: " , getErrorMessage(findRes), Level.WARN.name());
+			TelemetryManager.warn(
+					"error in getting GradeLevelComplexity node("+node_id+") from graph, message: " + getErrorMessage(findRes));
 		}
 
 

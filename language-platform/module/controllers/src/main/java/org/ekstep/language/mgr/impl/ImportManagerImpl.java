@@ -96,7 +96,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			});
 			return list;
 		} catch (Exception e) {
-			TelemetryManager.log("Exception",e.getMessage(), e);
+			TelemetryManager.error("Exception: "+e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return null;
@@ -118,7 +118,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					});
 			return list;
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return null;
@@ -190,7 +190,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			}
 			asyncUpdate(nodeIDcache.values(), languageId);
 		} catch (Exception ex) {
-			TelemetryManager.log("Exception", ex.getMessage(), ex);
+			TelemetryManager.error("Exception: "+ ex.getMessage(), ex);
 			errorMessages.append(", ").append(ex.getMessage());
 		} finally {
 			File zipFileDirectory = new File(tempFileDwn);
@@ -200,7 +200,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					delete(zipFileDirectory);
 				} catch (IOException e) {
-					TelemetryManager.log("Exception", e.getMessage(), e);
+					TelemetryManager.error("Exception: "+ e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -581,7 +581,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			}
 			controllerUtil.makeLanguageAsyncRequest(request);
 		} catch (IOException e) {
-			TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+			TelemetryManager.error("Error! While Closing the Input Stream:" + e.getMessage(), e);
 		}
 	}
 
@@ -665,7 +665,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					wordContentBuffer.append(line);
 					wordContentBuffer.append(NEW_LINE);
 				} catch (ArrayIndexOutOfBoundsException e) {
-					TelemetryManager.log("Exception" + e.getMessage(), e);
+					TelemetryManager.error("Exception: "+ e.getMessage(), e);
 					continue;
 				}
 			}
@@ -701,7 +701,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					synsetContentBuffer.append(line);
 					synsetContentBuffer.append(NEW_LINE);
 				} catch (ArrayIndexOutOfBoundsException e) {
-					TelemetryManager.log("Exception", e.getMessage(), e);
+					TelemetryManager.error("Exception: "+ e.getMessage(), e);
 					continue;
 				}
 			}
@@ -736,7 +736,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			importDataAsync(synsetContent, languageId, taskId);
 			return OK("wordList", wordIdList);
 		} catch (IOException e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			e.printStackTrace();
 		} finally {
 			line = "";
@@ -744,7 +744,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					br.close();
 				} catch (IOException e) {
-					TelemetryManager.log("Exception", e.getMessage(), e);
+					TelemetryManager.error("Exception: "+ e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -752,7 +752,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					reader.close();
 				} catch (IOException e) {
-					TelemetryManager.log("Exception", e.getMessage(), e);
+					TelemetryManager.error("Exception: "+ e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -932,7 +932,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 							break;
 						}
 					} catch (Exception e) {
-						TelemetryManager.log("Exception", e.getMessage(), e);
+						TelemetryManager.error("Exception: "+ e.getMessage(), e);
 						e.printStackTrace();
 						continue;
 					}
@@ -999,7 +999,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					String csv = new String(bos.toByteArray());
 					response.put(LanguageParams.response.name(), csv);
 				} catch (IOException e) {
-					TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+					TelemetryManager.error("Error! While Closing the Input Stream: "+ e.getMessage(), e);
 				}
 			}
 			return response;

@@ -98,7 +98,7 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
-			TelemetryManager.log("Exception", e.getMessage(), Level.WARN.name());
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
     			check.put("healthy", false);
     			check.put("err", "503"); // error code, if any
     			check.put("errmsg", "Cassandra connection is not available"); 

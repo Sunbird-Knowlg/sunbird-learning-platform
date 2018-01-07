@@ -63,8 +63,6 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		TelemetryManager.log("Node: ", node.getIdentifier());
-
 		Response response = new Response();
 		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
@@ -77,16 +75,16 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		TelemetryManager.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		TelemetryManager.log("Review Operation Finished Successfully for Node ID: " + contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " ,contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 
@@ -99,15 +97,13 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		TelemetryManager.log("Node: ", node.getIdentifier());
-
-		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", node.getIdentifier());
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: "+ node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: ", node.getIdentifier());
+		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: "+ node.getIdentifier());
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

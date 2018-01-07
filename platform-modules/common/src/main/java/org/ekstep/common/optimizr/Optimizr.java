@@ -24,10 +24,10 @@ public class Optimizr {
 	}
 	
 	public File optimizeECAR(String url)  throws Exception{
-		TelemetryManager.log("optimizeECAR URL" , url);
+		TelemetryManager.log("optimizeECAR URL: " + url);
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File ecarFile = HttpDownloadUtility.downloadFile(url, tempFileDwn);
-		TelemetryManager.log("optimizeECAR ecarFile -" ,  ecarFile.getPath());
+		TelemetryManager.log("optimizeECAR ecarFile -" +  ecarFile.getPath());
 		return optimizeECAR(ecarFile);
 	}
 	

@@ -141,7 +141,7 @@ public class ContentV2ControllerTest {
 					url = result[1];
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error! Upload File Package Cannot be 'null'.", e.getMessage(), e);
+			TelemetryManager.error("Error! Upload File Package Cannot be 'null'."+ e.getMessage(), e);
 		}
 		return url;
 	}

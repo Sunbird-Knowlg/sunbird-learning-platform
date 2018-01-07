@@ -45,11 +45,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createGraph(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-            TelemetryManager.log("Create Graph request: ", graphId);
+            TelemetryManager.log("Create Graph request: "+ graphId);
             Graph graph = new Graph(this, graphId);
             graph.create(request);
         } catch (Exception e) {
-        	TelemetryManager.log("Error in Create Graph", e.getMessage(), e);
+        	TelemetryManager.error("Error in Create Graph: "+ e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -58,11 +58,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createUniqueConstraint(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-        	TelemetryManager.log("Create Unique Constraint request: " , graphId);
+        	TelemetryManager.log("Create Unique Constraint request: " + graphId);
             Graph graph = new Graph(this, graphId);
             graph.createUniqueConstraint(request);
         } catch (Exception e) {
-        	TelemetryManager.log("Error in Create Unique Constraint", e.getMessage(), e);
+        	TelemetryManager.error("Error in Create Unique Constraint: "+ e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -71,11 +71,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createIndex(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-        	TelemetryManager.log("Create Index request: " , graphId);
+        	TelemetryManager.log("Create Index request: " + graphId);
             Graph graph = new Graph(this, graphId);
             graph.createIndex(request);
         } catch (Exception e) {
-        	TelemetryManager.log("Error in Create Index", e.getMessage(), e);
+        	TelemetryManager.error("Error in Create Index: "+e.getMessage(), e);
             handleException(e, getSender());
         }
     }

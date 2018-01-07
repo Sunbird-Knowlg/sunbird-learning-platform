@@ -36,7 +36,7 @@ public class ConfigUtil {
 		TrustStrategy trustStrategy = TrustStrategy.trustAllCertificates();
 
 		String strategy = DACConfigurationConstants.NEO4J_SERVER_CONNECTION_TRUST_STRATEGY;
-		TelemetryManager.log("Trust Strategy: " , strategy);
+		TelemetryManager.log("Trust Strategy: " + strategy);
 
 		switch (strategy) {
 		case "all":

@@ -82,7 +82,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 							wordMap.put("measures", measures);
 						}
 					} catch (Exception e) {
-						TelemetryManager.log("Exception",e.getMessage(), e);
+						TelemetryManager.error("Exception: "+e.getMessage(), e);
 					}
 					returnMap.put(lemma, wordMap);
 					if (StringUtils.isNotBlank(primarySynsetId)) {

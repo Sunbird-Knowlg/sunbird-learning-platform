@@ -62,7 +62,7 @@ public class IndexesActor extends LanguageBaseActor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		TelemetryManager.log("Received Command: " , msg);
+		TelemetryManager.log("Received Command: " + msg);
 		Request request = (Request) msg;
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
@@ -95,7 +95,7 @@ public class IndexesActor extends LanguageBaseActor {
 						try {
 							delete(zipFileDirectory);
 						} catch (IOException e) {
-							TelemetryManager.log("Exception",e.getMessage(), e);
+							TelemetryManager.error("Exception"+e.getMessage(), e);
 							e.printStackTrace();
 						}
 					}
@@ -190,7 +190,7 @@ public class IndexesActor extends LanguageBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}
@@ -215,7 +215,7 @@ public class IndexesActor extends LanguageBaseActor {
 			if (elasticSearchUtil.isIndexExists(wordInfoIndexName))
 				elasticSearchUtil.deleteIndex(wordInfoIndexName);
 		} catch (Exception e) {
-			TelemetryManager.log("IndexesActor, dropIndex | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("IndexesActor, dropIndex | Exception: " + e.getMessage(), e);
 		}
 
 	}

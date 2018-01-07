@@ -161,7 +161,6 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 */
 	private Response createDataNode(Node node) {
-		TelemetryManager.log("Node :", node);
 		Response response = new Response();
 		if (null != node) {
 			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
@@ -212,7 +211,6 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 */
 	private Response updateDataNode(Node node) {
-		TelemetryManager.log("[updateNode] | Node: ", node);
 		Response response = new Response();
 		if (null != node) {
 			String channelId = node.getIdentifier();

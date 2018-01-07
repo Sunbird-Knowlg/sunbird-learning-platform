@@ -83,14 +83,13 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
-			TelemetryManager.log("Plugin: ", plugin);
 			TelemetryManager.log("Calling 'createAssessmentItemSubGraph' Inner Operation.");
 			createAssessmentItemSubGraph(plugin);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(),
 					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [AssessmentItemCreatorProcessor]", e);
 		}
-		TelemetryManager.log("Returning the ECRF (Plugin) Object", plugin);
+		TelemetryManager.log("Returning the ECRF (Plugin) Object"+ plugin);
 		return plugin;
 	}
 

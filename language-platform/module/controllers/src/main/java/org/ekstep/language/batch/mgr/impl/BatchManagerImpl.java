@@ -128,14 +128,14 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							try {
 								wordChainUtil.updateWordSet(languageId, node, wc);
 							} catch (Exception e) {
-								TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+								TelemetryManager.error("Update error : " + node.getIdentifier() + e.getMessage(), e);
 							}
 						}
 					}
 					try {
 						wordUtil.getWordComplexity(node, languageId);
 					} catch (Exception e) {
-						TelemetryManager.log("Update wordcomplexity error : " + node.getIdentifier() , e.getMessage(),
+						TelemetryManager.error("Update wordcomplexity error : " + node.getIdentifier() + e.getMessage(),
 								e);
 						Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 						updateReq.put(GraphDACParams.node.name(), node);
@@ -143,7 +143,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 						try {
 							getResponse(updateReq);
 						} catch (Exception ex) {
-							TelemetryManager.log("Update error : " + node.getIdentifier() , ex.getMessage(), ex);
+							TelemetryManager.error("Update error : " + node.getIdentifier() + ex.getMessage(), ex);
 						}
 					}
 				}
@@ -199,7 +199,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					try {
 						getResponse(updateReq);
 					} catch (Exception e) {
-						TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						TelemetryManager.error("Update error : " + node.getIdentifier() + e.getMessage(), e);
 					}
 				}
 				TelemetryManager.log("UpdatePictures complete from " + startPosistion + " - " + BATCH + " words");
@@ -249,7 +249,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							try {
 								getResponse(updateReq);
 							} catch (Exception e) {
-								TelemetryManager.log("Update error : " + wordNode.getIdentifier() , e.getMessage(), e);
+								TelemetryManager.error("Update error : " + wordNode.getIdentifier() + e.getMessage(), e);
 							}
 						}
 					} else {
@@ -258,7 +258,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 						try {
 							getResponse(deleteReq);
 						} catch (Exception e) {
-							TelemetryManager.log("Delete error : " + node.getIdentifier() , e.getMessage(), e);
+							TelemetryManager.error("Delete error : " + node.getIdentifier() + e.getMessage(), e);
 						}
 					}
 				}
@@ -320,7 +320,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							try {
 								wordChainUtil.updateWordSet(languageId, node, wc);
 							} catch (Exception e) {
-								TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+								TelemetryManager.error("Update error : " + node.getIdentifier() + e.getMessage(), e);
 							}
 						}
 					}
@@ -460,7 +460,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					try {
 						getResponse(updateReq);
 					} catch (Exception e) {
-						TelemetryManager.log("Update error : " + wordNode.getIdentifier(),  e.getMessage(), e);
+						TelemetryManager.error("Update error : " + wordNode.getIdentifier() +  e.getMessage(), e);
 					}
 				}
 				TelemetryManager.log("setPrimaryMeaning complete from " + startPosistion + " - " + BATCH + " words");
@@ -496,7 +496,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					try {
 						getResponse(updateReq);
 					} catch (Exception e) {
-						TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						TelemetryManager.error("Update error : " + node.getIdentifier() + e.getMessage(), e);
 					}
 				}
 				TelemetryManager.log("updatePosList complete from " + startPosistion + " - " + BATCH + " words");
@@ -529,7 +529,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					try {
 						wordUtil.getWordComplexity(node, languageId);
 					} catch (Exception e) {
-						TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						TelemetryManager.error("Update error : " + node.getIdentifier() + e.getMessage(), e);
 					}
 				}
 				TelemetryManager.log("updateWordComplexity complete from " + startPosistion + " - " + BATCH + " words");
@@ -589,7 +589,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 								try {
 									getResponse(updateReq);
 								} catch (Exception e) {
-									TelemetryManager.log("Update error : " + node.getIdentifier() ,e.getMessage(), e);
+									TelemetryManager.error("Update error : " + node.getIdentifier()  + e.getMessage(), e);
 								}
 							}
 						}
@@ -680,7 +680,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 								try {
 									getResponse(updateReq);
 								} catch (Exception e) {
-									TelemetryManager.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+									TelemetryManager.error("Update error : " + node.getIdentifier() + e.getMessage(), e);
 								}
 							}
 						}

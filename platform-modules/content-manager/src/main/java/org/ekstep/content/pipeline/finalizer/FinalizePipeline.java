@@ -66,7 +66,7 @@ public class FinalizePipeline extends BasePipeline {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && !StringUtils.isBlank(operation)) {
-			TelemetryManager.log("Performing Operation: " , operation);
+			TelemetryManager.log("Performing Operation: " + operation);
 			switch (operation) {
 				case "upload":
 				case "UPLOAD": {
@@ -104,7 +104,7 @@ public class FinalizePipeline extends BasePipeline {
 		try {
 			FileUtils.deleteDirectory(new File(basePath));
 		} catch (Exception e) {
-			TelemetryManager.log("Error deleting directory: " , basePath, e);
+			TelemetryManager.error("Error deleting directory: " + basePath, e);
 		}
 		return response;
 	}

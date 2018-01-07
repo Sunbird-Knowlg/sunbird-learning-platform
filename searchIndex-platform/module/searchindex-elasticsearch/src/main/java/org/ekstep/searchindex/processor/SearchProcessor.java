@@ -904,7 +904,7 @@ public class SearchProcessor {
 			object = Arrays.asList();
 		}
 		}catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 		}
 		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object()
 				.key("query").array();

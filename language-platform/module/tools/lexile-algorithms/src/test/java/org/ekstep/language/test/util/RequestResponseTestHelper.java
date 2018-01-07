@@ -139,7 +139,6 @@ public class RequestResponseTestHelper {
 	                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 	            }
 	        } catch (Exception e) {
-	            TelemetryManager.log("Exception", e.getMessage(), e);
 	            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 	        }   
 	    }

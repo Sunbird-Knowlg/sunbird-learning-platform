@@ -34,10 +34,10 @@ public class SynsetControllerV3 extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".info";
 		try {
 			Response response = dictionaryManager.getSynsetV3(languageId, objectId);
-			TelemetryManager.log("Find | Response: " , response);
+			TelemetryManager.error("Find | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

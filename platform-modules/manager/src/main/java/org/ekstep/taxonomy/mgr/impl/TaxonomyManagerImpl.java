@@ -32,7 +32,6 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 	public Response getSubGraph(String graphId, String id, Integer depth, List<String> relations) {
 		if (StringUtils.isBlank(id))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Domain Id is blank");
-		TelemetryManager.log("Find Taxonomy : " , id);
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "traverseSubGraph",
 				GraphDACParams.start_node_id.name(), id);
 		request.put(GraphDACParams.relations.name(), relations);
@@ -64,7 +63,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 					String csv = new String(bos.toByteArray());
 					response.put(TaxonomyAPIParams.taxonomy.name(), csv);
 				} catch (IOException e) {
-					TelemetryManager.log("Error! While Closing the ByteArrayOutputStream [operation : create]", response,  e);
+					TelemetryManager.error("Error! While Closing the ByteArrayOutputStream [operation : create]",  e);
 				}
 			}
 			return response;
@@ -76,7 +75,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		if (StringUtils.isBlank(id))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		String format = (String) req.get(GraphEngineParams.format.name());
-		TelemetryManager.log("Export Taxonomy : " + id , " | Format: " + format);
+		TelemetryManager.log("Export Taxonomy : " + id + " | Format: " + format);
 		Request request = new Request(req);
 		setContext(request, id, GraphEngineManagers.GRAPH_MANAGER, "exportGraph");
 		request.put(GraphEngineParams.format.name(), format);
@@ -89,7 +88,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 	public Response delete(String id) {
 		if (StringUtils.isBlank(id))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-		TelemetryManager.log("Delete Taxonomy : " , id);
+		TelemetryManager.log("Delete Taxonomy : " + id);
 		Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "deleteGraph");
 		return getResponse(request);
 	}
@@ -101,7 +100,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		if (StringUtils.isBlank(json))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(),
 					"Definition nodes JSON is empty");
-		TelemetryManager.log("Update Definition : " , id);
+		TelemetryManager.log("Update Definition : " + id);
 		Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
 		request.put(GraphEngineParams.input_stream.name(), json);
 		return getResponse(request);
@@ -122,7 +121,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
-		TelemetryManager.log("Get Definition : " + id , " : Object Type : " + objectType);
+		TelemetryManager.log("Get Definition : " + id + " : Object Type : " + objectType);
 		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinitionFromCache",
 				GraphDACParams.object_type.name(), objectType);
 		return getResponse(request);
@@ -134,7 +133,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
-		TelemetryManager.log("Delete Definition : " + id , " : Object Type : " + objectType);
+		TelemetryManager.log("Delete Definition : " + id + " : Object Type : " + objectType);
 		Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "deleteDefinition",
 				GraphDACParams.object_type.name(), objectType);
 		return getResponse(request);
@@ -147,7 +146,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		if (null == keys || keys.isEmpty())
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_INDEX_KEYS.name(),
 					"Property keys are empty");
-		TelemetryManager.log("Create Index : " + id , " : Keys : " + keys);
+		TelemetryManager.log("Create Index : " + id + " : Keys : " + keys);
 		Request request = null;
 		if (null != unique && unique)
 			request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "createUniqueConstraint",

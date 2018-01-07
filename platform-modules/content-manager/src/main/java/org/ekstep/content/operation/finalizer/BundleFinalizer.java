@@ -236,7 +236,7 @@ public class BundleFinalizer extends BaseFinalizer {
 			TelemetryManager.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
-			TelemetryManager.log("Error deleting the temporary folder: " , basePath, e);
+			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
 		}
 		return response;
 	}

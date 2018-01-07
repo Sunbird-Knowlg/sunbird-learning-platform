@@ -131,9 +131,7 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 					.getResponseEntity(response, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			TelemetryManager.log("List | Response: " + response);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " + e.getMessage(), e);
 			ResponseEntity<Response> responseEntity = LanguageIndexesTestHelper
 					.getExceptionResponseEntity(e, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
@@ -163,7 +161,6 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " + e.getMessage(), e);
 			LanguageIndexesTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);

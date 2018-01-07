@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import net.sf.junidecode.Junidecode;
@@ -37,7 +36,7 @@ public class Slug {
                 return newFile;
             }
         } catch (Exception e) {
-            TelemetryManager.log("Error creating slug of the file: " + f, e.getMessage(), Level.ERROR.name());
+            TelemetryManager.error("Error creating slug of the file: " + f + " Error message: " + e.getMessage());
         }
         return f;
     }

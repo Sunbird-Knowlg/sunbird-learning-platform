@@ -181,7 +181,7 @@ public class LanguageRequestRouter extends UntypedActor {
 	 *            the parent
 	 */
 	protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-		TelemetryManager.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), Level.WARN.name());
+		TelemetryManager.warn(request.getManagerName() + "," + request.getOperation() + e.getMessage());
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus(StatusType.failed.name());

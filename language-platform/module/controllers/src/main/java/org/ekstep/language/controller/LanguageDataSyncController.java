@@ -64,7 +64,7 @@ public class LanguageDataSyncController extends BaseController {
 			Response response = compositeSearchManager.sync(graphId, objectType, start, total, delete);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Error: ", apiId, e);
+			TelemetryManager.error("Error: "+ apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -96,7 +96,7 @@ public class LanguageDataSyncController extends BaseController {
 			Response response = compositeSearchManager.syncObject(graphId, identifiers);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Error: ", apiId, e);
+			TelemetryManager.error("Error: "+ apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

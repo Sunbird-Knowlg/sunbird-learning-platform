@@ -38,7 +38,7 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
-			TelemetryManager.log("Start Downloading for File: " , fileURL);
+			TelemetryManager.log("Start Downloading for File: " + fileURL);
 
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
@@ -99,7 +99,7 @@ public class HttpDownloadUtility {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			TelemetryManager.log("Error! While Downloading File.", e.getMessage(), e);
+			TelemetryManager.error("Error! While Downloading File:"+ e.getMessage(), e);
 		} finally {
 			if (null != httpConn)
 				httpConn.disconnect();
@@ -107,17 +107,17 @@ public class HttpDownloadUtility {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(),e );
+					TelemetryManager.error("Error! While Closing the Input Stream: "+ e.getMessage(),e );
 				}
 			if (null != outputStream)
 				try {
 					outputStream.close();
 				} catch (IOException e) {
-					TelemetryManager.log("Error! While Closing the Output Stream.", e.getMessage(), e);
+					TelemetryManager.error("Error! While Closing the Output Stream: "+ e.getMessage(), e);
 				}
 		}
 
-		TelemetryManager.log("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'.", fileURL, Level.WARN.name());
+		TelemetryManager.warn("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
 		return null;
 	}
 
@@ -151,7 +151,7 @@ public class HttpDownloadUtility {
 		URL data;
 		StringBuffer sb = new StringBuffer();
 		try {
-			TelemetryManager.log("The url to be read: " , url);
+			TelemetryManager.log("The url to be read: " + url);
 			data = new URL(url);
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(data.openStream()))) {
 				String inputLine;
@@ -163,7 +163,7 @@ public class HttpDownloadUtility {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		TelemetryManager.log("Data read from url" , sb.toString());
+		TelemetryManager.log("Data read from url: " + sb.toString());
 		return sb.toString();
 	}
 

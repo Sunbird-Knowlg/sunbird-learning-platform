@@ -15,6 +15,7 @@ import org.ekstep.dialcode.model.DialCodesBatch;
 import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;

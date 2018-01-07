@@ -114,7 +114,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -142,7 +142,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			TelemetryManager.log("making async request to GRAPH_MANAGER | operation = importGraph");
 			makeAsyncRequest(request);
 		} catch (IOException e) {
-			TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(), e);
+			TelemetryManager.error("Error! While Closing the Input Stream:" +e.getMessage(), e);
 		}
 	}
 
@@ -157,7 +157,6 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -221,7 +220,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			TelemetryManager.log("importNodesFromStream complete | response taskId =" + taskId);
 			return taskId;
 		} catch (Exception e) {
-			TelemetryManager.log("error in importNodesFromStream , msg" , e.getMessage(), e);
+			TelemetryManager.error("error in importNodesFromStream , msg" + e.getMessage(), e);
 		}
 		return null;
 	}
@@ -244,7 +243,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			TelemetryManager.log("createTaskNode complete | response taskId =" + taskId);
 			return taskId;
 		} catch (Exception e) {
-			TelemetryManager.log("error in createTaskNode" , e.getMessage(), e);
+			TelemetryManager.error("error in createTaskNode" + e.getMessage(), e);
 		}
 		return null;
 	}
@@ -560,7 +559,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			TelemetryManager.log("making async request to IMPORT_ACTOR operation importWordsAndSynsets");
 			makeAsyncRequest(request);
 		} catch (IOException e) {
-			TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(),  e);
+			TelemetryManager.error("Error! While Closing the Input Stream." +e.getMessage(),  e);
 		}
 	}
 

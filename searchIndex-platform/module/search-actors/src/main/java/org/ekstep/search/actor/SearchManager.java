@@ -75,7 +75,7 @@ public class SearchManager extends SearchBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			TelemetryManager.log("Error in SearchManager actor", e.getMessage(), e);
+			TelemetryManager.error("Error in SearchManager actor: "+ e.getMessage(), e);
 			handleException(e, getSender());
 		} finally {
 			if (null != processor)
@@ -181,7 +181,7 @@ public class SearchManager extends SearchBaseActor {
 						softConstraints = mapper.readValue(constraintString, Map.class);
 					}
 				} catch (Exception e) {
-					TelemetryManager.log("Invalid soft Constraints", e.getMessage(), e, Level.ERROR.name());
+					TelemetryManager.warn("Invalid soft Constraints"+ e.getMessage());
 				}
 			}
 			TelemetryManager.log("Soft Constraints with only Mode: " , softConstraints);
@@ -208,14 +208,13 @@ public class SearchManager extends SearchBaseActor {
 						}
 					}
 				} catch (Exception e) {
-					TelemetryManager.log("Invalid soft Constraints", e.getMessage(), e, Level.WARN.name());
+					TelemetryManager.warn("Invalid soft Constraints: "+ e.getMessage());
 				}
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
             TelemetryManager.log("SoftConstraints"+ searchObj.getSoftConstraints());
             
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
-			TelemetryManager.log("Fields: " , fieldsSearch);
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
@@ -509,7 +508,7 @@ public class SearchManager extends SearchBaseActor {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
-		TelemetryManager.log("Logging search Response :" , searchResponse.entrySet());
+		TelemetryManager.log("Logging search Response :" , searchResponse);
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();

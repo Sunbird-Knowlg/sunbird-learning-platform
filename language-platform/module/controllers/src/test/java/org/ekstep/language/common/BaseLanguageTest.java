@@ -15,7 +15,6 @@ import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.engine.router.ActorBootstrap;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -80,7 +79,6 @@ public class BaseLanguageTest {
 					TEST_LANGUAGE);
 			Response resp = LanguageCommonTestHelper.getResponse(
 					request);
-			TelemetryManager.log("List | Response: " ,resp);
 			
 			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
@@ -93,7 +91,6 @@ public class BaseLanguageTest {
 					TEST_COMMON_LANGUAGE);
 			resp = LanguageCommonTestHelper.getResponse(
 					request);
-			TelemetryManager.log("List | Response: " ,resp);
 			
 			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
@@ -139,11 +136,8 @@ public class BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				graph_id);
 		request.put(GraphEngineParams.input_stream.name(), contentString);
-		TelemetryManager.log("List | Request: " , request);
 		Response response = LanguageCommonTestHelper.getResponse(
-				request);
-		TelemetryManager.log("List | Response: " ,response);
-		
+				request);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 }

@@ -793,9 +793,9 @@ public class Graph extends AbstractDomainObject {
 					if (null != outputStream)
 						outputStream.close();
 				} catch (IOException e1) {
-					TelemetryManager.log("Error! While Closing the Input Stream.", null, e);
+					TelemetryManager.error("Error! While closing the input stream.", e);
 				}
-				TelemetryManager.log("Error! While Reading the Data.", null, e);
+				TelemetryManager.error("Error! While reading the data.", e);
 			}
 			Response response = new Response();
 			ResponseParams params = new ResponseParams();
@@ -808,7 +808,7 @@ public class Graph extends AbstractDomainObject {
 				if (null != outputStream)
 					outputStream.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.", null, e);
+				TelemetryManager.error("Error! While Closing the Input Stream.", e);
 			}
 
 			manager.returnResponse(Futures.successful(response), getParent());

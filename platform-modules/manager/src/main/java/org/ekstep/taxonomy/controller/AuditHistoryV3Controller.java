@@ -70,10 +70,10 @@ public class AuditHistoryV3Controller extends BaseController {
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
-			TelemetryManager.log("Find Item | Response: " , response.getResponseCode());
+			TelemetryManager.log("Find Item | Response: " + response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

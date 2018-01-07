@@ -55,10 +55,9 @@ public class MediaController extends BaseController {
             params.setStatus(StatusType.successful.name());
             params.setErrmsg("Operation successful");
             response.setParams(params);
-            TelemetryManager.log("Upload | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            TelemetryManager.log("Upload | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Upload | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

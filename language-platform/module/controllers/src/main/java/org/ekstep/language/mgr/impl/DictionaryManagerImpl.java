@@ -28,12 +28,16 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.controller.BaseController;
+import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.common.JSONUtils;
@@ -62,16 +66,11 @@ import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.common.dto.CoverageIgnore;
-import org.ekstep.common.dto.NodeDTO;
-import org.ekstep.common.mgr.ConvertGraphNode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -282,7 +281,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 			getCSV(nodes, out);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception" ,e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			throw new MiddlewareException(LanguageErrorCodes.ERR_SEARCH_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -347,7 +346,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							map.putAll(rels);
 						}
 					} catch (Exception e) {
-						TelemetryManager.log("Exception", e.getMessage(), e);
+						TelemetryManager.error("Exception: "+ e.getMessage(), e);
 					}
 					nodes.add(map);
 				}
@@ -441,7 +440,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 		} catch (Exception e) {
 			row[i] = "";
-			TelemetryManager.log("Error", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 		}
 	}
 
@@ -1536,7 +1535,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				response.put(LanguageObjectTypes.Word.name(), map);
 				return response;
 			} catch (Exception e) {
-				TelemetryManager.log("Exception", e.getMessage(), e);
+				TelemetryManager.error("Exception: "+ e.getMessage(), e);
 				e.printStackTrace();
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 			}
@@ -1651,8 +1650,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 								rel.getRelationType(), primaryMeaningId);
 
 					} catch (Exception e) {
-						TelemetryManager.log("error while correcting synset for synset id-" + synset.getIdentifier() + " ,"
-								, e.getMessage(), e);
+						TelemetryManager.error("error while correcting synset for synset id-" + synset.getIdentifier() + " ,"
+								+ e.getMessage(), e);
 						throw e;
 					}
 				}
@@ -3338,7 +3337,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				response.put(LanguageObjectTypes.Word.name(), map);
 				return response;
 			} catch (Exception e) {
-				TelemetryManager.log("Exception", e.getMessage(), e);
+				TelemetryManager.error("Exception: "+ e.getMessage(), e);
 				e.printStackTrace();
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 			}
@@ -3370,7 +3369,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				response.put(LanguageObjectTypes.Synset.name(), map);
 				return response;
 			} catch (Exception e) {
-				TelemetryManager.log("Exception", e.getMessage(), e);
+				TelemetryManager.error("Exception: "+ e.getMessage(), e);
 				e.printStackTrace();
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 			}
@@ -3401,21 +3400,21 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				Response wordResponse = createOrUpdateWord(languageId, word, lstNodeId, true, false);
 				if (checkError(wordResponse)) {
 					errorMessages.add(wordUtil.getErrorMessage(wordResponse));
-					TelemetryManager.log("ClientException during bulk word update for word:" + word.toString(),
-							wordUtil.getErrorMessage(wordResponse), null, Level.ERROR.name());
+					TelemetryManager.error("ClientException during bulk word update for word:" + word.toString() + " message: " +
+							wordUtil.getErrorMessage(wordResponse));
 				}
 				String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
 				if (nodeId != null) {
 					//lstNodeId.add(nodeId);
-					TelemetryManager.log("Bulk word Update | successfull for  word  :" + nodeId);
+					TelemetryManager.log("Bulk word Update | successfull for  word: " + nodeId);
 				}
 			}
 			return OK("errors", errorMessages);
 		} catch (ClientException e) {
-			TelemetryManager.log("ClientException", e.getMessage(), e);
+			TelemetryManager.error("ClientException: "+ e.getMessage(), e);
 			return ERROR(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		}
 

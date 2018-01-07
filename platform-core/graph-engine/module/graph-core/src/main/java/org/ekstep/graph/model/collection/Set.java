@@ -538,8 +538,7 @@ public class Set extends AbstractCollection {
 				}
 			}
 			Request request = new Request(req);
-			TelemetryManager.log("Creating " + (out ? "outgoing" : "incoming") + " relations | count: ",
-					newRels.size());
+			TelemetryManager.log("Creating " + (out ? "outgoing" : "incoming") + " relations | count: "+newRels.size());
 			for (Entry<String, List<String>> entry : newRels.entrySet()) {
 				if (out) {
 					request.put(GraphDACParams.start_node_id.name(), getNodeId());
@@ -569,8 +568,7 @@ public class Set extends AbstractCollection {
 	 */
 	private void deleteRelations(Request req, Map<String, List<String>> delRels, boolean out) {
 		if (null != delRels && delRels.size() > 0) {
-			TelemetryManager.log("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: ",
-					delRels.size());
+			TelemetryManager.log("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: "+delRels.size());
 			Request request = new Request(req);
 			for (Entry<String, List<String>> entry : delRels.entrySet()) {
 				if (out) {

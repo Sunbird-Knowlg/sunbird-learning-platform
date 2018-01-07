@@ -64,7 +64,7 @@ public class InitializePipeline extends BasePipeline {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && StringUtils.isNotBlank(operation)) {
-			TelemetryManager.log("Performing Content Operation: " , operation);
+			TelemetryManager.log("Performing Content Operation: " + operation);
 			switch (operation) {
 			case "upload":
 			case "UPLOAD": {
@@ -95,7 +95,7 @@ public class InitializePipeline extends BasePipeline {
 				break;
 
 			default:
-				TelemetryManager.log("Invalid Content Operation: " , operation);
+				TelemetryManager.log("Invalid Content Operation: " + operation);
 				break;
 			}
 

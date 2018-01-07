@@ -118,7 +118,7 @@ public class ExecutionController extends BaseOrchestratorController {
 				}
 				return getResponseEntity(resp, script);
 			} catch (Exception e) {
-				TelemetryManager.log("Error executing script: " , script.getName(), e);
+				TelemetryManager.error("Error executing script: " + script.getName(), e);
 				return getExceptionResponseEntity(e, script);
 			}
 		}

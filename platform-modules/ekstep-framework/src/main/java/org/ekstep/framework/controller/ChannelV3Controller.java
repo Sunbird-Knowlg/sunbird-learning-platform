@@ -47,7 +47,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.createChannel(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create Channel", e.getMessage(), e);
+			TelemetryManager.error("Create Channel: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -65,7 +65,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.readChannel(channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Read Channel", e.getMessage(), e);
+			TelemetryManager.error("Read Channel"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -88,7 +88,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.updateChannel(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Update Channel", e.getMessage(), e);
+			TelemetryManager.error("Update Channel"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -110,7 +110,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.listChannel((Map)request.get("search"));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("List Channel | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List Channel | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -129,7 +129,7 @@ public class ChannelV3Controller extends BaseController {
 			TelemetryManager.log("retire channel | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("retire channel | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("retire channel | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

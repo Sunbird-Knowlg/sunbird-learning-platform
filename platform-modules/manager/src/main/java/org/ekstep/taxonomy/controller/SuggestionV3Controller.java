@@ -59,10 +59,10 @@ public class SuggestionV3Controller extends BaseController {
 			Map<String,Object>  request = validateSuggestionRequest(map);
 			TelemetryManager.log("Create | Suggestions: " + " | Request: " + request);
 			Response response = suggestionManager.saveSuggestion(request);
-			TelemetryManager.log("Create | Response: " , response);
+			TelemetryManager.log("Create | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -94,10 +94,10 @@ public class SuggestionV3Controller extends BaseController {
 		TelemetryManager.log("Get | Suggestions: " + " | Request: " + object_id);
 		try {
 			Response response = suggestionManager.readSuggestion(object_id, startTime, endTime, status);
-			TelemetryManager.log("Create | Response: " , response);
+			TelemetryManager.error("Create | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	
@@ -124,10 +124,10 @@ public class SuggestionV3Controller extends BaseController {
 				throw new ClientException(SuggestionCodeConstants.MISSING_OBJECT_ID.name(), "Error! Invalid or Missing Suggestion_Id");
 			}
 			Response response = suggestionManager.approveSuggestion(suggestion_id, map);
-			TelemetryManager.log("Create | Response: " , response);
+			TelemetryManager.log("Create | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	
@@ -151,10 +151,10 @@ public class SuggestionV3Controller extends BaseController {
 		TelemetryManager.log("Get | Suggestions: " + " | Request: " + suggestion_id);
 		try {
 			Response response = suggestionManager.rejectSuggestion(suggestion_id, map);
-			TelemetryManager.log("Create | Response: " , response);
+			TelemetryManager.log("Create | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	
@@ -175,7 +175,7 @@ public class SuggestionV3Controller extends BaseController {
 			TelemetryManager.log("Create | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	

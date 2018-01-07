@@ -19,7 +19,6 @@ public class ImportActor extends LanguageBaseActor {
 
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		TelemetryManager.log("Received Command: " , msg);
 		if (msg instanceof Request) {
 			Request request = (Request) msg;
 			String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
@@ -33,7 +32,7 @@ public class ImportActor extends LanguageBaseActor {
 						OK(LanguageParams.dictionary.name(), dictionaryObject, getSender());
 					}
 				} else {
-					TelemetryManager.log("Unsupported operation: " , operation);
+					TelemetryManager.log("Unsupported operation: " + operation);
 					unhandled(msg);
 				}
 			} catch (Exception e) {

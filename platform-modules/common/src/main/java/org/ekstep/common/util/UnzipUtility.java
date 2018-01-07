@@ -74,7 +74,7 @@ public class UnzipUtility {
 			}
 			zipIn.close();
 		} catch (Exception e) {
-			TelemetryManager.log("Error! While Unzipping the File.", e.getMessage(),Level.ERROR.name());
+			TelemetryManager.error("Error! While Unzipping the File: "+ e.getMessage());
 			throw new ServerException("Error while unziping the file" , e.getMessage());
 			
 		} finally {

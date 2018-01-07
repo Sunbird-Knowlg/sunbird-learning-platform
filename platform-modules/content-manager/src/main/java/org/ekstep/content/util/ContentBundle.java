@@ -214,7 +214,7 @@ public class ContentBundle {
 				FileUtils.deleteDirectory(new File(bundlePath));
 			} catch (IOException e) {
 				e.printStackTrace();
-				TelemetryManager.log("Error while deleting the bundle base path", null, e);
+				TelemetryManager.error("Error while deleting the bundle base path", e);
 			}
 		}
 	}
@@ -268,7 +268,7 @@ public class ContentBundle {
 								+ " | [Content List is 'null' or Empty.]");
 			if (StringUtils.isBlank(manifestVersion))
 				manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
-			TelemetryManager.log("Manifest Header Version: ", manifestVersion);
+			TelemetryManager.log("Manifest Header Version: "+ manifestVersion);
 			StringBuilder header = new StringBuilder();
 			header.append("{ \"id\": \"ekstep.content.archive\", \"ver\": \"").append(manifestVersion);
 			header.append("\", \"ts\": \"").append(getResponseTimestamp()).append("\", \"params\": { \"resmsgid\": \"");
@@ -276,16 +276,16 @@ public class ContentBundle {
 			if (StringUtils.isNotBlank(expiresOn))
 				header.append("\"expires\": \"").append(expiresOn).append("\", ");
 			header.append("\"ttl\": 24, \"items\": ");
-			TelemetryManager.log("Content Items in Manifest JSON: ", contents.size());
+			TelemetryManager.log("Content Items in Manifest JSON: "+ contents.size());
 
 			// Updating the 'variant' Property
-			TelemetryManager.log("Contents Before Updating for 'variant' Properties : ", contents);
+			TelemetryManager.log("Contents Before Updating for 'variant' Properties : "+ contents);
 
 			TelemetryManager.log("Updating the 'variant' map from JSON string to JSON Object.");
 			contents.stream().forEach(c -> c.put(ContentWorkflowPipelineParams.variants.name(),
 					JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name()))));
 
-			TelemetryManager.log("Contents After Updating for 'variant' Properties : ", contents);
+			TelemetryManager.log("Contents After Updating for 'variant' Properties : "+ contents);
 
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
@@ -454,7 +454,6 @@ public class ContentBundle {
 			}
 			IOUtils.closeQuietly(bufferedOutputStream);
 			IOUtils.closeQuietly(byteArrayOutputStream);
-			TelemetryManager.log("Printing Byte Array for Content Bundle", byteArrayOutputStream.toByteArray());
 			return byteArrayOutputStream.toByteArray();
 		}
 	}

@@ -1,7 +1,6 @@
 package org.ekstep.orchestrator.interpreter.command;
 
 import org.ekstep.orchestrator.interpreter.ICommand;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import tcl.lang.Command;
@@ -21,7 +20,7 @@ public class Logs extends BaseSystemCommand implements ICommand, Command {
                     throw new TclException(interp, "Null arguments to " + getCommandName());
                 } else {
                     String logMessage = tclObject1.toString();
-                    TelemetryManager.log("TclLogMessage", logMessage, Level.ERROR.name());
+                    TelemetryManager.warn("TclLogMessage: "+ logMessage);
                     interp.setResult(true);
                 }
             } catch (Exception e) {

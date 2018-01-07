@@ -565,7 +565,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		TelemetryManager.log("Time taken for search: " , diff);
+		TelemetryManager.log("Time taken for search: " + diff);
 		return result;
 	}
 

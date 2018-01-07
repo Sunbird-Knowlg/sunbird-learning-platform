@@ -69,7 +69,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			TelemetryManager.log("Upload | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Upload | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Upload | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -114,7 +114,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -163,7 +163,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -217,7 +217,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			TelemetryManager.log("Find | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

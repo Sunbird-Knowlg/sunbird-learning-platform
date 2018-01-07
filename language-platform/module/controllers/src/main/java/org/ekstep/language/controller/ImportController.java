@@ -85,14 +85,14 @@ public class ImportController extends BaseLanguageController {
 			TelemetryManager.log("Import | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Import | Exception: " ,e.getMessage(), e);
+			TelemetryManager.error("Import | Exception: " +e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != synsetsStreamInZIP)
 					synsetsStreamInZIP.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(), e);
+				TelemetryManager.error("Error! While Closing the Input Stream: "+e.getMessage(), e);
 			}
 		}
 	}
@@ -128,14 +128,14 @@ public class ImportController extends BaseLanguageController {
 			TelemetryManager.log("Import | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Import | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != stream)
 					stream.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(), e);
+				TelemetryManager.error("Error! While Closing the Input Stream:"+e.getMessage(), e);
 			}
 		}
 	}
@@ -182,7 +182,7 @@ public class ImportController extends BaseLanguageController {
 			}
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Import | Exception: " + e.getMessage(), e);
+			TelemetryManager.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
@@ -191,7 +191,7 @@ public class ImportController extends BaseLanguageController {
 				if (null != wordStream)
 					wordStream.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(), e);
+				TelemetryManager.error("Error! While Closing the Input Stream:"+e.getMessage(), e);
 			}
 		}
 	}
@@ -225,7 +225,7 @@ public class ImportController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -260,7 +260,7 @@ public class ImportController extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			TelemetryManager.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -325,14 +325,14 @@ public class ImportController extends BaseLanguageController {
 			Response response = new Response();
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Import | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != wordListStream)
 					wordListStream.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(), e);
+				TelemetryManager.error("Error! While Closing the Input Stream: "+e.getMessage(), e);
 			}
 		}
 	}
@@ -359,17 +359,17 @@ public class ImportController extends BaseLanguageController {
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = importManager.importCSV(id, stream);
-			TelemetryManager.log("Create | Response: " + response);
+			TelemetryManager.log("Create | Response: ", response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != stream)
 					stream.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.",e.getMessage(), e);
+				TelemetryManager.error("Error! While Closing the Input Stream."+e.getMessage(), e);
 			}
 		}
 	}
@@ -393,7 +393,7 @@ public class ImportController extends BaseLanguageController {
 			TelemetryManager.log("Import Definition | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Create Definition | Exception: " + e.getMessage(), e);
+			TelemetryManager.error("Create Definition | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -415,7 +415,7 @@ public class ImportController extends BaseLanguageController {
 			TelemetryManager.log("Find All Definitions | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find All Definitions | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find All Definitions | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -442,7 +442,7 @@ public class ImportController extends BaseLanguageController {
 			TelemetryManager.log("Find Definitions | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Find Definitions | Exception: " + e.getMessage(), e);
+			TelemetryManager.error("Find Definitions | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -463,14 +463,14 @@ public class ImportController extends BaseLanguageController {
 			TelemetryManager.log("importExampleSentecesCSV | wordList: " + wordIds.toString());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("importExampleSentecesCSV | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("importExampleSentecesCSV | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != stream)
 					stream.close();
 			} catch (IOException e) {
-				TelemetryManager.log("Error! While Closing the Input Stream.", e.getMessage(),e);
+				TelemetryManager.error("Error! While Closing the Input Stream: ."+ e.getMessage(),e);
 			}
 		}
 	}

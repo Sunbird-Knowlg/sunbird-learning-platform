@@ -48,7 +48,7 @@ public class FrameworkV3Controller extends BaseController{
 			Response response = frameworkManager.createFramework(map, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while creating framework (Create Framework API): ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while creating framework (Create Framework API): "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -66,7 +66,7 @@ public class FrameworkV3Controller extends BaseController{
 			Response response = frameworkManager.readFramework(frameworkId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while reading framework details (Read Framework API): ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while reading framework details (Read Framework API): "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -90,7 +90,7 @@ public class FrameworkV3Controller extends BaseController{
 			Response response = frameworkManager.updateFramework(frameworkId,channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while updating framework (Update Framework API): ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while updating framework (Update Framework API): "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -112,7 +112,7 @@ public class FrameworkV3Controller extends BaseController{
 			return getResponseEntity(response, apiId, null);
 			
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while Performing List Operation : " , e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while Performing List Operation : " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -133,7 +133,7 @@ public class FrameworkV3Controller extends BaseController{
 			Response response = frameworkManager.retireFramework(frameworkId,channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.log("Exception Occured while Performing Retire Operation : " , e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while Performing Retire Operation : " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
