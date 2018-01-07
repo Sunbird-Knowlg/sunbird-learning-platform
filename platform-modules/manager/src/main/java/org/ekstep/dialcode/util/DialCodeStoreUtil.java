@@ -103,7 +103,8 @@ public class DialCodeStoreUtil {
 		CassandraStoreUtil.update(getKeyspaceName(DialCodeEnum.dialcode.name()),
 				getKeyspaceTable(DialCodeEnum.dialcode.name()), DialCodeEnum.identifier.name(), id, data);
 		List<String> keys = data.keySet().stream().collect(Collectors.toList());
-		TelemetryManager.audit((String) id, "Dialcode", keys, null, null);
+		String status = (String) data.get("status");
+		TelemetryManager.audit((String) id, "Dialcode", keys, status, null);
 	}
 
 	public static List<DialCode> list(String channelId, Map<String, Object> map) throws Exception {
