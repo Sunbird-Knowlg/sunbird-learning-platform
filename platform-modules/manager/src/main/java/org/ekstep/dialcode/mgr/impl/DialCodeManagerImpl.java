@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -63,9 +62,9 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			map.put(DialCodeEnum.batchCode.name(), batchCode);
 		}
 		dialCodeMap = SeqRandomGenerator.generate(count);
-		Set<Map.Entry<Double, String>> entrySet = dialCodeMap.entrySet();
-		for (Entry entry : entrySet) {
-			DialCodeStoreUtil.save(channelId, publisher, batchCode, (String) entry.getValue(), (Double) entry.getKey());
+		// TODO: save should be part of DIAL Code generator.
+		for (Entry<Double, String> entry : dialCodeMap.entrySet()) {
+			DialCodeStoreUtil.save(channelId, publisher, batchCode, entry.getValue(), entry.getKey());
 		}
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.count.name(), dialCodeMap.size());

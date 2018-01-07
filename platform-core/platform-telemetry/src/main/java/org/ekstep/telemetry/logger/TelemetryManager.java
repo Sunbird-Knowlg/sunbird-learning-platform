@@ -1,6 +1,7 @@
 package org.ekstep.telemetry.logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -136,6 +137,18 @@ public class TelemetryManager {
 			code = ((MiddlewareException) e).getErrCode();
 		}
 		telemetryHandler.error(context, code, "system", stacktrace, null, object);
+	}
+	
+	
+	public static void audit(String id, String type, List<String> props) {
+		audit(id, type, props, null, null);
+	}
+	
+	public static void audit(String id, String type, List<String> props, String state, String prevState) {
+		Map<String, String> context = getContext();
+		context.put("objectId", id);
+		context.put("objectType", type);
+		telemetryHandler.audit(context, props, state, prevState);
 	}
 
 	/**

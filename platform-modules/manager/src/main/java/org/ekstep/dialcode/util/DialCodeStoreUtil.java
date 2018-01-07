@@ -2,9 +2,11 @@ package org.ekstep.dialcode.util;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
@@ -15,6 +17,7 @@ import org.ekstep.dialcode.common.DialCodeErrorCodes;
 import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.model.DialCode;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -79,6 +82,8 @@ public class DialCodeStoreUtil {
 		Map<String, Object> data = getInsertData(channel, publisher, batchCode, dialCode, dialCodeIndex);
 		CassandraStoreUtil.insert(getKeyspaceName(DialCodeEnum.dialcode.name()),
 				getKeyspaceTable(DialCodeEnum.dialcode.name()), dialCode, data);
+		List<String> keys = data.keySet().stream().collect(Collectors.toList());
+		TelemetryManager.audit((String) dialCode, "Dialcode", keys, "Draft", null);
 	}
 
 	public static DialCode read(String dialCode) throws Exception {
@@ -98,6 +103,8 @@ public class DialCodeStoreUtil {
 	public static void update(String id, Map<String, Object> data) throws Exception {
 		CassandraStoreUtil.update(getKeyspaceName(DialCodeEnum.dialcode.name()),
 				getKeyspaceTable(DialCodeEnum.dialcode.name()), DialCodeEnum.identifier.name(), id, data);
+		List<String> keys = data.keySet().stream().collect(Collectors.toList());
+		TelemetryManager.audit((String) id, "Dialcode", keys, null, null);
 	}
 
 	public static List<DialCode> list(String channelId, Map<String, Object> map) throws Exception {

@@ -1,5 +1,6 @@
 package org.ekstep.telemetry.handler;
 
+import java.util.List;
 import java.util.Map;
 
 import org.ekstep.telemetry.TelemetryGenerator;
@@ -70,4 +71,7 @@ public interface TelemetryHandler {
 	 * @param stacktrace
 	 */
 	public void error(Map<String, String> context, String code, String type, String stacktrace);
+	
+	
+	public void audit(Map<String, String> context, List<String> props, String state, String prevState);
 }

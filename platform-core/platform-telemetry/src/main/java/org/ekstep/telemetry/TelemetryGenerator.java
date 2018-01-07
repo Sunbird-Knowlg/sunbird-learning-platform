@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.telemetry.dto.Actor;
 import org.ekstep.telemetry.dto.Context;
 import org.ekstep.telemetry.dto.Producer;
+import org.ekstep.telemetry.dto.Target;
 import org.ekstep.telemetry.dto.Telemetry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -129,10 +130,19 @@ public class TelemetryGenerator {
 		return null;
 	}
 	
-	public static String audit(Map<String, String> context) {
+	public static String audit(Map<String, String> context, List<String> props, String state, String prevState) {
 		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
-		return null;
+		Map<String, Object> edata = new HashMap<String, Object>();
+		edata.put("props", props);
+		if (StringUtils.isNotBlank(state))
+			edata.put("state", state);
+		if (StringUtils.isNotBlank(prevState))
+			edata.put("prevstate", prevState);
+		Telemetry telemetry = new Telemetry("AUDIT", actor, eventContext, edata);
+		Target object = new Target(context.get("objectId"), context.get("objectType"));
+		telemetry.setObject(object);
+		return getTelemetry(telemetry);
 	}
 	
 	private static Actor getActor(Map<String, String> context) {

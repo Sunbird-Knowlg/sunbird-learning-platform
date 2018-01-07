@@ -48,7 +48,6 @@ public class CassandraStoreUtil {
 			}
 			Set<String> keySet = request.keySet();
 			String query = getPreparedStatement(keyspaceName, tableName, keySet);
-			System.out.println("insert query:::::" + query);
 			Session session = CassandraConnector.getSession();
 			PreparedStatement statement = session.prepare(query);
 			BoundStatement boundStatement = new BoundStatement(statement);

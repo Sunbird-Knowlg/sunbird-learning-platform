@@ -3,6 +3,7 @@
  */
 package org.ekstep.telemetry.handler;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -101,6 +102,13 @@ public class TelemetryLoggingHandler implements TelemetryHandler {
 	@Override
 	public void error(Map<String, String> context, String code, String type, String stacktrace) {
 		error(context, code, type, stacktrace, null, null);
+	}
+
+	@Override
+	public void audit(Map<String, String> context, List<String> props, String state, String prevState) {
+		String event = TelemetryGenerator.audit(context, props, state, prevState);
+		telemetryLogger.info(event);
+		
 	}
 
 }
