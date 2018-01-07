@@ -77,7 +77,7 @@ public class CassandraStoreUtil {
 			String query = getUpdateQueryStatement(keyspaceName, tableName, identifier, keySet);
 			String updateQuery = query + Constants.IF_EXISTS;
 			PreparedStatement statement = session.prepare(updateQuery);
-			Object[] array = new Object[request.size()];
+			Object[] array = new Object[request.size() + 1];
 			Iterator<String> iterator = keySet.iterator();
 			int i = 0;
 			while (iterator.hasNext()) {
@@ -88,6 +88,7 @@ public class CassandraStoreUtil {
 			session.execute(boundStatement);
 			logTransactionEvent(keyspaceName, tableName, CassandraStoreParams.UPDATE.name(), idValue, request);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(),
 					"Error while updating record for id : " + idValue, e);
 		}
@@ -270,6 +271,7 @@ public class CassandraStoreUtil {
 				Constants.UPDATE + keyspaceName + Constants.DOT + tableName + Constants.SET);
 		query.append(String.join(" = ? ,", key));
 		query.append(Constants.EQUAL_WITH_QUE_MARK + Constants.WHERE + id + Constants.EQUAL_WITH_QUE_MARK);
+		System.out.println(query.toString());
 		return query.toString();
 	}
 
