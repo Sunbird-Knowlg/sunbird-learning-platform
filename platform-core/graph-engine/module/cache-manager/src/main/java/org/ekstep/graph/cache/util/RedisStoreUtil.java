@@ -35,11 +35,7 @@ public class RedisStoreUtil {
 		Jedis jedis = getRedisConncetion();
 		try {
 			String redisKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
-			System.out.println("redisKey:::::::::::" + redisKey);
 			String value = jedis.get(redisKey);
-			// Long l = jedis.incr(redisKey);
-			System.out.println("value from redis:;;" + value);
-			// System.out.println("incr value from redis:;;" + l);
 			return value;
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
