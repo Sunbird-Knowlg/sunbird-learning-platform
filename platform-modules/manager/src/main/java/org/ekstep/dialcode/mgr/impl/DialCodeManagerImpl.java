@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.cassandra.store.CassandraStoreUtil;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -21,10 +22,12 @@ import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.dialcode.model.DialCode;
+import org.ekstep.dialcode.model.Publisher;
 import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
 import org.springframework.stereotype.Component;
 
+import com.datastax.driver.core.Row;
 import com.google.gson.Gson;
 
 /**
@@ -201,6 +204,88 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		respParam.setStatus("successful");
 		resp.setParams(respParam);
 		return resp;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#createPublisher(java.util.Map, java.lang.String)
+	 */
+	@Override
+	public Response createPublisher(Map<String, Object> map, String channelId) throws Exception {
+		String ERROR_CODE = "ERR_INVALID_PUBLISHER_CREATION_REQUEST";
+		if (null == map)
+			return ERROR(ERROR_CODE, "Invalid Request", ResponseCode.CLIENT_ERROR);
+		
+		if(!map.containsKey(DialCodeEnum.identifier.name()) || 
+				StringUtils.isBlank((String)map.get(DialCodeEnum.identifier.name()))) {
+			return ERROR(ERROR_CODE, "Invalid Publisher Identifier", ResponseCode.CLIENT_ERROR);
+		}
+		
+		if(!map.containsKey(DialCodeEnum.name.name()) || 
+				StringUtils.isBlank((String)map.get(DialCodeEnum.name.name()))) {
+			return ERROR(ERROR_CODE, "Invalid Publisher Name", ResponseCode.CLIENT_ERROR);
+		}
+		String identifier = (String)map.get(DialCodeEnum.identifier.name());
+		List<Row> listOfPublisher = CassandraStoreUtil.read(DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()), 
+				DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), 
+				DialCodeEnum.identifier.name(), identifier);
+		
+		if(!listOfPublisher.isEmpty())
+			return ERROR(ERROR_CODE, "Publisher with Identifier: " + identifier + 
+					" already exists.", ResponseCode.CLIENT_ERROR);
+		
+		Map<String, Object> publisherMap = getPublisherMap(map, channelId, true);
+		CassandraStoreUtil.insert(DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()), 
+				DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), 
+				identifier, publisherMap);
+		
+		Response response = new Response();
+		response.put(DialCodeEnum.identifier.name(), identifier);
+		return response;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#readPublisher(java.lang.String)
+	 */
+	@Override
+	public Response readPublisher(String publisherId) throws Exception {
+		String ERROR_CODE = "ERR_INVALID_PUBLISHER_GET_REQUEST";
+		if(StringUtils.isBlank(publisherId))
+			return ERROR(ERROR_CODE, "Invalid Publisher Identifier", ResponseCode.CLIENT_ERROR);
+		List<Row> listOfPublisher = CassandraStoreUtil.read(DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()), 
+				DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), 
+				DialCodeEnum.identifier.name(), publisherId);
+		if(listOfPublisher.isEmpty())
+			return ERROR(ERROR_CODE, "Publisher with Identifier: " + publisherId + 
+					" does not exists.", ResponseCode.CLIENT_ERROR);
+		
+		Row publisherRow = listOfPublisher.get(0);
+		Publisher publisher = new Publisher(publisherRow.getString("identifier"), publisherRow.getString("name"), 
+				publisherRow.getString("channel"), publisherRow.getString("created_on"), publisherRow.getString("updated_on"));
+		
+		Response response = new Response();
+		response.put("publisher", publisher);
+		return response;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#updatePublisher(java.lang.String, java.lang.String, java.util.Map)
+	 */
+	@Override
+	public Response updatePublisher(String publisherId, String channelId, Map<String, Object> map) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Map<String, Object> getPublisherMap(Map<String, Object> map, String channel, boolean isCreateOperation){
+		Map<String, Object> publisherMap = new HashMap<>();
+		publisherMap.put(DialCodeEnum.identifier.name(), map.get(DialCodeEnum.identifier.name()));
+		publisherMap.put(DialCodeEnum.name.name(), map.get(DialCodeEnum.name.name()));
+		publisherMap.put(DialCodeEnum.channel.name(), channel);
+		if(isCreateOperation)
+			publisherMap.put(DialCodeEnum.created_on.name(), LocalDateTime.now().toString());
+		publisherMap.put(DialCodeEnum.updated_on.name(), LocalDateTime.now().toString());
+		
+		return publisherMap;
 	}
 
 }

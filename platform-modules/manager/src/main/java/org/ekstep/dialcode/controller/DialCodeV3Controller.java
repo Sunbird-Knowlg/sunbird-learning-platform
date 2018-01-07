@@ -138,4 +138,74 @@ public class DialCodeV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	/**
+	 * Create Publisher.
+	 * 
+	 * @param requestMap
+	 * @return
+	 */
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/publisher/create", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> createPublsiher(@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
+
+		String apiId = "ekstep.publisher.create";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("publisher");
+			Response response = dialCodeManager.createPublisher(map, channelId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception Occured while creating Publisher  : " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Read Publisher Details
+	 * 
+	 * @param publisherId
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/publisher/read/{id:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> readPublisher(@PathVariable(value = "id") String publisherId) {
+		String apiId = "ekstep.publisher.info";
+		try {
+			Response response = dialCodeManager.readPublisher(publisherId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception Occured while reading Publisher details : " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Update Publisher Details
+	 * 
+	 * @param publisherId
+	 * @param requestMap
+	 * @param channelId
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/publisher/update/{id:.+}", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> updatePublisher(@PathVariable(value = "id") String publisherId,
+			@RequestBody Map<String, Object> requestMap, @RequestHeader(value = "X-Channel-Id") String channelId) {
+		String apiId = "ekstep.publisher.update";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("publisher");
+			Response response = dialCodeManager.updatePublisher(publisherId, channelId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception Occured while updating Publisher : " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 }
