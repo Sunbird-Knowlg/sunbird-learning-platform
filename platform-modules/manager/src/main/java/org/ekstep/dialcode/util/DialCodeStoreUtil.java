@@ -62,13 +62,7 @@ public class DialCodeStoreUtil {
 		return Double.valueOf(row.getString(DialCodeEnum.prop_value.name()));
 	}
 
-	public static void setDialCodeIndex() throws Exception {
-		List<Row> rows = CassandraStoreUtil.read(getKeyspaceName(DialCodeEnum.system_config.name()),
-				getKeyspaceTable(DialCodeEnum.system_config.name()), DialCodeEnum.prop_key.name(),
-				DialCodeEnum.dialcode_max_index.name());
-		Row row = rows.get(0);
-		double maxIndex = Double.valueOf(row.getString(DialCodeEnum.prop_value.name()));
-		++maxIndex;
+	public static void setDialCodeIndex(double maxIndex) throws Exception {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(DialCodeEnum.prop_value.name(), String.valueOf((int) maxIndex));
 		CassandraStoreUtil.update(getKeyspaceName(DialCodeEnum.system_config.name()),

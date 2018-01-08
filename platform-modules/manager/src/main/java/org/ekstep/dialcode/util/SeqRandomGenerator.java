@@ -9,6 +9,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.dialcode.common.DialCodeErrorCodes;
 import org.ekstep.dialcode.common.DialCodeErrorMessage;
+import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 
 public class SeqRandomGenerator {
@@ -35,7 +36,7 @@ public class SeqRandomGenerator {
 	private static final BigDecimal largePrimeNumber = new BigDecimal(
 			Platform.config.getInt("dialcode.large.prime_number"));
 
-	public static Map<Double, String> generate(double count) throws Exception {
+	public static Map<Double, String> generate(double count, Map<String, Object> map) throws Exception {
 		Map<Double, String> codes = new HashMap<Double, String>();
 		double startIndex = getMaxIndex();
 		int totalChars = alphabet.length;
@@ -48,11 +49,21 @@ public class SeqRandomGenerator {
 			BigDecimal num = number.multiply(largePrimeNumber).remainder(exponent);
 			String code = baseN(num, totalChars);
 			if (code.length() == length) {
-				setMaxIndex();
-				codesCount += 1;
-				codes.put(lastIndex, code);
+				try {
+					DialCodeStoreUtil.save((String) map.get(DialCodeEnum.channel.name()),
+							(String) map.get(DialCodeEnum.publisher.name()),
+							(String) map.get(DialCodeEnum.batchCode.name()), code, lastIndex);
+					codesCount += 1;
+					codes.put(lastIndex, code);
+				} catch (Exception e) {
+
+				}
+				if (codesCount == count) {
+					setMaxIndex(lastIndex);
+				}
 			}
-			lastIndex = getMaxIndex();
+			if (codesCount < count)
+				lastIndex = getMaxIndex();
 		}
 		return codes;
 	}
@@ -66,8 +77,8 @@ public class SeqRandomGenerator {
 		return StringUtils.stripStart(val, stripChars) + alphabet[num.remainder(new BigDecimal(base)).intValue()];
 	}
 
-	private static void setMaxIndex() throws Exception {
-		DialCodeStoreUtil.setDialCodeIndex();
+	private static void setMaxIndex(double maxIndex) throws Exception {
+		DialCodeStoreUtil.setDialCodeIndex(maxIndex);
 	}
 
 	/**
