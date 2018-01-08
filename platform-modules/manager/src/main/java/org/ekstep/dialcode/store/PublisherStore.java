@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.ekstep.cassandra.store.AbstractCassandraStore;
 import org.ekstep.common.Platform;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.Row;
@@ -22,7 +21,9 @@ public class PublisherStore extends AbstractCassandraStore {
 
 	public PublisherStore() {
 		super();
-		String keyspace = Platform.config.getString("publisher.keyspace.name");
+		String keyspace = "dialcode_store";
+		if (Platform.config.hasPath("publisher.keyspace.name"))
+			keyspace = Platform.config.getString("publisher.keyspace.name");
 		initialise(keyspace, "publisher", "Publisher");
 	}
 
