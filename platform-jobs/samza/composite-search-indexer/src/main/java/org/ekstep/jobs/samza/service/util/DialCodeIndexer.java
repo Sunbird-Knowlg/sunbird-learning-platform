@@ -16,12 +16,12 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
  * @author pradyumna
  *
  */
-public class DialCodeIndexUtil {
+public class DialCodeIndexer {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private ElasticSearchUtil esUtil = null;
 
-	public DialCodeIndexUtil(ElasticSearchUtil esUtil) {
+	public DialCodeIndexer(ElasticSearchUtil esUtil) {
 		this.esUtil = esUtil;
 	}
 
@@ -74,24 +74,24 @@ public class DialCodeIndexUtil {
 		return indexDocument;
 	}
 
-	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
+	private void upsertDocument(String uniqueId, String jsonIndexDocument) throws Exception {
 		esUtil.addDocumentWithId(CompositeSearchConstants.DIAL_CODE_INDEX,
 				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 
-	public void addOrUpdateDoc(String uniqueId, Map<String, Object> message) throws Exception {
+	public void upsertDocument(String uniqueId, Map<String, Object> message) throws Exception {
 		String operationType = (String) message.get("operationType");
 		switch (operationType) {
 		case CompositeSearchConstants.OPERATION_CREATE: {
 			Map<String, Object> indexDocument = getIndexDocument(message, false);
 			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-			addOrUpdateIndex(uniqueId, jsonIndexDocument);
+			upsertDocument(uniqueId, jsonIndexDocument);
 			break;
 		}
 		case CompositeSearchConstants.OPERATION_UPDATE: {
 			Map<String, Object> indexDocument = getIndexDocument(message, true);
 			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-			addOrUpdateIndex(uniqueId, jsonIndexDocument);
+			upsertDocument(uniqueId, jsonIndexDocument);
 			break;
 		}
 		case CompositeSearchConstants.OPERATION_DELETE: {

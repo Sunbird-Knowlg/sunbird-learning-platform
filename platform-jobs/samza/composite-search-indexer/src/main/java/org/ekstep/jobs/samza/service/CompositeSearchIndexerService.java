@@ -6,8 +6,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.service.util.CompositeSearchIndexUtil;
-import org.ekstep.jobs.samza.service.util.DialCodeIndexUtil;
+import org.ekstep.jobs.samza.service.util.CompositeSearchIndexer;
+import org.ekstep.jobs.samza.service.util.DialCodeIndexer;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
@@ -20,9 +20,9 @@ public class CompositeSearchIndexerService implements ISamzaService {
 
 	private ElasticSearchUtil esUtil = null;
 
-	private CompositeSearchIndexUtil csUtil = null;
+	private CompositeSearchIndexer csUtil = null;
 
-	private DialCodeIndexUtil dcUtil = null;
+	private DialCodeIndexer dcUtil = null;
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -31,10 +31,10 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
-		csUtil = new CompositeSearchIndexUtil(esUtil);
+		csUtil = new CompositeSearchIndexer(esUtil);
 		csUtil.createCompositeSearchIndex();
 		LOGGER.info(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + " created");
-		dcUtil = new DialCodeIndexUtil(esUtil);
+		dcUtil = new DialCodeIndexer(esUtil);
 		dcUtil.createDialCodeIndex();
 		LOGGER.info(CompositeSearchConstants.DIAL_CODE_INDEX + " created");
 	}
@@ -74,7 +74,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 				break;
 			}
 			case CompositeSearchConstants.NODE_TYPE_EXTERNAL: {
-				dcUtil.addOrUpdateDoc(uniqueId, message);
+				dcUtil.upsertDocument(uniqueId, message);
 				break;
 			}
 			}

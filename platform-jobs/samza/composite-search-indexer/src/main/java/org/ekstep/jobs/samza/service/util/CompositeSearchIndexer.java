@@ -23,14 +23,14 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
  * @author pradyumna
  *
  */
-public class CompositeSearchIndexUtil {
+public class CompositeSearchIndexer {
 
-	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexUtil.class);
+	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexer.class);
 	private ObjectMapper mapper = new ObjectMapper();
 	private ElasticSearchUtil esUtil = null;
 
 	private ControllerUtil util = new ControllerUtil();
-	public CompositeSearchIndexUtil(ElasticSearchUtil esUtil) {
+	public CompositeSearchIndexer(ElasticSearchUtil esUtil) {
 		this.esUtil = esUtil;
 	}
 
@@ -122,7 +122,7 @@ public class CompositeSearchIndexUtil {
 		return indexDocument;
 	}
 
-	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
+	private void upsertDocument(String uniqueId, String jsonIndexDocument) throws Exception {
 		esUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
@@ -166,23 +166,23 @@ public class CompositeSearchIndexUtil {
 		LOGGER.debug("definition fetched from cache: " + definitionNode.getIdentifier());
 		LOGGER.info(uniqueId + " is indexing into ES.");
 		Map<String, String> relationMap = getRelationMap(objectType, definition);
-		addOrUpdateDoc(uniqueId, message, relationMap);
+		upsertDocument(uniqueId, message, relationMap);
 	}
 
-	private void addOrUpdateDoc(String uniqueId, Map<String, Object> message, Map<String, String> relationMap)
+	private void upsertDocument(String uniqueId, Map<String, Object> message, Map<String, String> relationMap)
 			throws Exception {
 		String operationType = (String) message.get("operationType");
 		switch (operationType) {
 		case CompositeSearchConstants.OPERATION_CREATE: {
 			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, false);
 			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-			addOrUpdateIndex(uniqueId, jsonIndexDocument);
+			upsertDocument(uniqueId, jsonIndexDocument);
 			break;
 		}
 		case CompositeSearchConstants.OPERATION_UPDATE: {
 			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, true);
 			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-			addOrUpdateIndex(uniqueId, jsonIndexDocument);
+			upsertDocument(uniqueId, jsonIndexDocument);
 			break;
 		}
 		case CompositeSearchConstants.OPERATION_DELETE: {
