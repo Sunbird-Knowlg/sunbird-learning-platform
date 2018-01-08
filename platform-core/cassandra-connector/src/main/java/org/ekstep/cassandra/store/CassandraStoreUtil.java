@@ -6,6 +6,7 @@ package org.ekstep.cassandra.store;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.ekstep.cassandra.connector.util.CassandraConnectorStoreParam;
 import org.ekstep.common.Platform;
 import org.ekstep.common.enums.CompositeSearchParams;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.graph.common.DateUtils;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 import org.joda.time.LocalDateTime;
@@ -371,7 +373,7 @@ public class CassandraStoreUtil {
 						dataMap.put(CompositeSearchParams.index.name(), index);
 						dataMap.put(CompositeSearchParams.audit.name(), false);
 						dataMap.put(CompositeSearchParams.ets.name(), System.currentTimeMillis());
-						dataMap.put(CompositeSearchParams.createdOn.name(), LocalDateTime.now());
+						dataMap.put(CompositeSearchParams.createdOn.name(), DateUtils.format(new Date()));
 						TelemetryManager.log("Adding dataMap to list", dataMap);
 						message.add(dataMap);
 						TelemetryManager.log("Logging event to kafka on body changes" + message);
