@@ -362,7 +362,6 @@ public class CassandraStoreUtil {
 						dataMap.put(CompositeSearchParams.requestId.name(), null);
 						dataMap.put(CompositeSearchParams.operationType.name(), operation);
 						dataMap.put(CompositeSearchParams.label.name(), "");
-						dataMap.put(CompositeSearchParams.graphId.name(), CassandraStoreParams.cassandra.name());
 						dataMap.put(CompositeSearchParams.nodeType.name(), CassandraStoreParams.EXTERNAL.name());
 						dataMap.put(CompositeSearchParams.userId.name(), CassandraStoreParams.ANONYMOUS.name());
 						dataMap.put(CompositeSearchParams.objectType.name(), objectType);

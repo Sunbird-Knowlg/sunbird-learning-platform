@@ -56,4 +56,6 @@ public class CompositeSearchConstants {
 	public static final String CONDITION_SET_SHOULD = "should";
 	public static final String SEARCH_OPERATION_SOFT = "soft";
 	public static final String NODE_TYPE_EXTERNAL = "EXTERNAL";
+	public static String DIAL_CODE_INDEX = "dialcode";
+	public static final String DIAL_CODE_INDEX_TYPE = "dc";
 }
