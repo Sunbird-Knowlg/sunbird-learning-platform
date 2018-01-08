@@ -1,8 +1,5 @@
 package org.ekstep.telemetry.handler;
 
-import java.util.List;
-import java.util.Map;
-
 import org.ekstep.telemetry.TelemetryGenerator;
 
 /**
@@ -18,60 +15,8 @@ import org.ekstep.telemetry.TelemetryGenerator;
 public interface TelemetryHandler {
 
 	/**
-	 * To generate and handle LOG event of type api_access.
 	 * 
-	 * @param context
-	 * @param params
+	 * @param event
 	 */
-	public void access(Map<String, String> context, Map<String, Object> params);
-
-	/**
-	 * To generate and handle normal LOG event having all the properties of edata.
-	 * 
-	 * @param context
-	 * @param type
-	 * @param level
-	 * @param message
-	 * @param pageid
-	 * @param params
-	 */
-	public void log(Map<String, String> context, String type, String level, String message, String pageid,
-			Map<String, Object> params);
-
-	/**
-	 * To generate and handle normal LOG event having required properties of edata.
-	 * 
-	 * @param context
-	 * @param type
-	 * @param level
-	 * @param message
-	 */
-	public void log(Map<String, String> context, String type, String level, String message);
-
-	/**
-	 * To generate and handle ERROR event having all the properties of edata.
-	 * 
-	 * @param context
-	 * @param code
-	 * @param type
-	 * @param stacktrace
-	 * @param pageid
-	 * @param object
-	 */
-
-	public void error(Map<String, String> context, String code, String type, String stacktrace, String pageid,
-			Object object);
-
-	/**
-	 * To generate and handle ERROR event having required properties of edata.
-	 * 
-	 * @param context
-	 * @param code
-	 * @param type
-	 * @param stacktrace
-	 */
-	public void error(Map<String, String> context, String code, String type, String stacktrace);
-	
-	
-	public void audit(Map<String, String> context, List<String> props, String state, String prevState);
+	public void send(String event, Level level);
 }

@@ -249,7 +249,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 				identifier);
 
 		if (!listOfPublisher.isEmpty())
-			return ERROR(ERROR_CODE, "Publisher with Identifier: " + identifier + " already exists.",
+			return ERROR(ERROR_CODE, "Publisher with identifier: " + identifier + " already exists.",
 					ResponseCode.CLIENT_ERROR);
 
 		Map<String, Object> publisherMap = getPublisherMap(map, channelId, true);

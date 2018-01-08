@@ -10,6 +10,7 @@ import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.handler.TelemetryHandler;
@@ -36,7 +37,8 @@ public class TelemetryManager {
 	 */
 
 	public static void access(Map<String, String> context, Map<String, Object> params) {
-		telemetryHandler.access(context, params);
+		String event = TelemetryGenerator.access(context, params);
+		telemetryHandler.send(event, Level.INFO);
 	}
 
 	/**
@@ -136,7 +138,8 @@ public class TelemetryManager {
 		if (e instanceof MiddlewareException) {
 			code = ((MiddlewareException) e).getErrCode();
 		}
-		telemetryHandler.error(context, code, "system", stacktrace, null, object);
+		String event = TelemetryGenerator.error(context, code, "system", stacktrace);
+		telemetryHandler.send(event, Level.ERROR);
 	}
 	
 	
@@ -148,7 +151,8 @@ public class TelemetryManager {
 		Map<String, String> context = getContext();
 		context.put("objectId", id);
 		context.put("objectType", type);
-		telemetryHandler.audit(context, props, state, prevState);
+		String event = TelemetryGenerator.audit(context, props, state, prevState);
+		telemetryHandler.send(event, Level.INFO);
 	}
 
 	/**
@@ -162,7 +166,8 @@ public class TelemetryManager {
 	 */
 	private static void log(String message, Map<String, Object> params, String logLevel) {
 		Map<String, String> context = getContext();
-		telemetryHandler.log(context, "system", logLevel, message, null, params);
+		String event = TelemetryGenerator.log(context, "system", logLevel, message, null, params);
+		telemetryHandler.send(event, Level.getLevel(logLevel));
 	}
 
 	private static Map<String, String> getContext() {

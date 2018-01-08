@@ -8,6 +8,6 @@ package org.ekstep.cassandra.store;
  *
  */
 public enum CassandraStoreParams {
-	index, object_type, cassandra, UPDATE, DELETE, CREATE, EXTERNAL, ANONYMOUS;
+	index, object_type, UPDATE, DELETE, CREATE, EXTERNAL, ANONYMOUS;
 
 }
