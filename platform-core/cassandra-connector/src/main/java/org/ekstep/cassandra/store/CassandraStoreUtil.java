@@ -23,7 +23,6 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
-import org.joda.time.LocalDateTime;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -62,8 +61,6 @@ public class CassandraStoreUtil {
 			session.execute(boundStatement.bind(array));
 			logTransactionEvent(keyspaceName, tableName, CassandraStoreParams.CREATE.name(), idValue, request);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
 			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(),
 					"Error while inserting record", e);
 		}
@@ -232,8 +229,8 @@ public class CassandraStoreUtil {
 	}
 
 	/**
-	 * @desc This method is used to create prepared statement based on table name
-	 *       and column name provided in request
+	 * @desc This method is used to create prepared statement based on table
+	 *       name and column name provided in request
 	 * @param keyspaceName
 	 *            String (data base keyspace name)
 	 * @param tableName
@@ -275,13 +272,12 @@ public class CassandraStoreUtil {
 				Constants.UPDATE + keyspaceName + Constants.DOT + tableName + Constants.SET);
 		query.append(String.join(" = ? ,", key));
 		query.append(Constants.EQUAL_WITH_QUE_MARK + Constants.WHERE + id + Constants.EQUAL_WITH_QUE_MARK);
-		System.out.println(query.toString());
 		return query.toString();
 	}
 
 	/**
-	 * @desc This method is used to create prepared statement based on table name
-	 *       and column name provided
+	 * @desc This method is used to create prepared statement based on table
+	 *       name and column name provided
 	 * @param keyspaceName
 	 *            String (data base keyspace name)
 	 * @param tableName
@@ -309,8 +305,8 @@ public class CassandraStoreUtil {
 	}
 
 	/**
-	 * @desc This method is used to create prepared statement based on table name
-	 *       and column name provided as varargs
+	 * @desc This method is used to create prepared statement based on table
+	 *       name and column name provided as varargs
 	 * @param keyspaceName
 	 *            String (data base keyspace name)
 	 * @param tableName
