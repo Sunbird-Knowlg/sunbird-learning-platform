@@ -20,9 +20,9 @@ public class CompositeSearchIndexerService implements ISamzaService {
 
 	private ElasticSearchUtil esUtil = null;
 
-	private CompositeSearchIndexer csUtil = null;
+	private CompositeSearchIndexer csIndexer = null;
 
-	private DialCodeIndexer dcUtil = null;
+	private DialCodeIndexer dcIndexer = null;
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -31,11 +31,11 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
-		csUtil = new CompositeSearchIndexer(esUtil);
-		csUtil.createCompositeSearchIndex();
+		csIndexer = new CompositeSearchIndexer(esUtil);
+		csIndexer.createCompositeSearchIndex();
 		LOGGER.info(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + " created");
-		dcUtil = new DialCodeIndexer(esUtil);
-		dcUtil.createDialCodeIndex();
+		dcIndexer = new DialCodeIndexer(esUtil);
+		dcIndexer.createDialCodeIndex();
 		LOGGER.info(CompositeSearchConstants.DIAL_CODE_INDEX + " created");
 	}
 
@@ -70,11 +70,11 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			case CompositeSearchConstants.NODE_TYPE_SET:
 			case CompositeSearchConstants.NODE_TYPE_DATA:
 			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
-				csUtil.processESMessage(graphId, objectType, uniqueId, message, metrics);
+				csIndexer.processESMessage(graphId, objectType, uniqueId, message, metrics);
 				break;
 			}
 			case CompositeSearchConstants.NODE_TYPE_EXTERNAL: {
-				dcUtil.upsertDocument(uniqueId, message);
+				dcIndexer.upsertDocument(uniqueId, message);
 				break;
 			}
 			}
