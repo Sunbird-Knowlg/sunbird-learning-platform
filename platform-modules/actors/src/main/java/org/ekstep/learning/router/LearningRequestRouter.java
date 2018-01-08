@@ -10,12 +10,11 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.learning.actor.ContentStoreActor;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -37,11 +36,6 @@ import scala.concurrent.Future;
 public class LearningRequestRouter extends UntypedActor {
 
 	/** The logger. */
-	
-	private static final String ekstep = "org.ekstep.";
-	private static final String ilimi = "org.ekstep.";
-	private static final String java = "java.";
-	private static final String default_err_msg = "Something went wrong in server while processing the request";
 
 	/** The timeout. */
 	protected long timeout = 30000;
@@ -160,15 +154,11 @@ public class LearningRequestRouter extends UntypedActor {
 	}
 
 	private String setErrMessage(Throwable e) {
-		Class<? extends Throwable> className = e.getClass();
-		if (className.getName().contains(ekstep) || className.getName().contains(ilimi)) {
-			TelemetryManager.log("Setting error message sent from class " + className + e.getMessage());
+		if (e instanceof MiddlewareException) {
 			return e.getMessage();
-		} else if (className.getName().startsWith(java)) {
-			TelemetryManager.log("Setting default err msg " + className + e.getMessage());
-			return default_err_msg;
+		} else {
+			return "Something went wrong in server while processing the request";
 		}
-		return "";
 	}
 
 	/**

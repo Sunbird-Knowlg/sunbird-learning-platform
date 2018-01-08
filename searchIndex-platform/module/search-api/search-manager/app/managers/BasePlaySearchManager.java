@@ -37,11 +37,6 @@ import play.mvc.Results;
 public class BasePlaySearchManager extends Results {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
-	
-	private static final String ekstep = "org.ekstep";
-	private static final String ilimi = "org.ekstep";
-	private static final String java = "java.";
-	private static final String default_err_msg = "Something went wrong in server while processing the request";
 
 	protected Promise<Result> getSearchResponse(Request request) {
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
@@ -59,8 +54,7 @@ public class BasePlaySearchManager extends Results {
 							if (result instanceof Response) {
 								Response response = (Response) result;
 								if (checkError(response)) {
-									String errMsg = (response.getParams() == null ? "System Error"
-											: getMessage(response));
+									String errMsg = getMessage(response);
 									return notFound(getErrorMsg(errMsg)).as("application/json");
 								} else if (request.getOperation()
 										.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
@@ -216,13 +210,12 @@ public class BasePlaySearchManager extends Results {
 		return getRes;
 	}
 
-	protected String getMessage(Response e) {
-		Class<? extends Response> className = e.getClass();
-		if (className.getName().startsWith(ekstep) || className.getName().startsWith(ilimi)) {
-			return e.getParams().getErrmsg();
-		} else if (className.getName().startsWith(java)) {
-			return default_err_msg;
+	protected String getMessage(Response res) {
+		if (res.getParams() != null) {
+			return res.getParams().getErrmsg();
+		} else {
+			return "Something went wrong in server while processing the request";
 		}
-		return null;
+		
 	}
 }
