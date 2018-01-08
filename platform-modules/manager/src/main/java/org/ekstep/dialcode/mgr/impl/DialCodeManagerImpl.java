@@ -134,7 +134,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
-		// Need to be removed and request should go to ES.
+		// TODO: Need to be removed and request should go to ES.
 		List<DialCode> dialCodeList = DialCodeStoreUtil.list(channelId, map);
 
 		Response resp = getSuccessResponse();
@@ -164,37 +164,6 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		resp.put(DialCodeEnum.identifier.name(), dialCode.getIdentifier());
 		TelemetryManager.info("DIAL code published", resp.getResult());
 		return resp;
-	}
-
-	/**
-	 * @param publisher
-	 * @return String
-	 */
-	private String generateBatchCode(String publisher) {
-		DateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-		String date = df.format(new Date());
-		return publisher.concat(".").concat(date);
-	}
-
-	/**
-	 * @param map
-	 * @return Integer
-	 * @throws ClientException
-	 */
-	private int getCount(Map<String, Object> map) throws ClientException {
-		Integer count = 0;
-		try {
-			count = (Integer) map.get(DialCodeEnum.count.name());
-		} catch (Exception e) {
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_COUNT, DialCodeErrorMessage.ERR_INVALID_COUNT);
-		}
-		Integer maxCount = Platform.config.getInt("dialcode.max_count");
-		if (count != 0 && count <= maxCount) {
-			return count;
-		} else {
-			throw new ClientException(DialCodeErrorCodes.ERR_COUNT_VALIDATION_FAILED,
-					DialCodeErrorMessage.ERR_COUNT_VALIDATION_FAILED);
-		}
 	}
 
 	/*
@@ -324,6 +293,37 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		respParam.setStatus("successful");
 		resp.setParams(respParam);
 		return resp;
+	}
+
+	/**
+	 * @param publisher
+	 * @return String
+	 */
+	private String generateBatchCode(String publisher) {
+		DateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+		String date = df.format(new Date());
+		return publisher.concat(".").concat(date);
+	}
+
+	/**
+	 * @param map
+	 * @return Integer
+	 * @throws ClientException
+	 */
+	private int getCount(Map<String, Object> map) throws ClientException {
+		Integer count = 0;
+		try {
+			count = (Integer) map.get(DialCodeEnum.count.name());
+		} catch (Exception e) {
+			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_COUNT, DialCodeErrorMessage.ERR_INVALID_COUNT);
+		}
+		Integer maxCount = Platform.config.getInt("dialcode.max_count");
+		if (count != 0 && count <= maxCount) {
+			return count;
+		} else {
+			throw new ClientException(DialCodeErrorCodes.ERR_COUNT_VALIDATION_FAILED,
+					DialCodeErrorMessage.ERR_COUNT_VALIDATION_FAILED);
+		}
 	}
 
 	// TODO: Enhance it for Specific Server Error Message.
