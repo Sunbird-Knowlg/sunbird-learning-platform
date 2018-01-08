@@ -43,6 +43,9 @@ import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
+import org.ekstep.dialcode.common.DialCodeErrorCodes;
+import org.ekstep.dialcode.common.DialCodeErrorMessage;
+import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
@@ -159,10 +162,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unused")
 	@Override
 	public Response upload(String contentId, String taxonomyId, File uploadedFile, String mimeType) {
-		TelemetryManager.log("Graph ID: " + taxonomyId + "Content ID: "+contentId);
-	
-		
-		
+		TelemetryManager.log("Graph ID: " + taxonomyId + "Content ID: " + contentId);
+
 		boolean updateMimeType = false;
 
 		try {
@@ -175,8 +176,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null == uploadedFile)
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 						"Upload file is blank.");
-			TelemetryManager.log("Uploaded File: "+ uploadedFile.getAbsolutePath());
-			
+			TelemetryManager.log("Uploaded File: " + uploadedFile.getAbsolutePath());
+
 			if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
 						"Invalid Content Identifier. | [Content Identifier does not Exists.]");
@@ -295,7 +296,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
+	 * @see
+	 * org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
 	 * Request, java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -304,7 +306,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		String bundleFileName = (String) request.get("file_name");
 		List<String> contentIds = (List<String>) request.get("content_identifiers");
 		TelemetryManager.log("Bundle File Name: " + bundleFileName);
-		TelemetryManager.log("Total No. of Contents: "+ contentIds.size());
+		TelemetryManager.log("Total No. of Contents: " + contentIds.size());
 		if (contentIds.size() > 1 && StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
 					"ECAR file name should not be blank");
@@ -417,14 +419,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
 		Node node = getNodeForOperation(taxonomyId, contentId, "optimize");
-		
+
 		isNodeUnderProcessing(node, "Optimize");
 
 		TelemetryManager.log("Given Content is not in Processing Status.");
 
 		String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		TelemetryManager.log("Content Status: " + status);
-		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status) || !StringUtils.equalsIgnoreCase(ContentAPIParams.Unlisted.name(), status))
+		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status)
+				|| !StringUtils.equalsIgnoreCase(ContentAPIParams.Unlisted.name(), status))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
 					"UnPublished content cannot be optimized");
 
@@ -774,14 +777,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				Response response = (Response) obj;
-				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
-						+ " | Result: " + response.getResult().keySet());
+				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: "
+						+ response.getResponseCode() + " | Result: " + response.getResult().keySet());
 				return response;
 			} else {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! Something went wrong: "+ e.getMessage(), e);
+			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
@@ -1019,7 +1022,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
 		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
 		boolean isUnlistedState = StringUtils.equalsIgnoreCase("Unlisted", status);
-		
+
 		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
 			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus);
@@ -1076,7 +1079,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return createResponse;
 
 		createResponse.put(GraphDACParams.node_id.name(), originalId);
-		
+
 		if (null != externalProps && !externalProps.isEmpty()) {
 			Response externalPropsResponse = updateContentProperties(contentId, externalProps);
 			if (checkError(externalPropsResponse))
@@ -1353,9 +1356,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
 			} else {
 				Node node = (Node) response.get(GraphDACParams.node.name());
-				if("Parent".equalsIgnoreCase(node.getMetadata().get("visibility").toString())) {
+				if ("Parent".equalsIgnoreCase(node.getMetadata().get("visibility").toString())) {
 					return getNodeForOperation(taxonomyId, contentId, operation);
-				}else {
+				} else {
 					return node;
 				}
 			}
@@ -1491,116 +1494,147 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	private void validateForStatusUpdate(DefinitionDTO definition, Map<String, Object> map) throws Exception {
-		if(BooleanUtils.isFalse(((Boolean) definition.getMetadata().get("allowStatusUpdate")))) {
+		if (BooleanUtils.isFalse(((Boolean) definition.getMetadata().get("allowStatusUpdate")))) {
 			if (map.containsKey(ContentAPIParams.status.name()))
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
-					"Error! Status cannot be set while updating the Content.");
+						"Error! Status cannot be set while updating the Content.");
 		}
 	}
-	
-	/**
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map)
 	 * This Method will update Content Node with DIAL Code in Neo4j.
 	 * 
-	 * Added for DIAL Code Implementation 
-	 * 
 	 * @author gauraw
-	 * 
-	 * 
-	 * */
-	public Response linkDialCode(Map<String,Object>map) throws Exception{
-		Response resp=null;
-		String reqType=getRequestType(map);
-		if(StringUtils.equals("single", reqType) || StringUtils.equals("multipleDialCode", reqType)){
-			resp=updateDialCodesToContent(map);
-		}else if(StringUtils.equals("multipleContents", reqType)){
-			resp=updateDialCodeToContents(map);
+	 */
+	public Response linkDialCode(Map<String, Object> map) throws Exception {
+		if (null == map)
+			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
+		Response resp = null;
+		String reqType = getRequestType(map);
+		if (StringUtils.equals("single", reqType) || StringUtils.equals("multipleDialCode", reqType)) {
+			resp = updateDialCodesToContent(map);
+		} else if (StringUtils.equals("multipleContents", reqType)) {
+			resp = updateDialCodeToContents(map);
 		}
 		return resp;
 	}
-	
-	private String getRequestType(Map<String,Object>map) throws Exception{
-		String requestType="";
-		Object dialCode=map.get("dialcodes");
-		Object contents=map.get("contents");
-		
-		if(dialCode instanceof String && contents instanceof String){
-			requestType="single";
-		}else if(dialCode instanceof List && contents instanceof String){
-			requestType="multipleDialCode";
-		}else if(dialCode instanceof String && contents instanceof List){
-			requestType="multipleContents";
-		}else if(dialCode instanceof List && contents instanceof List){
-			throw new ClientException("ERR_INVALID_DIALCODE_LINK_REQUEST","Invalid Request. dialcodes and contents both can't be List.");
+
+	private String getRequestType(Map<String, Object> map) throws Exception {
+		String requestType = "";
+		Object dialCode = map.get(DialCodeEnum.dialcodes.name());
+		Object contents = map.get(DialCodeEnum.contents.name());
+		if (dialCode instanceof String && contents instanceof String) {
+			requestType = "single";
+		} else if (dialCode instanceof List && contents instanceof String) {
+			requestType = "multipleDialCode";
+		} else if (dialCode instanceof String && contents instanceof List) {
+			requestType = "multipleContents";
+		} else if (dialCode instanceof List && contents instanceof List) {
+			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
+					DialCodeErrorMessage.ERR_INVALID_DIALCODE_LINK_REQUEST);
 		}
-		
-		if(StringUtils.isBlank(requestType)){
-			throw new ClientException("ERR_INVALID_DIALCODE_LINK_REQUEST","Invalid Request");
-		}
-		
+		if (StringUtils.isBlank(requestType))
+			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
 		return requestType;
 	}
-	
-	private Response updateDialCodesToContent(Map<String,Object> reqMap){
-		String contentId=(String)reqMap.get("contents");
-		List<String> dialCodes=null;
-		Object obj=reqMap.get("dialcodes");
-		
-		if(obj instanceof String)
-			dialCodes=new ArrayList<String>(Arrays.asList((String)reqMap.get("dialcodes")));
-		if(obj instanceof List)
-			dialCodes=new ArrayList<String>((ArrayList<String>)reqMap.get("dialcodes"));
-		
-		Map<String,Object> map=new HashMap<String,Object>();
-		map.put("dialcodes", dialCodes);
-		
+
+	/**
+	 * This Method will link single/multiple DIAL Code to single Content.
+	 * 
+	 * @author gauraw
+	 * 
+	 * @param reqMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private Response updateDialCodesToContent(Map<String, Object> reqMap) {
+		String contentId = (String) reqMap.get(DialCodeEnum.contents.name());
+		List<String> dialCodes = null;
+		Object obj = reqMap.get(DialCodeEnum.dialcodes.name());
+
+		if (obj instanceof String)
+			dialCodes = new ArrayList<String>(Arrays.asList((String) reqMap.get(DialCodeEnum.dialcodes.name())));
+		if (obj instanceof List)
+			dialCodes = new ArrayList<String>((ArrayList<String>) reqMap.get(DialCodeEnum.dialcodes.name()));
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put(DialCodeEnum.dialcodes.name(), dialCodes);
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		Response responseNode = getDataNode(GRAPH_ID, contentId);
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 					"Content not found with id: " + contentId);
 		Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
-		return updateDialCode(map,definition,contentNode,contentId);
+		return updateDialCode(map, definition, contentNode, contentId);
 	}
-	
-	private Response updateDialCodeToContents(Map<String,Object> reqMap) throws Exception{
+
+	/**
+	 * This Method will link single DIAL Code to Multiple Contents.
+	 * 
+	 * @author gauraw
+	 * 
+	 * @param reqMap
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private Response updateDialCodeToContents(Map<String, Object> reqMap) throws Exception {
 		Response resp;
-		boolean isNodeUpdated=false;
-		String dialCode=(String)reqMap.get("dialcodes");
-		List<String> contentIds=(ArrayList<String>)reqMap.get("contents");
-		
-		for(String contentId:contentIds){
-			Map<String,Object> map=new HashMap<String,Object>();
-			map.put("dialcodes", Arrays.asList(dialCode));
+		boolean isNodeUpdated = false;
+		String dialCode = (String) reqMap.get(DialCodeEnum.dialcodes.name());
+		List<String> contentIds = (ArrayList<String>) reqMap.get(DialCodeEnum.contents.name());
+		// TODO: Need to think for Rollback in case of Partial Update
+		for (String contentId : contentIds) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put(DialCodeEnum.dialcodes.name(), Arrays.asList(dialCode));
 			DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 			Response responseNode = getDataNode(GRAPH_ID, contentId);
 			if (checkError(responseNode))
 				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 						"Content not found with id: " + contentId);
 			Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
-			resp= updateDialCode(map,definition,contentNode,contentId);
-			if (!checkError(responseNode)){
-				isNodeUpdated=true;
-			}else{
-				isNodeUpdated=false;
+			resp = updateDialCode(map, definition, contentNode, contentId);
+			if (!checkError(responseNode)) {
+				isNodeUpdated = true;
+			} else {
+				isNodeUpdated = false;
 			}
-			
 		}
-		if(isNodeUpdated){
-			resp=new Response();
+		if (isNodeUpdated) {
+			resp = new Response();
 			resp.setParams(getSucessStatus());
 			resp.setResponseCode(ResponseCode.OK);
 			return resp;
-		}else{
-			resp=new Response();
-			resp.setParams(getErrorStatus("ERR_DIALCODE_LINK_REQUEST", "Internal Server Error"));
+		} else {
+			resp = new Response();
+			resp.setParams(
+					getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, DialCodeErrorMessage.ERR_DIALCODE_LINK));
 			resp.setResponseCode(ResponseCode.SERVER_ERROR);
 			return resp;
-		}	
+		}
 	}
-	
-	private Response updateDialCode(Map<String,Object> map,DefinitionDTO definition,Node contentNode, String contentId){
+
+	/**
+	 * This method will Update Content Node
+	 * 
+	 * @author gauraw
+	 * 
+	 * @param map
+	 * @param definition
+	 * @param contentNode
+	 * @param contentId
+	 * @return Response
+	 */
+	private Response updateDialCode(Map<String, Object> map, DefinitionDTO definition, Node contentNode,
+			String contentId) {
 		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-		map.put("versionKey", graphPassportKey);
+		map.put(DialCodeEnum.versionKey.name(), graphPassportKey);
 		try {
 			Node graphObj = ConvertToGraphNode.convertToGraphNode(map, definition, contentNode);
 			graphObj.setGraphId(GRAPH_ID);
@@ -1609,8 +1643,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Response updateResponse = updateDataNode(graphObj);
 			return updateResponse;
 		} catch (Exception e) {
-			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
+			return ERROR(DialCodeErrorCodes.ERR_DIALCODE_LINK, DialCodeErrorMessage.ERR_DIALCODE_LINK,
+					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
-	 }
-	
+	}
+
 }

@@ -20,5 +20,8 @@ public class DialCodeErrorCodes {
 	public static final String ERR_DIALCODE_UPDATE = "ERR_DIALCODE_UPDATE";
 	public static final String ERR_INVALID_SEARCH_REQUEST = "ERR_INVALID_SEARCH_REQUEST";
 	public static final String ERR_DIALCODE_INFO = "ERR_DIALCODE_INFO";
+	public static final String ERR_INVALID_DIALCODE_LINK_REQUEST = "ERR_INVALID_DIALCODE_LINK_REQUEST";
+	public static final String ERR_DIALCODE_LINK_REQUEST = "ERR_DIALCODE_LINK_REQUEST";
+	public static final String ERR_DIALCODE_LINK = "ERR_DIALCODE_LINK";
 
 }
