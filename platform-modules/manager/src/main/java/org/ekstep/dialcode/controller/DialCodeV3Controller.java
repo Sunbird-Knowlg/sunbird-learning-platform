@@ -155,7 +155,7 @@ public class DialCodeV3Controller extends BaseController {
 		String apiId = "ekstep.publisher.create";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("publisher");
+			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.publisher.name());
 			Response response = dialCodeManager.createPublisher(map, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
