@@ -25,6 +25,7 @@ import org.ekstep.dialcode.model.DialCode;
 import org.ekstep.dialcode.model.Publisher;
 import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.Row;
@@ -72,7 +73,9 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.count.name(), dialCodeMap.size());
 		resp.put(DialCodeEnum.batchcode.name(), batchCode);
+		resp.put(DialCodeEnum.publisher.name(), publisher);
 		resp.put(DialCodeEnum.dialcodes.name(), dialCodeMap.values());
+		TelemetryManager.info("DIAL codes generated", resp.getResult());
 		return resp;
 	}
 
@@ -118,6 +121,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		DialCodeStoreUtil.update(dialCodeId, data);
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.identifier.name(), dialCode.getIdentifier());
+		TelemetryManager.info("DIAL code updated", resp.getResult());
 		return resp;
 	}
 
@@ -161,6 +165,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		DialCodeStoreUtil.update(dialCodeId, data);
 		resp = getSuccessResponse();
 		resp.put(DialCodeEnum.identifier.name(), dialCode.getIdentifier());
+		TelemetryManager.info("DIAL code published", resp.getResult());
 		return resp;
 	}
 
