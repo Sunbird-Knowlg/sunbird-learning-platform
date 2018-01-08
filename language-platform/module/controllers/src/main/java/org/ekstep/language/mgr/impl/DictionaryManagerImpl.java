@@ -2683,8 +2683,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					
 					Relation relation = new Relation(synsetId, wordUtil.getRelationName(LanguageParams.synonyms.name()),
 							wordId);
-					if(isPrimary)
-						relation.setMetadata(getPrimaryMeaningMetadata());
+/*					if(isPrimary)
+						relation.setMetadata(getPrimaryMeaningMetadata());*/
 					outRelations.add(relation);
 				}
 				//add main word to words and relations
@@ -2742,6 +2742,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							if(outRelations==null)
 								outRelations = new ArrayList<>();
 							outRelations.add(relation);
+							synset.setOutRelations(outRelations);
 						} else {
 							if (!isWordSynonymAlready(mainWordId, synonymRelations)) {
 								String wordsStr = (String) existingSynset.getMetadata()
@@ -2754,9 +2755,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 								Relation relation = new Relation(synsetId,
 										wordUtil.getRelationName(LanguageParams.synonyms.name()), mainWordId);
 								outRelations.add(relation);
+								synset.setOutRelations(outRelations);
 							}
 						}
-						synset.setOutRelations(outRelations);
 					}
 				} else {
 					if(synonymRelations!=null&& synonymRelations.size()>0){
@@ -2791,24 +2792,27 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		if(words!=null)
 			meaningMap.put(LanguageParams.words.name(), words);
-		
-		Relation mainWordSynRel = getSynonymRelationOf(mainWordId,
-				wordUtil.getSynonymRelations(synset.getOutRelations()));
-		//set primary Meaning flag in synonym relation
-		if (isPrimary && mainWordSynRel != null)
-			mainWordSynRel.setMetadata(getPrimaryMeaningMetadata());
 
-		// set exampleSentence
-		if (meaningMap.get(ATTRIB_EXAMPLE_SENTENCES)!=null && mainWordSynRel != null) {
-			Map<String, Object> relMetadata = mainWordSynRel.getMetadata();
-			if(relMetadata==null){
-				relMetadata = new HashMap<>();
-				mainWordSynRel.setMetadata(relMetadata);
+		if(synset.getOutRelations()!=null) {
+			Relation mainWordSynRel = getSynonymRelationOf(mainWordId,
+					wordUtil.getSynonymRelations(synset.getOutRelations()));
+			//set primary Meaning flag in synonym relation
+			if (isPrimary && mainWordSynRel != null)
+				mainWordSynRel.setMetadata(getPrimaryMeaningMetadata());
+			
+			// set exampleSentence
+			if (meaningMap.get(ATTRIB_EXAMPLE_SENTENCES)!=null && mainWordSynRel != null) {
+				Map<String, Object> relMetadata = mainWordSynRel.getMetadata();
+				if(relMetadata==null){
+					relMetadata = new HashMap<>();
+					mainWordSynRel.setMetadata(relMetadata);
+				}
+
+				relMetadata.put(ATTRIB_EXAMPLE_SENTENCES, meaningMap.get(ATTRIB_EXAMPLE_SENTENCES));
+				meaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 			}
-
-			relMetadata.put(ATTRIB_EXAMPLE_SENTENCES, meaningMap.get(ATTRIB_EXAMPLE_SENTENCES));
-			meaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 		}
+
 		
 		// commented on 30-Nov for keyword/themes model change
 		//List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
