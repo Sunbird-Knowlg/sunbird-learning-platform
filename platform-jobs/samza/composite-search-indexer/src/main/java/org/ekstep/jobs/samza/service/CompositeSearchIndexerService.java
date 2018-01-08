@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -70,42 +71,14 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			String uniqueId = (String) message.get("nodeUniqueId");
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_SET:
-			case CompositeSearchConstants.NODE_TYPE_DATA: {
-				DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
-				if (null == definitionNode) {
-					metrics.incFailedCounter();
-					LOGGER.info("Failed to fetch definition node from cache");
-				}
-				Map<String, Object> definition = mapper.convertValue(definitionNode,
-						new TypeReference<Map<String, Object>>() {
-						});
-				LOGGER.debug("definition fetched from cache: " + definitionNode.getIdentifier());
-				LOGGER.info(uniqueId + " is indexing into ES.");
-				Map<String, String> relationMap = getRelationMap(objectType, definition);
-				String operationType = (String) message.get("operationType");
-				switch (operationType) {
-				case CompositeSearchConstants.OPERATION_CREATE: {
-					Map<String, Object> indexDocument = getIndexDocument(message, relationMap, false);
-					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					addOrUpdateIndex(uniqueId, jsonIndexDocument);
-					break;
-				}
-				case CompositeSearchConstants.OPERATION_UPDATE: {
-					Map<String, Object> indexDocument = getIndexDocument(message, relationMap, true);
-					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					addOrUpdateIndex(uniqueId, jsonIndexDocument);
-					break;
-				}
-				case CompositeSearchConstants.OPERATION_DELETE: {
-					esUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-							CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
-					break;
-				}
-				}
+			case CompositeSearchConstants.NODE_TYPE_DATA:
+			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
+				processESMessage(graphId, objectType, uniqueId, message, metrics);
 				break;
 			}
-			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
-				util.getDefinition(graphId, objectType);
+			case CompositeSearchConstants.NODE_TYPE_EXTERNAL: {
+				addOrUpdateDoc(uniqueId, message, null);
+				break;
 			}
 			}
 		}
@@ -228,5 +201,45 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		indexDocument.put("objectType", (String) message.get("objectType"));
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
 		return indexDocument;
+	}
+
+	private void processESMessage(String graphId, String objectType, String uniqueId, Map<String, Object> message,
+			JobMetrics metrics) throws Exception {
+
+		DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
+		if (null == definitionNode) {
+			metrics.incFailedCounter();
+			LOGGER.info("Failed to fetch definition node from cache");
+		}
+		Map<String, Object> definition = mapper.convertValue(definitionNode, new TypeReference<Map<String, Object>>() {
+		});
+		LOGGER.debug("definition fetched from cache: " + definitionNode.getIdentifier());
+		LOGGER.info(uniqueId + " is indexing into ES.");
+		Map<String, String> relationMap = getRelationMap(objectType, definition);
+		addOrUpdateDoc(uniqueId, message, relationMap);
+	}
+
+	private void addOrUpdateDoc(String uniqueId, Map<String, Object> message, Map<String, String> relationMap)
+			throws Exception {
+		String operationType = (String) message.get("operationType");
+		switch (operationType) {
+		case CompositeSearchConstants.OPERATION_CREATE: {
+			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, false);
+			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
+			addOrUpdateIndex(uniqueId, jsonIndexDocument);
+			break;
+		}
+		case CompositeSearchConstants.OPERATION_UPDATE: {
+			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, true);
+			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
+			addOrUpdateIndex(uniqueId, jsonIndexDocument);
+			break;
+		}
+		case CompositeSearchConstants.OPERATION_DELETE: {
+			esUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
+			break;
+		}
+		}
 	}
 }

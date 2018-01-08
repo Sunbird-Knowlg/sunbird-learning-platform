@@ -55,4 +55,5 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_RANGE_LTE="lte";
 	public static final String CONDITION_SET_SHOULD = "should";
 	public static final String SEARCH_OPERATION_SOFT = "soft";
+	public static final String NODE_TYPE_EXTERNAL = "EXTERNAL";
 }
