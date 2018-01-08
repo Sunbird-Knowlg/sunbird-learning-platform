@@ -149,6 +149,7 @@ public class DialCodeStoreUtil {
 		return dialCodeObj;
 	}
 
+	// TODO: This method will point to Elasticsearch instead of Cassandra.
 	private static String getListQuery(String channelId, Map<String, Object> map) {
 		StringBuilder listQuery = new StringBuilder();
 		listQuery.append("select * from " + getKeyspaceName(DialCodeEnum.dialcode.name()) + "."
