@@ -22,9 +22,11 @@ import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.dialcode.model.DialCode;
 import org.ekstep.dialcode.model.Publisher;
+import org.ekstep.dialcode.store.PublisherStore;
 import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.Row;
@@ -41,6 +43,8 @@ import com.google.gson.Gson;
 @Component
 public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager {
 
+	@Autowired
+	private PublisherStore publisherStore;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -189,19 +193,15 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			return ERROR(ERROR_CODE, "Invalid Publisher Name", ResponseCode.CLIENT_ERROR);
 		}
 		String identifier = (String) map.get(DialCodeEnum.identifier.name());
-		List<Row> listOfPublisher = CassandraStoreUtil.read(
-				DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()),
-				DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), DialCodeEnum.identifier.name(),
-				identifier);
+		List<Row> listOfPublisher = publisherStore.get(DialCodeEnum.identifier.name(), identifier);
 
 		if (!listOfPublisher.isEmpty())
 			return ERROR(ERROR_CODE, "Publisher with identifier: " + identifier + " already exists.",
 					ResponseCode.CLIENT_ERROR);
 
 		Map<String, Object> publisherMap = getPublisherMap(map, channelId, true);
-		CassandraStoreUtil.insert(DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()),
-				DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), identifier, publisherMap);
-
+		publisherStore.create(identifier, publisherMap);
+		
 		Response response = new Response();
 		response.put(DialCodeEnum.identifier.name(), identifier);
 		return response;
@@ -218,10 +218,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		String ERROR_CODE = "ERR_INVALID_PUBLISHER_READ_REQUEST";
 		if (StringUtils.isBlank(publisherId))
 			return ERROR(ERROR_CODE, "Invalid Publisher Identifier", ResponseCode.CLIENT_ERROR);
-		List<Row> listOfPublisher = CassandraStoreUtil.read(
-				DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()),
-				DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), DialCodeEnum.identifier.name(),
-				publisherId);
+		
+		List<Row> listOfPublisher = publisherStore.get(DialCodeEnum.identifier.name(), publisherId);
 		if (listOfPublisher.isEmpty())
 			return ERROR(ERROR_CODE, "Publisher with Identifier: " + publisherId + " does not exists.",
 					ResponseCode.CLIENT_ERROR);
@@ -249,20 +247,15 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		if (null == map)
 			return ERROR(ERROR_CODE, "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		List<Row> listOfPublisher = CassandraStoreUtil.read(
-				DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()),
-				DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), DialCodeEnum.identifier.name(),
-				publisherId);
-
+		List<Row> listOfPublisher = publisherStore.get(DialCodeEnum.identifier.name(), publisherId);
+				
 		if (listOfPublisher.isEmpty())
 			return ERROR(ERROR_CODE, "Publisher with Identifier: " + publisherId + " does not exists.",
 					ResponseCode.CLIENT_ERROR);
 
 		Map<String, Object> publisherMap = getPublisherMap(map, channelId, false);
-		CassandraStoreUtil.update(DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()),
-				DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), DialCodeEnum.identifier.name(),
-				publisherId, publisherMap);
-
+		publisherStore.modify(DialCodeEnum.identifier.name(), publisherId, publisherMap);
+		
 		Response response = new Response();
 		response.put(DialCodeEnum.identifier.name(), publisherId);
 		return response;

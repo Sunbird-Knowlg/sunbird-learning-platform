@@ -4,7 +4,6 @@
 package org.ekstep.dialcode.model;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * @author amitpriyadarshi
