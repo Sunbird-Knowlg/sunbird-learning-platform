@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DialCodeStore extends AbstractCassandraStore {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-
+	
 	public DialCodeStore() {
 		super();
 		String keyspace = Platform.config.hasPath("dialcode.keyspace.name") ? Platform.config.getString("dialcode.keyspace.name") : "dialcode_store";
@@ -43,7 +43,7 @@ public class DialCodeStore extends AbstractCassandraStore {
 		boolean index = Platform.config.hasPath("dialcode.index") ? Platform.config.getBoolean("dialcode.index") : true;
 		String objectType = Platform.config.hasPath("dialcode.object_type")
 				? Platform.config.getString("dialcode.object_type")
-				: "DialCode";
+				: "Dialcode";
 		initialise(keyspace, table, objectType, index);
 	}
 
@@ -52,7 +52,7 @@ public class DialCodeStore extends AbstractCassandraStore {
 		Map<String, Object> data = getInsertData(channel, publisher, batchCode, dialCode, dialCodeIndex);
 		insert(dialCode, data);
 		List<String> keys = data.keySet().stream().collect(Collectors.toList());
-		TelemetryManager.audit((String) dialCode, "Dialcode", keys, "Draft", null);
+		TelemetryManager.audit((String) dialCode, getObjectType(), keys, "Draft", null);
 	}
 
 	public DialCode read(String dialCode) throws Exception {
@@ -72,23 +72,7 @@ public class DialCodeStore extends AbstractCassandraStore {
 		update(DialCodeEnum.identifier.name(), id, data);
 		List<String> keys = data.keySet().stream().collect(Collectors.toList());
 		String status = (String) data.get("status");
-		TelemetryManager.audit((String) id, "Dialcode", keys, status, null);
-	}
-
-	public List<DialCode> list(String channelId, Map<String, Object> map) throws Exception {
-		DialCode dialCodeObj = null;
-		List<DialCode> list = new ArrayList<DialCode>();
-		String listQuery = getListQuery(channelId, map);
-		Session session = CassandraConnector.getSession();
-		ResultSet rs = session.execute(listQuery);
-		if (null != rs) {
-			while (rs.iterator().hasNext()) {
-				Row row = rs.iterator().next();
-				dialCodeObj = setDialCodeData(row);
-				list.add(dialCodeObj);
-			}
-		}
-		return list;
+		TelemetryManager.audit((String) id, getObjectType(), keys, status, null);
 	}
 
 	private static Map<String, Object> getInsertData(String channel, String publisher, String batchCode,
@@ -121,23 +105,6 @@ public class DialCodeStore extends AbstractCassandraStore {
 		}
 		dialCodeObj.setMetadata(metaData);
 		return dialCodeObj;
-	}
-
-	// TODO : Remove this method, once list dial code is implemented with ES.
-	private String getListQuery(String channelId, Map<String, Object> map) {
-		String keyspace = Platform.config.getString("dialcode.keyspace.name");
-		String table = Platform.config.getString("dialcode.keyspace.table");
-		StringBuilder listQuery = new StringBuilder();
-		listQuery.append("select * from " + keyspace + "." + table + " where ");
-		listQuery.append("channel='" + channelId + "' ");
-		for (String key : map.keySet()) {
-			String value = (String) map.get(key);
-			if (!StringUtils.isBlank(value)) {
-				listQuery.append(" and " + key + "='" + value + "'");
-			}
-		}
-		listQuery.append(" allow filtering;");
-		return listQuery.toString();
 	}
 
 }

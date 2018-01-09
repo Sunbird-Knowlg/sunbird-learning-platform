@@ -76,7 +76,7 @@ public class DialCodeGenerator {
 					codesCount += 1;
 					codes.put(lastIndex, code);
 				} catch (Exception e) {
-
+					TelemetryManager.error("Error while generating DIAL code", e);
 				}
 				if (codesCount == count) {
 					setMaxIndex(lastIndex);

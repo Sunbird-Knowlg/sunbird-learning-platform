@@ -112,12 +112,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private static final String GRAPH_ID = "domain";
 
-	/**
-	 * Is Content Image Object flag property key
-	 */
-	@SuppressWarnings("unused")
-	private static final String IS_IMAGE_OBJECT_FLAG_KEY = "isImageObject";
-
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
 
@@ -159,7 +153,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @see org.ekstep.taxonomy.mgr.IContentManager#upload(java.lang.String,
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
-	@SuppressWarnings("unused")
 	@Override
 	public Response upload(String contentId, String taxonomyId, File uploadedFile, String mimeType) {
 		TelemetryManager.log("Graph ID: " + taxonomyId + "Content ID: " + contentId);
@@ -1520,6 +1513,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else if (StringUtils.equals("multipleContents", reqType)) {
 			resp = updateDialCodeToContents(map);
 		}
+		
+		if (ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
+			TelemetryManager.log("DIAL code linked to content", map);
+		}
+		
 		return resp;
 	}
 
