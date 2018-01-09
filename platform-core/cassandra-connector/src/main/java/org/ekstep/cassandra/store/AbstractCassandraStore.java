@@ -48,7 +48,7 @@ public abstract class AbstractCassandraStore {
 	protected void initialise(String keyspace, String table, String objectType) {
 		initialise(keyspace, table, objectType, false);
 	}
-
+	
 	protected void initialise(String keyspace, String table, String objectType, boolean index) {
 		this.keyspace = keyspace;
 		this.table = table;
@@ -222,6 +222,20 @@ public abstract class AbstractCassandraStore {
 			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error while upsert record",
 					e);
 		}
+	}
+	
+	/**
+	 * @return the objectType
+	 */
+	protected String getObjectType() {
+		return objectType;
+	}
+
+	/**
+	 * @param objectType the objectType to set
+	 */
+	protected void setObjectType(String objectType) {
+		this.objectType = objectType;
 	}
 
 	/**
