@@ -150,13 +150,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, "Publisher is mandatory to list DailCodes",
 					ResponseCode.CLIENT_ERROR);
 		}
-		// TODO: Need to be removed and request should go to ES.
-		List<DialCode> dialCodeList = dialCodeStore.list(channelId, map);
 
-		Response resp = getSuccessResponse();
-		resp.put(DialCodeEnum.count.name(), dialCodeList.size());
-		resp.put(DialCodeEnum.dialcodes.name(), dialCodeList);
-		return resp;
+		return searchDialCode(channelId, map);
 	}
 
 	/*
