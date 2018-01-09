@@ -1,4 +1,4 @@
-package org.ekstep.dialcode.util;
+package org.ekstep.dialcode.store;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
-import org.ekstep.cassandra.store.CassandraStoreUtil;
+import org.ekstep.cassandra.store.AbstractCassandraStore;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.dialcode.common.DialCodeErrorCodes;
@@ -17,6 +17,7 @@ import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.model.DialCode;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -30,60 +31,40 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-public class DialCodeStoreUtil {
+@Component
+public class DialCodeStore extends AbstractCassandraStore {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	public static String getKeyspaceName(String keyspace) {
-		if (StringUtils.equals(keyspace, DialCodeEnum.dialcode.name()))
-			return Platform.config.getString("dialcode.keyspace.name");
-		if (StringUtils.equals(keyspace, DialCodeEnum.publisher.name()))
-			return Platform.config.getString("publisher.keyspace.name");
-		if (StringUtils.equals(keyspace, DialCodeEnum.system_config.name()))
-			return Platform.config.getString("system.config.keyspace.name");
-		return null;
+	public DialCodeStore() {
+		super();
+		String keyspace = "dialcode_store";
+		String table = "dial_code";
+		boolean index = true;
+		String objectType = "DialCode";
+		if (Platform.config.hasPath("dialcode.keyspace.name"))
+			keyspace = Platform.config.getString("dialcode.keyspace.name");
+		if (Platform.config.hasPath("dialcode.keyspace.table"))
+			table = Platform.config.getString("dialcode.keyspace.table");
+		if (Platform.config.hasPath("dialcode.index"))
+			index = Platform.config.getBoolean("dialcode.index");
+		if (Platform.config.hasPath("dialcode.object_type"))
+			objectType = Platform.config.getString("dialcode.object_type");
+		initialise(keyspace, table, objectType, index);
 	}
 
-	public static String getKeyspaceTable(String table) {
-		if (StringUtils.equals(table, DialCodeEnum.dialcode.name()))
-			return Platform.config.getString("dialcode.keyspace.table");
-		if (StringUtils.equals(table, DialCodeEnum.publisher.name()))
-			return Platform.config.getString("publisher.keyspace.table");
-		if (StringUtils.equals(table, DialCodeEnum.system_config.name()))
-			return Platform.config.getString("system.config.table");
-		return null;
-	}
-
-	public static Double getDialCodeIndex() throws Exception {
-		List<Row> rows = CassandraStoreUtil.read(getKeyspaceName(DialCodeEnum.system_config.name()),
-				getKeyspaceTable(DialCodeEnum.system_config.name()), DialCodeEnum.prop_key.name(),
-				DialCodeEnum.dialcode_max_index.name());
-		Row row = rows.get(0);
-		return Double.valueOf(row.getString(DialCodeEnum.prop_value.name()));
-	}
-
-	public static void setDialCodeIndex(double maxIndex) throws Exception {
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(DialCodeEnum.prop_value.name(), String.valueOf((int) maxIndex));
-		CassandraStoreUtil.update(getKeyspaceName(DialCodeEnum.system_config.name()),
-				getKeyspaceTable(DialCodeEnum.system_config.name()), DialCodeEnum.prop_key.name(),
-				DialCodeEnum.dialcode_max_index.name(), data);
-	}
-
-	public static void save(String channel, String publisher, String batchCode, String dialCode, Double dialCodeIndex)
+	public void save(String channel, String publisher, String batchCode, String dialCode, Double dialCodeIndex)
 			throws Exception {
 		Map<String, Object> data = getInsertData(channel, publisher, batchCode, dialCode, dialCodeIndex);
-		CassandraStoreUtil.insert(getKeyspaceName(DialCodeEnum.dialcode.name()),
-				getKeyspaceTable(DialCodeEnum.dialcode.name()), dialCode, data);
+		insert(dialCode, data);
 		List<String> keys = data.keySet().stream().collect(Collectors.toList());
 		TelemetryManager.audit((String) dialCode, "Dialcode", keys, "Draft", null);
 	}
 
-	public static DialCode read(String dialCode) throws Exception {
+	public DialCode read(String dialCode) throws Exception {
 		DialCode dialCodeObj = null;
 		try {
-			List<Row> rows = CassandraStoreUtil.read(getKeyspaceName(DialCodeEnum.dialcode.name()),
-					getKeyspaceTable(DialCodeEnum.dialcode.name()), DialCodeEnum.identifier.name(), dialCode);
+			List<Row> rows = read(DialCodeEnum.identifier.name(), dialCode);
 			Row row = rows.get(0);
 			dialCodeObj = setDialCodeData(row);
 		} catch (Exception e) {
@@ -93,15 +74,14 @@ public class DialCodeStoreUtil {
 		return dialCodeObj;
 	}
 
-	public static void update(String id, Map<String, Object> data) throws Exception {
-		CassandraStoreUtil.update(getKeyspaceName(DialCodeEnum.dialcode.name()),
-				getKeyspaceTable(DialCodeEnum.dialcode.name()), DialCodeEnum.identifier.name(), id, data);
+	public void update(String id, Map<String, Object> data) throws Exception {
+		update(DialCodeEnum.identifier.name(), id, data);
 		List<String> keys = data.keySet().stream().collect(Collectors.toList());
 		String status = (String) data.get("status");
 		TelemetryManager.audit((String) id, "Dialcode", keys, status, null);
 	}
 
-	public static List<DialCode> list(String channelId, Map<String, Object> map) throws Exception {
+	public List<DialCode> list(String channelId, Map<String, Object> map) throws Exception {
 		DialCode dialCodeObj = null;
 		List<DialCode> list = new ArrayList<DialCode>();
 		String listQuery = getListQuery(channelId, map);
@@ -149,11 +129,10 @@ public class DialCodeStoreUtil {
 		return dialCodeObj;
 	}
 
-	// TODO: This method will point to Elasticsearch instead of Cassandra.
-	private static String getListQuery(String channelId, Map<String, Object> map) {
+	// TODO : Remove this method, once list dial code is implemented with ES.
+	private String getListQuery(String channelId, Map<String, Object> map) {
 		StringBuilder listQuery = new StringBuilder();
-		listQuery.append("select * from " + getKeyspaceName(DialCodeEnum.dialcode.name()) + "."
-				+ getKeyspaceTable(DialCodeEnum.dialcode.name()) + " where ");
+		listQuery.append("select * from " + "dialcode_store" + "." + "dial_code" + " where ");
 		listQuery.append("channel='" + channelId + "' ");
 		for (String key : map.keySet()) {
 			String value = (String) map.get(key);
@@ -164,4 +143,5 @@ public class DialCodeStoreUtil {
 		listQuery.append(" allow filtering;");
 		return listQuery.toString();
 	}
+
 }

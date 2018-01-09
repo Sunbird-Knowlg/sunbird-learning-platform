@@ -4,23 +4,37 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.dialcode.common.DialCodeErrorCodes;
 import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
+import org.ekstep.dialcode.store.DialCodeStore;
+import org.ekstep.dialcode.store.SystemConfigStore;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SeqRandomGenerator {
+
+	@Autowired
+	private DialCodeStore dialCodeStore;
+
+	@Autowired
+	private SystemConfigStore systemConfigStore;
 
 	/**
 	 * Get Max Index from Cassandra and Set it to Cache.
 	 */
-	static {
+	@PostConstruct
+	public void initMaxIndex() {
 		double maxIndex;
 		try {
-			maxIndex = DialCodeStoreUtil.getDialCodeIndex();
+			maxIndex = systemConfigStore.getDialCodeIndex();
 			setMaxIndexToCache(maxIndex);
 		} catch (Exception e) {
 			throw new ServerException(DialCodeErrorCodes.ERR_SERVER_ERROR, DialCodeErrorMessage.ERR_SERVER_ERROR);
@@ -36,7 +50,7 @@ public class SeqRandomGenerator {
 	private static final BigDecimal largePrimeNumber = new BigDecimal(
 			Platform.config.getInt("dialcode.large.prime_number"));
 
-	public static Map<Double, String> generate(double count, Map<String, Object> map) throws Exception {
+	public Map<Double, String> generate(double count, Map<String, Object> map) throws Exception {
 		Map<Double, String> codes = new HashMap<Double, String>();
 		double startIndex = getMaxIndex();
 		int totalChars = alphabet.length;
@@ -50,7 +64,7 @@ public class SeqRandomGenerator {
 			String code = baseN(num, totalChars);
 			if (code.length() == length) {
 				try {
-					DialCodeStoreUtil.save((String) map.get(DialCodeEnum.channel.name()),
+					dialCodeStore.save((String) map.get(DialCodeEnum.channel.name()),
 							(String) map.get(DialCodeEnum.publisher.name()),
 							(String) map.get(DialCodeEnum.batchCode.name()), code, lastIndex);
 					codesCount += 1;
@@ -77,8 +91,8 @@ public class SeqRandomGenerator {
 		return StringUtils.stripStart(val, stripChars) + alphabet[num.remainder(new BigDecimal(base)).intValue()];
 	}
 
-	private static void setMaxIndex(double maxIndex) throws Exception {
-		DialCodeStoreUtil.setDialCodeIndex(maxIndex);
+	private void setMaxIndex(double maxIndex) throws Exception {
+		systemConfigStore.setDialCodeIndex(maxIndex);
 	}
 
 	/**
@@ -92,7 +106,7 @@ public class SeqRandomGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	private static Double getMaxIndex() throws Exception {
+	private Double getMaxIndex() throws Exception {
 		String indexStr = RedisStoreUtil.getNodeProperty("domain", "dialcode", "max_index");
 		if (StringUtils.isNotBlank(indexStr)) {
 			double index = Double.parseDouble(indexStr);
@@ -100,7 +114,7 @@ public class SeqRandomGenerator {
 			setMaxIndexToCache(index);
 			return index;
 		} else {
-			double maxIndex = DialCodeStoreUtil.getDialCodeIndex();
+			double maxIndex = systemConfigStore.getDialCodeIndex();
 			return maxIndex;
 		}
 	}

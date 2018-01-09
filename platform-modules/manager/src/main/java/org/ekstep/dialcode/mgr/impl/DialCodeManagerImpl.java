@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.cassandra.store.CassandraStoreUtil;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -22,8 +21,8 @@ import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.dialcode.model.DialCode;
 import org.ekstep.dialcode.model.Publisher;
+import org.ekstep.dialcode.store.DialCodeStore;
 import org.ekstep.dialcode.store.PublisherStore;
-import org.ekstep.dialcode.util.DialCodeStoreUtil;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +44,13 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 
 	@Autowired
 	private PublisherStore publisherStore;
+
+	@Autowired
+	private DialCodeStore dialCodeStore;
+
+	@Autowired
+	private SeqRandomGenerator seqGenerator;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -70,7 +76,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		data.put(DialCodeEnum.channel.name(), channelId);
 		data.put(DialCodeEnum.publisher.name(), publisher);
 		data.put(DialCodeEnum.batchCode.name(), batchCode);
-		dialCodeMap = SeqRandomGenerator.generate(count, data);
+		dialCodeMap = seqGenerator.generate(count, data);
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.count.name(), dialCodeMap.size());
 		resp.put(DialCodeEnum.batchcode.name(), batchCode);
@@ -91,7 +97,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		if (StringUtils.isBlank(dialCodeId))
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_DIALCODE_REQUEST,
 					DialCodeErrorMessage.ERR_INVALID_DIALCODE_REQUEST, ResponseCode.CLIENT_ERROR);
-		DialCode dialCode = DialCodeStoreUtil.read(dialCodeId);
+		DialCode dialCode = dialCodeStore.read(dialCodeId);
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.dialcode.name(), dialCode);
 		return resp;
@@ -109,7 +115,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_DIALCODE_REQUEST,
 					DialCodeErrorMessage.ERR_INVALID_DIALCODE_REQUEST, ResponseCode.CLIENT_ERROR);
-		DialCode dialCode = DialCodeStoreUtil.read(dialCodeId);
+		DialCode dialCode = dialCodeStore.read(dialCodeId);
 		if (!channelId.equalsIgnoreCase(dialCode.getChannel()))
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_CHANNEL_ID, DialCodeErrorMessage.ERR_INVALID_CHANNEL_ID,
 					ResponseCode.CLIENT_ERROR);
@@ -119,7 +125,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		String metaData = new Gson().toJson(map.get(DialCodeEnum.metadata.name()));
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(DialCodeEnum.metadata.name(), metaData);
-		DialCodeStoreUtil.update(dialCodeId, data);
+		dialCodeStore.update(dialCodeId, data);
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.identifier.name(), dialCode.getIdentifier());
 		TelemetryManager.info("DIAL code updated", resp.getResult());
@@ -139,7 +145,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
 		// TODO: Need to be removed and request should go to ES.
-		List<DialCode> dialCodeList = DialCodeStoreUtil.list(channelId, map);
+		List<DialCode> dialCodeList = dialCodeStore.list(channelId, map);
 
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.count.name(), dialCodeList.size());
@@ -156,14 +162,14 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	@Override
 	public Response publishDialCode(String dialCodeId, String channelId) throws Exception {
 		Response resp = null;
-		DialCode dialCode = DialCodeStoreUtil.read(dialCodeId);
+		DialCode dialCode = dialCodeStore.read(dialCodeId);
 		if (!channelId.equalsIgnoreCase(dialCode.getChannel()))
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_CHANNEL_ID, DialCodeErrorMessage.ERR_INVALID_CHANNEL_ID,
 					ResponseCode.CLIENT_ERROR);
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(DialCodeEnum.status.name(), DialCodeEnum.Live.name());
 		data.put(DialCodeEnum.published_on.name(), LocalDateTime.now().toString());
-		DialCodeStoreUtil.update(dialCodeId, data);
+		dialCodeStore.update(dialCodeId, data);
 		resp = getSuccessResponse();
 		resp.put(DialCodeEnum.identifier.name(), dialCode.getIdentifier());
 		TelemetryManager.info("DIAL code published", resp.getResult());
@@ -201,7 +207,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 
 		Map<String, Object> publisherMap = getPublisherMap(map, channelId, true);
 		publisherStore.create(identifier, publisherMap);
-		
+
 		Response response = new Response();
 		response.put(DialCodeEnum.identifier.name(), identifier);
 		return response;
@@ -218,7 +224,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		String ERROR_CODE = "ERR_INVALID_PUBLISHER_READ_REQUEST";
 		if (StringUtils.isBlank(publisherId))
 			return ERROR(ERROR_CODE, "Invalid Publisher Identifier", ResponseCode.CLIENT_ERROR);
-		
+
 		List<Row> listOfPublisher = publisherStore.get(DialCodeEnum.identifier.name(), publisherId);
 		if (listOfPublisher.isEmpty())
 			return ERROR(ERROR_CODE, "Publisher with Identifier: " + publisherId + " does not exists.",
@@ -248,14 +254,14 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			return ERROR(ERROR_CODE, "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		List<Row> listOfPublisher = publisherStore.get(DialCodeEnum.identifier.name(), publisherId);
-				
+
 		if (listOfPublisher.isEmpty())
 			return ERROR(ERROR_CODE, "Publisher with Identifier: " + publisherId + " does not exists.",
 					ResponseCode.CLIENT_ERROR);
 
 		Map<String, Object> publisherMap = getPublisherMap(map, channelId, false);
 		publisherStore.modify(DialCodeEnum.identifier.name(), publisherId, publisherMap);
-		
+
 		Response response = new Response();
 		response.put(DialCodeEnum.identifier.name(), publisherId);
 		return response;
@@ -328,9 +334,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 					DialCodeErrorMessage.ERR_INVALID_PUBLISHER, ResponseCode.CLIENT_ERROR);
 		String pubId = "";
 		try {
-			List<Row> list = CassandraStoreUtil.read(DialCodeStoreUtil.getKeyspaceName(DialCodeEnum.publisher.name()),
-					DialCodeStoreUtil.getKeyspaceTable(DialCodeEnum.publisher.name()), DialCodeEnum.identifier.name(),
-					publisherId);
+			List<Row> list = publisherStore.get(DialCodeEnum.identifier.name(), publisherId);
 			Row row = list.get(0);
 			pubId = row.getString(DialCodeEnum.identifier.name());
 		} catch (Exception e) {
