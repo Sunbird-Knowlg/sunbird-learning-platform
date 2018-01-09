@@ -146,6 +146,10 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
+		if (null == map.get(DialCodeEnum.publisher.name())) {
+			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, "Publisher is mandatory to list DailCodes",
+					ResponseCode.CLIENT_ERROR);
+		}
 		// TODO: Need to be removed and request should go to ES.
 		List<DialCode> dialCodeList = dialCodeStore.list(channelId, map);
 
