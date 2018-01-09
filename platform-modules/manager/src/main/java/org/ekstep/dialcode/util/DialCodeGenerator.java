@@ -11,6 +11,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.dialcode.store.DialCodeStore;
 import org.ekstep.dialcode.store.SystemConfigStore;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,8 +41,12 @@ public class DialCodeGenerator {
 			largePrimeNumber = Platform.config.hasPath("dialcode.large.prime_number")
 					? new BigDecimal(Platform.config.getLong("dialcode.large.prime_number")) : largePrimeNumber;
 			maxIndex = systemConfigStore.getDialCodeIndex();
+			Map<String, Object> props = new HashMap<String, Object>();
+			props.put("max_index", maxIndex);
+			TelemetryManager.info("setting DIAL code max index value to redis.", props);
 			setMaxIndexToCache(maxIndex);
 		} catch (Exception e) {
+			TelemetryManager.error("fialed to set max index to redis.", e);
 			// TODO: Exception handling for getDialCodeIndex SystemConfig table.
 			// throw new ServerException(DialCodeErrorCodes.ERR_SERVER_ERROR,
 			// DialCodeErrorMessage.ERR_SERVER_ERROR);
