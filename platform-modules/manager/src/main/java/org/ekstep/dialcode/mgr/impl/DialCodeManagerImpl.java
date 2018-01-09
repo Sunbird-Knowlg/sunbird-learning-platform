@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -169,7 +168,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	 */
 	@Override
 	public Response searchDialCode(String channelId, Map<String, Object> map) throws Exception {
-		if (null == map || map.isEmpty())
+		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
 		List<Object> dialCodeList = searchDialCodes(channelId, map);
@@ -382,15 +381,30 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	private List<Object> searchDialCodes(String channelId, Map<String, Object> map) throws Exception {
 		List<Object> searchResult = new ArrayList<Object>();
 		SearchDTO searchDto = new SearchDTO();
-		/*Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put("generated_on", "desc");
-		sortBy.put("operation", "desc");*/
+		searchDto.setFuzzySearch(false);
+
 		searchDto.setProperties(setSearchProperties(channelId, map));
-		// searchDto.setSortBy(sortBy);
+		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+		searchDto.setFields(getFields());
 		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
 				CompositeSearchConstants.DIAL_CODE_INDEX, false);
 
 		return searchResult;
+	}
+
+	/**
+	 * @return
+	 */
+	private List<String> getFields() {
+		List<String> fields = new ArrayList<String>();
+		fields.add("dialcode_index");
+		fields.add("publisher");
+		fields.add("generated_on");
+		fields.add("batchcode");
+		fields.add("channel");
+		fields.add("status");
+
+		return fields;
 	}
 
 	/**
@@ -401,15 +415,6 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	@SuppressWarnings("rawtypes")
 	private List<Map> setSearchProperties(String channelId, Map<String, Object> map) {
 		List<Map> properties = new ArrayList<Map>();
-
-		for (String key : map.keySet()) {
-			Map<String, Object> property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-			property.put("propertyName", key);
-			property.put("values", Arrays.asList(map.get(key)));
-			properties.add(property);
-		}
-
 		Map<String, Object> property = new HashMap<String, Object>();
 		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
 		property.put("propertyName", DialCodeEnum.channel.name());
@@ -421,6 +426,14 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		property.put("propertyName", DialCodeEnum.objectType.name());
 		property.put("values", DialCodeEnum.DialCode.name());
 		properties.add(property);
+
+		for (String key : map.keySet()) {
+			property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", key);
+			property.put("values", map.get(key));
+			properties.add(property);
+		}
 
 		return properties;
 	}
