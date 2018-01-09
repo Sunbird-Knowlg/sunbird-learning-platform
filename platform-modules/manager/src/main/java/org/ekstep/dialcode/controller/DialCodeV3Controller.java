@@ -120,6 +120,29 @@ public class DialCodeV3Controller extends BaseController {
 	}
 
 	/**
+	 * @param requestMap
+	 * @param channelId
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/search", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> searchDialCode(@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
+		String apiId = "ekstep.dialcode.search";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.search.name());
+			Response response = dialCodeManager.searchDialCode(channelId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager
+					.error("Exception Occured while Performing List Operation for Dial Codes : " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
 	 * @param dialCodeId
 	 * @param channelId
 	 * @return

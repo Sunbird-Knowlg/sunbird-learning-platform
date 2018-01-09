@@ -864,14 +864,19 @@ public class SearchProcessor {
 		builder.key("lenient").value(true).endObject();
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index)
+			throws Exception {
+		return processSearchQuery(searchDTO, includeResults, index, true);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index, boolean sort)
 			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		List<Object> response = new ArrayList<Object>();
 		Map<String, Object> res_map = new HashMap<String, Object>();
 		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
-		String query = processSearchQuery(searchDTO, groupByFinalList, true);
+		String query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);

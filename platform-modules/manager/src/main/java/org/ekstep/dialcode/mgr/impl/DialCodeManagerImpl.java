@@ -3,6 +3,7 @@ package org.ekstep.dialcode.mgr.impl;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,9 @@ import org.ekstep.dialcode.model.Publisher;
 import org.ekstep.dialcode.store.DialCodeStore;
 import org.ekstep.dialcode.store.PublisherStore;
 import org.ekstep.dialcode.util.SeqRandomGenerator;
+import org.ekstep.searchindex.dto.SearchDTO;
+import org.ekstep.searchindex.processor.SearchProcessor;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -50,6 +54,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 
 	@Autowired
 	private SeqRandomGenerator seqGenerator;
+
+	private SearchProcessor processor = new SearchProcessor();
 
 	/*
 	 * (non-Javadoc)
@@ -146,6 +152,26 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 					ResponseCode.CLIENT_ERROR);
 		// TODO: Need to be removed and request should go to ES.
 		List<DialCode> dialCodeList = dialCodeStore.list(channelId, map);
+
+		Response resp = getSuccessResponse();
+		resp.put(DialCodeEnum.count.name(), dialCodeList.size());
+		resp.put(DialCodeEnum.dialcodes.name(), dialCodeList);
+		return resp;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
+	 * java.util.Map)
+	 */
+	@Override
+	public Response searchDialCode(String channelId, Map<String, Object> map) throws Exception {
+		if (null == map || map.isEmpty())
+			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
+					ResponseCode.CLIENT_ERROR);
+		List<Object> dialCodeList = searchDialCodes(channelId, map);
 
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.count.name(), dialCodeList.size());
@@ -344,6 +370,58 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_PUBLISHER,
 					DialCodeErrorMessage.ERR_INVALID_PUBLISHER, ResponseCode.CLIENT_ERROR);
 
+	}
+
+	/**
+	 * @param channelId
+	 * @param map
+	 * @return
+	 * @throws Exception
+	 */
+	private List<Object> searchDialCodes(String channelId, Map<String, Object> map) throws Exception {
+		List<Object> searchResult = new ArrayList<Object>();
+		SearchDTO searchDto = new SearchDTO();
+		/*Map<String, String> sortBy = new HashMap<String, String>();
+		sortBy.put("generated_on", "desc");
+		sortBy.put("operation", "desc");*/
+		searchDto.setProperties(setSearchProperties(channelId, map));
+		// searchDto.setSortBy(sortBy);
+		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
+				CompositeSearchConstants.DIAL_CODE_INDEX, false);
+
+		return searchResult;
+	}
+
+	/**
+	 * @param channelId
+	 * @param map
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	private List<Map> setSearchProperties(String channelId, Map<String, Object> map) {
+		List<Map> properties = new ArrayList<Map>();
+
+		for (String key : map.keySet()) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", key);
+			property.put("values", map.get(key));
+			properties.add(property);
+		}
+
+		Map<String, Object> property = new HashMap<String, Object>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+		property.put("propertyName", DialCodeEnum.channel.name());
+		property.put("values", channelId);
+		properties.add(property);
+
+		property = new HashMap<String, Object>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+		property.put("propertyName", DialCodeEnum.objectType.name());
+		property.put("values", DialCodeEnum.DialCode.name());
+		properties.add(property);
+
+		return properties;
 	}
 
 }
