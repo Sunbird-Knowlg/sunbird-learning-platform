@@ -132,7 +132,7 @@ public class DialCodeStore extends AbstractCassandraStore {
 	// TODO : Remove this method, once list dial code is implemented with ES.
 	private String getListQuery(String channelId, Map<String, Object> map) {
 		StringBuilder listQuery = new StringBuilder();
-		listQuery.append("select * from " + "dialcode_store" + "." + "dial_code" + " where ");
+		listQuery.append("select * from " + "dev_dialcode_store" + "." + "dial_code" + " where ");
 		listQuery.append("channel='" + channelId + "' ");
 		for (String key : map.keySet()) {
 			String value = (String) map.get(key);
