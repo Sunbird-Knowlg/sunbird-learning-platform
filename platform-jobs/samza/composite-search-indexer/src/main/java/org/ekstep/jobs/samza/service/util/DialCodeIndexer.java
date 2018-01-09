@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
@@ -18,6 +19,7 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
  */
 public class DialCodeIndexer {
 
+	private JobLogger LOGGER = new JobLogger(DialCodeIndexer.class);
 	private ObjectMapper mapper = new ObjectMapper();
 	private ElasticSearchUtil esUtil = null;
 
@@ -80,6 +82,7 @@ public class DialCodeIndexer {
 	}
 
 	public void upsertDocument(String uniqueId, Map<String, Object> message) throws Exception {
+		LOGGER.info(uniqueId + " is indexing into dialcode.");
 		String operationType = (String) message.get("operationType");
 		switch (operationType) {
 		case CompositeSearchConstants.OPERATION_CREATE: {

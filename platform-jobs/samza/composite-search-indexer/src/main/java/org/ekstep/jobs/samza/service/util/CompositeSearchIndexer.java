@@ -164,7 +164,7 @@ public class CompositeSearchIndexer {
 		Map<String, Object> definition = mapper.convertValue(definitionNode, new TypeReference<Map<String, Object>>() {
 		});
 		LOGGER.debug("definition fetched from cache: " + definitionNode.getIdentifier());
-		LOGGER.info(uniqueId + " is indexing into ES.");
+		LOGGER.info(uniqueId + " is indexing into compositesearch.");
 		Map<String, String> relationMap = getRelationMap(objectType, definition);
 		upsertDocument(uniqueId, message, relationMap);
 	}
