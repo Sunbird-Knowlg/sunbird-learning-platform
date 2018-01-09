@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -405,7 +406,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
 			property.put("propertyName", key);
-			property.put("values", map.get(key));
+			property.put("values", Arrays.asList(map.get(key)));
 			properties.add(property);
 		}
 
