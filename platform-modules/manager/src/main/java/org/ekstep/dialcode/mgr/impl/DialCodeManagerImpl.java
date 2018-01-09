@@ -24,7 +24,7 @@ import org.ekstep.dialcode.model.DialCode;
 import org.ekstep.dialcode.model.Publisher;
 import org.ekstep.dialcode.store.DialCodeStore;
 import org.ekstep.dialcode.store.PublisherStore;
-import org.ekstep.dialcode.util.SeqRandomGenerator;
+import org.ekstep.dialcode.util.DialCodeGenerator;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -53,7 +53,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	private DialCodeStore dialCodeStore;
 
 	@Autowired
-	private SeqRandomGenerator seqGenerator;
+	private DialCodeGenerator dialCodeGenerator;
 
 	private SearchProcessor processor = new SearchProcessor();
 
@@ -78,11 +78,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			batchCode = generateBatchCode(publisher);
 			map.put(DialCodeEnum.batchCode.name(), batchCode);
 		}
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(DialCodeEnum.channel.name(), channelId);
-		data.put(DialCodeEnum.publisher.name(), publisher);
-		data.put(DialCodeEnum.batchCode.name(), batchCode);
-		dialCodeMap = seqGenerator.generate(count, data);
+		dialCodeMap = dialCodeGenerator.generate(count, channelId, publisher, batchCode);
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.count.name(), dialCodeMap.size());
 		resp.put(DialCodeEnum.batchcode.name(), batchCode);

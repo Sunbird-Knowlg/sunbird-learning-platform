@@ -23,12 +23,11 @@ public class SystemConfigStore extends AbstractCassandraStore {
 
 	public SystemConfigStore() {
 		super();
-		String keyspace = "dialcode_store";
-		String table = "system_config";
-		if (Platform.config.hasPath("system.config.keyspace.name"))
-			keyspace = Platform.config.getString("system.config.keyspace.name");
-		if (Platform.config.hasPath("system.config.table"))
-			table = Platform.config.getString("system.config.table");
+		String keyspace = Platform.config.hasPath("system.config.keyspace.name")
+				? Platform.config.getString("system.config.keyspace.name")
+				: "dialcode_store";
+		String table = Platform.config.hasPath("system.config.table") ? Platform.config.getString("system.config.table")
+				: "system_config";
 		initialise(keyspace, table, "SystemConfig");
 	}
 

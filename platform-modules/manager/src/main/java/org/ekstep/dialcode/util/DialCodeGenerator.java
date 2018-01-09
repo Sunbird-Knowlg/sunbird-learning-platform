@@ -8,10 +8,6 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.common.exception.ServerException;
-import org.ekstep.dialcode.common.DialCodeErrorCodes;
-import org.ekstep.dialcode.common.DialCodeErrorMessage;
-import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.store.DialCodeStore;
 import org.ekstep.dialcode.store.SystemConfigStore;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
@@ -19,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SeqRandomGenerator {
+public class DialCodeGenerator {
 
 	@Autowired
 	private DialCodeStore dialCodeStore;
@@ -27,17 +23,31 @@ public class SeqRandomGenerator {
 	@Autowired
 	private SystemConfigStore systemConfigStore;
 
+	private static String stripChars = "0";
+	private static Double length = 6.0;
+	private static BigDecimal largePrimeNumber = new BigDecimal(1679979167);
+
 	/**
 	 * Get Max Index from Cassandra and Set it to Cache.
 	 */
 	@PostConstruct
-	public void initMaxIndex() {
+	public void init() {
 		double maxIndex;
 		try {
+			stripChars = Platform.config.hasPath("dialcode.strip.chars")
+					? Platform.config.getString("dialcode.strip.chars")
+					: stripChars;
+			length = Platform.config.hasPath("dialcode.length") ? Platform.config.getDouble("dialcode.length") : length;
+			largePrimeNumber = Platform.config.hasPath("dialcode.large.prime_number")
+					? new BigDecimal(Platform.config.getLong("dialcode.large.prime_number"))
+					: largePrimeNumber;
+			System.out.println("ShstemConfig:" + systemConfigStore);
 			maxIndex = systemConfigStore.getDialCodeIndex();
 			setMaxIndexToCache(maxIndex);
 		} catch (Exception e) {
-			throw new ServerException(DialCodeErrorCodes.ERR_SERVER_ERROR, DialCodeErrorMessage.ERR_SERVER_ERROR);
+			// TODO: Exception handling for getDialCodeIndex SystemConfig table.
+			// throw new ServerException(DialCodeErrorCodes.ERR_SERVER_ERROR,
+			// DialCodeErrorMessage.ERR_SERVER_ERROR);
 		}
 	}
 
@@ -45,12 +55,8 @@ public class SeqRandomGenerator {
 			"D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y",
 			"Z" };
 
-	private static final String stripChars = Platform.config.getString("dialcode.strip.chars");
-	private static final Double length = Platform.config.getDouble("dialcode.length");
-	private static final BigDecimal largePrimeNumber = new BigDecimal(
-			Platform.config.getInt("dialcode.large.prime_number"));
-
-	public Map<Double, String> generate(double count, Map<String, Object> map) throws Exception {
+	public Map<Double, String> generate(double count, String channel, String publisher, String batchCode)
+			throws Exception {
 		Map<Double, String> codes = new HashMap<Double, String>();
 		double startIndex = getMaxIndex();
 		int totalChars = alphabet.length;
@@ -64,9 +70,7 @@ public class SeqRandomGenerator {
 			String code = baseN(num, totalChars);
 			if (code.length() == length) {
 				try {
-					dialCodeStore.save((String) map.get(DialCodeEnum.channel.name()),
-							(String) map.get(DialCodeEnum.publisher.name()),
-							(String) map.get(DialCodeEnum.batchCode.name()), code, lastIndex);
+					dialCodeStore.save(channel, publisher, batchCode, code, lastIndex);
 					codesCount += 1;
 					codes.put(lastIndex, code);
 				} catch (Exception e) {

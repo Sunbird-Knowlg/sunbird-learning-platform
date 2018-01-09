@@ -38,18 +38,12 @@ public class DialCodeStore extends AbstractCassandraStore {
 
 	public DialCodeStore() {
 		super();
-		String keyspace = "dialcode_store";
-		String table = "dial_code";
-		boolean index = true;
-		String objectType = "DialCode";
-		if (Platform.config.hasPath("dialcode.keyspace.name"))
-			keyspace = Platform.config.getString("dialcode.keyspace.name");
-		if (Platform.config.hasPath("dialcode.keyspace.table"))
-			table = Platform.config.getString("dialcode.keyspace.table");
-		if (Platform.config.hasPath("dialcode.index"))
-			index = Platform.config.getBoolean("dialcode.index");
-		if (Platform.config.hasPath("dialcode.object_type"))
-			objectType = Platform.config.getString("dialcode.object_type");
+		String keyspace = Platform.config.hasPath("dialcode.keyspace.name") ? Platform.config.getString("dialcode.keyspace.name") : "dialcode_store";
+		String table = Platform.config.hasPath("dialcode.keyspace.table") ? Platform.config.getString("dialcode.keyspace.table") : "dial_code";
+		boolean index = Platform.config.hasPath("dialcode.index") ? Platform.config.getBoolean("dialcode.index") : true;
+		String objectType = Platform.config.hasPath("dialcode.object_type")
+				? Platform.config.getString("dialcode.object_type")
+				: "DialCode";
 		initialise(keyspace, table, objectType, index);
 	}
 
