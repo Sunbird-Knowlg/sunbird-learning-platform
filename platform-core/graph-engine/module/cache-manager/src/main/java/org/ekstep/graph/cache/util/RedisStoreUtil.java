@@ -98,4 +98,19 @@ public class RedisStoreUtil {
 			returnConnection(jedis);
 		}
 	}
+
+	public static Double getNodePropertyIncVal(String graphId, String objectId, String nodeProperty) {
+
+		Jedis jedis = getRedisConncetion();
+		try {
+			String redisKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
+			double inc = 1.0;
+			double value = jedis.incrByFloat(redisKey, inc);
+			return value;
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
 }

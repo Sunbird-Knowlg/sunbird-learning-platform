@@ -35,13 +35,10 @@ public class DialCodeGenerator {
 		double maxIndex;
 		try {
 			stripChars = Platform.config.hasPath("dialcode.strip.chars")
-					? Platform.config.getString("dialcode.strip.chars")
-					: stripChars;
+					? Platform.config.getString("dialcode.strip.chars") : stripChars;
 			length = Platform.config.hasPath("dialcode.length") ? Platform.config.getDouble("dialcode.length") : length;
 			largePrimeNumber = Platform.config.hasPath("dialcode.large.prime_number")
-					? new BigDecimal(Platform.config.getLong("dialcode.large.prime_number"))
-					: largePrimeNumber;
-			System.out.println("ShstemConfig:" + systemConfigStore);
+					? new BigDecimal(Platform.config.getLong("dialcode.large.prime_number")) : largePrimeNumber;
 			maxIndex = systemConfigStore.getDialCodeIndex();
 			setMaxIndexToCache(maxIndex);
 		} catch (Exception e) {
@@ -111,16 +108,8 @@ public class DialCodeGenerator {
 	 * @throws Exception
 	 */
 	private Double getMaxIndex() throws Exception {
-		String indexStr = RedisStoreUtil.getNodeProperty("domain", "dialcode", "max_index");
-		if (StringUtils.isNotBlank(indexStr)) {
-			double index = Double.parseDouble(indexStr);
-			++index;
-			setMaxIndexToCache(index);
-			return index;
-		} else {
-			double maxIndex = systemConfigStore.getDialCodeIndex();
-			return maxIndex;
-		}
+		double index = RedisStoreUtil.getNodePropertyIncVal("domain", "dialcode", "max_index");
+		return index;
 	}
 
 }
