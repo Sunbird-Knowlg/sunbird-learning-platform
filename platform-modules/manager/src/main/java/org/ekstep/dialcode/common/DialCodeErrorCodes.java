@@ -23,5 +23,6 @@ public class DialCodeErrorCodes {
 	public static final String ERR_INVALID_DIALCODE_LINK_REQUEST = "ERR_INVALID_DIALCODE_LINK_REQUEST";
 	public static final String ERR_DIALCODE_LINK_REQUEST = "ERR_DIALCODE_LINK_REQUEST";
 	public static final String ERR_DIALCODE_LINK = "ERR_DIALCODE_LINK";
+	public static final String ERR_INVALID_SYNC_REQUEST = "ERR_INVALID_SYNC_REQUEST";
 
 }

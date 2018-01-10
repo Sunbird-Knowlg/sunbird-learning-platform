@@ -357,7 +357,7 @@ public abstract class AbstractCassandraStore {
 		return objects;
 	}
 
-	private void logTransactionEvent(String operation, Object identifier, Map<String, Object> map) {
+	protected void logTransactionEvent(String operation, Object identifier, Map<String, Object> map) {
 		if (index) {
 			if (null == map && !StringUtils.equalsIgnoreCase(operation, CassandraStoreParams.DELETE.name())) {
 				TelemetryManager.log("Returning null as the map is is null", map);

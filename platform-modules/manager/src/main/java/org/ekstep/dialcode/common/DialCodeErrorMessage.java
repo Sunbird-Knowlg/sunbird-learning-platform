@@ -21,4 +21,5 @@ public class DialCodeErrorMessage {
 	public static final String ERR_INVALID_DIALCODE_LINK_REQUEST = "Invalid Request. Multiple Dial Codes Can Not be Linked With Multiple Contents";
 	public static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
 	public static final String ERR_DIALCODE_LINK = "Internal Server Error.";
+	public static final String ERR_INVALID_SYNC_REQUEST = "Please specify the Dial Code IDs to be synced";
 }

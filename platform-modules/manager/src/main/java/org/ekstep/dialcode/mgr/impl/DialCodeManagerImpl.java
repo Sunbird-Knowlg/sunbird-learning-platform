@@ -205,6 +205,22 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		return resp;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#syncDialCode(java.lang.String, java.util.Map, java.util.List)
+	 */
+	@Override
+	public Response syncDialCode(String channelId, Map<String, Object> map, List<String> identifiers) {
+		if (null == identifiers || identifiers.isEmpty()) {
+			return ERROR(DialCodeErrorCodes.ERR_INVALID_SYNC_REQUEST, DialCodeErrorMessage.ERR_INVALID_SYNC_REQUEST,
+					ResponseCode.CLIENT_ERROR);
+		}
+		dialCodeStore.sync(identifiers);
+		Response respone = getSuccessResponse();
+		TelemetryManager.info("DIAL code are successfullysynced", respone.getResult());
+
+		return respone;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -442,5 +458,6 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 
 		return properties;
 	}
+
 
 }

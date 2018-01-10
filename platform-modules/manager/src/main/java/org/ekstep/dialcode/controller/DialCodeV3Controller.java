@@ -1,5 +1,6 @@
 package org.ekstep.dialcode.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.ekstep.common.controller.BaseController;
@@ -140,7 +141,31 @@ public class DialCodeV3Controller extends BaseController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager
-					.error("Exception Occured while Performing List Operation for Dial Codes : " + e.getMessage(), e);
+					.error("Exception Occured while Performing Search Operation for Dial Codes : " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * @param requestMap
+	 * @param channelId
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/sync", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> syncDialCode(@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId,
+			@RequestParam(value = "identifiers", required = true) List<String> identifiers) {
+		String apiId = "ekstep.dialcode.sync";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("sync");
+			Response response = dialCodeManager.syncDialCode(channelId, map, identifiers);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager
+					.error("Exception Occured while Performing Sync Operation for Dial Codes : " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

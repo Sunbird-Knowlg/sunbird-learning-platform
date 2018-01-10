@@ -1,6 +1,7 @@
 package org.ekstep.dialcode.store;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.store.AbstractCassandraStore;
+import org.ekstep.cassandra.store.CassandraStoreParams;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.dialcode.common.DialCodeErrorCodes;
@@ -101,6 +103,29 @@ public class DialCodeStore extends AbstractCassandraStore {
 		}
 		dialCodeObj.setMetadata(metaData);
 		return dialCodeObj;
+	}
+
+	/**
+	 * @param identifiers
+	 */
+	public void sync(List<String> identifiers) {
+		List<Object> ids = new ArrayList<Object>();
+		ids.addAll(identifiers);
+		List<Row> rows = getRecordsByProperty(DialCodeEnum.identifier.name(), ids);
+		Map<String, Object> syncRequest = new HashMap<String, Object>();
+		for (Row row : rows) {
+			syncRequest = new HashMap<String, Object>();
+			syncRequest.put(DialCodeEnum.identifier.name(), row.getString(DialCodeEnum.identifier.name()));
+			syncRequest.put(DialCodeEnum.channel.name(), row.getString(DialCodeEnum.channel.name()));
+			syncRequest.put(DialCodeEnum.publisher.name(), row.getString(DialCodeEnum.publisher.name()));
+			syncRequest.put(DialCodeEnum.batchCode.name(), row.getString(DialCodeEnum.batchCode.name()));
+			syncRequest.put(DialCodeEnum.status.name(), row.getString(DialCodeEnum.status.name()));
+			syncRequest.put(DialCodeEnum.status.name(), row.getString(DialCodeEnum.status.name()));
+			syncRequest.put(DialCodeEnum.metadata.name(), row.getString(DialCodeEnum.metadata.name()));
+			logTransactionEvent(CassandraStoreParams.UPDATE.name(), row.getString(DialCodeEnum.identifier.name()),
+					syncRequest);
+		}
+
 	}
 
 }
