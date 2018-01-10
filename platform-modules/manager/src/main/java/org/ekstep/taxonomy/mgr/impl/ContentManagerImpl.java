@@ -1529,7 +1529,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		Response resp = updateDialCodeToContents(contents, dialcodes);
 		if (ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
-			TelemetryManager.log("DIAL code linked to content", map);
+			Map<String, Object> props = new HashMap<String, Object>();
+			props.put(DialCodeEnum.dialcode.name(), dialcodes);
+			props.put("identifier", contents);
+			TelemetryManager.info("DIAL code linked to content", props);
 		} else {
 			TelemetryManager.error(resp.getParams().getErrmsg());
 		}
