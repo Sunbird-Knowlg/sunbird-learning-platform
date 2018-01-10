@@ -1,14 +1,12 @@
 package org.ekstep.dialcode.store;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.store.AbstractCassandraStore;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ResourceNotFoundException;
@@ -19,9 +17,7 @@ import org.ekstep.dialcode.model.DialCode;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
-import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,7 +39,7 @@ public class DialCodeStore extends AbstractCassandraStore {
 		boolean index = Platform.config.hasPath("dialcode.index") ? Platform.config.getBoolean("dialcode.index") : true;
 		String objectType = Platform.config.hasPath("dialcode.object_type")
 				? Platform.config.getString("dialcode.object_type")
-				: "Dialcode";
+				: DialCodeEnum.DialCode.name();
 		initialise(keyspace, table, objectType, index);
 	}
 

@@ -57,6 +57,9 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 
 	private SearchProcessor processor = new SearchProcessor();
 
+	private int defaultLimit = Platform.config.hasPath("dialcode.doc_limit")
+			? Platform.config.getInt("dialcode.doc_limit")
+			: 1000;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -142,7 +145,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	 * java.util.Map)
 	 */
 	@Override
-	public Response listDialCode(String channelId, Map<String, Object> map) throws Exception {
+	public Response listDialCode(String channelId, Map<String, Object> map, String limit) throws Exception {
 		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
@@ -150,8 +153,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, "Publisher is mandatory to list DailCodes",
 					ResponseCode.CLIENT_ERROR);
 		}
-
-		return searchDialCode(channelId, map);
+		
+		return searchDialCode(channelId, map, limit);
 	}
 
 	/*
@@ -162,11 +165,16 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	 * java.util.Map)
 	 */
 	@Override
-	public Response searchDialCode(String channelId, Map<String, Object> map) throws Exception {
+	public Response searchDialCode(String channelId, Map<String, Object> map, String limit) throws Exception {
 		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
-		List<Object> dialCodeList = searchDialCodes(channelId, map);
+		int docLimit = defaultLimit;
+		if (StringUtils.isNotBlank(limit)) {
+			docLimit = Integer.parseInt(limit);
+		}
+
+		List<Object> dialCodeList = searchDialCodes(channelId, map, docLimit);
 
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.count.name(), dialCodeList.size());
@@ -373,7 +381,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	 * @return
 	 * @throws Exception
 	 */
-	private List<Object> searchDialCodes(String channelId, Map<String, Object> map) throws Exception {
+	private List<Object> searchDialCodes(String channelId, Map<String, Object> map, int limit) throws Exception {
 		List<Object> searchResult = new ArrayList<Object>();
 		SearchDTO searchDto = new SearchDTO();
 		searchDto.setFuzzySearch(false);
@@ -381,6 +389,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		searchDto.setProperties(setSearchProperties(channelId, map));
 		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchDto.setFields(getFields());
+		searchDto.setLimit(limit);
 		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
 				CompositeSearchConstants.DIAL_CODE_INDEX, false);
 
@@ -398,6 +407,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		fields.add("batchcode");
 		fields.add("channel");
 		fields.add("status");
+		fields.add("metadata");
 
 		return fields;
 	}

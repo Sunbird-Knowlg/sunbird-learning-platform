@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -106,12 +107,13 @@ public class DialCodeV3Controller extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> listDialCode(@RequestBody Map<String, Object> requestMap,
-			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId,
+			@RequestParam(value = "limit", required = false) String limit) {
 		String apiId = "ekstep.dialcode.list";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.search.name());
-			Response response = dialCodeManager.listDialCode(channelId, map);
+			Response response = dialCodeManager.listDialCode(channelId, map, limit);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception Occured while Performing List Operation for Dial Codes : "+ e.getMessage(), e);
@@ -128,12 +130,13 @@ public class DialCodeV3Controller extends BaseController {
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> searchDialCode(@RequestBody Map<String, Object> requestMap,
-			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId,
+			@RequestParam(value = "limit", required = false) String limit) {
 		String apiId = "ekstep.dialcode.search";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.search.name());
-			Response response = dialCodeManager.searchDialCode(channelId, map);
+			Response response = dialCodeManager.searchDialCode(channelId, map, limit);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager
