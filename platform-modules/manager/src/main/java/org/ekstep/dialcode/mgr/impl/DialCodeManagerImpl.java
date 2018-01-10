@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
@@ -55,16 +57,26 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	@Autowired
 	private DialCodeGenerator dialCodeGenerator;
 
-	private SearchProcessor processor = new SearchProcessor();
+	private int defaultLimit = 1000;
+	private String dialHost = "localhost";
+	private int dialPort = 9200;
+	private SearchProcessor processor = null;
 
-	private int defaultLimit = Platform.config.hasPath("dialcode.doc_limit")
-			? Platform.config.getInt("dialcode.doc_limit")
-			: 1000;
+	@PostConstruct
+	public void init() {
+		defaultLimit = Platform.config.hasPath("dialcode.search.limit")
+				? Platform.config.getInt("dialcode.search.limit")
+				: defaultLimit;
+		dialHost = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host")
+				: dialHost;
+		dialPort = Platform.config.hasPath("dialcode.es_port") ? Platform.config.getInt("dialcode.es_port") : dialPort;
+		processor = new SearchProcessor(dialHost, dialPort);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.ekstep.dialcode.mgr.IDialCodeManager#generateDialCode(java.util.Map,
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#generateDialCode(java.util.Map,
 	 * java.lang.String)
 	 */
 	@Override
@@ -94,8 +106,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.ekstep.dialcode.mgr.IDialCodeManager#readDialCode(java.lang.String)
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#readDialCode(java.lang.String)
 	 */
 	@Override
 	public Response readDialCode(String dialCodeId) throws Exception {
@@ -140,8 +151,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
 	 * java.util.Map)
 	 */
 	@Override
@@ -153,15 +163,14 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, "Publisher is mandatory to list DailCodes",
 					ResponseCode.CLIENT_ERROR);
 		}
-		
+
 		return searchDialCode(channelId, map, limit);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
 	 * java.util.Map)
 	 */
 	@Override
@@ -205,8 +214,11 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		return resp;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#syncDialCode(java.lang.String, java.util.Map, java.util.List)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#syncDialCode(java.lang.String,
+	 * java.util.Map, java.util.List)
 	 */
 	@Override
 	public Response syncDialCode(String channelId, Map<String, Object> map, List<String> identifiers) {
@@ -224,8 +236,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.ekstep.dialcode.mgr.IDialCodeManager#createPublisher(java.util.Map,
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#createPublisher(java.util.Map,
 	 * java.lang.String)
 	 */
 	@Override
@@ -261,8 +272,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.ekstep.dialcode.mgr.IDialCodeManager#readPublisher(java.lang.String)
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#readPublisher(java.lang.String)
 	 */
 	@Override
 	public Response readPublisher(String publisherId) throws Exception {
@@ -458,6 +468,5 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 
 		return properties;
 	}
-
 
 }

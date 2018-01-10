@@ -25,9 +25,16 @@ import net.sf.json.util.JSONStringer;
 
 public class SearchProcessor {
 
-	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+	private ElasticSearchUtil elasticSearchUtil = null;
 	private ObjectMapper mapper = new ObjectMapper();
 	
+	public SearchProcessor() {
+		elasticSearchUtil = new ElasticSearchUtil();
+	}
+	
+	public SearchProcessor(String host, int port) {
+		elasticSearchUtil = new ElasticSearchUtil(host, port);
+	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {

@@ -1,7 +1,6 @@
 package org.ekstep.searchindex.elasticsearch;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,37 +65,53 @@ public class ElasticSearchUtil {
 	public void setOffset(int offset) {
 		this.offset = offset;
 	}
-	public ElasticSearchUtil(int resultSize) throws UnknownHostException {
+	public ElasticSearchUtil(int resultSize) {
 		super();
 		initialize();
 		if (resultSize < defaultResultLimit) {
 			this.resultLimit = resultSize;
 		}
-		JestClientFactory factory = new JestClientFactory();
-		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true)
-				.connTimeout(CONNECTION_TIMEOUT).maxConnectionIdleTime(MAX_IDLE_CONNECTION_TIME_LIMIT, TimeUnit.SECONDS)
-				.maxTotalConnection(MAX_TOTAL_CONNECTION_LIMIT).build());
-		client = factory.getObject();
-
+		createClient();
 	}
 
 	public ElasticSearchUtil() {
 		super();
 		initialize();
+		createClient();
+	}
+	
+	public ElasticSearchUtil(String host, int port) {
+		super();
+		initialize(host, port);
+		createClient();
+	}
+
+	
+	private void createClient() {
 		JestClientFactory factory = new JestClientFactory();
 		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true)
-				.connTimeout(CONNECTION_TIMEOUT).build());
+				.connTimeout(CONNECTION_TIMEOUT).maxConnectionIdleTime(MAX_IDLE_CONNECTION_TIME_LIMIT, TimeUnit.SECONDS)
+				.maxTotalConnection(MAX_TOTAL_CONNECTION_LIMIT).build());
 		client = factory.getObject();
 	}
 
-
-	public void initialize() {
+	private void initialize() {
 		hostName = Platform.config.getString("elastic-search-host");
 		port = Platform.config.getInt("elastic-search-port");
 		if(Platform.config.hasPath("bulk-load-batch-size"))
 			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
 		if(Platform.config.hasPath("connection-timeout"))
 			CONNECTION_TIMEOUT = Platform.config.getInt("connection-timeout");
+	}
+	
+	private void initialize(String host, int port) {
+		this.hostName = host;
+		this.port = port;
+		if(Platform.config.hasPath("bulk-load-batch-size"))
+			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
+		if(Platform.config.hasPath("connection-timeout"))
+			CONNECTION_TIMEOUT = Platform.config.getInt("connection-timeout");
+		
 	}
 	
 	public void finalize() {
@@ -120,11 +135,6 @@ public class ElasticSearchUtil {
 			timeZoneProperty = "0000";
 		}
 		return timeZoneProperty;
-	}
-
-	@SuppressWarnings("unused")
-	private JestClient createClient() {
-		return client;
 	}
 
 	public void addDocumentWithId(String indexName, String documentType, String documentId, String document)
