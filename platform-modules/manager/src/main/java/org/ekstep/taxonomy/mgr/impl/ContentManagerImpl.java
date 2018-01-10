@@ -1509,11 +1509,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		
 		Object dialObj = map.get(DialCodeEnum.dialcode.name());
 		Object contentObj = map.get("identifier");
-		if (null == dialObj || null == contentObj) 
-			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST, "Pelase provide required properties in request.");
-		
 		List<String>dialcodes = getList(dialObj);
 		List<String> contents = getList(contentObj);
+		
+		if (null == dialcodes || null == contents) 
+			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST, "Pelase provide required properties in request.");
 		
 		int maxLimit = 10;
 		if(Platform.config.hasPath("dialcode.link.content.max"))
@@ -1540,15 +1540,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return resp;
 	}
 	
-	
 	@SuppressWarnings("unchecked")
-	private List<String> getList(Object param) {
-		List<String> paramList;
+	private static List<String> getList(Object param) {
+		List<String> paramList = null;
 		try {
 			paramList = (List<String>) param;
 		} catch (Exception e) {
 			String str = (String) param;
-			paramList = Arrays.asList(str);
+			if (StringUtils.isNotBlank(str))
+				paramList = Arrays.asList(str);
 		}
 		return paramList;
 	}
