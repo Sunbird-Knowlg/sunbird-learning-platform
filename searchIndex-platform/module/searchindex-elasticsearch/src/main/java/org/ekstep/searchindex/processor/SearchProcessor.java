@@ -875,7 +875,8 @@ public class SearchProcessor {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		List<Object> response = new ArrayList<Object>();
 		Map<String, Object> res_map = new HashMap<String, Object>();
-		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
+		if (searchDTO.getLimit() == 0)
+			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
 		String query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
