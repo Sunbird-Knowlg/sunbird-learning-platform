@@ -1515,9 +1515,17 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		List<String>dialcodes = getList(dialObj);
 		List<String> contents = getList(contentObj);
 		
+		int maxLimit = 10;
+		if(Platform.config.hasPath("dialcode.link.content.max"))
+			maxLimit = Platform.config.getInt("dialcode.link.content.max");
+		
 		if (dialcodes.size() > 1 && contents.size() > 1)
 			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
 					DialCodeErrorMessage.ERR_INVALID_DIALCODE_LINK_REQUEST);
+		
+		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
+			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST, "Max limit for link content to dialcode in a request is "+ maxLimit);
+		
 
 		Response resp = updateDialCodeToContents(contents, dialcodes);
 		if (ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
