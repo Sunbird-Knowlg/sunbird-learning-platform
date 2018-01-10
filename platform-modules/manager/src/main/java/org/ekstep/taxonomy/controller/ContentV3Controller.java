@@ -10,7 +10,6 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
-import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.IContentManager;
@@ -391,7 +390,7 @@ public class ContentV3Controller extends BaseController {
 		String apiId = "ekstep.content.dialcode.link";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.dialcode.name());
+			Map<String, Object> map = (Map<String, Object>) request.get("content");
 			Response response = contentManager.linkDialCode(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
