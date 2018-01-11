@@ -21,7 +21,27 @@ public class TelemetryLoggingHandler implements TelemetryHandler {
 	 * 
 	 */
 	public void send(String event, Level level) {
-		rootLogger.info(event);
+		switch(level) {
+			case INFO:
+				rootLogger.info(event);
+				break;
+			case DEBUG:
+				rootLogger.debug(event);
+				break;
+			case ERROR:
+				rootLogger.error(event);
+				break;
+			case WARN:
+				rootLogger.warn(event);
+				break;
+			case TRACE:
+				rootLogger.trace(event);
+				break;
+			case FATAL:
+				rootLogger.fatal(event);
+				break;				
+		}
+		
 	}
 
 }
