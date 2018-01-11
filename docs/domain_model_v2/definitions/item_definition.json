@@ -548,7 +548,7 @@
             "dataType": "Number",
             "required": false,
             "displayProperty": "Readonly",
-            "defaultValue": "",
+            "defaultValue": 1,
             "renderingHints": "{'order': 23}",
             "indexed": false
         }, {
@@ -596,17 +596,6 @@
             "required": true,
             "defaultValue": "",
             "renderingHints": "{'order': 28}",
-            "indexed": true
-        }, {
-            "propertyName": "version",
-            "title": "Version",
-            "description": "",
-            "category": "general",
-            "dataType": "Number",
-            "required": false,
-            "displayProperty": "Readonly",
-            "defaultValue": 1,
-            "renderingHints": "{'order': 29}",
             "indexed": true
         }],
         "inRelations": [],
