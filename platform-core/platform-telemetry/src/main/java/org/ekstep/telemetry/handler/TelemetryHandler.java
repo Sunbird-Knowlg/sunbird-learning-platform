@@ -19,4 +19,6 @@ public interface TelemetryHandler {
 	 * @param event
 	 */
 	public void send(String event, Level level);
+	
+	public void send(String event, Level level, boolean telemetry);
 }

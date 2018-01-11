@@ -16,30 +16,40 @@ import org.apache.logging.log4j.Logger;
 public class TelemetryLoggingHandler implements TelemetryHandler {
 
 	private static final Logger rootLogger = LogManager.getLogger("DefaultPlatformLogger");
+	private static final Logger telemetryLogger = LogManager.getLogger("TelemetryEventAppender");
+	
 
+	public void send(String event, Level level) {
+		send(event, level, false);
+	}
+	
 	/**
 	 * 
 	 */
-	public void send(String event, Level level) {
-		switch(level) {
-			case INFO:
-				rootLogger.info(event);
-				break;
-			case DEBUG:
-				rootLogger.debug(event);
-				break;
-			case ERROR:
-				rootLogger.error(event);
-				break;
-			case WARN:
-				rootLogger.warn(event);
-				break;
-			case TRACE:
-				rootLogger.trace(event);
-				break;
-			case FATAL:
-				rootLogger.fatal(event);
-				break;				
+	public void send(String event, Level level, boolean telemetry) {
+		if (telemetry) {
+			telemetryLogger.info(event);
+		} else {
+			switch(level) {
+				case INFO:
+					rootLogger.info(event);
+					break;
+				case DEBUG:
+					rootLogger.debug(event);
+					break;
+				case ERROR:
+					rootLogger.error(event);
+					break;
+				case WARN:
+					rootLogger.warn(event);
+					break;
+				case TRACE:
+					rootLogger.trace(event);
+					break;
+				case FATAL:
+					rootLogger.fatal(event);
+					break;				
+			}
 		}
 		
 	}

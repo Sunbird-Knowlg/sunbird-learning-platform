@@ -38,7 +38,7 @@ public class TelemetryManager {
 
 	public static void access(Map<String, String> context, Map<String, Object> params) {
 		String event = TelemetryGenerator.access(context, params);
-		telemetryHandler.send(event, Level.INFO);
+		telemetryHandler.send(event, Level.INFO, true);
 	}
 
 	/**
