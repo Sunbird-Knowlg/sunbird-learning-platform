@@ -52,7 +52,6 @@ public class SearchProcessor {
 				response.put("results", results);
 			}
 		}
-		TelemetryManager.log(response.toString());
 		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
 				.getValue("aggregations");
 		if (aggregations != null && !aggregations.isEmpty()) {
