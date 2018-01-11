@@ -573,6 +573,41 @@
             "defaultValue": "",
             "renderingHints": "{'order': 25}",
             "indexed": false
+        }, {
+            "propertyName": "itemType",
+            "title": "Item Type",
+            "description": "",
+            "category": "general",
+            "dataType": "Select",
+            "displayProperty": "Editable",
+            "range": ["UNIT", "SET", "DYNAMIC"],
+            "required": true,
+            "defaultValue": "",
+            "renderingHints": "{'order': 27}",
+            "indexed": true
+        }, {
+            "propertyName": "category",
+            "title": "Category",
+            "description": "",
+            "category": "general",
+            "dataType": "Select",
+            "displayProperty": "Editable",
+            "range": ["MCQ", "FTB", "MTF"],
+            "required": true,
+            "defaultValue": "",
+            "renderingHints": "{'order': 28}",
+            "indexed": true
+        }, {
+            "propertyName": "version",
+            "title": "Version",
+            "description": "",
+            "category": "general",
+            "dataType": "Number",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": 1,
+            "renderingHints": "{'order': 29}",
+            "indexed": true
         }],
         "inRelations": [],
         "outRelations": [{
