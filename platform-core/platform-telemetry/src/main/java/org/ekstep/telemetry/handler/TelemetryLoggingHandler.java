@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 public class TelemetryLoggingHandler implements TelemetryHandler {
 
 	private static final Logger rootLogger = LogManager.getLogger("DefaultPlatformLogger");
-	private static final Logger telemetryLogger = LogManager.getLogger("TelemetryEventAppender");
+	private static final Logger telemetryLogger = LogManager.getLogger("TelemetryEventLogger");
 	
 
 	public void send(String event, Level level) {
