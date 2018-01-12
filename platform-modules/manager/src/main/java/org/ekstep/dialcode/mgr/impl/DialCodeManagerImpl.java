@@ -187,6 +187,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
 		int limit = getLimit(map, DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST);
+		map.remove("limit");
 		List<Object> dialCodeList = searchDialCodes(channelId, map, limit);
 
 		Response resp = getSuccessResponse();
