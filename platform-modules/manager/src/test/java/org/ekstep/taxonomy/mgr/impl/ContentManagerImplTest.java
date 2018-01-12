@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.taxonomy.content.common.BaseTestUtil;
 import org.ekstep.taxonomy.content.common.TestParams;
-import org.ekstep.taxonomy.content.common.TestSetup;
 import org.ekstep.test.common.TestSetUp;
 
 //@Ignore
@@ -361,6 +360,7 @@ public class ContentManagerImplTest extends TestSetUp {
 	/*
 	 * Update Collection Content
 	 */
+	@Ignore
 	@Test
 	public void testUpdateContent_04() {
 		try {

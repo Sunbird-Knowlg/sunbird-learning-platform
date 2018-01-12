@@ -148,7 +148,6 @@ public class TestSetupUtil {
 	}
 
 	private static void deleteEmbeddedNeo4j(final File emDb) {
-		System.out.println(emDb.getAbsolutePath().toString());
 		if (emDb.exists()) {
 			if (emDb.isDirectory()) {
 				for (File child : emDb.listFiles()) {
