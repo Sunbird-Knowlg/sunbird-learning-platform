@@ -197,9 +197,9 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 
 	private int getLimit(Map<String, Object> map, String errCode) {
 		int limit = defaultLimit;
-		map.get("limit");
 		try {
-			limit = (int) map.get("limit");
+			if (map.containsKey("limit"))
+				limit = (int) map.get("limit");
 		} catch (Exception e) {
 			throw new ClientException(errCode, "Please provide valid limit.");
 		}
