@@ -108,13 +108,12 @@ public class DialCodeV3Controller extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> listDialCode(@RequestBody Map<String, Object> requestMap,
-			@RequestHeader(value = CHANNEL_ID, required = true) String channelId,
-			@RequestParam(value = "limit", required = false) String limit) {
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.dialcode.list";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.search.name());
-			Response response = dialCodeManager.listDialCode(channelId, map, limit);
+			Response response = dialCodeManager.listDialCode(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception Occured while Performing List Operation for Dial Codes : "+ e.getMessage(), e);
@@ -131,13 +130,12 @@ public class DialCodeV3Controller extends BaseController {
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> searchDialCode(@RequestBody Map<String, Object> requestMap,
-			@RequestHeader(value = CHANNEL_ID, required = true) String channelId,
-			@RequestParam(value = "limit", required = false) String limit) {
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.dialcode.search";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get(DialCodeEnum.search.name());
-			Response response = dialCodeManager.searchDialCode(channelId, map, limit);
+			Response response = dialCodeManager.searchDialCode(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager

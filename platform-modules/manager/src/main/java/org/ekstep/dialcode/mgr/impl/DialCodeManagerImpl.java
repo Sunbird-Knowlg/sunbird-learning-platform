@@ -87,14 +87,22 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 					DialCodeErrorMessage.ERR_INVALID_DIALCODE_REQUEST, ResponseCode.CLIENT_ERROR);
 		String publisher = (String) map.get(DialCodeEnum.publisher.name());
 		validatePublisher(publisher);
-		int count = getCount(map);
+		int userCount = getCount(map);
+		Integer maxCount = Platform.config.getInt("dialcode.max_count");
 		String batchCode = (String) map.get(DialCodeEnum.batchCode.name());
 		if (StringUtils.isBlank(batchCode)) {
 			batchCode = generateBatchCode(publisher);
 			map.put(DialCodeEnum.batchCode.name(), batchCode);
 		}
-		dialCodeMap = dialCodeGenerator.generate(count, channelId, publisher, batchCode);
-		Response resp = getSuccessResponse();
+		Response resp = null;
+		if (userCount > maxCount) {
+			dialCodeMap = dialCodeGenerator.generate(maxCount, channelId, publisher, batchCode);
+			resp = getPartialSuccessResponse();
+		} else {
+			dialCodeMap = dialCodeGenerator.generate(userCount, channelId, publisher, batchCode);
+			resp = getSuccessResponse();
+		}
+		
 		resp.put(DialCodeEnum.count.name(), dialCodeMap.size());
 		resp.put(DialCodeEnum.batchcode.name(), batchCode);
 		resp.put(DialCodeEnum.publisher.name(), publisher);
@@ -155,7 +163,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	 * java.util.Map)
 	 */
 	@Override
-	public Response listDialCode(String channelId, Map<String, Object> map, String limit) throws Exception {
+	public Response listDialCode(String channelId, Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
@@ -164,7 +172,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 					ResponseCode.CLIENT_ERROR);
 		}
 
-		return searchDialCode(channelId, map, limit);
+		return searchDialCode(channelId, map);
 	}
 
 	/*
@@ -174,21 +182,28 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	 * java.util.Map)
 	 */
 	@Override
-	public Response searchDialCode(String channelId, Map<String, Object> map, String limit) throws Exception {
+	public Response searchDialCode(String channelId, Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
-		int docLimit = defaultLimit;
-		if (StringUtils.isNotBlank(limit)) {
-			docLimit = Integer.parseInt(limit);
-		}
-
-		List<Object> dialCodeList = searchDialCodes(channelId, map, docLimit);
+		int limit = getLimit(map, DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST);
+		List<Object> dialCodeList = searchDialCodes(channelId, map, limit);
 
 		Response resp = getSuccessResponse();
 		resp.put(DialCodeEnum.count.name(), dialCodeList.size());
 		resp.put(DialCodeEnum.dialcodes.name(), dialCodeList);
 		return resp;
+	}
+
+	private int getLimit(Map<String, Object> map, String errCode) {
+		int limit = defaultLimit;
+		map.get("limit");
+		try {
+			limit = (int) map.get("limit");
+		} catch (Exception e) {
+			throw new ClientException(errCode, "Please provide valid limit.");
+		}
+		return limit;
 	}
 
 	/*
@@ -348,6 +363,15 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		resp.setParams(respParam);
 		return resp;
 	}
+	
+	private Response getPartialSuccessResponse() {
+		Response resp = new Response();
+		ResponseParams respParam = new ResponseParams();
+		respParam.setStatus("partial successful");
+		resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
+		resp.setParams(respParam);
+		return resp;
+	}
 
 	/**
 	 * @param publisher
@@ -371,12 +395,12 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		} catch (Exception e) {
 			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_COUNT, DialCodeErrorMessage.ERR_INVALID_COUNT);
 		}
-		Integer maxCount = Platform.config.getInt("dialcode.max_count");
-		if (count != 0 && count <= maxCount) {
-			return count;
-		} else {
+
+		if (count <= 0) {
 			throw new ClientException(DialCodeErrorCodes.ERR_COUNT_VALIDATION_FAILED,
-					DialCodeErrorMessage.ERR_COUNT_VALIDATION_FAILED);
+					"Please give valid count to generate.");
+		} else {
+			return count;
 		}
 	}
 

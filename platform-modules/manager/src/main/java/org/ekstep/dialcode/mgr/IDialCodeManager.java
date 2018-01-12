@@ -24,9 +24,9 @@ public interface IDialCodeManager {
 
 	Response updateDialCode(String dialCodeId, String channelId, Map<String, Object> map) throws Exception;
 
-	Response listDialCode(String channelId, Map<String, Object> map, String docLimit) throws Exception;
+	Response listDialCode(String channelId, Map<String, Object> map) throws Exception;
 
-	Response searchDialCode(String channelId, Map<String, Object> map, String limit) throws Exception;
+	Response searchDialCode(String channelId, Map<String, Object> map) throws Exception;
 
 	Response publishDialCode(String dialCodeId, String channelId) throws Exception;
 	
