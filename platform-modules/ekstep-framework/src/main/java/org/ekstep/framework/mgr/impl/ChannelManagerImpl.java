@@ -5,10 +5,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
-import org.springframework.stereotype.Component;
-
 import org.ekstep.framework.enums.ChannelEnum;
 import org.ekstep.framework.mgr.IChannelManager;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ChannelManagerImpl extends BaseFrameworkManager implements IChannelManager {

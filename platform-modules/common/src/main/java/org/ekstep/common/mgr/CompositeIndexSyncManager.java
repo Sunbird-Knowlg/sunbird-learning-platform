@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.enums.CompositeSearchErrorCodes;
+import org.ekstep.common.enums.CompositeSearchParams;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
@@ -22,8 +24,6 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
-import org.ekstep.common.enums.CompositeSearchErrorCodes;
-import org.ekstep.common.enums.CompositeSearchParams;
 
 /**
  * The Class CompositeIndexSyncManager consists of different operations to

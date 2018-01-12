@@ -7,7 +7,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Response;
+import org.ekstep.taxonomy.mgr.IContentManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,9 +27,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)

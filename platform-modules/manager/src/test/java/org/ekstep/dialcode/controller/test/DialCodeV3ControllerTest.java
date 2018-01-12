@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
-import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.dialcode.mgr.impl.DialCodeManagerImpl;
 import org.ekstep.dialcode.test.common.TestSetupUtil;
 import org.junit.AfterClass;

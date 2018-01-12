@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
@@ -14,7 +15,6 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
 import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.dto.NodeDTO;
 
 public class ConvertGraphNode {
 	

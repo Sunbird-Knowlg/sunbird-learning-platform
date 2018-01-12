@@ -3,7 +3,6 @@ package org.ekstep.graph.engine.exporttest;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.IOUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.common.enums.GraphEngineParams;

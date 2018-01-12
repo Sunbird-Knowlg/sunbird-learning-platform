@@ -5,10 +5,11 @@ import java.io.IOException;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
 import com.datastax.driver.core.Session;
-import org.ekstep.cassandra.connector.util.CassandraConnector;
 
 /**
  * @author gauraw

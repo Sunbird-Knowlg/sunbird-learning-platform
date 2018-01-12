@@ -6,14 +6,12 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.handler.Level;
-import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
-
 import org.ekstep.assessment.enums.AssessmentItemType;
 import org.ekstep.assessment.enums.QuestionnaireType;
 import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.stereotype.Component;
 
 @Component
 public class AssessmentValidator extends BaseManager {

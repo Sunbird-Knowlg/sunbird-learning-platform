@@ -3,13 +3,13 @@ package org.ekstep.content.util;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.mgr.BaseManager;
 
 /*
  * This is the only class which is using Base Manager From Top Level in hierarchy. 

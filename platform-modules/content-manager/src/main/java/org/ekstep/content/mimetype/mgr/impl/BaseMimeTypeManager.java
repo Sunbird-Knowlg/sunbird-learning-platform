@@ -24,8 +24,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.slugs.Slug;
@@ -57,9 +59,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import org.ekstep.common.dto.NodeDTO;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 public class BaseMimeTypeManager extends BaseLearningManager {
 

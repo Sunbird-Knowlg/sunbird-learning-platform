@@ -3,6 +3,9 @@ package org.ekstep.framework.controller.test;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
+import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
+import org.ekstep.framework.test.common.TestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,9 +26,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
-import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
-import org.ekstep.framework.test.common.TestSetup;
 
 /**
  * Mock Test Cases for Framework API

@@ -12,13 +12,12 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.framework.enums.TermEnum;
+import org.ekstep.framework.mgr.ITermManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.springframework.stereotype.Component;
-
-import org.ekstep.framework.enums.TermEnum;
-import org.ekstep.framework.mgr.ITermManager;
 
 /**
  * @author pradyumna

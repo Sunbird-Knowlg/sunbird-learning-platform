@@ -19,7 +19,6 @@ import org.ekstep.language.common.LanguageCommonTestHelper;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;

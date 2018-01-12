@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.ekstep.graph.dac.model.Traverser;
+import org.ekstep.orchestrator.interpreter.ICommand;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.traversal.Uniqueness;
-
-import org.ekstep.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;

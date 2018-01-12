@@ -5,10 +5,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
-import org.springframework.stereotype.Component;
-
 import org.ekstep.framework.enums.CategoryEnum;
 import org.ekstep.framework.mgr.ICategoryManager;
+import org.springframework.stereotype.Component;
 
 /**
  * This is the entry point for all CRUD operations related to category API.

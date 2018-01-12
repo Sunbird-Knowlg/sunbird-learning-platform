@@ -3,6 +3,7 @@ package org.ekstep.search.actor;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -14,7 +15,6 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;

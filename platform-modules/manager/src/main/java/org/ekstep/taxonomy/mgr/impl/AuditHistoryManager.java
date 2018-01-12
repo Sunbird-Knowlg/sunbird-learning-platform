@@ -7,12 +7,11 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.dac.dto.AuditHistoryRecord;
 import org.ekstep.dac.enums.CommonDACParams;
 import org.ekstep.dac.impl.IAuditHistoryEsService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import org.ekstep.taxonomy.enums.AuditLogErrorCodes;
 import org.ekstep.taxonomy.mgr.IAuditHistoryManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 
 /**

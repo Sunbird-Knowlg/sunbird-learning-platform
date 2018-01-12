@@ -9,6 +9,8 @@ import java.util.Random;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.framework.mgr.IChannelManager;
+import org.ekstep.framework.test.common.TestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -21,9 +23,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.framework.test.common.TestSetup;
 
 /**
  * 
