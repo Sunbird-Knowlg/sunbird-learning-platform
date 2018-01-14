@@ -5,8 +5,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.imgscalr.Scalr;
 
 /**
@@ -72,7 +71,7 @@ public class ThumbnailGenerator {
      */
     public static boolean generate(String inFile) {
         if (inFile == null) {
-            PlatformLogger.log("Input for thumbnail generation is null");
+            TelemetryManager.log("Input for thumbnail generation is null");
             return false;
         }
 
@@ -81,7 +80,7 @@ public class ThumbnailGenerator {
             boolean success = generate(file);
             return success;
         } catch (Exception ex) {
-            PlatformLogger.log("Failed to generate thumbnail for " + inFile, ex.getMessage(), Level.ERROR.name());
+            TelemetryManager.error("Failed to generate thumbnail for " + inFile+ " :: Error message:" + ex.getMessage());
             return false;
         }
     }
@@ -96,7 +95,7 @@ public class ThumbnailGenerator {
      */
     public static boolean generate(File inFile) {
         if (inFile == null) {
-            PlatformLogger.log("Input for thumbnail generation is null");
+            TelemetryManager.log("Input for thumbnail generation is null");
             return false;
         }
 
@@ -106,7 +105,7 @@ public class ThumbnailGenerator {
             boolean success = generate(inFile, outFile);
             return success;
         } catch (Exception ex) {
-            PlatformLogger.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),Level.ERROR.name());
+            TelemetryManager.log("Failed to generate thumbnail for " + inFile.getName() + " :: Error message: "+ ex.getMessage());
             return false;
         }
     }
@@ -126,7 +125,7 @@ public class ThumbnailGenerator {
         boolean done = false;
         
         if ((inFile == null) || (outFile == null)) {
-            PlatformLogger.log("Input for thumbnail generation is null");
+            TelemetryManager.log("Input for thumbnail generation is null");
             done = false;
         } else {
             try {
@@ -146,7 +145,7 @@ public class ThumbnailGenerator {
                     done = false;
                 }
             } catch (Exception ex) {
-                PlatformLogger.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),Level.ERROR.name());
+                TelemetryManager.log("Failed to generate thumbnail for " + inFile.getName() + " Error message: " + ex.getMessage());
                 done = false;
             }
         }

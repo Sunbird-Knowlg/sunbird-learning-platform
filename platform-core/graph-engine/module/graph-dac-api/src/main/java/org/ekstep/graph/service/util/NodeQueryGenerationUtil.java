@@ -14,7 +14,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
 public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
@@ -74,7 +74,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -118,7 +118,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			templateParamValueMap.putAll((Map<String, Object>) ocsMap.get(GraphDACParams.paramValueMap.name()));
 			templateParamValueMap.putAll((Map<String, Object>) omsMap.get(GraphDACParams.paramValueMap.name()));
 			
-			PlatformLogger.log("Returning Upsert Node Cypher Query: " + templateQuery);
+			TelemetryManager.log("Returning Upsert Node Cypher Query: " + templateQuery);
 
 			templateQueryMap.put(GraphDACParams.query.name(), templateQuery.toString());
 			templateQueryMap.put(GraphDACParams.paramValueMap.name(), templateParamValueMap);
@@ -128,7 +128,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			parameterMap.put(GraphDACParams.queryStatementMap.name(), queryMap);
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -170,7 +170,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE).append("ee");
 			templateParamValueMap.putAll((Map<String, Object>) omsMap.get(GraphDACParams.paramValueMap.name()));
 			
-			PlatformLogger.log("Returning Update Node Cypher Query: " + templateQuery);
+			TelemetryManager.log("Returning Update Node Cypher Query: " + templateQuery);
 
 			templateQueryMap.put(GraphDACParams.query.name(), templateQuery.toString());
 			templateQueryMap.put(GraphDACParams.paramValueMap.name(), templateParamValueMap);
@@ -266,7 +266,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			parameterMap.put(GraphDACParams.queryStatementMap.name(), queryMap);
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -297,7 +297,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -342,7 +342,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -351,7 +351,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
+			TelemetryManager.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -385,7 +385,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -429,7 +429,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -472,7 +472,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -495,7 +495,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 					+ "'}) DETACH DELETE a");
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 

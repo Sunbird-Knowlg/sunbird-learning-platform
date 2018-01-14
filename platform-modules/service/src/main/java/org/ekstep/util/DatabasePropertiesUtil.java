@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class DatabasePropertiesUtil {
 	private static Properties prop = new Properties();
@@ -16,12 +16,12 @@ public class DatabasePropertiesUtil {
 		input = DatabasePropertiesUtil.class.getClassLoader().getResourceAsStream(
 				filename);
 		if (input == null) {
-			PlatformLogger.log("Unable to find " + filename);
+			TelemetryManager.log("Unable to find " + filename);
 		}
 		try {
 			prop.load(input);
 		} catch (IOException e) {
-			PlatformLogger.log("Exception",e.getMessage(), e);
+			TelemetryManager.error("Exception: "+e.getMessage(), e);
 		}
 	}
 	

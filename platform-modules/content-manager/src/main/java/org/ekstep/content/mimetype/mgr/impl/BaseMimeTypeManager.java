@@ -24,8 +24,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.slugs.Slug;
@@ -53,13 +55,10 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.BaseLearningManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import org.ekstep.common.dto.NodeDTO;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 public class BaseMimeTypeManager extends BaseLearningManager {
 
@@ -200,7 +199,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		boolean isValidPackage = false;
 		try {
 			if (file.exists()) {
-				PlatformLogger.log("Validating File For Folder Structure: " + file.getName());
+				TelemetryManager.log("Validating File For Folder Structure: " + file.getName());
 				if (StringUtils.isBlank(checkFile)) {
 					isValidPackage = true;
 				} else {
@@ -320,7 +319,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				PlatformLogger.log("Error: While getting the file size from AWS", key, e);
+				TelemetryManager.error("Error: While getting the file size from AWS: " + key, e);
 			}
 		}
 		return bytes;
@@ -447,7 +446,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		try {
 			bytes = getFileSize(file) / 1024;
 		} catch (IOException e) {
-			PlatformLogger.log("Error: While Calculating the file size.",file.getName(), e);
+			TelemetryManager.error("Error: While Calculating the file size: "+file.getName(), e);
 		}
 		return bytes;
 	}
@@ -562,7 +561,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 	
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
-			PlatformLogger.log("Creating Zip File: ", zipFileName);
+			TelemetryManager.log("Creating Zip File: " + zipFileName);
 			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
 			appZip.generateFileList(new File(basePath));
 			appZip.zipIt(zipFileName);

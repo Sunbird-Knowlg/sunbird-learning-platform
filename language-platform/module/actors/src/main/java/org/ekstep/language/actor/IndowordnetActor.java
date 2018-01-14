@@ -6,7 +6,7 @@ import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.IndowordnetUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 
@@ -29,7 +29,7 @@ public class IndowordnetActor extends LanguageBaseActor {
      */
     @Override
     public void onReceive(Object msg) throws Exception {
-        PlatformLogger.log("Received Command: " + msg);
+        TelemetryManager.log("Received Command: " + msg);
         if (msg instanceof Request) {
             Request request = (Request) msg;
             String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
@@ -50,8 +50,24 @@ public class IndowordnetActor extends LanguageBaseActor {
                 	}
                 	util.loadWords(languageId, batchSize, maxRecords, offset);
                 	OK(getSender());
-                }else {
-                    PlatformLogger.log("Unsupported operation: " + operation);
+				} else if (StringUtils.equalsIgnoreCase(LanguageOperations.importIndowordnetTranslations.name(),
+						operation)) {
+                	int batchSize = 1000;
+                	int maxRecords = 50000;
+                	int offset = 0;
+                	if(request.get(LanguageParams.batch_size.name()) != null){
+                		batchSize = (int) request.get(LanguageParams.batch_size.name());
+                	}
+                	if(request.get(LanguageParams.max_records.name()) != null){
+                		maxRecords = (int) request.get(LanguageParams.max_records.name());
+                	}
+                	if(request.get(LanguageParams.offset.name()) != null){
+                		offset = (int) request.get(LanguageParams.offset.name());
+                	}
+					util.loadTranslations(languageId, batchSize, maxRecords, offset);
+                	OK(getSender());
+				} else {
+                    TelemetryManager.log("Unsupported operation: " + operation);
                     unhandled(msg);
                 }
             } catch(Exception e) {
@@ -59,7 +75,7 @@ public class IndowordnetActor extends LanguageBaseActor {
                 handleException(e, getSender());
             }
         } else {
-            PlatformLogger.log("Unsupported operation!");
+            TelemetryManager.log("Unsupported operation!");
             unhandled(msg);
         }
         

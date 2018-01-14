@@ -8,8 +8,8 @@ import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.telemetry.logger.TelemetryLogger;
+import org.ekstep.telemetry.TelemetryParams;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,8 +37,9 @@ public class TelemetryAccessEventUtil {
 			}
 
 			Map<String, String> context = new HashMap<String, String>();
-			context.put("env", (String) data.get("env"));
-			context.put("channel", (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
+			context.put(TelemetryParams.ENV.name(), (String) data.get("env"));
+			ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ENV.name(), (String) data.get("env"));
+			context.put(TelemetryParams.CHANNEL.name(), (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
 			if (null != data.get("X-Session-ID")) {
 				context.put("sid", (String) data.get("X-Session-ID"));
 			} else if (null != request && null != request.getParams()) {
@@ -47,10 +48,14 @@ public class TelemetryAccessEventUtil {
 				}
 			}
 			if (null != data.get("X-Consumer-ID")) {
-				context.put("cid", (String) data.get("X-Consumer-ID"));
+				String consumerId = (String) data.get("X-Consumer-ID");
+				context.put(TelemetryParams.ACTOR.name(), consumerId);
+				ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ACTOR.name(), consumerId);
 			} else if (null != request && null != request.getParams()) {
 				if (null != request.getParams().getCid()) {
-					context.put("cid", request.getParams().getCid());
+					String consumerId = request.getParams().getCid();
+					context.put(TelemetryParams.ACTOR.name(), consumerId);
+					ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ACTOR.name(), consumerId);
 				}
 			}
 			if (null != data.get("X-Device-ID")) {
@@ -67,8 +72,7 @@ public class TelemetryAccessEventUtil {
 					context.put("uid", request.getParams().getUid());
 				}
 			}
-
-			TelemetryLogger.access(params, context);
+			TelemetryManager.access(context, params);
 		}
 
 	}
@@ -125,7 +129,7 @@ public class TelemetryAccessEventUtil {
 			data.put("X-Authenticated-Userid", requestWrapper.getHeader("X-Authenticated-Userid"));
 			writeTelemetryEventLog(data);
 		} catch (IOException e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 
 		}
 

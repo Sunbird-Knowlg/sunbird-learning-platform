@@ -1,7 +1,6 @@
 package org.ekstep.searchindex.elasticsearch;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +13,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.searchindex.transformer.IESResultTransformer;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -66,37 +65,53 @@ public class ElasticSearchUtil {
 	public void setOffset(int offset) {
 		this.offset = offset;
 	}
-	public ElasticSearchUtil(int resultSize) throws UnknownHostException {
+	public ElasticSearchUtil(int resultSize) {
 		super();
 		initialize();
 		if (resultSize < defaultResultLimit) {
 			this.resultLimit = resultSize;
 		}
-		JestClientFactory factory = new JestClientFactory();
-		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true)
-				.connTimeout(CONNECTION_TIMEOUT).maxConnectionIdleTime(MAX_IDLE_CONNECTION_TIME_LIMIT, TimeUnit.SECONDS)
-				.maxTotalConnection(MAX_TOTAL_CONNECTION_LIMIT).build());
-		client = factory.getObject();
-
+		createClient();
 	}
 
 	public ElasticSearchUtil() {
 		super();
 		initialize();
+		createClient();
+	}
+	
+	public ElasticSearchUtil(String host, int port) {
+		super();
+		initialize(host, port);
+		createClient();
+	}
+
+	
+	private void createClient() {
 		JestClientFactory factory = new JestClientFactory();
 		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true)
-				.connTimeout(CONNECTION_TIMEOUT).build());
+				.connTimeout(CONNECTION_TIMEOUT).maxConnectionIdleTime(MAX_IDLE_CONNECTION_TIME_LIMIT, TimeUnit.SECONDS)
+				.maxTotalConnection(MAX_TOTAL_CONNECTION_LIMIT).build());
 		client = factory.getObject();
 	}
 
-
-	public void initialize() {
+	private void initialize() {
 		hostName = Platform.config.getString("elastic-search-host");
 		port = Platform.config.getInt("elastic-search-port");
 		if(Platform.config.hasPath("bulk-load-batch-size"))
 			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
 		if(Platform.config.hasPath("connection-timeout"))
 			CONNECTION_TIMEOUT = Platform.config.getInt("connection-timeout");
+	}
+	
+	private void initialize(String host, int port) {
+		this.hostName = host;
+		this.port = port;
+		if(Platform.config.hasPath("bulk-load-batch-size"))
+			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
+		if(Platform.config.hasPath("connection-timeout"))
+			CONNECTION_TIMEOUT = Platform.config.getInt("connection-timeout");
+		
 	}
 	
 	public void finalize() {
@@ -122,16 +137,11 @@ public class ElasticSearchUtil {
 		return timeZoneProperty;
 	}
 
-	@SuppressWarnings("unused")
-	private JestClient createClient() {
-		return client;
-	}
-
 	public void addDocumentWithId(String indexName, String documentType, String documentId, String document)
 			throws IOException {
 		Index index = new Index.Builder(document).index(indexName).type(documentType).id(documentId).build();
 		client.execute(index);
-		PlatformLogger.log("Added " + documentId + " to index " + indexName);
+		TelemetryManager.log("Added " + documentId + " to index " + indexName);
 	}
 
 	public void addIndex(String indexName, String documentType, String settings, String mappings) throws IOException {
@@ -389,8 +399,8 @@ public class ElasticSearchUtil {
 
 	@SuppressWarnings("unused")
 	public SearchResult search(String IndexName, String query) throws IOException {
-		PlatformLogger.log("searching in ES index: "+ IndexName);
-		PlatformLogger.log("getting query to search from ES" , query);
+		TelemetryManager.log("searching in ES index: "+ IndexName);
+		TelemetryManager.log("getting query to search from ES" + query);
 		Search search = new Search.Builder(query).addIndex(IndexName).setParameter("size", resultLimit).setParameter("from", offset).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
@@ -399,7 +409,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		PlatformLogger.log("search result" + result);
+		TelemetryManager.log("search result" + result);
 		return result;
 	}
 

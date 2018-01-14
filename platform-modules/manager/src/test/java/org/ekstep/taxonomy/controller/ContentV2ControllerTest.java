@@ -12,7 +12,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -132,7 +132,7 @@ public class ContentV2ControllerTest {
 		String url = "";
 		try {
 			if (null == file) {
-				PlatformLogger.log("Error! Upload File Package Cannot be 'null'.");
+				TelemetryManager.log("Error! Upload File Package Cannot be 'null'.");
 			} else {
 				String folder = S3PropertyReader.getProperty(s3Content);
             	folder = folder + "/" + identifier + "/" + S3PropertyReader.getProperty(s3Artifact);
@@ -141,7 +141,7 @@ public class ContentV2ControllerTest {
 					url = result[1];
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Upload File Package Cannot be 'null'.", e.getMessage(), e);
+			TelemetryManager.error("Error! Upload File Package Cannot be 'null'."+ e.getMessage(), e);
 		}
 		return url;
 	}

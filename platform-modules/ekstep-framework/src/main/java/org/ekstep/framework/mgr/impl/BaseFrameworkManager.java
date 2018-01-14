@@ -15,8 +15,11 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.slugs.Slug;
-
+import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
@@ -26,11 +29,7 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.mgr.BaseManager;
-import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.framework.enums.FrameworkEnum;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * @author pradyumna
@@ -161,13 +160,12 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 */
 	private Response createDataNode(Node node) {
-		PlatformLogger.log("Node :", node);
 		Response response = new Response();
 		if (null != node) {
 			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
 			request.put(GraphDACParams.node.name(), node);
 
-			PlatformLogger.log("Creating the Node ID: " + node.getIdentifier());
+			TelemetryManager.log("Creating the Node ID: " + node.getIdentifier());
 			response = getResponse(request);
 		}
 		return response;
@@ -212,21 +210,20 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 */
 	private Response updateDataNode(Node node) {
-		PlatformLogger.log("[updateNode] | Node: ", node);
 		Response response = new Response();
 		if (null != node) {
 			String channelId = node.getIdentifier();
 
-			PlatformLogger.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
+			TelemetryManager.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
 			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
-			PlatformLogger.log("Updating the Node ID: " + node.getIdentifier());
+			TelemetryManager.log("Updating the Node ID: " + node.getIdentifier());
 			response = getResponse(updateReq);
 
 			response.put(FrameworkEnum.node_id.name(), channelId);
-			PlatformLogger.log("Returning Node Update Response.");
+			TelemetryManager.log("Returning Node Update Response.");
 		}
 		return response;
 	}

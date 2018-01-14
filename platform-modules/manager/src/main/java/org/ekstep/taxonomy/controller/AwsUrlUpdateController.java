@@ -1,7 +1,10 @@
 package org.ekstep.taxonomy.controller;
 
 
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.mgr.IAwsUrlUpdateManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,10 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.common.mgr.IAwsUrlUpdateManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * The Class AwsUrlUpdateController, is the main entry point for 
@@ -56,8 +55,8 @@ public class AwsUrlUpdateController extends BaseController {
 			@PathVariable(value = "objectType") String objectType,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.aws.urls.update";
-		PlatformLogger.log("API to update AWS urls");
-		PlatformLogger.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
+		TelemetryManager.log("API to update AWS urls");
+		TelemetryManager.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
 		try {
 			Response response = awsUrlUpdateManager.updateNodesWithUrl(objectType, graphId, apiId);
 			return getResponseEntity(response, apiId, null);
@@ -87,7 +86,7 @@ public class AwsUrlUpdateController extends BaseController {
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.aws.urls.update";
-		PlatformLogger.log(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
+		TelemetryManager.log(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
 		try {
 			Response response = awsUrlUpdateManager.updateNodesWithIdentifiers(
 					graphId, identifiers, apiId);

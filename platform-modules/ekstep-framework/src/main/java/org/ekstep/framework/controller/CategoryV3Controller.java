@@ -2,8 +2,11 @@ package org.ekstep.framework.controller;
 
 import java.util.Map;
 
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.mgr.ICategoryManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,10 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.framework.mgr.ICategoryManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * This is the entry point for all CRUD operations related to category API.
@@ -46,7 +45,7 @@ private ICategoryManager categoryManager;
 			Response response = categoryManager.createCategory(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Create category", e.getMessage(), e);
+			TelemetryManager.error("Create category: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -64,7 +63,7 @@ private ICategoryManager categoryManager;
 			Response response = categoryManager.readCategory(categoryId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Read category", e.getMessage(), e);
+			TelemetryManager.error("Read category: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -87,7 +86,7 @@ private ICategoryManager categoryManager;
 			Response response = categoryManager.updateCategory(categoryId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Update category", e.getMessage(), e);
+			TelemetryManager.error("Update category: "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -107,10 +106,10 @@ private ICategoryManager categoryManager;
 			Request request = getRequest(requestMap);
 			Map<String, Object> map = (Map<String, Object>) request.get("search");
 			Response response = categoryManager.searchCategory(map);
-			PlatformLogger.log("search category | Response: " + response);
+			TelemetryManager.log("search category | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("search category | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("search category | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -126,10 +125,10 @@ private ICategoryManager categoryManager;
 		String apiId = "ekstep.learning.category.retire";
 		try {
 			Response response = categoryManager.retireCategory(categoryId);
-			PlatformLogger.log("retire category | Response: " + response);
+			TelemetryManager.log("retire category | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("retire category | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("retire category | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

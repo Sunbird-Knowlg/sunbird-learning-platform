@@ -14,7 +14,7 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -25,9 +25,16 @@ import net.sf.json.util.JSONStringer;
 
 public class SearchProcessor {
 
-	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+	private ElasticSearchUtil elasticSearchUtil = null;
 	private ObjectMapper mapper = new ObjectMapper();
 	
+	public SearchProcessor() {
+		elasticSearchUtil = new ElasticSearchUtil();
+	}
+	
+	public SearchProcessor(String host, int port) {
+		elasticSearchUtil = new ElasticSearchUtil(host, port);
+	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
@@ -45,7 +52,6 @@ public class SearchProcessor {
 				response.put("results", results);
 			}
 		}
-		PlatformLogger.log(response.toString());
 		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
 				.getValue("aggregations");
 		if (aggregations != null && !aggregations.isEmpty()) {
@@ -864,17 +870,23 @@ public class SearchProcessor {
 		builder.key("lenient").value(true).endObject();
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index)
+			throws Exception {
+		return processSearchQuery(searchDTO, includeResults, index, true);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index, boolean sort)
 			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		List<Object> response = new ArrayList<Object>();
 		Map<String, Object> res_map = new HashMap<String, Object>();
-		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
-		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		PlatformLogger.log(" search query: " + query);
+		if (searchDTO.getLimit() == 0)
+			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
+		String query = processSearchQuery(searchDTO, groupByFinalList, sort);
+		TelemetryManager.log(" search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
-		PlatformLogger.log("search result from elastic search" + searchResult);
+		TelemetryManager.log("search result from elastic search" + searchResult);
 		Map<String, Object> result_map = (Map) searchResult.getValue("hits");
 		List<Map<String, Object>> result = (List) result_map.get("hits");
 		for (Map<String, Object> map : result) {
@@ -886,7 +898,7 @@ public class SearchProcessor {
 
 			}
 		}
-		PlatformLogger.log("search response size: " + response.size());
+		TelemetryManager.log("search response size: " + response.size());
 		return response;
 	}
 
@@ -904,7 +916,7 @@ public class SearchProcessor {
 			object = Arrays.asList();
 		}
 		}catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 		}
 		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object()
 				.key("query").array();

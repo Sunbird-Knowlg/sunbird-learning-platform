@@ -11,7 +11,7 @@ import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.contentstore.util.ContentStoreUtil;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 
@@ -29,7 +29,7 @@ public class ContentStoreActor extends BaseGraphManager {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		PlatformLogger.log("Received Command: " + msg);
+		TelemetryManager.log("Received Command: " + msg);
 		try {
 			Request request = (Request) msg;
 			String operation = request.getOperation();
@@ -64,13 +64,13 @@ public class ContentStoreActor extends BaseGraphManager {
 				ContentStoreUtil.updateContentProperties(contentId, map);
 				OK(sender());
 			} else {
-				PlatformLogger.log("Unsupported operation: " + operation);
+				TelemetryManager.log("Unsupported operation: " + operation);
 				throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
-			PlatformLogger.log("Error in ContentStoreActor", e.getMessage(), e);
+			TelemetryManager.error("Error in ContentStoreActor: "+ e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}

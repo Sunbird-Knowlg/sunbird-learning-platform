@@ -1,5 +1,6 @@
 package org.ekstep.dialcode.mgr;
 
+import java.util.List;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
@@ -25,5 +26,16 @@ public interface IDialCodeManager {
 
 	Response listDialCode(String channelId, Map<String, Object> map) throws Exception;
 
+	Response searchDialCode(String channelId, Map<String, Object> map) throws Exception;
+
 	Response publishDialCode(String dialCodeId, String channelId) throws Exception;
+	
+	Response createPublisher(Map<String, Object> map, String channelId) throws Exception;
+
+    Response readPublisher(String publisherId) throws Exception;
+
+    Response updatePublisher(String publisherId, String channelId, Map<String, Object> map) throws Exception;
+
+	Response syncDialCode(String channelId, Map<String, Object> map, List<String> identifiers);
+
 }

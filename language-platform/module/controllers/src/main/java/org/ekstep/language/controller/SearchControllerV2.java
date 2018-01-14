@@ -2,11 +2,12 @@ package org.ekstep.language.controller;
 
 import java.util.Map;
 
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
 
 /**
  * The Class SearchControllerV2, is entry point for search operation
@@ -57,11 +56,11 @@ public class SearchControllerV2 extends BaseController {
 		Request request = getRequest(map);
 		try {
 			Response response = dictionaryManager.list(languageId, LanguageObjectTypes.Word.name(), request, version);
-			PlatformLogger.log("Search | Response: " + response);
+			TelemetryManager.log("Search | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("Search | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Search | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

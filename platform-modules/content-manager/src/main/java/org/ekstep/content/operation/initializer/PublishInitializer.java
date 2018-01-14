@@ -15,7 +15,7 @@ import org.ekstep.content.pipeline.finalizer.FinalizePipeline;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -71,7 +71,7 @@ public class PublishInitializer extends BaseInitializer {
 	public Response initialize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 
-		PlatformLogger.log("Fetching The Parameters From Parameter Map");
+		TelemetryManager.log("Fetching The Parameters From Parameter Map");
 
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Boolean ecmlContent = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
@@ -87,7 +87,7 @@ public class PublishInitializer extends BaseInitializer {
 
 			// Get ECRF Object 
 			Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
-			PlatformLogger.log("ECRF Object Created.");
+			TelemetryManager.log("ECRF Object Created.");
 
 			if (isCompressRequired) {
 				// Get Pipeline Object 
@@ -99,7 +99,7 @@ public class PublishInitializer extends BaseInitializer {
 			}
 
 			// Call Finalyzer 
-			PlatformLogger.log("Calling Finalizer");
+			TelemetryManager.log("Calling Finalizer");
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);

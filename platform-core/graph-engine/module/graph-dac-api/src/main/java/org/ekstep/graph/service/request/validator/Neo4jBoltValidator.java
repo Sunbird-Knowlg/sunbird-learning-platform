@@ -7,7 +7,7 @@ import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.NodeUpdateMode;
 import org.ekstep.graph.service.util.LocalCache;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class Neo4jBoltValidator extends Neo4JBoltDataVersionKeyValidator {
 
@@ -22,7 +22,7 @@ public class Neo4jBoltValidator extends Neo4JBoltDataVersionKeyValidator {
 			return true;
 
 		String versionCheckMode = LocalCache.getDefNodeProperty(graphId, nodeObjType, GraphDACParams.versionCheckMode.name());
-		PlatformLogger.log(
+		TelemetryManager.log(
 				"Version Check Mode in Local Cache: " + versionCheckMode + " for Object Type: " + node.getObjectType());
 
 		if (StringUtils.isNotBlank(versionCheckMode)) {// from Local cache
@@ -41,7 +41,7 @@ public class Neo4jBoltValidator extends Neo4JBoltDataVersionKeyValidator {
 				// Redis or graph
 				// store versionCheckMode in local cache
 				LocalCache.setDefNodeProperty(graphId, nodeObjType, GraphDACParams.versionCheckMode.name(), versionCheckMode);
-				PlatformLogger.log(
+				TelemetryManager.log(
 						"setting Version Check Mode in Local Cache: " + versionCheckMode + " for Object Type: " + node.getObjectType());
 				if (!StringUtils.equalsIgnoreCase(NodeUpdateMode.OFF.name(), versionCheckMode)) {
 					String storedVersionKey = RedisStoreUtil.getNodeProperty(graphId, nodeId,

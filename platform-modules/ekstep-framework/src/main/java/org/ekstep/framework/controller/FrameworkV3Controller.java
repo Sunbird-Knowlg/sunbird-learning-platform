@@ -2,8 +2,11 @@ package org.ekstep.framework.controller;
 
 import java.util.Map;
 
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.mgr.IFrameworkManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,10 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.framework.mgr.IFrameworkManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * Controller Class for Framework API in LP
@@ -48,7 +47,7 @@ public class FrameworkV3Controller extends BaseController{
 			Response response = frameworkManager.createFramework(map, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured while creating framework (Create Framework API): ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while creating framework (Create Framework API): "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -66,7 +65,7 @@ public class FrameworkV3Controller extends BaseController{
 			Response response = frameworkManager.readFramework(frameworkId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured while reading framework details (Read Framework API): ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while reading framework details (Read Framework API): "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -90,7 +89,7 @@ public class FrameworkV3Controller extends BaseController{
 			Response response = frameworkManager.updateFramework(frameworkId,channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured while updating framework (Update Framework API): ", e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while updating framework (Update Framework API): "+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -112,7 +111,7 @@ public class FrameworkV3Controller extends BaseController{
 			return getResponseEntity(response, apiId, null);
 			
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured while Performing List Operation : " , e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while Performing List Operation : " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -133,7 +132,7 @@ public class FrameworkV3Controller extends BaseController{
 			Response response = frameworkManager.retireFramework(frameworkId,channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception Occured while Performing Retire Operation : " , e.getMessage(), e);
+			TelemetryManager.error("Exception Occured while Performing Retire Operation : " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -26,9 +27,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.dto.NodeDTO;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class PublishTask implements Runnable {
 
@@ -56,7 +55,7 @@ public class PublishTask implements Runnable {
 
 	// TODO: add try catch here.
 	private void publishContent(Node node) throws Exception{
-		PlatformLogger.log("Publish processing start for content", node.getIdentifier(), Level.INFO.name());
+		TelemetryManager.info("Publish processing start for content" + node.getIdentifier());
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"), COLLECTION_CONTENT_MIMETYPE)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			if (!nodes.isEmpty()) {
@@ -67,9 +66,9 @@ public class PublishTask implements Runnable {
 			
 		}
 		publishNode(node, (String) node.getMetadata().get("mimeType"));
-		PlatformLogger.log("Publish processing done for content", node.getIdentifier(), Level.INFO.name());
+		TelemetryManager.info("Publish processing done for content: "+ node.getIdentifier());
 		
-		PlatformLogger.log("Content enrichment start for content", node.getIdentifier(), Level.INFO.name());
+		TelemetryManager.info("Content enrichment start for content: " + node.getIdentifier());
 		
 		String nodeId = node.getIdentifier().replace(".img", "");
 		Node publishedNode = util.getNode("domain", nodeId);
@@ -77,7 +76,7 @@ public class PublishTask implements Runnable {
 			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 			publishedNode.getMetadata().put("versionKey", versionKey);
 			processCollection(publishedNode);
-			PlatformLogger.log("Content enrichment done for content", node.getIdentifier(), Level.INFO.name());
+			TelemetryManager.log("Content enrichment done for content: " + node.getIdentifier());
 		}
 	}
 	
@@ -356,7 +355,7 @@ public class PublishTask implements Runnable {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(), ContentErrorMessageConstants.INVALID_CONTENT
 					+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
 		String nodeId = node.getIdentifier().replace(".img", "");
-		PlatformLogger.log("Publish processing start for node", nodeId, Level.INFO.name());
+		TelemetryManager.info("Publish processing start for node: "+ nodeId);
 		try {
 			setContentBody(node, mimeType);
 			this.parameterMap.put(ContentWorkflowPipelineParams.node.name(), node);
@@ -364,7 +363,7 @@ public class PublishTask implements Runnable {
 			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, null), nodeId);
 			pipeline.init(ContentWorkflowPipelineParams.publish.name(), this.parameterMap);
 		} catch (Exception e) {
-			PlatformLogger.log("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: " + nodeId
+			TelemetryManager.error("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: " + nodeId
 					+ "]", e);
 			node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());

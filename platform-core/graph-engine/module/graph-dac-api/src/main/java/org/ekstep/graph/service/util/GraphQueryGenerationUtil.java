@@ -19,7 +19,7 @@ import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.common.RelationshipDirection;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
@@ -48,7 +48,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
-		PlatformLogger.log("Returning Create Unique Constraint Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Unique Constraint Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -71,7 +71,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -86,7 +86,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
+		TelemetryManager.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -134,7 +134,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				if (null == index && StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
 						relationType)) {
 					index = 0;
-					PlatformLogger.log("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
+					TelemetryManager.log("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
 					// Fetch all the Relationships
 					List<Integer> allottedIndices = new ArrayList<Integer>();
 					allottedIndices.add(0);
@@ -152,7 +152,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 							}
 						}
 					}
-					PlatformLogger.log("Allotted Indices So Far: ", allottedIndices);
 					index = Collections.max(allottedIndices) + 1;
 				}
 
@@ -245,7 +244,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, RelationshipDirection.OUTGOING));
 		}
 
-		PlatformLogger.log("'Delete Relation' Cypher Query: " + query);
+		TelemetryManager.log("'Delete Relation' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -289,7 +288,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		PlatformLogger.log("'Create Incoming Relations' Cypher Query: " + query);
+		TelemetryManager.log("'Create Incoming Relations' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -332,7 +331,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						getString(index++), getString(index++), metadata, RelationshipDirection.OUTGOING, null));
 		}
 
-		PlatformLogger.log("'Create Outgoing Relations' Cypher Query: " + query);
+		TelemetryManager.log("'Create Outgoing Relations' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -371,7 +370,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						getString(index++), getString(index++), RelationshipDirection.INCOMING));
 		}
 
-		PlatformLogger.log("'Delete Incoming Relations' Cypher Query: " + query);
+		TelemetryManager.log("'Delete Incoming Relations' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -409,7 +408,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						getString(index++), getString(index++), RelationshipDirection.INCOMING));
 		}
 
-		PlatformLogger.log("'Delete Outgoing Relations' Cypher Query: " + query);
+		TelemetryManager.log("'Delete Outgoing Relations' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -451,7 +450,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, RelationshipDirection.OUTGOING));
 		}
 
-		PlatformLogger.log("Returning 'Create Relation' Cypher Query: " + query);
+		TelemetryManager.log("Returning 'Create Relation' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -529,7 +528,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
-		PlatformLogger.log("Returning 'Create Collection' Cypher Query: " + query);
+		TelemetryManager.log("Returning 'Create Collection' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -552,7 +551,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					+ "'}) DETACH DELETE a");
 		}
 
-		PlatformLogger.log("Returning 'Delete Collection' Cypher Query: " + query);
+		TelemetryManager.log("Returning 'Delete Collection' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -578,7 +577,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			query.append("");
 		}
 
-		PlatformLogger.log("Returning 'Import Data' Cypher Query: " + query);
+		TelemetryManager.log("Returning 'Import Data' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -587,14 +586,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Integer index,
 			Map<String, Object> parameterMap) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", startNodeId);
-		PlatformLogger.log("End Node Id: ", endNodeId);
-		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
-		PlatformLogger.log("Relationship Direction: ", direction.name());
-		PlatformLogger.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -645,7 +636,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				parameterMap.put(GraphDACParams.paramValueMap.name(), mpm);
 			}
 			parameterMap.put(GraphDACParams.query.name(), query.toString());
-			PlatformLogger.log("Returning 'Create Relation' Cypher Query: " + query);
+			TelemetryManager.log("Returning 'Create Relation' Cypher Query: " + query);
 		}
 		return "";
 	}
@@ -653,14 +644,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getCreateRelationCypherQueryForCollection(String graphId, String startNodeId,
 			String endNodeId, String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Integer index) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", startNodeId);
-		PlatformLogger.log("End Node Id: ", endNodeId);
-		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
-		PlatformLogger.log("Relationship Direction: ", direction.name());
-		PlatformLogger.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -704,14 +687,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getUpdateRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Map<String, Object> parameterMap) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", startNodeId);
-		PlatformLogger.log("End Node Id: ", endNodeId);
-		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
-		PlatformLogger.log("Relationship Direction: ", direction.name());
-		PlatformLogger.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -741,7 +716,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						metadataQueryMap.get(GraphDACParams.paramValueMap.name()));
 			}
 			parameterMap.put(GraphDACParams.query.name(), query.toString());
-			PlatformLogger.log("'Update Relation' Cypher Query: " + query);
+			TelemetryManager.log("'Update Relation' Cypher Query: " + query);
 		}
 		return "";
 	}
@@ -749,13 +724,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getDeleteRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			RelationshipDirection direction) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", startNodeId);
-		PlatformLogger.log("End Node Id: ", endNodeId);
-		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
-		PlatformLogger.log("Relationship Direction: ", direction.name());
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -780,14 +748,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getRemoveRelationMetadataCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String key, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			RelationshipDirection direction) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", startNodeId);
-		PlatformLogger.log("End Node Id: ", endNodeId);
-		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("Relation Property Key: ", key);
-		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
-		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
-		PlatformLogger.log("Relationship Direction: ", direction.name());
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -815,9 +775,9 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 		List<Relationship> relationships = new ArrayList<Relationship>();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId)) {
 			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-			PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+			TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 			try (Session session = driver.session()) {
-				PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+				TelemetryManager.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
 				StatementResult result = session
 						.run(generateGetAllRelationsCypherQuery(graphId, startNodeId, direction));

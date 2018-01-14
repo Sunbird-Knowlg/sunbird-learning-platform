@@ -130,7 +130,7 @@
 				"objectTypes": [
 					"CategoryInstance"
 				],
-				"title": "category_instance",
+				"title": "categories",
 				"description": "category instance associated with this channel",
 				"required": false,
 				"renderingHints": "{ 'order': 26 }"

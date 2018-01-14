@@ -13,6 +13,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Request;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.util.UnzipUtility;
@@ -27,8 +28,7 @@ import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 
@@ -62,7 +62,7 @@ public class IndexesActor extends LanguageBaseActor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		PlatformLogger.log("Received Command: " , msg);
+		TelemetryManager.log("Received Command: " + msg);
 		Request request = (Request) msg;
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
@@ -95,7 +95,7 @@ public class IndexesActor extends LanguageBaseActor {
 						try {
 							delete(zipFileDirectory);
 						} catch (IOException e) {
-							PlatformLogger.log("Exception",e.getMessage(), e);
+							TelemetryManager.error("Exception"+e.getMessage(), e);
 							e.printStackTrace();
 						}
 					}
@@ -185,12 +185,12 @@ public class IndexesActor extends LanguageBaseActor {
 						? request.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 				getWordInfo(words, languageId, limit);
 			} else {
-				PlatformLogger.log("Unsupported operation: " + operation);
+				TelemetryManager.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List | Exception: " + e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}
@@ -215,7 +215,7 @@ public class IndexesActor extends LanguageBaseActor {
 			if (elasticSearchUtil.isIndexExists(wordInfoIndexName))
 				elasticSearchUtil.deleteIndex(wordInfoIndexName);
 		} catch (Exception e) {
-			PlatformLogger.log("IndexesActor, dropIndex | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("IndexesActor, dropIndex | Exception: " + e.getMessage(), e);
 		}
 
 	}

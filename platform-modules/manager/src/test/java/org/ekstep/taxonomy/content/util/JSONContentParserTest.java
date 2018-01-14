@@ -7,11 +7,10 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.JSONContentParser;
+import org.ekstep.taxonomy.content.common.BaseTestUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import org.ekstep.taxonomy.content.common.BaseTestUtil;
 
 public class JSONContentParserTest {
 	

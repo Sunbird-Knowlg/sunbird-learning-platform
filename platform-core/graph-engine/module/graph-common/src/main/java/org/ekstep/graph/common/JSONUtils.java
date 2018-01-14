@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -22,7 +22,7 @@ public class JSONUtils {
 					List<Object> list = mapper.readValue(value, List.class);
 					return list;
 				} catch (Exception ex) {
-					PlatformLogger.log("Something Went Wrong While Converting JSON String ('" + value + "') to JSON Object.", null, e);
+					TelemetryManager.error("Something Went Wrong While Converting JSON String ('" + value + "') to JSON Object.", e);
 				}
 			}
 		}

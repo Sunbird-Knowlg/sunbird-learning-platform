@@ -3,6 +3,7 @@ package org.ekstep.taxonomy.controller;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
@@ -10,7 +11,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import org.ekstep.common.controller.BaseController;
 
 @Controller
 @RequestMapping("/media")
@@ -33,7 +32,7 @@ public class MediaController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> upload(@RequestParam(value = "file", required = true) MultipartFile file) {
         String apiId = "media.upload";
-        PlatformLogger.log("Upload | File: " + file);
+        TelemetryManager.log("Upload | File: " + file);
         try {
             String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
                     + FilenameUtils.getExtension(file.getOriginalFilename());
@@ -55,10 +54,9 @@ public class MediaController extends BaseController {
             params.setStatus(StatusType.successful.name());
             params.setErrmsg("Operation successful");
             response.setParams(params);
-            PlatformLogger.log("Upload | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
+            TelemetryManager.error("Upload | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

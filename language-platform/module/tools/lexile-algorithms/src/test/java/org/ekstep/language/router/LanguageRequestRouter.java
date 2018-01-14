@@ -10,13 +10,12 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.actor.LexileMeasuresActor;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.router.RequestRouterPool;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -86,7 +85,7 @@ public class LanguageRequestRouter extends UntypedActor {
                 parent.tell(arg0, getSelf());
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
-                PlatformLogger.log(
+                TelemetryManager.log(
                         request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
             }
         }, getContext().dispatcher());
@@ -100,7 +99,7 @@ public class LanguageRequestRouter extends UntypedActor {
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), Level.WARN.name());
+        TelemetryManager.warn(request.getManagerName() + "," + request.getOperation() + " message: " + e.getMessage());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

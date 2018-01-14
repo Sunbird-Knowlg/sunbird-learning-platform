@@ -14,7 +14,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class MissingAssetValidatorProcessor.
@@ -78,7 +78,7 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 			if (null != manifest) {
 				List<Media> medias = manifest.getMedias();
 				List<String> mediaIds = new ArrayList<String>();
-				PlatformLogger.log("Validating Assets.");
+				TelemetryManager.log("Validating Assets.");
 				for (Media media : medias) {
 					if (mediaIds.contains(getMediaId(media)))
 						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_ASSET_ID.name(),

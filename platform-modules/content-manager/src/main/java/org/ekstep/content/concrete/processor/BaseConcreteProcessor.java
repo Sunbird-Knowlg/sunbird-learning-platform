@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.entity.Controller;
 import org.ekstep.content.entity.Media;
@@ -28,9 +29,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class BaseConcreteProcessor provides the common utility methods for all
@@ -367,7 +366,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
-			PlatformLogger.log("Validating the Base Path: " , path);
+			TelemetryManager.log("Validating the Base Path: " + path);
 			isValid = isPathExist(Paths.get(path));
 		} catch (InvalidPathException | NullPointerException e) {
 			isValid = false;
@@ -386,15 +385,15 @@ public class BaseConcreteProcessor extends BaseManager {
 		boolean exist = true;
 		try {
 			if (null != path) {
-				PlatformLogger.log("Creating the Base Path: " + path.getFileName());
+				TelemetryManager.log("Creating the Base Path: " + path.getFileName());
 				if (!Files.exists(path))
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			PlatformLogger.log("Base Path Already Exist: " , path.getFileName(), e, Level.WARN.name());
+			TelemetryManager.error("Base Path Already Exist: " + path.getFileName(), e);
 		} catch (Exception e) {
 			exist = false;
-			PlatformLogger.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
+			TelemetryManager.error("Error! Something went wrong while creating the path: " + path.getFileName(), e);
 		}
 		return exist;
 	}

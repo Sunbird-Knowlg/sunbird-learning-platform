@@ -19,7 +19,6 @@ import org.ekstep.language.common.LanguageCommonTestHelper;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
-import org.ekstep.telemetry.logger.PlatformLogger;
 import org.junit.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -189,8 +188,7 @@ public class LanguageWordchainRelationTest {
 					TEST_LANGUAGE1);
 			Response resp = LanguageCommonTestHelper.getResponse(
 					request);
-			PlatformLogger.log("List | Response: " ,resp);
-			
+
 			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
@@ -202,7 +200,6 @@ public class LanguageWordchainRelationTest {
 					TEST_LANGUAGE2);
 			resp = LanguageCommonTestHelper.getResponse(
 					request);
-			PlatformLogger.log("List | Response: " ,resp);
 			
 			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());

@@ -10,8 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * @author Rajiv Ranjan
@@ -74,7 +73,7 @@ public class UnzipUtility {
 			}
 			zipIn.close();
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While Unzipping the File.", e.getMessage(),Level.ERROR.name());
+			TelemetryManager.error("Error! While Unzipping the File: "+ e.getMessage());
 			throw new ServerException("Error while unziping the file" , e.getMessage());
 			
 		} finally {

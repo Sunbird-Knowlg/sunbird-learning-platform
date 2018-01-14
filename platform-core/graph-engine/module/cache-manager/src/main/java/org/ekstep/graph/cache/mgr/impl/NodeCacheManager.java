@@ -8,7 +8,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
 import org.ekstep.graph.cache.util.CacheKeyGenerator;
 import org.ekstep.graph.cache.util.RedisKeysEnum;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * 
@@ -25,20 +25,20 @@ public class NodeCacheManager {
 		validateRequired(graphId, objectType, node, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, objectType, RedisKeysEnum.DEF_NODE.name());
 		definitionNodeCache.put(key, node);
-		PlatformLogger.log("Saved definition node into cache having objectType: " + objectType + " into graph: "+ graphId);
+		TelemetryManager.log("Saved definition node into cache having objectType: " + objectType + " into graph: "+ graphId);
 	}
 
 	public static Object getDefinitionNode(String graphId, String objectType) {
 		validateRequired(graphId, objectType, GraphCacheErrorCodes.ERR_CACHE_GET_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, objectType, RedisKeysEnum.DEF_NODE.name());
-		PlatformLogger.log("Fetching definition node from cache having objectType: " + objectType + " in graph: "+ graphId);
+		TelemetryManager.log("Fetching definition node from cache having objectType: " + objectType + " in graph: "+ graphId);
 		return definitionNodeCache.get(key);
 	}
 	
 	public static Object deleteDefinitionNode(String graphId, String objectType) {
 		validateRequired(graphId, objectType, GraphCacheErrorCodes.ERR_CACHE_GET_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, objectType, RedisKeysEnum.DEF_NODE.name());
-		PlatformLogger.log("Deleting definition node from cache having objectType: " + objectType + " in graph: "+ graphId);
+		TelemetryManager.log("Deleting definition node from cache having objectType: " + objectType + " in graph: "+ graphId);
 		return definitionNodeCache.remove(key);
 	}
 
@@ -46,20 +46,20 @@ public class NodeCacheManager {
 		validateRequired(graphId, id, node, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, id, RedisKeysEnum.DATA_NODE.name());
 		dataNodeCache.put(key, node);
-		PlatformLogger.log("Saved data node into cache having identifier: " + id + " into graph: "+ graphId);
+		TelemetryManager.log("Saved data node into cache having identifier: " + id + " into graph: "+ graphId);
 	}
 
 	public static Object getDataNode(String graphId, String id) {
 		validateRequired(graphId, id, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, id, RedisKeysEnum.DATA_NODE.name());
-		PlatformLogger.log("Fetching data node from cache having identifier: " + id + " in graph: "+ graphId);
+		TelemetryManager.log("Fetching data node from cache having identifier: " + id + " in graph: "+ graphId);
 		return dataNodeCache.get(key);
 	}
 	
 	public static Object deleteDataNode(String graphId, String id) {
 		validateRequired(graphId, id, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, id, RedisKeysEnum.DATA_NODE.name());
-		PlatformLogger.log("Deleting data node from cache having identifier: " + id + " in graph: "+ graphId);
+		TelemetryManager.log("Deleting data node from cache having identifier: " + id + " in graph: "+ graphId);
 		return dataNodeCache.remove(key);
 	}
 

@@ -2,12 +2,16 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.common.dto.HeaderParam;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
 import org.ekstep.search.router.SearchRequestRouterPool;
+import org.ekstep.telemetry.TelemetryGenerator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.common.dto.Response;
 
 import play.Application;
 import play.GlobalSettings;
@@ -27,6 +31,7 @@ public class Global extends GlobalSettings {
 
 	public void onStart(Application app) {
 		SearchRequestRouterPool.init();
+		TelemetryGenerator.setComponent("search-service");
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -54,9 +59,19 @@ public class Global extends GlobalSettings {
 						data.put("Protocol", request.secure() ? "HTTPS" : "HTTP");
 						data.put("Method", request.method());
 						data.put("X-Session-ID", request.getHeader("X-Session-ID"));
-						data.put("X-Consumer-ID", request.getHeader("X-Consumer-ID"));
+						String consumerId = request.getHeader("X-Consumer-ID");
+						data.put("X-Consumer-ID", consumerId);
 						data.put("X-Device-ID", request.getHeader("X-Device-ID"));
 						data.put("X-Authenticated-Userid", request.getHeader("X-Authenticated-Userid"));
+						if (StringUtils.isNotBlank(consumerId))
+							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
+						data.put("env", "search");
+						data.put("path", request.uri());
+						String channelId = request.getHeader("X-Channel-ID");
+						if (StringUtils.isNotBlank(channelId))
+							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
+						else
+							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
 						TelemetryAccessEventUtil.writeTelemetryEventLog(data);
 						accessLogger.info(request.remoteAddress() + " " + request.host() + " " + request.method() + " "
 								+ request.uri() + " " + r.status() + " " + body.length);

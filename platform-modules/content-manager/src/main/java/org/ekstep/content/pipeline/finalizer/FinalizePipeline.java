@@ -14,7 +14,7 @@ import org.ekstep.content.operation.finalizer.PublishFinalizer;
 import org.ekstep.content.operation.finalizer.ReviewFinalizer;
 import org.ekstep.content.operation.finalizer.UploadFinalizer;
 import org.ekstep.content.pipeline.BasePipeline;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -66,7 +66,7 @@ public class FinalizePipeline extends BasePipeline {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && !StringUtils.isBlank(operation)) {
-			PlatformLogger.log("Performing Operation: " , operation);
+			TelemetryManager.log("Performing Operation: " + operation);
 			switch (operation) {
 				case "upload":
 				case "UPLOAD": {
@@ -97,14 +97,14 @@ public class FinalizePipeline extends BasePipeline {
 					break;	
 					
 				default:
-					PlatformLogger.log("Invalid Operation: " + operation);
+					TelemetryManager.log("Invalid Operation: " + operation);
 					break;
 			}
 		}
 		try {
 			FileUtils.deleteDirectory(new File(basePath));
 		} catch (Exception e) {
-			PlatformLogger.log("Error deleting directory: " , basePath, e);
+			TelemetryManager.error("Error deleting directory: " + basePath, e);
 		}
 		return response;
 	}

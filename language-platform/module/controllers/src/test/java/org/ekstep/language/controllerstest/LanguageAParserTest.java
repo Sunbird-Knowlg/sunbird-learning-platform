@@ -24,8 +24,7 @@ import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.common.LanguageCommonTestHelper;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -88,7 +87,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.put(GraphDACParams.node.name(), word);
 		res = LanguageCommonTestHelper.getResponse(request);
 		if (!res.getParams().getStatus().equalsIgnoreCase("successful")) {
-			PlatformLogger.log("Error!",res.getParams().getErr() + res.getParams().getErrmsg(), Level.WARN.name());
+			TelemetryManager.warn("Error!"+res.getParams().getErr() + res.getParams().getErrmsg());
 		}
 		Assert.assertEquals("successful", res.getParams().getStatus());
 

@@ -21,7 +21,7 @@ import org.ekstep.language.index.common.BaseLanguageTest;
 import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -123,22 +123,20 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addWordIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = LanguageIndexesTestHelper.getResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			ResponseEntity<Response> responseEntity = LanguageIndexesTestHelper
 					.getResponseEntity(response, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			PlatformLogger.log("List | Response: " + response);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " + e.getMessage(), e);
 			ResponseEntity<Response> responseEntity = LanguageIndexesTestHelper
 					.getExceptionResponseEntity(e, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			PlatformLogger.log("List | Response: " + responseEntity);
+			TelemetryManager.log("List | Response: " + responseEntity);
 		}
 	}
 
@@ -154,16 +152,15 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		try {
 			Response response = LanguageIndexesTestHelper
 					.getBulkOperationResponse(request);
-			PlatformLogger.log("List | Response: " + response);
+			TelemetryManager.log("List | Response: " + response);
 			LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);
 		} catch (Exception e) {
-			PlatformLogger.log("List | Exception: " + e.getMessage(), e);
 			LanguageIndexesTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);
@@ -216,10 +213,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.getRootWords.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -258,10 +255,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.getWordId.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -293,10 +290,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.getIndexInfo.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -328,10 +325,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.loadCitations.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);//load
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response;
 		response = LanguageIndexesTestHelper.getBulkOperationResponse(request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -357,10 +354,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.loadCitations.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);//load
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response;
 		response = LanguageIndexesTestHelper.getBulkOperationResponse(request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -381,10 +378,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);//load
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response;
 		response = LanguageIndexesTestHelper.getBulkOperationResponse(request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -406,10 +403,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.wordWildCard.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -437,10 +434,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.morphologicalVariants.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -468,10 +465,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.citationsCount.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -495,10 +492,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.getWordMetrics.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -526,10 +523,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.citations.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -557,10 +554,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.citations.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -588,10 +585,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.wordInfo.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -619,10 +616,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.rootWordInfo.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -701,13 +698,13 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addWordIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);//load
-		PlatformLogger.log("List | Request: " + request);
+		TelemetryManager.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(request);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		ResponseEntity<Response> responseEntity = LanguageIndexesTestHelper
 				.getResponseEntity(response, apiId, (null != request
 						.getParams()) ? request.getParams().getMsgid() : null);
-		PlatformLogger.log("List | Response: " + response);
+		TelemetryManager.log("List | Response: " + response);
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 

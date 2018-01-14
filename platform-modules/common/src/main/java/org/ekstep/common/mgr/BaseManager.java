@@ -19,7 +19,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
@@ -62,13 +62,13 @@ public abstract class BaseManager {
             Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
             if (obj instanceof Response) {
             	Response response = (Response) obj;
-            	PlatformLogger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() , " | Result: " + response.getResult().keySet());
+            	TelemetryManager.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() + " | Result: " + response.getResult().keySet());
                 return response;
             } else {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-        	PlatformLogger.log("Exception", e.getMessage(), e);
+        	TelemetryManager.error("Exception: "+ e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
         }
     }
@@ -78,7 +78,7 @@ public abstract class BaseManager {
         try {
             router.tell(request, router);
         } catch (Exception e) {
-        	PlatformLogger.log("Exception",e.getMessage(), e);
+        	TelemetryManager.error("Exception: " +e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
         }
     }
@@ -121,7 +121,7 @@ public abstract class BaseManager {
                     return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
                 }
             } catch (Exception e) {
-                PlatformLogger.log("ERROR! Something went wrong", e.getMessage(), e);
+                TelemetryManager.error("ERROR! Something went wrong: "+ e.getMessage(), e);
                 throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
             }
         } else {
@@ -268,7 +268,7 @@ public abstract class BaseManager {
     		try {
     		list = Arrays.asList(array);
     		} catch (Exception e) {
-				PlatformLogger.log("Error! Something went wrong while converting array to list.", array, e);
+				TelemetryManager.error("Error! Something went wrong while converting array to list: "+ array, e);
 			}
     	}
     	return list;

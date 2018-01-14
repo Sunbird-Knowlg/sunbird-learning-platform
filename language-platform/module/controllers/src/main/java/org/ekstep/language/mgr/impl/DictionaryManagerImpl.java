@@ -28,12 +28,16 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.controller.BaseController;
+import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.common.JSONUtils;
@@ -62,16 +66,11 @@ import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.common.dto.CoverageIgnore;
-import org.ekstep.common.dto.NodeDTO;
-import org.ekstep.common.mgr.ConvertGraphNode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -190,7 +189,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is blank");
-		PlatformLogger.log("Find All Content : " + languageId + ", ObjectType: " + objectType);
+		TelemetryManager.log("Find All Content : " + languageId + ", ObjectType: " + objectType);
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(objectType);
@@ -282,7 +281,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 			getCSV(nodes, out);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception" ,e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			throw new MiddlewareException(LanguageErrorCodes.ERR_SEARCH_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -347,7 +346,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							map.putAll(rels);
 						}
 					} catch (Exception e) {
-						PlatformLogger.log("Exception", e.getMessage(), e);
+						TelemetryManager.error("Exception: "+ e.getMessage(), e);
 					}
 					nodes.add(map);
 				}
@@ -441,7 +440,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 		} catch (Exception e) {
 			row[i] = "";
-			PlatformLogger.log("Error", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 		}
 	}
 
@@ -1536,7 +1535,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				response.put(LanguageObjectTypes.Word.name(), map);
 				return response;
 			} catch (Exception e) {
-				PlatformLogger.log("Exception", e.getMessage(), e);
+				TelemetryManager.error("Exception: "+ e.getMessage(), e);
 				e.printStackTrace();
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 			}
@@ -1620,7 +1619,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			for (Relation rel : relations) {
 				if (StringUtils.equalsIgnoreCase(LanguageParams.Word.name(), rel.getEndNodeObjectType())
 						&& !StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.name())) {
-					PlatformLogger
+					TelemetryManager
 							.log("correcting synset for synser id -" + synset.getIdentifier() + " and relation type - "
 									+ rel.getRelationType() + "related word Id -" + rel.getEndNodeId());
 					update = true;
@@ -1651,8 +1650,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 								rel.getRelationType(), primaryMeaningId);
 
 					} catch (Exception e) {
-						PlatformLogger.log("error while correcting synset for synset id-" + synset.getIdentifier() + " ,"
-								, e.getMessage(), e);
+						TelemetryManager.error("error while correcting synset for synset id-" + synset.getIdentifier() + " ,"
+								+ e.getMessage(), e);
 						throw e;
 					}
 				}
@@ -2684,8 +2683,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					
 					Relation relation = new Relation(synsetId, wordUtil.getRelationName(LanguageParams.synonyms.name()),
 							wordId);
-					if(isPrimary)
-						relation.setMetadata(getPrimaryMeaningMetadata());
+/*					if(isPrimary)
+						relation.setMetadata(getPrimaryMeaningMetadata());*/
 					outRelations.add(relation);
 				}
 				//add main word to words and relations
@@ -2743,6 +2742,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							if(outRelations==null)
 								outRelations = new ArrayList<>();
 							outRelations.add(relation);
+							synset.setOutRelations(outRelations);
 						} else {
 							if (!isWordSynonymAlready(mainWordId, synonymRelations)) {
 								String wordsStr = (String) existingSynset.getMetadata()
@@ -2755,9 +2755,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 								Relation relation = new Relation(synsetId,
 										wordUtil.getRelationName(LanguageParams.synonyms.name()), mainWordId);
 								outRelations.add(relation);
+								synset.setOutRelations(outRelations);
 							}
 						}
-						synset.setOutRelations(outRelations);
 					}
 				} else {
 					if(synonymRelations!=null&& synonymRelations.size()>0){
@@ -2792,24 +2792,27 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		if(words!=null)
 			meaningMap.put(LanguageParams.words.name(), words);
-		
-		Relation mainWordSynRel = getSynonymRelationOf(mainWordId,
-				wordUtil.getSynonymRelations(synset.getOutRelations()));
-		//set primary Meaning flag in synonym relation
-		if (isPrimary && mainWordSynRel != null)
-			mainWordSynRel.setMetadata(getPrimaryMeaningMetadata());
 
-		// set exampleSentence
-		if (meaningMap.get(ATTRIB_EXAMPLE_SENTENCES)!=null && mainWordSynRel != null) {
-			Map<String, Object> relMetadata = mainWordSynRel.getMetadata();
-			if(relMetadata==null){
-				relMetadata = new HashMap<>();
-				mainWordSynRel.setMetadata(relMetadata);
+		if(synset.getOutRelations()!=null) {
+			Relation mainWordSynRel = getSynonymRelationOf(mainWordId,
+					wordUtil.getSynonymRelations(synset.getOutRelations()));
+			//set primary Meaning flag in synonym relation
+			if (isPrimary && mainWordSynRel != null)
+				mainWordSynRel.setMetadata(getPrimaryMeaningMetadata());
+			
+			// set exampleSentence
+			if (meaningMap.get(ATTRIB_EXAMPLE_SENTENCES)!=null && mainWordSynRel != null) {
+				Map<String, Object> relMetadata = mainWordSynRel.getMetadata();
+				if(relMetadata==null){
+					relMetadata = new HashMap<>();
+					mainWordSynRel.setMetadata(relMetadata);
+				}
+
+				relMetadata.put(ATTRIB_EXAMPLE_SENTENCES, meaningMap.get(ATTRIB_EXAMPLE_SENTENCES));
+				meaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 			}
-
-			relMetadata.put(ATTRIB_EXAMPLE_SENTENCES, meaningMap.get(ATTRIB_EXAMPLE_SENTENCES));
-			meaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 		}
+
 		
 		// commented on 30-Nov for keyword/themes model change
 		//List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
@@ -3196,7 +3199,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
                 }
             }
         }
-        PlatformLogger.log("JSON properties: " + props);
+        TelemetryManager.log("JSON properties: " + props);
         return props;
     }
     
@@ -3211,7 +3214,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if (StringUtils.isNotBlank(key)) {
 					if (jsonProps.contains(key.toLowerCase())) {
 						Object val = JSONUtils.convertJSONString((String) entry.getValue());
-						PlatformLogger.log("JSON Property " + key + " converted value is " + val);
+						TelemetryManager.log("JSON Property " + key + " converted value is " + val);
 						if (null != val)
 							map.put(key, val);
 					} else
@@ -3338,7 +3341,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				response.put(LanguageObjectTypes.Word.name(), map);
 				return response;
 			} catch (Exception e) {
-				PlatformLogger.log("Exception", e.getMessage(), e);
+				TelemetryManager.error("Exception: "+ e.getMessage(), e);
 				e.printStackTrace();
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 			}
@@ -3370,7 +3373,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				response.put(LanguageObjectTypes.Synset.name(), map);
 				return response;
 			} catch (Exception e) {
-				PlatformLogger.log("Exception", e.getMessage(), e);
+				TelemetryManager.error("Exception: "+ e.getMessage(), e);
 				e.printStackTrace();
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 			}
@@ -3394,28 +3397,28 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			List<Map<String, Object>> wordRecords = readWordsFromCSV(languageId, wordStream, wordDefinition,
 					synsetDefinition);
 			List<String> errorMessages = new ArrayList<>();
-			PlatformLogger.log("Bulk word Update | word count :" + wordRecords.size());
+			TelemetryManager.log("Bulk word Update | word count :" + wordRecords.size());
 			for (Map<String, Object> word : wordRecords) {
-				PlatformLogger.log("Bulk word Update | word :" + word.toString());
+				TelemetryManager.log("Bulk word Update | word :" + word.toString());
 				List<String> lstNodeId = new ArrayList<>();
 				Response wordResponse = createOrUpdateWord(languageId, word, lstNodeId, true, false);
 				if (checkError(wordResponse)) {
 					errorMessages.add(wordUtil.getErrorMessage(wordResponse));
-					PlatformLogger.log("ClientException during bulk word update for word:" + word.toString(),
-							wordUtil.getErrorMessage(wordResponse), null, Level.ERROR.name());
+					TelemetryManager.error("ClientException during bulk word update for word:" + word.toString() + " message: " +
+							wordUtil.getErrorMessage(wordResponse));
 				}
 				String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
 				if (nodeId != null) {
 					//lstNodeId.add(nodeId);
-					PlatformLogger.log("Bulk word Update | successfull for  word  :" + nodeId);
+					TelemetryManager.log("Bulk word Update | successfull for  word: " + nodeId);
 				}
 			}
 			return OK("errors", errorMessages);
 		} catch (ClientException e) {
-			PlatformLogger.log("ClientException", e.getMessage(), e);
+			TelemetryManager.error("ClientException: "+ e.getMessage(), e);
 			return ERROR(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		}
 

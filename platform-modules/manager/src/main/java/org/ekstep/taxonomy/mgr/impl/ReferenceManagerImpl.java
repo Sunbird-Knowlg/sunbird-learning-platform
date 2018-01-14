@@ -3,8 +3,10 @@ import java.io.File;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -12,11 +14,8 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.springframework.stereotype.Component;
-
-import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.mgr.IReferenceManager;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ReferenceManagerImpl extends BaseManager implements IReferenceManager {

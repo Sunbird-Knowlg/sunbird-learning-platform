@@ -18,13 +18,15 @@ import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.TelemetryGenerator;
+import org.ekstep.telemetry.TelemetryParams;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class ResponseFilter implements Filter {
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-
+		TelemetryGenerator.setComponent("language-service");
 	}
 
 	@Override
@@ -51,20 +53,20 @@ public class ResponseFilter implements Filter {
 
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-			PlatformLogger.log("Path: " + requestWrapper.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap());
+			TelemetryManager.log("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr());
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-			requestWrapper.setAttribute("env", getEnv(requestWrapper));
+			String env = getEnv(requestWrapper);
+			ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ENV.name(), env);
+			requestWrapper.setAttribute("env", env);
 			
 			chain.doFilter(requestWrapper, responseWrapper);
 			
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
-			PlatformLogger.log("Path: " + httpRequest.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap());
+			TelemetryManager.log("Path: " + httpRequest.getServletPath()  +" | Remote Address: " + request.getRemoteAddr());
 			chain.doFilter(request, response);
 		}
 	}

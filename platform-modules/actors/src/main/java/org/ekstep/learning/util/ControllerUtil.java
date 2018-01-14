@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.contentstore.util.ContentStoreOperations;
@@ -18,9 +19,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.searchindex.util.HTTPUtil;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.dto.NodeDTO;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -226,7 +225,7 @@ public class ControllerUtil extends BaseLearningManager {
 			String result = HTTPUtil.makeGetRequest(url);
 			hirerachyRes = mapper.readValue(result, Response.class);
 		} catch (Exception e) {
-			PlatformLogger.log(" Error while getting the Hirerachy of the node ", e.getMessage(), e);
+			TelemetryManager.error(" Error while getting the Hirerachy of the node: " + e.getMessage(), e);
 		}
 		return hirerachyRes;
 	}
@@ -257,7 +256,6 @@ public class ControllerUtil extends BaseLearningManager {
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility, s.compatibilityLevel as compatibilityLevel";
 		String query = MessageFormat.format(queryString, nodeId) + " UNION " + MessageFormat.format(queryString, imageNodeId) + " ORDER BY depth DESC;";
-		PlatformLogger.log("Query: "+query, null, Level.INFO.name());
         request.put(GraphDACParams.query.name(), query);
         List<String> props = new ArrayList<String>();
         props.add("identifier");
@@ -288,7 +286,7 @@ public class ControllerUtil extends BaseLearningManager {
 				}
 			}
 		}
-		PlatformLogger.log("Node children count:"+ nodes.size(), null, Level.INFO.name());
+		TelemetryManager.info("Node children count:"+ nodes.size());
 		return nodes;
 	}
 

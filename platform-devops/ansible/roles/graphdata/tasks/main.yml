@@ -1,9 +1,0 @@
----
-- name: stop tomcat
-  service: name=tomcat state=stopped
-
-- name: clean up graphDB directory
-  shell: rm -rf /data/graphDB/*
-
-- name: copy graph data
-  shell: tar xzf /home/learning/graphDB.tar.gz -C /data/graphDB/

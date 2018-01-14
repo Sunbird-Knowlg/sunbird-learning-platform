@@ -1,5 +1,0 @@
----
-# vars file for logstash
-logstash_home: /home/learning/logstash-2.3.3
-ip: localhost
-port: 9092

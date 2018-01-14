@@ -15,7 +15,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -78,7 +78,7 @@ public class UploadFinalizer extends BaseFinalizer {
 	public Response finalize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		
-		PlatformLogger.log("Started fetching the Parameters from Parameter Map.");
+		TelemetryManager.log("Started fetching the Parameters from Parameter Map.");
 		
 		File file = (File) parameterMap.get(ContentWorkflowPipelineParams.file.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
@@ -100,12 +100,12 @@ public class UploadFinalizer extends BaseFinalizer {
 
 		// Get Content String
 		String ecml = getECMLString(ecrf, ContentWorkflowPipelineParams.ecml.name());
-		PlatformLogger.log("Generated ECML String From ECRF: " , ecml);
+		TelemetryManager.log("Generated ECML String From ECRF: " + ecml);
 
 		// Upload Package
 		String folderName = S3PropertyReader.getProperty(s3Artifact);
 		String[] urlArray = uploadToAWS(file, getUploadFolderName(contentId, folderName));
-		PlatformLogger.log("Package Uploaded to S3.");
+		TelemetryManager.log("Package Uploaded to S3.");
 		
 		// Extract Content Uploaded Package to S3
 		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
@@ -122,20 +122,20 @@ public class UploadFinalizer extends BaseFinalizer {
 		response = updateContentBody(node.getIdentifier(), ecml);
 		if (checkError(response))
 			return response;
-		PlatformLogger.log("Content Body Update Status: " , response.getResponseCode());
+		TelemetryManager.log("Content Body Update Status: " + response.getResponseCode());
 
 		// Update Node
 		response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
-		PlatformLogger.log("Content Node Update Status: " , response.getResponseCode());
+		TelemetryManager.log("Content Node Update Status: " + response.getResponseCode());
 		
 		if (!checkError(response))
 			response.put(GraphDACParams.node_id.name(), contentId);
 		
 		try {
-			PlatformLogger.log("Deleting the temporary folder: " , basePath);
+			TelemetryManager.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
-			PlatformLogger.log("Error deleting the temporary folder: " , basePath, e);
+			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
 		}
 		
 		return response;

@@ -12,7 +12,7 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -39,8 +39,8 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		PlatformLogger.log("Uploaded File: " + uploadFile.getName());
-		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier());
+		TelemetryManager.log("Uploaded File: " + uploadFile.getName());
+		TelemetryManager.log("Calling Upload Content For Node ID: " + node.getIdentifier());
 		String[] urlArray = uploadArtifactToAWS(uploadFile, contentId);
 		node.getMetadata().put("s3Key", urlArray[0]);
 		String fileUrl = urlArray[1];
@@ -63,30 +63,28 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
-
 		Response response = new Response();
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
+		TelemetryManager.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " + contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		TelemetryManager.log("Review Operation Finished Successfully for Node ID: " + contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " ,contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 
@@ -99,15 +97,13 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
-
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", node.getIdentifier());
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: "+ node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: ", node.getIdentifier());
+		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: "+ node.getIdentifier());
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

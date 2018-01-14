@@ -2,8 +2,11 @@ package org.ekstep.framework.controller;
 
 import java.util.Map;
 
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.mgr.IChannelManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,10 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * This is the entry point for all CRUD operations related to channel API.
@@ -47,7 +46,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.createChannel(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Create Channel", e.getMessage(), e);
+			TelemetryManager.error("Create Channel: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -65,7 +64,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.readChannel(channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Read Channel", e.getMessage(), e);
+			TelemetryManager.error("Read Channel"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -88,7 +87,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.updateChannel(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Update Channel", e.getMessage(), e);
+			TelemetryManager.error("Update Channel"+ e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -110,7 +109,7 @@ public class ChannelV3Controller extends BaseController {
 			Response response = channelManager.listChannel((Map)request.get("search"));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("List Channel | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("List Channel | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -126,10 +125,10 @@ public class ChannelV3Controller extends BaseController {
 		String apiId = "ekstep.learning.channel.retire";
 		try {
 			Response response = channelManager.retireChannel(channelId);
-			PlatformLogger.log("retire channel | Response: " + response);
+			TelemetryManager.log("retire channel | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("retire channel | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("retire channel | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

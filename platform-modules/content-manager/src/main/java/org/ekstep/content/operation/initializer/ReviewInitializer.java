@@ -15,7 +15,7 @@ import org.ekstep.content.pipeline.finalizer.FinalizePipeline;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 public class ReviewInitializer extends BaseInitializer {
@@ -65,23 +65,20 @@ public class ReviewInitializer extends BaseInitializer {
 	 * @return the response
 	 */
 	public Response initialize(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+		TelemetryManager.log("Parameter Map: ", parameterMap);
 		if (null == parameterMap)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_PARAMETER_MAP + " | [Parameter Map Cannot be 'null']");
 
 		Response response = new Response();
 
-		PlatformLogger.log("Fetching The Parameters From Parameter Map");
+		TelemetryManager.log("Fetching The Parameters From Parameter Map");
 
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Boolean isECMLContent = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid or null Node.]");
-
-		PlatformLogger.log("Node: ", node);
-		PlatformLogger.log("Is ECML Content ? ", isECMLContent);
 
 		// Validating the Content Node
 		ContentValidator validator = new ContentValidator();
@@ -93,7 +90,7 @@ public class ReviewInitializer extends BaseInitializer {
 
 			// Get ECRF Object
 			Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
-			PlatformLogger.log("ECRF Object Created.");
+			TelemetryManager.log("ECRF Object Created.");
 
 			if (isValidationRequired) {
 				// Get Pipeline Object
@@ -105,7 +102,7 @@ public class ReviewInitializer extends BaseInitializer {
 			}
 
 			// Call Finalyzer
-			PlatformLogger.log("Calling Finalizer");
+			TelemetryManager.log("Calling Finalizer");
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);

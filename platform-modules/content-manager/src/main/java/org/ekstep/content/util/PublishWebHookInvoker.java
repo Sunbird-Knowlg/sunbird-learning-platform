@@ -12,10 +12,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.util.S3PropertyReader;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @CoverageIgnore
 public class PublishWebHookInvoker {
@@ -38,10 +38,10 @@ public class PublishWebHookInvoker {
 	public static void invokePublishWebKook(String contentId, final String status, final String error) {
 		ExecutorService pool = null;
 		try {
-			PlatformLogger.log("Call PublishWebHook API: " + contentId + " | Status: " + status + " | Error: " + error);
+			TelemetryManager.log("Call PublishWebHook API: " + contentId + " | Status: " + status + " | Error: " + error);
 			String env = S3PropertyReader.getProperty("s3.env");
 			String url = urlMap.get(env);
-			PlatformLogger.log("PublishWebHook API URL: " + url + " | Environment: " + env);
+			TelemetryManager.log("PublishWebHook API URL: " + url + " | Environment: " + env);
 			if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(contentId)) {
 				final String endPoint = url;
 				pool = Executors.newFixedThreadPool(1);
@@ -59,7 +59,7 @@ public class PublishWebHookInvoker {
 				});
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error sending Content2Vec request", e.getMessage(), e);
+			TelemetryManager.error("Error sending Content2Vec request"+ e.getMessage(), e);
 		} finally {
 			if (null != pool)
 				pool.shutdown();
@@ -77,9 +77,9 @@ public class PublishWebHookInvoker {
 				post.setEntity(new StringEntity(body));
 			}
 			HttpResponse response = client.execute(post);
-			PlatformLogger.log("PublishWebHook API: " + url + " | responseCode: " , response.getStatusLine().getStatusCode());
+			TelemetryManager.log("PublishWebHook API: " + url + " | responseCode: " + response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
-			PlatformLogger.log("Error calling PublishWebHook api", e.getMessage(), e);
+			TelemetryManager.error("Error calling PublishWebHook api"+ e.getMessage(), e);
 		}
 	}
 }

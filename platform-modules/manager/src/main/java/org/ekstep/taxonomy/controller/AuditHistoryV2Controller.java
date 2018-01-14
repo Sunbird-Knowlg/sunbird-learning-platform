@@ -1,6 +1,9 @@
 package org.ekstep.taxonomy.controller;
 
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Response;
+import org.ekstep.taxonomy.mgr.IAuditHistoryManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.taxonomy.mgr.IAuditHistoryManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
 
 /**
  * The Class AuditHistoryController, is the main entry point for the High Level
@@ -60,14 +59,14 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.audit_history.list";
 
-		PlatformLogger.log("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
+		TelemetryManager.log("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
 				+ endTime);
 		try {
 			Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime, versionId);
-			PlatformLogger.log("Find Item | Response: " , response.getResponseCode());
+			TelemetryManager.log("Find Item | Response: " + response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -99,14 +98,14 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.audit_history.info";
 
-		PlatformLogger.log("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
+		TelemetryManager.log("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
-			PlatformLogger.log("Find Item | Response: " , response.getResponseCode());
+			TelemetryManager.log("Find Item | Response: " + response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -137,14 +136,14 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.audit_history.info";
 
-		PlatformLogger.log("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
+		TelemetryManager.log("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime, versionId);
-			PlatformLogger.log("Find Item | Response: " , response);
+			TelemetryManager.log("Find Item | Response: " , response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -173,14 +172,14 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.audit_history.info";
 
-		PlatformLogger.log("get AuditHistory By objectId | TimeStamp1: " + timeStamp
+		TelemetryManager.log("get AuditHistory By objectId | TimeStamp1: " + timeStamp
 				+ " | objectId: " + objectId);
 		try {
 				Response response = auditHistoryManager.getAuditLogRecordById(objectId, timeStamp);
-				PlatformLogger.log("Find Item | Response: " , response.getResponseCode());
+				TelemetryManager.log("Find Item | Response: " + response.getResponseCode());
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -192,14 +191,14 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.audit_history.delete";
 
-		PlatformLogger.log("delete AuditHistory By date| date: " + start
+		TelemetryManager.log("delete AuditHistory By date| date: " + start
 				+ " | objectId: " + start);
 		try {
 				Response response = auditHistoryManager.deleteAuditHistory(start);
-				PlatformLogger.log("delete Item | Response: " , response.getResponseCode());
+				TelemetryManager.log("delete Item | Response: " + response.getResponseCode());
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

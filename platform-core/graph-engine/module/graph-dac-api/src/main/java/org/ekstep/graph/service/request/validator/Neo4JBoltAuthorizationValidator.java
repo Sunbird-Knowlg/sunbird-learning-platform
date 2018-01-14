@@ -13,13 +13,13 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 
 	public void validateAuthorization(String graphId, Node node, Request request) {
-		PlatformLogger.log("Graph Id: "+graphId);
-		PlatformLogger.log("Graph Engine Node: ", null);
+		TelemetryManager.log("Graph Id: "+graphId);
+		TelemetryManager.log("Graph Engine Node: ", null);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -45,38 +45,38 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 		if (BooleanUtils.isTrue(isAuthorizationCheckRequired(request)) && StringUtils.isNotBlank(graphId)
 				&& null != node && null != node.getMetadata() && null != request) {
 			String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
-			PlatformLogger.log("Consumer Id: " + consumerId);
+			TelemetryManager.log("Consumer Id: " + consumerId);
 
 			String redisConsumerId = RedisStoreUtil.getNodeProperty(graphId, node.getIdentifier(),
 					GraphDACParams.consumerId.name());
 
 			if (!StringUtils.isBlank(redisConsumerId)) {
-				PlatformLogger.log("Neo4J Node Consumer Id in Redis: " + redisConsumerId);
+				TelemetryManager.log("Neo4J Node Consumer Id in Redis: " + redisConsumerId);
 				if (!StringUtils.equals(consumerId, redisConsumerId))
 					isAuthorized = false;
 			} else {
-				PlatformLogger.log("Fetching the Neo4J Node Metadata.");
+				TelemetryManager.log("Fetching the Neo4J Node Metadata.");
 				Map<String, Object> neo4jNode = getNeo4jNodeProperty(graphId, node.getIdentifier());
 				if (null != neo4jNode && !neo4jNode.isEmpty()) {
-					PlatformLogger.log("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name())
+					TelemetryManager.log("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name())
 							+ " | [Node Id: '" + node.getIdentifier() + "']");
 
 					String neo4jNodeConsumerId = (String) neo4jNode.get(GraphDACParams.consumerId.name());
-					PlatformLogger.log("Neo4J Node Consumer Id: " + neo4jNodeConsumerId);
+					TelemetryManager.log("Neo4J Node Consumer Id: " + neo4jNodeConsumerId);
 
 					if (!StringUtils.equals(consumerId, neo4jNodeConsumerId))
 						isAuthorized = false;
 				} else {
 					// Setting the 'consumerId' for node since node doesn't
 					// exist in Neo4J
-					PlatformLogger.log("Setting the 'consumerId' Property Since it's a node creation operation.");
+					TelemetryManager.log("Setting the 'consumerId' Property Since it's a node creation operation.");
 					node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
 				}
 			}
 
 		}
 
-		PlatformLogger.log("Is Authorized (For Node Id : '" + node.getIdentifier() + "') ? " + isAuthorized);
+		TelemetryManager.log("Is Authorized (For Node Id : '" + node.getIdentifier() + "') ? " + isAuthorized);
 		return isAuthorized;
 	}
 
@@ -86,7 +86,7 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 				|| BooleanUtils.isFalse(isAuthEnabled()))
 			isCheckRequired = false;
 
-		PlatformLogger.log("Authorization Check Required ? " + isCheckRequired);
+		TelemetryManager.log("Authorization Check Required ? " + isCheckRequired);
 		return isCheckRequired;
 	}
 

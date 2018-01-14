@@ -1,11 +1,10 @@
 package org.ekstep.language.Util;
 
+import org.ekstep.common.dto.CoverageIgnore;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
-
-import org.ekstep.common.dto.CoverageIgnore;
 @CoverageIgnore
 @SuppressWarnings("deprecation")
 public class HibernateSessionFactory {

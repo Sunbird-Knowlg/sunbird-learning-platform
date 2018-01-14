@@ -2,9 +2,8 @@ package org.ekstep.taxonomy.content.util;
 
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFConversionUtility;
-import org.junit.Test;
-
 import org.ekstep.taxonomy.content.common.BaseTestUtil;
+import org.junit.Test;
 
 public class ECRFConversionUtilityTest {
 

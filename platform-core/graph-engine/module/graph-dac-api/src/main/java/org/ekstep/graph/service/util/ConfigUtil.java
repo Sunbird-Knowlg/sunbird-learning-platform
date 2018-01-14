@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.Config;
 import org.neo4j.driver.v1.Config.ConfigBuilder;
 import org.neo4j.driver.v1.Config.EncryptionLevel;
@@ -17,7 +17,7 @@ public class ConfigUtil {
 	public static Config getConfig() {
 		ConfigBuilder config = Config.build();
 		
-		PlatformLogger.log("Fetching the Configuration for Neo4J Bolt.");
+		TelemetryManager.log("Fetching the Configuration for Neo4J Bolt.");
 
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED))
 			config.withEncryptionLevel(EncryptionLevel.NONE);
@@ -28,7 +28,7 @@ public class ConfigUtil {
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_SETTING_NEO4J_SERVER_MAX_IDLE_SESSION_ENABLED))
 			config.withTrustStrategy(getTrustStrategy());
 		
-		PlatformLogger.log("Returning Database Config.");
+		TelemetryManager.log("Returning Database Config.");
 		return config.toConfig();
 	}
 
@@ -36,7 +36,7 @@ public class ConfigUtil {
 		TrustStrategy trustStrategy = TrustStrategy.trustAllCertificates();
 
 		String strategy = DACConfigurationConstants.NEO4J_SERVER_CONNECTION_TRUST_STRATEGY;
-		PlatformLogger.log("Trust Strategy: " , strategy);
+		TelemetryManager.log("Trust Strategy: " + strategy);
 
 		switch (strategy) {
 		case "all":
@@ -59,7 +59,7 @@ public class ConfigUtil {
 			break;
 
 		default:
-			PlatformLogger.log("Invalid trust Strategy");
+			TelemetryManager.log("Invalid trust Strategy");
 			break;
 		}
 

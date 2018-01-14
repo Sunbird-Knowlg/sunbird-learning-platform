@@ -10,17 +10,17 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.router.RequestRouterPool;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
@@ -87,7 +87,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 					return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 				}
 			} catch (Exception e) {
-				PlatformLogger.log("Exception",e.getMessage(), e);
+				TelemetryManager.error("Exception: " +e.getMessage(), e);
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 			}
 		} else {
@@ -106,28 +106,28 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	public Response publish(String contentId, Node node, boolean isAsync) {
 
 		Response response = new Response();
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 		
-		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
+		TelemetryManager.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " , contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		TelemetryManager.log("Review Operation Finished Successfully for Node ID: " + contentId);
 		
 		if (!checkError(response)) {
 			if (BooleanUtils.isTrue(isAsync)) {
 				AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-				PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
+				TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 
 				response.put(ContentAPIParams.publishStatus.name(),
 						"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 			} else {
-				PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+				TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 				response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 			}
 		}
@@ -144,15 +144,15 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadedFile, boolean isAsync) {
-		PlatformLogger.log("Uploaded File: " + uploadedFile.getName());
+		TelemetryManager.log("Uploaded File: " + uploadedFile.getName());
 
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.file.name(), uploadedFile);
 		parameterMap.put(ContentAPIParams.node.name(), node);
 
-		PlatformLogger.log("Calling the 'Upload' Initializer for Node ID: " , node.getIdentifier());
+		TelemetryManager.log("Calling the 'Upload' Initializer for Node ID: " + node.getIdentifier());
 		return pipeline.init(ContentAPIParams.upload.name(), parameterMap);
 	}
 	
@@ -178,15 +178,13 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 */
 	@Override
 	public Response review(String contentId,Node node, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
-
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: " , contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: " + contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

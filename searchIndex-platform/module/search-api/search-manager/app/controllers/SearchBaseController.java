@@ -3,12 +3,12 @@ package controllers;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.RequestParams;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.common.dto.Request;
-import org.ekstep.common.dto.RequestParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
 
 import play.mvc.Controller;
 import play.mvc.Http.RequestBody;
@@ -35,7 +35,7 @@ public class SearchBaseController extends Controller {
 
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(RequestBody requestBody, String apiId, String path) {
-		PlatformLogger.log(apiId);
+		TelemetryManager.log(apiId);
 		Request request = new Request();
 		if (null != requestBody) {
 			JsonNode data = requestBody.asJson();

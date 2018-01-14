@@ -7,7 +7,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class RhymingSoundSet, provides functionality to add word into its
@@ -60,13 +60,13 @@ public class RhymingSoundSet extends BaseWordSet {
 	 * relations
 	 */
 	public void create(){
-		PlatformLogger.log("Rhyming sound is " + rhymingSound);
+		TelemetryManager.log("Rhyming sound is " + rhymingSound);
 		if(StringUtils.isNotBlank(rhymingSound)){
 			String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
 			if(!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
 				createRhymingSoundSet(rhymingSoundLemma);
 		} else {
-			PlatformLogger.log("Deleting existing rhyming sound relation");
+			TelemetryManager.log("Deleting existing rhyming sound relation");
 			removeSetRelation(LanguageParams.RhymingSound.name());
 		}
 	}
@@ -79,7 +79,7 @@ public class RhymingSoundSet extends BaseWordSet {
 	 *            the rhyming sound
 	 */
 	private void createRhymingSoundSet(String rhymingSound) {
-		PlatformLogger.log("create RhymingSound " + rhymingSound + "for the word"
+		TelemetryManager.log("create RhymingSound " + rhymingSound + "for the word"
 				+ (String) wordNode.getMetadata().get(LanguageParams.lemma.name()));
 
 		String setId = getWordSet(rhymingSound, LanguageParams.RhymingSound.name());

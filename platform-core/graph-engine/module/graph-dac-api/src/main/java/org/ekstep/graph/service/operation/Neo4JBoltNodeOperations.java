@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Property;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
@@ -17,6 +18,7 @@ import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.GraphDacErrorParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Node;
@@ -28,8 +30,7 @@ import org.ekstep.graph.service.request.validator.Neo4JBoltAuthorizationValidato
 import org.ekstep.graph.service.request.validator.Neo4jBoltValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.NodeQueryGenerationUtil;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
@@ -44,10 +45,7 @@ public class Neo4JBoltNodeOperations {
 	private static Neo4JBoltAuthorizationValidator authorizationValidator = new Neo4JBoltAuthorizationValidator();
 
 	@SuppressWarnings("unchecked")
-	public static Node upsertNode(String graphId, Node node,
-			Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Graph Engine Node: ", node);
+	public static Node upsertNode(String graphId, Node node, Request request) {
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -57,20 +55,20 @@ public class Neo4JBoltNodeOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 					DACErrorMessageConstants.INVALID_NODE + " | [Upsert Node Operation Failed.]");
 
-		PlatformLogger.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
+		TelemetryManager.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
 		setRequestContextToNode(node, request);
 		authorizationValidator.validateAuthorization(graphId, node, request);
-		PlatformLogger.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
+		TelemetryManager.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
 
-		PlatformLogger.log("Validating the Update Operation for Node Id: " + node.getIdentifier());
+		TelemetryManager.log("Validating the Update Operation for Node Id: " + node.getIdentifier());
 		versionValidator.validateUpdateOperation(graphId, node);
 		node.getMetadata().remove(GraphDACParams.versionKey.name());
-		PlatformLogger.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
+		TelemetryManager.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+			TelemetryManager.log("Session Initialised. | [Graph Id: " + graphId + "]");
 			node.setGraphId(graphId);
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
@@ -86,9 +84,8 @@ public class Neo4JBoltNodeOperations {
 						CypherQueryConfigurationConstants.COMMA);
 				Map<String, Object> statementParameters = (Map<String, Object>) ((Map<String, Object>) entry.getValue())
 						.get(GraphDACParams.paramValueMap.name());
-				try ( Transaction tx = session.beginTransaction() )
-				{
-				//StatementResult result = session.run(statementTemplate, statementParameters);
+				try (Transaction tx = session.beginTransaction()) {
+					// StatementResult result = session.run(statementTemplate, statementParameters);
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					for (Record record : result.list()) {
@@ -102,30 +99,30 @@ public class Neo4JBoltNodeOperations {
 							try {
 								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 							} catch (Exception e) {
-								PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
+								TelemetryManager.error("Error! While updating redis cache From Neo4J node.", e);
 								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
 										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 							}
-							PlatformLogger.log("Bolt Neo4J Node: ", neo4JNode);
 						} catch (Exception e) {
-							PlatformLogger.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
+							TelemetryManager.error("Error! While Fetching 'versionKey' from Neo4J node.", e);
 						}
 					}
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
-			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
-					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			if (!(e instanceof MiddlewareException)) {
+				TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
+				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			} else {
+				throw e;
+			}
 		}
 		return node;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Node addNode(String graphId, Node node,
-			Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Graph Engine Node: ", node);
+	public static Node addNode(String graphId, Node node, Request request) {
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -136,9 +133,9 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_NODE + " | [Create Node Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+			TelemetryManager.log("Session Initialised. | [Graph Id: " + graphId + "]");
 			node.setGraphId(graphId);
 
 			setRequestContextToNode(node, request);
@@ -158,8 +155,8 @@ public class Neo4JBoltNodeOperations {
 						CypherQueryConfigurationConstants.COMMA);
 				Map<String, Object> statementParameters = (Map<String, Object>) ((Map<String, Object>) entry.getValue())
 						.get(GraphDACParams.paramValueMap.name());
-				try ( Transaction tx = session.beginTransaction() ){
-					//StatementResult result = session.run(statementTemplate, statementParameters);
+				try (Transaction tx = session.beginTransaction()) {
+					// StatementResult result = session.run(statementTemplate, statementParameters);
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					for (Record record : result.list()) {
@@ -173,36 +170,37 @@ public class Neo4JBoltNodeOperations {
 							try {
 								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 							} catch (Exception e) {
-								PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
+								TelemetryManager.error("Error! While updating redis cache From Neo4J Node.", e);
 								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
 										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 							}
-							PlatformLogger.log("Bolt Neo4J Node: ", neo4JNode);
 						} catch (Exception e) {
-							PlatformLogger.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
+							TelemetryManager.error("Error! While Fetching 'versionKey' From Neo4J Node.", e);
 						}
 					}
 				} catch (org.neo4j.driver.v1.exceptions.ClientException e) {
 					if (StringUtils.equalsIgnoreCase("Neo.ClientError.Schema.ConstraintValidationFailed", e.code()))
-						throw new ClientException("ConstraintValidationFailed",
+						throw new ClientException(GraphDacErrorParams.CONSTRAINT_VALIDATION_FAILED.name(),
 								"Object already exists with identifier: " + node.getIdentifier());
 					else
 						throw new ServerException(e.code(), e.getMessage());
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
-			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
-					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			if (!(e instanceof MiddlewareException)) {
+				TelemetryManager.error("Error! While writing data to Neo4J node.", e);
+				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			}
+			else {
+				throw e;
+			}
 		}
 		return node;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Node updateNode(String graphId, Node node,
-			Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Graph Engine Node: ", node);
+	public static Node updateNode(String graphId, Node node, Request request) {
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -211,21 +209,21 @@ public class Neo4JBoltNodeOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 					DACErrorMessageConstants.INVALID_NODE + " | [Update Node Operation Failed.]");
 
-		PlatformLogger.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
+		TelemetryManager.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
 		authorizationValidator.validateAuthorization(graphId, node, request);
 		node.getMetadata().remove(GraphDACParams.consumerId.name());
-		PlatformLogger.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
+		TelemetryManager.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
 
-		PlatformLogger.log("Validating the Update Operation for Node Id: " + node.getIdentifier());
+		TelemetryManager.log("Validating the Update Operation for Node Id: " + node.getIdentifier());
 		versionValidator.validateUpdateOperation(graphId, node);
 		node.getMetadata().remove(GraphDACParams.versionKey.name());
-		PlatformLogger.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
+		TelemetryManager.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 
 		// Adding Channel and App Id
 		setRequestContextToNode(node, request);
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -242,8 +240,8 @@ public class Neo4JBoltNodeOperations {
 						CypherQueryConfigurationConstants.COMMA);
 				Map<String, Object> statementParameters = (Map<String, Object>) ((Map<String, Object>) entry.getValue())
 						.get(GraphDACParams.paramValueMap.name());
-				try ( Transaction tx = session.beginTransaction() ){
-					//StatementResult result = session.run(statementTemplate, statementParameters);
+				try (Transaction tx = session.beginTransaction()) {
+					// StatementResult result = session.run(statementTemplate, statementParameters);
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					if (null == result || !result.hasNext())
@@ -260,29 +258,30 @@ public class Neo4JBoltNodeOperations {
 							try {
 								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 							} catch (Exception e) {
-								PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
+								TelemetryManager.error("Error! While updating redis cache From Neo4J node.", e);
 								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
 										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 							}
-							PlatformLogger.log("Bolt Neo4J Node: ", neo4JNode);
 						} catch (Exception e) {
-							PlatformLogger.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
+							TelemetryManager.error("Error! While Fetching 'versionKey' From Neo4J Node.", e);
 						}
 					}
 				}
 			}
 
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
-			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
-					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			if (!(e instanceof MiddlewareException)) {
+				TelemetryManager.error("Error! While writing data to Neo4J node.",  e);
+				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
+			} else {
+				throw e;
+			}
 		}
 		return node;
 	}
 
 	public static void importNodes(String graphId, List<Node> nodes, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Graph Engine Node List: ", nodes);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -302,9 +301,6 @@ public class Neo4JBoltNodeOperations {
 	}
 
 	public static void updatePropertyValue(String graphId, String nodeId, Property property, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", nodeId);
-		PlatformLogger.log("Property: ", property);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -319,7 +315,7 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_PROPERTY + " | [Update Property Value Operation Failed.]");
 
 		// CHECK - write driver and session created for this - END
-		PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Session Initialised. | [Graph Id: " + graphId + "]");
 		String date = DateUtils.formatCurrentDate();
 		Node node = new Node();
 		node.setGraphId(graphId);
@@ -328,18 +324,13 @@ public class Neo4JBoltNodeOperations {
 		node.getMetadata().put(property.getPropertyName(), property.getPropertyValue());
 		node.getMetadata().put(AuditProperties.lastUpdatedOn.name(), date);
 		if (!StringUtils.isBlank(date))
-			node.getMetadata().put(GraphDACParams.versionKey.name(),
-					Long.toString(DateUtils.parse(date).getTime()));
+			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 		updateNode(graphId, node, request);
 		// CHECK - write driver and session created for this - END
 	}
 
 	public static void updatePropertyValues(String graphId, String nodeId, Map<String, Object> metadata,
 			Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", nodeId);
-		PlatformLogger.log("Properties (Metadata): ", metadata);
-
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | [Update Property Value Operation Failed.]");
@@ -361,16 +352,12 @@ public class Neo4JBoltNodeOperations {
 		node.getMetadata().putAll(metadata);
 		node.getMetadata().put(AuditProperties.lastUpdatedOn.name(), date);
 		if (!StringUtils.isBlank(date))
-			node.getMetadata().put(GraphDACParams.versionKey.name(),
-					Long.toString(DateUtils.parse(date).getTime()));
+			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 		updateNode(graphId, node, request);
 		// CHECK - write driver and session created for this - END
 	}
 
 	public static void removePropertyValue(String graphId, String nodeId, String key, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", nodeId);
-		PlatformLogger.log("Property (Key to Remove): ", key);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -385,7 +372,7 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_PROPERTY + " | [Remove Property Value Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
@@ -393,26 +380,24 @@ public class Neo4JBoltNodeOperations {
 			parameterMap.put(GraphDACParams.key.name(), key);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			try ( Transaction tx = session.beginTransaction() ){
-				StatementResult result = tx.run(NodeQueryGenerationUtil.generateRemovePropertyValueCypherQuery(parameterMap));
+			try (Transaction tx = session.beginTransaction()) {
+				StatementResult result = tx
+						.run(NodeQueryGenerationUtil.generateRemovePropertyValueCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
-					PlatformLogger.log("Remove Property Value Operation | ", record);
+					TelemetryManager.log("Remove Property Value Operation | ", record.asMap());
 			}
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
+			TelemetryManager.error("Error! While writing data to Neo4J node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
 	}
 
 	public static void removePropertyValues(String graphId, String nodeId, List<String> keys, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", nodeId);
-		PlatformLogger.log("Property (Keys to Remove): ", keys);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -427,7 +412,7 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_PROPERTY + " | [Remove Property Values Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
@@ -435,24 +420,23 @@ public class Neo4JBoltNodeOperations {
 			parameterMap.put(GraphDACParams.keys.name(), keys);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			try ( Transaction tx = session.beginTransaction() ) {
-				StatementResult result = tx.run(NodeQueryGenerationUtil.generateRemovePropertyValuesCypherQuery(parameterMap));
+			try (Transaction tx = session.beginTransaction()) {
+				StatementResult result = tx
+						.run(NodeQueryGenerationUtil.generateRemovePropertyValuesCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
-					PlatformLogger.log("Update Property Values Operation | ", record);
+					TelemetryManager.log("Update Property Values Operation | ", record.asMap());
 			}
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
+			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
 	}
 
 	public static void deleteNode(String graphId, String nodeId, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Start Node Id: ", nodeId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -463,37 +447,37 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_IDENTIFIER + " | [Remove Property Values Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			try ( Transaction tx = session.beginTransaction() ){
-				//StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_NODE, parameterMap));
+			try (Transaction tx = session.beginTransaction()) {
+				// StatementResult result =
+				// session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_NODE, parameterMap));
 				StatementResult result = tx.run(NodeQueryGenerationUtil.generateDeleteNodeCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
-					PlatformLogger.log("Delete Node Operation | ", record);
+					TelemetryManager.log("Delete Node Operation | ", record.asMap());
 			}
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 			try {
 				RedisStoreUtil.deleteNodeProperties(graphId, nodeId);
 			} catch (Exception e) {
-				PlatformLogger.log("Error! While deleting redis cache From Neo4J Node.", null, e);
+				TelemetryManager.error("Error! While deleting redis cache From Neo4J Node.", e);
 			}
 
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
+			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
 	}
 
 	public static Node upsertRootNode(String graphId, Request request) {
-		PlatformLogger.log("Graph Id: ", graphId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -502,13 +486,13 @@ public class Neo4JBoltNodeOperations {
 		Node node = new Node();
 		node.setMetadata(new HashMap<String, Object>());
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+			TelemetryManager.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
 			// Generating Root Node Id
 			String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
-			PlatformLogger.log("Generated Root Node Id: " + rootNodeUniqueId);
+			TelemetryManager.log("Generated Root Node Id: " + rootNodeUniqueId);
 
 			node.setGraphId(graphId);
 			node.setNodeType(SystemNodeTypes.ROOT_NODE.name());
@@ -524,14 +508,15 @@ public class Neo4JBoltNodeOperations {
 			parameterMap.put(GraphDACParams.rootNode.name(), node);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			try ( Transaction tx = session.beginTransaction() ) {
-				StatementResult result = tx.run(NodeQueryGenerationUtil.generateUpsertRootNodeCypherQuery(parameterMap));
+			try (Transaction tx = session.beginTransaction()) {
+				StatementResult result = tx
+						.run(NodeQueryGenerationUtil.generateUpsertRootNodeCypherQuery(parameterMap));
 				tx.success();
 				for (Record record : result.list())
-					PlatformLogger.log("Upsert Root Node Operation | ", record);
+					TelemetryManager.log("Upsert Root Node Operation | ", record.asMap());
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error! While writing data to Neo4J Node.", null, e);
+			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -553,20 +538,17 @@ public class Neo4JBoltNodeOperations {
 	private static void setRequestContextToNode(Node node, Request request) {
 		if (null != request && null != request.getContext()) {
 			String channel = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
-			PlatformLogger.log("Channel from request: " + channel + " for content: " + node.getIdentifier(), null,
-					Level.DEBUG.name());
+			TelemetryManager.log("Channel from request: " + channel + " for content: " + node.getIdentifier());
 			if (StringUtils.isNotBlank(channel))
 				node.getMetadata().put(GraphDACParams.channel.name(), channel);
 
 			String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
-			PlatformLogger.log("ConsumerId from request: " + consumerId + " for content: " + node.getIdentifier(), null,
-					Level.DEBUG.name());
+			TelemetryManager.log("ConsumerId from request: " + consumerId + " for content: " + node.getIdentifier());
 			if (StringUtils.isNotBlank(consumerId))
 				node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
 
 			String appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
-			PlatformLogger.log("App Id from request: " + appId + " for content: " + node.getIdentifier(), null,
-					Level.DEBUG.name());
+			TelemetryManager.log("App Id from request: " + appId + " for content: " + node.getIdentifier());
 			if (StringUtils.isNotBlank(appId))
 				node.getMetadata().put(GraphDACParams.appId.name(), appId);
 		}

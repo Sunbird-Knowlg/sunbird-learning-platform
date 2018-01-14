@@ -10,7 +10,7 @@ import java.util.Map;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.ekstep.common.Platform;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -565,7 +565,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		PlatformLogger.log("Time taken for search: " , diff);
+		TelemetryManager.log("Time taken for search: " + diff);
 		return result;
 	}
 

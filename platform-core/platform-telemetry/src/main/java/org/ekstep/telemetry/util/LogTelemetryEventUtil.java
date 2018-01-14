@@ -1,7 +1,6 @@
 package org.ekstep.telemetry.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.TelemetryPBIEvent;
 import org.ekstep.telemetry.dto.TelemetryBEEvent;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -45,7 +44,7 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				instructionEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			PlatformLogger.log("Error logging BE_JOB_REQUEST event", e.getMessage(), e);
+			TelemetryManager.error("Error logging BE_JOB_REQUEST event: " + e.getMessage(), e);
 		}
 		return jsonMessage;
 	}
@@ -70,7 +69,7 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event" + e.getMessage(),null, e);
+			TelemetryManager.error("Error logging BE_CONTENT_LIFECYCLE event: " + e.getMessage(), e);
 		}
 		return jsonMessage;
 	}

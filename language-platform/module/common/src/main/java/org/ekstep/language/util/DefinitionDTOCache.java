@@ -8,15 +8,15 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.router.RequestRouterPool;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -117,7 +117,7 @@ public class DefinitionDTOCache {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

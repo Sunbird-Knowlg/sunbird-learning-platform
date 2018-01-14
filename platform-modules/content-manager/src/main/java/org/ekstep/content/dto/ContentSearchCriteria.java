@@ -1,8 +1,7 @@
 package org.ekstep.content.dto;
 
-import org.ekstep.graph.dac.model.SearchCriteria;
-
 import org.ekstep.common.dto.AbstractSearchCriteria;
+import org.ekstep.graph.dac.model.SearchCriteria;
 
 public class ContentSearchCriteria extends AbstractSearchCriteria {
 

@@ -17,8 +17,6 @@ import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
-import org.springframework.web.multipart.MultipartFile;
-
 import org.ekstep.orchestrator.dac.model.OrchestratorScript;
 import org.ekstep.orchestrator.dac.model.ScriptParams;
 import org.ekstep.orchestrator.dac.model.ScriptTypes;
@@ -27,8 +25,8 @@ import org.ekstep.orchestrator.interpreter.OrchestratorRequest;
 import org.ekstep.orchestrator.interpreter.command.AkkaCommand;
 import org.ekstep.orchestrator.interpreter.command.ScriptCommand;
 import org.ekstep.orchestrator.interpreter.exception.ExecutionErrorCodes;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.web.multipart.MultipartFile;
 
 import akka.actor.UntypedActor;
 import tcl.lang.Command;
@@ -130,7 +128,7 @@ public class TclExecutorActor extends UntypedActor {
 						} catch (MiddlewareException e) {
 							throw e;
 						} catch (Exception e) {
-							PlatformLogger.log("Error initialising command: " , script.getName(), e);
+							TelemetryManager.error("Error initialising command: "  + script.getName(), e);
 						}
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));
@@ -220,7 +218,7 @@ public class TclExecutorActor extends UntypedActor {
 			String msg = "";
 			switch (code) {
 			case TCL.ERROR:
-				PlatformLogger.log("tcl interpretation error" , interpreter.getResult().toString(), Level.WARN.name());
+				TelemetryManager.warn("tcl interpretation error" + interpreter.getResult().toString());
 				msg = interpreter.getResult().toString();
 				if(StringUtils.contains(msg, "tcl.lang.TclException") || StringUtils.contains(msg, "java.")){
 					msg = "| Invalid request format |";

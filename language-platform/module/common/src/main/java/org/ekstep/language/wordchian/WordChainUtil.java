@@ -11,7 +11,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.util.WordUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class WordChainUtil, provides functionality to update the word with
@@ -40,7 +40,7 @@ public class WordChainUtil {
 	 *             the exception
 	 */
 	public void updateWordSet(String languageId, Node node, WordComplexity wc) throws Exception {
-		PlatformLogger.log("updateWordSet  languageId " + languageId + " | Word Identifier" + node.getIdentifier());
+		TelemetryManager.log("updateWordSet  languageId " + languageId + " | Word Identifier" + node.getIdentifier());
 		List<Relation> existingWordSetRelatios = getExistingWordSetRelations(node);
 		new RhymingSoundSet(languageId, node, wc, existingWordSetRelatios).create();
 		new PhoneticBoundarySet(languageId, node, wc, existingWordSetRelatios).create();

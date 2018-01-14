@@ -9,7 +9,7 @@ import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.driver.internal.InternalNode;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
@@ -35,13 +35,13 @@ public class DefinitionNodeUtil {
 	 * @return the metadata value
 	 */
 	public static String getMetadataValue(String graphId, String objectType, String key) {
-		PlatformLogger.log(
+		TelemetryManager.log(
 				"Reading Metadata Value for Graph Id: " + graphId + "Object Type: " + objectType + "For Key: " + key);
 
 		// Initializing the value
 		String value = "";
 
-		PlatformLogger.log("Fetching the Definition Node to Read Metadata Value. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Fetching the Definition Node to Read Metadata Value. | [Graph Id: " + graphId + "]");
 		Map<String, Object> metadataMap = getDefinitionNodeMetadata(graphId, objectType);
 		if (null == metadataMap)
 			throw new ResourceNotFoundException(DACErrorCodeConstants.MISSING_DEFINITION.name(),
@@ -51,7 +51,7 @@ public class DefinitionNodeUtil {
 		if (null != metadataMap && null != metadataMap.get(key))
 			value = (String) metadataMap.get(key);
 
-		PlatformLogger.log("Returning the Metadata Value - Key: " + key + " | value: " + value);
+		TelemetryManager.log("Returning the Metadata Value - Key: " + key + " | value: " + value);
 		return value;
 	}
 
@@ -65,10 +65,10 @@ public class DefinitionNodeUtil {
 	 * @return the definition node
 	 */
 	private static Map<String, Object> getDefinitionNodeMetadata(String graphId, String objectType) {
-		PlatformLogger.log("Fetching Definition Node for Object Id: " + objectType + "of Graph Id: " + graphId + ".");
+		TelemetryManager.log("Fetching Definition Node for Object Id: " + objectType + "of Graph Id: " + graphId + ".");
 		Map<String, Object> metadataMap = null;
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			try {
 				String query = "match (n:" + graphId + "{" + SystemProperties.IL_SYS_NODE_TYPE.name() + ":'"

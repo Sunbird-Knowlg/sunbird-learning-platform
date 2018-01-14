@@ -6,14 +6,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.exception.ServerException;
+import org.ekstep.framework.enums.CategoryEnum;
+import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.stereotype.Component;
-
-import org.ekstep.framework.enums.CategoryEnum;
-import org.ekstep.framework.mgr.ICategoryInstanceManager;
 
 /**
  * This is the entry point for all CRUD operations related to category Instance

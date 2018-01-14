@@ -32,7 +32,7 @@ import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
@@ -62,30 +62,28 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
-
 		Response response = new Response();
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
+		TelemetryManager.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " + contentId);
+		TelemetryManager.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		PlatformLogger.log("Review Operation Finished Successfully for Node ID: ", contentId);
+		TelemetryManager.log("Review Operation Finished Successfully for Node ID: "+ contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: ", contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: ", contentId);
+			TelemetryManager.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 
@@ -94,16 +92,13 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
-
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ",
-				node.getIdentifier());
+		TelemetryManager.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: ", node.getIdentifier());
+		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: " + node.getIdentifier());
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 
@@ -156,7 +151,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 					false);
 			response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 		} catch (IOException e) {
-			PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
+			TelemetryManager.error("Error! While unzipping the content package file.", e);
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
@@ -171,7 +166,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 				FileUtils.deleteDirectory(new File(extractionBasePath));
 				h5pLibraryPackageFile.delete();
 			} catch (Exception e) {
-				PlatformLogger.log("Unable to Delete H5P Library Directory.", null, e);
+				TelemetryManager.error("Unable to delete H5P library directory.", e);
 			}
 		}
 		return response;
@@ -182,7 +177,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 		if (StringUtils.isBlank(path))
 			throw new ServerException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
 					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");
-		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
+		TelemetryManager.info("Fetched H5P Library Path: " + path);
 		return path;
 	}
 

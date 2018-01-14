@@ -38,6 +38,8 @@ public class RedisStoreUtil {
 			String value = jedis.get(redisKey);
 			return value;
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
 			returnConnection(jedis);
@@ -61,13 +63,15 @@ public class RedisStoreUtil {
 			returnConnection(jedis);
 		}
 	}
-	
+
 	public static void deleteNodeProperties(String graphId, String objectId) {
 		Jedis jedis = getRedisConncetion();
 		try {
-			
-			String versionKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, GraphDACParams.versionKey.name());
-			String consumerId = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, GraphDACParams.consumerId.name());
+
+			String versionKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId,
+					GraphDACParams.versionKey.name());
+			String consumerId = CacheKeyGenerator.getNodePropertyKey(graphId, objectId,
+					GraphDACParams.consumerId.name());
 			jedis.del(versionKey, consumerId);
 
 		} catch (Exception e) {
@@ -76,20 +80,35 @@ public class RedisStoreUtil {
 			returnConnection(jedis);
 		}
 	}
-	
+
 	public static void deleteAllNodeProperty(String graphId, String propertyName) {
 		Jedis jedis = getRedisConncetion();
 		try {
-			
-			String delKeysPattern =CacheKeyGenerator.getAllNodePropertyKeysPattern(graphId, propertyName);
+
+			String delKeysPattern = CacheKeyGenerator.getAllNodePropertyKeysPattern(graphId, propertyName);
 			Set<String> keys = jedis.keys(delKeysPattern);
-			if(keys!=null && keys.size()>0){
+			if (keys != null && keys.size() > 0) {
 				List<String> keyList = new ArrayList<>(keys);
 				jedis.del(keyList.toArray(new String[keyList.size()]));
 			}
 
 		} catch (Exception e) {
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
+	public static Double getNodePropertyIncVal(String graphId, String objectId, String nodeProperty) {
+
+		Jedis jedis = getRedisConncetion();
+		try {
+			String redisKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
+			double inc = 1.0;
+			double value = jedis.incrByFloat(redisKey, inc);
+			return value;
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
 			returnConnection(jedis);
 		}

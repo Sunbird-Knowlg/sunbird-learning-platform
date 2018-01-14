@@ -15,7 +15,7 @@ import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.AuditProperties;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemProperties;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -39,11 +39,10 @@ public class ProcessTransactionData {
 		try {
 			List<Map<String, Object>> kafkaMessages = getMessageObj(data);
 			if (kafkaMessages != null && !kafkaMessages.isEmpty()) {
-				PlatformLogger.log("Kafka message: ", kafkaMessages);
 				LogAsyncGraphEvent.pushMessageToLogger(kafkaMessages);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 		}
 	}
 	
@@ -117,7 +116,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building created nodes message" + e.getMessage(),null, e);
+			TelemetryManager.error("Error building created nodes message" + e.getMessage(), e);
 		}
 		return lstMessageMap;
 	}
@@ -158,7 +157,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building updated nodes message" + e.getMessage(),null, e);
+			TelemetryManager.error("Error building updated nodes message" + e.getMessage(), e);
 		}
 		return lstMessageMap;
 	}
@@ -201,7 +200,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building deleted nodes message" + e.getMessage(),null,  e);
+			TelemetryManager.error("Error building deleted nodes message" + e.getMessage(), e);
 		}
 		return lstMessageMap;
 	}
@@ -370,7 +369,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building added tags message", null, e);
+			TelemetryManager.error("Error building added tags message", e);
 		}
 		return lstMessageMap;
 	}
@@ -423,7 +422,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building removed tags message"+ e.getMessage(),null, e);
+			TelemetryManager.error("Error building removed tags message"+ e.getMessage(), e);
 		}
 		return lstMessageMap;
 	}
@@ -565,7 +564,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building updated relations message" + e.getMessage(),null, e);
+			TelemetryManager.error("Error building updated relations message" + e.getMessage(), e);
 		}
 		return lstMessageMap;
 	}

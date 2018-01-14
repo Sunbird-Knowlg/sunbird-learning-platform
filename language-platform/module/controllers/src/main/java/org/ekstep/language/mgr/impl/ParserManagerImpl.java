@@ -30,7 +30,7 @@ import org.ekstep.language.mgr.IParserManager;
 import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 
@@ -68,7 +68,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 		Map<String, Map<String, Object>> returnMap = new HashMap<String, Map<String, Object>>();
 		if (null != nodes && !nodes.isEmpty()) {
 			Set<String> synsetIds = new HashSet<String>();
-			PlatformLogger.log("Number of words: " + nodes.size());
+			TelemetryManager.log("Number of words: " + nodes.size());
 			for (Node node : nodes) {
 				if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
 					String primarySynsetId = getPrimarySynsetId(node);
@@ -82,7 +82,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 							wordMap.put("measures", measures);
 						}
 					} catch (Exception e) {
-						PlatformLogger.log("Exception",e.getMessage(), e);
+						TelemetryManager.error("Exception: "+e.getMessage(), e);
 					}
 					returnMap.put(lemma, wordMap);
 					if (StringUtils.isNotBlank(primarySynsetId)) {
@@ -357,7 +357,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 			Map<String, String> synsetIdMap, Map<String, Set<String>> lemmaMap, Map<String, Node> nodeMap, int limit) {
 		for (Entry<String, Map<String, Object>> entry : returnMap.entrySet()) {
 			String lemma = entry.getKey();
-			PlatformLogger.log("Getting related words for : " + lemma);
+			TelemetryManager.log("Getting related words for : " + lemma);
 			Map<String, Object> wordMap = entry.getValue();
 			String synsetId = synsetIdMap.get(lemma);
 			if (StringUtils.isNotBlank(synsetId)) {
@@ -385,7 +385,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 						}
 					}
 					if (null != hyponymIds && !hyponymIds.isEmpty()) {
-						PlatformLogger.log("hyponymIds count: " + hyponymIds.size());
+						TelemetryManager.log("hyponymIds count: " + hyponymIds.size());
 						getNodes(nodeMap, languageId, hyponymIds, limit);
 						for (String hyponymId : hyponymIds) {
 							Node hyponym = nodeMap.get(hyponymId);
@@ -406,7 +406,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 					}
 				}
 				if (null != words && !words.isEmpty()) {
-					PlatformLogger.log("Related words count: " + words.size());
+					TelemetryManager.log("Related words count: " + words.size());
 					wordMap.put("relatedWords", words);
 				}
 			}

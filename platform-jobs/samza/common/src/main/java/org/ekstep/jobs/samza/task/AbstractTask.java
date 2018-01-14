@@ -15,12 +15,13 @@ import org.apache.samza.task.StreamTask;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.apache.samza.task.WindowableTask;
+import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
-import org.ekstep.telemetry.logger.Level;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.Platform;
+import org.ekstep.telemetry.TelemetryGenerator;
+import org.ekstep.telemetry.TelemetryParams;
+import org.ekstep.telemetry.handler.Level;
 
 public abstract class AbstractTask implements StreamTask, InitableTask, WindowableTask {
 
@@ -175,8 +176,11 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	}
 	
 	private String generateEvent(String logLevel, String message, Map<String, Object> data) {
-		String event = PlatformLogger.getBELog(logLevel, message, data, null);
-		return event;
+		Map<String, String> context = new HashMap<String, String>();
+		context.put(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform");
+		context.put(TelemetryParams.ENV.name(), "content");
+		context.put(TelemetryParams.CHANNEL.name(), "in.ekstep");
+		return TelemetryGenerator.log(context, "system", logLevel, message);
 	}
 
 	protected boolean isInvalidMessage(Map<String, Object> message) {

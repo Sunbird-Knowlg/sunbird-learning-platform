@@ -17,7 +17,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class AssessmentItemCreatorProcessor is responsible of creating the
@@ -83,14 +83,13 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
-			PlatformLogger.log("Plugin: ", plugin);
-			PlatformLogger.log("Calling 'createAssessmentItemSubGraph' Inner Operation.");
+			TelemetryManager.log("Calling 'createAssessmentItemSubGraph' Inner Operation.");
 			createAssessmentItemSubGraph(plugin);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(),
 					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [AssessmentItemCreatorProcessor]", e);
 		}
-		PlatformLogger.log("Returning the ECRF (Plugin) Object", plugin);
+		TelemetryManager.log("Returning the ECRF (Plugin) Object"+ plugin);
 		return plugin;
 	}
 

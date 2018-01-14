@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.test.common.TestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,8 +23,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import org.ekstep.framework.test.common.TestSetup;
 
 /**
  * 

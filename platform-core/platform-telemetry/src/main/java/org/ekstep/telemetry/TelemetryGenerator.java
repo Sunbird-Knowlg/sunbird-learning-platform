@@ -10,18 +10,35 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.telemetry.dto.Actor;
 import org.ekstep.telemetry.dto.Context;
 import org.ekstep.telemetry.dto.Producer;
+import org.ekstep.telemetry.dto.Target;
 import org.ekstep.telemetry.dto.Telemetry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+/**
+ * {@link TelemetryGenerator} uses context and other parameters to generate event JSON in string format.
+ * @author Mahesh
+ *
+ */
 
 public class TelemetryGenerator {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Producer producer = new Producer("org.ekstep.learning.platform", "1.0");
 
-	public static String access(Map<String, Object> params, Map<String, String> context) {
-		String actorId = context.get("cid");
-		Actor actor = new Actor(actorId, "System");
+	
+	public static void setComponent(String component) {
+		producer.setPid(component);
+	}
+	
+	/**
+	 * To generate api_access LOG telemetry JSON string.
+	 * @param context
+	 * @param params
+	 * @return
+	 */
+	public static String access(Map<String, String> context, Map<String, Object> params) {
+		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
 		edata.put("type", "api_access");
@@ -32,51 +49,113 @@ public class TelemetryGenerator {
 		return getTelemetry(telemetry);
 	}
 	
-	public static String log(Map<String, String> context, String type, String level, String message, String pageid, List<Map<String, Object>> params) {
-		String actorId = context.get("cid");
-		Actor actor = new Actor(actorId, "System");
+	/**
+	 * To generate normal LOG telemetry JSON string with all params.
+	 * @param context
+	 * @param type
+	 * @param level
+	 * @param message
+	 * @param pageid
+	 * @param params
+	 * @return
+	 */
+	public static String log(Map<String, String> context, String type, String level, String message, String pageid, Map<String, Object> params) {
+		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
 		edata.put("type", type);
 		edata.put("level", level);
 		edata.put("message", message);
-		edata.put("pageid", pageid);
-		edata.put("params", params);
-		Telemetry telemetry = new Telemetry("ERROR", actor, eventContext, edata);
+		if (StringUtils.isNotBlank(pageid))
+			edata.put("pageid", pageid);
+		if (null != params && !params.isEmpty())
+			edata.put("params", getParamsList(params));
+		Telemetry telemetry = new Telemetry("LOG", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 	}
 	
+	/**
+	 * To generate normal LOG telemetry JSON string with required params.
+	 * @param context
+	 * @param type
+	 * @param level
+	 * @param message
+	 * @return
+	 */
 	public static String log(Map<String, String> context, String type, String level, String message) {
 		return log(context, type, level, message, null, null);
 	}
 
+	/**
+	 * To generate ERROR telemetry JSON string with all params.
+	 * @param context
+	 * @param code
+	 * @param type
+	 * @param stacktrace
+	 * @param pageid
+	 * @param object
+	 * @return
+	 */
 	public static String error(Map<String, String> context, String code, String type, String stacktrace, String pageid,
 			Object object) {
-		String actorId = context.get("cid");
-		Actor actor = new Actor(actorId, "System");
+		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
 		edata.put("err", code);
 		edata.put("errtype", type);
 		edata.put("stacktrace", stacktrace);
-		edata.put("pageid", pageid);
-		edata.put("object", object);
+		if (StringUtils.isNotBlank(pageid))
+			edata.put("pageid", pageid);
+		if (null != object)
+			edata.put("object", object);
 		Telemetry telemetry = new Telemetry("ERROR", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 
 	}
 
+	/**
+	 * To generate ERROR telemetry JSON string with required params.
+	 * @param context
+	 * @param code
+	 * @param type
+	 * @param stacktrace
+	 * @return
+	 */
 	public static String error(Map<String, String> context, String code, String type, String stacktrace) {
 		return error(context, code, type, stacktrace, null, null);
 	}
 
-	public static String search() {
+	
+	public static String search(Map<String, String> context) {
 		return null;
+	}
+	
+	public static String audit(Map<String, String> context, List<String> props, String state, String prevState) {
+		Actor actor = getActor(context);
+		Context eventContext = getContext(context);
+		Map<String, Object> edata = new HashMap<String, Object>();
+		edata.put("props", props);
+		if (StringUtils.isNotBlank(state))
+			edata.put("state", state);
+		if (StringUtils.isNotBlank(prevState))
+			edata.put("prevstate", prevState);
+		Telemetry telemetry = new Telemetry("AUDIT", actor, eventContext, edata);
+		Target object = new Target(context.get("objectId"), context.get("objectType"));
+		telemetry.setObject(object);
+		return getTelemetry(telemetry);
+	}
+	
+	private static Actor getActor(Map<String, String> context) {
+		String actorId = context.get(TelemetryParams.ACTOR.name());
+		if (StringUtils.isBlank(actorId))
+			actorId = "org.ekstep.learning.platform";
+		return new Actor(actorId, "System");
+		
 	}
 
 	private static Context getContext(Map<String, String> context) {
-		String channel = (String) context.get("channel");
-		String env = context.get("env");
+		String channel = (String) context.get(TelemetryParams.CHANNEL.name());
+		String env = context.get(TelemetryParams.ENV.name());
 		Context eventContext = new Context(channel, env, producer);
 		String sid = context.get("sid");
 		if (StringUtils.isNotBlank(sid))

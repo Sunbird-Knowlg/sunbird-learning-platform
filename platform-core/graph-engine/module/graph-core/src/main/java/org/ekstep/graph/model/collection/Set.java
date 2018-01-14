@@ -22,7 +22,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.dispatch.Futures;
 import scala.concurrent.ExecutionContext;
@@ -158,7 +158,7 @@ public class Set extends AbstractCollection {
 				}
 			}
 			if (addIds.size() > 0) {
-				List<Response> addResp = addMembersToSet(req, getNodeId(), addIds);
+				Object addResp = addMembersToSet(req, getNodeId(), addIds);
 				manager.returnResponseOnFailure(Futures.successful(addResp), getParent());
 			}
 			Request updateReq = new Request(req);
@@ -236,7 +236,7 @@ public class Set extends AbstractCollection {
 						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
 								"Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR, getParent());
 					} else {
-						List<Response> response = addMembersToSet(req, setId, members);
+						Object response = addMembersToSet(req, setId, members);
 						manager.returnResponse(Futures.successful(response), getParent());
 					}
 
@@ -538,7 +538,7 @@ public class Set extends AbstractCollection {
 				}
 			}
 			Request request = new Request(req);
-			PlatformLogger.log("Creating " + (out ? "outgoing" : "incoming") + " relations | count: ", newRels.size());
+			TelemetryManager.log("Creating " + (out ? "outgoing" : "incoming") + " relations | count: "+newRels.size());
 			for (Entry<String, List<String>> entry : newRels.entrySet()) {
 				if (out) {
 					request.put(GraphDACParams.start_node_id.name(), getNodeId());
@@ -568,7 +568,7 @@ public class Set extends AbstractCollection {
 	 */
 	private void deleteRelations(Request req, Map<String, List<String>> delRels, boolean out) {
 		if (null != delRels && delRels.size() > 0) {
-			PlatformLogger.log("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: ", delRels.size());
+			TelemetryManager.log("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: "+delRels.size());
 			Request request = new Request(req);
 			for (Entry<String, List<String>> entry : delRels.entrySet()) {
 				if (out) {
@@ -649,7 +649,7 @@ public class Set extends AbstractCollection {
 		return dacResponse;
 	}
 
-	private List<Response> addMembersToSet(Request req, String setId, List<String> memberIds) {
+	private Object addMembersToSet(Request req, String setId, List<String> memberIds) {
 		List<Response> response = new ArrayList<Response>();
 		req.getContext().get(GraphDACParams.graph_id.name());
 		SetCacheManager.addSetMembers(graphId, setId, memberIds);
@@ -662,7 +662,7 @@ public class Set extends AbstractCollection {
 			Response dacResponse = graphMgr.addRelation(dacRequest);
 			response.add(dacResponse);
 		}
-		return response;
+		return mergeResponses(response);
 	}
 
 	private Response removeMemberFromSet(Request req, String setId, String memberId) {
@@ -696,6 +696,21 @@ public class Set extends AbstractCollection {
 		}
 		this.inRelations = node.getInRelations();
 		this.outRelations = node.getOutRelations();
+	}
+
+	/**
+	 * @param response
+	 * @return
+	 */
+	private Object mergeResponses(List<Response> response) {
+		Object res = null;
+		if (null != response) {
+			for (Object obj : response) {
+				res = obj;
+			}
+		}
+
+		return res;
 	}
 
 }

@@ -7,6 +7,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
+import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
+import org.ekstep.framework.test.common.TestParams;
+import org.ekstep.framework.test.common.TestSetup;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -17,10 +21,6 @@ import org.junit.runners.MethodSorters;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
-import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
-import org.ekstep.framework.test.common.TestParams;
-import org.ekstep.framework.test.common.TestSetup;
 
 
 

@@ -3,6 +3,7 @@ package org.ekstep.search.actor;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -13,19 +14,12 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 
 public abstract class SearchBaseActor extends UntypedActor {
-
-    
-    private static final String ekstep = "org.ekstep.";
-    private static final String ilimi = "org.ekstep.";
-    private static final String java = "java.";
-    private static final String default_err_msg = "Something went wrong in server while processing the request";
     
     @CoverageIgnore
     @Override
@@ -63,7 +57,7 @@ public abstract class SearchBaseActor extends UntypedActor {
 
     @CoverageIgnore
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo, ActorRef parent) {
-        PlatformLogger.log("Error", errorCode , errorMessage);
+        TelemetryManager.log("ErrorCode: "+ errorCode + " :: Error message: " + errorMessage);
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -73,7 +67,6 @@ public abstract class SearchBaseActor extends UntypedActor {
 
     @CoverageIgnore
     public void handleException(Throwable e, ActorRef parent) {
-        PlatformLogger.log("Error", e.getMessage());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());
@@ -83,7 +76,7 @@ public abstract class SearchBaseActor extends UntypedActor {
         } else {
             params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
         }
-        PlatformLogger.log("Exception occured in class :"+ e.getClass().getName() , e.getMessage());
+        TelemetryManager.log("Exception occured in class :"+ e.getClass().getName() + " message: " + e.getMessage());
         params.setErrmsg(setErrMessage(e));
         response.setParams(params);
         setResponseCode(response, e);
@@ -121,15 +114,9 @@ public abstract class SearchBaseActor extends UntypedActor {
     }
     
     protected String setErrMessage(Throwable e){
-    	Class<? extends Throwable> className = e.getClass();
-        if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	PlatformLogger.log("Setting error message sent from class " + className , e.getMessage());
-        	return e.getMessage();
-        }
-        else if(className.getName().startsWith(java)){
-        	PlatformLogger.log("Setting default err msg " + className , e.getMessage());
-        	return default_err_msg;
-        }
-        return null;
+        if(e instanceof MiddlewareException)
+        		return e.getMessage();
+         else 
+        	 	return "Something went wrong in server while processing the request";
     }
 }

@@ -12,7 +12,7 @@ import org.ekstep.content.operation.initializer.PublishInitializer;
 import org.ekstep.content.operation.initializer.ReviewInitializer;
 import org.ekstep.content.operation.initializer.UploadInitializer;
 import org.ekstep.content.pipeline.BasePipeline;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 
 /**
@@ -64,7 +64,7 @@ public class InitializePipeline extends BasePipeline {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && StringUtils.isNotBlank(operation)) {
-			PlatformLogger.log("Performing Content Operation: " , operation);
+			TelemetryManager.log("Performing Content Operation: " + operation);
 			switch (operation) {
 			case "upload":
 			case "UPLOAD": {
@@ -95,7 +95,7 @@ public class InitializePipeline extends BasePipeline {
 				break;
 
 			default:
-				PlatformLogger.log("Invalid Content Operation: " , operation);
+				TelemetryManager.log("Invalid Content Operation: " + operation);
 				break;
 			}
 

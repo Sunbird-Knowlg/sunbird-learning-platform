@@ -1,6 +1,7 @@
 package org.ekstep.content.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
@@ -12,8 +13,7 @@ import org.ekstep.content.mimetype.mgr.impl.H5PMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
-import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class MimeTypeManagerFactory {
 
@@ -30,7 +30,7 @@ public class MimeTypeManagerFactory {
 
 	@CoverageIgnore
 	public static IMimeTypeManager getManager(String contentType, String mimeType) {
-		PlatformLogger.log("ContentType: " + contentType + " | MimeType: " + mimeType);
+		TelemetryManager.log("ContentType: " + contentType + " | MimeType: " + mimeType);
 		IMimeTypeManager manager;
 		if (StringUtils.equalsIgnoreCase(contentType, "Asset")) {
 			manager = assetsMimeTypeMgr;

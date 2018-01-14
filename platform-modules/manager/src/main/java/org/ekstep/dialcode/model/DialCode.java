@@ -18,7 +18,6 @@ public class DialCode implements Serializable {
 	private String publisher;
 	private String batchCode;
 	private String status;
-	private int count;
 	private String generatedOn;
 	private String publishedOn;
 	private Map<String, Object> metadata;
@@ -89,14 +88,6 @@ public class DialCode implements Serializable {
 
 	public void setMetadata(Map<String, Object> metadata) {
 		this.metadata = metadata;
-	}
-
-	public int getCount() {
-		return count;
-	}
-
-	public void setCount(int count) {
-		this.count = count;
 	}
 
 }

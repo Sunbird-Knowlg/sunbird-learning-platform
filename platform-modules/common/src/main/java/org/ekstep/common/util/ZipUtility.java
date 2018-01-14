@@ -10,7 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.ekstep.common.Platform;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * @author Rajiv Ranjan
@@ -62,7 +62,7 @@ public class ZipUtility {
 	public void zipIt(String zipFile) {
 		byte[] buffer = new byte[1024];
 		try (FileOutputStream fos = new FileOutputStream(zipFile); ZipOutputStream zos = new ZipOutputStream(fos)) {
-			PlatformLogger.log("Creating Zip File: " + zipFile);
+			TelemetryManager.log("Creating Zip File: " + zipFile);
 			for (String file : this.fileList) {
 				ZipEntry ze = new ZipEntry(file);
 				zos.putNextEntry(ze);
@@ -74,7 +74,7 @@ public class ZipUtility {
 				zos.closeEntry();
 			}
 		} catch (IOException ex) {
-			PlatformLogger.log("Error! Something Went Wrong While Creating the ZIP File.", ex.getMessage(), ex);
+			TelemetryManager.error("Error! Something Went Wrong While Creating the ZIP File: "+ ex.getMessage(), ex);
 		}
 	}
 

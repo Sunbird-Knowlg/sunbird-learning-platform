@@ -17,15 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResponseCode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.HandlerMapping;
-
 import org.ekstep.orchestrator.dac.model.OrchestratorScript;
 import org.ekstep.orchestrator.dac.model.RequestPath;
 import org.ekstep.orchestrator.dac.model.RequestTypes;
@@ -34,7 +25,15 @@ import org.ekstep.orchestrator.interpreter.Executor;
 import org.ekstep.orchestrator.interpreter.exception.ExecutionErrorCodes;
 import org.ekstep.orchestrator.mgr.service.IOrchestratorManager;
 import org.ekstep.orchestrator.mgr.service.OrchestratorScriptMap;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.HandlerMapping;
 
 @Controller
 @RequestMapping("")
@@ -84,7 +83,7 @@ public class ExecutionController extends BaseOrchestratorController {
 		} else {
 			try {
 				Map<String, Object> params = getParams(request, script, path, map);
-				PlatformLogger.log(script.getName() + "," + params);
+				TelemetryManager.log(script.getName() + "," + params);
 				if (null != params) {
 					params.put("server_env", getEnvBaseUrl());
 				}
@@ -118,7 +117,7 @@ public class ExecutionController extends BaseOrchestratorController {
 				}
 				return getResponseEntity(resp, script);
 			} catch (Exception e) {
-				PlatformLogger.log("Error executing script: " , script.getName(), e);
+				TelemetryManager.error("Error executing script: " + script.getName(), e);
 				return getExceptionResponseEntity(e, script);
 			}
 		}

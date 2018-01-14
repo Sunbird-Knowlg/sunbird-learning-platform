@@ -2,7 +2,7 @@ package org.ekstep.common.exception;
 
 public enum ResponseCode {
 
-    OK(200), CLIENT_ERROR(400), SERVER_ERROR(500), RESOURCE_NOT_FOUND(404);
+    OK(200), CLIENT_ERROR(400), SERVER_ERROR(500), RESOURCE_NOT_FOUND(404), PARTIAL_SUCCESS(207);
 
     private int code;
 

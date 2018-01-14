@@ -7,7 +7,7 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @SuppressWarnings("rawtypes")
 public class ObjectDefinitionCache {
@@ -24,7 +24,7 @@ public class ObjectDefinitionCache {
 			getDefinitionFromGraph(objectType, graphId);
 			definition = definitionMap.get(objectType);
 		}
-		PlatformLogger.log("DefinitionMap "+ definitionMap);
+		TelemetryManager.log("DefinitionMap "+ definitionMap);
 		return definition;
 	}
 	

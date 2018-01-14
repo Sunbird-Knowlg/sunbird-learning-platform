@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
- * 
+ * Telemetry V3 POJO to generate telemetry event.
  * @author mahesh
  *
  */
@@ -35,15 +35,15 @@ public class Telemetry {
 		this.edata = edata;
 	}
 
-	String eid;
-	long ets = System.currentTimeMillis();
-	String ver = "3.0";
-	String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();;
-	Actor actor;
-	Context context;
-	Target object;
-	Map<String, Object> edata;
-	List<String> tags;
+	private String eid;
+	private long ets = System.currentTimeMillis();
+	private String ver = "3.0";
+	private String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();;
+	private Actor actor;
+	private Context context;
+	private Target object;
+	private Map<String, Object> edata;
+	private List<String> tags;
 
 	/**
 	 * @return the eid

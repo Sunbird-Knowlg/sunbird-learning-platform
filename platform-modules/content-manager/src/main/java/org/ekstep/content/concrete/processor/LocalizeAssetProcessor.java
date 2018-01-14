@@ -24,7 +24,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class LocalizeAssetProcessor is a Content Workflow pipeline Processor
@@ -114,30 +114,29 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	 */
 	@SuppressWarnings("unchecked")
 	private Map<String, String> processAssetsDownload(List<Media> medias) {
-		PlatformLogger.log("Medias to Download: ", medias);
 		Map<String, String> map = new HashMap<String, String>();
 		try {
-			PlatformLogger.log("Total Medias to Download: for [Content Id '" + contentId + "']", medias.size());
+			TelemetryManager.log("Total Medias to Download: for [Content Id '" + contentId + "']: " +  medias.size());
 
 			Map<String, Object> downloadResultMap = downloadAssets(medias);
-			PlatformLogger.log("Downloaded Result Map After the Firts Try: ",
+			TelemetryManager.log("Downloaded Result Map After the Firts Try: "+
 					downloadResultMap + " | [Content Id '" + contentId + "']");
 
 			Map<String, String> successMap = (Map<String, String>) downloadResultMap
 					.get(ContentWorkflowPipelineParams.success.name());
-			PlatformLogger.log("Successful Media Downloads: " + successMap + " | [Content Id '" + contentId + "']");
+			TelemetryManager.log("Successful Media Downloads: " + successMap + " | [Content Id '" + contentId + "']");
 			if (null != successMap && !successMap.isEmpty())
 				map.putAll(successMap);
 
 			List<Media> skippedMedia = (List<Media>) downloadResultMap
 					.get(ContentWorkflowPipelineParams.skipped.name());
-			PlatformLogger.log("Skipped Media Downloads: " + skippedMedia + " | [Content Id '" + contentId + "']");
+			TelemetryManager.log("Skipped Media Downloads: " + skippedMedia + " | [Content Id '" + contentId + "']");
 			if (null != skippedMedia && !skippedMedia.isEmpty()) {
-				PlatformLogger.log("Fetching the Retry Count From Configuration. | [Content Id '" + contentId + "']");
+				TelemetryManager.log("Fetching the Retry Count From Configuration. | [Content Id '" + contentId + "']");
 				int retryCnt = Platform.config.getInt(ContentWorkflowPipelineParams.RETRY_ASSET_DOWNLOAD_COUNT.name());
-				PlatformLogger.log("Starting the Retry For Count: " + retryCnt + " | [Content Id '" + contentId + "']");
+				TelemetryManager.log("Starting the Retry For Count: " + retryCnt + " | [Content Id '" + contentId + "']");
 				for (int i = 0; i < retryCnt; i++) {
-					PlatformLogger.log(
+					TelemetryManager.log(
 							"Retrying Asset Download For " + i + 1 + " times" + " | [Content Id '" + contentId + "']");
 					if (null != skippedMedia && !skippedMedia.isEmpty()) {
 						Map<String, Object> result = downloadAssets(skippedMedia);
@@ -175,7 +174,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	private Map<String, Object> downloadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != medias && !StringUtils.isBlank(basePath)) {
-			PlatformLogger.log("Starting Asset Download Fanout. | [Content Id '" + contentId + "']", contentId);
+			TelemetryManager.log("Starting Asset Download Fanout. | [Content Id '" + contentId + "']: "+ contentId);
 			final List<Media> skippedMediaDownloads = new ArrayList<Media>();
 			final Map<String, String> successfulMediaDownloads = new HashMap<String, String>();
 			ExecutorService pool = Executors.newFixedThreadPool(10);
@@ -205,7 +204,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 							createDirectoryIfNeeded(downloadPath);
 							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc()),
 									downloadPath);
-							PlatformLogger.log("Downloaded file : " + media.getSrc() + " - " + downloadedFile
+							TelemetryManager.log("Downloaded file : " + media.getSrc() + " - " + downloadedFile
 									+ " | [Content Id '" + contentId + "']");
 							if (null == downloadedFile)
 								skippedMediaDownloads.add(media);
@@ -228,15 +227,14 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 					successfulMediaDownloads.putAll(m);
 			}
 			pool.shutdown();
-			PlatformLogger.log("Successful Media Download Count for | [Content Id '" + contentId + "']",
+			TelemetryManager.log("Successful Media Download Count for | [Content Id '" + contentId + "']"+
 					successfulMediaDownloads.size());
-			PlatformLogger.log("Skipped Media Download Count: | [Content Id '" + contentId + "']",
+			TelemetryManager.log("Skipped Media Download Count: | [Content Id '" + contentId + "']" +
 					skippedMediaDownloads.size());
 			map.put(ContentWorkflowPipelineParams.success.name(), successfulMediaDownloads);
 			map.put(ContentWorkflowPipelineParams.skipped.name(), skippedMediaDownloads);
 		}
-		PlatformLogger.log("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']",
-				map.keySet());
+		TelemetryManager.log("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']", map);
 		return map;
 	}
 
@@ -244,13 +242,13 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		if (StringUtils.isNotBlank(src)) {
 			String env = S3PropertyReader.getProperty("s3.env");
 			String prefix = "";
-			PlatformLogger.log("Fetching s3 url from properties file fro environment:", env);
+			TelemetryManager.log("Fetching s3 url from properties file fro environment:"+ env);
 			prefix = S3PropertyReader.getProperty("s3.url." + env);
-			PlatformLogger.log("Fetching envioronment URL from properties file", prefix);
+			TelemetryManager.log("Fetching envioronment URL from properties file: "+ prefix);
 			if (!src.startsWith("http"))
 				src = prefix + src;
 		}
-		PlatformLogger.log("Returning src url", src);
+		TelemetryManager.log("Returning src url: "+ src);
 		return src;
 	}
 

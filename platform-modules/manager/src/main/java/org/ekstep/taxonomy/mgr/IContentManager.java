@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 
 /**
@@ -227,6 +226,6 @@ public interface IContentManager {
 	Response updateAllContentNodes(String contentId, Map<String, Object> map) throws Exception;
 	
 	// Method for QR Code Linking with Content
-	Response linkDialCode(String contentId, Map<String, Object> map) throws Exception;
+	Response linkDialCode(Map<String, Object> map) throws Exception;
 
 }

@@ -8,26 +8,24 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.language.Util.HibernateSessionFactory;
 import org.ekstep.language.Util.IndowordnetConstants;
 import org.ekstep.language.common.LanguageMap;
-import org.ekstep.language.common.enums.LanguageActorNames;
-import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.LanguageSynsetData;
 import org.ekstep.language.model.SynsetData;
 import org.ekstep.language.model.SynsetDataLite;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Charsets;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 import akka.actor.ActorRef;
 
@@ -128,14 +126,14 @@ public class IndowordnetUtil {
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							PlatformLogger.log(e.getMessage(), null, e);
+							TelemetryManager.error(e.getMessage(), e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
 					}
 
 					// enrich the words
-					asyncUpdate(nodeIds, languageGraphId);
+					//asyncUpdate(nodeIds, languageGraphId);
 					System.out.println("Loaded " + count + " synsets for language: " + language);
 					long batchEndTime = System.currentTimeMillis();
 					System.out.println("Time taken for one batch: " + (batchEndTime - batchStartTime));
@@ -147,7 +145,7 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					PlatformLogger.log(e.getMessage(), null, e);
+					TelemetryManager.error(e.getMessage(), e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -157,13 +155,15 @@ public class IndowordnetUtil {
 
 			} while (true);
 			long totalEndTime = System.currentTimeMillis();
-			System.out.println("Status Update: Loaded " + totalCount + " synsets for language: " + language);
-			System.out.println("Total time taken for import: " + (totalEndTime - totalStartTime));
+			TelemetryManager.log("Status Update: Loaded " + totalCount + " synsets for language: " + language);
+			TelemetryManager.log("Total time taken for import: " + (totalEndTime - totalStartTime));
+			// TODO: 
 			if (!errorMessages.isEmpty()) {
-				System.out.println("Error Messages for Indowordnet import ********************************* ");
-				for (String errorMessage : errorMessages) {
-					System.out.println(errorMessage);
+				String error = "Error Messages for Indowordnet import: ## ";
+				for (String msg : errorMessages) {
+					error += msg + " ## ";
 				}
+				TelemetryManager.warn(error);
 			}
 		}
 	}
@@ -276,6 +276,163 @@ public class IndowordnetUtil {
 	}
 
 	/**
+	 * Forms the word map.for creating translations
+	 *
+	 * @param synsetData
+	 *            the synset data
+	 * @param errorMessages
+	 *            the error messages
+	 * @return the word map
+	 * @throws JsonProcessingException
+	 *             the json processing exception
+	 */
+	private Map<String, Object> getWordMapForTranslations(SynsetData synsetData, List<String> errorMessages, String languageGraphId)
+			throws JsonProcessingException {
+		byte[] bytesSynset = null;
+		String synsetString = null;
+		Map<String, Object> wordMap = new HashMap<String, Object>();
+		Map<String, Object> primaryMeaningMap = new HashMap<String, Object>();
+		boolean setFlag = false;
+
+		bytesSynset = synsetData.getSynset();
+		synsetString = new String(bytesSynset, Charsets.UTF_8);
+		String[] words = synsetString.split(COMMA_SEPARATOR);
+
+		wordMap.put(LanguageParams.words.name(), Arrays.asList(words));
+		if(StringUtils.equalsIgnoreCase(languageGraphId, "en"))
+		{
+			if(synsetData.getEnglish_synset_id()!=0){
+				wordMap.put(LanguageParams.indowordnetId.name(), synsetData.getEnglish_synset_id());
+				primaryMeaningMap.put(LanguageParams.indowordnetId.name(), synsetData.getEnglish_synset_id());
+				primaryMeaningMap.put(LanguageParams.english_indowordnetId.name(), synsetData.getSynset_id());
+				setFlag = true;
+			}
+		}if(!setFlag)
+		{
+			wordMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
+			primaryMeaningMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
+			primaryMeaningMap.put(LanguageParams.english_indowordnetId.name(), (int)0);
+		}		
+
+		
+		wordMap.put(LanguageParams.primaryMeaning.name(), primaryMeaningMap);
+
+		return wordMap;
+	}
+	/**
+	 * Queries words from the Indowordnet DB for a given language, processes the
+	 * transaltions, etc and loads them into the Graph DB.
+	 *
+	 * @param languageGraphId
+	 *            the language graph id
+	 * @param batchSize
+	 *            the batch size
+	 * @param maxRecords
+	 *            the max records
+	 * @param initialOffset
+	 *            the initial offset
+	 */
+	@SuppressWarnings({ "unchecked" })
+	public void loadTranslations(String languageGraphId, int batchSize, int maxRecords, int initialOffset)
+			{
+		int offset = initialOffset;
+		int loop = 0;
+		int totalCount = 0;
+		long startTime = 0l;
+		long endTime = 0l;
+		String language = LanguageMap.getLanguage(languageGraphId);
+		if (languageGraphId != null) {
+			List<String> errorMessages = new ArrayList<String>();
+			long totalStartTime = System.currentTimeMillis();
+			// process words in batches
+			do {
+				long batchStartTime = System.currentTimeMillis();
+				Session session = HibernateSessionFactory.getSession();
+				String languageTableName = getLanguageTableName(language);
+				Transaction tx = null;
+				try {
+					tx = session.beginTransaction();
+	
+					// get records from the indowWordNet DB
+					Query query = session.createQuery("FROM " + languageTableName + " ORDER BY synset_id");
+					query.setFirstResult(offset);
+					query.setMaxResults(batchSize);
+	
+					startTime = System.currentTimeMillis();
+					List<LanguageSynsetData> languageSynsetDataList = query.list();
+					endTime = System.currentTimeMillis();
+					System.out.println("Getting " + batchSize + " records: " + (endTime - startTime));
+					if (languageSynsetDataList.isEmpty()) {
+						break;
+					}
+					int count = 0;
+					for (LanguageSynsetData lSynsetData : languageSynsetDataList) {
+						try {
+							if (totalCount == maxRecords) {
+								break;
+							}
+							count++;
+							totalCount++;
+							SynsetData synsetData = lSynsetData.getSynsetData();
+							// get Word object
+							Map<String, Object> wordRequestMap = getWordMapForTranslations(synsetData, errorMessages, languageGraphId);
+							long synsetStartTime = System.currentTimeMillis();
+							// create translations set with proxy node
+							int indowordnetId = (int) wordRequestMap.get(LanguageParams.indowordnetId.name());
+							Map<String, Object> primaryMeaning = (Map<String, Object>) wordRequestMap.get(LanguageParams.primaryMeaning.name());
+							if (primaryMeaning == null) {
+								errorMessages
+										.add("Primary meaning field is missing: Id: " + indowordnetId + " Language: " + languageGraphId);
+							}
+							int englishTranslationId = (Integer) primaryMeaning.get(LanguageParams.english_indowordnetId.name());
+							String synsetIdentifer = languageGraphId + ":S:" + String.format("%08d", indowordnetId);
+
+							if (StringUtils.isNotBlank(synsetIdentifer))
+								wordUtil.createProxyNodeAndTranslationSet(synsetIdentifer, LanguageParams.translations.name(), indowordnetId,
+										englishTranslationId, languageGraphId);
+							
+							long synsetEndTime = System.currentTimeMillis();
+							TelemetryManager.log("Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
+						} catch (Exception e) {
+							TelemetryManager.error(e.getMessage(), e);
+							e.printStackTrace();
+							errorMessages.add(e.getMessage());
+						}
+					}
+	
+					System.out.println("Loaded " + count + " synsets for language: " + language);
+					long batchEndTime = System.currentTimeMillis();
+					System.out.println("Time taken for one batch: " + (batchEndTime - batchStartTime));
+					if (totalCount == maxRecords) {
+						break;
+					}
+					loop++;
+					offset = batchSize * loop + initialOffset;
+				} catch (Exception e) {
+					if (tx != null)
+						tx.rollback();
+					TelemetryManager.error(e.getMessage(), e);
+					e.printStackTrace();
+					errorMessages.add(e.getMessage());
+				} finally {
+					session.flush();
+					session.close();
+				}
+	
+			} while (true);
+			long totalEndTime = System.currentTimeMillis();
+			TelemetryManager.log("Status Update: Loaded " + totalCount + " synsets for language: " + language);
+			TelemetryManager.log("Total time taken for import: " + (totalEndTime - totalStartTime));
+			if (!errorMessages.isEmpty()) {
+				String error = "Error Messages for Indowordnet import: ## ";
+				for (String msg : errorMessages) {
+					error += msg;
+				}
+				TelemetryManager.warn(error);
+			}
+		}
+	}
+	/**
 	 * Gets the language table name.
 	 *
 	 * @param language
@@ -296,7 +453,7 @@ public class IndowordnetUtil {
 	 * @param languageId
 	 *            the language id
 	 */
-	private void asyncUpdate(List<String> nodeIds, String languageId) {
+/*	private void asyncUpdate(List<String> nodeIds, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map = new HashMap<String, Object>();
 		map.put(LanguageParams.node_ids.name(), nodeIds);
@@ -306,7 +463,7 @@ public class IndowordnetUtil {
 		request.setOperation(LanguageOperations.enrichWords.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
 		makeAsyncRequest(request);
-	}
+	}*/
 
 	/**
 	 * Makes the request asynchronously.
@@ -321,7 +478,7 @@ public class IndowordnetUtil {
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			PlatformLogger.log(e.getMessage(), null, e);
+			TelemetryManager.error(e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -212,18 +212,18 @@ public abstract class DictionaryController extends BaseLanguageController {
 			if (null != wordsArpabetsFile)
 				wordsArpabetsStream = wordsArpabetsFile.getInputStream();
 			Response response = dictionaryManager.loadEnglishWordsArpabetsMap(wordsArpabetsStream);
-			PlatformLogger.log("loadWordsArpabetsMap | Response: " + response);
+			TelemetryManager.log("loadWordsArpabetsMap | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (IOException e) {
 			e.printStackTrace();
-			PlatformLogger.log("loadWordsArpabetsMap | Exception: " , e.getMessage(), e);
+			TelemetryManager.error("loadWordsArpabetsMap | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			if (null != wordsArpabetsStream)
 				try {
 					wordsArpabetsStream.close();
 				} catch (IOException e) {
-					PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+					TelemetryManager.error("Error! While Closing the Input Stream." + e.getMessage(), e);
 				}
 		}
 	}
@@ -247,7 +247,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".Syllable";
 		try {
 			Response response = dictionaryManager.getSyllables(languageId, word);
-			PlatformLogger.log("Get Syllables | Response: " + response);
+			TelemetryManager.log("Get Syllables | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -273,7 +273,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".Arpabets";
 		try {
 			Response response = dictionaryManager.getArpabets(languageId, word);
-			PlatformLogger.log("Get Arpabets | Response: " + response);
+			TelemetryManager.log("Get Arpabets | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -304,7 +304,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".PhoneticSpelling";
 		try {
 			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word, addEndVirama);
-			PlatformLogger.log("Get PhoneticSpelling | Response: " + response);
+			TelemetryManager.log("Get PhoneticSpelling | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -333,7 +333,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		try {
 			Request request = getRequest(map);
 			Response response = dictionaryManager.transliterate(languageId, request, addEndVirama);
-			PlatformLogger.log("Transliterate | Response: " + response);
+			TelemetryManager.log("Transliterate | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -359,7 +359,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".SimilarSound";
 		try {
 			Response response = dictionaryManager.getSimilarSoundWords(languageId, word);
-			PlatformLogger.log("Get SimilarSound | Response: " + response);
+			TelemetryManager.log("Get SimilarSound | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);

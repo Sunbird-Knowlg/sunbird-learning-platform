@@ -13,6 +13,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpDownloadUtility;
@@ -22,10 +23,8 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.logger.PlatformLogger;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.neo4j.io.fs.FileUtils;
-
-import org.ekstep.common.dto.CoverageIgnore;
 
 /**
  * The Class ContentValidator, mainly used for validating ContentNode and
@@ -80,7 +79,7 @@ public class ContentValidator {
 		boolean isValidContentPackage = false;
 		try {
 			if (file.exists()) {
-				PlatformLogger.log("Validating File: " + file.getName());
+				TelemetryManager.log("Validating File: " + file.getName());
 				if (!isValidContentMimeType(file))
 					throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_FILE_MIME_TYPE_ERROR
@@ -109,7 +108,7 @@ public class ContentValidator {
 							+ " | [Something went wrong while validating the Package file.]",
 					e);
 		}
-		PlatformLogger.log("Is it a valid Content Package File ? : " , isValidContentPackage);
+		TelemetryManager.log("Is it a valid Content Package File ? : " + isValidContentPackage);
 		return isValidContentPackage;
 	}
 
@@ -125,7 +124,7 @@ public class ContentValidator {
 		boolean isValidContentPackage = false;
 		try {
 			if (file.exists()) {
-				PlatformLogger.log("Validating File: " , file.getName());
+				TelemetryManager.log("Validating File: " + file.getName());
 				if (!isValidContentMimeType(file))
 					throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_FILE_MIME_TYPE_ERROR
@@ -149,7 +148,7 @@ public class ContentValidator {
 							+ " | [Something went wrong while validating the Package file.]",
 					e);
 		}
-		PlatformLogger.log("Is it a valid Plugin Package File ? : " , isValidContentPackage);
+		TelemetryManager.log("Is it a valid Plugin Package File ? : " + isValidContentPackage);
 		return isValidContentPackage;
 	}
 
@@ -166,7 +165,7 @@ public class ContentValidator {
 		boolean isValidContentNode = false;
 		try {
 			if (null != node) {
-				PlatformLogger.log("Validating Content Node: " , node.getIdentifier());
+				TelemetryManager.log("Validating Content Node: " + node.getIdentifier());
 				if (null == node.getMetadata())
 					throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_METADATA + " | [Invalid Metadata.]");
@@ -188,7 +187,7 @@ public class ContentValidator {
 							+ " | [Something went wrong while validating Content Node.",
 					e);
 		}
-		PlatformLogger.log("Is it a valid Content Node ? : " , isValidContentNode);
+		TelemetryManager.log("Is it a valid Content Node ? : " + isValidContentNode);
 		return isValidContentNode;
 	}
 
@@ -204,7 +203,7 @@ public class ContentValidator {
 	private boolean isValidContentMimeType(File file) throws IOException {
 		boolean isValidMimeType = false;
 		if (file.exists()) {
-			PlatformLogger.log("Validating File For MimeType: " , file.getName());
+			TelemetryManager.log("Validating File For MimeType: " + file.getName());
 			Tika tika = new Tika();
 			String mimeType = tika.detect(file);
 			isValidMimeType = StringUtils.equalsIgnoreCase(DEF_CONTENT_PACKAGE_MIME_TYPE, mimeType);
@@ -223,7 +222,7 @@ public class ContentValidator {
 	private boolean isValidContentSize(File file) {
 		boolean isValidSize = false;
 		if (file.exists()) {
-			PlatformLogger.log("Validating File For Size: " , file.getName());
+			TelemetryManager.log("Validating File For Size: " + file.getName());
 			if (file.length() <= getContentPackageFileSizeLimit())
 				isValidSize = true;
 		}
@@ -255,7 +254,7 @@ public class ContentValidator {
 		final String XML_ECML_FILE_NAME = "index.ecml";
 		boolean isValidPackage = false;
 		if (file.exists()) {
-			PlatformLogger.log("Validating File For Folder Structure: " , file.getName());
+			TelemetryManager.log("Validating File For Folder Structure: " + file.getName());
 			try (ZipFile zipFile = new ZipFile(file)) {
 				Enumeration<? extends ZipEntry> entries = zipFile.entries();
 				while (entries.hasMoreElements()) {
@@ -283,7 +282,7 @@ public class ContentValidator {
 		final String MANIFEST_FILE_NAME = "manifest.json";
 		boolean isValidPackage = false;
 		if (file.exists()) {
-			PlatformLogger.log("Validating File For Folder Structure: " , file.getName());
+			TelemetryManager.log("Validating File For Folder Structure: " + file.getName());
 			try (ZipFile zipFile = new ZipFile(file)) {
 				Enumeration<? extends ZipEntry> entries = zipFile.entries();
 				while (entries.hasMoreElements()) {
@@ -313,7 +312,7 @@ public class ContentValidator {
 			String name = (String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name());
 			String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
 			if (StringUtils.isNotBlank(mimeType)) {
-				PlatformLogger.log("Checking Required Fields For: " , mimeType);
+				TelemetryManager.log("Checking Required Fields For: " + mimeType);
 				switch (mimeType) {
 				case "application/vnd.ekstep.ecml-archive":
 					/** Either 'body' or 'artifactUrl' is needed */
@@ -375,7 +374,7 @@ public class ContentValidator {
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
 						Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX,
 								node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()).toString());
-						PlatformLogger.log("Validating if the given youtube url is valid or not" , isValidYouTubeUrl);
+						TelemetryManager.log("Validating if the given youtube url is valid or not" + isValidYouTubeUrl);
 						if (!isValidYouTubeUrl)
 							throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(),
 									ContentErrorMessageConstants.INVALID_YOUTUBE_URL,
@@ -450,7 +449,7 @@ public class ContentValidator {
 					isValid = true;
 					break;
 				default:
-					PlatformLogger.log("Deafult Case for Mime-Type: " , mimeType);
+					TelemetryManager.log("Deafult Case for Mime-Type: " + mimeType);
 					if (AssetsMimeTypeMap.isAllowedMimeType(mimeType) && StringUtils.isNotBlank(
 							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
 						isValid = true;
@@ -483,7 +482,7 @@ public class ContentValidator {
 	public Boolean exceptionChecks(String mimeType, File file) {
 		String extension = FilenameUtils.getExtension(file.getPath());
 		try {
-			PlatformLogger.log("Validating File For MimeType: " , file.getName());
+			TelemetryManager.log("Validating File For MimeType: " + file.getName());
 			Tika tika = new Tika();
 			String file_type = tika.detect(file);
 			if (StringUtils.equalsIgnoreCase(mimeType, PDF_MIMETYPE)) {
