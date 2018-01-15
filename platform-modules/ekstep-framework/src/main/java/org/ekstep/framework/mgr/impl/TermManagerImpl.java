@@ -37,12 +37,12 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response createTerm(String scopeId, String categoryId, Map<String, Object> request) {
+	public Response createTerm(String scopeId, String categoryId, Map<String, Object> request) throws Exception{
 		if (null == request)
 			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		String label = (String) request.get(TermEnum.label.name());
-		if (StringUtils.isBlank(label))
-			return ERROR("ERR_TERM_LABEL_REQUIRED", "Unique Label is required for Term", ResponseCode.CLIENT_ERROR);
+		String code = (String) request.get(TermEnum.code.name());
+		if (StringUtils.isBlank(code))
+			return ERROR("ERR_TERM_LABEL_REQUIRED", "Unique code is required for Term", ResponseCode.CLIENT_ERROR);
 
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
@@ -52,16 +52,21 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			validateCategoryId(categoryId);
 		}
 
-		String id = generateIdentifier(categoryId, label);
+		String id = generateIdentifier(categoryId, code);
 
 		if (null != id)
 			request.put(TermEnum.identifier.name(), id);
 		else
 			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
 
-		if(!request.containsKey("parent") || ((List<Object>)request.get("parent")).isEmpty())
+		if(!request.containsKey(TermEnum.parents.name()) || ((List<Object>)request.get(TermEnum.parents.name())).isEmpty())
 			setRelations(categoryId, request);
-		return create(request, TERM_OBJECT_TYPE);
+		
+		Response response = create(request, TERM_OBJECT_TYPE);
+		if(response.getResponseCode() == ResponseCode.OK) {
+			generateFrameworkHierarchy(id);
+		}
+		return response;
 	}
 
 
@@ -90,11 +95,11 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response updateTerm(String scopeId, String categoryId, String termId, Map<String, Object> request) {
+	public Response updateTerm(String scopeId, String categoryId, String termId, Map<String, Object> request) throws Exception {
 		if (null == request)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		if (request.containsKey(TermEnum.label.name()))
-			return ERROR("ERR_SERVER_ERROR", "Term Label cannot be updated", ResponseCode.SERVER_ERROR);
+		if (request.containsKey(TermEnum.code.name()))
+			return ERROR("ERR_SERVER_ERROR", "Term Code cannot be updated", ResponseCode.SERVER_ERROR);
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
@@ -103,24 +108,23 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		}
 		termId = generateIdentifier(categoryId, termId);
 		
-		if(!request.containsKey("parent") || ((List<Object>)request.get("parent")).isEmpty()) {
+		if(!request.containsKey(TermEnum.parents.name()) || ((List<Object>)request.get(TermEnum.parents.name())).isEmpty()) {
 			setRelations(categoryId, request);
-			request.put("parent", null);
+			request.put(TermEnum.parents.name(), null);
 		}else {
 			Response responseNode = getDataNode(GRAPH_ID, categoryId);
 			Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
 			String objectType = dataNode.getObjectType();
-			if(StringUtils.equalsIgnoreCase(StringUtils.lowerCase(objectType), "categoryinstance")) {
-				request.put("categoryinstance", null);
+			if(StringUtils.equalsIgnoreCase(StringUtils.lowerCase(objectType), TermEnum.categoryinstances.name())) {
+				request.put(TermEnum.categoryinstances.name(), null);
 			}
 		}
+		Response response = update(termId, TERM_OBJECT_TYPE, request);
+		if(response.getResponseCode() == ResponseCode.OK) {
+			generateFrameworkHierarchy(termId);
+		}
+		return response;
 		
-		//if (validateScopeNode(termId, categoryId)) {
-			return update(termId, TERM_OBJECT_TYPE, request);
-		//} else {
-		//	throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
-		//}
-
 	}
 
 	/* (non-Javadoc)
@@ -134,7 +138,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		} else {
 			validateCategoryId(categoryId);
 		}
-		return search(map, TERM_OBJECT_TYPE, "terms", categoryId);
+		return search(map, TERM_OBJECT_TYPE, TermEnum.terms.name(), categoryId);
 	}
 
 	/* (non-Javadoc)

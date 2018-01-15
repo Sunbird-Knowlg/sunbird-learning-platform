@@ -138,7 +138,7 @@
             "objectTypes": [
                 "Framework"
             ],
-            "title": "framework",
+            "title": "frameworks",
             "description": "framework instance which has sequence relationship with this categoryInstance",
             "required": false,
             "renderingHints": "{ 'order': 14 }"
@@ -148,7 +148,7 @@
             "objectTypes": [
                 "Channel"
             ],
-            "title": "channel",
+            "title": "channels",
             "description": "channel instance which has sequence relationship with this categoryInstance",
             "required": false,
             "renderingHints": "{ 'order': 15 }"
@@ -159,7 +159,7 @@
             "objectTypes": [
                 "Term"
             ],
-            "title": "term",
+            "title": "terms",
             "description": "term instance which has sequence relationship with this categoryInstance",
             "required": false,
             "renderingHints": "{ 'order': 16 }"
@@ -169,7 +169,7 @@
             "objectTypes": [
                 "Domain"
             ],
-            "title": "domain",
+            "title": "domains",
             "description": "Domain which has sequence relationship with this categoryInstance",
             "required": false,
             "renderingHints": "{ 'order': 17 }"
