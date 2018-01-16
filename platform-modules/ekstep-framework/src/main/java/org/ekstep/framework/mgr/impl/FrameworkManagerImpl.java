@@ -109,7 +109,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		
 		List<Object> frameworkHierarchy = searchFramework(frameworkId);
 		if(null != frameworkHierarchy && !frameworkHierarchy.isEmpty()) {
-			List<Object> categories = (List<Object>)((Map<String, Object>)((Map<String, Object>)frameworkHierarchy.get(0))).get("categories");
+			List<Object> categories = (List<Object>)((Map<String, Object>)((Map<String, Object>)frameworkHierarchy.get(0))).get("fr_categories");
 			responseMap.remove("categories");
 			responseMap.put("categories", categories);
 		}
