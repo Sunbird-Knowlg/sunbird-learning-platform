@@ -425,7 +425,7 @@ public class BaseFrameworkManager extends BaseManager {
         hierarchy.put("ov", null);
         hierarchy.put("nv", mapper.writeValueAsString(getFrameworkHierarchy(node.getIdentifier())));
         Map<String, Object> properties = new HashMap<>();
-        properties.put("hierarchy", hierarchy);
+        properties.put("fr_hierarchy", hierarchy);
         Map<String, Object> transactionData = new HashMap<>();
         transactionData.put("properties", properties);
         frameworkEvent.put(GraphDACParams.transactionData.name(), transactionData);
