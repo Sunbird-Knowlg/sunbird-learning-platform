@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
@@ -43,6 +44,9 @@ public class BaseFrameworkManager extends BaseManager {
 
 	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
 			: "domain";
+	
+	private ObjectMapper mapper = new ObjectMapper();
+	
 	protected Response create(Map<String, Object> request, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		try {
@@ -402,7 +406,7 @@ public class BaseFrameworkManager extends BaseManager {
 		
 		Map<String, Object> hierarchy = new HashMap<>();
         hierarchy.put("ov", null);
-        hierarchy.put("nv", getFrameworkHierarchy(node.getIdentifier()));
+        hierarchy.put("nv", mapper.writeValueAsString(getFrameworkHierarchy(node.getIdentifier())));
         Map<String, Object> properties = new HashMap<>();
         properties.put("hierarchy", hierarchy);
         Map<String, Object> transactionData = new HashMap<>();
