@@ -108,15 +108,12 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		List<Object> searchResult = searchFramework(frameworkId);
 		if (null != searchResult && !searchResult.isEmpty()) {
-			Map<String, String> hierarchy = mapper.readValue(
-					(String) ((Map<String, Object>) searchResult.get(0)).get("fr_hierarchy"),
-					new TypeReference<Map<String, String>>() {
-					});
-
-			String categories = hierarchy.get("categories");
-			if (StringUtils.isNotBlank(categories)) {
+			Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
+			Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
+			Object categories =  hierarchy.get("categories");
+			if (categories != null) {
 				responseMap.remove("categories");
-				responseMap.put("categories", getListMap(categories));
+				responseMap.put("categories", categories);
 			}
 		}
 		return response;
