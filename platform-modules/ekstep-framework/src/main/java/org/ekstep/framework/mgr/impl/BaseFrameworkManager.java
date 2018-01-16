@@ -192,6 +192,14 @@ public class BaseFrameworkManager extends BaseManager {
 		Response getNodeRes = getResponse(request);
 		return getNodeRes;
 	}
+	
+	protected Node getDataNode(String id) {
+		Response responseNode = getDataNode(GRAPH_ID, id);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id);
+		Node node = (Node) responseNode.get(GraphDACParams.node.name());
+		return node;
+	}
 
 	/*
 	 * 
@@ -363,6 +371,15 @@ public class BaseFrameworkManager extends BaseManager {
 		} catch (Exception e) {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
 		}
+	}
+	
+	
+	protected void getHierarchy(String id) {
+		Node node = getDataNode(id);
+		String objectType = node.getObjectType();
+		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
+		
+		
 	}
 	
 	protected void generateFrameworkHierarchy(String objectId) throws Exception  {
