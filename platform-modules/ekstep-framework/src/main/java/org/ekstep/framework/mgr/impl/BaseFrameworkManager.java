@@ -426,7 +426,7 @@ public class BaseFrameworkManager extends BaseManager {
 	
 	@SuppressWarnings("unchecked")
 	protected Map<String, Object> getFrameworkHierarchy(String frameworkId) throws Exception{
-		Map<String, Object> resultFrameworkMap = new HashMap<>();
+		Map<String, Object> hierarchy = new HashMap<>();
 		
 		Response responseNode = getDataNode(GRAPH_ID, frameworkId);
 		if (checkError(responseNode))
@@ -434,13 +434,6 @@ public class BaseFrameworkManager extends BaseManager {
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		DefinitionDTO definition = getDefinition(GRAPH_ID, "Framework");
 		Map<String, Object> frameworkResponseMap = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
-		Map<String, Object> frameworkMetaData = node.getMetadata();
-		resultFrameworkMap.put("identifier", frameworkId);
-		resultFrameworkMap.put("objectType", node.getObjectType());
-		resultFrameworkMap.put("code", frameworkMetaData.get("code"));
-		resultFrameworkMap.put("name", frameworkMetaData.get("name"));
-		resultFrameworkMap.put("description", frameworkMetaData.get("description"));
-		resultFrameworkMap.put("status", frameworkMetaData.get("status"));
 		
 		List<NodeDTO> channels = (List<NodeDTO>) frameworkResponseMap.get("channels");
 		List<Object> resultChannelsList = new ArrayList<>();
@@ -449,7 +442,7 @@ public class BaseFrameworkManager extends BaseManager {
 				resultChannelsList.add(getChannelHierarchy(channel.getIdentifier()));
 			}
 		}
-		resultFrameworkMap.put("channels", resultChannelsList);
+		hierarchy.put("channels", resultChannelsList);
 		
 		List<NodeDTO> categories = (List<NodeDTO>)frameworkResponseMap.get("categories");
 		List<Object> resultCategoriesList = new ArrayList<>();
@@ -458,9 +451,9 @@ public class BaseFrameworkManager extends BaseManager {
 				resultCategoriesList.add(getCategoryHierarchy((String)category.getIdentifier()));
 			}
 		}
-		resultFrameworkMap.put("categories", resultCategoriesList);
+		hierarchy.put("categories", resultCategoriesList);
 		
-		return resultFrameworkMap;
+		return hierarchy;
 	}
 	
 	protected Map<String, Object> getChannelHierarchy(String channelId){
