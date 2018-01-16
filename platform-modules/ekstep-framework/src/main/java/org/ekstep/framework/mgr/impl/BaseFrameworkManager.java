@@ -339,7 +339,23 @@ public class BaseFrameworkManager extends BaseManager {
 			 * TODO: Get the relationTitle from definition or from the calling method. For
 			 * now it is hardcoded as objectType suffixed with "s"
 			 */
-			request.put(StringUtils.lowerCase(objectType) + "s", relationList);
+			switch (objectType.toLowerCase()) {
+			case "framework":
+				request.put("frameworks", relationList);
+				break;
+			case "category":
+				request.put("categories", relationList);
+				break;
+			case "categoryinstance":
+				request.put("categoryinstances", relationList);
+				break;
+			case "channel":
+				request.put("channels", relationList);
+				break;
+			case "term":
+				request.put("terms", relationList);
+				break;
+			}
 		} catch (Exception e) {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
 		}

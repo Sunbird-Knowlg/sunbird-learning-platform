@@ -12,6 +12,10 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.framework.mgr.ICategoryInstanceManager;
+import org.ekstep.framework.mgr.ICategoryManager;
+import org.ekstep.framework.mgr.IChannelManager;
+import org.ekstep.framework.mgr.IFrameworkManager;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -23,10 +27,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.framework.mgr.ICategoryInstanceManager;
-import org.ekstep.framework.mgr.ICategoryManager;
-import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.framework.mgr.IFrameworkManager;
 
 /**
  * 
@@ -72,7 +72,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		Response resp = categoryInstanceMgr.readCategoryInstance(frameworkId, categoryId);
 		Map<String,Object> resultMap = resp.getResult();
 		Map<String,Object> categoryMap = (Map) resultMap.get("categoryInstance");
-		List<Map> frameworkMap = (List) categoryMap.get("framework");
+		List<Map> frameworkMap = (List) categoryMap.get("frameworks");
 		Assert.assertEquals(1, frameworkMap.size());
 	}
 	
@@ -117,7 +117,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		Response resp = categoryInstanceMgr.readCategoryInstance(frameworkId, categoryId);
 		Map<String,Object> resultMap = resp.getResult();
 		Map<String,Object> categoryMap = (Map) resultMap.get("categoryInstance");
-		List<Map> frameworkMap = (List) categoryMap.get("framework");
+		List<Map> frameworkMap = (List) categoryMap.get("frameworks");
 		Assert.assertEquals(1, frameworkMap.size());
 	}
 	
