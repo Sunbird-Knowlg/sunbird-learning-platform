@@ -103,17 +103,17 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		Map<String, Object> responseMap = (Map<String, Object>)response.get(FrameworkEnum.framework.name());
 		
-		responseMap.remove("categories");
-		responseMap.put("categories", getCategoriesList(frameworkId));
-		return response;
-		
-//		List<Object> frameworkHierarchy = searchFramework(frameworkId);
-//		if(null != frameworkHierarchy && !frameworkHierarchy.isEmpty()) {
-//			List<Object> categories = (List<Object>)((Map<String, Object>)((Map<String, Object>)frameworkHierarchy.get(0)).get("nv")).get("categories");
-//			responseMap.remove("categories");
-//			responseMap.put("categories", categories);
-//		}
+//		responseMap.remove("categories");
+//		responseMap.put("categories", getCategoriesList(frameworkId));
 //		return response;
+		
+		List<Object> frameworkHierarchy = searchFramework(frameworkId);
+		if(null != frameworkHierarchy && !frameworkHierarchy.isEmpty()) {
+			List<Object> categories = (List<Object>)((Map<String, Object>)((Map<String, Object>)frameworkHierarchy.get(0))).get("categories");
+			responseMap.remove("categories");
+			responseMap.put("categories", categories);
+		}
+		return response;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -143,7 +143,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		searchDto.setProperties(setSearchProperties(frameworkId));
 		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchDto.setFields(getFields());
-		searchDto.setLimit(2);
+		searchDto.setLimit(1);
 		
 		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false);
