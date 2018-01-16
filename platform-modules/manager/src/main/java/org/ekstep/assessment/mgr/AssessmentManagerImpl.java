@@ -51,7 +51,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
 	@Autowired
 	private AssessmentValidator validator;
-	long[] sum = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -79,43 +78,41 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			validateReq.put(GraphDACParams.node.name(), item);
 			validateRes = getResponse(validateReq);
 			assessmentErrors = validator.validateAssessmentItem(item);
-		}
-		if (checkError(validateRes) && !skipValidation) {
-			if (assessmentErrors.size() > 0) {
+			
+			if (checkError(validateRes)) {
 				List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
 				messages.addAll(assessmentErrors);
+				return validateRes;
 			}
-			return validateRes;
-		} else {
-			if (assessmentErrors.size() > 0 && !skipValidation) {
+			
+			if (assessmentErrors.size() > 0) {
 				return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(),
 						"AssessmentItem validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
 						assessmentErrors);
-			} else {
-				replaceMediaItemsWithVariants(taxonomyId, item);
-				Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-				createReq.put(GraphDACParams.node.name(), item);
-				createReq.put(GraphDACParams.skip_validations.name(), skipValidation);
-				Response createRes = getResponse(createReq);
-				if (checkError(createRes)) {
-					return createRes;
-				} else {
-					List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request
-							.get(AssessmentAPIParams.metadata_definitions.name());
-					if (validateRequired(newDefinitions)) {
-						Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-								"updateDefinition");
-						defRequest.put(GraphDACParams.object_type.name(), item.getObjectType());
-						defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
-						Response defResponse = getResponse(defRequest);
-						if (checkError(defResponse)) {
-							return defResponse;
-						}
-					}
-				}
-				return createRes;
 			}
 		}
+		replaceMediaItemsWithVariants(taxonomyId, item);
+		Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		createReq.put(GraphDACParams.node.name(), item);
+		createReq.put(GraphDACParams.skip_validations.name(), skipValidation);
+		Response createRes = getResponse(createReq);
+		if (checkError(createRes)) {
+			return createRes;
+		} else {
+			List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request
+					.get(AssessmentAPIParams.metadata_definitions.name());
+			if (validateRequired(newDefinitions)) {
+				Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+						"updateDefinition");
+				defRequest.put(GraphDACParams.object_type.name(), item.getObjectType());
+				defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
+				Response defResponse = getResponse(defRequest);
+				if (checkError(defResponse)) {
+					return defResponse;
+				}
+			}
+		}
+		return createRes;
 	}
 
 	@SuppressWarnings("unchecked")

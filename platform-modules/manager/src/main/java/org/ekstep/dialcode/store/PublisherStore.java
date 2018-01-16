@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.ekstep.cassandra.store.AbstractCassandraStore;
+import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import com.datastax.driver.core.Row;
  *
  */
 @Component
-public class PublisherStore extends AbstractCassandraStore {
+public class PublisherStore extends CassandraStore {
 
 	public PublisherStore() {
 		super();

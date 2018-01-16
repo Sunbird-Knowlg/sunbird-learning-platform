@@ -36,10 +36,12 @@ public class DialCodeGenerator {
 		double maxIndex;
 		try {
 			stripChars = Platform.config.hasPath("dialcode.strip.chars")
-					? Platform.config.getString("dialcode.strip.chars") : stripChars;
+					? Platform.config.getString("dialcode.strip.chars")
+					: stripChars;
 			length = Platform.config.hasPath("dialcode.length") ? Platform.config.getDouble("dialcode.length") : length;
 			largePrimeNumber = Platform.config.hasPath("dialcode.large.prime_number")
-					? new BigDecimal(Platform.config.getLong("dialcode.large.prime_number")) : largePrimeNumber;
+					? new BigDecimal(Platform.config.getLong("dialcode.large.prime_number"))
+					: largePrimeNumber;
 			maxIndex = systemConfigStore.getDialCodeIndex();
 			Map<String, Object> props = new HashMap<String, Object>();
 			props.put("max_index", maxIndex);
@@ -67,6 +69,7 @@ public class DialCodeGenerator {
 		double codesCount = 0;
 		double lastIndex = startIndex;
 		while (codesCount < count) {
+			lastIndex = getMaxIndex();
 			BigDecimal number = new BigDecimal(lastIndex);
 			BigDecimal num = number.multiply(largePrimeNumber).remainder(exponent);
 			String code = baseN(num, totalChars);
@@ -78,13 +81,9 @@ public class DialCodeGenerator {
 				} catch (Exception e) {
 					TelemetryManager.error("Error while generating DIAL code", e);
 				}
-				if (codesCount == count) {
-					setMaxIndex(lastIndex);
-				}
 			}
-			if (codesCount < count)
-				lastIndex = getMaxIndex();
 		}
+		setMaxIndex(lastIndex);
 		return codes;
 	}
 

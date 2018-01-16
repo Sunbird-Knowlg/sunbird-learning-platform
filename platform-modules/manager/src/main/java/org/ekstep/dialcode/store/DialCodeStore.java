@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.cassandra.store.AbstractCassandraStore;
+import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.cassandra.store.CassandraStoreParams;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ResourceNotFoundException;
@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Component
-public class DialCodeStore extends AbstractCassandraStore {
+public class DialCodeStore extends CassandraStore {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	
