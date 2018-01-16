@@ -108,8 +108,11 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 //		return response;
 		
 		List<Object> frameworkHierarchy = searchFramework(frameworkId);
+		System.out.println("Search result: "+ frameworkHierarchy);
 		if(null != frameworkHierarchy && !frameworkHierarchy.isEmpty()) {
 			List<Object> categories = (List<Object>)((Map<String, Object>)((Map<String, Object>)frameworkHierarchy.get(0))).get("fr_categories");
+			System.out.println("Framework categories: "+ frameworkHierarchy.get(0));
+			System.out.println("Framework categories: "+ categories);
 			responseMap.remove("categories");
 			responseMap.put("categories", categories);
 		}
@@ -153,7 +156,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		
 		private List<String> getFields() {
 			List<String> fields = new ArrayList<String>();
-			fields.add("hierarchy");
+			fields.add("fr_hierarchy");
 			return fields;
 		}
 		
@@ -161,7 +164,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			List<Map> properties = new ArrayList<Map>();
 			Map<String, Object> property = new HashMap<>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-			property.put("propertyName", "nodeUniqueId");
+			property.put("propertyName", "identifier");
 			property.put("values", frameworkId);
 			properties.add(property);
 

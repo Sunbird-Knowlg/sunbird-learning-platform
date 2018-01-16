@@ -388,13 +388,16 @@ public class BaseFrameworkManager extends BaseManager {
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + objectId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		
+		System.out.println("Node: "+ node);
+		System.out.println("ObjectType: "+ node.getObjectType());
 		if(StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
 			list.add(getFrameworkEvent(node));
 		}else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "CategoryInstance")) {
 			List<Relation> inRelations = node.getInRelations();
+			System.out.println("Node inRelations: "+ inRelations);
 			if(null != inRelations && !inRelations.isEmpty()) {
 				for(Relation rel : inRelations) {
+					System.out.println("CategoryInstance Rel: "+ rel);
 					if(StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Framework") && StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
 						generateFrameworkHierarchy(rel.getStartNodeId());
 					}
@@ -404,6 +407,7 @@ public class BaseFrameworkManager extends BaseManager {
 			List<Relation> inRelations = node.getInRelations();
 			if(null != inRelations && !inRelations.isEmpty()) {
 				for(Relation rel : inRelations) {
+					System.out.println("Term Rel: "+ rel);
 					if(StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance") && StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
 						generateFrameworkHierarchy(rel.getStartNodeId());
 					}
@@ -469,7 +473,7 @@ public class BaseFrameworkManager extends BaseManager {
 		List<Object> resultCategoriesList = new ArrayList<>();
 		if(null != categories && !categories.isEmpty()) {
 			for(NodeDTO category : categories) {
-				resultCategoriesList.add(getCategoryHierarchy((String)category.getIdentifier()));
+				resultCategoriesList.add(getCategoryHierarchy((String)category.getIdentifier(), category.getIndex()));
 			}
 		}
 		hierarchy.put("categories", resultCategoriesList);
@@ -493,7 +497,7 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected Map<String, Object> getCategoryHierarchy(String categoryId) {
+	protected Map<String, Object> getCategoryHierarchy(String categoryId, int index) {
 		Map<String, Object> resultCategoryMap = new HashMap<>();
 		Response responseNode = getDataNode(GRAPH_ID, categoryId);
 		if (checkError(responseNode))
@@ -507,7 +511,7 @@ public class BaseFrameworkManager extends BaseManager {
 		resultCategoryMap.put("code", categoryMetaData.get("code"));
 		resultCategoryMap.put("name", categoryMetaData.get("name"));
 		resultCategoryMap.put("description", categoryMetaData.get("description"));
-		resultCategoryMap.put("index", categoryMetaData.get("index"));
+		resultCategoryMap.put("index", index);
 		resultCategoryMap.put("objectType", node.getObjectType());
 		//resultCategoryMap.put("relation", categoryResponseMap.get("relation"));
 		
@@ -515,7 +519,7 @@ public class BaseFrameworkManager extends BaseManager {
 		List<Object> resultTermsList = new ArrayList<>();
 		if(null != terms && !terms.isEmpty()) {
 			for(NodeDTO term : terms) {
-				resultTermsList.add(getTermHierarchy((String)term.getIdentifier()));
+				resultTermsList.add(getTermHierarchy((String)term.getIdentifier(), term.getIndex()));
 			}
 		}
 		resultCategoryMap.put("terms", resultTermsList);
@@ -523,7 +527,7 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected Map<String, Object> getTermHierarchy(String termId) {
+	protected Map<String, Object> getTermHierarchy(String termId, int index) {
 		Map<String, Object> resultTermMap = new HashMap<>();
 		Response responseNode = getDataNode(GRAPH_ID, termId);
 		if (checkError(responseNode))
@@ -538,7 +542,7 @@ public class BaseFrameworkManager extends BaseManager {
 		resultTermMap.put("code", termMetaData.get("code"));
 		resultTermMap.put("name", termMetaData.get("name"));
 		resultTermMap.put("description", termMetaData.get("description"));
-		resultTermMap.put("index", termMetaData.get("index"));
+		resultTermMap.put("index", index);
 		resultTermMap.put("objectType", node.getObjectType());
 		//resultTermMap.put("relation", termResponseMap.get("relation"));
 		
@@ -559,7 +563,7 @@ public class BaseFrameworkManager extends BaseManager {
 		List<Object> resultChildrenList = new ArrayList<>();
 		if(null != children && !children.isEmpty()) {
 			for(NodeDTO childTerm : children) {
-				resultChildrenList.add(getTermHierarchy((String)childTerm.getIdentifier()));
+				resultChildrenList.add(getTermHierarchy((String)childTerm.getIdentifier(), childTerm.getIndex()));
 			}
 		}
 		resultTermMap.put("children", resultChildrenList);
@@ -568,7 +572,7 @@ public class BaseFrameworkManager extends BaseManager {
 		List<Object> resultAssociationList = new ArrayList<>();
 		if(null != association && !association.isEmpty()) {
 			for(NodeDTO associatedTerm : association) {
-				resultAssociationList.add(getTermHierarchy((String)associatedTerm.getIdentifier()));
+				resultAssociationList.add(getTermHierarchy((String)associatedTerm.getIdentifier(), associatedTerm.getIndex()));
 			}
 		}
 		resultTermMap.put("associations", resultAssociationList);
