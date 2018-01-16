@@ -473,7 +473,7 @@ public class BaseFrameworkManager extends BaseManager {
 		resultChannelMap.put("identifier", channelId);
 		resultChannelMap.put("code", channelMetaData.get("code"));
 		resultChannelMap.put("name", channelMetaData.get("name"));
-		resultChannelMap.put("name", channelMetaData.get("description"));
+		resultChannelMap.put("description", channelMetaData.get("description"));
 		
 		return resultChannelMap;
 	}
