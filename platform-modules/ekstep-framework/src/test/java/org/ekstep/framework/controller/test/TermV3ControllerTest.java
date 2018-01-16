@@ -6,6 +6,9 @@ package org.ekstep.framework.controller.test;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.mgr.ICategoryManager;
+import org.ekstep.framework.mgr.impl.CategoryManagerImpl;
+import org.ekstep.framework.test.common.TestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,9 +30,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.framework.mgr.ICategoryManager;
-import org.ekstep.framework.mgr.impl.CategoryManagerImpl;
-import org.ekstep.framework.test.common.TestSetup;
 
 /**
  * @author pradyumna
@@ -91,7 +91,7 @@ public class TermV3ControllerTest extends TestSetup {
 	 */
 	@Test
 	public void testA() {
-		String request = "{ \"request\": { \"term\": { \"label\": \"Standard2\", \"value\": \"Standard2\", \"description\":\"Second Standard\" } } }";
+		String request = "{ \"request\": { \"term\": { \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" } } }";
 		try {
 			String path = base_category_path + "/create?category=" + categoryId;
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
@@ -141,7 +141,7 @@ public class TermV3ControllerTest extends TestSetup {
 	 */
 	@Test
 	public void testD() {
-		String request = "{ \"request\": { \"term\": { \"value\": \"Class2\" } } }";
+		String request = "{ \"request\": { \"term\": { \"name\": \"Class2\" } } }";
 		try {
 			String path = base_category_path + "/update/" + termId + "?category=" + categoryId;
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")

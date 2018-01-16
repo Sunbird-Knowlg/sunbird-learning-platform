@@ -17,7 +17,11 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.slugs.Slug;
+import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
@@ -30,10 +34,6 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
-import org.ekstep.common.mgr.BaseManager;
-import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.framework.enums.FrameworkEnum;
 
 /**
  * @author pradyumna
@@ -335,7 +335,11 @@ public class BaseFrameworkManager extends BaseManager {
 			relationMap.put("identifier", scopeId);
 			relationMap.put("relation", "hasSequenceMember");
 			relationList.add(relationMap);
-			request.put(StringUtils.lowerCase(objectType), relationList);
+			/**
+			 * TODO: Get the relationTitle from definition or from the calling method. For
+			 * now it is hardcoded as objectType suffixed with "s"
+			 */
+			request.put(StringUtils.lowerCase(objectType) + "s", relationList);
 		} catch (Exception e) {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
 		}

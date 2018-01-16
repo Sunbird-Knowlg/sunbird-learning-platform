@@ -4,9 +4,9 @@
 			"objectType": "Term",
 			"properties":[
 			{
-				"propertyName": "label",
-	          	"title": "Label",
-	          	"description": "Label of the Term",
+				"propertyName": "name",
+	          	"title": "Name",
+	          	"description": "Name of the Term",
 	          	"category": "General",
 	          	"dataType": "Text",
 	          	"required": true,
@@ -16,9 +16,9 @@
 	          	"indexed": true
 			},
 			{
-				"propertyName": "value",
-	          	"title": "Value",
-	          	"description": "Value of the Term",
+				"propertyName": "code",
+	          	"title": "Code",
+	          	"description": "Code of the Term",
 	          	"category": "General",
 	          	"dataType": "Text",
 	          	"required": true,
@@ -129,8 +129,8 @@
 				"objectTypes": [
 					"Category"
 				],
-				"title": "category",
-				"description": "Category using the term",
+				"title": "categories",
+				"description": "Categories using the term",
 				"required": false,
 				"renderingHints": "{ 'order': 7}"
 			},
@@ -139,20 +139,30 @@
 				"objectTypes": [
 					"CategoryInstance"
 				],
-				"title": "categoryinstance",
+				"title": "categoryinstances",
 				"description": "CategoryInstance using the term",
 				"required": false,
-				"renderingHints": "{ 'order': 7}"
+				"renderingHints": "{ 'order': 8}"
 			},
 			{
 				"relationName": "associatedTo",
 				"objectTypes": [
 					"Content"
 				],
-				"title": "content",
+				"title": "contents",
 				"description": "Content associated with the term",
 				"required": false,
-				"renderingHints": "{ 'order': 7}"
+				"renderingHints": "{ 'order': 9}"
+			},
+			{
+				"relationName": "hasSequenceMember",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "parents",
+				"description": "Parent terms (in sorted order)",
+				"required": false,
+				"renderingHints": "{ 'order': 10}"
 			}
 			],
 			"outRelations":[
@@ -162,19 +172,19 @@
 					"Term"
 				],
 				"title": "children",
-				"description": "Child term items (in sorted order)",
+				"description": "Child terms (in sorted order)",
 				"required": false,
-				"renderingHints": "{ 'order': 8}"
+				"renderingHints": "{ 'order': 11}"
 			},
 			{
 				"relationName": "associatedTo",
 				"objectTypes": [
 					"Term"
 				],
-				"title": "terms",
-				"description": "terms associated with the current term",
+				"title": "associations",
+				"description": "Terms associated with the current term",
 				"required": false,
-				"renderingHints": "{ 'order': 9}"
+				"renderingHints": "{ 'order': 12}"
 			}	
 			],
 			"systemTags": [],
@@ -183,8 +193,8 @@
 				"limit": 50,
 				"fields":[
 					"identifier",
-					"label",
-					"value",
+					"name",
+					"code",
 					"description",
 					"status",
 					"author",

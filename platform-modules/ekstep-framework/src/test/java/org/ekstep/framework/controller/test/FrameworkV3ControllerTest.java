@@ -3,10 +3,14 @@ package org.ekstep.framework.controller.test;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
+import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
+import org.ekstep.framework.test.common.TestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -23,9 +27,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
-import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
-import org.ekstep.framework.test.common.TestSetup;
 
 /**
  * Mock Test Cases for Framework API
@@ -180,6 +181,7 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	 * Then: 200 - OK, Framework details with given identifier returns.
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void mockTestFramework_04() throws Exception {
 		String path = basePath + "/read/" + frameworkId;
