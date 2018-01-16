@@ -1,6 +1,7 @@
 package org.ekstep.framework.mgr.impl;
 
 import java.io.IOException;
+import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +44,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	private String host = "localhost";
 	private int port = 9200;
 	private SearchProcessor processor = null;
+	private static ObjectMapper mapper = new ObjectMapper();
 	@PostConstruct
 	public void init() {
 		host = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host") : host;
@@ -103,20 +105,24 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		Map<String, Object> responseMap = (Map<String, Object>)response.get(FrameworkEnum.framework.name());
 		
-//		responseMap.remove("categories");
-//		responseMap.put("categories", getCategoriesList(frameworkId));
-//		return response;
-		
-		List<Object> frameworkHierarchy = searchFramework(frameworkId);
-		System.out.println("Search result: "+ frameworkHierarchy);
-		if(null != frameworkHierarchy && !frameworkHierarchy.isEmpty()) {
-			List<Object> categories = (List<Object>)((Map<String, Object>)((Map<String, Object>)frameworkHierarchy.get(0))).get("fr_categories");
-			System.out.println("Framework categories: "+ frameworkHierarchy.get(0));
-			System.out.println("Framework categories: "+ categories);
-			responseMap.remove("categories");
-			responseMap.put("categories", categories);
+		List<Object> searchResult = searchFramework(frameworkId);
+		if(null != searchResult && !searchResult.isEmpty()) {
+			Map<String, String> hierarchy =  (Map<String, String>)((Map<String, Object>)((Map<String, Object>)searchResult.get(0))).get("fr_hierarchy");
+			String categories = hierarchy.get("categories");
+			if (StringUtils.isNotBlank(categories)) {
+				responseMap.remove("categories");
+				responseMap.put("categories", getList(categories));
+			}
 		}
 		return response;
+	}
+	
+	private List<Map<String, Object>> getList(String object) throws Exception {
+		try {
+			return mapper.readValue(object, new TypeReference<List<Map<String, Object>>>(){});
+		} catch (Exception e) {
+			throw new ServerException("Unable to parse hierarchy data.", e); 
+		}
 	}
 
 	@SuppressWarnings("unchecked")
