@@ -42,6 +42,18 @@ public class VocabularyTermController extends SearchBaseController {
 	public Promise<Result> suggest() {
 		String apiId = "vocabulary-term.suggest";
 		Request request = getRequest(request().body(), apiId, request().uri());
+		List<Map<String, Object>> terms = getData();
+		Response response = new Response();
+		response.put("terms", terms);
+		ResponseParams params = new ResponseParams();
+		params.setStatus(StatusType.successful.name());
+		response.setParams(params);
+
+		String resultString = mgr.getResult(response, request.getId(), request.getVer(), null, null);
+		return F.Promise.pure(ok(resultString).as("application/json"));
+	}
+
+	private List<Map<String, Object>> getData() {
 		List<Map<String, Object>> terms = new ArrayList<Map<String, Object>>();
 		Map<String, Object> resp = new HashMap<String, Object>();
 		resp.put("lemma", "add");
@@ -51,13 +63,39 @@ public class VocabularyTermController extends SearchBaseController {
 		resp.put("lemma", "addition");
 		resp.put("score", "1.0");
 		terms.add(resp);
-		Response response = new Response();
-		response.put("terms", terms);
-		ResponseParams params = new ResponseParams();
-		params.setStatus(StatusType.successful.name());
-		response.setParams(params);
+		resp = new HashMap<String, Object>();
+		resp.put("lemma", "additions");
+		resp.put("score", "1.0");
+		terms.add(resp);
+		resp = new HashMap<String, Object>();
+		resp.put("lemma", "adding");
+		resp.put("score", "1.0");
+		terms.add(resp);
+		resp = new HashMap<String, Object>();
+		resp.put("lemma", "added");
+		resp.put("score", "1.0");
+		terms.add(resp);
+		resp = new HashMap<String, Object>();
+		resp.put("lemma", "additive");
+		resp.put("score", "1.0");
+		terms.add(resp);
+		resp = new HashMap<String, Object>();
+		resp.put("lemma", "address");
+		resp.put("score", "1.0");
+		terms.add(resp);
+		resp = new HashMap<String, Object>();
+		resp.put("lemma", "additional");
+		resp.put("score", "1.0");
+		terms.add(resp);
+		resp = new HashMap<String, Object>();
+		resp.put("lemma", "value added");
+		resp.put("score", "1.0");
+		terms.add(resp);
+		resp = new HashMap<String, Object>();
+		resp.put("lemma", "name added");
+		resp.put("score", "1.0");
+		terms.add(resp);
 
-		String resultString = mgr.getResult(response, request.getId(), request.getVer(), null, null);
-		return F.Promise.pure(ok(resultString).as("application/json"));
+		return terms;
 	}
 }
