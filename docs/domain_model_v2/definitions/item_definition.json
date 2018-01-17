@@ -135,7 +135,7 @@
             "draft": false
         }, {
             "required": false,
-            "dataType": "Text",
+            "dataType": "JSON",
             "propertyName": "body",
             "title": "Question",
             "description": "",
