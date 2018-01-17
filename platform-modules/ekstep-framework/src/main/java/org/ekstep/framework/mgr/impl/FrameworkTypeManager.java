@@ -31,6 +31,8 @@ public class FrameworkTypeManager extends BaseFrameworkManager implements IFrame
 
 	private static final String FRAMEWORKTYPE_OBJECT_TYPE = "FrameworkType";
 	private static final String DEFAULT_ERR_CODE = "ERR_INVALID_FRMAEWORKTYPE_OBJECT";
+	private static Map<String, Object> fwTypes = new HashMap<String, Object>();
+	
 
 	/**
 	 * To create frameworktype.
@@ -64,25 +66,33 @@ public class FrameworkTypeManager extends BaseFrameworkManager implements IFrame
 	 * @return
 	 * @throws Exception
 	 */
-	public Response list(Map<String, Object> map) throws Exception {
-		Request request = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
-				GraphDACParams.object_type.name(), FRAMEWORKTYPE_OBJECT_TYPE);
-		Response graphRes = getResponse(request);
-		if (checkError(graphRes)) {
-			return graphRes;
-		} else {
-			DefinitionDTO definition = getDefinition(GRAPH_ID, FRAMEWORKTYPE_OBJECT_TYPE);
-			List<Node> nodes = (List<Node>) graphRes.get(GraphDACParams.node_list.name());
-			List<Map<String, Object>> fwtypes = new ArrayList<>();
-			for (Node node : nodes) {
-				Map<String, Object> fwType = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
-				fwtypes.add(fwType);
+	public Response list(Map<String, Object> map, boolean updateCache) throws Exception {
+		if (updateCache) {
+			Request request = getRequest(GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
+					GraphDACParams.object_type.name(), FRAMEWORKTYPE_OBJECT_TYPE);
+			Response graphRes = getResponse(request);
+			if (checkError(graphRes)) {
+				return graphRes;
+			} else {
+				DefinitionDTO definition = getDefinition(GRAPH_ID, FRAMEWORKTYPE_OBJECT_TYPE);
+				List<Node> nodes = (List<Node>) graphRes.get(GraphDACParams.node_list.name());
+				
+				for (Node node : nodes) {
+					Map<String, Object> fwType = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
+					String id = (String) fwType.get("identifier");
+					fwTypes.put(id, fwType);
+				}
 			}
-			Response response = new Response();
-			response.setParams(getSucessStatus());
-			response.put("frameworktypes", fwtypes);
-			return response;
 		}
+		Response response = new Response();
+		response.setParams(getSucessStatus());
+		response.put("frameworktypes", fwTypes.values());
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> getAll() {
+		return fwTypes;
 	}
 
 }

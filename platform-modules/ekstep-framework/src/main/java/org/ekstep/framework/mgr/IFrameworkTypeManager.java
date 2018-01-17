@@ -16,6 +16,8 @@ public interface IFrameworkTypeManager {
 	
 	public Response update(String id, Map<String, Object> map) throws Exception;
 	
-	public Response list(Map<String, Object> map) throws Exception;
+	public Response list(Map<String, Object> map, boolean updateCache) throws Exception;
+	
+	public Map<String, Object> getAll();
 
 }

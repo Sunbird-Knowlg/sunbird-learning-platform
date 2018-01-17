@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -83,12 +84,12 @@ public class FrameworkTypeController extends BaseController  {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> list(@RequestBody Map<String, Object> requestMap) {
+	public ResponseEntity<Response> list(@RequestBody Map<String, Object> requestMap, @RequestParam(value = "refresh") boolean updateCache) {
 		String apiId = "ekstep.learning.framework.type.list";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("search");
-			Response response = manager.list(map);
+			Response response = manager.list(map, updateCache);
 			return getResponseEntity(response, apiId, null);
 			
 		} catch (Exception e) {

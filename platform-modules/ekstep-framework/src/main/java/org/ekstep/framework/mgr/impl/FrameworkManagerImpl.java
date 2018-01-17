@@ -1,7 +1,6 @@
 package org.ekstep.framework.mgr.impl;
 
 import java.io.IOException;
-import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +20,13 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
+import org.ekstep.framework.mgr.IFrameworkTypeManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,6 +47,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	private SearchProcessor processor = null;
 	private static ObjectMapper mapper = new ObjectMapper();
 
+	@Autowired
+	IFrameworkTypeManager fwTypeManager;
+
 	@PostConstruct
 	public void init() {
 		host = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host") : host;
@@ -62,12 +66,18 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response createFramework(Map<String, Object> request, String channelId) throws Exception {
 		if (null == request)
-			return ERROR("ERR_INVALID_FRMAEWORK_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			return ERROR("ERR_INVALID_FRAMEWORK_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		String code = (String) request.get("code");
 		if (StringUtils.isBlank(code))
 			throw new ClientException("ERR_FRAMEWORK_CODE_REQUIRED", "Unique code is mandatory for framework",
 					ResponseCode.CLIENT_ERROR);
+
+		String type = (String) request.get("type");
+		if (StringUtils.isBlank(type) || !fwTypeManager.getAll().containsKey(type)) {
+			throw new ClientException("ERR_INVALID_FRAMEWORK", "Please provide valid framework type.",
+					ResponseCode.CLIENT_ERROR);
+		}
 
 		request.put("identifier", code);
 
@@ -106,12 +116,12 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		Map<String, Object> responseMap = (Map<String, Object>) response.get(FrameworkEnum.framework.name());
 		responseMap.put("categories", getCategoriesList(frameworkId));
-		
+
 		List<Object> searchResult = searchFramework(frameworkId);
 		if (null != searchResult && !searchResult.isEmpty()) {
 			Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
 			Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
-			Object categories =  hierarchy.get("categories");
+			Object categories = hierarchy.get("categories");
 			if (categories != null) {
 				responseMap.put("act_categories", categories);
 			}
