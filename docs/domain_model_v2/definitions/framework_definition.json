@@ -44,7 +44,11 @@
           "title": "Type",
           "description": "Type for the framework",
           "category": "General",
-          "dataType": "Text",
+          "dataType": "Select",
+          "range": [
+              "K-12",
+              "TPD"
+          ],
           "required": true,
           "displayProperty": "Editable",
           "defaultValue": "",

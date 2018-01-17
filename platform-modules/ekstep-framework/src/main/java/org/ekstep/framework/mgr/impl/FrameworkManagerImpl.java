@@ -20,13 +20,11 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
-import org.ekstep.framework.mgr.IFrameworkTypeManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,9 +44,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	private int port = 9200;
 	private SearchProcessor processor = null;
 	private static ObjectMapper mapper = new ObjectMapper();
-
-	@Autowired
-	IFrameworkTypeManager fwTypeManager;
 
 	@PostConstruct
 	public void init() {
@@ -72,12 +67,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		if (StringUtils.isBlank(code))
 			throw new ClientException("ERR_FRAMEWORK_CODE_REQUIRED", "Unique code is mandatory for framework",
 					ResponseCode.CLIENT_ERROR);
-
-		String type = (String) request.get("type");
-		if (StringUtils.isBlank(type) || !fwTypeManager.getAll().containsKey(type)) {
-			throw new ClientException("ERR_INVALID_FRAMEWORK", "Please provide valid framework type.",
-					ResponseCode.CLIENT_ERROR);
-		}
 
 		request.put("identifier", code);
 
@@ -356,11 +345,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		String ownerChannelId = (String) graphNode.getMetadata().get("channel");
 		if (!(channelId.equalsIgnoreCase(ownerChannelId))) {
 			return ERROR("ERR_SERVER_ERROR_UPDATE_FRAMEWORK", "Invalid Request. Channel Id Not Matched.",
-					ResponseCode.CLIENT_ERROR);
-		}
-		String type = (String) map.get("type");
-		if (StringUtils.isNotBlank(type) && !fwTypeManager.getAll().containsKey(type)) {
-			throw new ClientException("ERR_INVALID_FRAMEWORK", "Please provide valid framework type.",
 					ResponseCode.CLIENT_ERROR);
 		}
 		

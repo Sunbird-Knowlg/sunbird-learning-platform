@@ -385,11 +385,6 @@ public class BaseFrameworkManager extends BaseManager {
 		
 	}
 	
-	// TODO: cleanup this method.
-	protected ResponseParams getSucessStatus() {
-		return super.getSucessStatus();
-	}
-	
 	protected void generateFrameworkHierarchy(String objectId) throws Exception  {
 		List<Map<String, Object>> list = new ArrayList<>();
 		Response responseNode = getDataNode(GRAPH_ID, objectId);
