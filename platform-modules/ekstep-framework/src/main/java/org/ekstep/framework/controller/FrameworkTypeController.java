@@ -84,7 +84,7 @@ public class FrameworkTypeController extends BaseController  {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> list(@RequestBody Map<String, Object> requestMap, @RequestParam(value = "refresh") boolean updateCache) {
+	public ResponseEntity<Response> list(@RequestBody Map<String, Object> requestMap, @RequestParam(value = "refresh", required = false) boolean updateCache) {
 		String apiId = "ekstep.learning.framework.type.list";
 		Request request = getRequest(requestMap);
 		try {
