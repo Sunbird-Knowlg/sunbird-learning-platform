@@ -10,10 +10,20 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.assessment.dto.ItemSearchCriteria;
+import org.ekstep.assessment.dto.ItemSetDTO;
+import org.ekstep.assessment.dto.ItemSetSearchCriteria;
+import org.ekstep.assessment.enums.AssessmentAPIParams;
+import org.ekstep.assessment.enums.AssessmentErrorCodes;
+import org.ekstep.assessment.store.AssessmentStore;
+import org.ekstep.assessment.util.AssessmentValidator;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
@@ -29,19 +39,10 @@ import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import org.ekstep.assessment.dto.ItemSearchCriteria;
-import org.ekstep.assessment.dto.ItemSetDTO;
-import org.ekstep.assessment.dto.ItemSetSearchCriteria;
-import org.ekstep.assessment.enums.AssessmentAPIParams;
-import org.ekstep.assessment.enums.AssessmentErrorCodes;
-import org.ekstep.assessment.util.AssessmentValidator;
-import org.ekstep.common.dto.NodeDTO;
-import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class AssessmentManagerImpl extends BaseManager implements IAssessmentManager {
@@ -52,11 +53,17 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
 	@Autowired
 	private AssessmentValidator validator;
+
+	@Autowired
+	private AssessmentStore assessmentStore;
+
 	long[] sum = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response createAssessmentItem(String taxonomyId, Request request) {
+		String body = "";
+		String questionId = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -75,6 +82,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			skipValidation = false;
 		Response validateRes = new Response();
 		List<String> assessmentErrors = new ArrayList<String>();
+		body = (String) item.getMetadata().remove("body");
 		if (!skipValidation) {
 			Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 			validateReq.put(GraphDACParams.node.name(), item);
@@ -101,6 +109,16 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				if (checkError(createRes)) {
 					return createRes;
 				} else {
+					questionId = createRes.get("node_id").toString();
+					if (StringUtils.isNotBlank(body)) {
+						try {
+							assessmentStore.save(questionId, body);
+						} catch (Exception e) {
+							throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_SAVE_BODY.name(),
+									"Something Went Wrong While Processing Your Request");
+						}
+					}
+
 					List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request
 							.get(AssessmentAPIParams.metadata_definitions.name());
 					if (validateRequired(newDefinitions)) {
@@ -123,6 +141,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	@Override
 	public Response updateAssessmentItem(String id, String taxonomyId, Request request) {
 		Node item = null;
+		String assessmentBody = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -138,6 +157,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (null == item)
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
 					"AssessmentItem Object is blank");
+		assessmentBody = (String) item.getMetadata().get("body");
+		if (StringUtils.isNotBlank(assessmentBody))
+			item.getMetadata().put("body", null);
 		Boolean skipValidation = (Boolean) request.get(ContentAPIParams.skipValidations.name());
 		if (null == skipValidation)
 			skipValidation = false;
@@ -171,6 +193,14 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				if (checkError(updateRes)) {
 					return updateRes;
 				} else {
+					if (StringUtils.isNotBlank(assessmentBody)) {
+						try {
+							assessmentStore.update(id, assessmentBody);
+						} catch (Exception e) {
+							throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_SAVE_BODY.name(),
+									"Something Went Wrong While Processing Your Request");
+						}
+					}
 					List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request
 							.get(AssessmentAPIParams.metadata_definitions.name());
 					if (validateRequired(newDefinitions)) {
@@ -260,6 +290,21 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			return response;
 		}
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+
+		if (null == node.getMetadata().get("body")) {
+			try {
+				String questionId = node.getIdentifier();
+				String body = assessmentStore.read(questionId);
+				node.getMetadata().put("body", body);
+			} catch (Exception e) {
+				// No Need to Handle Exception as of now because we don't know
+				// whether body is present for particular Assessment Id. If we
+				// provide a flag in
+				// neo4j for body, then based on that flag, control should enter
+				// into try and Exception should be thrown from here.
+			}
+		}
+
 		if (null != node) {
 			DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
 			List<String> jsonProps = getJSONProperties(definition);
@@ -316,7 +361,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			}
 		}
 		if (null != node.getTags() && !node.getTags().isEmpty()) {
-			 metadata.put("tags", node.getTags());
+			metadata.put("tags", node.getTags());
 		}
 		if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<NodeDTO> concepts = new ArrayList<NodeDTO>();
@@ -354,7 +399,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		try {
-			   node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
+			node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
 		} catch (Exception e) {
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_REQUEST_FORMAT.name(),
 					"Invalid request format");
@@ -406,7 +451,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (StringUtils.isBlank(id))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM_SET_ID.name(),
 					"AssessmentItemSet Id is blank");
-		try{
+		try {
 			node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
 		} catch (Exception e) {
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_REQUEST_FORMAT.name(),
@@ -652,8 +697,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 						if (StringUtils.isNotBlank(asset_id)) {
 							Node asset = getNode(graphId, asset_id);
 							if (null != asset && null != asset.getMetadata().get(ContentAPIParams.variants.name())) {
-									String variantsJSON = (String) asset.getMetadata().get(ContentAPIParams.variants.name());
-									Map<String, String> variants = mapper.readValue(variantsJSON, new TypeReference<Map<String, String>>() {});
+								String variantsJSON = (String) asset.getMetadata()
+										.get(ContentAPIParams.variants.name());
+								Map<String, String> variants = mapper.readValue(variantsJSON,
+										new TypeReference<Map<String, String>>() {
+										});
 								if (variants != null && variants.size() > 0) {
 									String lowVariantURL = variants.get(resolution);
 									if (StringUtils.isNotEmpty(lowVariantURL)) {
@@ -671,8 +719,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error(
-					"error in replaceMediaItemsWithLowVariants while checking media for replacing with low variants, message= "
+			TelemetryManager
+					.error("error in replaceMediaItemsWithLowVariants while checking media for replacing with low variants, message= "
 							+ e.getMessage(), e);
 			e.printStackTrace();
 		}
