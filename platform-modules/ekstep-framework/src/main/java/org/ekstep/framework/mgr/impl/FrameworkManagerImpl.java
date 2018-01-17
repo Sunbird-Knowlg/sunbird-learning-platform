@@ -358,6 +358,12 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			return ERROR("ERR_SERVER_ERROR_UPDATE_FRAMEWORK", "Invalid Request. Channel Id Not Matched.",
 					ResponseCode.CLIENT_ERROR);
 		}
+		String type = (String) map.get("type");
+		if (StringUtils.isNotBlank(type) && !fwTypeManager.getAll().containsKey(type)) {
+			throw new ClientException("ERR_INVALID_FRAMEWORK", "Please provide valid framework type.",
+					ResponseCode.CLIENT_ERROR);
+		}
+		
 		Response response = update(frameworkId, FRAMEWORK_OBJECT_TYPE, map);
 		if (response.getResponseCode() == ResponseCode.OK)
 			generateFrameworkHierarchy(frameworkId);
