@@ -105,27 +105,18 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		Map<String, Object> responseMap = (Map<String, Object>) response.get(FrameworkEnum.framework.name());
-
+		responseMap.put("categories", getCategoriesList(frameworkId));
+		
 		List<Object> searchResult = searchFramework(frameworkId);
 		if (null != searchResult && !searchResult.isEmpty()) {
 			Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
 			Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
 			Object categories =  hierarchy.get("categories");
 			if (categories != null) {
-				responseMap.remove("categories");
-				responseMap.put("categories", categories);
+				responseMap.put("act_categories", categories);
 			}
 		}
 		return response;
-	}
-
-	private List<Map<String, Object>> getListMap(String object) throws Exception {
-		try {
-			return mapper.readValue(object, new TypeReference<List<Map<String, Object>>>() {
-			});
-		} catch (Exception e) {
-			throw new ServerException("Unable to parse hierarchy data.", e);
-		}
 	}
 
 	@SuppressWarnings("unchecked")

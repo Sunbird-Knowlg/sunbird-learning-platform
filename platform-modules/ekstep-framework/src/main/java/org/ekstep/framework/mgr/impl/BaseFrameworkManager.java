@@ -33,6 +33,7 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
@@ -378,6 +379,7 @@ public class BaseFrameworkManager extends BaseManager {
 		Node node = getDataNode(id);
 		String objectType = node.getObjectType();
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
+		List<RelationDefinition> out = definition.getOutRelations();
 		
 		
 	}
@@ -388,16 +390,12 @@ public class BaseFrameworkManager extends BaseManager {
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + objectId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		System.out.println("Node: "+ node);
-		System.out.println("ObjectType: "+ node.getObjectType());
 		if(StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
 			list.add(getFrameworkEvent(node));
 		}else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "CategoryInstance")) {
 			List<Relation> inRelations = node.getInRelations();
-			System.out.println("Node inRelations: "+ inRelations);
 			if(null != inRelations && !inRelations.isEmpty()) {
 				for(Relation rel : inRelations) {
-					System.out.println("CategoryInstance Rel: "+ rel);
 					if(StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Framework") && StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
 						generateFrameworkHierarchy(rel.getStartNodeId());
 					}
@@ -407,7 +405,6 @@ public class BaseFrameworkManager extends BaseManager {
 			List<Relation> inRelations = node.getInRelations();
 			if(null != inRelations && !inRelations.isEmpty()) {
 				for(Relation rel : inRelations) {
-					System.out.println("Term Rel: "+ rel);
 					if(StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance") && StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
 						generateFrameworkHierarchy(rel.getStartNodeId());
 					}
