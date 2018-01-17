@@ -15,6 +15,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
@@ -150,7 +151,7 @@ public class BaseFrameworkManager extends BaseManager {
 	 * @param objectType
 	 * 
 	 */
-	private DefinitionDTO getDefinition(String graphId, String objectType) {
+	protected DefinitionDTO getDefinition(String graphId, String objectType) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), objectType);
 		Response response = getResponse(request);
@@ -374,7 +375,7 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 	}
 	
-	
+	// TODO: need to remove existing hierarchy implementation of framework, category, terms.
 	protected void getHierarchy(String id) {
 		Node node = getDataNode(id);
 		String objectType = node.getObjectType();
@@ -382,6 +383,11 @@ public class BaseFrameworkManager extends BaseManager {
 		List<RelationDefinition> out = definition.getOutRelations();
 		
 		
+	}
+	
+	// TODO: cleanup this method.
+	protected ResponseParams getSucessStatus() {
+		return super.getSucessStatus();
 	}
 	
 	protected void generateFrameworkHierarchy(String objectId) throws Exception  {

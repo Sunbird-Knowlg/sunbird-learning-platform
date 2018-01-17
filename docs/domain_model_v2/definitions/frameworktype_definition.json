@@ -1,12 +1,24 @@
 {
   "definitionNodes": [
     {
-      "objectType": "Channel",
+      "objectType": "FrameworkType",
       "properties": [
-	   {
+	     {
           "propertyName": "name",
           "title": "Name",
-          "description": "Name of the channel",
+          "description": "Name of the framework type",
+          "category": "General",
+          "dataType": "Text",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 1}",
+          "indexed": true
+        },
+        {
+          "propertyName": "label",
+          "title": "Label",
+          "description": "Label of the framework type",
           "category": "General",
           "dataType": "Text",
           "required": true,
@@ -17,58 +29,39 @@
         },
         {
           "propertyName": "description",
-          "title": "Name",
-          "description": "description of the channel",
+          "title": "Description",
+          "description": "Description of the framework type",
           "category": "General",
           "dataType": "Text",
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 1}",
-          "indexed": true
+          "renderingHints": "{'inputType': 'text', 'order': 2}",
+          "indexed": false
         },
         {
           "propertyName": "code",
           "title": "Code",
-          "description": "Unique code for the channel",
+          "description": "Unique code for the framework type",
           "category": "General",
           "dataType": "Text",
           "required": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{'inputType': 'text', 'order': 2}",
-          "indexed": true
+          "renderingHints": "{'inputType': 'text', 'order': 3}",
+          "indexed": false
         },
         {
-            "propertyName": "status",
-            "title": "Status",
-            "description": "Status of the domain",
-            "category": "general",
-            "dataType": "Select",
-            "range":
-            [
-                "Draft",
-                "Live",
-                "Retired"
-            ],
-            "required": false,
-			      "indexed": true,
-            "displayProperty": "Editable",
-            "defaultValue": "Live",
-            "renderingHints": "{'inputType': 'select', 'order': 3}"
-        },
-        {
-          "propertyName": "defaultFramework",
-          "title": "Default Framework",
-          "description": "",
-          "category": "general",
-          "dataType": "Text",
-          "range": [],
+          "propertyName": "translations",
+          "title": "Translations",
+          "description": "Translations for the framework type",
+          "category": "General",
+          "dataType": "JSON",
           "required": false,
-          "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
+          "renderingHints": "{'inputType': 'text', 'order': 3}",
+          "indexed": false
         },
         {
           "propertyName": "createdBy",
@@ -76,12 +69,11 @@
           "description": "",
           "category": "audit",
           "dataType": "Text",
-          "range": [],
           "required": false,
           "indexed": false,
-          "displayProperty": "Editable",
+          "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 6}"
         },
         {
           "propertyName": "createdOn",
@@ -94,7 +86,7 @@
           "indexed": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 11 }"
+          "renderingHints": "{ 'order': 7}"
         },  
         {
           "propertyName": "lastUpdatedBy",
@@ -107,7 +99,7 @@
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 12 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 8}"
         },
         {
           "propertyName": "lastUpdatedOn",
@@ -121,44 +113,10 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{ 'order': 13 }"
-        },
-        {
-          "propertyName": "contentFilter",
-          "title": "search",
-          "description": "",
-          "category": "technical",
-          "dataType": "json",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 14 }"
         }
       ],
       "inRelations":[],
-      "outRelations":[
-  			{
-				"relationName": "hasSequenceMember",
-				"objectTypes": [
-					"CategoryInstance"
-				],
-				"title": "categories",
-				"description": "category instance associated with this channel",
-				"required": false,
-				"renderingHints": "{ 'order': 26 }"
-			},
-			{
-				"relationName": "hasSequenceMember",
-				"objectTypes": [
-					"Framework"
-				],
-				"title": "frameworks",
-				"description": "framework associated with this channel",
-				"required": false,
-				"renderingHints": "{ 'order': 26 }"
-			}
-	  ],
+      "outRelations":[],
       "systemTags": [],
       "metadata": {
         "ttl": 24,

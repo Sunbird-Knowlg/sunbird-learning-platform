@@ -40,6 +40,18 @@
           "indexed": false
         },
         {
+          "propertyName": "type",
+          "title": "Type",
+          "description": "Type for the framework",
+          "category": "General",
+          "dataType": "Text",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 3}",
+          "indexed": false
+        },
+        {
           "propertyName": "status",
             "title": "Status",
             "description": "Status of the framework",
