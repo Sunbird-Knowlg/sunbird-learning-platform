@@ -28,6 +28,18 @@
 	          	"indexed": true
 			},
 			{
+				"propertyName": "category",
+	          	"title": "Category",
+	          	"description": "Category of the Term",
+	          	"category": "General",
+	          	"dataType": "Text",
+	          	"required": true,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'text', 'order': 2}",
+	          	"indexed": true
+			},
+			{
 				"propertyName": "index",
 	          	"title": "Index",
 	          	"description": "Index position of the term",
