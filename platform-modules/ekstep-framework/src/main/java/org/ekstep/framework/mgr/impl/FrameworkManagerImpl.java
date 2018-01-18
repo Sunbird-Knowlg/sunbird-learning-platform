@@ -104,7 +104,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		Map<String, Object> responseMap = (Map<String, Object>) response.get(FrameworkEnum.framework.name());
-		responseMap.put("categories", getCategoriesList(frameworkId));
+		responseMap.put("dummy_categories", getCategoriesList(frameworkId));
 
 		List<Object> searchResult = searchFramework(frameworkId);
 		if (null != searchResult && !searchResult.isEmpty()) {
@@ -112,7 +112,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
 			Object categories = hierarchy.get("categories");
 			if (categories != null) {
-				responseMap.put("act_categories", categories);
+				responseMap.put("categories", categories);
 			}
 		}
 		return response;

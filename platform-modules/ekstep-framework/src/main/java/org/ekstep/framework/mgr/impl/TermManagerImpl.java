@@ -61,7 +61,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 
 		if(!request.containsKey(TermEnum.parents.name()) || ((List<Object>)request.get(TermEnum.parents.name())).isEmpty())
 			setRelations(categoryId, request);
-		
+		request.put("category", categoryId);
 		Response response = create(request, TERM_OBJECT_TYPE);
 		if(response.getResponseCode() == ResponseCode.OK) {
 			generateFrameworkHierarchy(id);
