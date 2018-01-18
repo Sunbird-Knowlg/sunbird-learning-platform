@@ -4,6 +4,8 @@
 package org.ekstep.framework.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +17,6 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
@@ -34,7 +35,6 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
@@ -46,9 +46,9 @@ public class BaseFrameworkManager extends BaseManager {
 
 	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
 			: "domain";
-	
+
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	protected Response create(Map<String, Object> request, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		try {
@@ -77,7 +77,7 @@ public class BaseFrameworkManager extends BaseManager {
 		response.setParams(getSucessStatus());
 		return response;
 	}
-	
+
 	protected Response update(String identifier, String objectType, Map<String, Object> map) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		Response getNodeResponse = getDataNode(GRAPH_ID, identifier);
@@ -122,7 +122,7 @@ public class BaseFrameworkManager extends BaseManager {
 			return ERROR("ERR_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
-	
+
 	protected Response retire(String identifier, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		Response getNodeResponse = getDataNode(GRAPH_ID, identifier);
@@ -194,7 +194,7 @@ public class BaseFrameworkManager extends BaseManager {
 		Response getNodeRes = getResponse(request);
 		return getNodeRes;
 	}
-	
+
 	protected Node getDataNode(String id) {
 		Response responseNode = getDataNode(GRAPH_ID, id);
 		if (checkError(responseNode))
@@ -245,8 +245,6 @@ public class BaseFrameworkManager extends BaseManager {
 		return response;
 	}
 
-
-
 	public String generateIdentifier(String scopeId, String code) {
 		String id = null;
 		if (StringUtils.isNotBlank(scopeId)) {
@@ -260,7 +258,7 @@ public class BaseFrameworkManager extends BaseManager {
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		if (null != node) {
 			List<Relation> inRelations = node.getInRelations();
-			if(null != inRelations && !inRelations.isEmpty()) {
+			if (null != inRelations && !inRelations.isEmpty()) {
 				for (Relation rel : inRelations) {
 					if (StringUtils.equalsIgnoreCase(identifier, rel.getStartNodeId()))
 						return true;
@@ -293,14 +291,14 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 
 		if (StringUtils.isNotBlank(scopeId)) {
-            List<Filter> identifierFilter = new ArrayList<>();
-            for (String identifier : getChildren(scopeId, objectType)) {
-                filter = new Filter(FrameworkEnum.identifier.name(), SearchConditions.OP_EQUAL, identifier);
-                identifierFilter.add(filter);
-            }
+			List<Filter> identifierFilter = new ArrayList<>();
+			for (String identifier : getChildren(scopeId, objectType)) {
+				filter = new Filter(FrameworkEnum.identifier.name(), SearchConditions.OP_EQUAL, identifier);
+				identifierFilter.add(filter);
+			}
 
-            metadataCriterion.add(MetadataCriterion.create(identifierFilter, SearchConditions.LOGICAL_OR));
-        }
+			metadataCriterion.add(MetadataCriterion.create(identifierFilter, SearchConditions.LOGICAL_OR));
+		}
 		return MetadataCriterion.create(filters, metadataCriterion, SearchConditions.LOGICAL_AND);
 	}
 
@@ -319,7 +317,7 @@ public class BaseFrameworkManager extends BaseManager {
 
 		return identifiers;
 	}
-	
+
 	/**
 	 * validate channel Node
 	 * 
@@ -327,14 +325,14 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 * @author gauraw
 	 * 
-	 * */
-	
-	protected boolean validateChannel(String channelId){
-		boolean isValidChannel=false;
-		
+	 */
+
+	protected boolean validateChannel(String channelId) {
+		boolean isValidChannel = false;
+
 		Response responseNode = getDataNode(GRAPH_ID, channelId);
-		if (!checkError(responseNode)){
-			isValidChannel=true;
+		if (!checkError(responseNode)) {
+			isValidChannel = true;
 		}
 		return isValidChannel;
 	}
@@ -374,39 +372,98 @@ public class BaseFrameworkManager extends BaseManager {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
 		}
 	}
-	
-	// TODO: need to remove existing hierarchy implementation of framework, category, terms.
-	protected void getHierarchy(String id) {
+
+	public Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata) throws Exception {
+		Map<String, Object> data = new HashMap<String, Object>();
 		Node node = getDataNode(id);
 		String objectType = node.getObjectType();
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
-		List<RelationDefinition> out = definition.getOutRelations();
-		
-		
+		if (includeMetadata) {
+			String[] fields = getFields(definition);
+			if (fields != null) {
+				for (String field : fields) {
+					data.put(field, node.getMetadata().get(field));
+				}
+			} else {
+				data.putAll(node.getMetadata());
+			}
+			data.put("identifier", node.getIdentifier());
+			if (index > 0)
+				data.put("index", index);
+		}
+		Map<String, String> inRelDefMap = new HashMap<>();
+		Map<String, String> outRelDefMap = new HashMap<>();
+		List<String> sortKeys = new ArrayList<String>();
+		ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
+		List<Relation> outRelations = node.getOutRelations();
+		if (null != outRelations && !outRelations.isEmpty()) {
+			for (Relation relation : outRelations) {
+				String key = relation.getRelationType() + relation.getEndNodeObjectType();
+				String title = outRelDefMap.get(key);
+				List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
+				if (relData == null) {
+					relData = new ArrayList<Map<String, Object>>();
+					data.put(title, relData);
+					sortKeys.add(title);
+				}
+				Map<String, Object> relMeta = relation.getMetadata();
+				int seqIndex = 0;
+				if (relMeta != null) {
+					Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
+					if (indexObj != null)
+						seqIndex = ((Long) indexObj).intValue();
+				}
+				Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true);
+				relData.add(childData);
+			}
+		}
+		for (String key : sortKeys) {
+			List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
+			getSorted(prop);
+		}
+		return data;
 	}
-	
-	protected void generateFrameworkHierarchy(String objectId) throws Exception  {
+
+	private String[] getFields(DefinitionDTO definition) {
+		Map<String, Object> meta = definition.getMetadata();
+		return (String[]) meta.get("fields");
+	}
+
+	private void getSorted(List<Map<String, Object>> relObjects) {
+		Collections.sort(relObjects, new Comparator<Map<String, Object>>() {
+			@Override
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				int o1Index = (int) o1.get("index");
+				int o2Index = (int) o2.get("index");
+				return o1Index - o2Index;
+			}
+		});
+	}
+
+	protected void generateFrameworkHierarchy(String objectId) throws Exception {
 		List<Map<String, Object>> list = new ArrayList<>();
 		Response responseNode = getDataNode(GRAPH_ID, objectId);
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + objectId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		if(StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
+		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
 			list.add(getFrameworkEvent(node));
-		}else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "CategoryInstance")) {
+		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "CategoryInstance")) {
 			List<Relation> inRelations = node.getInRelations();
-			if(null != inRelations && !inRelations.isEmpty()) {
-				for(Relation rel : inRelations) {
-					if(StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Framework") && StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
+			if (null != inRelations && !inRelations.isEmpty()) {
+				for (Relation rel : inRelations) {
+					if (StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Framework")
+							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
 						generateFrameworkHierarchy(rel.getStartNodeId());
 					}
 				}
 			}
-		}else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Term")) {
+		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Term")) {
 			List<Relation> inRelations = node.getInRelations();
-			if(null != inRelations && !inRelations.isEmpty()) {
-				for(Relation rel : inRelations) {
-					if(StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance") && StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
+			if (null != inRelations && !inRelations.isEmpty()) {
+				for (Relation rel : inRelations) {
+					if (StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance")
+							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
 						generateFrameworkHierarchy(rel.getStartNodeId());
 					}
 				}
@@ -414,167 +471,31 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 		LogAsyncGraphEvent.pushMessageToLogger(list);
 	}
-	
-	protected Map<String, Object> getFrameworkEvent(Node node) throws Exception{
-		/*Response responseNode = getDataNode(GRAPH_ID, frameworkId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + frameworkId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		*/
+
+	protected Map<String, Object> getFrameworkEvent(Node node) throws Exception {
 		Map<String, Object> frameworkEvent = new HashMap<>();
-		
+
 		Map<String, Object> hierarchy = new HashMap<>();
-        hierarchy.put("ov", null);
-        hierarchy.put("nv", mapper.writeValueAsString(getFrameworkHierarchy(node.getIdentifier())));
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("fr_hierarchy", hierarchy);
-        Map<String, Object> transactionData = new HashMap<>();
-        transactionData.put("properties", properties);
-        frameworkEvent.put(GraphDACParams.transactionData.name(), transactionData);
-        
-        frameworkEvent.put(GraphDACParams.userId.name(), "ANONYMOUS");
-        frameworkEvent.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
-        frameworkEvent.put(GraphDACParams.label.name(), node.getMetadata().get("name"));
-        frameworkEvent.put(GraphDACParams.graphId.name(), GRAPH_ID);
-        frameworkEvent.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
-        frameworkEvent.put(GraphDACParams.ets.name(), System.currentTimeMillis());
-        frameworkEvent.put(GraphDACParams.nodeGraphId.name(), node.getId());
-        frameworkEvent.put(GraphDACParams.nodeUniqueId.name(), node.getIdentifier());
-        frameworkEvent.put(GraphDACParams.nodeType.name(), node.getNodeType());
-        frameworkEvent.put(GraphDACParams.objectType.name(), node.getObjectType());
-        frameworkEvent.put(GraphDACParams.requestId.name(), null);
-        
-        return frameworkEvent;
+		hierarchy.put("ov", null);
+		hierarchy.put("nv", mapper.writeValueAsString(getHierarchy(node.getIdentifier(), 0, false)));
+		Map<String, Object> properties = new HashMap<>();
+		properties.put("fr_hierarchy", hierarchy);
+		Map<String, Object> transactionData = new HashMap<>();
+		transactionData.put("properties", properties);
+		frameworkEvent.put(GraphDACParams.transactionData.name(), transactionData);
+
+		frameworkEvent.put(GraphDACParams.userId.name(), "ANONYMOUS");
+		frameworkEvent.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
+		frameworkEvent.put(GraphDACParams.label.name(), node.getMetadata().get("name"));
+		frameworkEvent.put(GraphDACParams.graphId.name(), GRAPH_ID);
+		frameworkEvent.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
+		frameworkEvent.put(GraphDACParams.ets.name(), System.currentTimeMillis());
+		frameworkEvent.put(GraphDACParams.nodeGraphId.name(), node.getId());
+		frameworkEvent.put(GraphDACParams.nodeUniqueId.name(), node.getIdentifier());
+		frameworkEvent.put(GraphDACParams.nodeType.name(), node.getNodeType());
+		frameworkEvent.put(GraphDACParams.objectType.name(), node.getObjectType());
+		frameworkEvent.put(GraphDACParams.requestId.name(), null);
+		return frameworkEvent;
 	}
-	
-	@SuppressWarnings("unchecked")
-	protected Map<String, Object> getFrameworkHierarchy(String frameworkId) throws Exception{
-		Map<String, Object> hierarchy = new HashMap<>();
-		
-		Response responseNode = getDataNode(GRAPH_ID, frameworkId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + frameworkId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		DefinitionDTO definition = getDefinition(GRAPH_ID, "Framework");
-		Map<String, Object> frameworkResponseMap = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
-		
-		List<NodeDTO> channels = (List<NodeDTO>) frameworkResponseMap.get("channels");
-		List<Object> resultChannelsList = new ArrayList<>();
-		if(null != channels && !channels.isEmpty()) {
-			for(NodeDTO channel : channels) {
-				resultChannelsList.add(getChannelHierarchy(channel.getIdentifier()));
-			}
-		}
-		hierarchy.put("channels", resultChannelsList);
-		
-		List<NodeDTO> categories = (List<NodeDTO>)frameworkResponseMap.get("categories");
-		List<Object> resultCategoriesList = new ArrayList<>();
-		if(null != categories && !categories.isEmpty()) {
-			for(NodeDTO category : categories) {
-				resultCategoriesList.add(getCategoryHierarchy((String)category.getIdentifier(), category.getIndex()));
-			}
-		}
-		hierarchy.put("categories", resultCategoriesList);
-		
-		return hierarchy;
-	}
-	
-	protected Map<String, Object> getChannelHierarchy(String channelId){
-		Map<String, Object> resultChannelMap = new HashMap<>();
-		Response responseNode = getDataNode(GRAPH_ID, channelId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + channelId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		Map<String, Object> channelMetaData = node.getMetadata();
-		resultChannelMap.put("identifier", channelId);
-		resultChannelMap.put("code", channelMetaData.get("code"));
-		resultChannelMap.put("name", channelMetaData.get("name"));
-		resultChannelMap.put("description", channelMetaData.get("description"));
-		
-		return resultChannelMap;
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected Map<String, Object> getCategoryHierarchy(String categoryId, int index) {
-		Map<String, Object> resultCategoryMap = new HashMap<>();
-		Response responseNode = getDataNode(GRAPH_ID, categoryId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + categoryId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		DefinitionDTO definition = getDefinition(GRAPH_ID, "CategoryInstance");
-		Map<String, Object> categoryResponseMap = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
-		Map<String, Object> categoryMetaData = node.getMetadata();
-		
-		resultCategoryMap.put("identifier", categoryId);
-		resultCategoryMap.put("code", categoryMetaData.get("code"));
-		resultCategoryMap.put("name", categoryMetaData.get("name"));
-		resultCategoryMap.put("description", categoryMetaData.get("description"));
-		resultCategoryMap.put("index", index);
-		resultCategoryMap.put("objectType", node.getObjectType());
-		//resultCategoryMap.put("relation", categoryResponseMap.get("relation"));
-		
-		List<NodeDTO> terms = (List<NodeDTO>)categoryResponseMap.get("terms");
-		List<Object> resultTermsList = new ArrayList<>();
-		if(null != terms && !terms.isEmpty()) {
-			for(NodeDTO term : terms) {
-				resultTermsList.add(getTermHierarchy((String)term.getIdentifier(), term.getIndex()));
-			}
-		}
-		resultCategoryMap.put("terms", resultTermsList);
-		return resultCategoryMap;
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected Map<String, Object> getTermHierarchy(String termId, int index) {
-		Map<String, Object> resultTermMap = new HashMap<>();
-		Response responseNode = getDataNode(GRAPH_ID, termId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + termId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		DefinitionDTO definition = getDefinition(GRAPH_ID, "Term");
-		Map<String, Object> termResponseMap = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
-		
-		Map<String, Object> termMetaData = node.getMetadata();
-		
-		resultTermMap.put("identifier", termId);
-		resultTermMap.put("code", termMetaData.get("code"));
-		resultTermMap.put("name", termMetaData.get("name"));
-		resultTermMap.put("description", termMetaData.get("description"));
-		resultTermMap.put("index", index);
-		resultTermMap.put("objectType", node.getObjectType());
-		//resultTermMap.put("relation", termResponseMap.get("relation"));
-		
-		List<NodeDTO> categoryinstances = (List<NodeDTO>)termResponseMap.get("categoryinstances");
-		List<Object> resultCategoryInstancesList = new ArrayList<>();
-		if(null != categoryinstances && !categoryinstances.isEmpty()) {
-			for(NodeDTO categoryinstance : categoryinstances) {
-				Map<String, Object> categoryinstanceMap = new HashMap<>();
-				categoryinstanceMap.put("identifier", categoryinstance.getIdentifier());
-				categoryinstanceMap.put("objectType", categoryinstance.getObjectType());
-				
-				resultCategoryInstancesList.add(categoryinstanceMap);
-			}
-		}
-		resultTermMap.put("categoryinstances", resultCategoryInstancesList);
-		
-		List<NodeDTO> children = (List<NodeDTO>)termResponseMap.get("children");
-		List<Object> resultChildrenList = new ArrayList<>();
-		if(null != children && !children.isEmpty()) {
-			for(NodeDTO childTerm : children) {
-				resultChildrenList.add(getTermHierarchy((String)childTerm.getIdentifier(), childTerm.getIndex()));
-			}
-		}
-		resultTermMap.put("children", resultChildrenList);
-		
-		List<NodeDTO> association = (List<NodeDTO>)termResponseMap.get("associations");
-		List<Object> resultAssociationList = new ArrayList<>();
-		if(null != association && !association.isEmpty()) {
-			for(NodeDTO associatedTerm : association) {
-				resultAssociationList.add(getTermHierarchy((String)associatedTerm.getIdentifier(), associatedTerm.getIndex()));
-			}
-		}
-		resultTermMap.put("associations", resultAssociationList);
-		return resultTermMap;
-	}
-	
+
 }

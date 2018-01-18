@@ -91,7 +91,7 @@ public class TermFrameworkV3Controller extends BaseController {
 			@RequestParam(value = "framework", required = true) String frameworkId,
 			@RequestParam(value = "category", required = true) String categoryId,
 			@RequestBody Map<String, Object> requestMap) {
-		String apiId = "ekstep.learning.framework.term.search";
+		String apiId = "ekstep.learning.framework.term.update";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("term");

@@ -196,11 +196,7 @@
 					"name",
 					"code",
 					"description",
-					"status",
-					"author",
-					"createdBy",
-					"lastUpdatedOn",
-					"createdOn"
+					"status"
 				]
 			}
 		}
