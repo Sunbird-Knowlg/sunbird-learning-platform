@@ -8,6 +8,6 @@ package org.ekstep.framework.enums;
  *
  */
 public enum ChannelEnum {
-	node_id, channel
+	node_id, channel, framework, code, identifier, name, operation, propertyName, values, objectType, Framework, status, Live
 
 }

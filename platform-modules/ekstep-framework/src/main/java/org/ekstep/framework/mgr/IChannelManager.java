@@ -8,7 +8,7 @@ public interface IChannelManager {
 	
 	Response createChannel(Map<String,Object> request);
 
-	Response readChannel(String channelId);
+	Response readChannel(String channelId) throws Exception;
 
 	Response updateChannel(String channelId, Map<String, Object> map);
 
