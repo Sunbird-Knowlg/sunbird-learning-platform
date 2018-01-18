@@ -49,11 +49,11 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	public Response readChannel(String channelId) throws Exception{
 		Response response = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
 		Map<String, Object> responseMap = (Map<String, Object>) response.get(ChannelEnum.channel.name());
-		List<Object> frameworkList = (List<Object>) responseMap.get(ChannelEnum.framework.name());
+		List<Object> frameworkList = (List<Object>) responseMap.get(ChannelEnum.frameworks.name());
 		if(null == frameworkList || frameworkList.isEmpty()) {
 			List<Object> searchedFrameworkList = getAllFrameworkList();
 			if (null != searchedFrameworkList && !searchedFrameworkList.isEmpty()) {
-				responseMap.put(ChannelEnum.framework.name(),searchedFrameworkList);
+				responseMap.put(ChannelEnum.frameworks.name(),searchedFrameworkList);
 			}
 		}
 		return response;
