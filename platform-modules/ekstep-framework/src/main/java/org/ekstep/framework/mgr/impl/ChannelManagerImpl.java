@@ -95,7 +95,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	private List<String> getFields() {
 		List<String> fields = new ArrayList<String>();
-		fields.add(ChannelEnum.identifier.name());
+		//fields.add(ChannelEnum.identifier.name());
 		fields.add(ChannelEnum.name.name());
 		fields.add(ChannelEnum.code.name());
 		return fields;
