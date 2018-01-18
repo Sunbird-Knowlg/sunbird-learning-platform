@@ -50,7 +50,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		Response response = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
 		Map<String, Object> responseMap = (Map<String, Object>) response.get(ChannelEnum.channel.name());
 		List<Object> frameworkList = (List<Object>) responseMap.get(ChannelEnum.framework.name());
-		if(null != frameworkList && frameworkList.isEmpty()) {
+		if(null == frameworkList || frameworkList.isEmpty()) {
 			List<Object> searchedFrameworkList = getAllFrameworkList();
 			if (null != searchedFrameworkList && !searchedFrameworkList.isEmpty()) {
 				responseMap.put(ChannelEnum.framework.name(),searchedFrameworkList);
