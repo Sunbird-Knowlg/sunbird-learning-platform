@@ -208,6 +208,7 @@
 					"name",
 					"code",
 					"description",
+					"category",
 					"status"
 				]
 			}

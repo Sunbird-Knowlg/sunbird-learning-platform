@@ -398,13 +398,15 @@ public class BaseFrameworkManager extends BaseManager {
 		List<Relation> outRelations = node.getOutRelations();
 		if (null != outRelations && !outRelations.isEmpty()) {
 			for (Relation relation : outRelations) {
-				String key = relation.getRelationType() + relation.getEndNodeObjectType();
+				String type = relation.getRelationType();
+				String key = type + relation.getEndNodeObjectType();
 				String title = outRelDefMap.get(key);
 				List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
 				if (relData == null) {
 					relData = new ArrayList<Map<String, Object>>();
 					data.put(title, relData);
-					sortKeys.add(title);
+					if("hasSequenceMember".equalsIgnoreCase(type))
+						sortKeys.add(title);
 				}
 				Map<String, Object> relMeta = relation.getMetadata();
 				int seqIndex = 0;
