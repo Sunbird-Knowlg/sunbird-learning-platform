@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
@@ -40,6 +41,10 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	private static final String MAPPING = "{\"" + Constants.VOCABULARY_TERM_INDEX_TYPE
 			+ "\":{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"string\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"string\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}}";
 	private ElasticSearchUtil esUtil = null;
+	private static long environmentId = 10000000;
+	private static String shardId = "1";
+	private static AtomicInteger aInteger = new AtomicInteger(1);
+
 	/**
 	 * @throws IOException
 	 * 
@@ -174,8 +179,10 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 * @return
 	 */
 	private String generateId() {
-
-		return null;
+		long env = environmentId / 10000000;
+		long uid = System.currentTimeMillis();
+		uid = uid << 13;
+		return env + "" + uid + "" + shardId + "" + aInteger.getAndIncrement();
 	}
 
 	private Promise<Result> ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
