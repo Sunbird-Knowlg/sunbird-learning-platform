@@ -16,6 +16,7 @@ import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -52,23 +53,25 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		try {
 			esUtil.addIndex(Constants.VOCABULARY_TERM_INDEX, Constants.VOCABULARY_TERM_INDEX_TYPE, SETTING, MAPPING);
 		} catch (IOException e) {
-			e.printStackTrace();
+			TelemetryManager.error("");
 		}
 	}
 
 	public Promise<Result> create(Request request) {
 		if (null == request) {
-			return ERROR("ERR_INVALID_REQUEST", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Invalid Request", ResponseCode.CLIENT_ERROR);
 		}
 		List<Map<String, Object>> termRequest = getRequestData(request);
 		if (termRequest.isEmpty()) {
-			return ERROR("ERR_INVALID_REQUEST", "Please Provide atleast One Term Object", ResponseCode.CLIENT_ERROR);
+			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Please Provide atleast One Term Object",
+					ResponseCode.CLIENT_ERROR);
 		}
 		try {
 			List<String> termIds = new ArrayList<String>();
 			for (Map<String, Object> term : termRequest) {
 				if (StringUtils.isBlank((String) term.get(VocabularyTermParam.lemma.name()))) {
-					return ERROR("ERR_INVALID_REQUEST", "lemma is Mandatory", ResponseCode.PARTIAL_SUCCESS);
+					return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "lemma is Mandatory",
+							ResponseCode.PARTIAL_SUCCESS);
 				}
 				String identifier = (String) term.get("id");
 				if (StringUtils.isBlank(identifier)) {
@@ -80,8 +83,10 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			Response response = OK(VocabularyTermParam.identifiers.name(), termIds);
 			return successResponse(response);
 		} catch (Exception e) {
-			return ERROR("ERR_INTERNAL_ERROR", "Somehing went wrong while Processing", ResponseCode.SERVER_ERROR,
-					e.getMessage(), e);
+			TelemetryManager.error("VocabularyTermManager : create() : Exception : " + e.getMessage(), e);
+			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while Processing",
+					ResponseCode.SERVER_ERROR,
+					e.getMessage(), null);
 		}
 	}
 
@@ -92,23 +97,23 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	@SuppressWarnings("rawtypes")
 	public Promise<Result> suggest(Request request) {
 		if (null == request) {
-			return ERROR("ERR_INVALID_REQUEST", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Invalid Request", ResponseCode.CLIENT_ERROR);
 		}
-		String searchText = (String) request.get("text");
+		String searchText = (String) request.get(VocabularyTermParam.text.name());
 		if (StringUtils.isBlank(searchText)) {
-			return ERROR("ERR_INVALID_REQUEST", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Invalid Request", ResponseCode.CLIENT_ERROR);
 		}
 		String query = getSuggestQuery(searchText);
-		System.out.println("Query :  " + query);
 		try {
 			SearchResult searchResult = esUtil.search(Constants.VOCABULARY_TERM_INDEX, query);
 			List<Map> terms = getResultData(searchResult);
-			Response response = OK("terms", terms);
-			response.put("count", searchResult.getTotal());
+			Response response = OK(VocabularyTermParam.terms.name(), terms);
+			response.put(VocabularyTermParam.count.name(), searchResult.getTotal());
 			return successResponse(response);
-		} catch (IOException e) {
-			return ERROR("ERR_INTERNAL_ERROR", "Somehing went wrong while Processing", ResponseCode.SERVER_ERROR,
-					e.getMessage(), e);
+		} catch (Exception e) {
+			TelemetryManager.error("VocabularyTermManager : suggest() : Exception : " + e.getMessage(), e);
+			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while Processing",
+					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
 
@@ -120,10 +125,10 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	@SuppressWarnings("unchecked")
 	private List<Map<String, Object>> getRequestData(Request request) {
 		List<Map<String, Object>> termRequest = new ArrayList<Map<String, Object>>();
-		if (request.get("terms") instanceof List) {
-			termRequest = (List<Map<String, Object>>) request.get("terms");
+		if (request.get(VocabularyTermParam.terms.name()) instanceof List) {
+			termRequest = (List<Map<String, Object>>) request.get(VocabularyTermParam.terms.name());
 		} else {
-			Map<String, Object> reqMap = (Map<String, Object>) request.get("terms");
+			Map<String, Object> reqMap = (Map<String, Object>) request.get(VocabularyTermParam.terms.name());
 			termRequest.add(reqMap);
 		}
 		return termRequest;
@@ -157,10 +162,11 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	private Map<String, Object> getIndexDocument(Map<String, Object> term) {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 
-		indexDocument.put("id", (String) term.get("id"));
-		indexDocument.put("lemma", (String) term.get("lemma"));
-		indexDocument.put("language", (String) term.get("language"));
-		indexDocument.put("categories", (List<String>) term.get("categories"));
+		indexDocument.put(VocabularyTermParam.id.name(), (String) term.get(VocabularyTermParam.id.name()));
+		indexDocument.put(VocabularyTermParam.lemma.name(), (String) term.get(VocabularyTermParam.lemma.name()));
+		indexDocument.put(VocabularyTermParam.language.name(), (String) term.get(VocabularyTermParam.language.name()));
+		indexDocument.put(VocabularyTermParam.categories.name(),
+				(List<String>) term.get(VocabularyTermParam.categories.name()));
 		return indexDocument;
 	}
 
@@ -172,7 +178,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		return null;
 	}
 
-	protected Promise<Result> ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
+	private Promise<Result> ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
 		try {
 			Response response = new Response();
 			response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -184,12 +190,12 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 				return F.Promise.pure(internalServerError(result).as("application/json"));
 			}
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			TelemetryManager.error("VocabularyTermManager : ERROR() : Exception : " + e.getMessage(), e);
 		}
 		return null;
 	}
 
-	protected Promise<Result> ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier,
+	private Promise<Result> ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier,
 			Object vo) {
 		try {
 			Response response = new Response();
@@ -203,12 +209,12 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 				return F.Promise.pure(internalServerError(result).as("application/json"));
 			}
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			TelemetryManager.error("VocabularyTermManager : ERROR() : Exception : " + e.getMessage(), e);
 		}
 		return null;
 	}
 
-	protected Response OK() {
+	private Response OK() {
 			Response response = new Response();
 			response.setParams(getSucessStatus());
 		return response;
@@ -221,7 +227,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			return response;
 	}
 
-	protected ResponseParams getSucessStatus() {
+	private ResponseParams getSucessStatus() {
 		ResponseParams params = new ResponseParams();
 		params.setErr("0");
 		params.setStatus(StatusType.successful.name());
@@ -229,7 +235,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		return params;
 	}
 
-	protected ResponseParams getErrorStatus(String errorCode, String errorMessage) {
+	private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
 		ResponseParams params = new ResponseParams();
 		params.setErr(errorCode);
 		params.setStatus(StatusType.failed.name());
@@ -243,7 +249,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			result = mapper.writeValueAsString(response);
 			return F.Promise.pure(ok(result).as("application/json"));
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			TelemetryManager.error("VocabularyTermManager : successResponse() : Exception : " + e.getMessage(), e);
 		}
 		return null;
 	}
@@ -278,7 +284,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 * @param searchResult
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map> getResultData(SearchResult searchResult) {
 		List<Map> terms = new ArrayList<Map>();
 		for (Hit hit : searchResult.getHits(Map.class)) {
