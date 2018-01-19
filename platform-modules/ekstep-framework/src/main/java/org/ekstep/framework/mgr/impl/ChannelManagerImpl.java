@@ -68,8 +68,6 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	@Override
 	public Response listChannel(Map<String, Object> map) {
-		if (null == map)
-			return ERROR("ERR_INVALID_CHANNEL_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		return search(map, CHANNEL_OBJECT_TYPE, "channels", null);
 	}
 

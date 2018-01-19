@@ -14,7 +14,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
-import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
@@ -373,7 +372,8 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 	}
 
-	public Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata) throws Exception {
+	@SuppressWarnings("unchecked")
+	protected Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata) throws Exception {
 		Map<String, Object> data = new HashMap<String, Object>();
 		Node node = getDataNode(id);
 		String objectType = node.getObjectType();
