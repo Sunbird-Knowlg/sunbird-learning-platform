@@ -112,8 +112,9 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		try {
 			SearchResult searchResult = esUtil.search(Constants.VOCABULARY_TERM_INDEX, query);
 			List<Map> terms = getResultData(searchResult);
-			Response response = OK(VocabularyTermParam.terms.name(), terms);
-			response.put(VocabularyTermParam.count.name(), searchResult.getTotal());
+			Response response = OK();
+			response.put(VocabularyTermParam.count.name(), terms.size());
+			response.put(VocabularyTermParam.terms.name(), terms);
 			return successResponse(response);
 		} catch (Exception e) {
 			TelemetryManager.error("VocabularyTermManager : suggest() : Exception : " + e.getMessage(), e);
@@ -294,13 +295,16 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map> getResultData(SearchResult searchResult) {
 		List<Map> terms = new ArrayList<Map>();
+		Map<String, Object> docs = new HashMap<String, Object>();
 		for (Hit hit : searchResult.getHits(Map.class)) {
-			Map<String, Object> term = new HashMap<String, Object>();
-			Map<String, Object> doc = new HashMap<String, Object>();
-			term.put(VocabularyTermParam.score.name(), hit.score);
-			doc = (Map<String, Object>) hit.source;
-			term.put(VocabularyTermParam.lemma.name(), doc.get(VocabularyTermParam.lemma.name()));
+			Map<String, Object> doc = (Map<String, Object>) hit.source;
+			docs.put((String) doc.get(VocabularyTermParam.lemma.name()), hit.score);
 
+		}
+		for (String lemma : docs.keySet()) {
+			Map<String, Object> term = new HashMap<String, Object>();
+			term.put(VocabularyTermParam.score.name(), docs.get(lemma));
+			term.put(VocabularyTermParam.lemma.name(), lemma);
 			terms.add(term);
 		}
 		return terms;
