@@ -4,21 +4,22 @@
 package org.ekstep.framework.mgr.impl;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.framework.enums.TermEnum;
+import org.ekstep.framework.mgr.ITermManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.springframework.stereotype.Component;
-
-import org.ekstep.framework.enums.TermEnum;
-import org.ekstep.framework.mgr.ITermManager;
 
 /**
  * @author pradyumna
@@ -68,6 +69,59 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			generateFrameworkHierarchy(id);
 		}
 		return response;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response createTerm(String scopeId, String category, Request req) throws Exception {
+		List<Map<String, Object>> requestList = getRequestData(req);
+		if (null == requestList || requestList.isEmpty())
+			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+		String categoryId = category;
+		if (null != scopeId) {
+			categoryId = generateIdentifier(scopeId, categoryId);
+			validateRequest(scopeId, categoryId);
+			// validateMasterTerm(categoryId, label); commented to remove term validation
+			// with master term
+		} else {
+			validateCategoryId(categoryId);
+		}
+
+		int codeError = 0, serverError = 0;
+		String id = null;
+		List<String> identifiers = new ArrayList<String>();
+
+		for (Map<String, Object> request : requestList) {
+			String code = (String) request.get(TermEnum.code.name());
+			if (StringUtils.isNotBlank(code)) {
+				id = generateIdentifier(categoryId, code);
+				if (null != id)
+					request.put(TermEnum.identifier.name(), id);
+				else {
+					serverError += 1;
+					continue;
+				}
+
+				if (!request.containsKey(TermEnum.parents.name())
+						|| ((List<Object>) request.get(TermEnum.parents.name())).isEmpty())
+					setRelations(categoryId, request);
+				request.put("category", categoryId);
+				Response resp = create(request, TERM_OBJECT_TYPE);
+				if (resp.getResponseCode() == ResponseCode.OK) {
+					identifiers.add((String) resp.getResult().get("node_id"));
+				} else {
+					serverError += 1;
+				}
+
+			} else {
+				codeError += 1;
+			}
+		}
+		if (StringUtils.isNoneBlank(id)) {
+			generateFrameworkHierarchy(id);
+		}
+		return createResponse(codeError, serverError, identifiers, requestList.size());
 	}
 
 
@@ -232,4 +286,55 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 
 	}
 
+	/**
+	 * @param codeError
+	 * @param serverError
+	 * @param identifiers
+	 * @param size
+	 * @return
+	 * @throws Exception
+	 */
+	private Response createResponse(int codeError, int serverError, List<String> identifiers, int size)
+			throws Exception {
+		if (codeError == 0 && serverError == 0) {
+			return OK("node_id", identifiers);
+		} else if (codeError > 0 && serverError == 0) {
+			if (codeError == size) {
+				return ERROR("ERR_TERM_CODE_REQUIRED", "Unique code is required for Term", ResponseCode.CLIENT_ERROR);
+			} else {
+				return ERROR("ERR_TERM_CODE_REQUIRED", "Unique code is required for Term", ResponseCode.PARTIAL_SUCCESS,
+						"node_id", identifiers);
+			}
+		} else if (codeError == 0 && serverError > 0) {
+			if (serverError == size) {
+				return ERROR("ERR_SERVER_ERROR", "Internal Server Error", ResponseCode.SERVER_ERROR);
+			} else {
+				return ERROR("ERR_SERVER_ERROR", "Partial Success with Internal Error", ResponseCode.PARTIAL_SUCCESS,
+						"node_id", identifiers);
+			}
+		} else {
+			if ((codeError + serverError) == size) {
+				return ERROR("ERR_SERVER_ERROR", "Internal Server Error and also Invalid Request",
+						ResponseCode.SERVER_ERROR);
+			} else {
+				return ERROR("ERR_SERVER_ERROR", "Internal Server Error and also Invalid Request",
+						ResponseCode.PARTIAL_SUCCESS, "node_id", identifiers);
+			}
+		}
+	}
+
+	/**
+	 * @param req
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> getRequestData(Request req) {
+		if (req.get(TermEnum.term.name()) instanceof List) {
+			return (List<Map<String, Object>>) req.get(TermEnum.term.name());
+		} else {
+			List<Map<String, Object>> requestObj = new ArrayList<Map<String, Object>>();
+			requestObj.add((Map<String, Object>) req.get(TermEnum.term.name()));
+			return requestObj;
+		}
+	}
 }
