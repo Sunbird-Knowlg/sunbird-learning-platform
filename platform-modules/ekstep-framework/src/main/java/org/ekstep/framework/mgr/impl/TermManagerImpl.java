@@ -37,13 +37,14 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response createTerm(String scopeId, String categoryId, Map<String, Object> request) throws Exception{
+	public Response createTerm(String scopeId, String category, Map<String, Object> request) throws Exception{
 		if (null == request)
 			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		String code = (String) request.get(TermEnum.code.name());
 		if (StringUtils.isBlank(code))
 			return ERROR("ERR_TERM_LABEL_REQUIRED", "Unique code is required for Term", ResponseCode.CLIENT_ERROR);
 
+		String categoryId = category;
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
@@ -61,7 +62,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 
 		if(!request.containsKey(TermEnum.parents.name()) || ((List<Object>)request.get(TermEnum.parents.name())).isEmpty())
 			setRelations(categoryId, request);
-		request.put("category", categoryId);
+		request.put("category", category);
 		Response response = create(request, TERM_OBJECT_TYPE);
 		if(response.getResponseCode() == ResponseCode.OK) {
 			generateFrameworkHierarchy(id);
@@ -95,11 +96,13 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response updateTerm(String scopeId, String categoryId, String termId, Map<String, Object> request) throws Exception {
+	public Response updateTerm(String scopeId, String category, String termId, Map<String, Object> request) throws Exception {
 		if (null == request)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (request.containsKey(TermEnum.code.name()))
 			return ERROR("ERR_SERVER_ERROR", "Term Code cannot be updated", ResponseCode.SERVER_ERROR);
+		
+		String categoryId = category;
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
@@ -119,6 +122,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 				request.put(TermEnum.categoryinstances.name(), null);
 			}
 		}
+		request.put("category", category);
 		Response response = update(termId, TERM_OBJECT_TYPE, request);
 		if(response.getResponseCode() == ResponseCode.OK) {
 			generateFrameworkHierarchy(termId);

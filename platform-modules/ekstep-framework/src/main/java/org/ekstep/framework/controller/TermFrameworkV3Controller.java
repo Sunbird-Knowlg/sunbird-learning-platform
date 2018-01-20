@@ -32,7 +32,7 @@ public class TermFrameworkV3Controller extends BaseController {
 	/**
 	 * 
 	 * @param frameworkId
-	 * @param categoryId
+	 * @param category
 	 * @param requestMap
 	 * @return
 	 */
@@ -40,13 +40,13 @@ public class TermFrameworkV3Controller extends BaseController {
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestParam(value = "framework", required = true) String frameworkId,
-			@RequestParam(value = "category", required = true) String categoryId,
+			@RequestParam(value = "category", required = true) String category,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.framework.term.create";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("term");
-			Response response = termManager.createTerm(frameworkId, categoryId, map);
+			Response response = termManager.createTerm(frameworkId, category, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("create term"+ e.getMessage(), e);
@@ -80,7 +80,7 @@ public class TermFrameworkV3Controller extends BaseController {
 	 * 
 	 * @param termId
 	 * @param frameworkId
-	 * @param categoryId
+	 * @param category
 	 * @param requestMap
 	 * @return
 	 */
@@ -89,13 +89,13 @@ public class TermFrameworkV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String termId,
 			@RequestParam(value = "framework", required = true) String frameworkId,
-			@RequestParam(value = "category", required = true) String categoryId,
+			@RequestParam(value = "category", required = true) String category,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.framework.term.update";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("term");
-			Response response = termManager.updateTerm(frameworkId, categoryId, termId, map);
+			Response response = termManager.updateTerm(frameworkId, category, termId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Update term" +e.getMessage(), e);
