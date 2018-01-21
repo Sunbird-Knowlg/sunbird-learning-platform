@@ -185,7 +185,7 @@ public class FrameworkCategoryV3ControllerTest extends BaseCategoryInstanceMgrTe
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response response = jsonToObject(actions);
 		Map<String,Object> resultMap = (Map) response.getResult();
-		Map<String,Object> categoryData = (Map) resultMap.get("categoryInstance");
+		Map<String,Object> categoryData = (Map) resultMap.get("category");
 		Assert.assertEquals("Live", categoryData.get("status"));
 	}
 	
@@ -243,7 +243,7 @@ public class FrameworkCategoryV3ControllerTest extends BaseCategoryInstanceMgrTe
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response response = jsonToObject(actions);
 		Map<String,Object> resultMap = (Map) response.getResult();
-		Map<String,Object> categoryData = (Map) resultMap.get("categoryInstance");
+		Map<String,Object> categoryData = (Map) resultMap.get("category");
 		Assert.assertEquals("LP category API", categoryData.get("description"));
 	}
 	
@@ -376,7 +376,7 @@ public class FrameworkCategoryV3ControllerTest extends BaseCategoryInstanceMgrTe
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response response = jsonToObject(actions);
 		Map<String,Object> resultMap = (Map) response.getResult();
-		Map<String,Object> categoryData = (Map) resultMap.get("categoryInstance");
+		Map<String,Object> categoryData = (Map) resultMap.get("category");
 		Assert.assertEquals("Retired", categoryData.get("status"));
 	}
 	
