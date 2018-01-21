@@ -8,6 +8,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 
 import org.ekstep.framework.enums.CategoryEnum;
+import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements 
+public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements ICategoryInstanceManager
 {
 
 	private static final String CATEGORY_INSTANCE_OBJECT_TYPE = "CategoryInstance";
