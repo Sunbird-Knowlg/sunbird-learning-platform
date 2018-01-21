@@ -537,6 +537,9 @@ public class DataNode extends AbstractNode {
 					params.put("terms", terms);
 					TelemetryManager.log("Setting range from terms for data validation.", params);
 				}
+				if (null == range || range.isEmpty()) {
+					dataType = "text";
+				}
 			}
 
 			if (StringUtils.equalsIgnoreCase("text", dataType) && !(value instanceof String)) {
