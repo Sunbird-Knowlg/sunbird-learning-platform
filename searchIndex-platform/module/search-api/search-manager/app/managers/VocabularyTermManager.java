@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
@@ -37,13 +36,12 @@ import play.mvc.Result;
  */
 public class VocabularyTermManager extends BasePlaySearchManager {
 
-	private static final String SETTING = "{\"settings\":{\"index\":{\"index\":\"vocabularyterm\",\"type\":\"vt\",\"analysis\":{\"analyzer\":{\"vt_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"vt_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}}}";
+	private static final String SETTING = "{\"settings\":{\"index\":{\"index\":\"" + Constants.VOCABULARY_TERM_INDEX
+			+ "\",\"type\":\"" + Constants.VOCABULARY_TERM_INDEX_TYPE
+			+ "\",\"analysis\":{\"analyzer\":{\"vt_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"vt_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}}}";
 	private static final String MAPPING = "{\"" + Constants.VOCABULARY_TERM_INDEX_TYPE
 			+ "\":{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"string\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"string\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}}";
 	private ElasticSearchUtil esUtil = null;
-	private static long environmentId = 10000000;
-	private static String shardId = "1";
-	private static AtomicInteger aInteger = new AtomicInteger(1);
 
 	/**
 	 * @throws IOException
@@ -78,10 +76,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 					return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "lemma is Mandatory",
 							ResponseCode.PARTIAL_SUCCESS);
 				}
-				String identifier = (String) term.get("id");
-				if (StringUtils.isBlank(identifier)) {
-					identifier = generateId();
-				}
+				String identifier = (String) term.get(VocabularyTermParam.lemma.name());
 				addDoc(identifier, term);
 				termIds.add(identifier);
 			}
@@ -90,8 +85,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		} catch (Exception e) {
 			TelemetryManager.error("VocabularyTermManager : create() : Exception : " + e.getMessage(), e);
 			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while Processing",
-					ResponseCode.SERVER_ERROR,
-					e.getMessage(), null);
+					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
 
@@ -122,7 +116,6 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
-
 
 	/**
 	 * @param request
@@ -176,16 +169,6 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		return indexDocument;
 	}
 
-	/**
-	 * @return
-	 */
-	private String generateId() {
-		long env = environmentId / 10000000;
-		long uid = System.currentTimeMillis();
-		uid = uid << 13;
-		return env + "" + uid + "" + shardId + "" + aInteger.getAndIncrement();
-	}
-
 	private Promise<Result> ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
 		try {
 			Response response = new Response();
@@ -223,16 +206,16 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	}
 
 	private Response OK() {
-			Response response = new Response();
-			response.setParams(getSucessStatus());
+		Response response = new Response();
+		response.setParams(getSucessStatus());
 		return response;
 	}
 
 	private Response OK(String responseIdentifier, Object vo) {
-			Response response = new Response();
-			response.put(responseIdentifier, vo);
-			response.setParams(getSucessStatus());
-			return response;
+		Response response = new Response();
+		response.put(responseIdentifier, vo);
+		response.setParams(getSucessStatus());
+		return response;
 	}
 
 	private ResponseParams getSucessStatus() {
@@ -295,18 +278,14 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map> getResultData(SearchResult searchResult) {
 		List<Map> terms = new ArrayList<Map>();
-		Map<String, Object> docs = new HashMap<String, Object>();
 		for (Hit hit : searchResult.getHits(Map.class)) {
-			Map<String, Object> doc = (Map<String, Object>) hit.source;
-			docs.put((String) doc.get(VocabularyTermParam.lemma.name()), hit.score);
-
-		}
-		for (String lemma : docs.keySet()) {
 			Map<String, Object> term = new HashMap<String, Object>();
-			term.put(VocabularyTermParam.score.name(), docs.get(lemma));
-			term.put(VocabularyTermParam.lemma.name(), lemma);
-			terms.add(term);
+			Map<String, Object> doc = new HashMap<String, Object>();
+			term.put(VocabularyTermParam.score.name(), hit.score);
+			doc = (Map<String, Object>) hit.source;
+			term.put(VocabularyTermParam.lemma.name(), doc.get(VocabularyTermParam.lemma.name()));
 		}
+
 		return terms;
 	}
 }
