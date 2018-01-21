@@ -175,6 +175,16 @@
 				"description": "Parent terms (in sorted order)",
 				"required": false,
 				"renderingHints": "{ 'order': 10}"
+			},
+			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "associatedWith",
+				"description": "Terms from which the current term is associated",
+				"required": false,
+				"renderingHints": "{ 'order': 11}"
 			}
 			],
 			"outRelations":[
@@ -186,7 +196,7 @@
 				"title": "children",
 				"description": "Child terms (in sorted order)",
 				"required": false,
-				"renderingHints": "{ 'order': 11}"
+				"renderingHints": "{ 'order': 12}"
 			},
 			{
 				"relationName": "associatedTo",
@@ -196,7 +206,7 @@
 				"title": "associations",
 				"description": "Terms associated with the current term",
 				"required": false,
-				"renderingHints": "{ 'order': 12}"
+				"renderingHints": "{ 'order': 13}"
 			}	
 			],
 			"systemTags": [],

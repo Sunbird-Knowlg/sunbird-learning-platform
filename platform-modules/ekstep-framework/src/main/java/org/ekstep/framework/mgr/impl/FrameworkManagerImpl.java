@@ -14,10 +14,13 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -220,4 +223,88 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 	}
 
+	@Override
+	  public Response copyFramework(String frameworkId, String channelId, Map<String, Object> request) throws Exception {
+	    
+	    if (null == request)
+	      return ERROR("ERR_INVALID_FRAMEWORK_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+	    String code = (String) request.get("code");
+	    if (StringUtils.isBlank(code))
+	      throw new ClientException("ERR_FRAMEWORK_CODE_REQUIRED", 
+	          "Unique code is mandatory for framework",
+	          ResponseCode.CLIENT_ERROR);
+
+	    if(StringUtils.equals(frameworkId, code))
+	      throw new ClientException("ERR_FRAMEWORKID_CODE_MATCHES", 
+	          "FrameworkId and code should not be same.", 
+	          ResponseCode.CLIENT_ERROR);
+	    
+	    if (validateChannel(channelId)) {
+	      Response response = copyHierarchy(frameworkId, code, frameworkId, code);
+	      return response;
+	      
+	    } else {
+	      return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
+	          ResponseCode.CLIENT_ERROR);
+	    }
+	  }
+	  
+	  protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId, String clonedFrameworkId) {
+	    Node node = getDataNode(existingObjectId);
+	    String objectType = node.getObjectType();
+	    DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
+	    
+	    Map<String, Object> request = new HashMap<>();
+	    String[] fields = getFields(definition);
+	    if (fields != null) {
+	      for (String field : fields) {
+	        request.put(field, node.getMetadata().get(field));
+	      }
+	    } else {
+	      request.putAll(node.getMetadata());
+	    }
+	    request.put("identifier", clonedObjectId);
+	    if(StringUtils.equalsIgnoreCase(objectType, "Framework"))
+	      request.put("code", clonedObjectId);
+	    
+	    Response getNodeResponse = getDataNode(GRAPH_ID, clonedObjectId);
+	    if (checkError(getNodeResponse))
+	      create(request, objectType);
+	    else
+	      update(clonedObjectId, objectType, request);
+	    
+	    Map<String, String> inRelDefMap = new HashMap<>();
+	    Map<String, String> outRelDefMap = new HashMap<>();
+	    ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
+	    
+	    List<Relation> outRelations = node.getOutRelations();
+	    if (null != outRelations && !outRelations.isEmpty()) {
+	      for (Relation relation : outRelations) {
+	        String type = relation.getRelationType();
+	        String key = type + relation.getEndNodeObjectType();
+	        String title = outRelDefMap.get(key);
+	        String endNodeId = relation.getEndNodeId();
+	        endNodeId = endNodeId.replaceFirst(existingFrameworkId, clonedFrameworkId);
+	        Response res = copyHierarchy(relation.getEndNodeId(), endNodeId, existingFrameworkId, clonedFrameworkId);
+	        
+	        Map<String, Object> childObjectMap = new HashMap<>();
+	        childObjectMap.put("identifier", res.get("node_id"));
+	        
+	        if(request.containsKey(title)) {
+	          List<Map<String, Object>> relationshipList = (List<Map<String, Object>>)request.get(title);
+	          relationshipList.add(childObjectMap);
+	        }else {
+	          List<Map<String, Object>> relationshipList = new ArrayList<>();
+	          relationshipList.add(childObjectMap);
+	          request.put(title, relationshipList);
+	        }
+	      }
+	      update(clonedObjectId, objectType, request);
+	    }
+	    Response response = new Response();
+	    response.put("node_id", clonedObjectId);
+	    return response;
+	  }
+	  
 }

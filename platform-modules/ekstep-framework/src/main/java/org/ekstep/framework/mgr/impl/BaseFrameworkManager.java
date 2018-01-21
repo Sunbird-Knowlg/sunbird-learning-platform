@@ -426,7 +426,7 @@ public class BaseFrameworkManager extends BaseManager {
 		return data;
 	}
 
-	private String[] getFields(DefinitionDTO definition) {
+	protected String[] getFields(DefinitionDTO definition) {
 		Map<String, Object> meta = definition.getMetadata();
 		return (String[]) meta.get("fields");
 	}
