@@ -19,6 +19,7 @@ import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.slugs.Slug;
@@ -41,8 +42,6 @@ import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-
-import org.ekstep.common.dto.NodeDTO;
 
 
 public class PublishPipelineService implements ISamzaService {

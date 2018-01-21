@@ -3,12 +3,11 @@ package org.ekstep.taxonomy.content.util;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.util.XMLContentParser;
+import org.ekstep.taxonomy.content.common.BaseTestUtil;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import org.ekstep.taxonomy.content.common.BaseTestUtil;
 
 public class XMLContentParserErrorTest {
 	

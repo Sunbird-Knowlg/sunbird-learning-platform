@@ -1,0 +1,242 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: Publisher API
+  description: 'Publisher API allow user to Create, Read & Update Details of Publisher.'
+  license:
+    name: EkStep License
+    url: 'http:www.EkStep.in'
+host: host
+basePath: /dialcode/v3/publisher
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /create:
+    post:
+      description: API to create publisher for DIAL codes.
+      summary: Publisher - Create
+      tags:
+        - Publisher
+      operationId: CreatePost
+      produces:
+        - application/json
+      parameters:
+        - name: Body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/Publisher  createrequest'
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: X-Channel-Id
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: Publisher Created Successfully.
+      security: []
+      x-unitTests:
+        - request:
+            method: POST
+            uri: /create
+            headers:
+              Content-Type: application/json
+              X-Channel-Id: channelTest
+              Authorization: '{{APIKey}}'
+            body: "{\n  \"request\": {\n      \"publisher\": {\n\t\"identifier\":\"testPub0001\",\n        \"name\": \"PUBLISHER 001\"\n      }\n  }\n}"
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: NONE
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers: {}
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Publisher - Create
+          x-testDescription: API to create publisher for DIAL codes.
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  '/read/{publisherId}':
+    get:
+      description: API to get publisher.
+      summary: Publisher - Get
+      tags:
+        - Dev
+      operationId: ReadByPublisherIdGet
+      produces:
+        - application/json
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: X-Channel-Id
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: publisherId
+          in: path
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+      security: []
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  '/update/{publisherId}':
+    patch:
+      description: API to update publisher.
+      summary: Publisher - Update
+      tags:
+        - Dev
+      operationId: UpdateByPublisherIdPatch
+      produces:
+        - application/json
+      parameters:
+        - name: Body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/Publisher  updaterequest'
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: X-Channel-Id
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: publisherId
+          in: path
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+      security: []
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+definitions:
+  Publisher  createrequest:
+    title: Publisher - CreateRequest
+    example:
+      request:
+        publisher:
+          identifier: testPub0001
+          name: PUBLISHER 001
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/Request'
+    required:
+      - request
+  Request:
+    title: Request
+    example:
+      publisher:
+        identifier: testPub0001
+        name: PUBLISHER 001
+    type: object
+    properties:
+      publisher:
+        $ref: '#/definitions/Publisher'
+    required:
+      - publisher
+  Publisher:
+    title: Publisher
+    example:
+      identifier: testPub0001
+      name: PUBLISHER 001
+    type: object
+    properties:
+      identifier:
+        description: ''
+        example: testPub0001
+        type: string
+      name:
+        description: ''
+        example: PUBLISHER 001
+        type: string
+    required:
+      - identifier
+      - name
+  Publisher  updaterequest:
+    title: Publisher - UpdateRequest
+    example:
+      request:
+        publisher:
+          name: Test Publisher 001
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/Request4'
+    required:
+      - request
+  Request4:
+    title: Request4
+    example:
+      publisher:
+        name: Test Publisher 001
+    type: object
+    properties:
+      publisher:
+        $ref: '#/definitions/Publisher5'
+    required:
+      - publisher
+  Publisher5:
+    title: Publisher5
+    example:
+      name: Test Publisher 001
+    type: object
+    properties:
+      name:
+        description: ''
+        example: Test Publisher 001
+        type: string
+    required:
+      - name

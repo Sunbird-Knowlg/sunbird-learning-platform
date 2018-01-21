@@ -9,6 +9,7 @@ import org.ekstep.common.dto.Property;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
@@ -16,8 +17,6 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
-
-import org.ekstep.common.mgr.BaseManager;
 
 // TODO: Auto-generated Javadoc
 /**

@@ -2,7 +2,6 @@ package org.ekstep.graph.dac.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.graph.dac.enums.SystemProperties;
 
 public class SearchCriteria implements Serializable {

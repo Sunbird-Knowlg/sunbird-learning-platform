@@ -3,7 +3,10 @@ package org.ekstep.taxonomy.controller;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Response;
+import org.ekstep.taxonomy.mgr.IContentManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,10 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Controller
 @RequestMapping("/v1/library")

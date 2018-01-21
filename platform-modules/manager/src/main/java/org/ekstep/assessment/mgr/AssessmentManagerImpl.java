@@ -10,10 +10,18 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.assessment.dto.ItemSearchCriteria;
+import org.ekstep.assessment.dto.ItemSetDTO;
+import org.ekstep.assessment.dto.ItemSetSearchCriteria;
+import org.ekstep.assessment.enums.AssessmentAPIParams;
+import org.ekstep.assessment.enums.AssessmentErrorCodes;
+import org.ekstep.assessment.util.AssessmentValidator;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
@@ -29,19 +37,10 @@ import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import org.ekstep.assessment.dto.ItemSearchCriteria;
-import org.ekstep.assessment.dto.ItemSetDTO;
-import org.ekstep.assessment.dto.ItemSetSearchCriteria;
-import org.ekstep.assessment.enums.AssessmentAPIParams;
-import org.ekstep.assessment.enums.AssessmentErrorCodes;
-import org.ekstep.assessment.util.AssessmentValidator;
-import org.ekstep.common.dto.NodeDTO;
-import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class AssessmentManagerImpl extends BaseManager implements IAssessmentManager {
@@ -52,7 +51,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
 	@Autowired
 	private AssessmentValidator validator;
-	long[] sum = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -80,43 +78,41 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 			validateReq.put(GraphDACParams.node.name(), item);
 			validateRes = getResponse(validateReq);
 			assessmentErrors = validator.validateAssessmentItem(item);
-		}
-		if (checkError(validateRes) && !skipValidation) {
-			if (assessmentErrors.size() > 0) {
+			
+			if (checkError(validateRes)) {
 				List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
 				messages.addAll(assessmentErrors);
+				return validateRes;
 			}
-			return validateRes;
-		} else {
-			if (assessmentErrors.size() > 0 && !skipValidation) {
+			
+			if (assessmentErrors.size() > 0) {
 				return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(),
 						"AssessmentItem validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
 						assessmentErrors);
-			} else {
-				replaceMediaItemsWithVariants(taxonomyId, item);
-				Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-				createReq.put(GraphDACParams.node.name(), item);
-				createReq.put(GraphDACParams.skip_validations.name(), skipValidation);
-				Response createRes = getResponse(createReq);
-				if (checkError(createRes)) {
-					return createRes;
-				} else {
-					List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request
-							.get(AssessmentAPIParams.metadata_definitions.name());
-					if (validateRequired(newDefinitions)) {
-						Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-								"updateDefinition");
-						defRequest.put(GraphDACParams.object_type.name(), item.getObjectType());
-						defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
-						Response defResponse = getResponse(defRequest);
-						if (checkError(defResponse)) {
-							return defResponse;
-						}
-					}
-				}
-				return createRes;
 			}
 		}
+		replaceMediaItemsWithVariants(taxonomyId, item);
+		Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		createReq.put(GraphDACParams.node.name(), item);
+		createReq.put(GraphDACParams.skip_validations.name(), skipValidation);
+		Response createRes = getResponse(createReq);
+		if (checkError(createRes)) {
+			return createRes;
+		} else {
+			List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request
+					.get(AssessmentAPIParams.metadata_definitions.name());
+			if (validateRequired(newDefinitions)) {
+				Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+						"updateDefinition");
+				defRequest.put(GraphDACParams.object_type.name(), item.getObjectType());
+				defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
+				Response defResponse = getResponse(defRequest);
+				if (checkError(defResponse)) {
+					return defResponse;
+				}
+			}
+		}
+		return createRes;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -5,7 +5,6 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.imgscalr.Scalr;
 

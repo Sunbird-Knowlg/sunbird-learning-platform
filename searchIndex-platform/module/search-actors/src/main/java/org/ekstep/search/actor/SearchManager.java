@@ -13,6 +13,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
@@ -25,9 +26,7 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.dto.CoverageIgnore;
 
 import akka.actor.ActorRef;
 

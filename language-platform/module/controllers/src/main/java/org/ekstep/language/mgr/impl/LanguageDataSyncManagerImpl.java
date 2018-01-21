@@ -4,12 +4,11 @@ import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.mgr.CompositeIndexSyncManager;
 import org.ekstep.language.mgr.ICompositeSearchManager;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
-
-import org.ekstep.common.mgr.CompositeIndexSyncManager;
 
 @Component
 public class LanguageDataSyncManagerImpl extends CompositeIndexSyncManager implements ICompositeSearchManager {

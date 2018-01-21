@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
@@ -22,16 +23,15 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.taxonomy.enums.SuggestionCodeConstants;
 import org.ekstep.taxonomy.enums.SuggestionConstants;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.mgr.ISuggestionManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The Class SuggestionManager provides implementations of the various

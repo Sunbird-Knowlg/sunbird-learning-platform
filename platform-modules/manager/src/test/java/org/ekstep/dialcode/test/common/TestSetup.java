@@ -4,13 +4,6 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.ekstep.graph.service.util.DriverUtil;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -19,6 +12,12 @@ import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.engine.router.ActorBootstrap;
 import org.ekstep.graph.engine.router.GraphEngineActorPoolMgr;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.service.util.DriverUtil;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;

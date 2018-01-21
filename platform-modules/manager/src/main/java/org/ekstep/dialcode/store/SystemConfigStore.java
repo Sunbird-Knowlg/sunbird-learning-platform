@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ekstep.cassandra.store.AbstractCassandraStore;
+import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import com.datastax.driver.core.Row;
  *
  */
 @Component
-public class SystemConfigStore extends AbstractCassandraStore {
+public class SystemConfigStore extends CassandraStore {
 
 	public SystemConfigStore() {
 		super();

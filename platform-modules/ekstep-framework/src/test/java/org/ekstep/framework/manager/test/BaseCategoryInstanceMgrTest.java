@@ -5,15 +5,15 @@ import java.util.Random;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.framework.mgr.ICategoryManager;
+import org.ekstep.framework.mgr.IChannelManager;
+import org.ekstep.framework.mgr.IFrameworkManager;
+import org.ekstep.framework.test.common.TestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.framework.mgr.ICategoryManager;
-import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.framework.mgr.IFrameworkManager;
-import org.ekstep.framework.test.common.TestSetup;
 
 /**
  * 

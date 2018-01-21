@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.ekstep.common.dto.Response;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
-import org.ekstep.taxonomy.mgr.impl.ContentManagerImplUploadContentTest;
 import org.ekstep.test.common.TestParams;
 import org.ekstep.test.common.TestSetUp;
 import org.junit.Assert;

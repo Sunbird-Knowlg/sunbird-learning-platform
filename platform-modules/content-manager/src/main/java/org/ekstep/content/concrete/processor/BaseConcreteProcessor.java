@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.entity.Controller;
 import org.ekstep.content.entity.Media;
@@ -28,9 +29,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.mgr.BaseManager;
 
 /**
  * The Class BaseConcreteProcessor provides the common utility methods for all

@@ -1,10 +1,11 @@
 package org.ekstep.dialcode.test.common;
 
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
 import com.datastax.driver.core.Session;
-import org.ekstep.cassandra.connector.util.CassandraConnector;
 
 /**
  * This Class will allow setting Up Embedded Cassandra and execute script for

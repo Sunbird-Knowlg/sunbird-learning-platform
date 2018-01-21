@@ -9,6 +9,7 @@ import java.net.URLConnection;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.optimizr.Optimizr;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
@@ -17,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import org.ekstep.common.controller.BaseController;
 
 @Controller
 @RequestMapping("/v2/asset")
