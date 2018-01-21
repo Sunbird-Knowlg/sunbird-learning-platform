@@ -42,8 +42,7 @@ public class TermCategoryV3Controller extends BaseController {
 		String apiId = "ekstep.learning.category.term.create";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("term");
-			Response response = termManager.createTerm(null, categoryId, map);
+			Response response = termManager.createTerm(null, categoryId, request);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception Occured while creating term (Create term API): "+ e.getMessage(), e);

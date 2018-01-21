@@ -145,7 +145,7 @@ public class ConvertGraphNode {
         }
     }
 
-    private static void getRelationDefinitionMaps(DefinitionDTO definition, Map<String, String> inRelDefMap,
+    public static void getRelationDefinitionMaps(DefinitionDTO definition, Map<String, String> inRelDefMap,
             Map<String, String> outRelDefMap) {
         if (null != definition) {
             if (null != definition.getInRelations() && !definition.getInRelations().isEmpty()) {

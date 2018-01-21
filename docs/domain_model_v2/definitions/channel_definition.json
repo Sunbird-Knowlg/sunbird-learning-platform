@@ -52,10 +52,23 @@
                 "Retired"
             ],
             "required": false,
-			"indexed": true,
+			      "indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Live",
             "renderingHints": "{'inputType': 'select', 'order': 3}"
+        },
+        {
+          "propertyName": "defaultFramework",
+          "title": "Default Framework",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
         },
         {
           "propertyName": "createdBy",
@@ -140,7 +153,7 @@
 				"objectTypes": [
 					"Framework"
 				],
-				"title": "framework",
+				"title": "frameworks",
 				"description": "framework associated with this channel",
 				"required": false,
 				"renderingHints": "{ 'order': 26 }"

@@ -22,11 +22,12 @@
 	</properties>
 
 	<modules>
+		<module>unit-tests</module>
 		<module>platform-common</module>
 		<module>cassandra-connector</module>
 		<module>graph-engine</module>
 		<module>platform-dac</module>
-    		<module>platform-telemetry</module>
+    	<module>platform-telemetry</module>
   </modules>
 
 	<dependencies>

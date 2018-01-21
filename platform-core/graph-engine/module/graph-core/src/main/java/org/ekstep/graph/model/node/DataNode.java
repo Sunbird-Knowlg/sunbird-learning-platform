@@ -27,8 +27,10 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.exception.GraphRelationErrorCodes;
 import org.ekstep.graph.model.IRelation;
+import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.cache.DefinitionCache;
 import org.ekstep.graph.model.relation.RelationHandler;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.dispatch.Futures;
 import scala.concurrent.ExecutionContext;
@@ -515,6 +517,31 @@ public class DataNode extends AbstractNode {
 			String propName = def.getPropertyName();
 			String dataType = def.getDataType();
 			List<Object> range = def.getRange();
+			
+			//TODO: the below if condition is to allow term and termlist as datatypes.
+			if (StringUtils.isNotBlank(dataType) && MetadataDefinition.PLATFORM_OBJECTS_AS_DATA_TYPE.contains(dataType.toLowerCase())) {
+				String framework = (String) this.metadata.get("framework");
+				if (StringUtils.isBlank(framework))
+					messages.add("Please provide framework.");
+				if (dataType.endsWith("list")) {
+					dataType = "multi-select";
+				} else {
+					dataType = "select";
+				}
+				List<Object> terms = CategoryCache.getTerms(framework, propName);
+				if (null != terms && !terms.isEmpty()) {
+					range = terms;
+					Map<String, Object> params = new HashMap<>();
+					params.put("framework", framework);
+					params.put("category", propName);
+					params.put("terms", terms);
+					TelemetryManager.log("Setting range from terms for data validation.", params);
+				}
+				if (null == range || range.isEmpty()) {
+					dataType = "text";
+				}
+			}
+
 			if (StringUtils.equalsIgnoreCase("text", dataType) && !(value instanceof String)) {
 				messages.add("Metadata " + propName + " should be a String value");
 			} else if (StringUtils.equalsIgnoreCase("boolean", dataType) && !(value instanceof Boolean)) {

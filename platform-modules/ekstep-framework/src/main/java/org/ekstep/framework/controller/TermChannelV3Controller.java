@@ -44,8 +44,7 @@ public class TermChannelV3Controller extends BaseController {
 		String apiId = "ekstep.learning.channel.term.create";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("term");
-			Response response = termManager.createTerm(channelId, categoryId, map);
+			Response response = termManager.createTerm(channelId, categoryId, request);
 			return getResponseEntity(response, apiId, null);
 
 		} catch (Exception e) {

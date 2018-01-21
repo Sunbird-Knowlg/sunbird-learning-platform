@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -180,6 +181,7 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	 * Then: 200 - OK, Framework details with given identifier returns.
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void mockTestFramework_04() throws Exception {
 		String path = basePath + "/read/" + frameworkId;

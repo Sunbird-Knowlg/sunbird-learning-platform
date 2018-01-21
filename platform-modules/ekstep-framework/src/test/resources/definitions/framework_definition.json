@@ -40,6 +40,22 @@
           "indexed": false
         },
         {
+          "propertyName": "type",
+          "title": "Type",
+          "description": "Type for the framework",
+          "category": "General",
+          "dataType": "Select",
+          "range": [
+              "K-12",
+              "TPD"
+          ],
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "K-12",
+          "renderingHints": "{'inputType': 'text', 'order': 3}",
+          "indexed": false
+        },
+        {
           "propertyName": "status",
             "title": "Status",
             "description": "Status of the framework",

@@ -1,15 +1,30 @@
 package org.ekstep.framework.mgr.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.mgr.ConvertGraphNode;
+
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.searchindex.dto.SearchDTO;
+import org.ekstep.searchindex.processor.SearchProcessor;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,7 +40,17 @@ import org.springframework.stereotype.Component;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
+	private String host = "localhost";
+	private int port = 9200;
+	private SearchProcessor processor = null;
+	private static ObjectMapper mapper = new ObjectMapper();
 
+	@PostConstruct
+	public void init() {
+		host = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host") : host;
+		port = Platform.config.hasPath("dialcode.es_port") ? Platform.config.getInt("dialcode.es_port") : port;
+		processor = new SearchProcessor(host, port);
+	}
 
 	/*
 	 * create framework
@@ -36,16 +61,20 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response createFramework(Map<String, Object> request, String channelId) throws Exception {
 		if (null == request)
-			return ERROR("ERR_INVALID_FRMAEWORK_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			return ERROR("ERR_INVALID_FRAMEWORK_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		if (null == request.get("code"))
+		String code = (String) request.get("code");
+		if (StringUtils.isBlank(code))
 			throw new ClientException("ERR_FRAMEWORK_CODE_REQUIRED", "Unique code is mandatory for framework",
 					ResponseCode.CLIENT_ERROR);
 
-		request.put("identifier", (String) request.get("code"));
+		request.put("identifier", code);
 
 		if (validateChannel(channelId)) {
-			return create(request, FRAMEWORK_OBJECT_TYPE);
+			Response response = create(request, FRAMEWORK_OBJECT_TYPE);
+			if (response.getResponseCode() == ResponseCode.OK)
+				generateFrameworkHierarchy(code);
+			return response;
 		} else {
 			return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
 					ResponseCode.CLIENT_ERROR);
@@ -61,9 +90,69 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	 * @param frameworkId
 	 * 
 	 */
+	// TODO : Uncomment this method
+	/*
+	 * @Override public Response readFramework(String frameworkId) throws Exception
+	 * { return read(frameworkId, FRAMEWORK_OBJECT_TYPE,
+	 * FrameworkEnum.framework.name());; }
+	 */
+
+	// TODO : Delete this method and uncomment above method
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response readFramework(String frameworkId) throws Exception {
-		return read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
+
+		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
+		Map<String, Object> responseMap = (Map<String, Object>) response.get(FrameworkEnum.framework.name());
+		List<Object> searchResult = searchFramework(frameworkId);
+		if (null != searchResult && !searchResult.isEmpty()) {
+			Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
+			Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
+			Object categories = hierarchy.get("categories");
+			if (categories != null) {
+				responseMap.put("categories", categories);
+			}
+		}
+		return response;
+	}
+
+	private List<Object> searchFramework(String frameworkId) throws Exception {
+		List<Object> searchResult = new ArrayList<Object>();
+		SearchDTO searchDto = new SearchDTO();
+		searchDto.setFuzzySearch(false);
+
+		searchDto.setProperties(setSearchProperties(frameworkId));
+		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+		searchDto.setFields(getFields());
+		searchDto.setLimit(1);
+
+		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false);
+
+		return searchResult;
+	}
+
+	private List<String> getFields() {
+		List<String> fields = new ArrayList<String>();
+		fields.add("fr_hierarchy");
+		return fields;
+	}
+
+	private List<Map> setSearchProperties(String frameworkId) {
+		List<Map> properties = new ArrayList<Map>();
+		Map<String, Object> property = new HashMap<>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+		property.put("propertyName", "identifier");
+		property.put("values", frameworkId);
+		properties.add(property);
+
+		property = new HashMap<String, Object>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+		property.put("propertyName", "objectType");
+		property.put("values", "Framework");
+		properties.add(property);
+
+		return properties;
 	}
 
 	/*
@@ -79,14 +168,18 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		Response getNodeResponse = getDataNode(GRAPH_ID, frameworkId);
 		if (checkError(getNodeResponse))
 			throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
-					"Framework Not Found With Id : "+frameworkId);
+					"Framework Not Found With Id : " + frameworkId);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		String ownerChannelId = (String) graphNode.getMetadata().get("channel");
 		if (!(channelId.equalsIgnoreCase(ownerChannelId))) {
 			return ERROR("ERR_SERVER_ERROR_UPDATE_FRAMEWORK", "Invalid Request. Channel Id Not Matched.",
 					ResponseCode.CLIENT_ERROR);
 		}
-		return update(frameworkId, FRAMEWORK_OBJECT_TYPE, map);
+		
+		Response response = update(frameworkId, FRAMEWORK_OBJECT_TYPE, map);
+		if (response.getResponseCode() == ResponseCode.OK)
+			generateFrameworkHierarchy(frameworkId);
+		return response;
 
 	}
 
@@ -117,18 +210,102 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		Response getNodeResponse = getDataNode(GRAPH_ID, frameworkId);
 		if (checkError(getNodeResponse))
 			throw new ResourceNotFoundException("ERR_FRAMEWORK_NOT_FOUND",
-					"Framework Not Found With Id : "+frameworkId);
+					"Framework Not Found With Id : " + frameworkId);
 		Node frameworkNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
-		
+
 		String ownerChannelId = (String) frameworkNode.getMetadata().get("channel");
 
 		if (!(channelId.equalsIgnoreCase(ownerChannelId))) {
 			return ERROR("ERR_SERVER_ERROR_UPDATE_FRAMEWORK", "Invalid Request. Channel Id Not Matched.",
 					ResponseCode.CLIENT_ERROR);
 		}
-		
+
 		return retire(frameworkId, FRAMEWORK_OBJECT_TYPE);
 
 	}
-	
+
+	@Override
+	  public Response copyFramework(String frameworkId, String channelId, Map<String, Object> request) throws Exception {
+	    
+	    if (null == request)
+	      return ERROR("ERR_INVALID_FRAMEWORK_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+	    String code = (String) request.get("code");
+	    if (StringUtils.isBlank(code))
+	      throw new ClientException("ERR_FRAMEWORK_CODE_REQUIRED", 
+	          "Unique code is mandatory for framework",
+	          ResponseCode.CLIENT_ERROR);
+
+	    if(StringUtils.equals(frameworkId, code))
+	      throw new ClientException("ERR_FRAMEWORKID_CODE_MATCHES", 
+	          "FrameworkId and code should not be same.", 
+	          ResponseCode.CLIENT_ERROR);
+	    
+	    if (validateChannel(channelId)) {
+	      Response response = copyHierarchy(frameworkId, code, frameworkId, code);
+	      return response;
+	      
+	    } else {
+	      return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
+	          ResponseCode.CLIENT_ERROR);
+	    }
+	  }
+	  
+	  protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId, String clonedFrameworkId) {
+	    Node node = getDataNode(existingObjectId);
+	    String objectType = node.getObjectType();
+	    DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
+	    
+	    Map<String, Object> request = new HashMap<>();
+	    String[] fields = getFields(definition);
+	    if (fields != null) {
+	      for (String field : fields) {
+	        request.put(field, node.getMetadata().get(field));
+	      }
+	    } else {
+	      request.putAll(node.getMetadata());
+	    }
+	    request.put("identifier", clonedObjectId);
+	    if(StringUtils.equalsIgnoreCase(objectType, "Framework"))
+	      request.put("code", clonedObjectId);
+	    
+	    Response getNodeResponse = getDataNode(GRAPH_ID, clonedObjectId);
+	    if (checkError(getNodeResponse))
+	      create(request, objectType);
+	    else
+	      update(clonedObjectId, objectType, request);
+	    
+	    Map<String, String> inRelDefMap = new HashMap<>();
+	    Map<String, String> outRelDefMap = new HashMap<>();
+	    ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
+	    
+	    List<Relation> outRelations = node.getOutRelations();
+	    if (null != outRelations && !outRelations.isEmpty()) {
+	      for (Relation relation : outRelations) {
+	        String type = relation.getRelationType();
+	        String key = type + relation.getEndNodeObjectType();
+	        String title = outRelDefMap.get(key);
+	        String endNodeId = relation.getEndNodeId();
+	        endNodeId = endNodeId.replaceFirst(existingFrameworkId, clonedFrameworkId);
+	        Response res = copyHierarchy(relation.getEndNodeId(), endNodeId, existingFrameworkId, clonedFrameworkId);
+	        
+	        Map<String, Object> childObjectMap = new HashMap<>();
+	        childObjectMap.put("identifier", res.get("node_id"));
+	        
+	        if(request.containsKey(title)) {
+	          List<Map<String, Object>> relationshipList = (List<Map<String, Object>>)request.get(title);
+	          relationshipList.add(childObjectMap);
+	        }else {
+	          List<Map<String, Object>> relationshipList = new ArrayList<>();
+	          relationshipList.add(childObjectMap);
+	          request.put(title, relationshipList);
+	        }
+	      }
+	      update(clonedObjectId, objectType, request);
+	    }
+	    Response response = new Response();
+	    response.put("node_id", clonedObjectId);
+	    return response;
+	  }
+	  
 }
