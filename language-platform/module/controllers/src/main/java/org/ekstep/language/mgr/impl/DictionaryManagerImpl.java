@@ -2755,9 +2755,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 										wordUtil.getRelationName(LanguageParams.synonyms.name()), mainWordId);
 								outRelations.add(relation);
 							}
-						synset.setOutRelations(outRelations);
-
 						}
+						synset.setOutRelations(outRelations);
 					}
 				} else {
 					if(synonymRelations!=null&& synonymRelations.size()>0){
