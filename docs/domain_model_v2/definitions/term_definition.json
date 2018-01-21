@@ -151,7 +151,7 @@
 				"objectTypes": [
 					"CategoryInstance"
 				],
-				"title": "categoryinstances",
+				"title": "categories",
 				"description": "CategoryInstance using the term",
 				"required": false,
 				"renderingHints": "{ 'order': 8}"
@@ -181,7 +181,7 @@
 				"objectTypes": [
 					"Term"
 				],
-				"title": "associatedWith",
+				"title": "associations",
 				"description": "Terms from which the current term is associated",
 				"required": false,
 				"renderingHints": "{ 'order': 11}"
