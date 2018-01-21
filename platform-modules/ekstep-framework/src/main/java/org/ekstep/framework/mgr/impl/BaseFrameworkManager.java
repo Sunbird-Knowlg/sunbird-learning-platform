@@ -33,6 +33,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
@@ -476,10 +477,11 @@ public class BaseFrameworkManager extends BaseManager {
 
 	protected Map<String, Object> getFrameworkEvent(Node node) throws Exception {
 		Map<String, Object> frameworkEvent = new HashMap<>();
-
 		Map<String, Object> hierarchy = new HashMap<>();
 		hierarchy.put("ov", null);
-		hierarchy.put("nv", mapper.writeValueAsString(getHierarchy(node.getIdentifier(), 0, false)));
+		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false);
+		CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
+		hierarchy.put("nv", mapper.writeValueAsString(frameworkHierarchy));
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("fr_hierarchy", hierarchy);
 		Map<String, Object> transactionData = new HashMap<>();

@@ -15,9 +15,11 @@ import org.springframework.stereotype.Component;
 
 import org.ekstep.framework.enums.ChannelEnum;
 import org.ekstep.framework.mgr.IChannelManager;
+import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Component
 public class ChannelManagerImpl extends BaseFrameworkManager implements IChannelManager {
@@ -32,6 +34,21 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		host = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host") : host;
 		port = Platform.config.hasPath("dialcode.es_port") ? Platform.config.getInt("dialcode.es_port") : port;
 		processor = new SearchProcessor(host, port);
+		
+		try {
+			List<Object> frameworks = getAllFrameworkList();
+			if (null != frameworks && !frameworks.isEmpty()) {
+				for (Object entry : frameworks) {
+					Map<String, Object> framework = (Map<String, Object>) entry;
+					String id = (String) framework.get("identifier");
+					Map<String, Object> hierarchy = getHierarchy(id, 0, false);
+					CategoryCache.setFramework(id, hierarchy);
+				}
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error while loading all frameworks to category cache.", e);
+		}
+		
 	}
 	
 	@Override
@@ -83,7 +100,6 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		searchDto.setProperties(setSearchProperties());
 		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchDto.setFields(getFields());
-		//searchDto.setLimit(1);
 
 		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false);
@@ -93,7 +109,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	private List<String> getFields() {
 		List<String> fields = new ArrayList<String>();
-		//fields.add(ChannelEnum.identifier.name());
+		fields.add(ChannelEnum.identifier.name());
 		fields.add(ChannelEnum.name.name());
 		fields.add(ChannelEnum.code.name());
 		return fields;
