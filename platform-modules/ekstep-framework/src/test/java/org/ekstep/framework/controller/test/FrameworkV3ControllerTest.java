@@ -486,4 +486,183 @@ public class FrameworkV3ControllerTest extends TestSetup {
 				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "test").content(createFrameworkValidJson));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
+	
+	// Copy Framework API -- Start
+
+		/*
+		 * Scenario 21 : copy Framework with valid url, valid request body and
+		 * valid framework identifier.
+		 * 
+		 * Given: Valid url, Valid request body and Valid framework identifier 
+		 * When: Framework copy API hits. 
+		 * Then: 200 - OK, Framework with full hierarchy got coppied.
+		 * 
+		 */
+		
+		@Test
+		public void mockTestFramework_21() throws Exception {
+			String path = basePath + "/copy/" + frameworkId;
+			String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 102\",\"name\":\"NCERT COPY 102\",\"description\":\"NCERT COPY 102 Description\"}}}";
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
+			System.out.println("Response 21: " + actions.andReturn().getResponse().getContentAsString());
+			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		}
+
+		/*
+		 * Scenario 22 : Copy Framework with Invalid url, valid request body and
+		 * valid framework identifier.
+		 * 
+		 * Given: Valid url, Valid request body and Valid framework identifier 
+		 * When:Framework copy API hits. 
+		 * Then: 404 , Invalid Request.
+		 * 
+		 */
+		@Test
+		public void mockTestFramework_22() throws Exception {
+			String path = basePath + "/cop/" + frameworkId;
+			String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 102\",\"name\":\"NCERT COPY 102\",\"description\":\"NCERT COPY 102 Description\"}}}";
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
+			System.out.println("Response 22: " + actions.andReturn().getResponse().getStatus());
+			Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+		}
+
+		/*
+		 *
+		 * Scenario 23 : Copy Framework with valid url, valid request body and
+		 * valid framework identifier but invalid header( Channel Id Not Present in
+		 * Header).
+		 * 
+		 * Given: Valid url, Valid request body and Valid framework identifier, Invalid Header (Channel Id Not Present) 
+		 * When: Framework copy API hits.
+		 * Then: 400 , Bad Request with error Message: Invalid Request
+		 * 
+		 */
+		@Test
+		public void mockTestFramework_23() throws Exception {
+			String path = basePath + "/copy/" + frameworkId;
+			String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 102\",\"name\":\"NCERT COPY 102\",\"description\":\"NCERT COPY 102 Description\"}}}";
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.content(copyFrameworkValidJson));
+			System.out.println("Response 22: " + actions.andReturn().getResponse().getStatus());
+			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		}
+
+		/*
+		 *
+		 * Scenario 24 : Copy Framework with valid url, valid request body and
+		 * valid framework identifier but invalid owner( Channel Id in Header will
+		 * not match with owner channel Id).
+		 * 
+		 * Given: Valid url, Valid request body and Valid framework identifier,
+		 * Invalid Header (Channel Id in Header will not match with owner channel id) 
+		 * When: Framework copy API hits. 
+		 * Then: 400 , Invalid Request. Channel Id Not Matched. - CLIENT_ERROR
+		 * 
+		 */
+		@Test
+		public void mockTestFramework_24() throws Exception {
+			String path = basePath + "/copy/" + frameworkId;
+			String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 102\",\"name\":\"NCERT COPY 102\",\"description\":\"NCERT COPY 102 Description\"}}}";
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.header("X-Channel-Id", "channelBR").content(copyFrameworkValidJson));
+			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		}
+
+		/*
+		 *
+		 * Scenario 25 : Copy Framework with valid url, valid request body and
+		 * Invalid framework identifier.
+		 * 
+		 * Given: Valid url, Valid request body and Invalid framework identifier
+		 * When: Framework copy API hits. 
+		 * Then: 404 - Resource Not Found with error Message: Framework not found with id: framework Id
+		 * 
+		 */
+		@Test
+		public void mockTestFramework_25() throws Exception {
+			String path = basePath + "/copy/" + "test11111";
+			String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 102\",\"name\":\"NCERT COPY 102\",\"description\":\"NCERT COPY 102 Description\"}}}";
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
+			Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+		}
+
+		/*
+		 *	// check - if custom message and different http error code is required. 
+		 * Scenario 26 : Copy Framework with valid url, Invalid request body
+		 * (original frameworkId and duplicate framework code is same) and valid framework identifier.
+		 * 
+		 * Given: Valid url, Invalid request body (original frameworkId and duplicate framework code is same) 
+		 * and valid framework identifier.
+		 * When: Framework copy API hits. 
+		 * Then: 400 , Unique code is mandatory for framework - CLIENT_ERROR
+		 * 
+		 */
+		@Test
+		public void mockTestFramework_26() throws Exception {
+			String path = basePath + "/copy/" + frameworkId;
+			String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\""+ frameworkId + "\",\"name\":\"NCERT COPY 102\",\"description\":\"NCERT COPY 102 Description\"}}}";
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
+			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		}
+		
+		/*
+		 *	// check - if custom message and different http error code is required. 
+		 * Scenario 27 : Copy Framework with valid url, Invalid request body
+		 * (does not have code) and valid framework identifier.
+		 * 
+		 * Given: Valid url, Invalid request body (does not have code) 
+		 * and valid framework identifier.
+		 * When: Framework copy API hits. 
+		 * Then: 400 , Unique code is mandatory for framework - CLIENT_ERROR
+		 * 
+		 */
+		@Test
+		public void mockTestFramework_27() throws Exception {
+			String path = basePath + "/copy/" + frameworkId;
+			String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"name\":\"NCERT COPY 102\",\"description\":\"NCERT COPY 102 Description\"}}}";
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
+			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		}
+		
+		/*
+		 *	// check - if custom message and different http error code is required. 
+		 * Scenario 28 : Copy Framework with valid url, Invalid request body
+		 * (try to create framework with certain code where framework already exists) and valid framework identifier.
+		 * 
+		 * Given: Valid url, Invalid request body (try to create framework with certain code where framework already exists) 
+		 * and valid framework identifier.
+		 * When: Framework copy API hits. 
+		 * Then: 400 , Unique code is mandatory for framework - CLIENT_ERROR
+		 * 
+		 */
+		@Test
+		public void mockTestFramework_28() throws Exception {
+			String existingFrameworkId = "";
+			try {
+				String createFrameworkReq = "{\"name\": \"NCERT\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"ncert\"}";
+				Map<String, Object> requestMap = mapper.readValue(createFrameworkReq,
+						new TypeReference<Map<String, Object>>() {
+						});
+				requestMap.put("channel", channelId);
+				Response resp = frameworkManager.createFramework(requestMap, channelId);
+				existingFrameworkId = (String) resp.getResult().get("node_id");
+			} catch (Exception e) {
+				System.out.println("Exception Occured while creating Framework :" + e.getMessage());
+				e.printStackTrace();
+			}
+			
+			String path = basePath + "/copy/" + frameworkId;
+			String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\": \"" + existingFrameworkId + "\", \"name\":\"NCERT COPY 102\",\"description\":\"NCERT COPY 102 Description\"}}}";
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
+			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		}
+
+		// Copy Framework API -- End
+		
 }
