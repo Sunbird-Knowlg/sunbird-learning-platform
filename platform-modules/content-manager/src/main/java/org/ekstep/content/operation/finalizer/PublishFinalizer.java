@@ -189,6 +189,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		}
 
+		setSuitability(node);
+		
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
@@ -322,6 +324,21 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		return response;
+	}
+
+	private void setSuitability(Node node) {
+		if ("video/x-youtube".equalsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
+			Object obj = node.getMetadata().get("suitability");
+			List<String> suitability = null;
+			String value = "external";
+			if (obj instanceof List) {
+				suitability = (List<String>) obj;
+			} else {
+				suitability = new ArrayList<>();
+			}
+			if (!suitability.contains(value))
+				suitability.add(value);
+		}
 	}
 
 	private String getS3KeyFromUrl(String s3Url) {
