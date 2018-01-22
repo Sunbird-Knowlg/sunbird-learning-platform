@@ -30,7 +30,7 @@
             "category": "General",
             "dataType": "Multi-Select",
             "required": false,
-            "range": ["English", "Hindi", "Assamese", "Bengali", "Gujarati", "Kannada", "Malayalam", "Marathi", "Nepali", "Odia", "Punjabi", "Tamil", "Telugu", "Urdu", "Other"],
+            "range": ["English", "Hindi", "Assamese", "Bengali", "Gujarati", "Kannada", "Malayalam", "Marathi", "Nepali", "Odia", "Punjabi", "Tamil", "Telugu", "Urdu", "Sanskrit", "Maithili", "Munda","Santali","Juang","Ho","Other"],
             "displayProperty": "Editable",
             "defaultValue": "English",
             "renderingHints": "{'inputType': 'text', 'order': 5}",
@@ -60,7 +60,7 @@
             "indexed": true,
             "draft": false
         }, {
-            "required": false,
+            "required": true,
             "dataType": "Text",
             "propertyName": "template_id",
             "title": "Template Id",
@@ -104,7 +104,7 @@
             "category": "lifeCycle",
             "displayProperty": "Editable",
             "range": ["Draft", "Review", "Live", "Retired", "Mock"],
-            "defaultValue": "",
+            "defaultValue": "Live",
             "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
             "indexed": true,
             "draft": false
@@ -122,9 +122,21 @@
             "draft": false
         }, {
             "required": false,
-            "dataType": "JSON",
-            "propertyName": "body",
-            "title": "Question",
+            "dataType": "Text",
+            "propertyName": "portalOwner",
+            "title": "Portal Owner",
+            "description": "",
+            "category": "ownership",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+            "indexed": true,
+            "draft": false
+        }, {
+            "required": false,
+            "dataType": "Text",
+            "propertyName": "question",
+            "title": "Question Text",
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
@@ -135,8 +147,20 @@
         }, {
             "required": false,
             "dataType": "Text",
-            "propertyName": "question",
-            "title": "Question Text",
+            "propertyName": "question_audio",
+            "title": "Question Audio",
+            "description": "",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        }, {
+            "required": false,
+            "dataType": "Text",
+            "propertyName": "question_image",
+            "title": "Question Image",
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
@@ -361,7 +385,22 @@
             "description": "",
             "category": "Pedagogy",
             "displayProperty": "Editable",
-            "range": ["Kindergarten", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Other"],
+            "range": [
+            "Kindergarten", 
+            "Grade 1", 
+            "Grade 2",
+             "Grade 3", 
+             "Grade 4",
+             "Grade 5", 
+             "Grade 6",
+             "Grade 7",
+             "Grade 8",
+             "Grade 9",
+             "Grade 10",
+             "Grade 11",
+             "Grade 12", 
+             "Other"
+             ],
             "defaultValue": "Grade 1",
             "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
             "indexed": true,
@@ -399,7 +438,7 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'textarea', 'order': 4}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "learningObjective",
             "title": "Learning Objective",
@@ -465,7 +504,7 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{'order': 22}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "lastUpdatedBy",
             "title": "Last Updated By",
@@ -487,7 +526,7 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{'order': 22}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "version",
             "title": "Version",
@@ -496,7 +535,7 @@
             "dataType": "Number",
             "required": false,
             "displayProperty": "Readonly",
-            "defaultValue": "",
+            "defaultValue": 1,
             "renderingHints": "{'order': 23}",
             "indexed": false
         }, {
@@ -521,6 +560,30 @@
             "defaultValue": "",
             "renderingHints": "{'order': 25}",
             "indexed": false
+        }, {
+            "propertyName": "itemType",
+            "title": "Item Type",
+            "description": "",
+            "category": "general",
+            "dataType": "Select",
+            "displayProperty": "Editable",
+            "range": ["UNIT", "SET", "DYNAMIC"],
+            "required": true,
+            "defaultValue": "",
+            "renderingHints": "{'order': 27}",
+            "indexed": true
+        }, {
+            "propertyName": "category",
+            "title": "Category",
+            "description": "",
+            "category": "general",
+            "dataType": "Select",
+            "displayProperty": "Editable",
+            "range": ["MCQ", "FTB", "MTF"],
+            "required": true,
+            "defaultValue": "",
+            "renderingHints": "{'order': 28}",
+            "indexed": true
         }],
         "inRelations": [],
         "outRelations": [{
@@ -566,6 +629,7 @@
             "description": "Intervention Type"
         }],
         "metadata": {
+            "defaultRes": "medium",
             "limit": 50,
             "ttl": 24
         }
