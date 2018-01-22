@@ -33,9 +33,9 @@ import scala.concurrent.duration.Duration;
  * @author pradyumna
  *
  */
-public class TestSetUp {
+public class GraphEngineTestSetup {
 
-	static ClassLoader classLoader = TestSetUp.class.getClassLoader();
+	static ClassLoader classLoader = GraphEngineTestSetup.class.getClassLoader();
 	static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
 
 	private static GraphDatabaseService graphDb = null;
