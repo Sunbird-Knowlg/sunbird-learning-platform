@@ -63,7 +63,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	@Override
 	public Response createAssessmentItem(String taxonomyId, Request request) {
 		String body = "";
-		String questionId = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -109,8 +108,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				if (checkError(createRes)) {
 					return createRes;
 				} else {
-					questionId = createRes.get("node_id").toString();
+
 					if (StringUtils.isNotBlank(body)) {
+						String questionId = createRes.get("node_id").toString();
 						try {
 							assessmentStore.save(questionId, body);
 						} catch (Exception e) {
@@ -275,6 +275,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
 	@Override
 	public Response getAssessmentItem(String id, String taxonomyId, String[] ifields) {
+		String body = "";
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
@@ -294,8 +295,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (null == node.getMetadata().get("body")) {
 			try {
 				String questionId = node.getIdentifier();
-				String body = assessmentStore.read(questionId);
-				node.getMetadata().put("body", body);
+				body = assessmentStore.read(questionId);
 			} catch (Exception e) {
 				// No Need to Handle Exception as of now because we don't know
 				// whether body is present for particular Assessment Id. If we
@@ -303,12 +303,17 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				// neo4j for body, then based on that flag, control should enter
 				// into try and Exception should be thrown from here.
 			}
+		} else {
+			body = (String) node.getMetadata().get("body");
 		}
 
 		if (null != node) {
 			DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
 			List<String> jsonProps = getJSONProperties(definition);
 			Map<String, Object> dto = getAssessmentItem(node, jsonProps, ifields);
+			if ((null == ifields || Arrays.asList(ifields).contains("body")) && StringUtils.isNotBlank(body)) {
+				dto.put("body", body);
+			}
 			response.put(AssessmentAPIParams.assessment_item.name(), dto);
 		}
 		return response;

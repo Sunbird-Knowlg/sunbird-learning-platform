@@ -136,18 +136,6 @@
         }, {
             "required": false,
             "dataType": "Text",
-            "propertyName": "body",
-            "title": "Question",
-            "description": "",
-            "category": "general",
-            "displayProperty": "Editable",
-            "defaultValue": "",
-            "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
-            "indexed": true,
-            "draft": false
-        }, {
-            "required": false,
-            "dataType": "Text",
             "propertyName": "question",
             "title": "Question Text",
             "description": "",
