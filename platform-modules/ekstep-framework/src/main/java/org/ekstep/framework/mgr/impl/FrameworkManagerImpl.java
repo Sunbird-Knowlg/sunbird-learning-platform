@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -15,7 +16,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.ConvertGraphNode;
-
+import org.ekstep.common.slugs.Slug;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -70,7 +71,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		request.put("identifier", code);
 
-		if (validateChannel(channelId)) {
+		if (validateObject(channelId)) {
 			Response response = create(request, FRAMEWORK_OBJECT_TYPE);
 			if (response.getResponseCode() == ResponseCode.OK)
 				generateFrameworkHierarchy(code);
@@ -241,17 +242,25 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	          "FrameworkId and code should not be same.", 
 	          ResponseCode.CLIENT_ERROR);
 	    
-	    if (validateChannel(channelId)) {
-	      Response response = copyHierarchy(frameworkId, code, frameworkId, code);
-	      return response;
-	      
-	    } else {
-	      return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
-	          ResponseCode.CLIENT_ERROR);
+	    if(validateObject(code)) {
+			throw new ClientException("ERR_FRAMEWORK_EXISTS", 
+			          "Framework with code: " + code + ", already exists.",
+			          ResponseCode.CLIENT_ERROR);
+		}
+	    
+	    if (validateObject(channelId)) {
+	    		Response response = copyHierarchy(frameworkId, code, Slug.makeSlug(frameworkId), Slug.makeSlug(code), request);
+	    		if (response.getResponseCode() == ResponseCode.OK) {
+				generateFrameworkHierarchy(code);
+	    		}
+	    		return response;
+	    }else {
+	    		return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
+	    				ResponseCode.CLIENT_ERROR);
 	    }
 	  }
 	  
-	  protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId, String clonedFrameworkId) {
+	  protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId, String clonedFrameworkId, Map<String, Object> requestMap) throws Exception{
 	    Node node = getDataNode(existingObjectId);
 	    String objectType = node.getObjectType();
 	    DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
@@ -265,9 +274,15 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	    } else {
 	      request.putAll(node.getMetadata());
 	    }
+	    if(StringUtils.equalsIgnoreCase(objectType, "Framework")) {
+	    		Set<String> propertySet = requestMap.keySet();
+	    		for(String property : propertySet) {
+	    			if(request.containsKey(property))
+	    				request.put(property, requestMap.get(property));
+	    		}
+	    	}
 	    request.put("identifier", clonedObjectId);
-	    if(StringUtils.equalsIgnoreCase(objectType, "Framework"))
-	      request.put("code", clonedObjectId);
+	    
 	    
 	    Response getNodeResponse = getDataNode(GRAPH_ID, clonedObjectId);
 	    if (checkError(getNodeResponse))
@@ -278,30 +293,32 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	    Map<String, String> inRelDefMap = new HashMap<>();
 	    Map<String, String> outRelDefMap = new HashMap<>();
 	    ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
-	    
 	    List<Relation> outRelations = node.getOutRelations();
 	    if (null != outRelations && !outRelations.isEmpty()) {
 	      for (Relation relation : outRelations) {
-	        String type = relation.getRelationType();
-	        String key = type + relation.getEndNodeObjectType();
-	        String title = outRelDefMap.get(key);
-	        String endNodeId = relation.getEndNodeId();
-	        endNodeId = endNodeId.replaceFirst(existingFrameworkId, clonedFrameworkId);
-	        Response res = copyHierarchy(relation.getEndNodeId(), endNodeId, existingFrameworkId, clonedFrameworkId);
-	        
-	        Map<String, Object> childObjectMap = new HashMap<>();
-	        childObjectMap.put("identifier", res.get("node_id"));
-	        
-	        if(request.containsKey(title)) {
-	          List<Map<String, Object>> relationshipList = (List<Map<String, Object>>)request.get(title);
-	          relationshipList.add(childObjectMap);
-	        }else {
-	          List<Map<String, Object>> relationshipList = new ArrayList<>();
-	          relationshipList.add(childObjectMap);
-	          request.put(title, relationshipList);
-	        }
-	      }
-	      update(clonedObjectId, objectType, request);
+	    	  	String endNodeObjectType = relation.getEndNodeObjectType();
+	    	  	if(StringUtils.equals(endNodeObjectType, "Framework") || 
+	    	  			StringUtils.equals(endNodeObjectType, "CategoryInstance") || 
+	    	  			StringUtils.equals(endNodeObjectType, "Term")) {
+	    	  		String title = outRelDefMap.get(relation.getRelationType() + relation.getEndNodeObjectType());
+		        String endNodeId = relation.getEndNodeId();
+		        endNodeId = endNodeId.replaceFirst(existingFrameworkId, clonedFrameworkId);
+		        Response res = copyHierarchy(relation.getEndNodeId(), endNodeId, existingFrameworkId, clonedFrameworkId, null);
+		        
+		        Map<String, Object> childObjectMap = new HashMap<>();
+		        childObjectMap.put("identifier", res.get("node_id"));
+		        
+		        if(request.containsKey(title)) {
+		          List<Map<String, Object>> relationshipList = (List<Map<String, Object>>)request.get(title);
+		          relationshipList.add(childObjectMap);
+		        }else {
+		          List<Map<String, Object>> relationshipList = new ArrayList<>();
+		          relationshipList.add(childObjectMap);
+		          request.put(title, relationshipList);
+		        }
+		      }
+		      update(clonedObjectId, objectType, request);
+	    	  	}
 	    }
 	    Response response = new Response();
 	    response.put("node_id", clonedObjectId);

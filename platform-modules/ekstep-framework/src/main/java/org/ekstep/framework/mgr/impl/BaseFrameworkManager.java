@@ -329,14 +329,14 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 */
 
-	protected boolean validateChannel(String channelId) {
-		boolean isValidChannel = false;
+	protected boolean validateObject(String objectId) {
+		boolean isValidObject = false;
 
-		Response responseNode = getDataNode(GRAPH_ID, channelId);
+		Response responseNode = getDataNode(GRAPH_ID, objectId);
 		if (!checkError(responseNode)) {
-			isValidChannel = true;
+			isValidObject = true;
 		}
-		return isValidChannel;
+		return isValidObject;
 	}
 
 	public void setRelations(String scopeId, Map<String, Object> request) {
