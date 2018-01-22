@@ -338,6 +338,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 			if (!suitability.contains(value))
 				suitability.add(value);
+			node.getMetadata().put("suitability", suitability);
 		}
 	}
 
