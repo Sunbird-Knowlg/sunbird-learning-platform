@@ -8,7 +8,7 @@ import java.util.Random;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
-import org.ekstep.test.common.TestSetUp;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -38,7 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
  * test senarios have been specified for each of the operation
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentItemSetTest extends TestSetUp {
+public class AssessmentItemSetTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;

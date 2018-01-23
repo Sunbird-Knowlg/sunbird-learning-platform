@@ -5,7 +5,7 @@ import java.util.Random;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,7 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CategoryV3ControllerTest extends TestSetup{
+public class CategoryV3ControllerTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;

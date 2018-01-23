@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.test.common.TestParams;
-import org.ekstep.test.common.TestSetUp;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,11 +36,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-//@Ignore
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentV3ControllerTest extends TestSetUp{
+public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	
 	/** The context. */
 	@Autowired

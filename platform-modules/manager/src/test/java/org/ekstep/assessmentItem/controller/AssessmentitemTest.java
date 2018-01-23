@@ -8,7 +8,7 @@ import java.util.Random;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
-import org.ekstep.test.common.TestSetUp;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,7 +42,7 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentitemTest extends TestSetUp {
+public class AssessmentitemTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
