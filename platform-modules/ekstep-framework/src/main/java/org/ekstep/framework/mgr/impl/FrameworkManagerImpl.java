@@ -73,8 +73,14 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		if (validateObject(channelId)) {
 			Response response = create(request, FRAMEWORK_OBJECT_TYPE);
-			if (response.getResponseCode() == ResponseCode.OK)
-				generateFrameworkHierarchy(code);
+			if (response.getResponseCode() == ResponseCode.OK) {
+				if (Platform.config.hasPath("framework.es.sync")) {
+					if (Platform.config.getBoolean("framework.es.sync")) {
+						generateFrameworkHierarchy(code);
+					}
+				}
+				
+			}
 			return response;
 		} else {
 			return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
@@ -104,16 +110,21 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	public Response readFramework(String frameworkId) throws Exception {
 
 		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
-		Map<String, Object> responseMap = (Map<String, Object>) response.get(FrameworkEnum.framework.name());
-		List<Object> searchResult = searchFramework(frameworkId);
-		if (null != searchResult && !searchResult.isEmpty()) {
-			Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
-			Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
-			Object categories = hierarchy.get("categories");
-			if (categories != null) {
-				responseMap.put("categories", categories);
+		if (Platform.config.hasPath("framework.es.sync")) {
+			if (Platform.config.getBoolean("framework.es.sync")) {
+				Map<String, Object> responseMap = (Map<String, Object>) response.get(FrameworkEnum.framework.name());
+				List<Object> searchResult = searchFramework(frameworkId);
+				if (null != searchResult && !searchResult.isEmpty()) {
+					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
+					Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
+					Object categories = hierarchy.get("categories");
+					if (categories != null) {
+						responseMap.put("categories", categories);
+					}
+				}
 			}
 		}
+		
 		return response;
 	}
 
@@ -179,7 +190,11 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		
 		Response response = update(frameworkId, FRAMEWORK_OBJECT_TYPE, map);
 		if (response.getResponseCode() == ResponseCode.OK)
-			generateFrameworkHierarchy(frameworkId);
+			if (Platform.config.hasPath("framework.es.sync")) {
+				if (Platform.config.getBoolean("framework.es.sync")) {
+					generateFrameworkHierarchy(frameworkId);
+				}
+			}
 		return response;
 
 	}
@@ -249,10 +264,16 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		}
 	    
 	    if (validateObject(channelId)) {
-	    		Response response = copyHierarchy(frameworkId, code, Slug.makeSlug(frameworkId), Slug.makeSlug(code), request);
+	    		String sluggifiedFrameworkId = Slug.makeSlug(frameworkId);
+	    		String sluggifiedCode = Slug.makeSlug(code);
+	    		Response response = copyHierarchy(frameworkId, code, sluggifiedFrameworkId, sluggifiedCode, request);
 	    		if (response.getResponseCode() == ResponseCode.OK) {
-				generateFrameworkHierarchy(code);
-	    		}
+	    			if (Platform.config.hasPath("framework.es.sync")) {
+					if (Platform.config.getBoolean("framework.es.sync")) {
+						generateFrameworkHierarchy(code);
+					}
+				}
+			}
 	    		return response;
 	    }else {
 	    		return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
@@ -261,7 +282,11 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	  }
 	  
 	  protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId, String clonedFrameworkId, Map<String, Object> requestMap) throws Exception{
-	    Node node = getDataNode(existingObjectId);
+	    Response responseNode = getDataNode(GRAPH_ID, existingObjectId);
+	    if (checkError(responseNode)) {
+	    		throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + existingObjectId, ResponseCode.RESOURCE_NOT_FOUND);
+	    }
+	    Node node = (Node) responseNode.get(GraphDACParams.node.name());
 	    String objectType = node.getObjectType();
 	    DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 	    

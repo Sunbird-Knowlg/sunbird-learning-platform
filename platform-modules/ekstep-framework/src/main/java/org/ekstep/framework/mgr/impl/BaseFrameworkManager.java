@@ -186,24 +186,16 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 * @param graphId
 	 * 
-	 * @param frameworkId
+	 * @param objectId
 	 * 
 	 */
-	protected Response getDataNode(String graphId, String id) {
+	protected Response getDataNode(String graphId, String objectId) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-				GraphDACParams.node_id.name(), id);
+				GraphDACParams.node_id.name(), objectId);
 		Response getNodeRes = getResponse(request);
 		return getNodeRes;
 	}
-
-	protected Node getDataNode(String id) {
-		Response responseNode = getDataNode(GRAPH_ID, id);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		return node;
-	}
-
+	
 	/*
 	 * 
 	 * Search Data Node based on criteria.
@@ -387,7 +379,11 @@ public class BaseFrameworkManager extends BaseManager {
 	@SuppressWarnings("unchecked")
 	protected Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata) throws Exception {
 		Map<String, Object> data = new HashMap<String, Object>();
-		Node node = getDataNode(id);
+		Response responseNode = getDataNode(GRAPH_ID, id);
+	    if (checkError(responseNode))
+			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id, ResponseCode.RESOURCE_NOT_FOUND);
+		Node node = (Node) responseNode.get(GraphDACParams.node.name());
+		
 		Map<String, Object> metadata = node.getMetadata();
 		String status = (String) metadata.get("status");
 		if (StringUtils.equalsIgnoreCase("Live", status)) {
