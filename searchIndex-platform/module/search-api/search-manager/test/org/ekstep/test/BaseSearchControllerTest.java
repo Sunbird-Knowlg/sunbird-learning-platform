@@ -1,4 +1,4 @@
-package com.test;
+package org.ekstep.test;
 
 import java.util.Date;
 import java.util.HashMap;
