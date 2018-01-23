@@ -902,6 +902,19 @@ public class SearchProcessor {
 		return response;
 	}
 
+	public SearchResult processSearchQueryWithSearchResult(SearchDTO searchDTO, boolean includeResults, String index,
+			boolean sort)
+			throws Exception {
+		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+		if (searchDTO.getLimit() == 0)
+			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
+		String query = processSearchQuery(searchDTO, groupByFinalList, sort);
+		TelemetryManager.log(" search query: " + query);
+		SearchResult searchResult = elasticSearchUtil.search(index, query);
+		TelemetryManager.log("search result from elastic search" + searchResult);
+		return searchResult;
+	}
+
 	@SuppressWarnings("unchecked")
 	private void getConditionsQuery(String queryOperation, String fieldName, Object value, Integer boost,
 			JSONBuilder builder) {

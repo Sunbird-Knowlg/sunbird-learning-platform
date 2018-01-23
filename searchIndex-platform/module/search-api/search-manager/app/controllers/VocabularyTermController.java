@@ -23,9 +23,9 @@ public class VocabularyTermController extends SearchBaseController {
 		return mgr.create(request);
 	}
 
-	public Promise<Result> suggest() {
+	public Promise<Result> suggest(int limit) {
 		String apiId = "vocabulary-term.suggest";
 		Request request = getRequest(request().body(), apiId, request().uri());
-		return mgr.suggest(request);
+		return mgr.suggest(request, limit);
 	}
 }
