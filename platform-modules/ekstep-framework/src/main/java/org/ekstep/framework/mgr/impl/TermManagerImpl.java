@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.framework.enums.TermEnum;
@@ -236,12 +237,12 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 					}
 				}
 			} else {
-				valid = false;
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide valid category.");
 			}
 			if (!valid)
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide valid channel/framework.");
 		} else {
-			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
+			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide required fields. category, channel/framework should not be empty.");
 		}
 
 	}
@@ -249,14 +250,11 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	private void validateCategoryId(String categoryId) {
 		if (StringUtils.isNotBlank(categoryId)) {
 			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
-			if (!checkError(categoryResp)) {
-				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
-				if (!StringUtils.equalsIgnoreCase(categoryId, node.getIdentifier())) {
-					throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
-				}
+			if (checkError(categoryResp)) {
+				throw new ResourceNotFoundException("ERR_INVALID_CATEGORY_ID", "Please provide valid category.");
 			}
 		} else {
-			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
+			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide valid category. It should not be empty.");
 		}
 	}
 	
