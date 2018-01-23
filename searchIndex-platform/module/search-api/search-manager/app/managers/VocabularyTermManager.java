@@ -395,7 +395,8 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			if (StringUtils.isNotBlank(id)) {
 				return id;
 			} else {
-				errorMessage.add("language should be one among " + detectlanguage.getLanguageMap().values());
+				errorMessage
+						.add("lemma should be in one of these languages " + detectlanguage.getLanguageMap().keySet());
 				return id;
 			}
 		} else {
