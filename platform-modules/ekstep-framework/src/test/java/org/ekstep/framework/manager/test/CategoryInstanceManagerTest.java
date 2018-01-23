@@ -207,7 +207,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		Map<String,Object> searchMap = new HashMap<String,Object>();
 		Response res = categoryInstanceMgr.searchCategoryInstance(frameworkId, searchMap);
 		Map<String,Object> resultMap = res.getResult();
-		List<Map<String,Object>> categoryMap = (List) resultMap.get("categoryInstances");
+		List<Map<String,Object>> categoryMap = (List) resultMap.get("categories");
 		Assert.assertEquals(1, categoryMap.size());
 	}
 	
