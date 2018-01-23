@@ -181,7 +181,7 @@
 				"objectTypes": [
 					"Term"
 				],
-				"title": "associations",
+				"title": "associationswith",
 				"description": "Terms from which the current term is associated",
 				"required": false,
 				"renderingHints": "{ 'order': 11}"

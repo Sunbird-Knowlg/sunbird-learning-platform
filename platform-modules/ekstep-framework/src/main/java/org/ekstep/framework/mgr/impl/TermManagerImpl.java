@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.framework.enums.TermEnum;
@@ -66,7 +68,11 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		request.put("category", category);
 		Response response = create(request, TERM_OBJECT_TYPE);
 		if(response.getResponseCode() == ResponseCode.OK) {
-			generateFrameworkHierarchy(id);
+			if (Platform.config.hasPath("framework.es.sync")) {
+				if (Platform.config.getBoolean("framework.es.sync")) {
+					generateFrameworkHierarchy(id);
+				}
+			}
 		}
 		return response;
 	}
@@ -119,7 +125,11 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			}
 		}
 		if (StringUtils.isNoneBlank(id)) {
-			generateFrameworkHierarchy(id);
+			if (Platform.config.hasPath("framework.es.sync")) {
+				if (Platform.config.getBoolean("framework.es.sync")) {
+					generateFrameworkHierarchy(id);
+				}
+			}
 		}
 		return createResponse(codeError, serverError, identifiers, requestList.size());
 	}
@@ -179,7 +189,11 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		request.put("category", category);
 		Response response = update(termId, TERM_OBJECT_TYPE, request);
 		if(response.getResponseCode() == ResponseCode.OK) {
-			generateFrameworkHierarchy(termId);
+			if (Platform.config.hasPath("framework.es.sync")) {
+				if (Platform.config.getBoolean("framework.es.sync")) {
+					generateFrameworkHierarchy(termId);
+				}
+			}
 		}
 		return response;
 		
@@ -203,7 +217,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 * @see org.ekstep.framework.mgr.ITermManager#retireTerm(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Response retireTerm(String scopeId, String categoryId, String termId) {
+	public Response retireTerm(String scopeId, String categoryId, String termId)  throws Exception {
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
@@ -212,7 +226,15 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		}
 		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
-			return retire(termId, TERM_OBJECT_TYPE);
+			Response response = retire(termId, TERM_OBJECT_TYPE);
+			if(response.getResponseCode() == ResponseCode.OK) {
+				if (Platform.config.hasPath("framework.es.sync")) {
+					if (Platform.config.getBoolean("framework.es.sync")) {
+						generateFrameworkHierarchy(termId);
+					}
+				}
+			}
+			return response;
 		} else {
 			throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
 		}
@@ -236,12 +258,12 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 					}
 				}
 			} else {
-				valid = false;
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide valid category.");
 			}
 			if (!valid)
-				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide valid channel/framework.");
 		} else {
-			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
+			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide required fields. category, channel/framework should not be empty.");
 		}
 
 	}
@@ -249,14 +271,11 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	private void validateCategoryId(String categoryId) {
 		if (StringUtils.isNotBlank(categoryId)) {
 			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
-			if (!checkError(categoryResp)) {
-				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
-				if (!StringUtils.equalsIgnoreCase(categoryId, node.getIdentifier())) {
-					throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
-				}
+			if (checkError(categoryResp)) {
+				throw new ResourceNotFoundException("ERR_INVALID_CATEGORY_ID", "Please provide valid category.");
 			}
 		} else {
-			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Required fields missing...");
+			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide valid category. It should not be empty.");
 		}
 	}
 	

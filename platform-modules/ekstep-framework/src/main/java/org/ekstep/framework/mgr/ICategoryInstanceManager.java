@@ -22,7 +22,7 @@ public interface ICategoryInstanceManager {
 
 	Response searchCategoryInstance(String identifier, Map<String, Object> map);
 	
-	Response retireCategoryInstance(String identifier, String categoryInstanceId);
+	Response retireCategoryInstance(String identifier, String categoryInstanceId) throws Exception;
 
 	Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) throws Exception;
 

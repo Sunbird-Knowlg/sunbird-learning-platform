@@ -39,7 +39,6 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
-
 /**
  * @author pradyumna
  *
@@ -187,24 +186,16 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 * @param graphId
 	 * 
-	 * @param frameworkId
+	 * @param objectId
 	 * 
 	 */
-	protected Response getDataNode(String graphId, String id) {
+	protected Response getDataNode(String graphId, String objectId) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-				GraphDACParams.node_id.name(), id);
+				GraphDACParams.node_id.name(), objectId);
 		Response getNodeRes = getResponse(request);
 		return getNodeRes;
 	}
-
-	protected Node getDataNode(String id) {
-		Response responseNode = getDataNode(GRAPH_ID, id);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		return node;
-	}
-
+	
 	/*
 	 * 
 	 * Search Data Node based on criteria.
@@ -329,14 +320,14 @@ public class BaseFrameworkManager extends BaseManager {
 	 * 
 	 */
 
-	protected boolean validateChannel(String channelId) {
-		boolean isValidChannel = false;
+	protected boolean validateObject(String objectId) {
+		boolean isValidObject = false;
 
-		Response responseNode = getDataNode(GRAPH_ID, channelId);
+		Response responseNode = getDataNode(GRAPH_ID, objectId);
 		if (!checkError(responseNode)) {
-			isValidChannel = true;
+			isValidObject = true;
 		}
-		return isValidChannel;
+		return isValidObject;
 	}
 
 	public void setRelations(String scopeId, Map<String, Object> request) {
@@ -375,57 +366,77 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 	}
 
+	/**
+	 * This is the method to get the full hierarchy of a tree. It assumes that
+	 * status is present in all the methods and return only Live nodes.
+	 * 
+	 * @param id
+	 * @param index
+	 * @param includeMetadata
+	 * @return
+	 * @throws Exception
+	 */
 	@SuppressWarnings("unchecked")
 	protected Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata) throws Exception {
 		Map<String, Object> data = new HashMap<String, Object>();
-		Node node = getDataNode(id);
-		String objectType = node.getObjectType();
-		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
-		if (includeMetadata) {
-			String[] fields = getFields(definition);
-			if (fields != null) {
-				for (String field : fields) {
-					data.put(field, node.getMetadata().get(field));
+		Response responseNode = getDataNode(GRAPH_ID, id);
+	    if (checkError(responseNode))
+			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id, ResponseCode.RESOURCE_NOT_FOUND);
+		Node node = (Node) responseNode.get(GraphDACParams.node.name());
+		
+		Map<String, Object> metadata = node.getMetadata();
+		String status = (String) metadata.get("status");
+		if (StringUtils.equalsIgnoreCase("Live", status)) {
+			String objectType = node.getObjectType();
+			DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
+			if (includeMetadata) {
+				String[] fields = getFields(definition);
+				if (fields != null) {
+					for (String field : fields) {
+						data.put(field, metadata.get(field));
+					}
+				} else {
+					data.putAll(node.getMetadata());
 				}
-			} else {
-				data.putAll(node.getMetadata());
+				data.put("identifier", node.getIdentifier());
+				if (index > 0)
+					data.put("index", index);
 			}
-			data.put("identifier", node.getIdentifier());
-			if (index > 0)
-				data.put("index", index);
-		}
-		Map<String, String> inRelDefMap = new HashMap<>();
-		Map<String, String> outRelDefMap = new HashMap<>();
-		List<String> sortKeys = new ArrayList<String>();
-		ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
-		List<Relation> outRelations = node.getOutRelations();
-		if (null != outRelations && !outRelations.isEmpty()) {
-			for (Relation relation : outRelations) {
-				String type = relation.getRelationType();
-				String key = type + relation.getEndNodeObjectType();
-				String title = outRelDefMap.get(key);
-				List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
-				if (relData == null) {
-					relData = new ArrayList<Map<String, Object>>();
-					data.put(title, relData);
-					if("hasSequenceMember".equalsIgnoreCase(type))
-						sortKeys.add(title);
+			Map<String, String> inRelDefMap = new HashMap<>();
+			Map<String, String> outRelDefMap = new HashMap<>();
+			List<String> sortKeys = new ArrayList<String>();
+			ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
+			List<Relation> outRelations = node.getOutRelations();
+			if (null != outRelations && !outRelations.isEmpty()) {
+				for (Relation relation : outRelations) {
+					String type = relation.getRelationType();
+					String key = type + relation.getEndNodeObjectType();
+					String title = outRelDefMap.get(key);
+					List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
+					if (relData == null) {
+						relData = new ArrayList<Map<String, Object>>();
+						data.put(title, relData);
+						if ("hasSequenceMember".equalsIgnoreCase(type))
+							sortKeys.add(title);
+					}
+					Map<String, Object> relMeta = relation.getMetadata();
+					int seqIndex = 0;
+					if (relMeta != null) {
+						Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
+						if (indexObj != null)
+							seqIndex = ((Long) indexObj).intValue();
+					}
+					Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true);
+					if (!childData.isEmpty())
+						relData.add(childData);
 				}
-				Map<String, Object> relMeta = relation.getMetadata();
-				int seqIndex = 0;
-				if (relMeta != null) {
-					Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
-					if (indexObj != null)
-						seqIndex = ((Long) indexObj).intValue();
-				}
-				Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true);
-				relData.add(childData);
+			}
+			for (String key : sortKeys) {
+				List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
+				getSorted(prop);
 			}
 		}
-		for (String key : sortKeys) {
-			List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
-			getSorted(prop);
-		}
+
 		return data;
 	}
 

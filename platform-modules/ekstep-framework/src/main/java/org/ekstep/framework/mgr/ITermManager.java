@@ -51,8 +51,9 @@ public interface ITermManager {
 	 * @param categoryId
 	 * @param termId
 	 * @return
+	 * @throws Exception 
 	 */
-	Response retireTerm(String scopeId, String categoryId, String termId);
+	Response retireTerm(String scopeId, String categoryId, String termId) throws Exception;
 
 	/**
 	 * @param scopeId

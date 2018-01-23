@@ -1570,6 +1570,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			resp.setParams(getSucessStatus());
 			resp.setResponseCode(ResponseCode.OK);
 			return resp;
+		} else if (!invalidContent.isEmpty() && contents.size() == 1) {
+			resp = new Response();
+			resp.setResponseCode(ResponseCode.CLIENT_ERROR);
+			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+					"Content not found with id(s):" + invalidContent));
+			return resp;
 		} else {
 			resp = new Response();
 			resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
