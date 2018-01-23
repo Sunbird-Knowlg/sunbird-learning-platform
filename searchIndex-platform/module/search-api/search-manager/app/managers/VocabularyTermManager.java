@@ -28,6 +28,7 @@ import common.Constants;
 import common.DetectLanguage;
 import common.VocabularyTermParam;
 import io.searchbox.core.SearchResult;
+import play.api.mvc.Codec;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.mvc.Result;
@@ -66,7 +67,8 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		try {
 			esUtil.addIndex(Constants.VOCABULARY_TERM_INDEX, Constants.VOCABULARY_TERM_INDEX_TYPE, SETTING, MAPPING);
 		} catch (IOException e) {
-			TelemetryManager.error("");
+			TelemetryManager
+					.error("VocabularyTermManager : Error while adding index to elasticsearch : " + e.getMessage(), e);
 		}
 	}
 
@@ -76,24 +78,34 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		}
 		List<Map<String, Object>> termRequest = getRequestData(request);
 		if (termRequest.isEmpty()) {
-			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Please Provide atleast One Term Object",
+			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Please provide atleast one term object",
 					ResponseCode.CLIENT_ERROR);
 		}
 		try {
 			List<String> termIds = new ArrayList<String>();
+			List<String> errorMessage = new ArrayList<String>();
 			for (Map<String, Object> term : termRequest) {
 				if (StringUtils.isBlank((String) term.get(VocabularyTermParam.lemma.name()))) {
-					return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "lemma, language is Mandatory",
+					if (termRequest.size() > 1)
+						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "lemma is mandatory",
 							ResponseCode.PARTIAL_SUCCESS, VocabularyTermParam.identifiers.name(), termIds);
+					else
+						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Atleast one term is mandatory",
+								ResponseCode.CLIENT_ERROR);
 				}
-				String language = null;
-				if (StringUtils.isBlank((String) term.get(VocabularyTermParam.language.name()))) {
-					language = detectlanguage.getlanguageCode((String) term.get(VocabularyTermParam.lemma.name()));
-				} else {
-					language = (String) term.get(VocabularyTermParam.language.name());
+				String lemma = (String) term.get(VocabularyTermParam.lemma.name());
+				String language = (String) term.get(VocabularyTermParam.language.name());
+				language = validateLanguageId(lemma, language, errorMessage);
+
+				if (!errorMessage.isEmpty()) {
+					if (termRequest.size() > 1)
+						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), errorMessage.get(0),
+							ResponseCode.PARTIAL_SUCCESS, VocabularyTermParam.identifiers.name(), termIds);
+					else
+						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), errorMessage.get(0),
+								ResponseCode.CLIENT_ERROR);
 				}
-				String id = language + "_" + (String) term.get(VocabularyTermParam.lemma.name());
-				String identifier = Slug.makeSlug(id, true);
+				String identifier = Slug.makeSlug(language + "_" + lemma, true);
 				addDoc(identifier, term);
 				termIds.add(identifier);
 			}
@@ -101,7 +113,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			return successResponse(response);
 		} catch (Exception e) {
 			TelemetryManager.error("VocabularyTermManager : create() : Exception : " + e.getMessage(), e);
-			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while Processing",
+			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while processing",
 					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
@@ -133,7 +145,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 			TelemetryManager.error("VocabularyTermManager : suggest() : Exception : " + e.getMessage(), e);
-			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while Processing",
+			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while processing",
 					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 
@@ -170,9 +182,14 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		} else {
 			map.put(VocabularyTermParam.categories.name(), "keywords");
 		}
-		List language = (List) request.get(VocabularyTermParam.language.name());
-		if (null != language && !language.isEmpty()) {
-			map.put(VocabularyTermParam.language.name(), language);
+		if (null != request.get(VocabularyTermParam.language.name())) {
+			if(request.get(VocabularyTermParam.language.name()) instanceof List && ((List) request.get(VocabularyTermParam.language.name())).isEmpty()) {
+				map.put(VocabularyTermParam.language.name(), "en");
+			}else if(StringUtils.isBlank((String) request.get(VocabularyTermParam.language.name()))) {
+				map.put(VocabularyTermParam.language.name(), "en");
+			}else {
+				map.put(VocabularyTermParam.language.name(), request.get(VocabularyTermParam.language.name()));
+			}
 		} else {
 			map.put(VocabularyTermParam.language.name(), "en");
 		}
@@ -259,6 +276,10 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			String result = mapper.writeValueAsString(response);
 			if (code.equals(ResponseCode.CLIENT_ERROR)) {
 				return F.Promise.pure(badRequest(result).as("application/json"));
+			} else if (code.equals(ResponseCode.PARTIAL_SUCCESS)) {
+				return F.Promise.pure(
+						new Status(play.core.j.JavaResults.PartialContent(), result, Codec.javaSupported("utf-8"))
+								.as("application/json"));
 			} else {
 				return F.Promise.pure(internalServerError(result).as("application/json"));
 			}
@@ -362,5 +383,22 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		fields.add(VocabularyTermParam.categories.name());
 		fields.add(VocabularyTermParam.language.name());
 		return fields;
+	}
+
+	/**
+	 * @param lemma
+	 * @return
+	 */
+	private String validateLanguageId(String lemma, String language, List<String> errorMessage) {
+		if (StringUtils.isBlank(language)) {
+			return detectlanguage.getlanguageCode(lemma);
+		} else {
+			if (detectlanguage.isValidLangId(language)) {
+				return language;
+			} else {
+				errorMessage.add("language should be one among " + detectlanguage.getLanguageMap().values());
+				return language;
+			}
+		}
 	}
 }

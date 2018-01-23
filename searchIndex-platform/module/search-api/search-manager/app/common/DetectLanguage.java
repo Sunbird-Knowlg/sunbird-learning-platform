@@ -46,4 +46,11 @@ public class DetectLanguage {
 		return id;
 	 }
 
+	public boolean isValidLangId(String languageId) {
+		return languageMap.containsValue(languageId);
+	}
+
+	public Map<String, Object> getLanguageMap() {
+		return languageMap;
+	}
 }
