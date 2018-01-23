@@ -204,7 +204,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 * @see org.ekstep.framework.mgr.ITermManager#retireTerm(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Response retireTerm(String scopeId, String categoryId, String termId) {
+	public Response retireTerm(String scopeId, String categoryId, String termId)  throws Exception {
 		if (null != scopeId) {
 			categoryId = generateIdentifier(scopeId, categoryId);
 			validateRequest(scopeId, categoryId);
@@ -213,7 +213,11 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		}
 		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
-			return retire(termId, TERM_OBJECT_TYPE);
+			Response response = retire(termId, TERM_OBJECT_TYPE);
+			if(response.getResponseCode() == ResponseCode.OK) {
+				generateFrameworkHierarchy(termId);
+			}
+			return response;
 		} else {
 			throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
 		}

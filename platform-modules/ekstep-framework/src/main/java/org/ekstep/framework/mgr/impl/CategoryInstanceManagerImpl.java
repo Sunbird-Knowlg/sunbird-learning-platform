@@ -84,14 +84,18 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	public Response searchCategoryInstance(String identifier, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categoryInstances", identifier);
+		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categories", identifier);
 	}
 
 	@Override
-	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
+	public Response retireCategoryInstance(String identifier, String categoryInstanceId) throws Exception{
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
-			return retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
+			Response response = retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
+			if(response.getResponseCode() == ResponseCode.OK) {
+				generateFrameworkHierarchy(categoryInstanceId);
+			}
+			return response;
 		} else {
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
