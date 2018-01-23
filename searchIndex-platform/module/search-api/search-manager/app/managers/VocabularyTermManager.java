@@ -391,7 +391,13 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 */
 	private String validateLanguageId(String lemma, String language, List<String> errorMessage) {
 		if (StringUtils.isBlank(language)) {
-			return detectlanguage.getlanguageCode(lemma);
+			String id = detectlanguage.getlanguageCode(lemma);
+			if (StringUtils.isNotBlank(id)) {
+				return id;
+			} else {
+				errorMessage.add("language should be one among " + detectlanguage.getLanguageMap().values());
+				return id;
+			}
 		} else {
 			if (detectlanguage.isValidLangId(language)) {
 				return language;
