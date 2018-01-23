@@ -2,11 +2,14 @@ package org.ekstep.graph.model.node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MetadataDefinition implements Serializable {
 
     public static List<String> VALID_DATA_TYPES = new ArrayList<String>();
+    
+    public static List<String> PLATFORM_OBJECTS_AS_DATA_TYPE = Arrays.asList("term", "termlist");
 
     static {
         VALID_DATA_TYPES.add("text");
@@ -20,6 +23,7 @@ public class MetadataDefinition implements Serializable {
         VALID_DATA_TYPES.add("json");
         VALID_DATA_TYPES.add("xml");
         VALID_DATA_TYPES.add("external");
+        VALID_DATA_TYPES.addAll(PLATFORM_OBJECTS_AS_DATA_TYPE);
     }
 
     private static final long serialVersionUID = -6210344089409649758L;

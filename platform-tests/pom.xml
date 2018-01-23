@@ -18,7 +18,6 @@
 	</properties>
 
 	<modules>
-		<module>unit-tests</module>
 		<module>functional-tests</module>
 	</modules>
 

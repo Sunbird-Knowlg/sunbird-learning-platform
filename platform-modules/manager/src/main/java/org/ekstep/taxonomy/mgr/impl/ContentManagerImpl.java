@@ -117,18 +117,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private PublishManager publishManager = new PublishManager();
 
-	private static List<String> contentTypeList = new ArrayList<String>();
-
-	static {
-		contentTypeList.add("Story");
-		contentTypeList.add("Worksheet");
-		contentTypeList.add("Game");
-		contentTypeList.add("Simulation");
-		contentTypeList.add("Puzzle");
-		contentTypeList.add("Diagnostic");
-		contentTypeList.add("ContentTemplate");
-		contentTypeList.add("ItemTemplate");
-	}
+	private List<String> contentTypeList = Arrays.asList("Story", "Worksheet", "Game", "Simulation", "Puzzle",
+			"Diagnostic", "ContentTemplate", "ItemTemplate");
 
 	/**
 	 * Gets the data node.
@@ -155,8 +145,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	@Override
 	public Response upload(String contentId, String taxonomyId, File uploadedFile, String mimeType) {
-		TelemetryManager.log("Graph ID: " + taxonomyId + "Content ID: " + contentId);
-
 		boolean updateMimeType = false;
 
 		try {
@@ -222,8 +210,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	@Override
 	public Response upload(String contentId, String taxonomyId, String fileUrl, String mimeType) {
-		TelemetryManager
-				.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:" + fileUrl);
 		boolean updateMimeType = false;
 		try {
 			if (StringUtils.isBlank(taxonomyId))
@@ -289,8 +275,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
 	 * Request, java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -402,8 +387,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.lang.String)
 	 */
 	public Response optimize(String taxonomyId, String contentId) {
-		TelemetryManager.log("Graph ID: " + taxonomyId);
-		TelemetryManager.log("Content ID: " + contentId);
 
 		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
@@ -1497,8 +1480,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map)
-	 * This Method will update Content Node with DIAL Code in Neo4j.
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map) This
+	 * Method will update Content Node with DIAL Code in Neo4j.
 	 * 
 	 * @author gauraw
 	 */
@@ -1506,26 +1489,27 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
 					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
-		
+
 		Object dialObj = map.get(DialCodeEnum.dialcode.name());
 		Object contentObj = map.get("identifier");
-		List<String>dialcodes = getList(dialObj);
+		List<String> dialcodes = getList(dialObj);
 		List<String> contents = getList(contentObj);
-		
-		if (null == dialcodes || null == contents) 
-			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST, "Pelase provide required properties in request.");
-		
+
+		if (null == dialcodes || null == contents)
+			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+					"Pelase provide required properties in request.");
+
 		int maxLimit = 10;
-		if(Platform.config.hasPath("dialcode.link.content.max"))
+		if (Platform.config.hasPath("dialcode.link.content.max"))
 			maxLimit = Platform.config.getInt("dialcode.link.content.max");
-		
+
 		if (dialcodes.size() > 1 && contents.size() > 1)
 			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
 					DialCodeErrorMessage.ERR_INVALID_DIALCODE_LINK_REQUEST);
-		
+
 		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST, "Max limit for link content to dialcode in a request is "+ maxLimit);
-		
+			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
+					"Max limit for link content to dialcode in a request is " + maxLimit);
 
 		Response resp = updateDialCodeToContents(contents, dialcodes);
 		if (ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
@@ -1536,10 +1520,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else {
 			TelemetryManager.error(resp.getParams().getErrmsg());
 		}
-		
+
 		return resp;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private static List<String> getList(Object param) {
 		List<String> paramList = null;
@@ -1577,7 +1561,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			} else {
 				Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
 				resp = updateDialCode(map, definition, contentNode, contentId);
-				if (checkError(responseNode)) 
+				if (checkError(responseNode))
 					updateFailed.add(contentId);
 			}
 		}
@@ -1586,14 +1570,20 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			resp.setParams(getSucessStatus());
 			resp.setResponseCode(ResponseCode.OK);
 			return resp;
+		} else if (!invalidContent.isEmpty() && contents.size() == 1) {
+			resp = new Response();
+			resp.setResponseCode(ResponseCode.CLIENT_ERROR);
+			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+					"Content not found with id(s):" + invalidContent));
+			return resp;
 		} else {
 			resp = new Response();
 			resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
 			List<String> messages = new ArrayList<String>();
 			if (!invalidContent.isEmpty())
-				messages.add("Content not found with id(s): "+ String.join(",", invalidContent));
+				messages.add("Content not found with id(s): " + String.join(",", invalidContent));
 			if (!updateFailed.isEmpty())
-				messages.add("Content link with dialcode(s) fialed for id(s): "+ String.join(",", updateFailed));
+				messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailed));
 
 			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", messages)));
 			return resp;

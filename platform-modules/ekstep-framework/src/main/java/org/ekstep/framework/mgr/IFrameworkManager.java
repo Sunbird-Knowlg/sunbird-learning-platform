@@ -26,4 +26,6 @@ public interface IFrameworkManager {
 	Response listFramework(Map<String, Object> map) throws Exception;
 	
 	Response retireFramework(String frameworkId, String channelId) throws Exception;
+
+	Response copyFramework(String frameworkId, String channelId, Map<String, Object> request) throws Exception;
 }

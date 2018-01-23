@@ -170,7 +170,7 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	 * @author gauraw
 	 */
 	private static void createMasterTerm() throws Exception {
-		String createMasterTermJson="{ \"label\": \"Standard2\", \"value\": \"Standard2\", \"description\":\"Second Standard\" }";
+		String createMasterTermJson = "{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" }";
 		Map<String, Object> requestMap = mapper.readValue(createMasterTermJson,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -190,7 +190,7 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	 */
 	@Test
 	public void testA() {
-		String request = "{ \"request\": { \"term\": { \"label\": \"Standard2\", \"value\": \"Standard2\", \"description\":\"Second Standard\" } } }";
+		String request = "{ \"request\": { \"term\": { \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" } } }";
 		try {
 			String path = base_category_path + "/create?framework=" + frameworkId + "&category=" + categoryId;
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -242,7 +242,7 @@ public class TermFrameworkV3ControllerTest extends TestSetup {
 	 */
 	@Test
 	public void testD() {
-		String request = "{ \"request\": { \"term\": { \"value\": \"Class2\" } } }";
+		String request = "{ \"request\": { \"term\": { \"name\": \"Class2\" } } }";
 		try {
 			String path = base_category_path + "/update/" + termId + "?framework=" + frameworkId + "&category="
 					+ categoryId;

@@ -2,6 +2,7 @@ package org.ekstep.framework.controller.test;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.manager.test.BaseCategoryInstanceMgrTest;
@@ -23,7 +24,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-
 /**
  * 
  * @author rashmi
@@ -42,16 +42,21 @@ public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 	private final String base_channel_path = "/v3/channel";
 	static int rn = generateRandomNumber(0, 9999);
 	static String node_id = "";
+	static String framework_id = "";
 
 	@Autowired
 	IChannelManager mgr;
 	
 	@Before
-	public void setup() {
+	public void setup() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
+		if (StringUtils.isBlank(node_id))
+			createChannelWithNodeId();
+		if (StringUtils.isBlank(framework_id))
+			createFramework();
 	}
 	
-	@Test
+	// @Test
 	public void createChannelWithNodeId() throws Exception {
 		String request = "{\"request\":{\"channel\":{\"name\":\"channel\",\"description\":\"sample description of channel\",\"code\":\"karnataka"
 				+ rn + "\"}}}";
@@ -64,6 +69,17 @@ public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
 	
+	public void createFramework() throws Exception {
+		String path = "/v3/framework/create";
+		String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\",\"channels\":[{\"identifier\": \""
+				+ node_id + "\"}]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", node_id).content(createFrameworkValidJson));
+		Response resp = jsonToObject(actions);
+		framework_id = (String) resp.get("node_id");
+		Assert.assertEquals("successful", resp.getParams().getStatus());
+	}
+
 	@Test
 	public void createChannelWithEmptyRequest() throws Exception {
 		String path = base_channel_path + "/create";
@@ -129,13 +145,12 @@ public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
 	public void updateChannelForValidNodeId() throws Exception {
-		String channelId = createChannel(mgr);
 		String request = "{\"request\":{\"channel\":{\"description\":\"LP channel API\"}}}";
-		String path = base_channel_path + "/update/" + channelId;
+		String path = base_channel_path + "/update/" + node_id;
 		actions = this.mockMvc
 				.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).content(request));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		String readPath = base_channel_path + "/read/" + channelId;
+		String readPath = base_channel_path + "/read/" + node_id;
 		actions = this.mockMvc.perform(MockMvcRequestBuilders.get(readPath).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp1 = jsonToObject(actions);
@@ -212,11 +227,10 @@ public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
 	public void retireChannelForValidNodeId() throws Exception {
-		String channelId = createChannel(mgr);
-		String path = base_channel_path + "/retire/" + channelId;
+		String path = base_channel_path + "/retire/" + node_id;
 		actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		String readPath = base_channel_path + "/read/" + channelId;
+		String readPath = base_channel_path + "/read/" + node_id;
 		actions = this.mockMvc.perform(MockMvcRequestBuilders.get(readPath).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp1 = jsonToObject(actions);

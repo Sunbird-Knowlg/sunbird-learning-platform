@@ -16,15 +16,15 @@ import org.ekstep.common.dto.Response;
  */
 public interface ICategoryInstanceManager {
 
-	Response createCategoryInstance(String identifier, Map<String,Object> request);
+	Response createCategoryInstance(String identifier, Map<String,Object> request) throws Exception;
 
 	Response readCategoryInstance(String identifier, String categoryInstanceId);
 
 	Response searchCategoryInstance(String identifier, Map<String, Object> map);
 	
-	Response retireCategoryInstance(String identifier, String categoryInstanceId);
+	Response retireCategoryInstance(String identifier, String categoryInstanceId) throws Exception;
 
-	Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map);
+	Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) throws Exception;
 
 	boolean validateScopeId(String identifier);
 }

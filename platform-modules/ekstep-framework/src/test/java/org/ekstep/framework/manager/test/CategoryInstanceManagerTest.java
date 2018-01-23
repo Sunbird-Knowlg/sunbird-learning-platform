@@ -71,8 +71,8 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		Assert.assertEquals(true, StringUtils.isNotBlank(node_id));
 		Response resp = categoryInstanceMgr.readCategoryInstance(frameworkId, categoryId);
 		Map<String,Object> resultMap = resp.getResult();
-		Map<String,Object> categoryMap = (Map) resultMap.get("categoryInstance");
-		List<Map> frameworkMap = (List) categoryMap.get("framework");
+		Map<String,Object> categoryMap = (Map) resultMap.get("category");
+		List<Map> frameworkMap = (List) categoryMap.get("frameworks");
 		Assert.assertEquals(1, frameworkMap.size());
 	}
 	
@@ -116,8 +116,8 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		Assert.assertEquals(true, StringUtils.isNotBlank(node_id));
 		Response resp = categoryInstanceMgr.readCategoryInstance(frameworkId, categoryId);
 		Map<String,Object> resultMap = resp.getResult();
-		Map<String,Object> categoryMap = (Map) resultMap.get("categoryInstance");
-		List<Map> frameworkMap = (List) categoryMap.get("framework");
+		Map<String,Object> categoryMap = (Map) resultMap.get("category");
+		List<Map> frameworkMap = (List) categoryMap.get("frameworks");
 		Assert.assertEquals(1, frameworkMap.size());
 	}
 	
@@ -157,7 +157,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		categoryInstanceMgr.updateCategoryInstance(frameworkId, categoryId, map);
 		Response response1 = categoryInstanceMgr.readCategoryInstance(frameworkId, categoryId);
 		Map<String,Object> resultMap = response1.getResult();
-		Map<String,Object> categoryMap = (Map) resultMap.get("categoryInstance");
+		Map<String,Object> categoryMap = (Map) resultMap.get("category");
 		String description = (String) categoryMap.get("description");
 		Assert.assertEquals(description, "update category instance");
 	}
@@ -207,7 +207,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		Map<String,Object> searchMap = new HashMap<String,Object>();
 		Response res = categoryInstanceMgr.searchCategoryInstance(frameworkId, searchMap);
 		Map<String,Object> resultMap = res.getResult();
-		List<Map<String,Object>> categoryMap = (List) resultMap.get("categoryInstances");
+		List<Map<String,Object>> categoryMap = (List) resultMap.get("categories");
 		Assert.assertEquals(1, categoryMap.size());
 	}
 	
@@ -240,7 +240,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		System.out.println((String)resp.getResponseCode().toString());
 		Response response1 = categoryInstanceMgr.readCategoryInstance(frameworkId, categoryId);
 		Map<String,Object> resultMap = response1.getResult();
-		Map<String,Object> categoryMap = (Map) resultMap.get("categoryInstance");
+		Map<String,Object> categoryMap = (Map) resultMap.get("category");
 		Assert.assertEquals("Retired", (String)categoryMap.get("status"));
 	}
 	

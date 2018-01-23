@@ -3,6 +3,7 @@
  */
 package controllers;
 
+
 import org.ekstep.common.dto.Request;
 
 import managers.VocabularyTermManager;
@@ -27,5 +28,6 @@ public class VocabularyTermController extends SearchBaseController {
 		String apiId = "vocabulary-term.suggest";
 		Request request = getRequest(request().body(), apiId, request().uri());
 		return mgr.suggest(request, limit);
-	}
+  }
+
 }

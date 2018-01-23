@@ -136,4 +136,29 @@ public class FrameworkV3Controller extends BaseController{
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	/**
+	 * @param frameworkId
+	 * @param channelId
+	 * @param requestMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/copy/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> copyFramework(@PathVariable(value = "id") String frameworkId,
+			@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = "X-Channel-Id") String channelId) {
+
+		String apiId = "ekstep.learning.framework.copy";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("framework");
+			Response response = frameworkManager.copyFramework(frameworkId, channelId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception Occured while copying framework (Copy Framework API): "+ e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 }

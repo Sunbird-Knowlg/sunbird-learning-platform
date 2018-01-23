@@ -3,9 +3,11 @@ package org.ekstep.framework.mgr.impl;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+
 import org.ekstep.framework.enums.CategoryEnum;
 import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -21,14 +23,15 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements ICategoryInstanceManager {
+public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements ICategoryInstanceManager
+{
 
 	private static final String CATEGORY_INSTANCE_OBJECT_TYPE = "CategoryInstance";
 
 	private static final String GRAPH_ID = "domain";
 
 	@Override
-	public Response createCategoryInstance(String identifier, Map<String, Object> request) {
+	public Response createCategoryInstance(String identifier, Map<String, Object> request) throws Exception {
 		if (null == request)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (null == request.get("code") || StringUtils.isBlank((String) request.get("code")))
@@ -39,14 +42,22 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		if (null != id)
 			request.put(CategoryEnum.identifier.name(), id);
 		setRelations(identifier, request);
-		return create(request, CATEGORY_INSTANCE_OBJECT_TYPE);
+		Response response = create(request, CATEGORY_INSTANCE_OBJECT_TYPE);
+		if(response.getResponseCode() == ResponseCode.OK) {
+			if (Platform.config.hasPath("framework.es.sync")) {
+				if (Platform.config.getBoolean("framework.es.sync")) {
+					generateFrameworkHierarchy(id);
+				}
+			}
+		}
+		return response;
 	}
 
 	@Override
 	public Response readCategoryInstance(String identifier, String categoryInstanceId) {
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
-			return read(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.categoryInstance.name());
+			return read(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.category.name());
 		} else {
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
@@ -56,12 +67,20 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	}
 
 	@Override
-	public Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) {
+	public Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
-			return update(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
+			Response response = update(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
+			if(response.getResponseCode() == ResponseCode.OK) {
+				if (Platform.config.hasPath("framework.es.sync")) {
+					if (Platform.config.getBoolean("framework.es.sync")) {
+						generateFrameworkHierarchy(categoryInstanceId);
+					}
+				}
+			}
+			return response;
 		} else {
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
@@ -74,14 +93,22 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	public Response searchCategoryInstance(String identifier, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categoryInstances", identifier);
+		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categories", identifier);
 	}
 
 	@Override
-	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
+	public Response retireCategoryInstance(String identifier, String categoryInstanceId) throws Exception{
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
-			return retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
+			Response response = retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
+			if(response.getResponseCode() == ResponseCode.OK) {
+				if (Platform.config.hasPath("framework.es.sync")) {
+					if (Platform.config.getBoolean("framework.es.sync")) {
+						generateFrameworkHierarchy(categoryInstanceId);
+					}
+				}
+			}
+			return response;
 		} else {
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
