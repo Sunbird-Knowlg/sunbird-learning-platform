@@ -26,6 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import common.Constants;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.WithApplication;
@@ -39,7 +40,7 @@ public class VocabularyTermTest extends WithApplication {
 
 	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static final String VOCABULARY_TERM_INDEX = "testvocabularyTerm";
+	private static final String VOCABULARY_TERM_INDEX = "testvocabularyterm";
 	private static final String VOCABULARY_TERM_INDEX_TYPE = "vt";
 
 	@BeforeClass
@@ -56,6 +57,7 @@ public class VocabularyTermTest extends WithApplication {
 	}
 
 	private static void createTestIndex() throws Exception {
+		Constants.VOCABULARY_TERM_INDEX = VOCABULARY_TERM_INDEX;
 		System.out.println("creating index: " + VOCABULARY_TERM_INDEX);
 		String settings = "{\"settings\":{\"index\":{\"index\":\"" + VOCABULARY_TERM_INDEX + "\",\"type\":\""
 				+ VOCABULARY_TERM_INDEX_TYPE
