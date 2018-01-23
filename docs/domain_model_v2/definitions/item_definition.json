@@ -134,6 +134,18 @@
             "indexed": true,
             "draft": false
         }, {
+			"required": false,
+			"dataType": "external",
+			"propertyName": "body",
+			"title": "Body",
+			"description": "",
+			"category": "Authoring",
+			"displayProperty": "Hidden",
+			"defaultValue": "",
+			"renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+			"indexed": false,
+			"draft": false
+		},{
             "required": false,
             "dataType": "Text",
             "propertyName": "question",
