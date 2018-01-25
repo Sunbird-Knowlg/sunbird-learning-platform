@@ -70,7 +70,7 @@ public class VocabularyTermTest extends WithApplication {
 
 	@Test
 	public void testCreate() {
-		String json = "{\"request\":{\"terms\":[{\"lemma\":\"add\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"addition\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"adding\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"ಕೂಡಿಸು\",\"categories\":[\"keywords\"],\"language\":\"ka\"},{\"lemma\":\"sub\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"subtract\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"ಕಳೆ\",\"categories\":[\"keywords\"],\"language\":\"ka\"}]}}";
+		String json = "{\"request\":{\"terms\":[{\"lemma\":\"add\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"addition\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"adding\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"ಕೂಡಿಸು\",\"categories\":[\"keywords\"]},{\"lemma\":\"sub\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"subtract\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"ಕಳೆ\",\"categories\":[\"keywords\"]}]}}";
 		try {
 			JsonNode data = mapper.readTree(json);
 			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/create").method(POST).bodyJson(data);
