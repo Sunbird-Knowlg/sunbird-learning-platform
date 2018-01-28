@@ -7,13 +7,13 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.common.controller.BaseController;
 
 @Controller
 @RequestMapping("v2/config")

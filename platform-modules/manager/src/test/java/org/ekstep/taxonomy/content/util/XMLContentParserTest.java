@@ -5,9 +5,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.XMLContentParser;
-import org.junit.Test;
-
 import org.ekstep.taxonomy.content.common.BaseTestUtil;
+import org.junit.Test;
 
 public class XMLContentParserTest {
 	

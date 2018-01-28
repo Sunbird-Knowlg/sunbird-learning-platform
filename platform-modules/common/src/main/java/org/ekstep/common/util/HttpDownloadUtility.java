@@ -12,7 +12,6 @@ import java.net.URL;
 import java.util.List;
 
 import org.ekstep.common.slugs.Slug;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**

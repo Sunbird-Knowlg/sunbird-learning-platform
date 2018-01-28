@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Filter;
@@ -25,7 +26,6 @@ import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.mgr.BaseManager;
 
 /**
  * The Class BaseWordSet, provides basic functionality to find WordSet, create

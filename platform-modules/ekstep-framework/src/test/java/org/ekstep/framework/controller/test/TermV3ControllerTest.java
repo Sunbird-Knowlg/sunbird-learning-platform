@@ -104,6 +104,48 @@ public class TermV3ControllerTest extends TestSetup {
 		}
 	}
 
+	@Test
+	public void testA1() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" }, { \"name\": \"Standard3\", \"code\": \"Standard3\", \"description\":\"Third Standard\" }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA2() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" }, { \"name\": \"Standard3\", \"description\":\"Third Standard\" }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(207, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA3() {
+		String request = "{ \"request\": { \"term\": [{}] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * readCategoryTerm
 	 */

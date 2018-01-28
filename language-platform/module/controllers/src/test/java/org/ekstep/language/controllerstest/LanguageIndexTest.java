@@ -22,7 +22,6 @@ import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.ekstep.language.util.ElasticSearchUtil;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

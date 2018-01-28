@@ -11,12 +11,16 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ekstep.common.Platform;
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.enums.ImportType;
 import org.ekstep.graph.importer.OutputStreamValue;
+import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
+import org.ekstep.taxonomy.mgr.ITaxonomyManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,12 +32,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
-import org.ekstep.taxonomy.mgr.ITaxonomyManager;
-import org.ekstep.telemetry.handler.Level;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Controller
 @RequestMapping("/taxonomy")

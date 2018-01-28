@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
@@ -17,8 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
 
 @Controller
 @RequestMapping("health")

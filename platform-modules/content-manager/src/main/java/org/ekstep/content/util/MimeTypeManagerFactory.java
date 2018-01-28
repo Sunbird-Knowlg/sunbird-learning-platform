@@ -1,6 +1,7 @@
 package org.ekstep.content.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
@@ -13,7 +14,6 @@ import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.dto.CoverageIgnore;
 
 public class MimeTypeManagerFactory {
 

@@ -38,7 +38,7 @@ import com.datastax.driver.core.querybuilder.Select.Where;
  * @author mahesh
  *
  */
-public abstract class AbstractCassandraStore {
+public abstract class CassandraStore {
 
 	private String keyspace = null;
 	private String table = null;

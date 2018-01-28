@@ -8,13 +8,12 @@ import java.io.IOException;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFToXMLConvertor;
 import org.ekstep.content.util.XMLContentParser;
+import org.ekstep.taxonomy.content.common.BaseTestUtil;
 import org.junit.Test;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.DefaultNodeMatcher;
 import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.ElementSelectors;
-
-import org.ekstep.taxonomy.content.common.BaseTestUtil;
 
 public class ECRFToXMLConvertorTest {
 	

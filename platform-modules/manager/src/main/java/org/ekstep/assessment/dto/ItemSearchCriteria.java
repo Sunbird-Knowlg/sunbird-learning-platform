@@ -5,12 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.dto.AbstractSearchCriteria;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
 import org.ekstep.graph.dac.model.RelationCriterion;
 import org.ekstep.graph.dac.model.SearchCriteria;
-
-import org.ekstep.common.dto.AbstractSearchCriteria;
 
 public class ItemSearchCriteria extends AbstractSearchCriteria {
 

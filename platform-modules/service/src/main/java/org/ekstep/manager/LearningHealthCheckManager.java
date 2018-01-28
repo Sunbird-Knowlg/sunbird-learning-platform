@@ -10,14 +10,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.mgr.HealthCheckManager;
 import org.ekstep.graph.common.mgr.Configuration;
+import org.ekstep.orchestrator.dac.service.IOrchestratorDataService;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import org.ekstep.common.mgr.HealthCheckManager;
-import org.ekstep.orchestrator.dac.service.IOrchestratorDataService;
-import org.ekstep.telemetry.handler.Level;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Component
 public class LearningHealthCheckManager extends HealthCheckManager {

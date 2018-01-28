@@ -582,7 +582,7 @@
             "displayProperty": "Editable",
             "range": ["UNIT", "SET", "DYNAMIC"],
             "required": true,
-            "defaultValue": "",
+            "defaultValue": "UNIT",
             "renderingHints": "{'order': 27}",
             "indexed": true
         }, {

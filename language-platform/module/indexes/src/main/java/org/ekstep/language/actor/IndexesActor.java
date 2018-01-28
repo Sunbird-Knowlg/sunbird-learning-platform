@@ -13,6 +13,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Request;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.util.UnzipUtility;
@@ -28,7 +29,6 @@ import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 import akka.actor.ActorRef;
 

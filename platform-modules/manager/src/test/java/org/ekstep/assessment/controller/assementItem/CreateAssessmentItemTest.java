@@ -9,14 +9,13 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
+import org.ekstep.taxonomy.base.test.BaseCucumberTest;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
-
-import org.ekstep.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;

@@ -51,7 +51,7 @@
           ],
           "required": true,
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": "K-12",
           "renderingHints": "{'inputType': 'text', 'order': 3}",
           "indexed": false
         },

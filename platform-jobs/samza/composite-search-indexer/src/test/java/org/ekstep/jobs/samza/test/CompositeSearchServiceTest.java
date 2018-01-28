@@ -1,10 +1,11 @@
 package org.ekstep.jobs.samza.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.Assert.assertEquals;
+
 import org.apache.samza.config.Config;
 import org.apache.samza.config.MapConfig;
 import org.apache.samza.task.MessageCollector;

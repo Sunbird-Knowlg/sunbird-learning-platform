@@ -1,10 +1,10 @@
 package org.ekstep.kernel.extension;
 
 import org.neo4j.kernel.extension.KernelExtensionFactory;
+import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 import org.neo4j.kernel.impl.spi.KernelContext;
 import org.neo4j.kernel.lifecycle.Lifecycle;
 import org.neo4j.kernel.lifecycle.LifecycleAdapter;
-import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 
 
 public class RegisterTransactionEventHandlerExtensionFactory extends KernelExtensionFactory<RegisterTransactionEventHandlerExtensionFactory.Dependencies> {

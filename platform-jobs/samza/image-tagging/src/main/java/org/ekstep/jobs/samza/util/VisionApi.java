@@ -1,5 +1,16 @@
 package org.ekstep.jobs.samza.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -15,17 +26,6 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.SafeSearchAnnotation;
 import com.google.common.collect.ImmutableList;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * The Class Vision API provides image tagging and image flagging for any given image. It internally calls Google Vision

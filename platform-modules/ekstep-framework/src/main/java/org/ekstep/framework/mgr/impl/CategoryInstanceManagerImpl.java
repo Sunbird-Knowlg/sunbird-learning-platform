@@ -3,16 +3,17 @@ package org.ekstep.framework.mgr.impl;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+
+import org.ekstep.framework.enums.CategoryEnum;
+import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.stereotype.Component;
-
-import org.ekstep.framework.enums.CategoryEnum;
-import org.ekstep.framework.mgr.ICategoryInstanceManager;
 
 /**
  * This is the entry point for all CRUD operations related to category Instance
@@ -22,7 +23,8 @@ import org.ekstep.framework.mgr.ICategoryInstanceManager;
  *
  */
 @Component
-public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements ICategoryInstanceManager {
+public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements ICategoryInstanceManager
+{
 
 	private static final String CATEGORY_INSTANCE_OBJECT_TYPE = "CategoryInstance";
 
@@ -42,7 +44,11 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		setRelations(identifier, request);
 		Response response = create(request, CATEGORY_INSTANCE_OBJECT_TYPE);
 		if(response.getResponseCode() == ResponseCode.OK) {
-			generateFrameworkHierarchy(id);
+			if (Platform.config.hasPath("framework.es.sync")) {
+				if (Platform.config.getBoolean("framework.es.sync")) {
+					generateFrameworkHierarchy(id);
+				}
+			}
 		}
 		return response;
 	}
@@ -51,7 +57,7 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	public Response readCategoryInstance(String identifier, String categoryInstanceId) {
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
-			return read(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.categoryInstance.name());
+			return read(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.category.name());
 		} else {
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
@@ -68,7 +74,11 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		if (validateScopeNode(categoryInstanceId, identifier)) {
 			Response response = update(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
 			if(response.getResponseCode() == ResponseCode.OK) {
-				generateFrameworkHierarchy(categoryInstanceId);
+				if (Platform.config.hasPath("framework.es.sync")) {
+					if (Platform.config.getBoolean("framework.es.sync")) {
+						generateFrameworkHierarchy(categoryInstanceId);
+					}
+				}
 			}
 			return response;
 		} else {
@@ -83,14 +93,22 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	public Response searchCategoryInstance(String identifier, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categoryInstances", identifier);
+		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categories", identifier);
 	}
 
 	@Override
-	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
+	public Response retireCategoryInstance(String identifier, String categoryInstanceId) throws Exception{
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
-			return retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
+			Response response = retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
+			if(response.getResponseCode() == ResponseCode.OK) {
+				if (Platform.config.hasPath("framework.es.sync")) {
+					if (Platform.config.getBoolean("framework.es.sync")) {
+						generateFrameworkHierarchy(categoryInstanceId);
+					}
+				}
+			}
+			return response;
 		} else {
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"

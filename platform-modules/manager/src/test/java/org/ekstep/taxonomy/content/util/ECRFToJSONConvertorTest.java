@@ -8,10 +8,9 @@ import java.io.IOException;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFToJSONConvertor;
 import org.ekstep.content.util.JSONContentParser;
+import org.ekstep.taxonomy.content.common.BaseTestUtil;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import org.ekstep.taxonomy.content.common.BaseTestUtil;
 
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;

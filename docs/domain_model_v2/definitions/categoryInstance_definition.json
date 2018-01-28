@@ -178,7 +178,14 @@
         "metadata":
         {
             "ttl": 11,
-            "limit": 50
+            "limit": 50,
+            "fields": [
+                "identifier",
+                "name",
+                "code",
+                "description",
+                "status"
+            ]
         }
     }]
 }

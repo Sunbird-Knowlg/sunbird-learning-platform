@@ -7,6 +7,11 @@ import java.util.Random;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.manager.test.BaseCategoryInstanceMgrTest;
+import org.ekstep.framework.mgr.ICategoryInstanceManager;
+import org.ekstep.framework.mgr.ICategoryManager;
+import org.ekstep.framework.mgr.IChannelManager;
+import org.ekstep.framework.mgr.IFrameworkManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -23,12 +28,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import org.ekstep.framework.manager.test.BaseCategoryInstanceMgrTest;
-import org.ekstep.framework.mgr.ICategoryInstanceManager;
-import org.ekstep.framework.mgr.ICategoryManager;
-import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.framework.mgr.IFrameworkManager;
 
 /**
  * 
@@ -186,7 +185,7 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response response = jsonToObject(actions);
 		Map<String,Object> resultMap = (Map) response.getResult();
-		Map<String,Object> categoryData = (Map) resultMap.get("categoryInstance");
+		Map<String,Object> categoryData = (Map) resultMap.get("category");
 		Assert.assertEquals("Live", categoryData.get("status"));
 	}
 	
@@ -245,7 +244,7 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response response = jsonToObject(actions);
 		Map<String,Object> resultMap = (Map) response.getResult();
-		Map<String,Object> categoryData = (Map) resultMap.get("categoryInstance");
+		Map<String,Object> categoryData = (Map) resultMap.get("category");
 		Assert.assertEquals("LP category API", categoryData.get("description"));
 	}
 	
@@ -379,7 +378,7 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response response = jsonToObject(actions);
 		Map<String,Object> resultMap = (Map) response.getResult();
-		Map<String,Object> categoryData = (Map) resultMap.get("categoryInstance");
+		Map<String,Object> categoryData = (Map) resultMap.get("category");
 		Assert.assertEquals("Retired", categoryData.get("status"));
 	}
 	

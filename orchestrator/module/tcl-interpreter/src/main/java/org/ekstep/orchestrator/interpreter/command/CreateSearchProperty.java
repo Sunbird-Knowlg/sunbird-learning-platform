@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.ekstep.common.dto.Property;
-
 import org.ekstep.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;

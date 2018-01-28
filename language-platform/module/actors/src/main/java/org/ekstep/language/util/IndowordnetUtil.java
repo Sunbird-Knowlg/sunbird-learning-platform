@@ -19,7 +19,6 @@ import org.ekstep.language.model.LanguageSynsetData;
 import org.ekstep.language.model.SynsetData;
 import org.ekstep.language.model.SynsetDataLite;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.hibernate.Query;
 import org.hibernate.Session;

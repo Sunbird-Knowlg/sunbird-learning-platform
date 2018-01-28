@@ -2683,8 +2683,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					
 					Relation relation = new Relation(synsetId, wordUtil.getRelationName(LanguageParams.synonyms.name()),
 							wordId);
-/*					if(isPrimary)
-						relation.setMetadata(getPrimaryMeaningMetadata());*/
+					if(isPrimary)
+						relation.setMetadata(getPrimaryMeaningMetadata());
 					outRelations.add(relation);
 				}
 				//add main word to words and relations
@@ -2742,7 +2742,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							if(outRelations==null)
 								outRelations = new ArrayList<>();
 							outRelations.add(relation);
-							synset.setOutRelations(outRelations);
 						} else {
 							if (!isWordSynonymAlready(mainWordId, synonymRelations)) {
 								String wordsStr = (String) existingSynset.getMetadata()
@@ -2755,9 +2754,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 								Relation relation = new Relation(synsetId,
 										wordUtil.getRelationName(LanguageParams.synonyms.name()), mainWordId);
 								outRelations.add(relation);
-								synset.setOutRelations(outRelations);
 							}
 						}
+						synset.setOutRelations(outRelations);
 					}
 				} else {
 					if(synonymRelations!=null&& synonymRelations.size()>0){

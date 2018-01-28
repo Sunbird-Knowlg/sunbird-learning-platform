@@ -2158,6 +2158,22 @@
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{}"
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "suitability",
+					"title": "Suitability",
+					"description": "Content suitability",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"external",
+						"ads"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
+					"indexed": true
 				}
 			],
 			"inRelations": [

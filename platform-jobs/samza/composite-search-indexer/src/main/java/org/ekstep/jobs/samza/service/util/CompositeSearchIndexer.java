@@ -172,7 +172,6 @@ public class CompositeSearchIndexer {
 	private void upsertDocument(String uniqueId, Map<String, Object> message, Map<String, String> relationMap)
 			throws Exception {
 		String operationType = (String) message.get("operationType");
-		String objectType = (String) message.get("objectType");
 		switch (operationType) {
 		case CompositeSearchConstants.OPERATION_CREATE: {
 			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, false);
@@ -183,8 +182,6 @@ public class CompositeSearchIndexer {
 		case CompositeSearchConstants.OPERATION_UPDATE: {
 			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, true);
 			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-			if (StringUtils.equalsIgnoreCase("Framework", objectType))
-				System.out.println("Framework doc: "+ jsonIndexDocument);
 			upsertDocument(uniqueId, jsonIndexDocument);
 			break;
 		}

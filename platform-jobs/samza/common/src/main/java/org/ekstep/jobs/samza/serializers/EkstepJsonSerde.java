@@ -1,15 +1,15 @@
 package org.ekstep.jobs.samza.serializers;
 
-import org.apache.samza.serializers.Serde;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.samza.SamzaException;
+import org.apache.samza.serializers.Serde;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
 
 /*
  * A serializer for JSON strings that

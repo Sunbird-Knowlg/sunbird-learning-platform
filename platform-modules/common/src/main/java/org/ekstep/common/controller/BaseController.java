@@ -20,6 +20,7 @@ import org.ekstep.common.dto.RequestParams;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
@@ -27,8 +28,6 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 
 public abstract class BaseController {
 

@@ -5,6 +5,7 @@ package org.ekstep.framework.mgr;
 
 import java.util.Map;
 
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 
 /**
@@ -50,8 +51,17 @@ public interface ITermManager {
 	 * @param categoryId
 	 * @param termId
 	 * @return
+	 * @throws Exception 
 	 */
-	Response retireTerm(String scopeId, String categoryId, String termId);
+	Response retireTerm(String scopeId, String categoryId, String termId) throws Exception;
 
+	/**
+	 * @param scopeId
+	 * @param categoryId
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	Response createTerm(String scopeId, String categoryId, Request request) throws Exception;
 
 }

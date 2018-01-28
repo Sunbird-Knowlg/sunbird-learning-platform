@@ -3,8 +3,11 @@ package org.ekstep.taxonomy.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.taxonomy.mgr.ITaxonomyManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,10 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.ekstep.common.controller.BaseController;
-import org.ekstep.taxonomy.mgr.ITaxonomyManager;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 @Controller
 @RequestMapping("/v2/domains")

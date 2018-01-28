@@ -1,10 +1,9 @@
 package org.ekstep.assessment.dto;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.AbstractSearchCriteria;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.SearchCriteria;
-
-import org.ekstep.common.dto.AbstractSearchCriteria;
 
 public class ItemSetSearchCriteria extends AbstractSearchCriteria {
 

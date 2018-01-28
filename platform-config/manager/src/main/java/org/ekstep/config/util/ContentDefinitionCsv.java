@@ -14,11 +14,10 @@ import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.ekstep.common.dto.CoverageIgnore;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import org.ekstep.common.dto.CoverageIgnore;
 
 public class ContentDefinitionCsv {
 	private static final String NEW_LINE_SEPARATOR = "\n";

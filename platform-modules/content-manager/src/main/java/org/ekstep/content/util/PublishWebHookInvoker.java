@@ -12,10 +12,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.dto.CoverageIgnore;
 
 @CoverageIgnore
 public class PublishWebHookInvoker {

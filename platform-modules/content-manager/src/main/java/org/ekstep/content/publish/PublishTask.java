@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -26,9 +27,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.telemetry.handler.Level;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.common.dto.NodeDTO;
 
 public class PublishTask implements Runnable {
 

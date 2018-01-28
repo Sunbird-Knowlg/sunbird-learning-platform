@@ -13,6 +13,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.test.common.TestSetUp;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,8 +24,6 @@ import org.junit.rules.ExpectedException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.ekstep.taxonomy.content.common.TestSetup;
-import org.ekstep.test.common.TestSetUp;
 
 //@Ignore
 public class EpubMimeTypeMgrTest extends TestSetUp {

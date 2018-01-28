@@ -3,7 +3,6 @@ package org.ekstep.framework.mgr;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
-
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
 
 /**
@@ -27,4 +26,6 @@ public interface IFrameworkManager {
 	Response listFramework(Map<String, Object> map) throws Exception;
 	
 	Response retireFramework(String frameworkId, String channelId) throws Exception;
+
+	Response copyFramework(String frameworkId, String channelId, Map<String, Object> request) throws Exception;
 }
