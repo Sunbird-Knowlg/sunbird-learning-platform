@@ -52,7 +52,7 @@ public class AssessmentItemSetV3Test extends TestSetUp {
 	static String set_id1 = null;
 	List<Integer> items = new ArrayList<Integer>();
 	private final String base_path = "/v3/assessment/itemsets";
-	
+
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		loadDefinition("definitions/concept_definition.json", "definitions/content_definition.json",
@@ -213,9 +213,9 @@ public class AssessmentItemSetV3Test extends TestSetUp {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = base_path + "/read/" + set_id1;
 		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.get(path)
-					.contentType(MediaType.APPLICATION_JSON));
-			// Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
+			// Assert.assertEquals(200,
+			// actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -264,7 +264,7 @@ public class AssessmentItemSetV3Test extends TestSetUp {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Testing ItemSet - MCQQ_650.\", \"type\": \"materialised\", \"description\": \"Testing of ItemSet Using AssessmentItems\", \"code\": \"ItemSet_650\", \"difficulty_level\": \"high\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"max_score\": 3, \"memberIds\": [ \"test.q901\", \"test.q902\", \"test.q903\" ] } } } }";
-		String path =  base_path + "/update/" + set_id1;
+		String path = base_path + "/update/" + set_id1;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -331,7 +331,7 @@ public class AssessmentItemSetV3Test extends TestSetUp {
 
 	// Search assessmentItemset with required search criteria
 	// expect 200 response
-	 @Test
+	@Test
 	public void searchItemSetWithValidRequest() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -383,7 +383,7 @@ public class AssessmentItemSetV3Test extends TestSetUp {
 	}
 
 	// @Test
-	public void listAssessmentitemsTest(){
+	public void listAssessmentitemsTest() {
 		String path = base_path + "/list?limit=200&limit=0";
 		String contentString = "{ \"request\": { \"metadata\": { \"filters\": [] }}}";
 		try {
@@ -397,7 +397,7 @@ public class AssessmentItemSetV3Test extends TestSetUp {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// Delete an assessmentItemset with valid itemset id
 	// expect 200 ok response
 	@Test
@@ -456,8 +456,7 @@ public class AssessmentItemSetV3Test extends TestSetUp {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		for (int i = 0; i < range; i++) {
-			String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_" + i
-					+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
+			String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"LP_UT_test_01\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
 			try {
 				String path = "/v3/assessment/assessmentitems/create";
 				actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
