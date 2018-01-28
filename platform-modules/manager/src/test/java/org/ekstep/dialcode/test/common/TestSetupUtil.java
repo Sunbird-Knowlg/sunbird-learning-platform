@@ -27,7 +27,7 @@ public class TestSetupUtil {
 		setupEmbeddedCassandra();
 	}
 
-	protected static void setupEmbeddedCassandra(String... querys) {
+	protected static void setupEmbeddedCassandra() {
 
 		try {
 			EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 100000L);
