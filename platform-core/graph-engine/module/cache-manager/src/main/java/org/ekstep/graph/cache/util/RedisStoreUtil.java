@@ -4,20 +4,15 @@ import static org.ekstep.graph.cache.factory.JedisFactory.getRedisConncetion;
 import static org.ekstep.graph.cache.factory.JedisFactory.returnConnection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 
-import com.google.common.collect.Sets;
-
-import akka.util.Collections;
 import redis.clients.jedis.Jedis;
 
 public class RedisStoreUtil {
