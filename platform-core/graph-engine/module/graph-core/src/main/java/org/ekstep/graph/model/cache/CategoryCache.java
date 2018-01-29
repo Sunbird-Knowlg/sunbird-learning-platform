@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
+import org.ekstep.telemetry.handler.TelemetryLoggingHandler;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
@@ -44,7 +45,7 @@ public class CategoryCache {
 				List<Object> terms = getTerms(category, "terms");
 				if (!terms.isEmpty()) {
 					String key = getKey(framework, catName);
-					System.out.println("Key: "+ key + " Values: "+terms);
+					TelemetryManager.info("Setting framework category cache with key: "+ key);
 					RedisStoreUtil.saveList(key, terms);
 				}
 			}
