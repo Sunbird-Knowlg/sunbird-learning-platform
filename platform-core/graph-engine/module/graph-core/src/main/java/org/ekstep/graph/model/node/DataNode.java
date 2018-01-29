@@ -533,11 +533,7 @@ public class DataNode extends AbstractNode {
 					List<Object> terms = CategoryCache.getTerms(framework, propName);
 					if (null != terms && !terms.isEmpty()) {
 						range = terms;
-						Map<String, Object> params = new HashMap<>();
-						params.put("framework", framework);
-						params.put("category", propName);
-						params.put("terms", terms);
-						TelemetryManager.log("Setting range from terms for data validation.", params);
+						TelemetryManager.log("Setting range from terms for data validation. framework: " + framework + ", category: "+ propName);
 					} else {
 						messages.add("Please select a valid framework. This framework doesn't have category: "+ propName);
 						return;

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -107,6 +108,41 @@ public class RedisStoreUtil {
 			double inc = 1.0;
 			double value = jedis.incrByFloat(redisKey, inc);
 			return value;
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
+	
+	// TODO: always considering object as string. need to change this.
+	public static void saveList(String key, List<Object> values) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			jedis.del(key);
+			for (Object val : values) {
+				jedis.append(key, (String) val);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+	
+	public static List<Object> getList(String key) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			List<Object> list = new ArrayList<Object>();
+			String value = jedis.getrange(key, 0, 0);
+			int i = 1;
+			while(StringUtils.isNotBlank(value)) {
+				list.add(value);
+				value = jedis.getrange(key, i, i);
+				i++;
+			}
+			return list;
 		} catch (Exception e) {
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
