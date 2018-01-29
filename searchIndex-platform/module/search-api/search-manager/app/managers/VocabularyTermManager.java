@@ -14,6 +14,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.searchindex.dto.SearchDTO;
@@ -105,7 +106,10 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), errorMessage.get(0),
 								ResponseCode.CLIENT_ERROR);
 				}
+
 				String identifier = Slug.makeSlug(language + "_" + lemma, true);
+				term.put(VocabularyTermParam.id.name(), identifier);
+				term.put(VocabularyTermParam.language.name(), language);
 				addDoc(identifier, term);
 				termIds.add(identifier);
 			}
@@ -123,7 +127,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public Promise<Result> suggest(Request request, int limit) {
+	public Promise<Result> suggest(Request request) {
 		if (null == request) {
 			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Invalid Request", ResponseCode.CLIENT_ERROR);
 		}
@@ -133,9 +137,9 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		}
 		try {
 			Map<String, Object> map = getSearchData(request);
-			if (limit == 0) {
-				limit = DEFAULT_LIMIT;
-			}
+			int limit = getLimit(request.get(VocabularyTermParam.limit.name()),
+					VocabularyTermParam.ERR_INVALID_REQUEST.name());
+			map.remove(VocabularyTermParam.limit.name());
 			SearchResult searchResult = searchLemma(map, limit);
 			List<Map> terms = getResultData(searchResult);
 			Response response = OK();
@@ -143,8 +147,10 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			response.put(VocabularyTermParam.terms.name(), terms);
 			return successResponse(response);
 		} catch (Exception e) {
-			e.printStackTrace();
 			TelemetryManager.error("VocabularyTermManager : suggest() : Exception : " + e.getMessage(), e);
+			if(e instanceof ClientException) {
+				return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
+			}
 			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while processing",
 					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
@@ -407,5 +413,16 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 				return language;
 			}
 		}
+	}
+
+	private int getLimit(Object limit, String errCode) {
+		int limitValue = DEFAULT_LIMIT;
+		try {
+			if (null != limit)
+				limitValue = (int) limit;
+		} catch (Exception e) {
+			throw new ClientException(errCode, "Please provide valid limit.");
+		}
+		return limitValue;
 	}
 }

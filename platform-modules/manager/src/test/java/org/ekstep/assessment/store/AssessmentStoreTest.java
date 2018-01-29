@@ -33,7 +33,7 @@ public class AssessmentStoreTest {
 
 	@Test
 	public void assessmentStoreTest_01() throws Exception {
-		String questId = "A124";
+		String questId = "A126";
 		String body = "Test Data!!!!!!!!!";
 		assessmentStore.save(questId, body);
 		assertTrue(true);
@@ -43,8 +43,9 @@ public class AssessmentStoreTest {
 	public void assessmentStoreTest_02() throws Exception {
 		String data = "";
 		try {
-			String questId = "A123";
+			String questId = "A126";
 			data = assessmentStore.read(questId);
+			System.out.println("data:::::::::" + data);
 			assertTrue(StringUtils.isNotBlank(data));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -54,7 +55,7 @@ public class AssessmentStoreTest {
 
 	@Test
 	public void assessmentStoreTest_03() throws Exception {
-		String questId = "A123";
+		String questId = "A127";
 		String body = "Updated Test Data!!!!!!!!!";
 		assessmentStore.update(questId, body);
 		assertTrue(true);

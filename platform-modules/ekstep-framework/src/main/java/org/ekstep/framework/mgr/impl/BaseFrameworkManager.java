@@ -36,6 +36,7 @@ import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
@@ -352,7 +353,7 @@ public class BaseFrameworkManager extends BaseManager {
 				request.put("categories", relationList);
 				break;
 			case "categoryinstance":
-				request.put("categoryinstances", relationList);
+				request.put("categories", relationList);
 				break;
 			case "channel":
 				request.put("channels", relationList);
@@ -364,6 +365,41 @@ public class BaseFrameworkManager extends BaseManager {
 		} catch (Exception e) {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
 		}
+	}
+	
+	public void setRelationsCopy(String parnetObjectType, String childObjectType, String scopeId, Map<String, Object> request) {
+		DefinitionDTO parentDefinition =  getDefinition(GRAPH_ID, parnetObjectType);
+		DefinitionDTO childDefinition = getDefinition(GRAPH_ID, childObjectType);
+		if(null != parentDefinition && null != childDefinition) {
+			List<RelationDefinition> parentOutRelations = parentDefinition.getOutRelations();
+			List<RelationDefinition> childInRelations = childDefinition.getInRelations();
+			if(null != parentOutRelations && !parentOutRelations.isEmpty() && 
+					null != childInRelations && !childInRelations.isEmpty()) {
+				for(RelationDefinition parentOutRelation : parentOutRelations) {
+					for(RelationDefinition childInRelation : childInRelations) {
+						if(StringUtils.equalsIgnoreCase(childInRelation.getRelationName(), parentOutRelation.getRelationName()) &&
+								childInRelation.getObjectTypes().contains(parnetObjectType) &&
+								parentOutRelation.getObjectTypes().contains(childObjectType)) {
+							List<Map<String, Object>> relationList = new ArrayList<Map<String, Object>>();
+							Map<String, Object> relationMap = new HashMap<String, Object>();
+							relationMap.put("identifier", scopeId);
+							relationList.add(relationMap);
+							
+							Response responseNode = getDataNode(GRAPH_ID, scopeId);
+							Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
+							if(StringUtils.equalsIgnoreCase(dataNode.getObjectType(), parnetObjectType))
+								request.put(childInRelation.getTitle(), relationList);
+							else if (StringUtils.equalsIgnoreCase(dataNode.getObjectType(), childObjectType))
+								request.put(parentOutRelation.getTitle(), relationList);
+							
+							return;
+						}
+					}
+					
+				}
+			}
+		}
+		
 	}
 
 	/**
