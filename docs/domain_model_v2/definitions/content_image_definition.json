@@ -2347,7 +2347,7 @@
 					"board": 4
 				},
 				"versionCheckMode": "STRICT",
-				"allowStatusUpdate": true,
+				"allowupdate.status": true,
 				"fields": [
 					"identifier",
 					"name",

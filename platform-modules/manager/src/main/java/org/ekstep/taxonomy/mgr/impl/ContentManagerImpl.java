@@ -17,6 +17,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -881,9 +883,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 
-		// Restrict create API to create with Status
-		validateForStatusUpdate(definition, map);
-
+		restrictProps(definition, map, "status");
+		String framework = (String) map.get("framework");
+		if (StringUtils.isBlank(framework))
+			map.put("framework", getDefaultFramework());
+		
 		String mimeType = (String) map.get("mimeType");
 		if (StringUtils.isNotBlank(mimeType)) {
 			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType))
@@ -940,6 +944,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
+	private String getDefaultFramework() {
+		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
+		//TODO: check channel for default framework.
+		if (Platform.config.hasPath("platform.framework.default"))
+			return Platform.config.getString("platform.framework.default");
+		else 
+			return "NCF";
+	}
+
 	@SuppressWarnings("unchecked")
 	public Response updateContent(String contentId, Map<String, Object> map) throws Exception {
 		if (null == map)
@@ -947,8 +960,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 
-		// Restrict Update API to Update Status
-		validateForStatusUpdate(definition, map);
+		restrictProps(definition, map, "status", "framework");
 
 		String originalId = contentId;
 		String objectType = CONTENT_OBJECT_TYPE;
@@ -1468,12 +1480,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 					((String) map.get(ContentAPIParams.contentType.name())) + " is not a valid value for contentType");
 	}
-
-	private void validateForStatusUpdate(DefinitionDTO definition, Map<String, Object> map) throws Exception {
-		if (BooleanUtils.isFalse(((Boolean) definition.getMetadata().get("allowStatusUpdate")))) {
-			if (map.containsKey(ContentAPIParams.status.name()))
-				throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
-						"Error! Status cannot be set while updating the Content.");
+	
+	private void restrictProps(DefinitionDTO definition, Map<String, Object> map, String... props) {
+		for (String prop: props) {
+			if (BooleanUtils.isFalse(((Boolean) definition.getMetadata().get("allowupdate."+prop)))) {
+				if (map.containsKey(prop))
+					throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(), "Error! "+ prop + " can't be set for the content.");
+			}
+			
 		}
 	}
 

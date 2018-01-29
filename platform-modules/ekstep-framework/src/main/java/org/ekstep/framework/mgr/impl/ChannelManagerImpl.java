@@ -48,9 +48,8 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error while loading all frameworks to category cache.", e);
+			TelemetryManager.error("Error while loading all frameworks for category cache.", e);
 		}
-		
 	}
 	
 	@Override
