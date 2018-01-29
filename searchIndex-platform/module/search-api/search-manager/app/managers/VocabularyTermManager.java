@@ -89,7 +89,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 				if (StringUtils.isBlank((String) term.get(VocabularyTermParam.lemma.name()))) {
 					if (termRequest.size() > 1)
 						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "lemma is mandatory",
-							ResponseCode.PARTIAL_SUCCESS, VocabularyTermParam.identifiers.name(), termIds);
+								ResponseCode.PARTIAL_SUCCESS, VocabularyTermParam.identifiers.name(), termIds);
 					else
 						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Atleast one term is mandatory",
 								ResponseCode.CLIENT_ERROR);
@@ -101,7 +101,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 				if (!errorMessage.isEmpty()) {
 					if (termRequest.size() > 1)
 						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), errorMessage.get(0),
-							ResponseCode.PARTIAL_SUCCESS, VocabularyTermParam.identifiers.name(), termIds);
+								ResponseCode.PARTIAL_SUCCESS, VocabularyTermParam.identifiers.name(), termIds);
 					else
 						return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), errorMessage.get(0),
 								ResponseCode.CLIENT_ERROR);
@@ -131,11 +131,8 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		if (null == request) {
 			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Invalid Request", ResponseCode.CLIENT_ERROR);
 		}
-		String searchText = (String) request.get(VocabularyTermParam.text.name());
-		if (StringUtils.isBlank(searchText)) {
-			return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Invalid Request", ResponseCode.CLIENT_ERROR);
-		}
 		try {
+			validatesearchText(request.get(VocabularyTermParam.text.name()));
 			Map<String, Object> map = getSearchData(request);
 			int limit = getLimit(request.get(VocabularyTermParam.limit.name()),
 					VocabularyTermParam.ERR_INVALID_REQUEST.name());
@@ -148,13 +145,23 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			return successResponse(response);
 		} catch (Exception e) {
 			TelemetryManager.error("VocabularyTermManager : suggest() : Exception : " + e.getMessage(), e);
-			if(e instanceof ClientException) {
+			if (e instanceof ClientException) {
 				return ERROR(VocabularyTermParam.ERR_INVALID_REQUEST.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
 			}
 			return ERROR(VocabularyTermParam.ERR_INTERNAL_ERROR.name(), "Something went wrong while processing",
 					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 
+	}
+
+	/**
+	 * @param object
+	 */
+	private void validatesearchText(Object searchText) {
+		if ((searchText instanceof String && StringUtils.isBlank((String) searchText))
+				|| ((searchText instanceof Map) && (null == ((Map) searchText) || ((Map) searchText).isEmpty()))) {
+			throw new ClientException(VocabularyTermParam.ERR_INVALID_REQUEST.name(), "Invalid Request");
+		}
 	}
 
 	/**
@@ -189,17 +196,18 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			map.put(VocabularyTermParam.categories.name(), "keywords");
 		}
 		if (null != request.get(VocabularyTermParam.language.name())) {
-			if(request.get(VocabularyTermParam.language.name()) instanceof List && ((List) request.get(VocabularyTermParam.language.name())).isEmpty()) {
+			if (request.get(VocabularyTermParam.language.name()) instanceof List
+					&& ((List) request.get(VocabularyTermParam.language.name())).isEmpty()) {
 				map.put(VocabularyTermParam.language.name(), "en");
-			}else if(StringUtils.isBlank((String) request.get(VocabularyTermParam.language.name()))) {
+			} else if (StringUtils.isBlank((String) request.get(VocabularyTermParam.language.name()))) {
 				map.put(VocabularyTermParam.language.name(), "en");
-			}else {
+			} else {
 				map.put(VocabularyTermParam.language.name(), request.get(VocabularyTermParam.language.name()));
 			}
 		} else {
 			map.put(VocabularyTermParam.language.name(), "en");
 		}
-		
+
 		return map;
 	}
 
@@ -283,8 +291,8 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			if (code.equals(ResponseCode.CLIENT_ERROR)) {
 				return F.Promise.pure(badRequest(result).as("application/json"));
 			} else if (code.equals(ResponseCode.PARTIAL_SUCCESS)) {
-				return F.Promise.pure(
-						new Status(play.core.j.JavaResults.PartialContent(), result, Codec.javaSupported("utf-8"))
+				return F.Promise
+						.pure(new Status(play.core.j.JavaResults.PartialContent(), result, Codec.javaSupported("utf-8"))
 								.as("application/json"));
 			} else {
 				return F.Promise.pure(internalServerError(result).as("application/json"));
@@ -357,14 +365,12 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<Map> setSearchProperties(Map<String, Object> map) {
+	private List<Map> setSearchProperties(Map<String, Object> map) throws Exception {
 		List<Map> properties = new ArrayList<Map>();
-		Map<String, Object> property = new HashMap<String, Object>();
-		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_CONTAINS);
-		property.put("propertyName", VocabularyTermParam.lemma.name());
-		property.put("values", map.get(VocabularyTermParam.text.name()));
-		properties.add(property);
 
+		properties.addAll(lemmaProperties(map));
+
+		Map<String, Object> property = new HashMap<String, Object>();
 		property = new HashMap<String, Object>();
 		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
 		property.put("propertyName", VocabularyTermParam.categories.name());
@@ -378,6 +384,61 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		properties.add(property);
 
 		return properties;
+	}
+
+	/**
+	 * @param map
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<Map> lemmaProperties(Map<String, Object> map) throws Exception {
+		List<Map> properties = new ArrayList<Map>();
+		Map<String, Object> property = new HashMap<String, Object>();
+		if (!(map.get(VocabularyTermParam.text.name()) instanceof Map)) {
+			property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
+			property.put("propertyName", VocabularyTermParam.lemma.name());
+			property.put("values", map.get(VocabularyTermParam.text.name()));
+			properties.add(property);
+		} else {
+			Map<String, Object> lemmaRequest = (Map<String, Object>) map.get(VocabularyTermParam.text.name());
+			for (String key : lemmaRequest.keySet()) {
+				property = new HashMap<String, Object>();
+				property.put("propertyName", VocabularyTermParam.lemma.name());
+				property.put("values", lemmaRequest.get(key));
+				switch (key) {
+				case "startsWith": {
+					property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
+					properties.add(property);
+					break;
+				}
+				case "endsWith": {
+					property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
+					properties.add(property);
+					break;
+				}
+				case "equals": {
+					property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+					properties.add(property);
+					break;
+				}
+				case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_OPERATOR:
+				case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT:
+				case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT_LOWERCASE:
+				case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT_UPPERCASE: {
+					property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL);
+					properties.add(property);
+					break;
+				}
+				default: {
+					throw new Exception("Unsupported operation");
+				}
+				}
+			}
+		}
+		return properties;
+
 	}
 
 	/**
