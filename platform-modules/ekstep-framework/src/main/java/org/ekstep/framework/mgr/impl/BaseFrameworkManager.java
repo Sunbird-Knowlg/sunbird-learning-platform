@@ -353,7 +353,7 @@ public class BaseFrameworkManager extends BaseManager {
 				request.put("categories", relationList);
 				break;
 			case "categoryinstance":
-				request.put("categoryinstances", relationList);
+				request.put("categories", relationList);
 				break;
 			case "channel":
 				request.put("channels", relationList);
