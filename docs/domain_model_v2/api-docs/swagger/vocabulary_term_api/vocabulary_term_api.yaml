@@ -1,0 +1,277 @@
+swagger: '2.0'
+info:
+  version: '3.0'
+  title: Vocabulary Term API
+  description: VocabualaryTerms are the keywords defined for tagging of Framework terms
+  license:
+    name: EkStep License
+    url: 'http:www.EkStep.in'
+host: api.ekstep.in
+securityDefinitions: {}
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: VocabularyTerms
+    description: Everything related to create and suggest of the term for a Master Category
+paths:
+  /vocabulary/v3/term/create:
+    post:
+      summary: Creates single or multiple vocabulary terms
+      description: >-
+        This Api is used to create single or multiple vocabulary term. For
+        creating a term, lemma is mandatory field where as language is
+        autodetected based on lemma. As of now categories specified is keywords.
+      tags:
+        - VocabularyTerms
+      operationId: vocabulary-term.create
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/TermRequestObject'
+      responses:
+        '200':
+          description: Term/Terms Created Successfully
+          schema:
+            $ref: '#/definitions/TermCreateResponse'
+        '400':
+          description: >-
+            Error While creating Term! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While creating Term! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /vocabulary/v3/term/suggest:
+    post:
+      summary: Suggests lemma for a given text
+      description: >-
+        This api is used to suggest lemma values as-you-type the text. We can
+        specify the limit on number of values to be displayed in the results.
+        Default limit is 50. We can also specify the categories and language.
+        Default categories is keywords and language is en(English).
+      tags:
+        - VocabularyTerms
+      operationId: vocabulary-term.suggest
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/SuggestTermRequestObject'
+      responses:
+        '200':
+          description: Lemmas fetched Successfully
+          schema:
+            $ref: '#/definitions/SuggestTermGetResponse'
+        '400':
+          description: >-
+            Error While fetching the Term! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching the Term! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+parameters:
+  TermRequestObject:
+    name: Request
+    in: body
+    description: Term Request Object which contains the request
+    required: true
+    schema:
+      $ref: '#/definitions/TermRequestObject'
+  SuggestTermRequestObject:
+    name: SuggestTermRequestObject
+    in: body
+    description: Term Request Object which contains the request
+    required: true
+    schema:
+      $ref: '#/definitions/SuggestTermRequestObject'
+definitions:
+  TermRequestObject:
+    title: Vocabulary Term Request Object
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/TermObject'
+    required:
+      - request
+  TermObject:
+    title: Term Object
+    type: object
+    properties:
+      terms:
+        $ref: '#/definitions/Term'
+  TermCreateResponse:
+    description: Create Term Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  SuggestTermRequestObject:
+    title: Suggest Request
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/SearchRequestObject'
+    required:
+      - request
+  SearchRequestObject:
+    title: SearchRequestObject
+    type: object
+    properties:
+      text:
+        type: string
+        description: text to be searched for
+      categories:
+        type: string
+        description: 'categories of the text to be searched , Deafault is ["keywords"]'
+      language:
+        type: string
+        description: language code . Default is en
+      limit:
+        type: number
+        description: limit of search results
+  SuggestTermGetResponse:
+    description: Create Term Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResponseBody'
+      - $ref: '#/definitions/ResponseHeader'
+  Term:
+    title: VocabularyTerm Metadata
+    type: object
+    properties:
+      id:
+        type: string
+        description: Identifier of the Term
+      lemma:
+        type: string
+        description: valueof tem object
+      categories:
+        type: string
+        description: Categories of the lemma
+      language:
+        type: string
+        description: language code for lemma
+  ResultWithNodeId:
+    title: Result
+    type: object
+    properties:
+      result:
+        $ref: '#/definitions/CreateResponse'
+  CreateResponse:
+    title: CreateResponse
+    type: object
+    properties:
+      identifers:
+        type: array
+        items:
+          type: string
+          description: Ids generated
+  ResponseHeader:
+    title: ResponseHeader
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: object
+        description: 'API response code '
+  ResponseParams:
+    title: Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        type: string
+        description: Response Message Id
+      msgid:
+        type: string
+        description: Message Id
+      err:
+        type: string
+        description: Error Code
+      status:
+        type: string
+        description: Response Status
+      errmsg:
+        type: string
+        description: Error Message
+  ResponseBody:
+    title: ResponseBody
+    type: object
+    properties:
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/Response'
+  Response:
+    title: Response
+    type: object
+    properties:
+      lemma:
+        type: string
+      score:
+        type: number
+        format: double
+  FailedResponseHeader:
+    title: Failure Response
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/FailedResponseParams'
+      responseCode:
+        type: string
+        description: responseCode
+  FailedResponseParams:
+    title: Failed Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        type: string
+        description: Response Message Id
+      msgid:
+        type: string
+        description: Message Id
+      err:
+        type: string
+        description: Error Code
+      status:
+        type: string
+        description: Response Status
+      errmsg:
+        type: string
+        description: Error Message

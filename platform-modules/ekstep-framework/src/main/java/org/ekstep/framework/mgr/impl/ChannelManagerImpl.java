@@ -74,7 +74,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 				if(null == frameworkList || frameworkList.isEmpty()) {
 					List<Object> searchedFrameworkList = getAllFrameworkList();
 					if (null != searchedFrameworkList && !searchedFrameworkList.isEmpty()) {
-						responseMap.put(ChannelEnum.frameworks.name(),searchedFrameworkList);
+						responseMap.put("suggested_frameworks",searchedFrameworkList);
 					}
 				}
 			}

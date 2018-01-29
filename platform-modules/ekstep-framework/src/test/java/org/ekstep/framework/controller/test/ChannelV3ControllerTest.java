@@ -56,7 +56,6 @@ public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 			createFramework();
 	}
 	
-	// @Test
 	public void createChannelWithNodeId() throws Exception {
 		String request = "{\"request\":{\"channel\":{\"name\":\"channel\",\"description\":\"sample description of channel\",\"code\":\"karnataka"
 				+ rn + "\"}}}";
