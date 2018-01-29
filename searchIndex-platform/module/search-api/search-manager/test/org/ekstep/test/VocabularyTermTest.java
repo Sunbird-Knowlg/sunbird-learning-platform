@@ -133,10 +133,10 @@ public class VocabularyTermTest extends WithApplication {
 
 	@Test
 	public void testSuggest() {
-		String json = "{\"request\":{\"text\" : \"add\"}}";
+		String json = "{\"request\":{\"text\" : \"add\", \"limit\":3}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest?limit=3").method(POST)
+			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST)
 					.bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
@@ -150,10 +150,10 @@ public class VocabularyTermTest extends WithApplication {
 
 	@Test
 	public void testSuggest1() {
-		String json = "{\"request\":{\"text\" : \"add\", \"categories\":[\"keywords\"],\"language\":\"en\"}}";
+		String json = "{\"request\":{\"text\" : \"add\", \"categories\":[\"keywords\"], \"language\":\"en\", \"limit\":3}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest?limit=3").method(POST)
+			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST)
 					.bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
@@ -167,7 +167,7 @@ public class VocabularyTermTest extends WithApplication {
 
 	@Test
 	public void testSuggest2() {
-		String json = "{\"request\":{\"text\" : \"add\", \"categories\":[\"asd\"],\"language\":\"en\",\"limit\":3}}";
+		String json = "{\"request\":{\"text\" : \"add\", \"categories\":[\"asd\"],\"language\":\"en\"}}";
 		try {
 			JsonNode data = mapper.readTree(json);
 			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST)
@@ -203,7 +203,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : \"\"}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest?limit=3").method(POST)
+			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST)
 					.bodyJson(data);
 			Result result = route(req);
 			assertEquals(BAD_REQUEST, result.status());
