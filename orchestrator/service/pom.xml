@@ -45,6 +45,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+    			<groupId>org.ekstep</groupId>
+			<artifactId>cassandra-connector</artifactId>
+    			<version>1.0-SNAPSHOT</version>
+    			<type>test-jar</type>
+    			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>

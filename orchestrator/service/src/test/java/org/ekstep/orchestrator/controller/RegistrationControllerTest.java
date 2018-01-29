@@ -2,7 +2,7 @@ package org.ekstep.orchestrator.controller;
 
 import java.util.Random;
 
-import org.ekstep.orchestrator.common.TestSetup;
+import org.ekstep.cassandra.CassandraTestSetup;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import org.springframework.web.context.WebApplicationContext;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })	
-public class RegistrationControllerTest extends TestSetup{
+public class RegistrationControllerTest extends CassandraTestSetup{
 
 	@Autowired
 	private WebApplicationContext context;
