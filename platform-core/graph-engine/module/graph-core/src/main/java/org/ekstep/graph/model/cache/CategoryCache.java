@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
-import org.ekstep.telemetry.handler.TelemetryLoggingHandler;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
