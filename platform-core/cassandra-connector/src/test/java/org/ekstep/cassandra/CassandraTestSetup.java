@@ -9,6 +9,8 @@ import com.datastax.driver.core.Session;
 
 public class CassandraTestSetup {
 
+	private static Session session = null;
+	
 	@AfterClass
 	public static void afterTest() {
 		tearEmbeddedCassandraSetup();
@@ -33,7 +35,24 @@ public class CassandraTestSetup {
 	}
 
 	private static void tearEmbeddedCassandraSetup() {
-		EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+		try {
+			session.close();
+			EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
+	protected static void executeScript(String... querys) {
+
+		try {
+			session = CassandraConnector.getSession();
+			for (String query : querys) {
+				session.execute(query);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 }

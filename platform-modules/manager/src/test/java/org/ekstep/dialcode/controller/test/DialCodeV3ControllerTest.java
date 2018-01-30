@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.cassandra.CassandraTestSetup;
 import org.ekstep.common.dto.Response;
 import org.ekstep.dialcode.mgr.impl.DialCodeManagerImpl;
-import org.ekstep.dialcode.test.common.TestSetupUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DialCodeV3ControllerTest extends TestSetupUtil {
+public class DialCodeV3ControllerTest extends CassandraTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
