@@ -357,6 +357,7 @@ public class DataNode extends AbstractNode {
 			map.put(getNodeId(), messages);
 			return map;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
 		}
 	}
@@ -398,6 +399,7 @@ public class DataNode extends AbstractNode {
 			}
 			return messages;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
 		}
 	}
@@ -526,7 +528,7 @@ public class DataNode extends AbstractNode {
 						messages.add("Please provide framework.");
 						return;
 					} else {
-						if (dataType.endsWith("list")) {
+						if (StringUtils.endsWithIgnoreCase(dataType, "list")) {
 							dataType = "multi-select";
 						} else {
 							dataType = "select";
