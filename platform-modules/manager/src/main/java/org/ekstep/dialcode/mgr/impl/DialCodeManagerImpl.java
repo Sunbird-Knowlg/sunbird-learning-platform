@@ -65,8 +65,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	@PostConstruct
 	public void init() {
 		defaultLimit = Platform.config.hasPath("dialcode.search.limit")
-				? Platform.config.getInt("dialcode.search.limit")
-				: defaultLimit;
+				? Platform.config.getInt("dialcode.search.limit") : defaultLimit;
 		dialHost = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host")
 				: dialHost;
 		dialPort = Platform.config.hasPath("dialcode.es_port") ? Platform.config.getInt("dialcode.es_port") : dialPort;
@@ -76,7 +75,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#generateDialCode(java.util.Map,
+	 * @see
+	 * org.ekstep.dialcode.mgr.IDialCodeManager#generateDialCode(java.util.Map,
 	 * java.lang.String)
 	 */
 	@Override
@@ -102,7 +102,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			dialCodeMap = dialCodeGenerator.generate(userCount, channelId, publisher, batchCode);
 			resp = getSuccessResponse();
 		}
-		
+
 		resp.put(DialCodeEnum.count.name(), dialCodeMap.size());
 		resp.put(DialCodeEnum.batchcode.name(), batchCode);
 		resp.put(DialCodeEnum.publisher.name(), publisher);
@@ -114,7 +114,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#readDialCode(java.lang.String)
+	 * @see
+	 * org.ekstep.dialcode.mgr.IDialCodeManager#readDialCode(java.lang.String)
 	 */
 	@Override
 	public Response readDialCode(String dialCodeId) throws Exception {
@@ -159,7 +160,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
+	 * @see
+	 * org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
 	 * java.util.Map)
 	 */
 	@Override
@@ -178,7 +180,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
+	 * @see
+	 * org.ekstep.dialcode.mgr.IDialCodeManager#listDialCode(java.lang.String,
 	 * java.util.Map)
 	 */
 	@Override
@@ -230,8 +233,12 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		return resp;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#syncDialCode(java.lang.String, java.util.Map, java.util.List)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.dialcode.mgr.IDialCodeManager#syncDialCode(java.lang.String,
+	 * java.util.Map, java.util.List)
 	 */
 	@Override
 	public Response syncDialCode(String channelId, Map<String, Object> map, List<String> identifiers) {
@@ -248,8 +255,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		}
 
 		if (requestMap.isEmpty()) {
-			return ERROR(DialCodeErrorCodes.ERR_INVALID_SYNC_REQUEST,
-					"Either publisher or batchCode or atleat one identifier is mandatory", ResponseCode.CLIENT_ERROR);
+			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_SYNC_REQUEST,
+					"Either publisher or batchCode or atleat one identifier is mandatory");
 		}
 		int rowsSynced = dialCodeStore.sync(requestMap);
 		Response response = getSuccessResponse();
@@ -261,7 +268,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#createPublisher(java.util.Map,
+	 * @see
+	 * org.ekstep.dialcode.mgr.IDialCodeManager#createPublisher(java.util.Map,
 	 * java.lang.String)
 	 */
 	@Override
@@ -297,7 +305,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#readPublisher(java.lang.String)
+	 * @see
+	 * org.ekstep.dialcode.mgr.IDialCodeManager#readPublisher(java.lang.String)
 	 */
 	@Override
 	public Response readPublisher(String publisherId) throws Exception {
@@ -373,7 +382,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		resp.setParams(respParam);
 		return resp;
 	}
-	
+
 	private Response getPartialSuccessResponse() {
 		Response resp = new Response();
 		ResponseParams respParam = new ResponseParams();

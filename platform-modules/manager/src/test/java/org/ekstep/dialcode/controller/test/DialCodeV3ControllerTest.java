@@ -1,12 +1,16 @@
 package org.ekstep.dialcode.controller.test;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.dialcode.mgr.impl.DialCodeManagerImpl;
 import org.ekstep.dialcode.test.common.TestSetupUtil;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,6 +31,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -53,8 +58,11 @@ public class DialCodeV3ControllerTest extends TestSetupUtil {
 	private ResultActions actions;
 	private static String dialCode = "";
 	private static String publisherId = "";
+	private static String DIALCODE_INDEX = "testdialcode";
+	private static String DIALCODE_INDEX_TYPE = "dc";
 	private static final String basePath = "/v3/dialcode";
 	private static ObjectMapper mapper = new ObjectMapper();
+	ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	private static String cassandraScript_1 = "CREATE KEYSPACE IF NOT EXISTS dialcode_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
 	private static String cassandraScript_2 = "CREATE TABLE IF NOT EXISTS dialcode_store_test.system_config_test (prop_key text,prop_value text,primary key(prop_key));";
@@ -70,11 +78,13 @@ public class DialCodeV3ControllerTest extends TestSetupUtil {
 	@BeforeClass
 	public static void setup() throws Exception {
 		executeScript(cassandraScript_1, cassandraScript_2, cassandraScript_3, cassandraScript_4, cassandraScript_5);
+
 	}
 
 	@AfterClass
-	public static void finish() {
-
+	public static void finish() throws IOException {
+		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+		elasticSearchUtil.deleteIndex(DIALCODE_INDEX);
 	}
 
 	@Before
@@ -622,6 +632,108 @@ public class DialCodeV3ControllerTest extends TestSetupUtil {
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
 		Assert.assertEquals(207, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 33 : Search DIAL Code with valid uri and valid request body
+	 * 
+	 * Given: valid URI and valid Request Body. When: Search DIAL Code API hits.
+	 * Then: 200 - OK
+	 * 
+	 */
+	@Test
+	public void testDialCode_33() throws Exception {
+		createDialCodeIndex();
+		String path = basePath + "/search";
+		String req = "{\"request\": {\"search\": {\"identifier\": \"" + dialCode + "\",\"limit\":10}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 34 : Sync DIAL Code with valid uri and valid request body
+	 * 
+	 * Given: valid URI and valid Request Body. When: Sync DIAL Code API hits.
+	 * Then: 200 - OK
+	 * 
+	 */
+	@Test
+	public void testDialCode_34() throws Exception {
+		createDialCodeIndex();
+		String path = basePath + "/sync" + "?identifiers=" + dialCode;
+		String req = "{\"request\":{\"sync\":{\"publisher\":\"mock_pub01\",\"batchCode\":\"ka_math_std1\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 35 : Sync DIAL Code with valid uri and Invalid request body
+	 * 
+	 * Given: valid URI and Invalid Request Body. When: Sync DIAL Code API hits.
+	 * Then: 400 - CLIENT_ERROR
+	 * 
+	 */
+	@Test
+	public void testDialCode_35() throws Exception {
+		createDialCodeIndex();
+		String path = basePath + "/sync";
+		String req = "{\"request\":{\"sync\":{}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 36 : Search DIAL Code with valid uri and Invalid request body
+	 * 
+	 * Given: valid URI and Invalid Request Body. When: Search DIAL Code API
+	 * hits. Then: 400 - CLIENT_ERROR
+	 * 
+	 */
+	@Test
+	public void testDialCode_36() throws Exception {
+		createDialCodeIndex();
+		String path = basePath + "/search";
+		String req = "{\"request\": {\"search\": {\"identifier\": \"" + dialCode + "\",\"limit\":\"ABC\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	private void createDialCodeIndex() throws IOException {
+		CompositeSearchConstants.DIAL_CODE_INDEX = DIALCODE_INDEX;
+		String settings = "{ \"settings\": {   \"index\": {     \"index\": \""
+				+ CompositeSearchConstants.DIAL_CODE_INDEX + "\",     \"type\": \""
+				+ CompositeSearchConstants.DIAL_CODE_INDEX_TYPE
+				+ "\",     \"analysis\": {       \"analyzer\": {         \"dc_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"dc_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
+		String mappings = "{ \"" + CompositeSearchConstants.DIAL_CODE_INDEX_TYPE
+				+ "\" : {    \"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"dc_index_analyzer\",            \"search_analyzer\": \"dc_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"dc_index_analyzer\",        \"search_analyzer\": \"dc_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }}";
+		elasticSearchUtil.addIndex(CompositeSearchConstants.DIAL_CODE_INDEX,
+				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings);
+
+		populateData();
+	}
+
+	private void populateData() throws JsonProcessingException, IOException {
+		Map<String, Object> indexDocument = new HashMap<String, Object>();
+		indexDocument.put("identifier", dialCode);
+		indexDocument.put("channel", "channelTest");
+		indexDocument.put("batchcode", "test_math_std1");
+		indexDocument.put("publisher", "mock_pub01");
+		indexDocument.put("status", "Draft");
+		indexDocument.put("generated_on", "2018-01-30T16:50:40.562");
+		indexDocument.put("index", "true");
+		indexDocument.put("operationType", "CREATE");
+		indexDocument.put("nodeType", "EXTERNAL");
+		indexDocument.put("userId", "ANONYMOUS");
+		indexDocument.put("createdOn", "2018-01-30T16:50:40.593+0530");
+		indexDocument.put("userId", "ANONYMOUS");
+		indexDocument.put("objectType", "DialCode");
+
+		elasticSearchUtil.addDocumentWithId(DIALCODE_INDEX, CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, dialCode,
+				mapper.writeValueAsString(indexDocument));
 	}
 
 }
