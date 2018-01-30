@@ -4,9 +4,11 @@
 package org.ekstep.graph.engine.common;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -35,8 +37,7 @@ import scala.concurrent.duration.Duration;
  */
 public class GraphEngineTestSetup {
 
-	static ClassLoader classLoader = GraphEngineTestSetup.class.getClassLoader();
-	static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
+	private static ClassLoader classLoader = GraphEngineTestSetup.class.getClassLoader();
 
 	private static GraphDatabaseService graphDb = null;
 
@@ -106,8 +107,8 @@ public class GraphEngineTestSetup {
 	protected static void loadDefinition(String... paths) throws Exception {
 		if (null != paths && paths.length > 0) {
 			for (String path : paths) {
-				File file = new File(classLoader.getResource(path).getFile());
-				String definition = FileUtils.readFileToString(file);
+				InputStream is = classLoader.getResourceAsStream(path);
+				String definition = IOUtils.toString(is);;
 				createDefinition(Platform.config.getString(TestParams.graphId.name()), definition);
 			}
 		}
