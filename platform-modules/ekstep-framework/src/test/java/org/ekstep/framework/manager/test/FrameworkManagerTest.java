@@ -129,25 +129,6 @@ public class FrameworkManagerTest extends TestSetup {
 	}
 
 	/**
-	 * Read Framework with valid framework id
-	 * 
-	 */
-	@Test
-	public void testFramework_04() {
-
-		try {
-			Response response = frameworkManager.readFramework(frameworkId);
-			String responseCode = (String) response.getResponseCode().toString();
-			int resCode = response.getResponseCode().code();
-			assertTrue(responseCode.equals("OK"));
-			assertTrue(resCode == 200);
-		} catch (Exception e) {
-			System.out.println("FrameworkManagerTest:::testFramework_04:::Exception : " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Read Framework with Invalid framework id
 	 * 
 	 * @throws Exception

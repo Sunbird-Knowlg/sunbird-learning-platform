@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
-	private String host = "localhost";
+	private String host = "http://localhost";
 	private int port = 9200;
 	private SearchProcessor processor = null;
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -208,7 +208,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response listFramework(Map<String, Object> map) throws Exception {
 		if (map == null)
-			return ERROR("ERR_INVALID_SEARCH_REQUEST", "Invalid Search Request", ResponseCode.CLIENT_ERROR);
+			throw new ClientException("ERR_INVALID_SEARCH_REQUEST", "Invalid Search Request");
 
 		return search(map, FRAMEWORK_OBJECT_TYPE, "frameworks", null);
 

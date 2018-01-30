@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.framework.enums.CategoryEnum;
 import org.ekstep.framework.mgr.ICategoryManager;
 import org.springframework.stereotype.Component;
@@ -23,11 +23,10 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 	@Override
 	public Response createCategory(Map<String, Object> request) {
 		if (null == request)
-			return ERROR("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			throw new ClientException("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request");
 		String code = (String) request.get("code");
 		if (null == code || StringUtils.isBlank(code))
-			return ERROR("ERR_CATEGORY_CODE_REQUIRED", "Unique code is mandatory for category",
-					ResponseCode.CLIENT_ERROR);
+			throw new ClientException("ERR_CATEGORY_CODE_REQUIRED", "Unique code is mandatory for category");
 		request.put("identifier", code);
 		return create(request, CATEGORY_OBJECT_TYPE);
 	}
@@ -40,7 +39,7 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 	@Override
 	public Response updateCategory(String categoryId, Map<String, Object> map) {
 		if (null == map)
-			return ERROR("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			throw new ClientException("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request");
 		return update(categoryId, CATEGORY_OBJECT_TYPE, map);
 
 	}
@@ -48,7 +47,7 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 	@Override
 	public Response searchCategory(Map<String, Object> map) {
 		if (null == map)
-			return ERROR("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+			throw new ClientException("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request");
 		return search(map, CATEGORY_OBJECT_TYPE, "categories", null);
 	}
 

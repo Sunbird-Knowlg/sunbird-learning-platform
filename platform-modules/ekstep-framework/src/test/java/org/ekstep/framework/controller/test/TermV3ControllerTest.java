@@ -146,6 +146,118 @@ public class TermV3ControllerTest extends TestSetup {
 		}
 	}
 
+	@Test
+	public void testA4() {
+		String request = "{ \"request\": { \"term\": [] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA5() {
+		String request = "{ \"request\": {}}";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA6() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" }, { \"name\": \"Standard3\", \"description\":\"Third Standard\" }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA7() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" }, { \"name\": \"Standard3\", \"description\":\"Third Standard\" }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + "a1234";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA8() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\", \"parents\":[{\"identifier\":\"term_class\"}] }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(500, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA9() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\", \"parents\":[{\"identifier\":\"term_class\"}] }, { \"name\": \"Standard3\", \"code\": \"Standard2\", \"description\":\"Third Standard\" }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(207, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA10() {
+		String request = "{ \"request\": { \"term\": [{\"name\": \"Standard3\", \"code\": \"Standard2\", \"description\":\"Third Standard\" },{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\", \"parents\":[{\"identifier\":\"term_class\"}] }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(207, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA11() {
+		String request = "{ \"request\": { \"term\": [{\"name\": \"Standard3\", \"description\":\"Third Standard\" },{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\", \"parents\":[{\"identifier\":\"term_class\"}] }] } }";
+		try {
+			String path = base_category_path + "/create?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(500, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * readCategoryTerm
 	 */
@@ -156,6 +268,18 @@ public class TermV3ControllerTest extends TestSetup {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testB1() {
+		try {
+			String path = base_category_path + "/read/" + termId + "?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}
@@ -178,6 +302,20 @@ public class TermV3ControllerTest extends TestSetup {
 		}
 	}
 
+	@Test
+	public void testC1() {
+		String request = "{ \"request\": { } }";
+		try {
+			String path = base_category_path + "/search?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * updateCategoryTerm
 	 */
@@ -195,6 +333,48 @@ public class TermV3ControllerTest extends TestSetup {
 		}
 	}
 
+	@Test
+	public void testD1() {
+		String request = "{ \"request\": {} }";
+		try {
+			String path = base_category_path + "/update/" + termId + "?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testD2() {
+		String request = "{ \"request\": { \"term\": { \"code\": \"Class2\" } } }";
+		try {
+			String path = base_category_path + "/update/" + termId + "?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(500, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testD3() {
+		String request = "{ \"request\": { \"term\": { \"name\": \"Class2\", \"parents\":[{\"identifier\":\"term_class\"}]} } }";
+		try {
+			String path = base_category_path + "/update/" + termId + "?category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * RetireCategoryTerm
 	 */
@@ -205,6 +385,18 @@ public class TermV3ControllerTest extends TestSetup {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi"));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testZ1() {
+		try {
+			String path = base_category_path + "/retire/" + termId + "?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi"));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}
