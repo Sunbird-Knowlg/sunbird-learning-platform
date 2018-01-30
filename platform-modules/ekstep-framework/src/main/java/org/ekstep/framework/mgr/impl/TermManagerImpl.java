@@ -13,9 +13,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.exception.ServerException;
 import org.ekstep.framework.enums.TermEnum;
 import org.ekstep.framework.mgr.ITermManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -32,57 +30,12 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 
 	private static final String TERM_OBJECT_TYPE = "Term";
 
-	/* (non-Javadoc)
-	 * @see org.ekstep.taxonomy.mgr.ITermManager#createTerm(java.lang.String, java.util.Map)
-	 */
-	/* (non-Javadoc)
-	 * @see org.ekstep.taxonomy.mgr.ITermManager#createTerm(java.lang.String, java.util.Map)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Response createTerm(String scopeId, String category, Map<String, Object> request) throws Exception{
-		if (null == request)
-			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		String code = (String) request.get(TermEnum.code.name());
-		if (StringUtils.isBlank(code))
-			return ERROR("ERR_TERM_LABEL_REQUIRED", "Unique code is required for Term", ResponseCode.CLIENT_ERROR);
-
-		String categoryId = category;
-		if (null != scopeId) {
-			categoryId = generateIdentifier(scopeId, categoryId);
-			validateRequest(scopeId, categoryId);
-			//validateMasterTerm(categoryId, label);  commented to remove term validation with master term
-		} else {
-			validateCategoryId(categoryId);
-		}
-
-		String id = generateIdentifier(categoryId, code);
-
-		if (null != id)
-			request.put(TermEnum.identifier.name(), id);
-		else
-			throw new ServerException("ERR_SERVER_ERROR", "Unable to create TermId", ResponseCode.SERVER_ERROR);
-
-		if(!request.containsKey(TermEnum.parents.name()) || ((List<Object>)request.get(TermEnum.parents.name())).isEmpty())
-			setRelations(categoryId, request);
-		request.put("category", category);
-		Response response = create(request, TERM_OBJECT_TYPE);
-		if(response.getResponseCode() == ResponseCode.OK) {
-			if (Platform.config.hasPath("framework.es.sync")) {
-				if (Platform.config.getBoolean("framework.es.sync")) {
-					generateFrameworkHierarchy(id);
-				}
-			}
-		}
-		return response;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response createTerm(String scopeId, String category, Request req) throws Exception {
 		List<Map<String, Object>> requestList = getRequestData(req);
-		if (null == requestList || requestList.isEmpty())
-			return ERROR("ERR_INVALID_TERM_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+		if (null == req.get(TermEnum.term.name()) || null == requestList || requestList.isEmpty())
+			throw new ClientException("ERR_INVALID_TERM_OBJECT", "Invalid Request");
 
 		String categoryId = category;
 		if (null != scopeId) {
@@ -161,7 +114,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response updateTerm(String scopeId, String category, String termId, Map<String, Object> request) throws Exception {
-		if (null == request)
+		if (null == request || request.isEmpty())
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (request.containsKey(TermEnum.code.name()))
 			return ERROR("ERR_SERVER_ERROR", "Term Code cannot be updated", ResponseCode.SERVER_ERROR);
@@ -242,7 +195,9 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 
 	public void validateRequest(String scope, String categoryId) {
 		Boolean valid = false;
-		if (StringUtils.isNotBlank(scope) && StringUtils.isNotBlank(categoryId)) {
+		if (StringUtils.isNotBlank(scope) && StringUtils.isNotBlank(categoryId)
+				&& !StringUtils.equalsIgnoreCase(categoryId, "_")
+				&& !StringUtils.equalsIgnoreCase(categoryId, scope + "_")) {
 			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
 			if (!checkError(categoryResp)) {
 				Node node = (Node) categoryResp.get(GraphDACParams.node.name());
@@ -272,7 +227,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		if (StringUtils.isNotBlank(categoryId)) {
 			Response categoryResp = getDataNode(GRAPH_ID, categoryId);
 			if (checkError(categoryResp)) {
-				throw new ResourceNotFoundException("ERR_INVALID_CATEGORY_ID", "Please provide valid category.");
+				throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide valid category.");
 			}
 		} else {
 			throw new ClientException("ERR_INVALID_CATEGORY_ID", "Please provide valid category. It should not be empty.");
@@ -280,30 +235,30 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	}
 	
 	/**
-	 * Validate Term against Master Term (Term under Master Category)
-	 * If term in the request exist in Master Category,then term will be valid else invalid.
+	 * Validate Term against Master Term (Term under Master Category) If term in the
+	 * request exist in Master Category,then term will be valid else invalid.
 	 * 
 	 * @author gauraw
 	 * 
-	 * */
-	public void validateMasterTerm(String categoryId, String termLabel) {
+	 *//*
+		private void validateMasterTerm(String categoryId, String termLabel) {
 		if (StringUtils.isNotBlank(termLabel)) {
-			String temp[]=categoryId.split("_");
-			String termId=generateIdentifier(temp[temp.length-1],termLabel);
-			Response termResp = getDataNode(GRAPH_ID, termId);
-			if (!checkError(termResp)) {
-				Node node = (Node) termResp.get(GraphDACParams.node.name());
-				if (!StringUtils.equalsIgnoreCase(termId, node.getIdentifier())) {
-					throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
-				}
-			}else {
+		String temp[]=categoryId.split("_");
+		String termId=generateIdentifier(temp[temp.length-1],termLabel);
+		Response termResp = getDataNode(GRAPH_ID, termId);
+		if (!checkError(termResp)) {
+			Node node = (Node) termResp.get(GraphDACParams.node.name());
+			if (!StringUtils.equalsIgnoreCase(termId, node.getIdentifier())) {
 				throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
 			}
-		} else {
+		}else {
 			throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
 		}
-
-	}
+		} else {
+		throw new ClientException("ERR_INVALID_TERM_ID", "Ivalid Term Id.");
+		}
+		
+		}*/
 
 	/**
 	 * @param codeError

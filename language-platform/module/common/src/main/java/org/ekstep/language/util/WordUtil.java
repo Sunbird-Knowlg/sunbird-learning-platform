@@ -273,7 +273,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
 		} catch (Exception e) {
-			TelemetryManager.error("Error! Exception occurred: "+ e.getMessage(), e);
 			dateTimeString = "";
 		}
 		return dateTimeString;
@@ -1310,7 +1309,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error!Exception occured: "+ e.getMessage(), e);
 			errorMessages.add(e.getMessage());
 		}
 	}
@@ -1925,7 +1923,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error!Exception occured: "+ e.getMessage(), e);
 			e.printStackTrace();
 			errorMessages.add(e.getMessage());
 		}

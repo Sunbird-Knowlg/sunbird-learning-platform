@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -122,7 +121,7 @@ public class RedisStoreUtil {
 		try {
 			jedis.del(key);
 			for (Object val : values) {
-				jedis.append(key, (String) val);
+				jedis.sadd(key, (String) val);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -134,14 +133,8 @@ public class RedisStoreUtil {
 	public static List<Object> getList(String key) {
 		Jedis jedis = getRedisConncetion();
 		try {
-			List<Object> list = new ArrayList<Object>();
-			String value = jedis.getrange(key, 0, 0);
-			int i = 1;
-			while(StringUtils.isNotBlank(value)) {
-				list.add(value);
-				value = jedis.getrange(key, i, i);
-				i++;
-			}
+			 Set<String> set = jedis.smembers(key);
+			 List<Object> list = new ArrayList<Object>(set);
 			return list;
 		} catch (Exception e) {
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());

@@ -357,6 +357,7 @@ public class DataNode extends AbstractNode {
 			map.put(getNodeId(), messages);
 			return map;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
 		}
 	}
@@ -398,6 +399,7 @@ public class DataNode extends AbstractNode {
 			}
 			return messages;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
 		}
 	}
@@ -520,24 +522,28 @@ public class DataNode extends AbstractNode {
 			
 			//TODO: the below if condition is to allow term and termlist as datatypes.
 			if (StringUtils.isNotBlank(dataType) && MetadataDefinition.PLATFORM_OBJECTS_AS_DATA_TYPE.contains(dataType.toLowerCase())) {
-				String framework = (String) this.metadata.get("framework");
-				if (StringUtils.isBlank(framework)) {
-					messages.add("Please provide framework.");
-					return;
-				} else {
-					if (dataType.endsWith("list")) {
-						dataType = "multi-select";
-					} else {
-						dataType = "select";
-					}
-					List<Object> terms = CategoryCache.getTerms(framework, propName);
-					if (null != terms && !terms.isEmpty()) {
-						range = terms;
-						TelemetryManager.log("Setting range from terms for data validation. framework: " + framework + ", category: "+ propName);
-					} else {
-						messages.add("Please select a valid framework. This framework doesn't have category: "+ propName);
+				if (def.getRangeValidation()) {
+					String framework = (String) this.metadata.get("framework");
+					if (StringUtils.isBlank(framework)) {
+						messages.add("Please provide framework.");
 						return;
+					} else {
+						if (StringUtils.endsWithIgnoreCase(dataType, "list")) {
+							dataType = "multi-select";
+						} else {
+							dataType = "select";
+						}
+						List<Object> terms = CategoryCache.getTerms(framework, propName);
+						if (null != terms && !terms.isEmpty()) {
+							range = terms;
+							TelemetryManager.log("Setting range from terms for data validation. framework: " + framework + ", category: "+ propName);
+						} else {
+							messages.add("Please select a valid framework. This framework doesn't have category: "+ propName);
+							return;
+						}
 					}
+				} else {
+					return;
 				}
 			}
 
@@ -587,9 +593,6 @@ public class DataNode extends AbstractNode {
 						}
 					}
 				}
-			} else if (StringUtils.equalsIgnoreCase("list", dataType)) {
-				if (!(value instanceof Object[]) && !(value instanceof List))
-					messages.add("Metadata " + propName + " should be a list");
 			} else if (StringUtils.equalsIgnoreCase("json", dataType)) {
 				ObjectMapper mapper = new ObjectMapper();
 				try {

@@ -6,6 +6,7 @@ package org.ekstep.cassandra.store;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -162,7 +163,7 @@ public abstract class CassandraStore {
 			Where selectWhere = selectQuery.where();
 			for (Entry<String, Object> entry : propertyMap.entrySet()) {
 				if (entry.getValue() instanceof List) {
-					Clause clause = QueryBuilder.in(entry.getKey(), entry.getValue());
+					Clause clause = QueryBuilder.in(entry.getKey(), Arrays.asList(entry.getValue()));
 					selectWhere.and(clause);
 				} else {
 					Clause clause = QueryBuilder.eq(entry.getKey(), entry.getValue());

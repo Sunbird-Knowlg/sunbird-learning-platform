@@ -6,6 +6,7 @@ package org.ekstep.framework.controller.test;
 import java.io.File;
 import java.util.Map;
 
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.framework.mgr.ICategoryManager;
@@ -170,12 +171,14 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * @author gauraw
 	 */
 	private static void createMasterTerm() throws Exception {
-		String createMasterTermJson = "{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" }";
+		String createMasterTermJson = "{\"term\": { \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" } }";
 		Map<String, Object> requestMap = mapper.readValue(createMasterTermJson,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp = termManager.createTerm(null, masterCategoryId, requestMap);
-		masterTermId = (String) resp.getResult().get("node_id");
+		Request request = new Request();
+		request.setRequest(requestMap);
+		termManager.createTerm(null, masterCategoryId, request);
+		masterTermId = "class_standard2";
 		System.out.println("masterTermId : "+masterTermId);
 	}
 	
@@ -204,6 +207,34 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 		}
 	}
 
+	@Test
+	public void testA2() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\", \"parents\":[{\"identifier\":\"term_class\"}] }] } }";
+		try {
+			String path = base_category_path + "/create?framework=" + frameworkId + "&category=" + categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(500, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA3() {
+		String request = "{ \"request\": { \"term\": [{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\", \"parents\":[{\"identifier\":\"term_class\"}] }] } }";
+		try {
+			String path = base_category_path + "/create?framework=" + "" + "&category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * readCategoryTerm
 	 */
@@ -215,6 +246,42 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testB1() {
+		try {
+			String path = base_category_path + "/read/" + termId + "?framework=" + frameworkId + "&category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testB2() {
+		try {
+			String path = base_category_path + "/read/" + termId + "?framework=" + frameworkId + "&category=" + "a1234";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testB3() {
+		try {
+			String path = base_category_path + "/read/" + termId + "?framework=" + "" + "&category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}
@@ -232,6 +299,20 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 					.accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testC1() {
+		String request = "{ \"request\": { } }";
+		try {
+			String path = base_category_path + "/search?framework=" + "" + "&category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}
@@ -255,6 +336,20 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 		}
 	}
 
+	@Test
+	public void testD1() {
+		String request = "{ \"request\": { \"term\": { \"name\": \"Class2\" } } }";
+		try {
+			String path = base_category_path + "/update/" + termId + "?framework=" + "" + "&category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * RetireCategoryTerm
 	 */
@@ -266,6 +361,44 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testZ1() {
+		try {
+			String path = base_category_path + "/retire/" + termId + "?framework=" + frameworkId + "&category="
+					+ "a1234";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testZ2() {
+		try {
+			String path = base_category_path + "/retire/" + "a1234" + "?framework=" + frameworkId + "&category="
+					+ categoryId;
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testZ3() {
+		try {
+			String path = base_category_path + "/retire/" + "a1234" + "?framework=" + "" + "&category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}

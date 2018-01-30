@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.INTERNAL_SERVER_ERROR;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.PARTIAL_CONTENT;
 import static play.test.Helpers.POST;
@@ -175,6 +176,85 @@ public class VocabularyTermTest extends WithApplication {
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertTrue(contentAsString(result).contains("\"count\":0"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSuggestEndsWith() {
+		String json = "{\"request\":{\"text\" : {\"endsWith\":\"dd\"}}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertTrue(contentAsString(result).contains("count"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSuggestStartsWith() {
+		String json = "{\"request\":{\"text\" : {\"startsWith\":\"add\"}}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertTrue(contentAsString(result).contains("count"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSuggestNotEquals() {
+		String json = "{\"request\":{\"text\" : {\"notEquals\":\"add\"}}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertTrue(contentAsString(result).contains("count"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSuggestInvalidOperation() {
+		String json = "{\"request\":{\"text\" : {\"not\":\"add\"}}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(INTERNAL_SERVER_ERROR, result.status());
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSuggest3() {
+		String json = "{\"request\":{\"text\" : \"ಕಳೆ\", \"categories\":[\"keywords\"],\"language\":\"ka\"}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertTrue(contentAsString(result).contains("\"count\":1"));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

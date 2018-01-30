@@ -40,17 +40,26 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 		try {
 			List<Object> frameworks = getAllFrameworkList();
 			if (null != frameworks && !frameworks.isEmpty()) {
+				TelemetryManager.info("Total " + frameworks.size() + " frameworks fetched.");
 				for (Object entry : frameworks) {
 					Map<String, Object> framework = (Map<String, Object>) entry;
 					String id = (String) framework.get("identifier");
-					Map<String, Object> hierarchy = getHierarchy(id, 0, false);
-					CategoryCache.setFramework(id, hierarchy);
+					loadFrameworkCategoryCache(id);
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error while loading all frameworks to category cache.", e);
+			TelemetryManager.error("Error while fetching all frameworks for category cache.", e);
 		}
-		
+	}
+	
+	private void loadFrameworkCategoryCache(String id) {
+		try {
+			Map<String, Object> hierarchy = getHierarchy(id, 0, false);
+			CategoryCache.setFramework(id, hierarchy);
+			TelemetryManager.info("Loaded framework to category cache with framework id: "+ id);
+		} catch (Exception e) {
+			TelemetryManager.error("Loading framework to category cache failed for framework id: "+ id, e);
+		}
 	}
 	
 	@Override

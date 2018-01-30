@@ -24,7 +24,6 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.framework.enums.FrameworkEnum;
-
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
@@ -36,7 +35,6 @@ import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
@@ -367,7 +365,7 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 	}
 	
-	public void setRelationsCopy(String parnetObjectType, String childObjectType, String scopeId, Map<String, Object> request) {
+	/*public void setRelationsCopy(String parnetObjectType, String childObjectType, String scopeId, Map<String, Object> request) {
 		DefinitionDTO parentDefinition =  getDefinition(GRAPH_ID, parnetObjectType);
 		DefinitionDTO childDefinition = getDefinition(GRAPH_ID, childObjectType);
 		if(null != parentDefinition && null != childDefinition) {
@@ -400,7 +398,7 @@ public class BaseFrameworkManager extends BaseManager {
 			}
 		}
 		
-	}
+	}*/
 
 	/**
 	 * This is the method to get the full hierarchy of a tree. It assumes that

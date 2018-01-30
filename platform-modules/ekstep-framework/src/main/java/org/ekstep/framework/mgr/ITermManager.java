@@ -15,15 +15,6 @@ import org.ekstep.common.dto.Response;
 public interface ITermManager {
 
 	/**
-	 * @param scopeId
-	 * @param categoryId
-	 * @param request
-	 * @return
-	 * @throws Exception 
-	 */
-	Response createTerm(String scopeId, String categoryId, Map<String, Object> request) throws Exception;
-
-	/**
 	 * @param graphId
 	 * @param termId
 	 * @return

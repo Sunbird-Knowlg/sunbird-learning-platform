@@ -65,7 +65,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	private static String collectionContent3Id = "";
 	private static String collectionVersion3Key = "";
 
-	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Test Contnet\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"],\"status\":\"Draft\"}}}";
+	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Test Contnet\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -141,6 +141,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(createDocumentContent));
+		System.out.println("Response::::::" + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 

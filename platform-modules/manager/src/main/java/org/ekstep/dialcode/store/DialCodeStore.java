@@ -1,7 +1,6 @@
 package org.ekstep.dialcode.store;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,10 +107,8 @@ public class DialCodeStore extends CassandraStore {
 	/**
 	 * @param identifiers
 	 */
-	public void sync(List<String> identifiers) {
-		List<Object> ids = new ArrayList<Object>();
-		ids.addAll(identifiers);
-		List<Row> rows = getRecordsByProperty(DialCodeEnum.identifier.name(), ids);
+	public int sync(Map<String, Object> map) {
+		List<Row> rows = getRecordsByProperties(map);
 		Map<String, Object> syncRequest = new HashMap<String, Object>();
 		for (Row row : rows) {
 			syncRequest = new HashMap<String, Object>();
@@ -125,6 +122,8 @@ public class DialCodeStore extends CassandraStore {
 			logTransactionEvent(CassandraStoreParams.UPDATE.name(), row.getString(DialCodeEnum.identifier.name()),
 					syncRequest);
 		}
+
+		return rows.size();
 
 	}
 
