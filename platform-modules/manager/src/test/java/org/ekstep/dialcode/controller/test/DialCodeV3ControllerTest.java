@@ -501,6 +501,7 @@ public class DialCodeV3ControllerTest extends TestSetupUtil {
 	 * Channel Id. When: Update Publisher API hits. Then: 400 - CLIENT_ERROR
 	 * 
 	 */
+	// TODO: Invalid Test Case. There is no check for Channel Id while update.
 	@Ignore
 	@Test
 	public void testDialCode_25() throws Exception {
@@ -510,4 +511,117 @@ public class DialCodeV3ControllerTest extends TestSetupUtil {
 				.header("X-Channel-Id", "channel").content(req));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
+
+	/*
+	 * Scenario 26 : Create Publisher with Invalid url and Valid Request Body
+	 * 
+	 * Given: Invalid url and Valid request body When: Create Publisher API
+	 * hits. Then: 404 - Invalid request path
+	 * 
+	 */
+	@Test
+	public void testDialCode_26() throws Exception {
+		String path = basePath + "/publisher/creat";
+		String req = "{\"request\":{\"publisher\": {\"identifier\":\"publisher2\",\"name\": \"PUBLISHER2\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 27 : Create Publisher with valid url and Invalid Request Body
+	 * (Identifier field not present)
+	 * 
+	 * Given: Valid url and Valid request body When: Create Publisher API hits.
+	 * Then: 400 - Client Error
+	 * 
+	 */
+	@Test
+	public void testDialCode_27() throws Exception {
+		String path = basePath + "/publisher/create";
+		String req = "{\"request\":{\"publisher\": {\"identifier\":\"\",\"name\": \"PUBLISHER2\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 28 : Create Publisher with valid url and Invalid Request Body
+	 * 
+	 * Given: Valid url and Valid request body When: Create Publisher API hits.
+	 * Then: 400 - Client Error
+	 * 
+	 */
+	@Test
+	public void testDialCode_28() throws Exception {
+		String path = basePath + "/publisher/create";
+		String req = "{\"request\":{}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 29 : Read Publisher with Invalid url and valid identifier.
+	 * 
+	 * Given: Invalid url and valid identifier. When: Read Publisher API hits.
+	 * Then: 404 - Invalid request path
+	 * 
+	 */
+	@Test
+	public void testDialCode_29() throws Exception {
+		String path = basePath + "/publisher/rea/" + "abc123";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * //TODO: Write one new test case Scenario 30 : Read Publisher with Invalid
+	 * url and valid identifier.
+	 * 
+	 * Given: Invalid url and valid identifier. When: Read Publisher API hits.
+	 * Then: 404 - Invalid request path
+	 * 
+	 */
+	@Ignore
+	@Test
+	public void testDialCode_30() throws Exception {
+		String path = basePath + "/publisher/rea/" + "abc123";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 31 : Generate DIAL Code with valid URI and invalid request.
+	 * 
+	 * Given: valid URI and Invalid Request Body. When: Generate DIAL Code API
+	 * hits. Then: 400 - CLIENT_ERROR
+	 * 
+	 */
+	@Test
+	public void testDialCode_31() throws Exception {
+		String path = basePath + "/generate";
+		String req = "{\"request\":{}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Scenario 32 : Generate DIAL Code with valid URI and Valid Request (DIAL
+	 * Code count is more than max allowed count).
+	 * 
+	 * Given: valid URI and valid Request Body. When: Generate DIAL Code API
+	 * hits. Then: 207 - PARTIAL_SUCCESS
+	 * 
+	 */
+	@Test
+	public void testDialCode_32() throws Exception {
+		String path = basePath + "/generate";
+		String req = "{\"request\": {\"dialcodes\": {\"count\":2000,\"publisher\": \"mock_pub01\",\"batchCode\":\"ka_math_std1\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(req));
+		Assert.assertEquals(207, actions.andReturn().getResponse().getStatus());
+	}
+
 }

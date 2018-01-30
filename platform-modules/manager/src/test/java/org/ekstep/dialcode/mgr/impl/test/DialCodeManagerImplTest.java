@@ -11,6 +11,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.dialcode.mgr.impl.DialCodeManagerImpl;
 import org.ekstep.dialcode.test.common.TestSetupUtil;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -56,7 +57,6 @@ public class DialCodeManagerImplTest extends TestSetupUtil {
 	@BeforeClass
 	public static void setup() throws Exception {
 		executeScript(cassandraScript_1, cassandraScript_2, cassandraScript_3, cassandraScript_4, cassandraScript_5);
-		System.out.println("Cassandra is Ready.");
 	}
 
 	@AfterClass
@@ -121,6 +121,148 @@ public class DialCodeManagerImplTest extends TestSetupUtil {
 	public void dialCodeTest_03() throws Exception {
 		exception.expect(ClientException.class);
 		String dialCodeGenReq = "{\"count\":1,\"publisher\": \"mock_pub\"}";
+		String channelId = "channelTest";
+		Map<String, Object> requestMap = mapper.readValue(dialCodeGenReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.generateDialCode(requestMap, channelId);
+	}
+
+	@Test
+	public void dialCodeTest_04() throws Exception {
+		String dialCodeId = null;
+		Response response = dialCodeMgr.readDialCode(dialCodeId);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Publish Dial Code with Different Channel Id - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_05() throws Exception {
+		String channelId = "channelABC";
+		Response response = dialCodeMgr.publishDialCode(dialCode, channelId);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Publish Dial Code with Same Channel Id - 200 - OK
+	@Test
+	public void dialCodeTest_06() throws Exception {
+		String channelId = "channelTest";
+		Response response = dialCodeMgr.publishDialCode(dialCode, channelId);
+		Assert.assertEquals("OK", response.getResponseCode().toString());
+	}
+
+	// Update Dial Code with Different Channel Id - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_07() throws Exception {
+		String dialCodeUpdateReq = "{\"dialcode\": {\"publisher\": \"testPublisheUpdated\",\"metadata\": {\"class\":\"std2\",\"subject\":\"Math\",\"board\":\"AP CBSE\"}}}";
+		String channelId = "channelABC";
+		Map<String, Object> requestMap = mapper.readValue(dialCodeUpdateReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.updateDialCode(dialCode, channelId, requestMap);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Update Dial Code having Live Status - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_08() throws Exception {
+		String dialCodeUpdateReq = "{\"dialcode\": {\"publisher\": \"testPublisheUpdated\",\"metadata\": {\"class\":\"std2\",\"subject\":\"Math\",\"board\":\"AP CBSE\"}}}";
+		String channelId = "channelTest";
+		Map<String, Object> requestMap = mapper.readValue(dialCodeUpdateReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.updateDialCode(dialCode, channelId, requestMap);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// List Dial Code without Publisher - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_09() throws Exception {
+		String listReq = "{\"status\":\"Live\"}";
+		String channelId = "channelTest";
+		Map<String, Object> requestMap = mapper.readValue(listReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.listDialCode(channelId, requestMap);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Search Dial Code with null map - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_10() throws Exception {
+		String channelId = "channelTest";
+		Response response = dialCodeMgr.searchDialCode(channelId, null);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Search Dial Code with Invalid limit - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_11() throws Exception {
+		exception.expect(ClientException.class);
+		String searchReq = "{\"status\":\"Live\",\"limit\":\"abc\"}";
+		String channelId = "channelTest";
+		Map<String, Object> requestMap = mapper.readValue(searchReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.searchDialCode(channelId, requestMap);
+	}
+
+	// Sync Dial Code with null Request - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_12() throws Exception {
+		String channelId = "channelTest";
+		Response response = dialCodeMgr.syncDialCode(channelId, null, null);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Create Publisher without Name - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_13() throws Exception {
+		String createPubReq = "{\"identifier\":\"mock_pub01\"}";
+		String channelId = "channelTest";
+		Map<String, Object> requestMap = mapper.readValue(createPubReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.createPublisher(requestMap, channelId);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Create Publisher with Invalid Name - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_14() throws Exception {
+		String createPubReq = "{\"identifier\":\"mock_pub01\",\"name\":\"\"}";
+		String channelId = "channelTest";
+		Map<String, Object> requestMap = mapper.readValue(createPubReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.createPublisher(requestMap, channelId);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Read Publisher with Blank Id - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_15() throws Exception {
+		Response response = dialCodeMgr.readPublisher("");
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Update Publisher with null metadata - CLIENT_ERROR
+	@Test
+	public void dialCodeTest_16() throws Exception {
+		Response response = dialCodeMgr.updatePublisher("ABC", "ABC", null);
+		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+	}
+
+	// Generate DIAL Code with Invalid Count - Client Exception
+	@Test
+	public void dialCodeTest_17() throws Exception {
+		exception.expect(ClientException.class);
+		String dialCodeGenReq = "{\"count\":\"ABC\",\"publisher\": \"mock_pub01\",\"batchCode\":\"test_math_std1\"}";
+		String channelId = "channelTest";
+		Map<String, Object> requestMap = mapper.readValue(dialCodeGenReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.generateDialCode(requestMap, channelId);
+	}
+
+	// Generate DIAL Code with Invalid Count (Integer but -ve number) -
+	// CLIENT_ERROR
+	@Test
+	public void dialCodeTest_18() throws Exception {
+		exception.expect(ClientException.class);
+		String dialCodeGenReq = "{\"count\":-2,\"publisher\": \"mock_pub01\",\"batchCode\":\"test_math_std1\"}";
 		String channelId = "channelTest";
 		Map<String, Object> requestMap = mapper.readValue(dialCodeGenReq, new TypeReference<Map<String, Object>>() {
 		});
