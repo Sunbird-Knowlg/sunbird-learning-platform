@@ -230,23 +230,32 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		return resp;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#syncDialCode(java.lang.String,
-	 * java.util.Map, java.util.List)
+	/* (non-Javadoc)
+	 * @see org.ekstep.dialcode.mgr.IDialCodeManager#syncDialCode(java.lang.String, java.util.Map, java.util.List)
 	 */
 	@Override
 	public Response syncDialCode(String channelId, Map<String, Object> map, List<String> identifiers) {
-		if (null == identifiers || identifiers.isEmpty()) {
+		Map<String, Object> requestMap = new HashMap<String, Object>();
+		if ((null == identifiers || identifiers.isEmpty()) && (null == map || map.isEmpty())) {
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SYNC_REQUEST, DialCodeErrorMessage.ERR_INVALID_SYNC_REQUEST,
 					ResponseCode.CLIENT_ERROR);
 		}
-		dialCodeStore.sync(identifiers);
-		Response respone = getSuccessResponse();
-		TelemetryManager.info("DIAL code are successfullysynced", respone.getResult());
+		if (StringUtils.isNotBlank((String) map.get(DialCodeEnum.publisher.name()))
+				|| StringUtils.isNotBlank((String) map.get(DialCodeEnum.batchCode.name())))
+			requestMap.putAll(map);
+		if (null != identifiers && !identifiers.isEmpty()) {
+			requestMap.put(DialCodeEnum.identifier.name(), identifiers);
+		}
 
-		return respone;
+		if (requestMap.isEmpty()) {
+			return ERROR(DialCodeErrorCodes.ERR_INVALID_SYNC_REQUEST,
+					"Either publisher or batchCode or atleat one identifier is mandatory", ResponseCode.CLIENT_ERROR);
+		}
+		int rowsSynced = dialCodeStore.sync(requestMap);
+		Response response = getSuccessResponse();
+		response.put(DialCodeEnum.count.name(), rowsSynced);
+		TelemetryManager.info("DIAL code are successfully synced", response.getResult());
+		return response;
 	}
 
 	/*
