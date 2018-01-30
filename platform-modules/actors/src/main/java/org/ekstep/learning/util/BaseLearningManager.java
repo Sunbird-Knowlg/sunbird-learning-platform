@@ -73,7 +73,6 @@ public abstract class BaseLearningManager extends BaseManager {
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			TelemetryManager.error("Exception: "+e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
@@ -98,7 +97,6 @@ public abstract class BaseLearningManager extends BaseManager {
 				return ERROR(LearningErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Exception: "+ e.getMessage(), e);
 			throw new ServerException(LearningErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}

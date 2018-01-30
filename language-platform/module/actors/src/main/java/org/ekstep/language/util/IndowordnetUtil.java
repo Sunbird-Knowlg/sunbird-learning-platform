@@ -126,7 +126,6 @@ public class IndowordnetUtil {
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							TelemetryManager.error(e.getMessage(), e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
@@ -145,7 +144,6 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					TelemetryManager.error(e.getMessage(), e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -394,7 +392,6 @@ public class IndowordnetUtil {
 							long synsetEndTime = System.currentTimeMillis();
 							TelemetryManager.log("Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							TelemetryManager.error(e.getMessage(), e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
@@ -411,7 +408,6 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					TelemetryManager.error(e.getMessage(), e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -478,7 +474,6 @@ public class IndowordnetUtil {
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			TelemetryManager.error(e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

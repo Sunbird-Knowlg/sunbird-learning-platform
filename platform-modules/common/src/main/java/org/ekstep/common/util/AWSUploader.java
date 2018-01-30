@@ -168,7 +168,6 @@ public class AWSUploader {
 			TelemetryManager.log("Caught an AmazonClientException, " + "which means the client encountered "
 					+ "an internal error while trying to " + " communicate with S3, "
 					+ "such as not being able to access the network.");
-			TelemetryManager.error("Error Message: " + ace.getMessage(), ace);
 		}
 		return isCopied;
 	}

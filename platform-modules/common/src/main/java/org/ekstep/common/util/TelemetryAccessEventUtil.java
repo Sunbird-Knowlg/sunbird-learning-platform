@@ -129,8 +129,7 @@ public class TelemetryAccessEventUtil {
 			data.put("X-Authenticated-Userid", requestWrapper.getHeader("X-Authenticated-Userid"));
 			writeTelemetryEventLog(data);
 		} catch (IOException e) {
-			TelemetryManager.error("Exception: "+ e.getMessage(), e);
-
+			e.printStackTrace();
 		}
 
 	}
