@@ -1483,7 +1483,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	
 	private void restrictProps(DefinitionDTO definition, Map<String, Object> map, String... props) {
 		for (String prop: props) {
-			if (BooleanUtils.isFalse(((Boolean) definition.getMetadata().get("allowupdate_"+prop)))) {
+			Object allow = definition.getMetadata().get("allowupdate_"+prop);
+			if (allow == null || BooleanUtils.isFalse((Boolean) allow)) {
 				if (map.containsKey(prop))
 					throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(), "Error! "+ prop + " can't be set for the content.");
 			}
