@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
+import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
-import org.ekstep.test.common.TestParams;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
