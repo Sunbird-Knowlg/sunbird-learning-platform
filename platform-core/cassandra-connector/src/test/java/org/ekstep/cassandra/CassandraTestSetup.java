@@ -10,7 +10,7 @@ import com.datastax.driver.core.Session;
 public class CassandraTestSetup {
 
 	private static Session session = null;
-	
+
 	@AfterClass
 	public static void afterTest() {
 		tearEmbeddedCassandraSetup();
@@ -24,11 +24,6 @@ public class CassandraTestSetup {
 	private static void setupEmbeddedCassandra() {
 		try {
 			EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 100000L);
-			Session session = CassandraConnector.getSession();
-			String query = "CREATE KEYSPACE IF NOT EXISTS script_store WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}";
-			session.execute(query);
-			query = "CREATE TABLE IF NOT EXISTS script_store.script_data (name text, type text, reqmap text, PRIMARY KEY (name))";
-			session.execute(query);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -36,7 +31,8 @@ public class CassandraTestSetup {
 
 	private static void tearEmbeddedCassandraSetup() {
 		try {
-			session.close();
+			if (!session.isClosed())
+				session.close();
 			EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -54,5 +50,5 @@ public class CassandraTestSetup {
 			e.printStackTrace();
 		}
 	}
-	
+
 }
