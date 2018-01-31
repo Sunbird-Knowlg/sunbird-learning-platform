@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.test.common.TestSetUp;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentManagerImplCreateContentTest extends TestSetUp {
+public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 
 	@Autowired
 	IContentManager contentManager;

@@ -13,7 +13,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.mgr.ICategoryManager;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class CategoryManagerTest extends TestSetup {
+public class CategoryManagerTest extends GraphEngineTestSetup {
 	
 	@Autowired
 	ICategoryManager mgr;

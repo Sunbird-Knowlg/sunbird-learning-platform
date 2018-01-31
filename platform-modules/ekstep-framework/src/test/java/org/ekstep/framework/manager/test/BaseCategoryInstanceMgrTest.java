@@ -8,7 +8,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.mgr.ICategoryManager;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Rashmi
  *
  */
-public class BaseCategoryInstanceMgrTest extends TestSetup{
+public class BaseCategoryInstanceMgrTest extends GraphEngineTestSetup {
 	
 	@BeforeClass()
 	public static void beforeClass() throws Exception {

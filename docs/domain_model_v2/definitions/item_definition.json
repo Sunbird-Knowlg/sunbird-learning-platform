@@ -594,7 +594,7 @@
             "displayProperty": "Editable",
             "range": ["MCQ", "FTB", "MTF"],
             "required": true,
-            "defaultValue": "",
+            "defaultValue": "MCQ",
             "renderingHints": "{'order': 28}",
             "indexed": true
         }],

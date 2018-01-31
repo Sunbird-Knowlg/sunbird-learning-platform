@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.content.common.BaseTestUtil;
 import org.ekstep.taxonomy.content.common.TestParams;
-import org.ekstep.test.common.TestSetUp;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -21,8 +21,8 @@ import org.junit.rules.ExpectedException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-//@Ignore
-public class ContentManagerImplTest extends TestSetUp {
+
+public class ContentManagerImplTest extends GraphEngineTestSetup {
 
 	static ContentManagerImpl contentManager = new ContentManagerImpl();
 

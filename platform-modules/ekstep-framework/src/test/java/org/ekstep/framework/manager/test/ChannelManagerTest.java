@@ -12,7 +12,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.framework.test.common.TestParams;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ChannelManagerTest extends TestSetup {
+public class ChannelManagerTest extends GraphEngineTestSetup {
 
 	@Autowired
 	IChannelManager channelMgr;

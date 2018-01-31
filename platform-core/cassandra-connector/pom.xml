@@ -44,5 +44,27 @@
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
+		<dependency>
+		    <groupId>org.cassandraunit</groupId>
+		    <artifactId>cassandra-unit</artifactId>
+			<version>3.1.1.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

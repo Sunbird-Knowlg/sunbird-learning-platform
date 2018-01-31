@@ -10,7 +10,7 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
 import org.ekstep.framework.test.common.TestParams;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class FrameworkManagerTest extends TestSetup {
+public class FrameworkManagerTest extends GraphEngineTestSetup {
 
 	private static String frameworkId;
 	private static String channelId;

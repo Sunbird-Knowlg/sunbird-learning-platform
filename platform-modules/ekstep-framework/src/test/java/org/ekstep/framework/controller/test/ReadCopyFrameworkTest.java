@@ -9,7 +9,7 @@ import java.util.Map;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.After;
@@ -43,7 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ReadCopyFrameworkTest extends TestSetup {
+public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;

@@ -24,7 +24,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
-import org.ekstep.graph.engine.common.TestSetUp;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.engine.loadtest.TestUtil;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.importer.InputStreamValue;
@@ -50,7 +50,7 @@ import scala.concurrent.duration.Duration;
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NodeMgrImplTest extends TestSetUp {
+public class NodeMgrImplTest extends GraphEngineTestSetup {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
