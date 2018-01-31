@@ -9,10 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.CassandraTestSetup;
 import org.ekstep.common.dto.Response;
 import org.ekstep.dialcode.mgr.impl.DialCodeManagerImpl;
-
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -369,11 +367,12 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	 * Then: 200 - OK
 	 * 
 	 */
-	@Ignore
+	// @Ignore
 	@Test
 	public void testDialCode_16() throws Exception {
+		createDialCodeIndex();
 		String path = basePath + "/list/";
-		String req = "{\"request\": {\"search\": {\"status\":\"Draft\"}}}";
+		String req = "{\"request\": {\"search\": {\"publisher\":\"mock_pub01\",\"status\":\"Draft\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -681,7 +680,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	public void testDialCode_35() throws Exception {
 		createDialCodeIndex();
 		String path = basePath + "/sync";
-		String req = "{\"request\":{\"sync\":{}}}";
+		String req = "{\"request\":{\"sync\":{\"channel\":\"test\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -696,7 +695,6 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	 */
 	@Test
 	public void testDialCode_36() throws Exception {
-		createDialCodeIndex();
 		String path = basePath + "/search";
 		String req = "{\"request\": {\"search\": {\"identifier\": \"" + dialCode + "\",\"limit\":\"ABC\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
