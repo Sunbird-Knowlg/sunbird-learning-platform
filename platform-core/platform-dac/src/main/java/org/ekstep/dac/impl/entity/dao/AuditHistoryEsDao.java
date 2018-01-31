@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.dac.enums.AuditHistoryConstants;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -27,10 +29,21 @@ public class AuditHistoryEsDao {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The ElasticSearchUtil */
-	private ElasticSearchUtil es = new ElasticSearchUtil();
+	private ElasticSearchUtil es = null;
 
 	/** The SearchProcessor */
-	private SearchProcessor processor = new SearchProcessor();
+	private SearchProcessor processor = null;
+
+	private String host = "http://localhost";
+	private int port = 9200;
+
+	@PostConstruct
+	public void init() {
+		host = (Platform.config.hasPath("audit.es_host")) ? Platform.config.getString("audit.es_host") : host;
+		port = (Platform.config.hasPath("audit.es_port")) ? Platform.config.getInt("audit.es_port") : port;
+		es = new ElasticSearchUtil(host, port);
+		processor = new SearchProcessor(host, port);
+	}
 	
 	public void save(Map<String, Object> entity_map) throws IOException {
 			createIndex();
