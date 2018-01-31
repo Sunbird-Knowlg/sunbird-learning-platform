@@ -2162,9 +2162,9 @@
 				{
 					"required": false,
 					"dataType": "Multi-Select",
-					"propertyName": "suitability",
-					"title": "Suitability",
-					"description": "Content suitability",
+					"propertyName": "pragma",
+					"title": "Pragma",
+					"description": "Content pragma",
 					"category": "General",
 					"displayProperty": "Editable",
 					"range": [
