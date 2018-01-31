@@ -11,8 +11,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.content.common.TestParams;
-import org.ekstep.taxonomy.content.common.TestSetupUtil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -22,7 +22,6 @@ import org.junit.rules.ExpectedException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 /**
  * Test Cases for code coverage of Upload Content. This Class covers test cases
  * for both upload().
@@ -31,15 +30,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-//@Ignore
-public class ContentManagerImplUploadContentTest extends TestSetupUtil {
+public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 
 	static ContentManagerImpl contentManager = new ContentManagerImpl();
 
 	static Map<String, Object> versionKeyMap = new HashMap<String, Object>();
 
 	static ObjectMapper mapper = new ObjectMapper();
-	
+
 	static ClassLoader classLoader = ContentManagerImplUploadContentTest.class.getClassLoader();
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 
@@ -52,6 +50,7 @@ public class ContentManagerImplUploadContentTest extends TestSetupUtil {
 
 	@BeforeClass
 	public static void initTest() throws Exception {
+		loadDefinition("definitions/content_definition.json");
 		seedContent();
 
 	}
@@ -116,7 +115,7 @@ public class ContentManagerImplUploadContentTest extends TestSetupUtil {
 		try {
 			String contentId = "U_Document_001";
 			String mimeType = "application/pdf";
-			File file1 = new File(path+"/pdf.pdf");
+			File file1 = new File(path + "/pdf.pdf");
 			String absPath = file1.getAbsolutePath();
 			File file = new File(absPath);
 
@@ -141,7 +140,7 @@ public class ContentManagerImplUploadContentTest extends TestSetupUtil {
 		try {
 			String contentId = "U_Document_002";
 			String mimeType = "";
-			File file1 = new File(path+"/test.pdf");
+			File file1 = new File(path + "/test.pdf");
 			String absPath = file1.getAbsolutePath();
 			File file = new File(absPath);
 
