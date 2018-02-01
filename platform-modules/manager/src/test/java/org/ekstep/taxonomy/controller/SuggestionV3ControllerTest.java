@@ -64,7 +64,6 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 
 	@BeforeClass
 	public static void setup() throws Exception {
-		// loadDefinition("definitions/content_definition.json");
 		loadDefinition("definitions/content_definition.json", "definitions/concept_definition.json",
 				"definitions/dimension_definition.json", "definitions/domain_definition.json");
 		SuggestionConstants.SUGGESTION_INDEX = INDEX;
@@ -73,7 +72,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	@AfterClass
 	public static void clean() throws IOException {
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-		// elasticSearchUtil.deleteIndex(INDEX);
+		elasticSearchUtil.deleteIndex(INDEX);
 
 	}
 
