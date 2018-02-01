@@ -5,7 +5,7 @@
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
 		<RollingFile name="DefaultLogAppender" fileName="/data/logs/learning_service_mw.log"
-			filePattern="/data/logs/learning_service_mw-%d{MM-dd-yyyy-HH}{UTC}-%i.log">
+			filePattern="/data/logs/learning_service_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -22,7 +22,7 @@
             </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="PerfLogAppender" fileName="/data/logs/learning_perf_mw.log"
-			filePattern="/data/logs/learning_perf_mw-%d{MM-dd-yyyy-HH}{UTC}-%i.log">
+			filePattern="/data/logs/learning_perf_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] - %msg%n</Pattern>
 			</PatternLayout>
@@ -39,7 +39,7 @@
             </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/learning_graph_event_mw.log"
-			filePattern="/data/logs/learning_graph_event_mw-%d{MM-dd-yyyy-HH}{UTC}-%i.log">
+			filePattern="/data/logs/learning_graph_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -56,7 +56,7 @@
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/learning_telemetry_event_mw.log"
-			filePattern="/data/logs/learning_telemetry_event_mw-%d{MM-dd-yyyy-HH}{UTC}-%i.log">
+			filePattern="/data/logs/learning_telemetry_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -73,7 +73,7 @@
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 		<RollingRandomAccessFile name="InstructionEventAppender" fileName="/data/logs/instruction_event_mw.log"
-			filePattern="/data/logs/instruction_event_mw-%d{MM-dd-yyyy-HH}{UTC}-%i.log">
+			filePattern="/data/logs/instruction_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>

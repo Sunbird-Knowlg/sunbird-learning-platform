@@ -5,25 +5,25 @@
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
 		<RollingFile name="RollingFileAppender" fileName="/data/logs/learning_service_neo4j.log"
-			filePattern="/data/logs/learning_service_neo4j-%d{MM-dd-yyyy-HH}{UTC}-%i.log">
+			filePattern="/data/logs/learning_service_neo4j-%d{MM-dd-yyyy-hh}{UTC}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
 				</Pattern>
 			</PatternLayout>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="250 MB" />
-				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingFile>
 		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/learning_graph_event_neo4j.log"
-			filePattern="/data/logs/learning_graph_event_neo4j-%d{MM-dd-yyyy-HH}{UTC}-%i.log">
+			filePattern="/data/logs/learning_graph_event_neo4j-%d{MM-dd-yyyy-hh}{UTC}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="250 MB" />
-				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingRandomAccessFile>
