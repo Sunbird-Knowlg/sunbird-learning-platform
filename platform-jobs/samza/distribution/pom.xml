@@ -40,14 +40,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>word-enrichment</artifactId>
-			<version>0.0.28</version>
+			<version>0.0.29</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.71</version>
+			<version>0.0.72</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
