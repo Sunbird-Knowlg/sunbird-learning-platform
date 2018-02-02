@@ -423,6 +423,11 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 					properties.add(property);
 					break;
 				}
+				case "contains": {
+					property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_CONTAINS);
+					properties.add(property);
+					break;
+				}
 				case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_OPERATOR:
 				case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT:
 				case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT_LOWERCASE:
