@@ -550,7 +550,7 @@
             "displayProperty": "Readonly",
             "defaultValue": 1,
             "renderingHints": "{'order': 23}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "versionDate",
             "title": "Version Date",
