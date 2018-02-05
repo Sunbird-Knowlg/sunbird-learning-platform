@@ -129,7 +129,9 @@ public class BaseFinalizer extends BasePipeline {
 							List<String> stageIconsS3Url = new ArrayList<>();
 							for (String stageIcon : stageIcons) {
 								if (!isS3Url(stageIcon)) {
-									stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
+									String iconUrl = getThumbnailFiles(path, node, stageIcon);
+									if (StringUtils.isNotBlank(iconUrl))
+										stageIconsS3Url.add(iconUrl);
 								} else {
 									stageIconsS3Url.add(stageIcon);
 								}
