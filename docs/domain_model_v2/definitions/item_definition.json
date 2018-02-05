@@ -548,7 +548,7 @@
             "dataType": "Number",
             "required": false,
             "displayProperty": "Readonly",
-            "defaultValue": "1",
+            "defaultValue": "",
             "renderingHints": "{'order': 23}",
             "indexed": true
         }, {
