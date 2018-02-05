@@ -248,9 +248,8 @@ public class BaseFinalizer extends BasePipeline {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While Processing the StageIcon File.", e);
-			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
-					ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | [Unable to Upload File.]");
+				TelemetryManager.error("Error! While Processing the StageIcon File.", e);
+
 		}
 		return thumbUrl;
 	}
