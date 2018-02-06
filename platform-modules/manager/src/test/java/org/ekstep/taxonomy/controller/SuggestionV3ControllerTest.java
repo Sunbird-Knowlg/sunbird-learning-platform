@@ -19,8 +19,10 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -72,7 +74,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	@AfterClass
 	public static void clean() throws IOException {
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-		elasticSearchUtil.deleteIndex(INDEX);
+		// elasticSearchUtil.deleteIndex(INDEX);
 
 	}
 
@@ -208,10 +210,94 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_08() throws Exception {
 		createSuggestion();
 		Thread.sleep(3000);
-		String path = basePath + "/read/" + contentId + "?status=new";
+		String path = basePath + "/read/" + contentId + "?status=new&start=2018-02-02T17:49:43&end=2099-02-02T17:49:43";
 		actions = mockMvc.perform(
 				MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON).header("user-id", "ilimi"));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * List Suggestion with Valid URI, Valid Request Body Expect : 200 - OK
+	 */
+	@Test
+	public void testSuggestions_09() throws Exception {
+		String path = basePath + "/list";
+		String createReq = "{\"request\": {\"content\": {\"status\": \"new\",\"suggestedBy\":\"User001\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").header("X-Channel-Id", "channelTest").content(createReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * List Suggestion with Valid URI, Valid Request Body (with suggestion id)
+	 * Expect : 200 - OK
+	 */
+	@Test
+	public void testSuggestions_10() throws Exception {
+		String path = basePath + "/list";
+		String createReq = "{\"request\": {\"content\": {\"status\": \"new\",\"suggestedBy\":\"User001\",\"suggestion_id\":\""
+				+ suggestionId + "\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").header("X-Channel-Id", "channelTest").content(createReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Approve Suggestion with Valid URI, Valid Request Body. Expect : 200 - OK
+	 */
+	@Test
+	public void testSuggestions_11() throws Exception {
+		createSuggestion();
+		String path = basePath + "/approve/" + suggestionId;
+		String createReq = "{\"request\": {\"content\": {\"comments\": [\"suggestion applicable\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").header("X-Channel-Id", "channelTest").content(createReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Approve Suggestion with Valid URI, Valid Request Body (duplicate request
+	 * to approve) Id. Expect : 400 - CLIENT_ERROR
+	 */
+	@Test
+	public void testSuggestions_12() throws Exception {
+		createSuggestion();
+		String path = basePath + "/approve/" + suggestionId;
+		String createReq = "{\"request\": {\"content\": {\"comments\": [\"suggestion applicable\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").header("X-Channel-Id", "channelTest").content(createReq));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").header("X-Channel-Id", "channelTest").content(createReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Reject Suggestion with Valid URI, Valid Request Body. Expect : 200 - OK
+	 */
+	@Test
+	public void testSuggestions_13() throws Exception {
+		createSuggestion();
+		String path = basePath + "/reject/" + suggestionId;
+		String rejectReq = "{\"request\": {\"content\": {\"status\":\"reject\",\"comments\": [\"suggestion not applicable\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").header("X-Channel-Id", "channelTest").content(rejectReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Reject Suggestion with Valid URI, Valid Request Body. Duplicate Reject
+	 * Request. Expect : 400 - CLIENT_ERROR
+	 */
+	@Test
+	public void testSuggestions_14() throws Exception {
+		createSuggestion();
+		String path = basePath + "/reject/" + suggestionId;
+		String rejectReq = "{\"request\": {\"content\": {\"status\":\"reject\",\"comments\": [\"suggestion not applicable\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").header("X-Channel-Id", "channelTest").content(rejectReq));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").header("X-Channel-Id", "channelTest").content(rejectReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
 	private Response jsonToObject(ResultActions actions) {
