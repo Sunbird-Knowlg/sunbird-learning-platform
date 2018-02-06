@@ -74,7 +74,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	@AfterClass
 	public static void clean() throws IOException {
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-		// elasticSearchUtil.deleteIndex(INDEX);
+		elasticSearchUtil.deleteIndex(INDEX);
 
 	}
 
