@@ -1479,6 +1479,19 @@
 					"indexed": true
 				},
 				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "dialcodes",
+					"title": "Dial Codes for Content",
+					"description": "Array of DialCodes Linked to Content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"propertyName": "optStatus",
 					"title": "Optimization Status",
 					"description": "",
@@ -2144,6 +2157,22 @@
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{}"
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "pragma",
+					"title": "Pragma",
+					"description": "Content pragma",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"external",
+						"ads"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
+					"indexed": true
 				}
 			],
 			"inRelations": [
