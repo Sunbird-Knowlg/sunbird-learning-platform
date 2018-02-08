@@ -2,18 +2,23 @@ package org.ekstep.content.operation.finalizer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.TelemetryPBIEvent;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.kafka.producer.KafkaClientProducer;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ReviewFinalizer extends BaseFinalizer {
 
@@ -118,7 +123,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 			Map<String,Object> edata = new HashMap<String,Object>();
 			
 			generateInstructionEventMetadata(actor, context, object, edata, newNode.getMetadata(), contentId);
-			LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+			//LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+			logInstructionEvent(actor, context, object, edata);
 		}
 		node.getMetadata().put("publish_type", publishType); //Added for executing publish operation locally
 		return response;
@@ -147,6 +153,37 @@ public class ReviewFinalizer extends BaseFinalizer {
 		edata.put("action", action);
 		edata.put("status", status);
 		edata.put("publish_type", (String)metadata.get("publish_type"));
+	}
+	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
+	private static String eventId = "BE_JOB_REQUEST";
+	private static int iteration = 1;
+	private static ObjectMapper mapper = new ObjectMapper();
+	public static String logInstructionEvent(Map<String,Object> actor, Map<String,Object> context, Map<String,Object> object, Map<String,Object> edata) {
+		
+		TelemetryPBIEvent te = new TelemetryPBIEvent();
+		long unixTime = System.currentTimeMillis();
+		edata.put("iteration", iteration);
+		
+		te.setEid(eventId);
+		te.setEts(unixTime);
+		te.setMid(mid);
+		te.setActor(actor);
+		te.setContext(context);
+		te.setObject(object);
+		te.setEdata(edata);
+		
+		String jsonMessage = null;
+		try {
+			jsonMessage = mapper.writeValueAsString(te);
+			if (StringUtils.isNotBlank(jsonMessage)) {
+				//instructionEventLogger.info(jsonMessage);
+				KafkaClientProducer.runProducer(jsonMessage);
+			}
+				
+		} catch (Exception e) {
+			TelemetryManager.error("Error pusshing BE_JOB_REQUEST event into Kafka Topic: " + e.getMessage(), e);
+		}
+		return jsonMessage;
 	}
 
 }
