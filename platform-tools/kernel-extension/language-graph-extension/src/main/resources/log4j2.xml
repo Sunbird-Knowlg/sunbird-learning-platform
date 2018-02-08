@@ -11,9 +11,7 @@
 				</Pattern>
 			</PatternLayout>
 			<Policies>
-				<SizeBasedTriggeringPolicy size="250 MB" />
-				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
-				<OnStartupTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="10 MB" />
 			</Policies>
 		</RollingFile>
 		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/language_graph_event_neo4j.log"
@@ -22,9 +20,7 @@
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
-				<SizeBasedTriggeringPolicy size="250 MB" />
-				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
-				<OnStartupTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="10 MB" />
 			</Policies>
 		</RollingRandomAccessFile>
 	</Appenders>

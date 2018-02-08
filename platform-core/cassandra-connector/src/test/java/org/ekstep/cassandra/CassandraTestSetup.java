@@ -1,4 +1,4 @@
-package org.ekstep.dialcode.test.common;
+package org.ekstep.cassandra;
 
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
@@ -7,16 +7,9 @@ import org.junit.BeforeClass;
 
 import com.datastax.driver.core.Session;
 
-/**
- * This Class will allow setting Up Embedded Cassandra and execute script for
- * Unit Test Cases.
- * 
- * @author gauraw
- *
- */
-public class TestSetupUtil {
+public class CassandraTestSetup {
 
-	static Session session = null;
+	private static Session session = null;
 
 	@AfterClass
 	public static void afterTest() {
@@ -28,10 +21,19 @@ public class TestSetupUtil {
 		setupEmbeddedCassandra();
 	}
 
-	protected static void setupEmbeddedCassandra() {
-
+	private static void setupEmbeddedCassandra() {
 		try {
 			EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 100000L);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void tearEmbeddedCassandraSetup() {
+		try {
+			if (!session.isClosed())
+				session.close();
+			EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -44,15 +46,6 @@ public class TestSetupUtil {
 			for (String query : querys) {
 				session.execute(query);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static void tearEmbeddedCassandraSetup() {
-		try {
-			session.close();
-			EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

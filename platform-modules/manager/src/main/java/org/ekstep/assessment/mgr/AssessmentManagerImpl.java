@@ -79,6 +79,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		Boolean skipValidation = (Boolean) request.get(ContentAPIParams.skipValidations.name());
 		if (null == skipValidation)
 			skipValidation = false;
+
+		Object version = item.getMetadata().get(ContentAPIParams.version.name());
+		if (null == version)
+			item.getMetadata().put(ContentAPIParams.version.name(), 1);
+		
 		Response validateRes = new Response();
 		List<String> assessmentErrors = new ArrayList<String>();
 		body = (String) item.getMetadata().remove("body");

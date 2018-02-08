@@ -6,6 +6,7 @@ package org.ekstep.cassandra.store;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,7 +49,7 @@ public abstract class CassandraStore {
 	protected void initialise(String keyspace, String table, String objectType) {
 		initialise(keyspace, table, objectType, false);
 	}
-	
+
 	protected void initialise(String keyspace, String table, String objectType, boolean index) {
 		this.keyspace = keyspace;
 		this.table = table;
@@ -162,7 +163,7 @@ public abstract class CassandraStore {
 			Where selectWhere = selectQuery.where();
 			for (Entry<String, Object> entry : propertyMap.entrySet()) {
 				if (entry.getValue() instanceof List) {
-					Clause clause = QueryBuilder.in(entry.getKey(), entry.getValue());
+					Clause clause = QueryBuilder.in(entry.getKey(), Arrays.asList(entry.getValue()));
 					selectWhere.and(clause);
 				} else {
 					Clause clause = QueryBuilder.eq(entry.getKey(), entry.getValue());
@@ -223,7 +224,7 @@ public abstract class CassandraStore {
 					e);
 		}
 	}
-	
+
 	/**
 	 * @return the objectType
 	 */
@@ -232,15 +233,16 @@ public abstract class CassandraStore {
 	}
 
 	/**
-	 * @param objectType the objectType to set
+	 * @param objectType
+	 *            the objectType to set
 	 */
 	protected void setObjectType(String objectType) {
 		this.objectType = objectType;
 	}
 
 	/**
-	 * @desc This method is used to create prepared statement based on table name
-	 *       and column name provided in request
+	 * @desc This method is used to create prepared statement based on table
+	 *       name and column name provided in request
 	 * @param keyspaceName
 	 *            String (data base keyspace name)
 	 * @param tableName
@@ -281,13 +283,12 @@ public abstract class CassandraStore {
 		StringBuilder query = new StringBuilder(Constants.UPDATE + keyspace + Constants.DOT + table + Constants.SET);
 		query.append(String.join(" = ? ,", key));
 		query.append(Constants.EQUAL_WITH_QUE_MARK + Constants.WHERE + id + Constants.EQUAL_WITH_QUE_MARK);
-		System.out.println(query.toString());
 		return query.toString();
 	}
 
 	/**
-	 * @desc This method is used to create prepared statement based on table name
-	 *       and column name provided
+	 * @desc This method is used to create prepared statement based on table
+	 *       name and column name provided
 	 * @param keyspaceName
 	 *            String (data base keyspace name)
 	 * @param tableName
@@ -315,8 +316,8 @@ public abstract class CassandraStore {
 	}
 
 	/**
-	 * @desc This method is used to create prepared statement based on table name
-	 *       and column name provided as varargs
+	 * @desc This method is used to create prepared statement based on table
+	 *       name and column name provided as varargs
 	 * @param keyspaceName
 	 *            String (data base keyspace name)
 	 * @param tableName

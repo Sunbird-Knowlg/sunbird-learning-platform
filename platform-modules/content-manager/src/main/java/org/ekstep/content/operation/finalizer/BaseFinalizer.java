@@ -129,7 +129,9 @@ public class BaseFinalizer extends BasePipeline {
 							List<String> stageIconsS3Url = new ArrayList<>();
 							for (String stageIcon : stageIcons) {
 								if (!isS3Url(stageIcon)) {
-									stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
+									String iconUrl = getThumbnailFiles(path, node, stageIcon);
+									if (StringUtils.isNotBlank(iconUrl))
+										stageIconsS3Url.add(iconUrl);
 								} else {
 									stageIconsS3Url.add(stageIcon);
 								}
@@ -248,9 +250,8 @@ public class BaseFinalizer extends BasePipeline {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While Processing the StageIcon File.", e);
-			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
-					ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | [Unable to Upload File.]");
+				TelemetryManager.error("Error! While Processing the StageIcon File.", e);
+
 		}
 		return thumbUrl;
 	}

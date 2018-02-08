@@ -67,7 +67,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": "NCF",
           "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
         },
         {

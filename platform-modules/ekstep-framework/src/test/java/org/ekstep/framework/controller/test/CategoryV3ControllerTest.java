@@ -5,7 +5,7 @@ import java.util.Random;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,7 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CategoryV3ControllerTest extends TestSetup{
+public class CategoryV3ControllerTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -178,6 +178,15 @@ public class CategoryV3ControllerTest extends TestSetup{
 	}
 
 	@Test
+	public void searchCategoryForInValidSearchRequest1() throws Exception {
+		String request = "{\"request\":{}}";
+		String path = base_category_path + "/search";
+		actions = this.mockMvc
+				.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
 	public void searchCategoryForInValidUrl() throws Exception {
 		String request = "{\"request\":{}}";
 		String path = base_category_path + "/seaxarch";
@@ -201,6 +210,13 @@ public class CategoryV3ControllerTest extends TestSetup{
 		String path = base_category_path + "/retire/";
 		actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void retireCategoryWithNullNodeId() throws Exception {
+		String path = base_category_path + "/retire/" + null;
+		actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).contentType(MediaType.APPLICATION_JSON));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
 	@Test

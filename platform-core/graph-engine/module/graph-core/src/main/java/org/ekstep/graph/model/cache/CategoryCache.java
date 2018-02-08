@@ -44,6 +44,7 @@ public class CategoryCache {
 				List<Object> terms = getTerms(category, "terms");
 				if (!terms.isEmpty()) {
 					String key = getKey(framework, catName);
+					TelemetryManager.info("Setting framework category cache with key: "+ key);
 					RedisStoreUtil.saveList(key, terms);
 				}
 			}

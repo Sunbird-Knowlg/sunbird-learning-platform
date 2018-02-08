@@ -3,14 +3,15 @@ package org.ekstep.framework.controller.test;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
+import org.ekstep.framework.mgr.impl.CategoryInstanceManagerImpl;
+import org.ekstep.framework.mgr.impl.CategoryManagerImpl;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -39,7 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class FrameworkV3ControllerTest extends TestSetup {
+public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -54,10 +55,14 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	private static String channelId;
 	private static ChannelManagerImpl channelManager = new ChannelManagerImpl();
 	private static FrameworkManagerImpl frameworkManager = new FrameworkManagerImpl();
+	private static CategoryInstanceManagerImpl categoryInstanceManager = new CategoryInstanceManagerImpl();
+	private static CategoryManagerImpl categoryManager = new CategoryManagerImpl();
 
 	private static final String createFrameworkReq = "{\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"ka_ncert\"}";
 
 	private static final String createChannelReq = "{\"name\":\"Karnatka\",\"description\":\"Channel for Karnatka\",\"code\":\"channelKA\"}";
+
+	private static final String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 
 	private static final String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\"}}}";
 
@@ -74,7 +79,8 @@ public class FrameworkV3ControllerTest extends TestSetup {
 
 	@BeforeClass
 	public static void setup() throws Exception {
-		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json", "definitions/categoryInstance_definition.json");
+		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json",
+				"definitions/category_definition.json", "definitions/categoryInstance_definition.json");
 		createChannel();
 		createFramework();
 	}
@@ -104,6 +110,11 @@ public class FrameworkV3ControllerTest extends TestSetup {
 					requestMap.put("channel", channelId);
 					Response resp = frameworkManager.createFramework(requestMap, channelId);
 					frameworkIdforCopyAPI = (String) resp.getResult().get("node_id");
+					Map<String, Object> categoryInstanceRequestMap = mapper.readValue(createCategoryReq,
+							new TypeReference<Map<String, Object>>() {
+							});
+					categoryManager.createCategory(categoryInstanceRequestMap);
+					categoryInstanceManager.createCategoryInstance(frameworkIdforCopyAPI, categoryInstanceRequestMap);
 				}
 			}
 			
@@ -195,7 +206,7 @@ public class FrameworkV3ControllerTest extends TestSetup {
 	 * Then: 200 - OK, Framework details with given identifier returns.
 	 * 
 	 */
-	@Test
+	// @Test
 	public void mockTestFramework_04() throws Exception {
 		String path = basePath + "/read/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
@@ -671,6 +682,15 @@ public class FrameworkV3ControllerTest extends TestSetup {
 					.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 		}
+
+	@Test
+	public void mockTestFramework_29() throws Exception {
+		String path = basePath + "/copy/" + frameworkIdforCopyAPI;
+		String copyFrameworkValidJson = "{\"request\":{}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
 
 		// Copy Framework API -- End
 		

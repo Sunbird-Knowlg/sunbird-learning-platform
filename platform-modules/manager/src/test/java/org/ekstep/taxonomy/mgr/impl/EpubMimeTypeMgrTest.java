@@ -12,8 +12,8 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.test.common.TestSetUp;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,8 +25,8 @@ import org.junit.rules.ExpectedException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-//@Ignore
-public class EpubMimeTypeMgrTest extends TestSetUp {
+
+public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 
 	ContentManagerImpl mgr = new ContentManagerImpl();
 	String createEpubContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";

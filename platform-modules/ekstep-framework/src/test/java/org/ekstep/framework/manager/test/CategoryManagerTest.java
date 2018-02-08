@@ -8,15 +8,18 @@ import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.mgr.ICategoryManager;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class CategoryManagerTest extends TestSetup {
+public class CategoryManagerTest extends GraphEngineTestSetup {
 	
 	@Autowired
 	ICategoryManager mgr;
@@ -49,6 +52,9 @@ public class CategoryManagerTest extends TestSetup {
 	String createCategoryWithoutCode = "{\"category\":{\"name\":\"category\",\"description\":\"sample description of category\"}}";
 	String createCategoryWithoutInvalidRequest = "{\"catesafgory\":{\"name\":\"category\",\"description\":\"sample description of category\"}}";
 	
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
+
 	@BeforeClass()
 	public static void beforeClass() throws Exception {
 		loadDefinition("definitions/category_definition.json");
@@ -68,19 +74,21 @@ public class CategoryManagerTest extends TestSetup {
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
 	public void createCategoryWithoutCode() throws Exception {
+		exception.expect(ClientException.class);
 		Map<String, Object> requestMap = mapper.readValue(createCategoryWithoutCode, new TypeReference<Map<String, Object>>() {});
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
 		Response response = mgr.createCategory(categoryMap);
 		String responseCode=(String) response.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		// assertTrue(responseCode.equals("CLIENT_ERROR"));
 	}
 	
 	@Test
 	public void createCategoryWithInvalidRequest() throws Exception {
+		exception.expect(ClientException.class);
 		Map<String,Object> categoryMap = new HashMap<String,Object>();
 		Response response = mgr.createCategory(categoryMap);
 		String responseCode=(String) response.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		// assertTrue(responseCode.equals("CLIENT_ERROR"));
 	}
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
@@ -159,9 +167,10 @@ public class CategoryManagerTest extends TestSetup {
 	
 	@Test
 	public void searchCategoryWithoutRequest() throws Exception {
+		exception.expect(ClientException.class);
 		Response res = mgr.searchCategory(null);
 		String responseCode=(String) res.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		// assertTrue(responseCode.equals("CLIENT_ERROR"));
 	}
 
 	@SuppressWarnings({"unchecked","rawtypes"})

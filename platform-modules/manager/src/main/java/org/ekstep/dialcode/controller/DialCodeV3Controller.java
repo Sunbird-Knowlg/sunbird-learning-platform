@@ -154,7 +154,7 @@ public class DialCodeV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> syncDialCode(@RequestBody Map<String, Object> requestMap,
 			@RequestHeader(value = CHANNEL_ID, required = true) String channelId,
-			@RequestParam(value = "identifiers", required = true) List<String> identifiers) {
+			@RequestParam(value = "identifiers", required = false) List<String> identifiers) {
 		String apiId = "ekstep.dialcode.sync";
 		Request request = getRequest(requestMap);
 		try {

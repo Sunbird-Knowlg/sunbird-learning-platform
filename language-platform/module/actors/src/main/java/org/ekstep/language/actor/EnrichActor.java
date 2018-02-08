@@ -123,8 +123,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			System.out.println("Error: " + e.getMessage());
-			TelemetryManager.error("Error in enrich actor"+e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}

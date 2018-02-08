@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
+import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
-import org.ekstep.test.common.TestParams;
-import org.ekstep.test.common.TestSetUp;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,11 +36,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-// @Ignore
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentV3ControllerTest extends TestSetUp {
+public class ContentV3ControllerTest extends GraphEngineTestSetup {
 
 	/** The context. */
 	@Autowired
@@ -65,7 +65,7 @@ public class ContentV3ControllerTest extends TestSetUp {
 	private static String collectionContent3Id = "";
 	private static String collectionVersion3Key = "";
 
-	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Test Contnet\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"],\"status\":\"Draft\"}}}";
+	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Test Contnet\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -141,6 +141,7 @@ public class ContentV3ControllerTest extends TestSetUp {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(createDocumentContent));
+		System.out.println("Response::::::" + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 

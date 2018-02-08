@@ -10,7 +10,7 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
 import org.ekstep.framework.test.common.TestParams;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class FrameworkManagerTest extends TestSetup {
+public class FrameworkManagerTest extends GraphEngineTestSetup {
 
 	private static String frameworkId;
 	private static String channelId;
@@ -124,25 +124,6 @@ public class FrameworkManagerTest extends TestSetup {
 			assertTrue(resCode == 400);
 		} catch (Exception e) {
 			System.out.println("FrameworkManagerTest:::testFramework_03:::Exception : " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Read Framework with valid framework id
-	 * 
-	 */
-	@Test
-	public void testFramework_04() {
-
-		try {
-			Response response = frameworkManager.readFramework(frameworkId);
-			String responseCode = (String) response.getResponseCode().toString();
-			int resCode = response.getResponseCode().code();
-			assertTrue(responseCode.equals("OK"));
-			assertTrue(resCode == 200);
-		} catch (Exception e) {
-			System.out.println("FrameworkManagerTest:::testFramework_04:::Exception : " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

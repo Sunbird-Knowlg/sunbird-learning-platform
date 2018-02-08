@@ -189,7 +189,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		}
 
-		setSuitability(node);
+		setPragma(node);
 		
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
@@ -326,19 +326,19 @@ public class PublishFinalizer extends BaseFinalizer {
 		return response;
 	}
 
-	private void setSuitability(Node node) {
+	private void setPragma(Node node) {
 		if ("video/x-youtube".equalsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
-			Object obj = node.getMetadata().get("suitability");
-			List<String> suitability = null;
+			Object obj = node.getMetadata().get("pragma");
+			List<String> pragma = null;
 			String value = "external";
 			if (obj instanceof List) {
-				suitability = (List<String>) obj;
+				pragma = (List<String>) obj;
 			} else {
-				suitability = new ArrayList<>();
+				pragma = new ArrayList<>();
 			}
-			if (!suitability.contains(value))
-				suitability.add(value);
-			node.getMetadata().put("suitability", suitability);
+			if (!pragma.contains(value))
+				pragma.add(value);
+			node.getMetadata().put("pragma", pragma);
 		}
 	}
 

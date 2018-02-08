@@ -5,6 +5,7 @@ package org.ekstep.framework.controller.test;
 
 import java.util.Map;
 
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.framework.mgr.ICategoryManager;
@@ -14,7 +15,7 @@ import org.ekstep.framework.mgr.impl.CategoryInstanceManagerImpl;
 import org.ekstep.framework.mgr.impl.CategoryManagerImpl;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.TermManagerImpl;
-import org.ekstep.framework.test.common.TestSetup;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -45,7 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TermChannelV3ControllerTest extends TestSetup {
+public class TermChannelV3ControllerTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -123,11 +124,13 @@ public class TermChannelV3ControllerTest extends TestSetup {
 	 * @author gauraw
 	 */
 	private static void createMasterTerm() throws Exception {
-		String createMasterTermJson = "{ \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" }";
+		String createMasterTermJson = "{\"term\": { \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" } }";
 		Map<String, Object> requestMap = mapper.readValue(createMasterTermJson,
 				new TypeReference<Map<String, Object>>() {
 				});
-		termManager.createTerm(null, masterCategoryId, requestMap);
+		Request request = new Request();
+		request.setRequest(requestMap);
+		termManager.createTerm(null, masterCategoryId, request);
 		masterTermId = "standard2";
 		System.out.println("masterTermId : "+masterTermId);
 	}
@@ -150,6 +153,48 @@ public class TermChannelV3ControllerTest extends TestSetup {
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
 			termId = "standard2";
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA1() {
+		String request = "{ \"request\": { \"term\": { \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" } } }";
+		try {
+			String path = base_category_path + "/create?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", channelId)
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA2() {
+		String request = "{ \"request\": { \"term\": { \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" } } }";
+		try {
+			String path = base_category_path + "/create?category=" + "1234";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", channelId)
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testA3() {
+		String request = "{ \"request\": { \"term\": { \"name\": \"Standard2\", \"code\": \"Standard2\", \"description\":\"Second Standard\" } } }";
+		try {
+			String path = base_category_path + "/create?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", "")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}
@@ -187,6 +232,20 @@ public class TermChannelV3ControllerTest extends TestSetup {
 		}
 	}
 
+	@Test
+	public void testC1() {
+		String request = "{ \"request\": { } }";
+		try {
+			String path = base_category_path + "/search?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", "")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * updateCategoryTerm
 	 */
@@ -204,6 +263,20 @@ public class TermChannelV3ControllerTest extends TestSetup {
 		}
 	}
 
+	@Test
+	public void testD1() {
+		String request = "{ \"request\": { \"term\": { \"name\": \"Class2\" } } }";
+		try {
+			String path = base_category_path + "/update/" + termId + "?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("X-Channel-Id", "")
+					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
 	/**
 	 * RetireCategoryTerm
 	 */
@@ -214,6 +287,18 @@ public class TermChannelV3ControllerTest extends TestSetup {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("X-Channel-Id", channelId));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
 			Assert.assertEquals(200, response.getStatus());
+		} catch (Exception e) {
+			e.getCause();
+		}
+	}
+
+	@Test
+	public void testZ1() {
+		try {
+			String path = base_category_path + "/retire/" + termId + "?category=" + "";
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("X-Channel-Id", ""));
+			MockHttpServletResponse response = actions.andReturn().getResponse();
+			Assert.assertEquals(400, response.getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}

@@ -548,9 +548,9 @@
             "dataType": "Number",
             "required": false,
             "displayProperty": "Readonly",
-            "defaultValue": 1,
+            "defaultValue": "",
             "renderingHints": "{'order': 23}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "versionDate",
             "title": "Version Date",
@@ -594,7 +594,7 @@
             "displayProperty": "Editable",
             "range": ["MCQ", "FTB", "MTF"],
             "required": true,
-            "defaultValue": "",
+            "defaultValue": "MCQ",
             "renderingHints": "{'order': 28}",
             "indexed": true
         }],

@@ -40,7 +40,8 @@ public class MetadataDefinition implements Serializable {
     private String renderingHints;
     private boolean indexed;
     private boolean draft;
-
+    private boolean rangeValidation = true;
+    
     public boolean isRequired() {
         return required;
     }
@@ -136,4 +137,20 @@ public class MetadataDefinition implements Serializable {
     public void setDraft(boolean draft) {
         this.draft = draft;
     }
+
+	/**
+	 * @return the rangeValidation
+	 */
+	public boolean getRangeValidation() {
+		return rangeValidation;
+	}
+
+	/**
+	 * @param rangeValidation the rangeValidation to set
+	 */
+	public void setRangeValidation(boolean rangeValidation) {
+		this.rangeValidation = rangeValidation;
+	}
+    
+    
 }

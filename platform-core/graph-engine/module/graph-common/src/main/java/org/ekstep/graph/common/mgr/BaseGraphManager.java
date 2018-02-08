@@ -17,7 +17,6 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
@@ -71,7 +70,6 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo, ActorRef parent) {
-        TelemetryManager.error(errorCode + ", " + errorMessage);
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -94,7 +92,6 @@ public abstract class BaseGraphManager extends UntypedActor {
          } else {
              params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
          }
-         TelemetryManager.log("Exception occured in class :"+ e.getClass().getName() + "with message :" + e.getMessage());
          params.setErrmsg(setErrMessage(e));
          response.setParams(params);
          setResponseCode(response, e);
@@ -109,7 +106,6 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, ActorRef parent) {
-        TelemetryManager.error(errorCode + ", " + errorMessage);
         parent.tell(getErrorResponse(errorCode, errorMessage, code), getSelf());
     }
 
@@ -201,7 +197,6 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public void handleException(Throwable e, ActorRef parent) {
-        TelemetryManager.error("Exception occured in class:"+ e.getClass().getName(), e);
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());
