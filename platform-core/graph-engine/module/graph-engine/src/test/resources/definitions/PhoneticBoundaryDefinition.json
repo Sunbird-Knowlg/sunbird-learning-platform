@@ -1,0 +1,87 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "Phonetic_Boundary",
+      "properties": [
+        {
+          "propertyName": "text",
+          "title": "Text",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 1 }"
+        }, 
+	    {
+	      "propertyName": "type",
+	      "title": "Type",
+	      "description": "",
+	      "category": "general",
+	      "dataType": "Select",
+	      "range": [
+	        "AksharaBoundary","RhymingSound"
+	      ],
+	      "required": false,
+	      "indexed": true,
+	      "displayProperty": "Editable",
+	      "defaultValue": "",
+	      "renderingHints": "{ 'inputType': 'textarea', 'order': 2 }"
+	    }
+      ],
+      "inRelations": [
+        {
+          "relationName": "startsWithAkshara",
+          "title": "startsWithAkshara",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "endsWithAkshara",
+          "title": "endsWithAkshara",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasRhymingSound",
+          "title": "RhymingSound",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": ""
+        }
+      ],
+      "outRelations": [
+       {
+          "relationName": "hasRhymingSound",
+          "title": "RhymingSound",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": ""
+        }
+       ],
+      "systemTags": [],
+      "metadata": {
+        "ttl": 24,
+        "limit": 50
+      }
+    }
+   ]
+}
+    

@@ -1,0 +1,148 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "WordComplexity",
+      "properties": [
+        {
+          "propertyName": "isPhrase",
+          "title": "Compound/Phrase",
+          "description": "Compound/Phrase",
+          "category": "Form",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.5",
+          "renderingHints": "{'metadata': 'isPhrase', 'datatype': 'Boolean', 'value': {'eq': true}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "morphology",
+          "title": "Morphologically modified",
+          "description": "Morphologically modified",
+          "category": "Form",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.8",
+          "renderingHints": "{'metadata': 'morphology', 'datatype': 'Boolean', 'value': {'eq': true}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "simpleWord",
+          "title": "Simple",
+          "description": "Simple",
+          "category": "Form",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.2",
+          "renderingHints": "{'metadata': 'morphology', 'datatype': 'Boolean', 'value': {'eq': false, 'null': true}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "posNoun",
+          "title": "Noun",
+          "description": "Noun",
+          "category": "Grammar",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.2",
+          "renderingHints": "{'metadata': 'pos', 'value': {'eq': 'noun'}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "posVerb",
+          "title": "Verb",
+          "description": "Verb",
+          "category": "Grammar",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.4",
+          "renderingHints": "{'metadata': 'pos', 'value': {'eq': 'verb'}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "posAdverb",
+          "title": "Adverb",
+          "description": "Adverb",
+          "category": "Grammar",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.5",
+          "renderingHints": "{'metadata': 'pos', 'value': {'eq': 'adverb'}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "meaningsCount",
+          "title": "Multiple Meanings",
+          "description": "Multiple Meanings",
+          "category": "Meaning",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.3",
+          "renderingHints": "{'metadata': 'synsetCount', 'datatype': 'Number', 'value': {'gt': 0}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "hasConnotative",
+          "title": "Connotative Meaning",
+          "description": "Connotative Meaning",
+          "category": "Meaning",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.8",
+          "renderingHints": "{'metadata': 'hasConnotative', 'datatype': 'Boolean', 'value': {'eq': true}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "conceptual",
+          "title": "Physical/Conceptual Meaning",
+          "description": "Physical/Conceptual Meaning",
+          "category": "Meaning",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.6",
+          "renderingHints": "{'metadata': 'category', 'datatype': 'String', 'value': {'in': ['Concept', 'Action/Event']}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "thresholdWord",
+          "title": "Threshold Word",
+          "description": "Threshold Word",
+          "category": "Usage",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.2",
+          "renderingHints": "{'metadata': 'thresholdLevel', 'datatype': 'Number', 'value': {'gt': 0}}",
+          "indexed": false
+        },
+        {
+          "propertyName": "advancedWord",
+          "title": "Advanced/Domain specific Word",
+          "description": "Advanced/Domain specific Word",
+          "category": "Usage",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "0.6",
+          "renderingHints": "{'metadata': 'thresholdLevel', 'datatype': 'Number', 'value': {'gt': 5, 'null': true}}",
+          "indexed": false
+        }
+      ],
+      "inRelations": [],
+      "outRelations": [],
+      "systemTags": [],
+      "metadata": {
+        "limit": 50,
+        "ttl": 24
+      }
+    }
+  ]
+}

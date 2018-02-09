@@ -114,7 +114,6 @@
 						<exclude>**/models/**</exclude>
 						<exclude>**/model/**</exclude>
 						<exclude>**/EnrichActor**</exclude>
-						<exclude>**/language/controller/**</exclude>
 						<exclude>**/wordchain/**</exclude>
 						<exclude>**/importer/**</exclude>
 						<exclude>**/services/**</exclude>
@@ -125,6 +124,9 @@
 						<exclude>**/Indowordnet**</exclude>
 						<!-- Import is not yet implemented -->
 						<exclude>**/Import*/**</exclude>
+						<exclude>**/*Controller.class</exclude>
+						<exclude>**/*ControllerV2.class</exclude>
+
 					</excludes>
 				</configuration>
 				<executions>

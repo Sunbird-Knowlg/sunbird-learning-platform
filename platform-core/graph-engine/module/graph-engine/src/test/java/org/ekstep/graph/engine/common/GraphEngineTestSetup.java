@@ -105,15 +105,18 @@ public class GraphEngineTestSetup {
 	}
 
 	protected static void loadDefinition(String... paths) throws Exception {
+		loadDefinitionByGraphId(Platform.config.getString(TestParams.graphId.name()), paths);
+	}
+
+	protected static void loadDefinitionByGraphId(String graphId, String... paths) throws Exception {
 		if (null != paths && paths.length > 0) {
 			for (String path : paths) {
 				InputStream is = classLoader.getResourceAsStream(path);
 				String definition = IOUtils.toString(is);;
-				createDefinition(Platform.config.getString(TestParams.graphId.name()), definition);
+				createDefinition(graphId, definition);
 			}
 		}
 	}
-
 	private static void createDefinition(String graphId, String definition) throws Exception {
 		Request request = new Request();
 		request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
