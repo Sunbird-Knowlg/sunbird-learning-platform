@@ -63,7 +63,7 @@ public class LanguageWordV3Test extends GraphEngineTestSetup{
 	@SuppressWarnings("rawtypes")
 	public void createWordTest() throws JsonParseException,
 			JsonMappingException, IOException {
-		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"newtestword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
+		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"testword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v3/words/create?language_id=" + TEST_LANGUAGE;
@@ -89,7 +89,7 @@ public class LanguageWordV3Test extends GraphEngineTestSetup{
 	@Test
 	public void createDuplicateWordTest() throws JsonParseException,
 			JsonMappingException, IOException {
-		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"newtestword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
+		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"testword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v3/words/create?language_id=" + TEST_LANGUAGE;

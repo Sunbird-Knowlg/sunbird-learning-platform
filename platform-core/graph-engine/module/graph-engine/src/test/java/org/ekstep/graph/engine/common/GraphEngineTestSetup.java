@@ -4,7 +4,11 @@
 package org.ekstep.graph.engine.common;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
@@ -49,18 +53,18 @@ public class GraphEngineTestSetup {
 
 	protected static long timeout = 50000;
 	protected static Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+	protected static Set<String> graphIds = new HashSet<>();
 
 	@AfterClass
 	public static void afterTest() throws Exception {
+		deleteGraph();
 		DriverUtil.closeDrivers();
-		tearEmbeddedNeo4JSetup();
 	}
 
 	@BeforeClass
 	public static void before() throws Exception {
 		ActorBootstrap.getActorSystem();
 		reqRouter = GraphEngineActorPoolMgr.getRequestRouter();
-		tearEmbeddedNeo4JSetup();
 		setupEmbeddedNeo4J();
 	}
 
@@ -68,18 +72,25 @@ public class GraphEngineTestSetup {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				graphDb.shutdown();
+				try {
+					tearEmbeddedNeo4JSetup();
+					System.out.println("cleanup Done!!");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
 
 	private static void setupEmbeddedNeo4J() throws Exception {
-		GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector("0");
-		graphDb = new GraphDatabaseFactory()
-				.newEmbeddedDatabaseBuilder(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)))
-				.setConfig(bolt.type, TestParams.BOLT.name()).setConfig(bolt.enabled, BOLT_ENABLED)
-				.setConfig(bolt.address, NEO4J_SERVER_ADDRESS).newGraphDatabase();
-		registerShutdownHook(graphDb);
+		if(graphDb==null) {
+			GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector("0");
+			graphDb = new GraphDatabaseFactory()
+					.newEmbeddedDatabaseBuilder(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)))
+					.setConfig(bolt.type, TestParams.BOLT.name()).setConfig(bolt.enabled, BOLT_ENABLED)
+					.setConfig(bolt.address, NEO4J_SERVER_ADDRESS).newGraphDatabase();
+			registerShutdownHook(graphDb);
+		}
 	}
 
 	private static void tearEmbeddedNeo4JSetup() throws Exception {
@@ -89,26 +100,41 @@ public class GraphEngineTestSetup {
 		deleteEmbeddedNeo4j(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)));
 	}
 
-	private static void deleteEmbeddedNeo4j(final File emDb) {
-		if (emDb.exists()) {
-			if (emDb.isDirectory()) {
-				for (File child : emDb.listFiles()) {
-					deleteEmbeddedNeo4j(child);
-				}
-			}
-			try {
-				emDb.delete();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	private static void deleteEmbeddedNeo4j(final File emDb) throws IOException {
+		FileUtils.deleteDirectory(emDb);
 	}
 
+	protected static void deleteGraph() {
+
+		try {			
+			Iterator<String> graphIdsIterator = graphIds.iterator();
+		     while(graphIdsIterator.hasNext()){
+		    	 String graphId = graphIdsIterator.next();
+		    	 Request request = new Request();
+					request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+					request.setOperation("deleteGraph");
+					request.getContext().put(GraphHeaderParams.graph_id.name(),
+							graphId);
+					Future<Object> response = Patterns.ask(reqRouter, request, timeout);
+					Object obj = Await.result(response, t.duration());
+					Response resp = (Response) obj;
+					
+					if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+						System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
+					}
+		     }
+	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	protected static void loadDefinition(String... paths) throws Exception {
 		loadDefinitionByGraphId(Platform.config.getString(TestParams.graphId.name()), paths);
 	}
 
 	protected static void loadDefinitionByGraphId(String graphId, String... paths) throws Exception {
+		graphIds.add(graphId);
 		if (null != paths && paths.length > 0) {
 			for (String path : paths) {
 				InputStream is = classLoader.getResourceAsStream(path);
@@ -117,6 +143,7 @@ public class GraphEngineTestSetup {
 			}
 		}
 	}
+	
 	private static void createDefinition(String graphId, String definition) throws Exception {
 		Request request = new Request();
 		request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
