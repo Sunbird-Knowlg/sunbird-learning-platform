@@ -8,7 +8,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
-import org.ekstep.contentstore.util.ContentStoreUtil;
+import org.ekstep.contentstore.util.ContentStore;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -23,45 +23,43 @@ import akka.actor.ActorRef;
  */
 public class ContentStoreActor extends BaseGraphManager {
 
-	/** The logger. */
-	
+	ContentStore contentStore = new ContentStore();
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		TelemetryManager.log("Received Command: " + msg);
 		try {
 			Request request = (Request) msg;
 			String operation = request.getOperation();
 			if (StringUtils.equalsIgnoreCase(ContentStoreOperations.updateContentBody.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				String body = (String) request.get(ContentStoreParams.body.name());
-				ContentStoreUtil.updateContentBody(contentId, body);
+				contentStore.updateContentBody(contentId, body);
 				OK(sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getContentBody.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
-				String body = ContentStoreUtil.getContentBody(contentId);
+				String body = contentStore.getContentBody(contentId);
 				OK(ContentStoreParams.body.name(), body, sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getContentProperty.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				String property = (String) request.get(ContentStoreParams.property.name());
-				String value = ContentStoreUtil.getContentProperty(contentId, property);
+				String value = contentStore.getContentProperty(contentId, property);
 				OK(ContentStoreParams.value.name(), value, sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getContentProperties.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				List<String> properties = (List<String>) request.get(ContentStoreParams.properties.name());
-				Map<String, Object> value = ContentStoreUtil.getContentProperties(contentId, properties);
+				Map<String, Object> value = contentStore.getContentProperties(contentId, properties);
 				OK(ContentStoreParams.values.name(), value, sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.updateContentProperty.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				String property = (String) request.get(ContentStoreParams.property.name());
 				String value = (String) request.get(ContentStoreParams.value.name());
-				ContentStoreUtil.updateContentProperty(contentId, property, value);
+				contentStore.updateContentProperty(contentId, property, value);
 				OK(sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.updateContentProperties.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				Map<String, Object> map = (Map<String, Object>) request.get(ContentStoreParams.properties.name());
-				ContentStoreUtil.updateContentProperties(contentId, map);
+				contentStore.updateContentProperties(contentId, map);
 				OK(sender());
 			} else {
 				TelemetryManager.log("Unsupported operation: " + operation);
