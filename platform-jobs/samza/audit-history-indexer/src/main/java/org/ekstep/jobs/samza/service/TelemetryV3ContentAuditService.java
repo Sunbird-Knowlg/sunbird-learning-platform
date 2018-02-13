@@ -64,38 +64,13 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
 		LOGGER.debug("Telemetry Audit Started.");
-		String objectId = message.get("nodeUniqueId").toString();
-		Map<String, Object> transactionData = (Map<String, Object>) message.get("transactionData");
-		Map<String, Object> propertyMap = (Map<String, Object>) transactionData.get("properties");
-		Map<String, Object> statusMap = (Map<String, Object>) propertyMap.get("status");
-
-		String prevStatus = "";
-		String currStatus = "";
-
-		if (null != statusMap) {
-			prevStatus = statusMap.get("ov").toString();
-			currStatus = statusMap.get("nv").toString();
-		}
-
-		if (prevStatus != currStatus) {
-			try {
-				LOGGER.debug("Content Status Change Detected.");
-				String objectType = ((Map<String, Object>) propertyMap.get("IL_FUNC_OBJECT_TYPE")).get("nv").toString();
-				List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
-				Map<String, String> context = getContext();
-				context.put("objectId", objectId);
-				context.put("objectType", objectType);
-				String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
-				LOGGER.debug("Audit Message : " + auditMessage);
-				Map<String, Object> auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
-				});
-				collector.send(new OutgoingMessageEnvelope(
-						new SystemStream("kafka", config.get("telemetry_audit_topic")), auditMap));
-				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_audit_topic"));
-			} catch (Exception e) {
-				LOGGER.error("Failed to process message", message, e);
-			}
-
+		try {
+			Map<String, Object> auditMap = getAuditMessage(message);
+			collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", config.get("telemetry_audit_topic")),
+					auditMap));
+			LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_audit_topic"));
+		} catch (Exception e) {
+			LOGGER.error("Failed to process message", message, e);
 		}
 	}
 
@@ -114,6 +89,41 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 			return defaultValue;
 		else
 			return value;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getAuditMessage(Map<String, Object> message) throws Exception {
+		Map<String, Object> auditMap = null;
+		String objectId = (String) message.get("nodeUniqueId");
+		Map<String, Object> transactionData = (Map<String, Object>) message.get("transactionData");
+		Map<String, Object> propertyMap = (Map<String, Object>) transactionData.get("properties");
+		Map<String, Object> statusMap = (Map<String, Object>) propertyMap.get("status");
+
+		String prevStatus = "";
+		String currStatus = "";
+		String objectType = null;
+		if (null != statusMap) {
+			prevStatus = (String) statusMap.get("ov");
+			currStatus = (String) statusMap.get("nv");
+		}
+
+		if (prevStatus != currStatus) {
+			LOGGER.debug("Content Status Change Detected.");
+			Map<String, Object> objType = (Map<String, Object>) propertyMap.get("IL_FUNC_OBJECT_TYPE");
+			if (null != objType) {
+				// TODO: Need to confirm with All Scenario.
+				objectType = (String) objType.get("nv");
+			}
+			List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
+			Map<String, String> context = getContext();
+			context.put("objectId", objectId);
+			context.put("objectType", objectType);
+			String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
+			LOGGER.debug("Audit Message : " + auditMessage);
+			auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
+			});
+		}
+		return auditMap;
 	}
 
 }
