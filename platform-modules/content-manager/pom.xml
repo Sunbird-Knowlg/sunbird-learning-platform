@@ -23,10 +23,10 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-		    <groupId>org.apache.kafka</groupId>
-		    <artifactId>kafka-clients</artifactId>
-		    <version>0.10.0.0</version>
-		</dependency>
+			<groupId>org.ekstep</groupId>
+  			<artifactId>kafka-client</artifactId>
+  			<version>1.0-SNAPSHOT</version>
+  		</dependency>
 		
 	</dependencies>
 

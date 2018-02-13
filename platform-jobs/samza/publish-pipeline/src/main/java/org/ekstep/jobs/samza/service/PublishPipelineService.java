@@ -17,7 +17,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
@@ -42,6 +41,7 @@ import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class PublishPipelineService implements ISamzaService {
@@ -105,7 +105,8 @@ public class PublishPipelineService implements ISamzaService {
 				Node node = getNode(nodeId);
 				if (null != node) {
 					LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
-					processJob(edata, node, metrics);
+					prePublishUpdate(edata, node);
+					processJob(edata, nodeId, metrics);
 				}else {
 					metrics.incSkippedCounter();
 					LOGGER.debug("Invalid Node Object. Unable to process the event", message);
@@ -120,10 +121,9 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 	
-	private void processJob(Map<String, Object> edata, Node node, JobMetrics metrics) throws Exception {
+	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics) throws Exception {
 		
-		updateNodeStatusToProcessing(edata, node); //Changing node status to Processing.
-
+		Node node = getNode(contentId);
 		node.getMetadata().put(PublishPipelineParams.publish_type.name(), edata.get(PublishPipelineParams.publish_type.name()));
 		if(publishContent(node)) {
 			metrics.incSuccessCounter();
@@ -136,13 +136,19 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 	
-	private void updateNodeStatusToProcessing(Map<String, Object> edata, Node node) throws Exception {
-			node.getMetadata().put("status", "Processing");
-			util.updateNode(node);
-			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.Processing.name());
-			LOGGER.debug("Node status :: Processing for NodeId :: " + node.getIdentifier());
+	@SuppressWarnings("unchecked")
+	private void prePublishUpdate(Map<String, Object> edata, Node node) {
+		Map<String, Object> metadata = (Map<String, Object>)edata.get("metadata");
+		node.getMetadata().putAll(metadata);
+		
+		String prevState = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
+		node.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
+		node.getMetadata().put("status", "Processing");
+		
+		util.updateNode(node);
+		edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.Processing.name());
+		LOGGER.debug("Node status :: Processing for NodeId :: " + node.getIdentifier());
 	}
-	
 	
 	private Node getNode(String nodeId) {
 		Node node = null;
@@ -290,16 +296,27 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 	
-	private boolean validateObject(Map<String, Object> edata, Map<String, Object> object) {
+	/*private boolean validateObject(Map<String, Object> edata, Map<String, Object> object) {
 		
 		if (null == object) 
 			return false;
-		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
+		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.type.name()), PublishPipelineParams.Asset.name())) {
 			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) == 1 && 
 					StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.Pending.name())) || 
 					((Integer)edata.get(PublishPipelineParams.iteration.name()) > 1 && 
 							(Integer)edata.get(PublishPipelineParams.iteration.name()) <= getMaxIterations() && 
 							StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.FAILED.name())))
+				return true;
+		}
+		return false;
+	}*/
+	
+	private boolean validateObject(Map<String, Object> edata, Map<String, Object> object) {
+		
+		if (null == object) 
+			return false;
+		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.type.name()), PublishPipelineParams.Asset.name())) {
+			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) <= getMaxIterations()))
 				return true;
 		}
 		return false;
