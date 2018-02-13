@@ -63,24 +63,30 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
-
+		LOGGER.debug("Telemetry Audit Started.");
 		String objectId = message.get("nodeUniqueId").toString();
 		Map<String, Object> transactionData = (Map<String, Object>) message.get("transactionData");
 		Map<String, Object> propertyMap = (Map<String, Object>) transactionData.get("properties");
+		Map<String, Object> statusMap = (Map<String, Object>) propertyMap.get("status");
 
-		String prevStatus = ((Map<String, Object>) propertyMap.get("status")).get("ov").toString();
-		String currStatus = ((Map<String, Object>) propertyMap.get("status")).get("nv").toString();
+		String prevStatus = "";
+		String currStatus = "";
+
+		if (null != statusMap) {
+			prevStatus = statusMap.get("ov").toString();
+			currStatus = statusMap.get("nv").toString();
+		}
 
 		if (prevStatus != currStatus) {
 			try {
-				LOGGER.debug("Telemetry Audit Started.");
+				LOGGER.debug("Content Status Change Detected.");
 				String objectType = ((Map<String, Object>) propertyMap.get("IL_FUNC_OBJECT_TYPE")).get("nv").toString();
 				List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
 				Map<String, String> context = getContext();
 				context.put("objectId", objectId);
 				context.put("objectType", objectType);
 				String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
-				System.out.println("auditMessage::::::::::::" + auditMessage);
+				LOGGER.debug("Audit Message : " + auditMessage);
 				Map<String, Object> auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
 				});
 				collector.send(new OutgoingMessageEnvelope(
