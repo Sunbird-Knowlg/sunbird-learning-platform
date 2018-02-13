@@ -107,22 +107,21 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 			currStatus = (String) statusMap.get("nv");
 		}
 
-		if (prevStatus != currStatus) {
-			LOGGER.debug("Content Status Change Detected.");
-			Map<String, Object> objType = (Map<String, Object>) propertyMap.get("IL_FUNC_OBJECT_TYPE");
-			if (null != objType) {
-				// TODO: Need to confirm with All Scenario.
-				objectType = (String) objType.get("nv");
-			}
-			List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
-			Map<String, String> context = getContext();
-			context.put("objectId", objectId);
-			context.put("objectType", objectType);
-			String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
-			LOGGER.debug("Audit Message : " + auditMessage);
-			auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
-			});
+		LOGGER.debug("Content Status Change Detected.");
+		Map<String, Object> objType = (Map<String, Object>) propertyMap.get("IL_FUNC_OBJECT_TYPE");
+		if (null != objType) {
+			// TODO: Need to confirm with All Scenario.
+			objectType = (String) objType.get("nv");
 		}
+		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
+		Map<String, String> context = getContext();
+		context.put("objectId", objectId);
+		context.put("objectType", objectType);
+		String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
+		LOGGER.debug("Audit Message : " + auditMessage);
+		auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
+		});
+
 		return auditMap;
 	}
 
