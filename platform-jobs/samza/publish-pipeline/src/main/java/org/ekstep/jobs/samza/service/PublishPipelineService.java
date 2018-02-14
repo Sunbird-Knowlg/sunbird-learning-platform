@@ -306,21 +306,6 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 	
-	/*private boolean validateObject(Map<String, Object> edata, Map<String, Object> object) {
-		
-		if (null == object) 
-			return false;
-		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.type.name()), PublishPipelineParams.Asset.name())) {
-			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) == 1 && 
-					StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.Pending.name())) || 
-					((Integer)edata.get(PublishPipelineParams.iteration.name()) > 1 && 
-							(Integer)edata.get(PublishPipelineParams.iteration.name()) <= getMaxIterations() && 
-							StringUtils.equalsIgnoreCase((String)edata.get(PublishPipelineParams.status.name()), PublishPipelineParams.FAILED.name())))
-				return true;
-		}
-		return false;
-	}*/
-	
 	private boolean validateObject(Map<String, Object> edata, Map<String, Object> object) {
 		
 		if (null == object) 
