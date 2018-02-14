@@ -104,9 +104,11 @@ public class PublishPipelineService implements ISamzaService {
 			try {
 				Node node = getNode(nodeId);
 				if (null != node) {
-					LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
-					prePublishUpdate(edata, node);
-					processJob(edata, nodeId, metrics);
+					if(prePublishValidation(node, (Map<String, Object>)edata.get("metadata"))) {
+						LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
+						prePublishUpdate(edata, node);
+						processJob(edata, nodeId, metrics);
+					}
 				}else {
 					metrics.incSkippedCounter();
 					LOGGER.debug("Invalid Node Object. Unable to process the event", message);
@@ -119,6 +121,14 @@ public class PublishPipelineService implements ISamzaService {
 			metrics.incSkippedCounter();
 			LOGGER.debug("Invalid NodeId. Unable to process the event", message);
 		}
+	}
+	
+	private boolean prePublishValidation(Node node, Map<String, Object> eventMetadata) {
+		Map<String, Object> objMetadata = (Map<String, Object>) node.getMetadata();
+		Integer eventPkgVersion = (eventMetadata.get("pkgVersion") == null) ? 0 : Integer.parseInt((String)(eventMetadata.get("pkgVersion")));
+		Integer objPkgVersion = (objMetadata.get("pkgVersion") == null) ? 0 : Integer.parseInt((String)(objMetadata.get("pkgVersion")));
+		
+		return (objPkgVersion<=eventPkgVersion);
 	}
 	
 	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics) throws Exception {
@@ -315,7 +325,7 @@ public class PublishPipelineService implements ISamzaService {
 		
 		if (null == object) 
 			return false;
-		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.type.name()), PublishPipelineParams.Asset.name())) {
+		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
 			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) <= getMaxIterations()))
 				return true;
 		}

@@ -13,7 +13,7 @@ import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.kafka.util.KafkaClientUtil;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
@@ -129,11 +129,11 @@ public class ReviewFinalizer extends BaseFinalizer {
 		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		String topic = Platform.config.getString("instructionevent.kafka.topic.id");
-		if(StringUtils.isNoneBlank(beJobRequestEvent)) {
+		if(StringUtils.isBlank(beJobRequestEvent)) {
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 		}
 		if(StringUtils.isNotBlank(topic)) {
-			KafkaClientUtil.runProducer(beJobRequestEvent, topic);
+			KafkaClient.send(beJobRequestEvent, topic);
 		} else {
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
 		}
@@ -156,7 +156,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		}
 		
 		object.put("id", contentId);
-		object.put("type", metadata.get("contentType"));
+		object.put("contentType", metadata.get("contentType"));
 		object.put("ver", metadata.get("versionKey"));
 		
 		edata.put("action", action);
