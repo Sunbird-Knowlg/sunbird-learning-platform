@@ -47,7 +47,7 @@ public class DialCodeV3ControllerExceptionTest {
 		String req = "{\"request\": {\"search\": {\"publisher\":\"test\",\"status\":\"Draft\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
-		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
 	}
 
 	// Create Publisher - 500 - SERVER_ERROR
@@ -85,7 +85,7 @@ public class DialCodeV3ControllerExceptionTest {
 		String req = "{\"request\": {\"search\": {\"publisher\":\"testpub01\",\"status\":\"Draft\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
-		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
 	}
 
 	// Search Dial Code -405 -
