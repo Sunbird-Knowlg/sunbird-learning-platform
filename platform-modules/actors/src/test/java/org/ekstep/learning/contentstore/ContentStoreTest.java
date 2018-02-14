@@ -1,5 +1,6 @@
 package org.ekstep.learning.contentstore;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,5 +79,51 @@ public class ContentStoreTest extends CassandraTestSetup {
 		Assert.assertTrue(identifier.equals(row.getString("content_id")));
 		Assert.assertTrue(body.equals(row.getString("body")));
 	}
+	
+	@Test(expected = ClientException.class)
+	public void testUpdateContentPropsEmptyPropertyNameToSave() {
+		String identifier = "test_content";
+		String body = "test_content_body";
+		Map<String, Object> map = new HashMap<>();
+		map.put("", body);
+		contentStore.updateContentProperties(identifier, map);
+	}
 
+	@Test(expected = ClientException.class)
+	public void testUpdateContentPropsEmptyPropsMapToSave() {
+		contentStore.updateContentProperties("test_content", null);
+	}
+	
+	@Test(expected = ServerException.class)
+	public void testUpdateContentPropsWithEmptyId() {
+		String body = "test_content_body";
+		Map<String, Object> map = new HashMap<>();
+		map.put("body", body);
+		contentStore.updateContentBody("", body);
+	}
+	
+	@Test
+	public void testGetContentProps() {
+		String identifier = "test_content";
+		String body = "test_content_body";
+		contentStore.updateContentBody(identifier, body);
+		Map<String, Object> map = contentStore.getContentProperties(identifier, Arrays.asList("body"));
+		Assert.assertTrue(body.equals(map.get("body")));
+	}
+	
+	@Test(expected = ClientException.class)
+	public void testGetContentPropsWithEmptyProps() {
+		String identifier = "test_content";
+		String body = "test_content_body";
+		contentStore.updateContentBody(identifier, body);
+		contentStore.getContentProperties(identifier, Arrays.asList());
+	}
+	
+	@Test(expected = ServerException.class)
+	public void testGetContentPropsWithoutId() {
+		String identifier = "test_content";
+		String body = "test_content_body";
+		contentStore.updateContentBody(identifier, body);
+		contentStore.getContentProperties("", Arrays.asList("body"));
+	}
 }

@@ -125,9 +125,6 @@ public class ContentStore extends CassandraStore {
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
 					"Invalid property values. Please specify valid property values");
 		String query = getUpdateQuery(map.keySet());
-		if (StringUtils.isBlank(query))
-			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
-					"Invalid property values. Please specify valid property values");
 		PreparedStatement ps = session.prepare(query);
 		Object[] values = new Object[map.size() + 1];
 		int i = 0;
