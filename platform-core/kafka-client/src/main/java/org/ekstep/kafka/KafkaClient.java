@@ -61,7 +61,7 @@ public class KafkaClient {
 			producer.send(record);
 		}else {
 			TelemetryManager.error("Topic id: " + topic + ", does not exists.");
-			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Topic id: " + topic + ", does not exists.");
+			throw new ClientException("TOPIC_NOT_EXISTS_EXCEPTION", "Topic id: " + topic + ", does not exists.");
 		}
 	}
 	public static boolean validate(String topic) throws Exception{
