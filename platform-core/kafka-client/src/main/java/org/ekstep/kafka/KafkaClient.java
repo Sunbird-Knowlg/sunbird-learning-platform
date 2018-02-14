@@ -10,6 +10,8 @@ import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.List;
 import java.util.Map;
@@ -57,6 +59,9 @@ public class KafkaClient {
 			final Producer<Long, String> producer = getProducer();
 			ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(topic, event);
 			producer.send(record);
+		}else {
+			TelemetryManager.error("Topic id: " + topic + ", does not exists.");
+			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Topic id: " + topic + ", does not exists.");
 		}
 	}
 	public static boolean validate(String topic) throws Exception{
