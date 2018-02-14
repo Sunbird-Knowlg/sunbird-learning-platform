@@ -332,6 +332,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		        
 		        Map<String, Object> childObjectMap = new HashMap<>();
 		        childObjectMap.put("identifier", res.get("node_id"));
+		        childObjectMap.put("index", relation.getMetadata().get("IL_SEQUENCE_INDEX"));
 		        
 		        if(request.containsKey(title)) {
 		          List<Map<String, Object>> relationshipList = (List<Map<String, Object>>)request.get(title);
