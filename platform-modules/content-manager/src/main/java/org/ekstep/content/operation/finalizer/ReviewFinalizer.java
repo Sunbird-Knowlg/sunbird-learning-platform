@@ -130,6 +130,9 @@ public class ReviewFinalizer extends BaseFinalizer {
 		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		String topic = Platform.config.getString("instructionevent.kafka.topic.id");
+		if(StringUtils.isNoneBlank(beJobRequestEvent)) {
+			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+		}
 		if(StringUtils.isNotBlank(topic)) {
 			KafkaClientUtil.runProducer(beJobRequestEvent, topic);
 		} else {
