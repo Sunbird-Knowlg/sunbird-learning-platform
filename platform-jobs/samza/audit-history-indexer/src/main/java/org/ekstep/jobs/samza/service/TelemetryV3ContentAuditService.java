@@ -74,11 +74,11 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 		}
 	}
 
-	private static Map<String, String> getContext() {
+	private static Map<String, String> getContext(String channelId) {
 		Map<String, String> context = new HashMap<String, String>();
 		context.put(TelemetryParams.ACTOR.name(),
 				getContextValue(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform"));
-		context.put(TelemetryParams.CHANNEL.name(), getContextValue(HeaderParam.CHANNEL_ID.name(), "in.ekstep"));
+		context.put(TelemetryParams.CHANNEL.name(), getContextValue(HeaderParam.CHANNEL_ID.name(), channelId));
 		context.put(TelemetryParams.ENV.name(), getContextValue(TelemetryParams.ENV.name(), "system"));
 		return context;
 	}
@@ -95,6 +95,10 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 	public Map<String, Object> getAuditMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> auditMap = null;
 		String objectId = (String) message.get("nodeUniqueId");
+		String channelId = "in.ekstep";
+		String channel = (String) message.get("channel");
+		if (null != channel)
+			channelId = channel;
 		Map<String, Object> transactionData = (Map<String, Object>) message.get("transactionData");
 		Map<String, Object> propertyMap = (Map<String, Object>) transactionData.get("properties");
 		Map<String, Object> statusMap = (Map<String, Object>) propertyMap.get("status");
@@ -114,7 +118,7 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 			objectType = (String) objType.get("nv");
 		}
 		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
-		Map<String, String> context = getContext();
+		Map<String, String> context = getContext(channelId);
 		context.put("objectId", objectId);
 		context.put("objectType", objectType);
 		String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
