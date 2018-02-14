@@ -100,7 +100,6 @@ public class ReviewFinalizer extends BaseFinalizer {
 			response = new Response();
 			response.put("publishStatus", "Publish Event for Content Id '" + node.getIdentifier() + "' is pussed Successfully!");
 			response.put("node_id", node.getIdentifier());
-			response.put("versionKey", node.getMetadata().get("versionKey"));
 		} else {
 			String prevState = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
 			if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.FlagDraft.name())){
