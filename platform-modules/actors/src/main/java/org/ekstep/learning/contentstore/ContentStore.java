@@ -1,4 +1,4 @@
-package org.ekstep.contentstore.util;
+package org.ekstep.learning.contentstore;
 
 import java.util.HashMap;
 import java.util.List;

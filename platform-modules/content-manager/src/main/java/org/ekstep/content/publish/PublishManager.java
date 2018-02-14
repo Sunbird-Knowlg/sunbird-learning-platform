@@ -15,11 +15,11 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
-import org.ekstep.contentstore.util.ContentStoreOperations;
-import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.contentstore.ContentStoreOperations;
+import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
 

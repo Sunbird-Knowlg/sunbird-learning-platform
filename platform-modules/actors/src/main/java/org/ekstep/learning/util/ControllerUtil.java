@@ -11,13 +11,13 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.contentstore.util.ContentStoreOperations;
-import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.contentstore.ContentStoreOperations;
+import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
