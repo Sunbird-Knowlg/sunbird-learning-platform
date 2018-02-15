@@ -45,7 +45,7 @@ public class SearchManager extends SearchBaseActor {
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
 				if (null != countResult.get("count")) {
-					Double count = (Double) countResult.get("count");
+					Integer count = (Integer) countResult.get("count");
 					OK("count", count, parent);
 				} else {
 					ERROR("", "count is empty or null", ResponseCode.SERVER_ERROR, "", null, parent);

@@ -325,7 +325,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Double identifier = (Double) content.get("size");
+			Integer identifier = (Integer) content.get("size");
 			if (null != identifier)
 				Assert.assertTrue(identifier >= 1000432);
 		}
@@ -351,7 +351,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Double identifier = (Double) content.get("size");
+			Integer identifier = (Integer) content.get("size");
 			if (null != identifier)
 				Assert.assertTrue(identifier <= 564738);
 		}
@@ -459,7 +459,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Double identifier = (Double) content.get("size");
+			Integer identifier = (Integer) content.get("size");
 			Assert.assertTrue(identifier == 564738);
 		}
 	}
@@ -484,7 +484,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Double size = (Double) content.get("size");
+			Integer size = (Integer) content.get("size");
 			Assert.assertNotNull(size);
 		}
 	}
@@ -642,7 +642,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		request.put("filters", filters);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
-		Double count = (Double) result.get("count");
+		Integer count = (Integer) result.get("count");
 		Assert.assertNotNull(count);
 	}
 	
@@ -724,7 +724,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		for (Object obj : list) {
 			Map<String, Object> contents = (Map<String, Object>) obj;
 			Set<String> keys = contents.keySet();
-			if(keys.size()==fields.size()+1){
+			if (keys.size() == fields.size()) {
 				if(keys.containsAll(fields)){
 					valid = true;
 					
