@@ -1,9 +1,5 @@
-package org.ekstep.contentstore.util;
+package org.ekstep.learning.contentstore;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +8,11 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
+import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
-import org.ekstep.common.enums.CompositeSearchParams;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -25,34 +20,28 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 
-public class ContentStoreUtil {
+public class ContentStore extends CassandraStore {
 
 	private static final String PROPERTY_SUFFIX = "__txt";
 	
-	private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	private static String keyspaceName = "";
-	private static String keyspaceTable = "content_data";
-	
-	public static String getKeyspaceName() {
-		if (StringUtils.isBlank(keyspaceName) && Platform.config.hasPath("keyspace.name")) 
-			return Platform.config.getString("keyspace.name");
-		else 
-			return keyspaceName;
-	}
-    
-	public static void loadProperties(Map<String, Object> prop) {
-		keyspaceName = (String) prop.get("keyspace.name");
+	public ContentStore() {
+		super();
+		String keyspace = Platform.config.hasPath("content.keyspace.name") ? Platform.config.getString("content.keyspace.name") : "content_store";
+		String table = Platform.config.hasPath("content.keyspace.table") ? Platform.config.getString("content.keyspace.table") : "content_data";
+		boolean index = Platform.config.hasPath("content.index") ? Platform.config.getBoolean("content.index") : false;
+		String objectType = "Content";
+		initialise(keyspace, table, objectType, index);
 	}
 	
-	public static void updateContentBody(String contentId, String body) {
+	public void updateContentBody(String contentId, String body) {
 		updateContentProperty(contentId, "body", body);
 	}
 
-	public static String getContentBody(String contentId) {
+	public String getContentBody(String contentId) {
 		return getContentProperty(contentId, "body");
 	}
 
-	public static String getContentProperty(String contentId, String property) {
+	public String getContentProperty(String contentId, String property) {
 		TelemetryManager.log("GetContentProperty | Content: " + contentId + " | Property: " + property);
 		Session session = CassandraConnector.getSession();
 		String query = getSelectQuery(property);
@@ -78,7 +67,7 @@ public class ContentStoreUtil {
 		return null;
 	}
 	
-	public static Map<String, Object> getContentProperties(String contentId, List<String> properties) {
+	public Map<String, Object> getContentProperties(String contentId, List<String> properties) {
 		TelemetryManager.log("GetContentProperties | Content: " + contentId + " | Properties: " + properties);
 		Session session = CassandraConnector.getSession();
 		String query = getSelectQuery(properties);
@@ -108,7 +97,7 @@ public class ContentStoreUtil {
 		return null;
 	}
 	
-	public static void updateContentProperty(String contentId, String property, String value) {
+	public void updateContentProperty(String contentId, String property, String value) {
 		TelemetryManager.log("UpdateContentProperty | Content: " + contentId + " | Property: " + property + " - Value: " + value);
 		Session session = CassandraConnector.getSession();
 		String query = getUpdateQuery(property);
@@ -121,9 +110,7 @@ public class ContentStoreUtil {
 			session.execute(bound);
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put(property, value);
-			List<Map<String, Object>> nodeMessage = createKafkaMessage(contentId, map);
-			TelemetryManager.log("Logging event to kafka on body changes" + nodeMessage);
-			LogAsyncGraphEvent.pushMessageToLogger(nodeMessage);
+			logTransactionEvent("UPDATE", contentId, map);
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Executing update content property:" + e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
@@ -131,16 +118,13 @@ public class ContentStoreUtil {
 		}
 	}
 
-	public static void updateContentProperties(String contentId, Map<String, Object> map) {
+	public void updateContentProperties(String contentId, Map<String, Object> map) {
 		TelemetryManager.log("UpdateContentProperties | Content: " + contentId + " | Properties: " + map);
 		Session session = CassandraConnector.getSession();
 		if (null == map || map.isEmpty())
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
 					"Invalid property values. Please specify valid property values");
 		String query = getUpdateQuery(map.keySet());
-		if (StringUtils.isBlank(query))
-			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
-					"Invalid property values. Please specify valid property values");
 		PreparedStatement ps = session.prepare(query);
 		Object[] values = new Object[map.size() + 1];
 		int i = 0;
@@ -153,8 +137,7 @@ public class ContentStoreUtil {
 		BoundStatement bound = ps.bind(values);
 		try {
 			session.execute(bound);
-			List<Map<String, Object>> nodeMessage = createKafkaMessage(contentId, map);
-			LogAsyncGraphEvent.pushMessageToLogger(nodeMessage);
+			logTransactionEvent("UPDATE", contentId, map);
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Executing update content property: " + e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
@@ -162,16 +145,16 @@ public class ContentStoreUtil {
 		}
 	}
 
-	private static String getSelectQuery(String property) {
+	private String getSelectQuery(String property) {
 		StringBuilder sb = new StringBuilder();
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("select blobAsText(").append(property).append(") as ");
-			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " + getKeyspaceName() +"."+keyspaceTable  +  " where content_id = ?");
+			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " + getKeyspace() +"."+getTable() +  " where content_id = ?");
 		}
 		return sb.toString();
 	}
 
-	private static String getSelectQuery(List<String> properties) {
+	private String getSelectQuery(List<String> properties) {
 		StringBuilder sb = new StringBuilder();
 		if (null != properties && !properties.isEmpty()) {
 			sb.append("select ");
@@ -185,24 +168,24 @@ public class ContentStoreUtil {
 				selectFields.append(property.trim()).append(PROPERTY_SUFFIX).append(", ");
 			}
 			sb.append(StringUtils.removeEnd(selectFields.toString(), ", "));
-			sb.append(" from " + getKeyspaceName() +"."+keyspaceTable + " where content_id = ?");
+			sb.append(" from " + getKeyspace() +"."+ getTable() + " where content_id = ?");
 		}
 		return sb.toString();
 	}
 	
-	private static String getUpdateQuery(String property) {
+	private String getUpdateQuery(String property) {
 		StringBuilder sb = new StringBuilder();
 		if (StringUtils.isNotBlank(property)) {
-			sb.append("UPDATE " + getKeyspaceName() +"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
+			sb.append("UPDATE " + getKeyspace() +"."+getTable() + " SET last_updated_on = dateOf(now()), ");
 			sb.append(property.trim()).append(" = textAsBlob(?) where content_id = ?");
 		}
 		return sb.toString();
 	}
 	
-	private static String getUpdateQuery(Set<String> properties) {
+	private String getUpdateQuery(Set<String> properties) {
 		StringBuilder sb = new StringBuilder();
 		if (null != properties && !properties.isEmpty()) {
-			sb.append("UPDATE " + getKeyspaceName() +"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
+			sb.append("UPDATE " + getKeyspace() +"."+ getTable() + " SET last_updated_on = dateOf(now()), ");
 			StringBuilder updateFields = new StringBuilder();
 			for (String property : properties) {
 				if (StringUtils.isBlank(property))
@@ -217,40 +200,5 @@ public class ContentStoreUtil {
 		return sb.toString();
 	}
 	
-	private static List<Map<String, Object>> createKafkaMessage(String contentId, Map<String,Object> map) {
-		if(null == map){
-			TelemetryManager.log("Returning null as the map is is null" , map);
-			return null;
-		}
-		else{	
-			Map<String,Object> dataMap = new HashMap<String,Object>();
-			Map<String,Object> transactionMap = new HashMap<String,Object>();
-			Map<String,Object> propertiesMap = new HashMap<String, Object>();
-			List<Map<String,Object>> listMap = new ArrayList<Map<String,Object>>();
-			for(Map.Entry<String,Object> entry : map.entrySet()){
-					Map<String,Object> valueMap = new HashMap<String,Object>();
-					valueMap.put("ov", null);
-					valueMap.put("nv", entry.getValue());
-					TelemetryManager.log("Adding propertiesMap to log kafka message" , valueMap);
-					propertiesMap.put(entry.getKey(), valueMap);
-			}
-			transactionMap.put(CompositeSearchParams.properties.name(), propertiesMap);
-			dataMap.put(CompositeSearchParams.transactionData.name(), transactionMap);
-			dataMap.put(CompositeSearchParams.nodeUniqueId.name(), contentId);
-			dataMap.put(CompositeSearchParams.requestId.name(), null);
-			dataMap.put(CompositeSearchParams.operationType.name(), "UPDATE");
-			dataMap.put(CompositeSearchParams.label.name(), "");
-			dataMap.put(CompositeSearchParams.graphId.name(), "domain");
-			dataMap.put(CompositeSearchParams.nodeType.name(), "DATA_NODE");
-			dataMap.put(CompositeSearchParams.userId.name(), "ANONYMOUS");
-			dataMap.put(CompositeSearchParams.objectType.name(), "Content");
-			dataMap.put(CompositeSearchParams.index.name(), false);
-			dataMap.put(CompositeSearchParams.audit.name(), false);
-			dataMap.put(CompositeSearchParams.ets.name(), System.currentTimeMillis());
-			dataMap.put(CompositeSearchParams.createdOn.name(), df.format(new Date()));
-			TelemetryManager.log("Adding dataMap to list" , dataMap);
-			listMap.add(dataMap);
-			return listMap;
-		}
-	}
+	
 }

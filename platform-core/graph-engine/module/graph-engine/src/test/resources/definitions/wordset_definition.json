@@ -1,0 +1,70 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "WordSet",
+      "properties": [
+        {
+          "required": true,
+          "dataType": "Text",
+          "propertyName": "lemma",
+          "title": "lemma",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": true,
+          "dataType": "Select",
+          "propertyName": "type",
+          "title": "Type",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "PrefixBoundary",
+            "SuffixBoundary",
+            "RhymingSound"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 2 }",
+          "indexed": true,
+          "draft": false
+        }
+      ],
+      "inRelations": [],
+      "outRelations": [
+        {
+          "relationName": "hasMember",
+          "objectTypes": [
+            "Word"
+          ],
+          "title": "words",
+          "description": "",
+          "required": false,
+          "renderingHints": "{ 'order': 3 }"
+        },
+        {
+          "relationName": "follows",
+          "objectTypes": [
+            "WordSet"
+          ],
+          "title": "follows",
+          "description": "",
+          "required": false,
+          "renderingHints": "{ 'order': 4 }"
+        }
+      ],
+      "systemTags": [
+      ],
+      "metadata": {
+        "limit": 50,
+        "ttl": 24
+      }
+    }
+  ]
+}
