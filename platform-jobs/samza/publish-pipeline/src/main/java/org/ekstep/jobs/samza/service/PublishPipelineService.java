@@ -125,8 +125,9 @@ public class PublishPipelineService implements ISamzaService {
 	
 	private boolean prePublishValidation(Node node, Map<String, Object> eventMetadata) {
 		Map<String, Object> objMetadata = (Map<String, Object>) node.getMetadata();
-		Integer eventPkgVersion = (eventMetadata.get("pkgVersion") == null) ? 0 : Integer.parseInt((String)(eventMetadata.get("pkgVersion")));
-		Integer objPkgVersion = (objMetadata.get("pkgVersion") == null) ? 0 : Integer.parseInt((String)(objMetadata.get("pkgVersion")));
+		
+		double eventPkgVersion = (double)((eventMetadata.get("pkgVersion") == null) ? 0.0 : eventMetadata.get("pkgVersion"));
+		double objPkgVersion = (double)((objMetadata.get("pkgVersion") == null) ? 0.0 : objMetadata.get("pkgVersion"));
 		
 		return (objPkgVersion<=eventPkgVersion);
 	}
