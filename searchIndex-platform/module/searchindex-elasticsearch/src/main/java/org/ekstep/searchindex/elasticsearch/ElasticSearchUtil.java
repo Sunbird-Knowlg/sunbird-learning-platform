@@ -53,6 +53,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -613,7 +615,7 @@ public class ElasticSearchUtil {
 		
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings("unchecked")
 	public Object getCountFromAggregation(Aggregations aggregations,
 			List<Map<String, Object>> groupByList, IESResultTransformer transformer) {
 
@@ -622,34 +624,31 @@ public class ElasticSearchUtil {
 			for (Map<String, Object> aggregationsMap : groupByList) {
 				Map<String, Object> parentCountMap = new HashMap<String, Object>();
 				String groupByParent = (String) aggregationsMap.get("groupByParent");
-				Map aggKeyMap = (Map) aggregations.get(groupByParent);
-				List<Map<String, Double>> aggKeyList = (List<Map<String, Double>>) aggKeyMap.get("buckets");
+				Terms terms = aggregations.get(groupByParent);
 				List<Map<String, Object>> parentGroupList = new ArrayList<Map<String, Object>>();
-				for (Map aggKeyListMap : aggKeyList) {
+				List<Bucket> buckets = terms.getBuckets();
+				for (Bucket bucket : buckets) {
 					Map<String, Object> parentCountObject = new HashMap<String, Object>();
-					parentCountObject.put("count", ((Double) aggKeyListMap.get("doc_count")).longValue());
+					parentCountObject.put("count", bucket.getDocCount());
 					List<String> groupByChildList = (List<String>) aggregationsMap.get("groupByChildList");
-					if (groupByChildList != null && !groupByChildList.isEmpty()) {
+					Aggregations subAggregations = bucket.getAggregations();
+					if (null != groupByChildList && !groupByChildList.isEmpty() && null != subAggregations) {
 						Map<String, Object> groupByChildMap = new HashMap<String, Object>();
 						for (String groupByChild : groupByChildList) {
-							List<Map<String, Long>> childGroupsList = new ArrayList<Map<String, Long>>();
-							Map aggChildKeyMap = (Map) aggKeyListMap.get(groupByChild);
-							List<Map<String, Double>> aggChildKeyList = (List<Map<String, Double>>) aggChildKeyMap
-									.get("buckets");
+							Terms subTerms = subAggregations.get(groupByChild);
+							List<Bucket> childBuckets = subTerms.getBuckets();
 							Map<String, Long> childCountMap = new HashMap<String, Long>();
-							for (Map aggChildKeyListMap : aggChildKeyList) {
-								childCountMap.put((String) aggChildKeyListMap.get("key"),
-										((Double) aggChildKeyListMap.get("doc_count")).longValue());
-								childGroupsList.add(childCountMap);
+							for (Bucket childBucket : childBuckets) {
+								childCountMap.put(childBucket.getKeyAsString(), childBucket.getDocCount());
 								groupByChildMap.put(groupByChild, childCountMap);
 							}
 						}
 						parentCountObject.putAll(groupByChildMap);
 					}
-
-					parentCountMap.put(aggKeyListMap.get("key").toString(), parentCountObject);
+					parentCountMap.put(bucket.getKeyAsString(), parentCountObject);
 					parentGroupList.add(parentCountMap);
 				}
+
 				countMap.put(groupByParent, parentCountMap);
 			}
 		}

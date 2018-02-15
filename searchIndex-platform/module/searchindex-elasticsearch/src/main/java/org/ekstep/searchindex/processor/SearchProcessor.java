@@ -37,11 +37,11 @@ public class SearchProcessor {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static final String ASC_ORDER = "asc";
 	private static final String AND = "AND";
-	
+
 	public SearchProcessor() {
 		elasticSearchUtil = new ElasticSearchUtil();
 	}
-	
+
 	public SearchProcessor(String host, int port) {
 		elasticSearchUtil = new ElasticSearchUtil(host, port);
 	}
@@ -83,8 +83,8 @@ public class SearchProcessor {
 	}
 
 	/**
-	 * Returns the list of words which are synonyms of the synsetIds passed in
-	 * the request
+	 * Returns the list of words which are synonyms of the synsetIds passed in the
+	 * request
 	 * 
 	 * @param synsetIds
 	 * @return
@@ -127,11 +127,11 @@ public class SearchProcessor {
 								}
 								String lemma = (String) indexWordDocument.get("lemma");
 								String status = (String) indexWordDocument.get("status");
-								if(!StringUtils.equalsIgnoreCase(status, "Retired")) {
+								if (!StringUtils.equalsIgnoreCase(status, "Retired")) {
 									Map<String, String> wordMap = new HashMap<String, String>();
 									wordMap.put("id", wordId);
 									wordMap.put("lemma", lemma);
-									synsetWordLangList.add(wordMap);									
+									synsetWordLangList.add(wordMap);
 								}
 								wordTranslationList.put(graphId, synsetWordLangList);
 							}
@@ -200,6 +200,15 @@ public class SearchProcessor {
 			fields.add(GraphDACParams.identifier.name());
 			searchRequestBuilder.setFetchSource(fields.toArray(new String[fields.size()]), null);
 		}
+
+		if (searchDTO.getFacets() != null && groupByFinalList != null) {
+			for (String facet : searchDTO.getFacets()) {
+				Map<String, Object> groupByMap = new HashMap<String, Object>();
+				groupByMap.put("groupByParent", facet);
+				groupByFinalList.add(groupByMap);
+			}
+		}
+
 		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
 		elasticSearchUtil.setOffset(searchDTO.getOffset());
 		QueryBuilder query = null;
@@ -210,7 +219,7 @@ public class SearchProcessor {
 			query = prepareSearchQuery(searchDTO);
 		}
 
-		searchRequestBuilder.setQuery(query);
+		searchRequestBuilder.setQuery(QueryBuilders.boolQuery().filter(query));
 
 		if (sortBy) {
 			Map<String, String> sorting = searchDTO.getSortBy();
@@ -220,11 +229,14 @@ public class SearchProcessor {
 				sorting.put("lastUpdatedOn", "desc");
 			}
 			for (String key : sorting.keySet())
-				searchRequestBuilder.addSort(key, getSortOrder(sorting.get(key)));
+				searchRequestBuilder.addSort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+						getSortOrder(sorting.get(key)));
 		}
 		TermsBuilder termBuilder = getAggregations(groupByFinalList);
 		if (null != termBuilder)
 			searchRequestBuilder.addAggregation(termBuilder);
+
+		searchRequestBuilder.setExplain(true);
 
 		return searchRequestBuilder;
 	}
@@ -337,6 +349,10 @@ public class SearchProcessor {
 						CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS);
 				break;
 			}
+			case CompositeSearchConstants.SEARCH_OPERATION_RANGE: {
+				queryBuilder = getRangeQuery(propertyName, values);
+				break;
+			}
 			}
 			if (totalOperation.equalsIgnoreCase(AND)) {
 				boolQuery.must(queryBuilder);
@@ -368,7 +384,7 @@ public class SearchProcessor {
 			weightages = new HashMap<String, Float>();
 			weightages.put("default_weightage", 1.0F);
 		}
-
+		List<String> querySearchFeilds = elasticSearchUtil.getQuerySearchFields();
 		List<Map> properties = searchDTO.getProperties();
 		for (Map<String, Object> property : properties) {
 			String opertation = (String) property.get("operation");
@@ -379,7 +395,6 @@ public class SearchProcessor {
 			} catch (Exception e) {
 				values = Arrays.asList(property.get("values"));
 			}
-
 			String propertyName = (String) property.get("propertyName");
 			if (propertyName.equals("*")) {
 				propertyName = "all_fields";
@@ -389,11 +404,21 @@ public class SearchProcessor {
 
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
-				queryBuilder = QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, true));
+				float weight = getweight(querySearchFeilds, propertyName);
+				queryBuilder = QueryBuilders
+						.functionScoreQuery(
+								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, true)),
+								ScoreFunctionBuilders.weightFactorFunction(weight))
+						.scoreMode(ScoreMode.Sum.name()).boostMode(CombineFunction.REPLACE);
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
-				queryBuilder = QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, false));
+				float weight = getweight(querySearchFeilds, propertyName);
+				queryBuilder = QueryBuilders
+						.functionScoreQuery(
+								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, false)),
+								ScoreFunctionBuilders.weightFactorFunction(weight))
+						.scoreMode(ScoreMode.Sum.name()).boostMode(CombineFunction.REPLACE);
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
@@ -459,6 +484,24 @@ public class SearchProcessor {
 	}
 
 	/**
+	 * @param querySearchFeilds
+	 * @param propertyName
+	 * @return
+	 */
+	private float getweight(List<String> querySearchFeilds, String propertyName) {
+		float weight = 1.0F;
+		if (querySearchFeilds.contains(propertyName)) {
+			for (String field : querySearchFeilds) {
+				if (field.contains(propertyName)) {
+					weight = Float
+							.parseFloat((StringUtils.isNotBlank(field.split("^")[1])) ? field.split("^")[1] : "1.0");
+				}
+			}
+		}
+		return weight;
+	}
+
+	/**
 	 * @param values
 	 * @return
 	 */
@@ -479,8 +522,9 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (String key : softConstraints.keySet()) {
 			List<Object> data = (List<Object>) softConstraints.get(key);
-			queryBuilder.should(QueryBuilders.termQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1))
-					.boost((float) data.get(0)));
+			queryBuilder
+					.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1))
+							.boost((float) data.get(0)));
 		}
 		return queryBuilder;
 	}
@@ -529,11 +573,12 @@ public class SearchProcessor {
 	 */
 	private QueryBuilder getExistsQuery(String propertyName, List<Object> values, boolean exists) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-		if (exists) {
-			queryBuilder.must(QueryBuilders.existsQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION));
-		} else {
-			queryBuilder
-					.mustNot(QueryBuilders.existsQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION));
+		for (Object value : values) {
+			if (exists) {
+				queryBuilder.should(QueryBuilders.existsQuery(((String) value).toLowerCase()));
+			} else {
+				queryBuilder.mustNot(QueryBuilders.existsQuery(((String) value).toLowerCase()));
+			}
 		}
 		return queryBuilder;
 	}
@@ -546,8 +591,8 @@ public class SearchProcessor {
 	private QueryBuilder getMatchPhrasePrefixQuery(String propertyName, List<Object> values) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
-			queryBuilder.must(QueryBuilders
-					.matchPhrasePrefixQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+			queryBuilder.should(QueryBuilders.matchPhrasePrefixQuery(
+					propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, ((String) value).toLowerCase()));
 		}
 		return queryBuilder;
 	}
@@ -562,7 +607,7 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			if (match) {
-				queryBuilder.must(QueryBuilders
+				queryBuilder.should(QueryBuilders
 						.matchPhraseQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
 			} else {
 				queryBuilder.mustNot(QueryBuilders
@@ -580,8 +625,9 @@ public class SearchProcessor {
 	private QueryBuilder getRegexQuery(String propertyName, List<Object> values) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
-			queryBuilder.must(QueryBuilders.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
-					"*" + value));
+			String stringValue = (String) value;
+			queryBuilder.should(QueryBuilders.wildcardQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+					"*" + stringValue.toLowerCase()));
 		}
 		return queryBuilder;
 	}
@@ -597,14 +643,44 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			if (match) {
-				queryBuilder.must(
-						QueryBuilders.termQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+				queryBuilder.should(
+						QueryBuilders.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
 			} else {
 				queryBuilder.mustNot(
-						QueryBuilders.termQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+						QueryBuilders.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
 			}
 		}
 
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private QueryBuilder getRangeQuery(String propertyName, List<Object> values) {
+		BoolQueryBuilder queryBuilder = null;
+		for (Object value : values) {
+			Map<String, Object> rangeMap = (Map<String, Object>) value;
+			if (!rangeMap.isEmpty()) {
+				for (String key : rangeMap.keySet()) {
+					switch (key) {
+					case CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE: {
+						queryBuilder = (BoolQueryBuilder) getRangeQuery(propertyName, Arrays.asList(rangeMap.get(key)),
+								CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS);
+						break;
+					}
+					case CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE: {
+						queryBuilder = (BoolQueryBuilder) getRangeQuery(propertyName, Arrays.asList(rangeMap.get(key)),
+								CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS);
+						break;
+					}
+					}
+				}
+			}
+		}
 		return queryBuilder;
 	}
 
@@ -616,8 +692,7 @@ public class SearchProcessor {
 		return value.equalsIgnoreCase(ASC_ORDER) ? SortOrder.ASC : SortOrder.DESC;
 	}
 
-	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index)
-			throws Exception {
+	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index) throws Exception {
 		return processSearchQuery(searchDTO, includeResults, index, true);
 	}
 
@@ -641,16 +716,73 @@ public class SearchProcessor {
 	}
 
 	public SearchResponse processSearchQueryWithSearchResult(SearchDTO searchDTO, boolean includeResults, String index,
-			boolean sort)
-			throws Exception {
+			boolean sort) throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		if (searchDTO.getLimit() == 0)
 			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
-		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
+		SearchRequestBuilder query = processSearchWithoutFileteredQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
 		SearchResponse searchResult = elasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);
 		return searchResult;
+	}
+
+	/**
+	 * @param searchDTO
+	 * @param groupByFinalList
+	 * @param sort
+	 * @return
+	 */
+	private SearchRequestBuilder processSearchWithoutFileteredQuery(SearchDTO searchDTO,
+			List<Map<String, Object>> groupByFinalList, boolean sort) {
+
+		SearchRequestBuilder searchRequestBuilder = elasticSearchUtil.getSearchRequestBuilder();
+		List<String> fields = searchDTO.getFields();
+		if (null != fields && !fields.isEmpty()) {
+			fields.add(GraphDACParams.objectType.name());
+			fields.add(GraphDACParams.identifier.name());
+			searchRequestBuilder.setFetchSource(fields.toArray(new String[fields.size()]), null);
+		}
+
+		if (searchDTO.getFacets() != null && groupByFinalList != null) {
+			for (String facet : searchDTO.getFacets()) {
+				Map<String, Object> groupByMap = new HashMap<String, Object>();
+				groupByMap.put("groupByParent", facet);
+				groupByFinalList.add(groupByMap);
+			}
+		}
+
+		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
+		elasticSearchUtil.setOffset(searchDTO.getOffset());
+		QueryBuilder query = null;
+
+		if (searchDTO.isFuzzySearch()) {
+			query = prepareFilteredSearchQuery(searchDTO);
+		} else {
+			query = prepareSearchQuery(searchDTO);
+		}
+
+		searchRequestBuilder.setQuery(query);
+
+		if (sort) {
+			Map<String, String> sorting = searchDTO.getSortBy();
+			if (sorting == null || sorting.isEmpty()) {
+				sorting = new HashMap<String, String>();
+				sorting.put("name", "asc");
+				sorting.put("lastUpdatedOn", "desc");
+			}
+			for (String key : sorting.keySet())
+				searchRequestBuilder.addSort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+						getSortOrder(sorting.get(key)));
+		}
+		TermsBuilder termBuilder = getAggregations(groupByFinalList);
+		if (null != termBuilder)
+			searchRequestBuilder.addAggregation(termBuilder);
+
+		searchRequestBuilder.setExplain(true);
+
+		return searchRequestBuilder;
+
 	}
 
 }
