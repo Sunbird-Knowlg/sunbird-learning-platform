@@ -15,6 +15,7 @@ import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -66,9 +67,12 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 		LOGGER.debug("Telemetry Audit Started.");
 		try {
 			Map<String, Object> auditMap = getAuditMessage(message);
-			collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", config.get("telemetry_audit_topic")),
-					auditMap));
-			LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_audit_topic"));
+			String objectType = (String) ((Map<String, Object>) auditMap.get("object")).get("type");
+			if (null != objectType) {
+				collector.send(new OutgoingMessageEnvelope(
+						new SystemStream("kafka", config.get("telemetry_audit_topic")), auditMap));
+				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_audit_topic"));
+			}
 		} catch (Exception e) {
 			LOGGER.error("Failed to process message", message, e);
 		}
@@ -94,33 +98,26 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getAuditMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> auditMap = null;
-		String objectId = (String) message.get("nodeUniqueId");
+		String objectId = (String) message.get(GraphDACParams.nodeUniqueId.name());
+		String objectType = (String) message.get(GraphDACParams.objectType.name());
 		String channelId = "in.ekstep";
-		String channel = (String) message.get("channel");
+		String channel = (String) message.get(GraphDACParams.channel.name());
 		if (null != channel)
 			channelId = channel;
-		Map<String, Object> transactionData = (Map<String, Object>) message.get("transactionData");
-		Map<String, Object> propertyMap = (Map<String, Object>) transactionData.get("properties");
-		Map<String, Object> statusMap = (Map<String, Object>) propertyMap.get("status");
+		Map<String, Object> transactionData = (Map<String, Object>) message.get(GraphDACParams.transactionData.name());
+		Map<String, Object> propertyMap = (Map<String, Object>) transactionData.get(GraphDACParams.properties.name());
+		Map<String, Object> statusMap = (Map<String, Object>) propertyMap.get(GraphDACParams.status.name());
 
 		String prevStatus = "";
 		String currStatus = "";
-		String objectType = null;
 		if (null != statusMap) {
 			prevStatus = (String) statusMap.get("ov");
 			currStatus = (String) statusMap.get("nv");
 		}
-
-		LOGGER.debug("Content Status Change Detected.");
-		Map<String, Object> objType = (Map<String, Object>) propertyMap.get("IL_FUNC_OBJECT_TYPE");
-		if (null != objType) {
-			// TODO: Need to confirm with All Scenario.
-			objectType = (String) objType.get("nv");
-		}
 		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
 		Map<String, String> context = getContext(channelId);
 		context.put("objectId", objectId);
-		context.put("objectType", objectType);
+		context.put(GraphDACParams.objectType.name(), objectType);
 		String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
 		LOGGER.debug("Audit Message : " + auditMessage);
 		auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
