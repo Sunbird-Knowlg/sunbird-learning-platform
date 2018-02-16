@@ -59,7 +59,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 
 	private int defaultLimit = 1000;
 	private String dialHost = "localhost";
-	private int dialPort = 9200;
+	private int dialPort = 9300;
 	private SearchProcessor processor = null;
 
 	@PostConstruct

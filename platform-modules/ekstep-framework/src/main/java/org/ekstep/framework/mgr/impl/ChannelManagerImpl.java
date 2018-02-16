@@ -13,13 +13,11 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.enums.ChannelEnum;
 import org.ekstep.framework.mgr.IChannelManager;
-
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
-
 import org.springframework.stereotype.Component;
 
 
@@ -28,7 +26,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
 	private String host = "localhost";
-	private int port = 9200;
+	private int port = 9300;
 	private SearchProcessor processor = null;
 	
 	@PostConstruct

@@ -221,8 +221,8 @@ public class IndexesActor extends LanguageBaseActor {
 	}
 
 	/**
-	 * Gets the root words of the given words and Gets the morphological
-	 * variants of a given words.
+	 * Gets the root words of the given words and Gets the morphological variants of
+	 * a given words.
 	 *
 	 * @param words
 	 *            the words
@@ -231,11 +231,10 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param limit
 	 *            the limit
 	 * @return the morphological variants
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	private void getMorphologicalVariants(List<String> words, String languageId, int limit) throws IOException {
+	private void getMorphologicalVariants(List<String> words, String languageId, int limit) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		ArrayList<String> rootWords = new ArrayList<String>();
 		Map<String, Object> rootWordsMap = getRootWordsMap(words, languageId, limit, util);
@@ -258,11 +257,10 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param languageId
 	 *            the language id
 	 * @return the variants
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
 	private Map<String, ArrayList<String>> getVariants(ArrayList<String> rootWords, ElasticSearchUtil util,
-			String languageId) throws IOException {
+			String languageId) throws Exception {
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "rootWord";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
@@ -343,10 +341,9 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param languageId
 	 *            the language id
 	 * @return the word metrics
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
-	private void getWordMetrics(String languageId) throws IOException {
+	private void getWordMetrics(String languageId) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + languageId;
 		String distinctKey = "rootWord";
@@ -422,10 +419,9 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param limit
 	 *            the limit
 	 * @return the root words
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
-	private void getRootWords(List<String> words, String languageId, int limit) throws IOException {
+	private void getRootWords(List<String> words, String languageId, int limit) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		Map<String, Object> rootWordsMap = getRootWordsMap(words, languageId, limit, util);
 		OK(LanguageParams.root_words.name(), rootWordsMap, getSender());
@@ -443,11 +439,10 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param util
 	 *            the util
 	 * @return the root words map
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
 	private Map<String, Object> getRootWordsMap(List<String> words, String languageId, int limit,
-			ElasticSearchUtil util) throws IOException {
+			ElasticSearchUtil util) throws Exception {
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
@@ -474,11 +469,10 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param limit
 	 *            the limit
 	 * @return the root word info
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	private void getRootWordInfo(List<String> words, String languageId, int limit) throws IOException {
+	private void getRootWordInfo(List<String> words, String languageId, int limit) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String indexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "rootWord";
@@ -511,11 +505,10 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param limit
 	 *            the limit
 	 * @return the word info
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	private void getWordInfo(List<String> words, String languageId, int limit) throws IOException {
+	private void getWordInfo(List<String> words, String languageId, int limit) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String indexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
@@ -543,10 +536,9 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param limit
 	 *            the limit
 	 * @return the word ids
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
-	private void getWordIds(List<String> words, String languageId, int limit) throws IOException {
+	private void getWordIds(List<String> words, String languageId, int limit) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
@@ -576,12 +568,11 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param limit
 	 *            the limit
 	 * @return the index info
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
 	private void getIndexInfo(List<String> words, List<Map<String, Object>> groupByFinalList, String languageId,
-			int limit) throws IOException {
+			int limit) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + languageId;
@@ -617,12 +608,11 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @param groupByList
 	 *            the group by list
 	 * @return the citations count
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
 	private void getCitationsCount(List<String> words, String languageId, List<Map<String, Object>> groupByList)
-			throws IOException {
+			throws Exception {
 
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + languageId;

@@ -41,8 +41,8 @@ import org.springframework.stereotype.Component;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
-	private String host = "http://localhost";
-	private int port = 9200;
+	private String host = "localhost";
+	private int port = 9300;
 	private SearchProcessor processor = null;
 	private static ObjectMapper mapper = new ObjectMapper();
 
