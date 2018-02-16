@@ -58,4 +58,5 @@ public class CompositeSearchConstants {
 	public static final String NODE_TYPE_EXTERNAL = "EXTERNAL";
 	public static String DIAL_CODE_INDEX = "dialcode";
 	public static final String DIAL_CODE_INDEX_TYPE = "dc";
+	public static final String SEARCH_OPERATION_NOT_IN = "NT_IN";
 }

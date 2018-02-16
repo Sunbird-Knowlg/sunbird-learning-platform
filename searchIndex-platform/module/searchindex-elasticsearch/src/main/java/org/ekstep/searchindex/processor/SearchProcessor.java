@@ -305,6 +305,10 @@ public class SearchProcessor {
 				queryBuilder = getMustTermQuery(propertyName, values, false);
 				break;
 			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_IN: {
+				queryBuilder = getNotInQuery(propertyName, values);
+				break;
+			}
 			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
 				queryBuilder = getRegexQuery(propertyName, values);
 				break;
@@ -444,6 +448,10 @@ public class SearchProcessor {
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS: {
 				queryBuilder = getExistsQuery(propertyName, values, false);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_IN: {
+				queryBuilder = getNotInQuery(propertyName, values);
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
@@ -588,6 +596,17 @@ public class SearchProcessor {
 	 * @param values
 	 * @return
 	 */
+	private QueryBuilder getNotInQuery(String propertyName, List<Object> values) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		queryBuilder.mustNot(QueryBuilders.termsQuery(propertyName, values));
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @return
+	 */
 	private QueryBuilder getMatchPhrasePrefixQuery(String propertyName, List<Object> values) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
@@ -600,7 +619,7 @@ public class SearchProcessor {
 	/**
 	 * @param propertyName
 	 * @param values
-	 * @param b
+	 * @param match
 	 * @return
 	 */
 	private QueryBuilder getMatchPhraseQuery(String propertyName, List<Object> values, boolean match) {
@@ -636,7 +655,7 @@ public class SearchProcessor {
 	 * @param propertyName
 	 * @param values
 	 * @param weightages
-	 * @param b
+	 * @param match
 	 * @return
 	 */
 	private QueryBuilder getMustTermQuery(String propertyName, List<Object> values, boolean match) {

@@ -287,6 +287,10 @@ public class SearchManager extends SearchBaseActor {
 					searchOperation = CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS;
 					break;
 				}
+				case "not_in": {
+					searchOperation = CompositeSearchConstants.SEARCH_OPERATION_NOT_IN;
+					break;
+				}
 				}
 				Map<String, Object> property = new HashMap<String, Object>();
 				property.put(CompositeSearchParams.operation.name(), searchOperation);
