@@ -2,55 +2,43 @@ package org.ekstep.jobs.samza.task;
 
 import java.util.Map;
 
-import org.apache.samza.config.Config;
-import org.apache.samza.system.IncomingMessageEnvelope;
-import org.apache.samza.task.InitableTask;
 import org.apache.samza.task.MessageCollector;
-import org.apache.samza.task.StreamTask;
-import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
-import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.ImageTaggingService;
-import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
-
-public class ImageTaggingTask implements StreamTask, InitableTask, WindowableTask {
-
-	static JobLogger LOGGER = new JobLogger(ImageTaggingTask.class);
+public class ImageTaggingTask extends AbstractTask{
 	
-	private JobMetrics metrics;
+	static JobLogger LOGGER = new JobLogger(ImageTaggingTask.class);
 	ISamzaService service = new ImageTaggingService();
 	
-
-	@Override
-	public void window(MessageCollector arg0, TaskCoordinator arg1) throws Exception {
-		metrics.clear();
+	public ISamzaService initialize() throws Exception {
+		LOGGER.info("Task initialized");
+		this.jobType = "imagetagging";
+		this.jobStartMessage = "Started processing of imagetagging samza job";
+		this.jobEndMessage = "Imagetagging job processing complete";
+		this.jobClass = "org.ekstep.jobs.samza.task.ImageTaggingTask";
+		
+		return service;
 	}
 
 	@Override
-	public void init(Config config, TaskContext context) throws Exception {
+	public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		try {
-			metrics = new JobMetrics(context);
-			service.initialize(config);
-			LOGGER.info("Task initialized");
-		} catch(Exception ex) {
-			LOGGER.error("Task initialization failed", ex);
-			throw ex;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator)
-			throws Exception {
-		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
-		try {
-			service.processMessage(outgoingMap, metrics, collector);			
+			System.out.println("Starting of service.processMessage...");
+			service.processMessage(message,  metrics, collector);
+			System.out.println("Completed service.processMessage...");
 		} catch (Exception e) {
 			metrics.incFailedCounter();
-			LOGGER.error("Message processing failed", outgoingMap, e);
+			LOGGER.error("Message processing failed", message, e);
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
 
 }
