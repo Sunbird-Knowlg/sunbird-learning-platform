@@ -13,7 +13,7 @@ import org.apache.samza.task.TaskCoordinator;
 import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
 import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.service.TelemetryV3ContentAuditService;
+import org.ekstep.jobs.samza.service.AuditEventGenerator;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 
@@ -23,7 +23,7 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 
 	private JobMetrics metrics;
 	ISamzaService auditHistoryMsgProcessor = new AuditHistoryIndexerService();
-	ISamzaService contentAuditProcessor = new TelemetryV3ContentAuditService();
+	ISamzaService contentAuditProcessor = new AuditEventGenerator();
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
