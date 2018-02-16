@@ -89,8 +89,7 @@ public class ProcessTransactionData {
 				if (null != propertiesMap && !propertiesMap.isEmpty()) {
 					transactionData.put(GraphDACParams.properties.name(), propertiesMap);
 					Map<String, Object> map = setMessageData(graphDb, nodeId, userId, requestId,
-							GraphDACParams.CREATE.name());
-					map.put(GraphDACParams.transactionData.name(), transactionData);
+							GraphDACParams.CREATE.name(), transactionData);
 					lstMessageMap.add(map);
 				}
 			}
@@ -117,8 +116,7 @@ public class ProcessTransactionData {
 						userId = "ANONYMOUS";
 					}
 					Map<String, Object> map = setMessageData(graphDb, nodeId, userId, requestId,
-							GraphDACParams.UPDATE.name());
-					map.put(GraphDACParams.transactionData.name(), transactionData);
+							GraphDACParams.UPDATE.name(), transactionData);
 					lstMessageMap.add(map);
 				}
 			}
@@ -309,8 +307,7 @@ public class ProcessTransactionData {
 							tags.add(rel.getStartNode().getProperty(SystemProperties.IL_TAG_NAME.name()).toString());
 							transactionData.put(GraphDACParams.addedTags.name(), tags);
 							Map<String, Object> map = setMessageData(graphDb, rel.getEndNode().getId(), userId,
-									requestId, GraphDACParams.UPDATE.name());
-							map.put(GraphDACParams.transactionData.name(), transactionData);
+									requestId, GraphDACParams.UPDATE.name(), transactionData);
 							lstMessageMap.add(map);
 						}
 					}
@@ -342,8 +339,7 @@ public class ProcessTransactionData {
 							transactionData.put(GraphDACParams.removedTags.name(), tags);
 
 							Map<String, Object> map = setMessageData(graphDb, rel.getEndNode().getId(), userId,
-									requestId, GraphDACParams.UPDATE.name());
-							map.put(GraphDACParams.transactionData.name(), transactionData);
+									requestId, GraphDACParams.UPDATE.name(), transactionData);
 							lstMessageMap.add(map);
 						}
 					}
@@ -431,8 +427,7 @@ public class ProcessTransactionData {
 								new ArrayList<Map<String, Object>>());
 					}
 
-					map = setMessageData(graphDb, startNode.getId(), userId, requestId, operationType);
-					map.put(GraphDACParams.transactionData.name(), transactionData);
+					map = setMessageData(graphDb, startNode.getId(), userId, requestId, operationType, transactionData);
 					lstMessageMap.add(map);
 
 					// end_node message
@@ -461,8 +456,7 @@ public class ProcessTransactionData {
 								new ArrayList<Map<String, Object>>());
 					}
 
-					map = setMessageData(graphDb, endNode.getId(), userId, requestId, operationType);
-					map.put(GraphDACParams.transactionData.name(), transactionData);
+					map = setMessageData(graphDb, endNode.getId(), userId, requestId, operationType, transactionData);
 					lstMessageMap.add(map);
 				}
 			}
@@ -563,7 +557,7 @@ public class ProcessTransactionData {
 	}
 
 	private Map<String, Object> setMessageData(GraphDatabaseService graphDb, Long nodeId, String userId,
-			String requestId, String operationType) {
+			String requestId, String operationType, Map<String, Object> transactionData) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Node node = graphDb.getNodeById(nodeId);
 		map.put(GraphDACParams.requestId.name(), requestId);
@@ -590,6 +584,7 @@ public class ProcessTransactionData {
 		if (node.hasProperty(SystemProperties.IL_SYS_NODE_TYPE.name()))
 			map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
 		map.put(GraphDACParams.channel.name(), channelId);
+		map.put(GraphDACParams.transactionData.name(), transactionData);
 		return map;
 
 	}
