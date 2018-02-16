@@ -357,6 +357,20 @@ public abstract class CassandraStore {
 		}
 		return objects;
 	}
+	
+	/**
+	 * @return the keyspace
+	 */
+	protected String getKeyspace() {
+		return keyspace;
+	}
+
+	/**
+	 * @return the table
+	 */
+	protected String getTable() {
+		return table;
+	}
 
 	protected void logTransactionEvent(String operation, Object identifier, Map<String, Object> map) {
 		if (index) {

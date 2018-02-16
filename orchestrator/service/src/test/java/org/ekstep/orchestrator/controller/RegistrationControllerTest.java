@@ -50,7 +50,7 @@ public class RegistrationControllerTest extends CassandraTestSetup {
 	static String query_2 = "CREATE TABLE IF NOT EXISTS script_store.script_data (name text, type text, reqmap text, PRIMARY KEY (name))";
 
 	@BeforeClass
-	public static void setup() {
+	public static void setup() throws Exception {
 		executeScript(query_1, query_2);
 	}
 
