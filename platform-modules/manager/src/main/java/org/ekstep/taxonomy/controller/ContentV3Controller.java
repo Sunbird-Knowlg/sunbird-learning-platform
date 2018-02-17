@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +44,8 @@ public class ContentV3Controller extends BaseController {
 
 	@Autowired
 	private IContentManager contentManager;
+
+	private static final String CHANNEL_ID = "X-Channel-Id";
 
 	/** The graph id. */
 	private String graphId = "domain";
@@ -386,12 +389,13 @@ public class ContentV3Controller extends BaseController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> linkDialCode(@RequestBody Map<String, Object> requestMap) {
+	public ResponseEntity<Response> linkDialCode(@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.content.dialcode.link";
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.linkDialCode(map);
+			Response response = contentManager.linkDialCode(channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Linking Dial Code with Content: " + e.getMessage(), e);
