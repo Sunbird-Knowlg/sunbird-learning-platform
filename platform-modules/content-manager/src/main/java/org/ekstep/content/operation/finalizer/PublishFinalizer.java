@@ -283,8 +283,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setMetadata(node.getMetadata());
 		newNode.setTags(node.getTags());
 
+		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
-			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
 
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.latest);
@@ -295,6 +295,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			delete(new File(basePath));
 		} catch (Exception e) {
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
+		}
+
+		if (BooleanUtils.isFalse(isAssetTypeContent)) {
+			updatePreviewURL(newNode);
 		}
 
 		// Setting default version key for internal node update
@@ -342,6 +346,45 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 
+	private void updatePreviewURL(Node content) {
+		if (null != content) {
+			String mimeType = (String) content.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
+			if (StringUtils.isNotBlank(mimeType)) {
+				TelemetryManager.log("Checking Required Fields For: " + mimeType);
+				switch (mimeType) {
+					case "video/mp4":
+					case "video/webm":
+					case "video/x-youtube":
+					case "video/youtube":
+					case "text/x-url":
+					case "application/pdf":
+					case "application/epub":
+					case "application/msword":
+						String artifactUrl = (String) content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
+						content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), artifactUrl);
+						break;
+					case "application/vnd.ekstep.ecml-archive":
+						break;
+					case "application/vnd.ekstep.html-archive":
+					case "application/vnd.ekstep.h5p-archive":
+						//String latestUrl = contentPackageExtractionUtil.getExtractionPath(contentId, content, ExtractionType.latest);
+						//content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), latestUrl);
+						break;
+					case "application/vnd.ekstep.content-collection":
+						break;
+					case "application/vnd.ekstep.plugin-archive":
+						break;
+					case "application/vnd.android.package-archive":
+						break;					
+					case "assets":
+						break;
+					default:
+						break;
+				}
+			}
+		}
+	}
+	
 	private String getS3KeyFromUrl(String s3Url) {
 		String s3Key = "";
 		if (StringUtils.isNotBlank(s3Url)) {
