@@ -33,7 +33,7 @@ public class AuditEventGenerator implements ISamzaService {
 	static JobLogger LOGGER = new JobLogger(AuditEventGenerator.class);
 	private Config config = null;
 	private static ObjectMapper mapper = new ObjectMapper();
-	private SystemStream systemStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
+	private SystemStream systemStream = null;
 
 	public AuditEventGenerator() {
 		super();
@@ -50,6 +50,7 @@ public class AuditEventGenerator implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		this.config = config;
 		JSONUtils.loadProperties(config);
+		systemStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
 	}
 
 	/*
