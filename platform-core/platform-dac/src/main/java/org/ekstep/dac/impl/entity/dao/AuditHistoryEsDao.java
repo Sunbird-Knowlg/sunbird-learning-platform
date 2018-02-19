@@ -2,6 +2,7 @@ package org.ekstep.dac.impl.entity.dao;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,12 +35,12 @@ public class AuditHistoryEsDao {
 	/** The SearchProcessor */
 	private SearchProcessor processor = null;
 
-	private String host = "localhost";
+	private List<String> host = Arrays.asList("localhost");
 	private int port = 9300;
 
 	@PostConstruct
 	public void init() {
-		host = (Platform.config.hasPath("audit.es_host")) ? Platform.config.getString("audit.es_host") : host;
+		host = (Platform.config.hasPath("audit.es_host")) ? Platform.config.getStringList("audit.es_host") : host;
 		port = (Platform.config.hasPath("audit.es_port")) ? Platform.config.getInt("audit.es_port") : port;
 		es = new ElasticSearchUtil(host, port);
 		processor = new SearchProcessor(host, port);

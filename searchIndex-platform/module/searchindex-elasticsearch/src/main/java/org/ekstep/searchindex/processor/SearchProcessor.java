@@ -42,7 +42,7 @@ public class SearchProcessor {
 		elasticSearchUtil = new ElasticSearchUtil();
 	}
 
-	public SearchProcessor(String host, int port) {
+	public SearchProcessor(List<String> host, int port) {
 		elasticSearchUtil = new ElasticSearchUtil(host, port);
 	}
 

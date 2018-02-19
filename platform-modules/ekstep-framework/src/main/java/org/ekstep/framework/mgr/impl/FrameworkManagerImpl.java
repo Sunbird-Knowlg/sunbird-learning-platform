@@ -1,6 +1,7 @@
 package org.ekstep.framework.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,14 +42,14 @@ import org.springframework.stereotype.Component;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
-	private String host = "localhost";
+	private List<String> host = Arrays.asList("localhost");
 	private int port = 9300;
 	private SearchProcessor processor = null;
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@PostConstruct
 	public void init() {
-		host = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host") : host;
+		host = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getStringList("dialcode.es_host") : host;
 		port = Platform.config.hasPath("dialcode.es_port") ? Platform.config.getInt("dialcode.es_port") : port;
 		processor = new SearchProcessor(host, port);
 	}

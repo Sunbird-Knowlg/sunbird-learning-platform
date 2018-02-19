@@ -97,7 +97,7 @@ public class ElasticSearchUtil {
 		createClient();
 	}
 
-	public ElasticSearchUtil(String host, int port) {
+	public ElasticSearchUtil(List<String> host, int port) {
 		initialize(host, port);
 		createClient();
 	}
@@ -121,8 +121,8 @@ public class ElasticSearchUtil {
 	 * @param host
 	 * @param port
 	 */
-	private void initialize(String host, int port) {
-		this.hostName.add(host);
+	private void initialize(List<String> host, int port) {
+		this.hostName = host;
 		this.port = port;
 		if (Platform.config.hasPath("bulk-load-batch-size"))
 			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
