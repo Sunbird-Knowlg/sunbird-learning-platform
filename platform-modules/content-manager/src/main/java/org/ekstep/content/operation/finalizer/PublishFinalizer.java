@@ -56,6 +56,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String s3Artifact = "s3.artifact.folder";
 	
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+	
+	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -283,7 +286,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setMetadata(node.getMetadata());
 		newNode.setTags(node.getTags());
 
-		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
 
@@ -299,7 +301,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		//update previewUrl for content streaming
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
-			updatePreviewURL(newNode, contentPackageExtractionUtil);
+			updatePreviewURL(newNode);
 		}
 
 		// Setting default version key for internal node update
@@ -347,7 +349,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 
-	private void updatePreviewURL(Node content, ContentPackageExtractionUtil contentPackageExtractionUtil) {
+	private void updatePreviewURL(Node content) {
 		if (null != content) {
 			String mimeType = (String) content.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
 			if (StringUtils.isNotBlank(mimeType)) {
@@ -362,12 +364,12 @@ public class PublishFinalizer extends BaseFinalizer {
 					case "assets":
 						break;
 					case "application/vnd.ekstep.ecml-archive":
-						if(content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())!=null)
-							copyLatestS3UrlPath(content, contentPackageExtractionUtil);
+/*						if(content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())!=null)
+							copyLatestS3UrlPath(content, contentPackageExtractionUtil);*/
 						break;
 					case "application/vnd.ekstep.html-archive":
 					case "application/vnd.ekstep.h5p-archive":
-						copyLatestS3UrlPath(content, contentPackageExtractionUtil);
+						copyLatestS3UrlPath(content);
 						break;
 					case "video/mp4":
 					case "video/webm":
@@ -386,16 +388,11 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 	
-	private void copyLatestS3UrlPath(Node content, ContentPackageExtractionUtil contentPackageExtractionUtil) {
+	private void copyLatestS3UrlPath(Node content) {
 		try {
-			String downloadUrl = (String) content.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name());
-			 URL downloadURL = new URL(downloadUrl);
-			//form s3 base url
-			String s3BaseUrl = downloadURL.getProtocol()+"//:"+downloadURL.getAuthority();
-			//get s3 latest folder path
-			String latestFolderPath = contentPackageExtractionUtil.getExtractionPath(contentId, content, ExtractionType.latest);
+			String latestFolderS3Url = contentPackageExtractionUtil.getS3URL(contentId, content, ExtractionType.latest);
 			//copy into previewUrl
-			content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), s3BaseUrl+File.pathSeparator+latestFolderPath);
+			content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), latestFolderS3Url);
 		} catch (Exception e) {
 			TelemetryManager.error("Something Went Wrong While copying latest s3 folder path to preveiwUrl for the content" + contentId, e);
 		}
