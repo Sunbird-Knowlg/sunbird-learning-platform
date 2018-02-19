@@ -86,11 +86,12 @@ public class ReviewFinalizer extends BaseFinalizer {
 		
 		Boolean isPublishOperation = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.isPublishOperation.name());
 		if (BooleanUtils.isTrue(isPublishOperation)) {
-			TelemetryManager.info("Changing the Content Status to 'Pending' for content id: " + node.getIdentifier());
+			//TelemetryManager.info("Changing the Content Status to 'Pending' for content id: " + node.getIdentifier());
 			String publishType = (String)node.getMetadata().get("publish_type");
 			node.getMetadata().remove("publish_type");
 			try {
 				pushInstructionEvent(node, publishType);
+				TelemetryManager.info("Content: " + node.getIdentifier() + " pushed to kafka for publish operation.");
 			} catch (Exception e) {
 				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
 						"Error occured during content publish");
