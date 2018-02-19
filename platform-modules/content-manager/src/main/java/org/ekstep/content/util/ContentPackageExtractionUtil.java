@@ -418,7 +418,7 @@ public class ContentPackageExtractionUtil {
 	 * @return the extraction path
 	 */
 	@SuppressWarnings("unused")
-	private String getExtractionPath(String contentId, Node node, ExtractionType extractionType) {
+	public String getExtractionPath(String contentId, Node node, ExtractionType extractionType) {
 		String path = "";
 		String contentFolder = S3PropertyReader.getProperty(S3_CONTENT);
 		String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
