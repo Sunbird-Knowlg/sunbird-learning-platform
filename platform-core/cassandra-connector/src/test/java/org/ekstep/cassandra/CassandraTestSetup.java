@@ -24,16 +24,21 @@ public class CassandraTestSetup {
 	protected static Session getSession() {
 		return session;
 	}
-	
+
 	private static void setupEmbeddedCassandra() throws Exception {
 		EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml", 100000L);
 		session = CassandraConnector.getSession();
 	}
 
-	private static void tearEmbeddedCassandraSetup() throws Exception {
-		if (!session.isClosed())
-			session.close();
-		EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+	private static void tearEmbeddedCassandraSetup() {
+		try {
+			if (!session.isClosed())
+				session.close();
+			EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	protected static void executeScript(String... querys) throws Exception {
