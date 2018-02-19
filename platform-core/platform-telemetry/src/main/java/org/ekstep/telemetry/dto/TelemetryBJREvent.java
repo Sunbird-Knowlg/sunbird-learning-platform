@@ -1,8 +1,7 @@
-package org.ekstep.common.dto;
-
+package org.ekstep.telemetry.dto;
 import java.util.Map;
+public class TelemetryBJREvent {
 
-public class TelemetryPBIEvent {
 
 	private String eid;
 	private long ets;

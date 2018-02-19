@@ -39,7 +39,7 @@ public abstract class BaseContentManager extends BaseManager {
 	protected void isNodeUnderProcessing(Node node, String operation) {
 		List<String> status = new ArrayList<>();
 		status.add(TaxonomyAPIParams.Processing.name());
-		status.add(TaxonomyAPIParams.Pending.name());
+		//status.add(TaxonomyAPIParams.Pending.name());
 		boolean isProccssing = checkNodeStatus(node, status);
 		if (BooleanUtils.isTrue(isProccssing)) {
 			TelemetryManager.log("Given Content is in Processing Status.");

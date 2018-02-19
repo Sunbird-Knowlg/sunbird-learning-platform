@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -38,8 +39,6 @@ import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
-import org.ekstep.contentstore.util.ContentStoreOperations;
-import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Filter;
@@ -49,6 +48,8 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.contentstore.ContentStoreOperations;
+import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.InputSource;
@@ -523,6 +524,10 @@ public class BasePipeline extends BaseManager {
 	protected Response searchNodes(String taxonomyId, List<String> contentIds) {
 		TelemetryManager.log("Searching Nodes For Bundling...");
 		ContentSearchCriteria criteria = new ContentSearchCriteria();
+		String maxSizeKey = "publish.content.limit";
+		if (Platform.config.hasPath(maxSizeKey)) {
+			criteria.setResultSize(Platform.config.getInt(maxSizeKey));
+		}
 		List<Filter> filters = new ArrayList<Filter>();
 		Filter filter = new Filter(ContentWorkflowPipelineParams.identifier.name(), SearchConditions.OP_IN, contentIds);
 		filters.add(filter);
@@ -538,7 +543,6 @@ public class BasePipeline extends BaseManager {
 		filters.add(statusFilter);
 
 		MetadataCriterion metadata = MetadataCriterion.create(filters);
-		metadata.addFilter(filter);
 		criteria.setMetadata(metadata);
 		List<Request> requests = new ArrayList<Request>();
 		if (StringUtils.isNotBlank(taxonomyId)) {
@@ -548,16 +552,6 @@ public class BasePipeline extends BaseManager {
 			req.put(GraphDACParams.get_tags.name(), true);
 			requests.add(req);
 		}
-		// else {
-		// for (String tId : TaxonomyManagerImpl.taxonomyIds) {
-		// Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER,
-		// ContentWorkflowPipelineParams.searchNodes.name(),
-		// GraphDACParams.search_criteria.name(),
-		// criteria.getSearchCriteria());
-		// req.put(GraphDACParams.get_tags.name(), true);
-		// requests.add(req);
-		// }
-		// }
 		Response response = getResponse(requests, GraphDACParams.node_list.name(),
 				ContentWorkflowPipelineParams.contents.name());
 		return response;

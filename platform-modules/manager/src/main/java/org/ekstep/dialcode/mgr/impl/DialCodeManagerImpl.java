@@ -14,7 +14,6 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
@@ -370,26 +369,6 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		publisherMap.put(DialCodeEnum.updated_on.name(), LocalDateTime.now().toString());
 
 		return publisherMap;
-	}
-
-	/**
-	 * @return Response
-	 */
-	private Response getSuccessResponse() {
-		Response resp = new Response();
-		ResponseParams respParam = new ResponseParams();
-		respParam.setStatus("successful");
-		resp.setParams(respParam);
-		return resp;
-	}
-
-	private Response getPartialSuccessResponse() {
-		Response resp = new Response();
-		ResponseParams respParam = new ResponseParams();
-		respParam.setStatus("partial successful");
-		resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
-		resp.setParams(respParam);
-		return resp;
 	}
 
 	/**

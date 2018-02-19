@@ -8,8 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.dto.Request;
-import org.ekstep.common.dto.TelemetryPBIEvent;
 import org.ekstep.telemetry.dto.TelemetryBEEvent;
+import org.ekstep.telemetry.dto.TelemetryBJREvent;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,19 +18,18 @@ public class LogTelemetryEventUtil {
 
 	
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
-	private static final Logger instructionEventLogger = LogManager.getLogger("InstructionEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
-	private static String eventId = "BE_JOB_REQUEST";
+	private static String beJobRequesteventId = "BE_JOB_REQUEST";
 	private static int iteration = 1;
 	
 	public static String logInstructionEvent(Map<String,Object> actor, Map<String,Object> context, Map<String,Object> object, Map<String,Object> edata) {
 		
-		TelemetryPBIEvent te = new TelemetryPBIEvent();
+		TelemetryBJREvent te = new TelemetryBJREvent();
 		long unixTime = System.currentTimeMillis();
+		String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
 		edata.put("iteration", iteration);
 		
-		te.setEid(eventId);
+		te.setEid(beJobRequesteventId);
 		te.setEts(unixTime);
 		te.setMid(mid);
 		te.setActor(actor);
@@ -41,8 +40,6 @@ public class LogTelemetryEventUtil {
 		String jsonMessage = null;
 		try {
 			jsonMessage = mapper.writeValueAsString(te);
-			if (StringUtils.isNotBlank(jsonMessage))
-				instructionEventLogger.info(jsonMessage);
 		} catch (Exception e) {
 			TelemetryManager.error("Error logging BE_JOB_REQUEST event: " + e.getMessage(), e);
 		}
@@ -52,6 +49,7 @@ public class LogTelemetryEventUtil {
 	public static String logContentSearchEvent(String query, Object filters, Object sort, String correlationId, int size, Request req) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		String jsonMessage = null;
+		String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
 		try {
 			long unixTime = System.currentTimeMillis();
 			te.setEid("BE_CONTENT_SEARCH");

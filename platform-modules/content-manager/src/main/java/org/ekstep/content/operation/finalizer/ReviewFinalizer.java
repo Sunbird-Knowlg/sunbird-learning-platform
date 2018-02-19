@@ -8,10 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.kafka.KafkaClient;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
@@ -31,8 +34,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
 	private static String action = "publish";
-	private static String status = "Pending";
-
+	
 	/**
 	 * Instantiates a new ReviewFinalizer and sets the base path and current
 	 * content id for further processing.
@@ -72,6 +74,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	 */
 	public Response finalize(Map<String, Object> parameterMap) {
 		TelemetryManager.log("Parameter Map: ", parameterMap);
+		Response response;
 		if (null == parameterMap)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_PARAMETER_MAP + " | [Parameter Map Cannot be 'null']");
@@ -80,52 +83,66 @@ public class ReviewFinalizer extends BaseFinalizer {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
-
-		String prevState = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
 		
-		Boolean isPublishOperation = (Boolean) parameterMap
-				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
-		String publishType = null;
+		Boolean isPublishOperation = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.isPublishOperation.name());
 		if (BooleanUtils.isTrue(isPublishOperation)) {
 			TelemetryManager.info("Changing the Content Status to 'Pending' for content id: " + node.getIdentifier());
-			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
-					ContentWorkflowPipelineParams.Pending.name());
-			publishType = (String)node.getMetadata().get("publish_type");
+			String publishType = (String)node.getMetadata().get("publish_type");
 			node.getMetadata().remove("publish_type");
-		} else {
-			TelemetryManager.info("Changing the Content Status to 'Review' for content id: " + node.getIdentifier());
-			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
-					ContentWorkflowPipelineParams.Review.name());
-		}
-		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.FlagDraft.name())){
-			TelemetryManager.info("Setting status to flagReview from previous state : " + prevState + " for content id: " + node.getIdentifier());
-			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.FlagReview.name());
-		}
-		// Clean-Up
-		node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), null);
-		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
-		newNode.setGraphId(node.getGraphId());
-		newNode.setMetadata(node.getMetadata());
-
-		Response response = updateContentNode(contentId, newNode, null);
-		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
-		newNode.getMetadata().put("publish_type", publishType);
-		
-		if (BooleanUtils.isTrue(isPublishOperation)) {
-			Map<String,Object> actor = new HashMap<String,Object>();
-			Map<String,Object> context = new HashMap<String,Object>();
-			Map<String,Object> object = new HashMap<String,Object>();
-			Map<String,Object> edata = new HashMap<String,Object>();
+			try {
+				pushInstructionEvent(node, publishType);
+			} catch (Exception e) {
+				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
+						"Error occured during content publish");
+			}
+			node.getMetadata().put("publish_type", publishType); //Added for executing publish operation locally
 			
-			generateInstructionEventMetadata(actor, context, object, edata, newNode.getMetadata(), contentId);
-			LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+			response = new Response();
+			response.put("publishStatus", "Publish Event for Content Id '" + node.getIdentifier() + "' is pussed Successfully!");
+			response.put("node_id", node.getIdentifier());
+		} else {
+			String prevState = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
+			if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.FlagDraft.name())){
+				TelemetryManager.info("Setting status to flagReview from previous state : " + prevState + " for content id: " + node.getIdentifier());
+				node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.FlagReview.name());
+			}else {
+				TelemetryManager.info("Changing the Content Status to 'Review' for content id: " + node.getIdentifier());
+				node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Review.name());
+			}
+			node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), null);
+			Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+			newNode.setGraphId(node.getGraphId());
+			newNode.setMetadata(node.getMetadata());
+
+			response = updateContentNode(contentId, newNode, null);
 		}
-		node.getMetadata().put("publish_type", publishType); //Added for executing publish operation locally
+		
 		return response;
 	}
 	
+	private void pushInstructionEvent(Node node, String publishType) throws Exception{
+		Map<String,Object> actor = new HashMap<String,Object>();
+		Map<String,Object> context = new HashMap<String,Object>();
+		Map<String,Object> object = new HashMap<String,Object>();
+		Map<String,Object> edata = new HashMap<String,Object>();
+		
+		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType);
+		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+		String topic = Platform.config.getString("instructionevent.kafka.topic.id");
+		if(StringUtils.isBlank(beJobRequestEvent)) {
+			TelemetryManager.error("Instruction event is not generated properly. # beJobRequestEvent : " + beJobRequestEvent);
+			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+		}
+		if(StringUtils.isNotBlank(topic)) {
+			KafkaClient.send(beJobRequestEvent, topic);
+		} else {
+			TelemetryManager.error("Invalid topic id. # topic : " + topic);
+			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
+		}
+	}
+	
 	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context, 
-			Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId) {
+			Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId, String publishType) {
 		
 		actor.put("id", actorId);
 		actor.put("type", actorType);
@@ -141,12 +158,11 @@ public class ReviewFinalizer extends BaseFinalizer {
 		}
 		
 		object.put("id", contentId);
-		object.put("type", metadata.get("contentType"));
+		object.put("contentType", metadata.get("contentType"));
 		object.put("ver", metadata.get("versionKey"));
 		
 		edata.put("action", action);
-		edata.put("status", status);
-		edata.put("publish_type", (String)metadata.get("publish_type"));
+		edata.put("metadata", metadata);
+		edata.put("publish_type", publishType);
 	}
-
 }

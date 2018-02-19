@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.common.Platform;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -34,6 +35,15 @@ public class ImageTaggingService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(ImageTaggingService.class);
 
+	private static int MAXITERTIONCOUNT= 2;
+	
+	protected int getMaxIterations() {
+		if(Platform.config.hasPath("max.iteration.count.samza.job")) 
+			return Platform.config.getInt("max.iteration.count.samza.job");
+		else 
+			return MAXITERTIONCOUNT;
+	}
+	
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
@@ -43,7 +53,7 @@ public class ImageTaggingService implements ISamzaService {
 		LOGGER.info("Akka actors initialized");
 	}
 
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	private Map<String, Object> getImageLifecycleData(Map<String, Object> message) {
 		String eid = (String) message.get("eid");
 		if (null == eid || !StringUtils.equalsIgnoreCase(eid, ImageWorkflowEnums.BE_OBJECT_LIFECYCLE.name())) {
@@ -65,9 +75,9 @@ public class ImageTaggingService implements ISamzaService {
 			}
 		}
 		return null;
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 		Map<String, Object> eks = getImageLifecycleData(message);
 		if (null == eks) {
@@ -86,6 +96,59 @@ public class ImageTaggingService implements ISamzaService {
 		} catch (Exception e) {
 			LOGGER.error("Failed to process message", message, e);
 			metrics.incFailedCounter();
+		}
+	}*/
+	
+	
+	
+	private boolean validateObject(Map<String, Object> edata, Map<String, Object> object) {
+		
+		if (null == object || null == edata) 
+			return false;
+		if(StringUtils.isNotBlank((String)object.get(ImageWorkflowEnums.contentType.name())) && 
+				StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.mediaType.name())) &&
+				StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.status.name()))) {
+			if(StringUtils.equalsIgnoreCase((String)object.get(ImageWorkflowEnums.contentType.name()), ImageWorkflowEnums.Asset.name()) &&
+					StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.mediaType.name()), ImageWorkflowEnums.image.name())){
+				if(((Integer)edata.get(ImageWorkflowEnums.iteration.name()) == 1 && 
+						StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.status.name()), ImageWorkflowEnums.Processing.name())) || 
+						((Integer)edata.get(ImageWorkflowEnums.iteration.name()) > 1 && 
+						(Integer)edata.get(ImageWorkflowEnums.iteration.name()) <= getMaxIterations() && 
+						StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.status.name()), ImageWorkflowEnums.FAILED.name()))) {
+					return true;
+				}
+			}
+		}
+		
+		
+		
+		return false;
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
+		
+		Map<String, Object> edata = (Map<String, Object>) message.get(ImageWorkflowEnums.edata.name());
+		Map<String, Object> object = (Map<String, Object>) message.get(ImageWorkflowEnums.object.name());
+		
+		if (!validateObject(edata, object)) {
+			LOGGER.info("Ignoring the message because it is not valid for imagetagging.");
+			metrics.incSkippedCounter();
+			return;
+		}
+		try {
+			String nodeId = (String) object.get(ImageWorkflowEnums.id.name());
+			Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
+			if ((null != node) && (node.getObjectType().equalsIgnoreCase(ImageWorkflowEnums.content.name()))){
+				imageEnrichment(node);
+				metrics.incSuccessCounter();
+			} else {
+				metrics.incSkippedCounter();
+			}
+		} catch (Exception e) {
+			LOGGER.error("Failed to process message", message, e);
+			metrics.incFailedCounter();
+			edata.put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.FAILED.name());
 		}
 	}
 

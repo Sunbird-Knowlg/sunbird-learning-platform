@@ -2,19 +2,25 @@ package org.ekstep.taxonomy.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.engine.common.TestParams;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -27,16 +33,17 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Test Cases for V3 Controller
+ * Test Cases for ContentV3Controller
  * 
  * @author gauraw
  *
  */
-
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -53,10 +60,17 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 
 	private static final String basePath = "/v3/content";
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+
+	private static String[] validDialCode = { "ABC123", "BCD123", "CDE123", "DEF123", "EFG123" };
 
 	private static String contentId = "";
 	private static String contentId2 = "";
 	private static String versionKey = "";
+
+	private static String DIALCODE_INDEX = "testdialcode";
+	private static String DIALCODE_INDEX_TYPE = "dc";
+	private static Boolean isDialCodePopulated = false;
 
 	private static String collectionContent1Id = "";
 	private static String collectionVersion1Key = "";
@@ -76,8 +90,54 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	}
 
 	@Before
-	public void init() {
+	public void init() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
+		if (!isDialCodePopulated)
+			createDialCodeIndex();
+	}
+
+	@AfterClass
+	public static void clean() throws Exception {
+		elasticSearchUtil.deleteIndex(DIALCODE_INDEX);
+	}
+
+	private void createDialCodeIndex() throws IOException {
+		CompositeSearchConstants.DIAL_CODE_INDEX = DIALCODE_INDEX;
+		String settings = "{ \"settings\": {   \"index\": {     \"index\": \""
+				+ CompositeSearchConstants.DIAL_CODE_INDEX + "\",     \"type\": \""
+				+ CompositeSearchConstants.DIAL_CODE_INDEX_TYPE
+				+ "\",     \"analysis\": {       \"analyzer\": {         \"dc_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"dc_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
+		String mappings = "{ \"" + CompositeSearchConstants.DIAL_CODE_INDEX_TYPE
+				+ "\" : {    \"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"dc_index_analyzer\",            \"search_analyzer\": \"dc_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"dc_index_analyzer\",        \"search_analyzer\": \"dc_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }}";
+		elasticSearchUtil.addIndex(CompositeSearchConstants.DIAL_CODE_INDEX,
+				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings);
+
+		populateData();
+		isDialCodePopulated = true;
+	}
+
+	private void populateData() throws JsonProcessingException, IOException {
+		for (int i = 0; i < validDialCode.length; i++) {
+			String dialCode = validDialCode[i];
+			Map<String, Object> indexDocument = new HashMap<String, Object>();
+			indexDocument.put("identifier", dialCode);
+			indexDocument.put("channel", "channelTest");
+			indexDocument.put("batchcode", "test_math_std1");
+			indexDocument.put("publisher", "mock_pub01");
+			indexDocument.put("status", "Draft");
+			indexDocument.put("generated_on", "2018-01-30T16:50:40.562");
+			indexDocument.put("index", "true");
+			indexDocument.put("operationType", "CREATE");
+			indexDocument.put("nodeType", "EXTERNAL");
+			indexDocument.put("userId", "ANONYMOUS");
+			indexDocument.put("createdOn", "2018-01-30T16:50:40.593+0530");
+			indexDocument.put("userId", "ANONYMOUS");
+			indexDocument.put("objectType", "DialCode");
+
+			elasticSearchUtil.addDocumentWithId(DIALCODE_INDEX, CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, dialCode,
+					mapper.writeValueAsString(indexDocument));
+		}
+
 	}
 
 	public static void createDocumentContent() throws Exception {
@@ -141,7 +201,6 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(createDocumentContent));
-		System.out.println("Response::::::" + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -190,6 +249,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 
+	@Ignore
 	@Test
 	public void testContentV3Controller_05() throws Exception {
 		String path = basePath + "/publish/" + collectionContent2Id;
@@ -204,6 +264,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 
+	@Ignore
 	@Test
 	public void testContentV3Controller_06() throws Exception {
 		String path = basePath + "/unlisted/publish/" + collectionContent3Id;
@@ -270,8 +331,8 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/dialcode/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
 				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(dialCodeLinkReq));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -285,16 +346,16 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/dialcode/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": \"" + contentId
 				+ "\",\"dialcode\": \"ABC123\"}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(dialCodeLinkReq));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 
 	}
 
 	/*
-	 * Given: Link Single Dial Code to Single Invalid Content (Data Given as
-	 * String). (Data given as String) When: Link Dial Code API Hits Then: 400 -
-	 * CLIENT_ERROR.
+	 * Given: Link Single Dial Code (Valid Dial Code) to Single Invalid Content
+	 * (Data Given as String). (Data given as String) When: Link Dial Code API
+	 * Hits Then: 400 - CLIENT_ERROR.
 	 * 
 	 */
 	@Test
@@ -302,8 +363,8 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/dialcode/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": \"" + "abc123"
 				+ "\",\"dialcode\": \"ABC123\"}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(dialCodeLinkReq));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 
 	}
@@ -318,8 +379,8 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/dialcode/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + "abc123"
 				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(dialCodeLinkReq));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -333,8 +394,8 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/dialcodes/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": \"" + contentId
 				+ "\",\"dialcode\": \"ABC123\"}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(dialCodeLinkReq));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -348,8 +409,8 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/dialcode/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId + "\",\"" + contentId2
 				+ "\"],\"dialcode\": \"ABC123\"}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(dialCodeLinkReq));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -363,15 +424,15 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	public void testDialCodeLink_07() throws Exception {
 		String path = basePath + "/dialcode/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId + "\",\"" + contentId2
-				+ "\"],\"dialcode\": [\"ABC123\",\"ADEF12\"]}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(dialCodeLinkReq));
+				+ "\"],\"dialcode\": [\"ABC123\",\"BCD123\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*
-	 * Given:Link Multiple Dial Code to Single Content with Valid Content Ids.
-	 * When: Link Dial Code API Hits Then: 200 - OK
+	 * Given:Link Multiple Dial Code (Valid Dial Code) to Single Content with
+	 * Valid Content Ids. When: Link Dial Code API Hits Then: 200 - OK
 	 * 
 	 */
 
@@ -379,10 +440,43 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	public void testDialCodeLink_08() throws Exception {
 		String path = basePath + "/dialcode/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
-				+ "\"],\"dialcode\": [\"ABC123\",\"ADEF12\"]}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(dialCodeLinkReq));
+				+ "\"],\"dialcode\": [\"ABC123\",\"BCD123\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Given:Link Multiple Dial Code (With Some Invalid Dial Code) to Single
+	 * Content with Valid Content Ids. When: Link Dial Code API Hits Then: 400 -
+	 * CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void testDialCodeLink_09() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+				+ "\"],\"dialcode\": [\"ABC123\",\"DDD123\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Given:Link Single Dial Code (Invalid Dial Code) to Single Content with
+	 * Valid Content Ids. When: Link Dial Code API Hits Then: 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void testDialCodeLink_10() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+				+ "\"],\"dialcode\": [\"DDD123\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
 }

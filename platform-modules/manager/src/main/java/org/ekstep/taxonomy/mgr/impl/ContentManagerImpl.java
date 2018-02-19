@@ -43,11 +43,10 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
-import org.ekstep.contentstore.util.ContentStoreOperations;
-import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.dialcode.common.DialCodeErrorCodes;
 import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
+import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
@@ -68,11 +67,14 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.contentstore.ContentStoreOperations;
+import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
@@ -95,6 +97,9 @@ import scala.concurrent.Future;
  */
 @Component
 public class ContentManagerImpl extends BaseContentManager implements IContentManager {
+
+	@Autowired
+	private IDialCodeManager dialCodeMgr;
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -277,7 +282,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
+	 * @see
+	 * org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
 	 * Request, java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -887,7 +893,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		String framework = (String) map.get("framework");
 		if (StringUtils.isBlank(framework))
 			map.put("framework", getDefaultFramework());
-		
+
 		String mimeType = (String) map.get("mimeType");
 		if (StringUtils.isNotBlank(mimeType)) {
 			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType))
@@ -946,10 +952,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private String getDefaultFramework() {
 		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
-		//TODO: check channel for default framework.
+		// TODO: check channel for default framework.
 		if (Platform.config.hasPath("platform.framework.default"))
 			return Platform.config.getString("platform.framework.default");
-		else 
+		else
 			return "NCF";
 	}
 
@@ -1480,27 +1486,28 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 					((String) map.get(ContentAPIParams.contentType.name())) + " is not a valid value for contentType");
 	}
-	
+
 	private void restrictProps(DefinitionDTO definition, Map<String, Object> map, String... props) {
-		for (String prop: props) {
-			Object allow = definition.getMetadata().get("allowupdate_"+prop);
+		for (String prop : props) {
+			Object allow = definition.getMetadata().get("allowupdate_" + prop);
 			if (allow == null || BooleanUtils.isFalse((Boolean) allow)) {
 				if (map.containsKey(prop))
-					throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(), "Error! "+ prop + " can't be set for the content.");
+					throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
+							"Error! " + prop + " can't be set for the content.");
 			}
-			
+
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map) This
-	 * Method will update Content Node with DIAL Code in Neo4j.
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map)
+	 * This Method will update Content Node with DIAL Code in Neo4j.
 	 * 
 	 * @author gauraw
 	 */
-	public Response linkDialCode(Map<String, Object> map) throws Exception {
+	public Response linkDialCode(String channelId, Map<String, Object> map) throws Exception {
 		if (null == map)
 			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
 					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
@@ -1525,7 +1532,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
 			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
 					"Max limit for link content to dialcode in a request is " + maxLimit);
-
+		validateDialCodes(channelId, dialcodes);
 		Response resp = updateDialCodeToContents(contents, dialcodes);
 		if (ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
 			Map<String, Object> props = new HashMap<String, Object>();
@@ -1630,6 +1637,33 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} catch (Exception e) {
 			return ERROR(DialCodeErrorCodes.ERR_DIALCODE_LINK, DialCodeErrorMessage.ERR_DIALCODE_LINK,
 					ResponseCode.SERVER_ERROR, e.getMessage(), null);
+		}
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	private void validateDialCodes(String channelId, List<String> dialcodes) throws Exception {
+		List<Object> resultList = null;
+		List<String> invalidDialCodeList = new ArrayList<String>(dialcodes);
+		Integer dialcodeCount = dialcodes.size();
+		Map<String, Object> requestMap = new HashMap<String, Object>();
+		requestMap.put(ContentAPIParams.identifier.name(), dialcodes);
+		Response searchResponse = dialCodeMgr.searchDialCode(channelId, requestMap);
+		if (searchResponse.getResponseCode() == ResponseCode.OK) {
+			Map<String, Object> result = searchResponse.getResult();
+			Integer count = (Integer) result.get(DialCodeEnum.count.name());
+			if (dialcodeCount != count) {
+				resultList = (List<Object>) result.get(DialCodeEnum.dialcodes.name());
+				for (Object obj : resultList) {
+					Map<String, Object> map = (Map<String, Object>) obj;
+					String identifier = (String) map.get(ContentAPIParams.identifier.name());
+					invalidDialCodeList.remove(identifier);
+				}
+				throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+						"DIAL Code not found with id(s):" + invalidDialCodeList);
+			}
+		} else {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}
 	}
 
