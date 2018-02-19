@@ -287,10 +287,6 @@ public class SearchManager extends SearchBaseActor {
 					searchOperation = CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS;
 					break;
 				}
-				case "not_in": {
-					searchOperation = CompositeSearchConstants.SEARCH_OPERATION_NOT_IN;
-					break;
-				}
 				}
 				Map<String, Object> property = new HashMap<String, Object>();
 				property.put(CompositeSearchParams.operation.name(), searchOperation);
@@ -412,6 +408,10 @@ public class SearchManager extends SearchBaseActor {
 							case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT_UPPERCASE:
 								property.put(CompositeSearchParams.operation.name(),
 										CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL);
+								break;
+							case CompositeSearchConstants.SEARCH_OPERATION_NOT_IN_OPERATOR:
+								property.put(CompositeSearchParams.operation.name(),
+										CompositeSearchConstants.SEARCH_OPERATION_NOT_IN);
 								break;
 							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
 							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:

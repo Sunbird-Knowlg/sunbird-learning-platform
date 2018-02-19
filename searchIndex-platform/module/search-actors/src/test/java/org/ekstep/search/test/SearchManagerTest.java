@@ -1,6 +1,7 @@
 package org.ekstep.search.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,35 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		filters.put("status", new ArrayList<String>());
 		Map<String,Object> map = new HashMap<String,Object>();
 		map.put("notEquals", "31 check name match");
+		filters.put("name", map);
+		request.put("filters", filters);
+		Response response = getSearchResponse(request);
+		Map<String, Object> result = response.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		Assert.assertNotNull(list);
+		Assert.assertTrue(list.size() > 0);
+		boolean found = false;
+		for (Object obj : list) {
+			Map<String, Object> content = (Map<String, Object>) obj;
+			String desc = (String) content.get("name");
+			if (null != desc && !StringUtils.equalsIgnoreCase("31 check name match", desc))
+				found = true;
+		}
+		Assert.assertTrue(found);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSearchByQueryForNotIn() {
+		Request request = getSearchRequest();
+		request.put("query", "हिन्दी");
+		Map<String, Object> filters = new HashMap<String, Object>();
+		List<String> objectTypes = new ArrayList<String>();
+		objectTypes.add("Content");
+		filters.put("objectType", objectTypes);
+		filters.put("status", new ArrayList<String>());
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("notIn", Arrays.asList("31 check name match"));
 		filters.put("name", map);
 		request.put("filters", filters);
 		Response response = getSearchResponse(request);
