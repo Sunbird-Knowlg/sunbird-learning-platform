@@ -3,6 +3,7 @@
  */
 package org.ekstep.jobs.samza.service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -103,6 +105,11 @@ public class AuditEventGenerator implements ISamzaService {
 			currStatus = (String) statusMap.get("nv");
 		}
 		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
+		List<SystemProperties> systemPropsList=Arrays.asList(SystemProperties.values());
+		for (SystemProperties systemProperties : systemPropsList) {
+			if(props.contains(systemProperties.name()))
+				props.remove(systemProperties.name());
+		}
 		Map<String, String> context = getContext(channelId);
 		context.put("objectId", objectId);
 		context.put(GraphDACParams.objectType.name(), objectType);
