@@ -8,13 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.dto.ExecutionContext;
-import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
@@ -29,13 +26,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-public class TelemetryV3ContentAuditService implements ISamzaService {
+public class AuditEventGenerator implements ISamzaService {
 
-	static JobLogger LOGGER = new JobLogger(TelemetryV3ContentAuditService.class);
+	static JobLogger LOGGER = new JobLogger(AuditEventGenerator.class);
 	private Config config = null;
 	private static ObjectMapper mapper = new ObjectMapper();
+	private SystemStream systemStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
 
-	public TelemetryV3ContentAuditService() {
+	public AuditEventGenerator() {
 		super();
 	}
 
@@ -69,9 +67,8 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 			Map<String, Object> auditMap = getAuditMessage(message);
 			String objectType = (String) ((Map<String, Object>) auditMap.get("object")).get("type");
 			if (null != objectType) {
-				collector.send(new OutgoingMessageEnvelope(
-						new SystemStream("kafka", config.get("telemetry_audit_topic")), auditMap));
-				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_audit_topic"));
+				collector.send(new OutgoingMessageEnvelope(systemStream, auditMap));
+				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_raw_topic"));
 			}
 		} catch (Exception e) {
 			LOGGER.error("Failed to process message", message, e);
@@ -80,19 +77,10 @@ public class TelemetryV3ContentAuditService implements ISamzaService {
 
 	private static Map<String, String> getContext(String channelId) {
 		Map<String, String> context = new HashMap<String, String>();
-		context.put(TelemetryParams.ACTOR.name(),
-				getContextValue(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform"));
-		context.put(TelemetryParams.CHANNEL.name(), getContextValue(HeaderParam.CHANNEL_ID.name(), channelId));
-		context.put(TelemetryParams.ENV.name(), getContextValue(TelemetryParams.ENV.name(), "system"));
+		context.put(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform");
+		context.put(TelemetryParams.CHANNEL.name(), channelId);
+		context.put(TelemetryParams.ENV.name(), "system");
 		return context;
-	}
-
-	private static String getContextValue(String key, String defaultValue) {
-		String value = (String) ExecutionContext.getCurrent().getGlobalContext().get(key);
-		if (StringUtils.isBlank(value))
-			return defaultValue;
-		else
-			return value;
 	}
 
 	@SuppressWarnings("unchecked")
