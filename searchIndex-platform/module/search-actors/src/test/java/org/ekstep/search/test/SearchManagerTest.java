@@ -823,4 +823,27 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(validResult);
 	}
 
+	@Test
+	public void testSoftConstraints() {
+		Request request = getSearchRequest();
+		Map<String, Object> filters = new HashMap<String, Object>();
+		filters.put("subject", "Maths");
+		request.put("mode", "soft");
+		request.put("filters", filters);
+		List<String> fields = new ArrayList<String>();
+		fields.add("name");
+		fields.add("medium");
+		fields.add("subject");
+		fields.add("contentType");
+		request.put("fields", fields);
+		Map<String, Object> softConstraints = new HashMap<String, Object>();
+		softConstraints.put("medium", 20);
+		softConstraints.put("subject", 20);
+		request.put("softConstraints", softConstraints);
+		Response response = getSearchResponse(request);
+		Map<String, Object> result = response.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		Assert.assertNotNull(list);
+	}
+
 }

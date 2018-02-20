@@ -532,7 +532,7 @@ public class SearchProcessor {
 			List<Object> data = (List<Object>) softConstraints.get(key);
 			queryBuilder
 					.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1))
-							.boost((float) data.get(0)));
+							.boost(Integer.valueOf((int) data.get(0)).floatValue()));
 		}
 		return queryBuilder;
 	}
