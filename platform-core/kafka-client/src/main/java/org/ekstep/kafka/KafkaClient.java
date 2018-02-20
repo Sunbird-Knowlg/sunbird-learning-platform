@@ -55,14 +55,14 @@ public class KafkaClient {
 	}
 	
 	public static void send(String event, String topic) throws Exception {
-		if(validate(topic)) {
+		//if(validate(topic)) {
 			final Producer<Long, String> producer = getProducer();
 			ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(topic, event);
 			producer.send(record);
-		}else {
-			TelemetryManager.error("Topic id: " + topic + ", does not exists.");
-			throw new ClientException("TOPIC_NOT_EXISTS_EXCEPTION", "Topic id: " + topic + ", does not exists.");
-		}
+		//}else {
+		//	TelemetryManager.error("Topic id: " + topic + ", does not exists.");
+		//	throw new ClientException("TOPIC_NOT_EXISTS_EXCEPTION", "Topic id: " + topic + ", does not exists.");
+		//}
 	}
 	public static boolean validate(String topic) throws Exception{
 		Consumer<Long, String> consumer = getConsumer();
