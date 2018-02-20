@@ -20,6 +20,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.common.lucene.search.function.FiltersFunctionScoreQuery.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
@@ -68,7 +70,7 @@ public class SearchProcessor {
 			response.put("facets", (List<Map<String, Object>>) elasticSearchUtil.getCountFromAggregation(aggregations,
 					groupByFinalList, transformer));
 		}
-		response.put("count", (int) searchResult.getHits().getTotalHits());
+		response.put("count", (int) searchResult.getHits().hits().length);
 		return response;
 	}
 
@@ -512,13 +514,10 @@ public class SearchProcessor {
 	 */
 	private QueryBuilder getAllFieldsPropertyQuery(List<Object> values) {
 		List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
-		List<String> fields = new ArrayList<String>();
-		for (String queryField : queryFields) {
-			fields.add(queryField.split("^")[0]);
-		}
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		queryBuilder.should(
-				QueryBuilders.multiMatchQuery(values.get(0), fields.toArray(new String[fields.size()])));
+				QueryBuilders.multiMatchQuery(values.get(0), queryFields.toArray(new String[queryFields.size()]))
+						.operator(Operator.AND).type(Type.CROSS_FIELDS).lenient(true));
 		return queryBuilder;
 	}
 

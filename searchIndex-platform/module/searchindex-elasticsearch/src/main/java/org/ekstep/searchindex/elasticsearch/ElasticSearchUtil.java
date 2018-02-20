@@ -468,7 +468,7 @@ public class ElasticSearchUtil {
 		SearchResponse response = searchRequestBuilder.setIndices(indexName).setFrom(offset).setSize(resultLimit)
 				.execute()
 				.actionGet();
-		return (int) response.getHits().getTotalHits();
+		return (int) response.getHits().hits().length;
 
 	}
 

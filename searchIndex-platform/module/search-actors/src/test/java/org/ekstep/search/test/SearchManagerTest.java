@@ -33,11 +33,12 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		filters.put("objectType", objectTypes);
 		filters.put("status", new ArrayList<String>());
 		request.put("filters", filters);
+		request.put("limit", 1);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
 		List<Object> list = (List<Object>) result.get("results");
 		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
+		Assert.assertTrue(list.size() == 1);
 		boolean found = false;
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
