@@ -292,6 +292,7 @@ public class SearchProcessor {
 			if (propertyName.equals("*")) {
 				propertyName = "all_fields";
 				queryBuilder = getAllFieldsPropertyQuery(values);
+				boolQuery.must(queryBuilder);
 				continue;
 			}
 
@@ -402,6 +403,7 @@ public class SearchProcessor {
 			if (propertyName.equals("*")) {
 				propertyName = "all_fields";
 				queryBuilder = getAllFieldsPropertyQuery(values);
+				boolQuery.must(queryBuilder);
 				continue;
 			}
 
