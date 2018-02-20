@@ -70,7 +70,7 @@ public class SearchProcessor {
 			response.put("facets", (List<Map<String, Object>>) elasticSearchUtil.getCountFromAggregation(aggregations,
 					groupByFinalList, transformer));
 		}
-		response.put("count", (int) searchResult.getHits().hits().length);
+		response.put("count", (int) searchResult.getHits().getTotalHits());
 		return response;
 	}
 
