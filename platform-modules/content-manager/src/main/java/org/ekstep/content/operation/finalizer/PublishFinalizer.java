@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +16,6 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.S3PropertyReader;
-import org.ekstep.content.common.AssetsMimeTypeMap;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.EcarPackageType;
@@ -32,7 +30,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.rits.cloning.Cloner;
@@ -59,6 +56,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String s3Artifact = "s3.artifact.folder";
 	
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+	
+	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -286,7 +286,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setMetadata(node.getMetadata());
 		newNode.setTags(node.getTags());
 
-		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
 
@@ -300,10 +299,11 @@ public class PublishFinalizer extends BaseFinalizer {
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
 		}
 
+		//update previewUrl for content streaming
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			updatePreviewURL(newNode);
 		}
-		
+
 		// Setting default version key for internal node update
 		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 		newNode.getMetadata().put(GraphDACParams.versionKey.name(), graphPassportKey);
@@ -349,6 +349,55 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 
+	private void updatePreviewURL(Node content) {
+		if (null != content) {
+			String mimeType = (String) content.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
+			if (StringUtils.isNotBlank(mimeType)) {
+				TelemetryManager.log("Checking Required Fields For: " + mimeType);
+				switch (mimeType) {
+					case "application/vnd.ekstep.content-collection":
+						break;
+					case "application/vnd.ekstep.plugin-archive":
+						break;
+					case "application/vnd.android.package-archive":
+						break;					
+					case "assets":
+						break;
+					case "application/vnd.ekstep.ecml-archive":
+/*						if(content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())!=null)
+							copyLatestS3UrlPath(content, contentPackageExtractionUtil);*/
+						break;
+					case "application/vnd.ekstep.html-archive":
+					case "application/vnd.ekstep.h5p-archive":
+						copyLatestS3UrlPath(content);
+						break;
+					case "video/mp4":
+					case "video/webm":
+					case "video/x-youtube":
+					case "video/youtube":
+					case "text/x-url":
+					case "application/pdf":
+					case "application/epub":
+					case "application/msword":
+					default:
+						String artifactUrl = (String) content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
+						content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), artifactUrl);
+						break;
+				}
+			}
+		}
+	}
+	
+	private void copyLatestS3UrlPath(Node content) {
+		try {
+			String latestFolderS3Url = contentPackageExtractionUtil.getS3URL(contentId, content, ExtractionType.latest);
+			//copy into previewUrl
+			content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), latestFolderS3Url);
+		} catch (Exception e) {
+			TelemetryManager.error("Something Went Wrong While copying latest s3 folder path to preveiwUrl for the content" + contentId, e);
+		}
+	}
+	
 	private String getS3KeyFromUrl(String s3Url) {
 		String s3Key = "";
 		if (StringUtils.isNotBlank(s3Url)) {
@@ -376,45 +425,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		return fileName;
 	}
 
-	private void updatePreviewURL(Node content) {
-		if (null != content) {
-			String mimeType = (String) content.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
-			if (StringUtils.isNotBlank(mimeType)) {
-				TelemetryManager.log("Checking Required Fields For: " + mimeType);
-				switch (mimeType) {
-					case "video/mp4":
-					case "video/webm":
-					case "video/x-youtube":
-					case "video/youtube":
-					case "text/x-url":
-					case "application/pdf":
-					case "application/epub":
-					case "application/msword":
-						String artifactUrl = (String) content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
-						content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), artifactUrl);
-						break;
-					case "application/vnd.ekstep.ecml-archive":
-						break;
-					case "application/vnd.ekstep.html-archive":
-					case "application/vnd.ekstep.h5p-archive":
-						//String latestUrl = contentPackageExtractionUtil.getExtractionPath(contentId, content, ExtractionType.latest);
-						//content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), latestUrl);
-						break;
-					case "application/vnd.ekstep.content-collection":
-						break;
-					case "application/vnd.ekstep.plugin-archive":
-						break;
-					case "application/vnd.android.package-archive":
-						break;					
-					case "assets":
-						break;
-					default:
-						break;
-				}
-			}
-		}
-	}
-	
 	private Response migrateContentImageObjectData(String contentId, Node contentImage) {
 		Response response = new Response();
 		if (null != contentImage && StringUtils.isNotBlank(contentId)) {

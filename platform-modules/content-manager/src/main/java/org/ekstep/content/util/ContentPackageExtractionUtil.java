@@ -511,4 +511,15 @@ public class ContentPackageExtractionUtil {
 		}
 		return isValid;
 	}
+	
+	public String getS3URL(String contentId, Node node, ExtractionType extractionType) {
+
+		// Fetching Bucket Name
+		String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET);
+		TelemetryManager.log("Current Storage Space Bucket Name: " + s3Bucket);
+
+		String path = getExtractionPath(contentId, node, extractionType);
+		return AWSUploader.getURL(s3Bucket, path);
+	}
+	
 }
