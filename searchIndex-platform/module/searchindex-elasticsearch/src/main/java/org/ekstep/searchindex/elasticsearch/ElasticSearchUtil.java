@@ -465,7 +465,8 @@ public class ElasticSearchUtil {
 	}
 
 	public int count(String indexName, SearchRequestBuilder searchRequestBuilder) throws IOException {
-		SearchResponse response = searchRequestBuilder.setIndices(indexName).setFrom(offset).setSize(0).execute()
+		SearchResponse response = searchRequestBuilder.setIndices(indexName).setFrom(offset).setSize(resultLimit)
+				.execute()
 				.actionGet();
 		return (int) response.getHits().getTotalHits();
 
