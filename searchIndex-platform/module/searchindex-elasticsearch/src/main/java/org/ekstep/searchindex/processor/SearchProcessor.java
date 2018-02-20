@@ -512,9 +512,13 @@ public class SearchProcessor {
 	 */
 	private QueryBuilder getAllFieldsPropertyQuery(List<Object> values) {
 		List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
+		List<String> fields = new ArrayList<String>();
+		for (String queryField : queryFields) {
+			fields.add(queryField.split("^")[0]);
+		}
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		queryBuilder.should(
-				QueryBuilders.multiMatchQuery(values.get(0), queryFields.toArray(new String[queryFields.size()])));
+				QueryBuilders.multiMatchQuery(values.get(0), fields.toArray(new String[fields.size()])));
 		return queryBuilder;
 	}
 
