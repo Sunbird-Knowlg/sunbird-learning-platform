@@ -232,21 +232,19 @@ public class SearchProcessor {
 				searchRequestBuilder.addSort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
 						getSortOrder(sorting.get(key)));
 		}
-		TermsBuilder termBuilder = getAggregations(groupByFinalList);
-		if (null != termBuilder)
-			searchRequestBuilder.addAggregation(termBuilder);
-
-		searchRequestBuilder.setExplain(true);
+		setAggregations(groupByFinalList, searchRequestBuilder);
 
 		return searchRequestBuilder;
 	}
 
 	/**
 	 * @param groupByList
+	 * @param searchRequestBuilder
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private TermsBuilder getAggregations(List<Map<String, Object>> groupByList) {
+	private void setAggregations(List<Map<String, Object>> groupByList,
+			SearchRequestBuilder searchRequestBuilder) {
 		TermsBuilder termBuilder = null;
 		if (groupByList != null && !groupByList.isEmpty()) {
 			for (Map<String, Object> groupByMap : groupByList) {
@@ -262,10 +260,9 @@ public class SearchProcessor {
 								.size(elasticSearchUtil.defaultResultLimit));
 					}
 				}
+				searchRequestBuilder.addAggregation(termBuilder);
 			}
 		}
-
-		return termBuilder;
 	}
 
 	/**
@@ -794,11 +791,7 @@ public class SearchProcessor {
 				searchRequestBuilder.addSort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
 						getSortOrder(sorting.get(key)));
 		}
-		TermsBuilder termBuilder = getAggregations(groupByFinalList);
-		if (null != termBuilder)
-			searchRequestBuilder.addAggregation(termBuilder);
-
-		searchRequestBuilder.setExplain(true);
+		setAggregations(groupByFinalList, searchRequestBuilder);
 
 		return searchRequestBuilder;
 

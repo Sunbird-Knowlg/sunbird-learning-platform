@@ -556,12 +556,13 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		request.put("filters", filters);
 		List<String> exists = new ArrayList<String>();
 		exists.add("size");
+		exists.add("contentType");
 		request.put("facets", exists);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
 		List<Object> list = (List<Object>) result.get("facets");
 		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() == 1);
+		Assert.assertTrue(list.size() > 1);
 		Map<String, Object> facet = (Map<String, Object>) list.get(0);
 		Assert.assertEquals("size", facet.get("name").toString());
 		List<Object> values = (List<Object>) facet.get("values");
