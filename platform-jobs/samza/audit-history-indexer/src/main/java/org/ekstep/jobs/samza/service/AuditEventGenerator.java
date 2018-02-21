@@ -3,16 +3,19 @@
  */
 package org.ekstep.jobs.samza.service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -31,7 +34,9 @@ public class AuditEventGenerator implements ISamzaService {
 	static JobLogger LOGGER = new JobLogger(AuditEventGenerator.class);
 	private Config config = null;
 	private static ObjectMapper mapper = new ObjectMapper();
-	private SystemStream systemStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
+	private SystemStream systemStream = null;
+	private static List<String> systemPropsList = Stream.of(SystemProperties.values())
+            .map(SystemProperties::name).collect(Collectors.toList());
 
 	public AuditEventGenerator() {
 		super();
@@ -48,6 +53,7 @@ public class AuditEventGenerator implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		this.config = config;
 		JSONUtils.loadProperties(config);
+		systemStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
 	}
 
 	/*
@@ -103,10 +109,14 @@ public class AuditEventGenerator implements ISamzaService {
 			currStatus = (String) statusMap.get("nv");
 		}
 		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
+		List<String> propsExceptSystemProps = props.stream()
+				.filter(prop -> !systemPropsList.contains(prop))
+				.collect(Collectors.toList());
+		
 		Map<String, String> context = getContext(channelId);
 		context.put("objectId", objectId);
 		context.put(GraphDACParams.objectType.name(), objectType);
-		String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
+		String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus);
 		LOGGER.debug("Audit Message : " + auditMessage);
 		auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
 		});

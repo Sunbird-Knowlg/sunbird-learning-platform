@@ -28,7 +28,8 @@
 		<module>graph-engine</module>
 		<module>platform-dac</module>
     	<module>platform-telemetry</module>
-  </modules>
+    	<module>kafka-client</module>
+	</modules>
 
 	<dependencies>
 	</dependencies>

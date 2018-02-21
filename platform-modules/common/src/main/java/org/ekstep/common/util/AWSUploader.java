@@ -250,5 +250,10 @@ public class AWSUploader {
 		} else
 			return Region.getRegion(Regions.AP_SOUTHEAST_1);
 	}
-
+	
+	public static String getURL(String bucket, String prefix) {
+		AmazonS3 s3client = new AmazonS3Client();
+		return s3client.getUrl(bucket, prefix).toString();
+	}
+	
 }

@@ -249,6 +249,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 
+	@Ignore
 	@Test
 	public void testContentV3Controller_05() throws Exception {
 		String path = basePath + "/publish/" + collectionContent2Id;
@@ -263,6 +264,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 
+	@Ignore
 	@Test
 	public void testContentV3Controller_06() throws Exception {
 		String path = basePath + "/unlisted/publish/" + collectionContent3Id;

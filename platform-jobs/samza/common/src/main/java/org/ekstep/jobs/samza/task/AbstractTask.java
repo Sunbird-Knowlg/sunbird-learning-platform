@@ -84,7 +84,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	public void preProcess(Map<String, Object> message, MessageCollector collector, Map<String, Object> execution, int maxIterationCount, int iterationCount) {
 		if (isInvalidMessage(message)) {
 			String event = generateEvent(Level.ERROR.name(), "Samza job de-serialization error", message);
-			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("backend_telemetry_topic")), event));
+			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("kafka.topics.backend.telemetry")), event));
 		}
 		try {
 			if(iterationCount <= maxIterationCount) {
@@ -94,7 +94,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 				execution.put(SamzaCommonParams.processing_date.name(), (long)jobStartEvent.get(SamzaCommonParams.ets.name()));
 				execution.put(SamzaCommonParams.latency.name(), (long)jobStartEvent.get(SamzaCommonParams.ets.name()) - (long)message.get(SamzaCommonParams.ets.name()));
 				
-				pushEvent(jobStartEvent, collector, this.config.get("backend_telemetry_topic"));
+				pushEvent(jobStartEvent, collector, this.config.get("kafka.topics.backend.telemetry"));
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -114,12 +114,12 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
             		eks.put(SamzaCommonParams.execution.name(), execution);
             		//addExecutionTime(jobEndEvent, execution); //Call to add execution time
 				
-				pushEvent(jobEndEvent, collector, this.config.get("backend_telemetry_topic"));
+				pushEvent(jobEndEvent, collector, this.config.get("kafka.topics.backend.telemetry"));
 			}
 			String eventExecutionStatus = (String)((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).get(SamzaCommonParams.status.name());
 			if(StringUtils.equalsIgnoreCase(eventExecutionStatus, SamzaCommonParams.FAILED.name()) && iterationCount < maxIterationCount) {
 				((Map<String, Object>) message.get(SamzaCommonParams.edata.name())).put(SamzaCommonParams.iteration.name(), iterationCount+1);
-				collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("failed_event_topic")), message));
+				collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), this.config.get("kafka.topics.failed")), message));
 			}
 		}catch(Exception e) {
 			e.printStackTrace();

@@ -56,6 +56,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String s3Artifact = "s3.artifact.folder";
 	
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+	
+	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -284,7 +287,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setTags(node.getTags());
 
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
-			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
 
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.latest);
@@ -295,6 +297,11 @@ public class PublishFinalizer extends BaseFinalizer {
 			delete(new File(basePath));
 		} catch (Exception e) {
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
+		}
+
+		//update previewUrl for content streaming
+		if (BooleanUtils.isFalse(isAssetTypeContent)) {
+			updatePreviewURL(newNode);
 		}
 
 		// Setting default version key for internal node update
@@ -342,6 +349,55 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 
+	private void updatePreviewURL(Node content) {
+		if (null != content) {
+			String mimeType = (String) content.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
+			if (StringUtils.isNotBlank(mimeType)) {
+				TelemetryManager.log("Checking Required Fields For: " + mimeType);
+				switch (mimeType) {
+					case "application/vnd.ekstep.content-collection":
+						break;
+					case "application/vnd.ekstep.plugin-archive":
+						break;
+					case "application/vnd.android.package-archive":
+						break;					
+					case "assets":
+						break;
+					case "application/vnd.ekstep.ecml-archive":
+/*						if(content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())!=null)
+							copyLatestS3UrlPath(content, contentPackageExtractionUtil);*/
+						break;
+					case "application/vnd.ekstep.html-archive":
+					case "application/vnd.ekstep.h5p-archive":
+						copyLatestS3UrlPath(content);
+						break;
+					case "video/mp4":
+					case "video/webm":
+					case "video/x-youtube":
+					case "video/youtube":
+					case "text/x-url":
+					case "application/pdf":
+					case "application/epub":
+					case "application/msword":
+					default:
+						String artifactUrl = (String) content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
+						content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), artifactUrl);
+						break;
+				}
+			}
+		}
+	}
+	
+	private void copyLatestS3UrlPath(Node content) {
+		try {
+			String latestFolderS3Url = contentPackageExtractionUtil.getS3URL(contentId, content, ExtractionType.latest);
+			//copy into previewUrl
+			content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), latestFolderS3Url);
+		} catch (Exception e) {
+			TelemetryManager.error("Something Went Wrong While copying latest s3 folder path to preveiwUrl for the content" + contentId, e);
+		}
+	}
+	
 	private String getS3KeyFromUrl(String s3Url) {
 		String s3Key = "";
 		if (StringUtils.isNotBlank(s3Url)) {
