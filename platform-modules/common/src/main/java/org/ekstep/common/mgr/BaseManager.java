@@ -18,7 +18,9 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
@@ -39,7 +41,14 @@ public abstract class BaseManager {
 
 	protected static final int DEFAULT_TTL = 24;
 	protected static final int DEFAULT_LIMIT = 50;
-
+	
+	public Response getDataNode(String taxonomyId, String id) {
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+				GraphDACParams.node_id.name(), id);
+		Response getNodeRes = getResponse(request);
+		return getNodeRes;
+	}
+	
 	protected void setMetadataFields(Node node, String[] fields) {
 		if (null != fields && fields.length > 0) {
 			if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {

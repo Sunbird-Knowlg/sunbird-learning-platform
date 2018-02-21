@@ -369,14 +369,6 @@ public class BaseFinalizer extends BasePipeline {
 		return contentImageId;
 	}
 
-	protected Response getDataNode(String taxonomyId, String id) {
-		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-				GraphDACParams.node_id.name(), id);
-		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request);
-		return getNodeRes;
-	}
-
 	protected Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
 		TelemetryManager.log("Taxonomy Id: " + taxonomyId + " :: "+  "Content Id: " + contentImageId);
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(),

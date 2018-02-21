@@ -579,7 +579,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 				Long timeDiff = System.currentTimeMillis() - startTime;
 				if (timeDiff >= TASK_REFRESH_TIME_IN_MILLIS) {
 					startTime = System.currentTimeMillis();
-					Node node = getDataNode(graphId, taskId);
+					Node node = getLanguageDataNode(graphId, taskId);
 					String status = (String) node.getMetadata().get(GraphEngineParams.status.name());
 					if (status.equalsIgnoreCase(GraphEngineParams.Completed.name())) {
 						taskStatus = true;
@@ -628,7 +628,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 		makeAsyncLanguageRequest(langReq);
 	}
 	
-	public Node getDataNode(String languageId, String nodeId) throws Exception {
+	public Node getLanguageDataNode(String languageId, String nodeId) throws Exception {
 		Request getNodeReq = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		getNodeReq.put(GraphDACParams.node_id.name(), nodeId);
 		getNodeReq.put(GraphDACParams.graph_id.name(), languageId);

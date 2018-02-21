@@ -1494,12 +1494,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param nodeId
 	 * @return Node
 	 */
-	public Node getDataNode(String languageId, String nodeId) {
-		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
-		request.put(GraphDACParams.node_id.name(), nodeId);
-		request.put(GraphDACParams.get_tags.name(), true);
-
-		Response findRes = getResponse(request);
+	public Node getWordNode(String languageId, String nodeId) {
+		Response findRes = getDataNode(languageId, nodeId);
 		if (checkError(findRes))
 			return null;
 		else {

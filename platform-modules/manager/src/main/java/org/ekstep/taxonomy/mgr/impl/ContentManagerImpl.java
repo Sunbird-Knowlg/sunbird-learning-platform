@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -119,30 +121,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private static final String GRAPH_ID = "domain";
 
-	/** Default name of URL field */
-	protected static final String URL_FIELD = "URL";
-
 	private PublishManager publishManager = new PublishManager();
 
 	private List<String> contentTypeList = Arrays.asList("Story", "Worksheet", "Game", "Simulation", "Puzzle",
 			"Diagnostic", "ContentTemplate", "ItemTemplate");
-
-	/**
-	 * Gets the data node.
-	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param id
-	 *            the id
-	 * @return the data node
-	 */
-	private Response getDataNode(String taxonomyId, String id) {
-		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-				GraphDACParams.node_id.name(), id);
-		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request);
-		return getNodeRes;
-	}
+	private List<String> finalStatus = Arrays.asList("Flagged", "Live", "Unlisted");
+	private List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
 
 	/*
 	 * (non-Javadoc)
@@ -291,31 +275,25 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	public Response bundle(Request request, String taxonomyId, String version) {
 		String bundleFileName = (String) request.get("file_name");
 		List<String> contentIds = (List<String>) request.get("content_identifiers");
-		TelemetryManager.log("Bundle File Name: " + bundleFileName);
-		TelemetryManager.log("Total No. of Contents: " + contentIds.size());
 		if (contentIds.size() > 1 && StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
 					"ECAR file name should not be blank");
 
-		TelemetryManager.log("Fetching all the Nodes.");
 		Response response = searchNodes(taxonomyId, contentIds);
 		Response listRes = copyResponse(response);
 		if (checkError(response)) {
-			TelemetryManager.log("Erroneous Response.");
 			return response;
 		} else {
 			List<Object> list = (List<Object>) response.get(ContentAPIParams.contents.name());
 			List<Node> nodes = new ArrayList<Node>();
 			List<Node> imageNodes = new ArrayList<Node>();
 			if (null != list && !list.isEmpty()) {
-				TelemetryManager.log("Iterating Over the List.");
 				for (Object obj : list) {
 					List<Node> nodelist = (List<Node>) obj;
 					if (null != nodelist && !nodelist.isEmpty())
 						nodes.addAll(nodelist);
 				}
 
-				TelemetryManager.log("Validating the Input Nodes.");
 				validateInputNodesForBundling(nodes);
 
 				for (Node node : nodes) {
@@ -324,10 +302,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					if (!checkError(getNodeResponse)) {
 						node = (Node) getNodeResponse.get(GraphDACParams.node.name());
 					}
+					// Fetch body from content store.
 					String body = getContentBody(node.getIdentifier());
 					node.getMetadata().put(ContentAPIParams.body.name(), body);
 					imageNodes.add(node);
-					TelemetryManager.log("Body fetched from content store");
 				}
 				if (imageNodes.size() == 1 && StringUtils.isBlank(bundleFileName))
 					bundleFileName = (String) imageNodes.get(0).getMetadata().get(ContentAPIParams.name.name()) + "_"
@@ -335,9 +313,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 			bundleFileName = Slug.makeSlug(bundleFileName, true);
 			String fileName = bundleFileName + ".ecar";
-			TelemetryManager.log("Bundle File Name: " + bundleFileName);
 
-			TelemetryManager.log("Preparing the Parameter Map for 'Bundle' Pipeline.");
+			// Preparing the Parameter Map for 'Bundle' Pipeline;
 			InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(ContentAPIParams.nodes.name(), imageNodes);
@@ -345,10 +322,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
 			parameterMap.put(ContentAPIParams.manifestVersion.name(), DEFAULT_CONTENT_MANIFEST_VERSION);
 
-			TelemetryManager.log("Calling Content Workflow 'Bundle' Pipeline.");
+			// Calling Content Workflow 'Bundle' Pipeline.
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
 
-			TelemetryManager.log("Returning Response.");
 			return listRes;
 		}
 	}
@@ -406,8 +382,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		isNodeUnderProcessing(node, "Optimize");
 
-		TelemetryManager.log("Given Content is not in Processing Status.");
-
 		String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		TelemetryManager.log("Content Status: " + status);
 		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status)
@@ -435,7 +409,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		updateDataNode(node);
 		Optimizr optimizr = new Optimizr();
 		try {
-			TelemetryManager.log("Invoking the Optimizer For Content Id: " + contentId);
+			TelemetryManager.log("Invoking the Optimizer for Content Id: " + contentId);
 			File minEcar = optimizr.optimizeECAR(downloadUrl);
 			TelemetryManager.log("Optimized File: " + minEcar.getName() + " | [Content Id: " + contentId + "]");
 
@@ -462,7 +436,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	public Response preSignedURL(String taxonomyId, String contentId, String fileName) {
-		// TODO: Check content exist or not.
+		Response contentResp = getDataNode(taxonomyId, contentId);
+		if (checkError(contentResp))
+			return contentResp;
 		Response response = new Response();
 		String preSignedURL = AWSUploader.preSignedURL(contentId, fileName);
 		response.put(ContentAPIParams.content_id.name(), contentId);
@@ -965,7 +941,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-
 		restrictProps(definition, map, "status", "framework");
 
 		String originalId = contentId;
@@ -1011,23 +986,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		TelemetryManager.log("Graph node found: " + graphNode.getIdentifier());
 		Map<String, Object> metadata = graphNode.getMetadata();
 		String status = (String) metadata.get("status");
-		boolean isReviewState = StringUtils.equalsIgnoreCase("Review", status);
-		boolean isFlaggedReviewState = StringUtils.equalsIgnoreCase("FlagReview", status);
-		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
-		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
-		boolean isUnlistedState = StringUtils.equalsIgnoreCase("Unlisted", status);
-
 		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
-			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus);
-			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus);
-			if ((updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
+			if (reviewStatus.contains(inputStatus) && !reviewStatus.contains(status)) {
 				map.put("lastSubmittedOn", DateUtils.format(new Date()));
+			}
 		}
 
 		boolean checkError = false;
 		Response createResponse = null;
-		if (isLiveState || isUnlistedState || isFlaggedState) {
+		if (finalStatus.contains(status)) {
 			if (isImageObjectCreationNeeded) {
 				graphNode.setIdentifier(contentImageId);
 				graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
@@ -1036,7 +1004,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				if (null != lastUpdatedBy)
 					metadata.put("lastUpdatedBy", lastUpdatedBy);
 				graphNode.setGraphId(GRAPH_ID);
-				TelemetryManager.log("Creating content image: " + graphNode.getIdentifier());
 				createResponse = createDataNode(graphNode);
 				checkError = checkError(createResponse);
 				if (!checkError) {
@@ -1082,6 +1049,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return createResponse;
 	}
 
+	// TODO: push this to publish-pipeline.
 	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
 		if (StringUtils.isNotBlank(mimeType)) {
 			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection")
