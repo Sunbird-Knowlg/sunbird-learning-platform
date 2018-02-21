@@ -13,14 +13,8 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>audit-history-indexer</artifactId>
-	<version>0.0.29</version>
+	<version>0.0.30</version>
 	<dependencies>
-		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch</artifactId>
-			<version>2.3.4</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>platform-dac</artifactId>
