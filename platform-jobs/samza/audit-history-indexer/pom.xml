@@ -13,7 +13,7 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>audit-history-indexer</artifactId>
-	<version>0.0.31</version>
+	<version>0.0.32</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.ekstep</groupId>
@@ -30,6 +30,12 @@
 			<groupId>org.ekstep</groupId>
 			<artifactId>samza-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 		    <groupId>org.mockito</groupId>
