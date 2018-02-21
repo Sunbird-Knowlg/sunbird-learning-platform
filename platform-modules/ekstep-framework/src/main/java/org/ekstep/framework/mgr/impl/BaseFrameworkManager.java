@@ -179,21 +179,6 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 		return response;
 	}
-
-	/*
-	 * Read Data Node
-	 * 
-	 * @param graphId
-	 * 
-	 * @param objectId
-	 * 
-	 */
-	protected Response getDataNode(String graphId, String objectId) {
-		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-				GraphDACParams.node_id.name(), objectId);
-		Response getNodeRes = getResponse(request);
-		return getNodeRes;
-	}
 	
 	/*
 	 * 

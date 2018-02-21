@@ -44,7 +44,7 @@ public class WordChainUtil {
 		List<Relation> existingWordSetRelatios = getExistingWordSetRelations(node);
 		new RhymingSoundSet(languageId, node, wc, existingWordSetRelatios).create();
 		new PhoneticBoundarySet(languageId, node, wc, existingWordSetRelatios).create();
-		Node updatedNode = wordUtil.getDataNode(languageId, node.getIdentifier());
+		Node updatedNode = wordUtil.getWordNode(languageId, node.getIdentifier());
 		node.setInRelations(updatedNode.getInRelations());
 	}
 
