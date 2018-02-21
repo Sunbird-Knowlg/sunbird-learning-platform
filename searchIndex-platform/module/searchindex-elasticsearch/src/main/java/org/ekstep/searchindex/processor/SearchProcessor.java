@@ -629,10 +629,12 @@ public class SearchProcessor {
 		for (Object value : values) {
 			if (match) {
 				queryBuilder.should(QueryBuilders
-						.matchPhraseQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+						.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value)
+						.operator(Operator.AND));
 			} else {
 				queryBuilder.mustNot(QueryBuilders
-						.matchPhraseQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+						.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value)
+						.operator(Operator.AND));
 			}
 		}
 		return queryBuilder;
