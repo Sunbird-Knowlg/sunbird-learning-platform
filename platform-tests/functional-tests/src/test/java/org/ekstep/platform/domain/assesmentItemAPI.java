@@ -43,7 +43,7 @@ public class assesmentItemAPI extends BaseTest {
 				when().
 				post("/assessment/v3/items/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -78,7 +78,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		post("/assessment/v3/items/create").
 		then().
-		log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 
@@ -95,7 +95,7 @@ public class assesmentItemAPI extends BaseTest {
 				when().
 				post("/assessment/v3/items/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -130,7 +130,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		post("/assessment/v3/items/create").
 		then().
-		log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 
@@ -147,7 +147,7 @@ public class assesmentItemAPI extends BaseTest {
 				when().
 				post("/assessment/v3/items/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -182,7 +182,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		post("/assessment/v3/items/create").
 		then().
-		log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 
@@ -199,7 +199,7 @@ public class assesmentItemAPI extends BaseTest {
 				when().
 				post("/assessment/v3/items/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -216,7 +216,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		patch("/assessment/v3/items/update/"+nodeId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		
 		// Read and validate the assessment
@@ -248,7 +248,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		patch("/assessment/v3/items/update/vamsmQA7678789").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 	}
 
@@ -265,7 +265,7 @@ public class assesmentItemAPI extends BaseTest {
 				when().
 				post("/assessment/v3/items/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -297,7 +297,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		get("/assessment/v3/items/read/am,gnsdk").
 		then().
-		//log().all().
+		////log().all().
 		spec(get404ResponseSpec());
 	}
 
@@ -311,7 +311,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		post("/assessment/v3/items/list").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 	}
 	
@@ -328,7 +328,7 @@ public class assesmentItemAPI extends BaseTest {
 				when().
 				post("/assessment/v3/items/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -347,7 +347,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		post("/assessment/v3/items/search").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec()).
 		extract().response();
 		
@@ -371,7 +371,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		post("/assessment/v3/items/search").
 		then().
-		//log().all().
+		////log().all().
 		spec(get200ResponseSpec()).
 		extract().response();
 		
@@ -393,7 +393,7 @@ public class assesmentItemAPI extends BaseTest {
 				when().
 				post("/assessment/v3/items/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -416,7 +416,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		delete("/assessment/v3/items/retire/"+nodeId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 	}
 
@@ -429,7 +429,7 @@ public class assesmentItemAPI extends BaseTest {
 		when().
 		delete("/assessment/v3/items/retire/akcjdsjfbas").
 		then().
-		log().all().
+		//log().all().
 		spec(get404ResponseSpec());
 	}
 }
