@@ -102,19 +102,15 @@ public class ElasticSearchUtil {
 		createClient();
 	}
 
-	@SuppressWarnings("unchecked")
 	private void initialize() {
-		hostName = (List<String>) Platform.config.getAnyRefList("elastic-search-host");
-		port = Platform.config.getInt("elastic-search-port");
-		if (Platform.config.hasPath("bulk-load-batch-size"))
-			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
+		hostName = Platform.config.getStringList("search.es_host");
+		port = Platform.config.getInt("search.es_port");
+		if (Platform.config.hasPath("search.batch.size"))
+			BATCH_SIZE = Platform.config.getInt("search.batch.size");
 	}
 	
 	public TransportClient getClient() {
-		if(null!= client) {
-			return client;
-		}
-		else return null;
+		return client;
 	}
 
 	/**
@@ -124,8 +120,8 @@ public class ElasticSearchUtil {
 	private void initialize(List<String> host, int port) {
 		this.hostName = host;
 		this.port = port;
-		if (Platform.config.hasPath("bulk-load-batch-size"))
-			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
+		if (Platform.config.hasPath("search.batch.size"))
+			BATCH_SIZE = Platform.config.getInt("search.batch.size");
 	}
 
 	/**
@@ -152,12 +148,12 @@ public class ElasticSearchUtil {
 	}
 
 	public List<String> getQuerySearchFields() {
-		List<String> querySearchFields = Platform.config.getStringList("query-search-fields");
+		List<String> querySearchFields = Platform.config.getStringList("search.fields.query");
 		return querySearchFields;
 	}
 
 	public List<String> getDateFields() {
-		List<String> dateFields = Platform.config.getStringList("date-fields");
+		List<String> dateFields = Platform.config.getStringList("search.fields.date");
 		return dateFields;
 	}
 

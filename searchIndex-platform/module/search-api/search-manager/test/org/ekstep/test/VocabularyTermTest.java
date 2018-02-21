@@ -21,7 +21,6 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
@@ -38,7 +37,6 @@ import play.test.WithApplication;
  * @author pradyumna
  *
  */
-@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class VocabularyTermTest extends WithApplication {
 
