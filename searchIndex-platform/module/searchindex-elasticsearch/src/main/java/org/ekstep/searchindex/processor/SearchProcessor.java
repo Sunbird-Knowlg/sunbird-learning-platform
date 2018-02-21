@@ -627,14 +627,15 @@ public class SearchProcessor {
 	private QueryBuilder getMatchPhraseQuery(String propertyName, List<Object> values, boolean match) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
+			String stringValue = String.valueOf(value);
 			if (match) {
 				queryBuilder.should(QueryBuilders
-						.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value)
-						.operator(Operator.AND));
+						.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+								".*" + stringValue + ".*"));
 			} else {
 				queryBuilder.mustNot(QueryBuilders
-						.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value)
-						.operator(Operator.AND));
+						.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+								".*" + stringValue + ".*"));
 			}
 		}
 		return queryBuilder;
@@ -648,7 +649,7 @@ public class SearchProcessor {
 	private QueryBuilder getRegexQuery(String propertyName, List<Object> values) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
-			String stringValue = (String) value;
+			String stringValue = String.valueOf(value);
 			queryBuilder.should(QueryBuilders.wildcardQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
 					"*" + stringValue.toLowerCase()));
 		}

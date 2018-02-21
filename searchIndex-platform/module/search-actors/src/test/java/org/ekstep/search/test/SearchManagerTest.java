@@ -472,7 +472,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearchNumericValueFilter() {
+	public void testSearchValueFilter() {
 		Request request = getSearchRequest();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		List<String> objectTypes = new ArrayList<String>();
@@ -480,8 +480,8 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		filters.put("objectType", objectTypes);
 		filters.put("status", new ArrayList<String>());
 		Map<String, Object> name = new HashMap<String, Object>();
-		name.put("value", 564738);
-		filters.put("size", name);
+		name.put("value", "31 check name match");
+		filters.put("name", name);
 		request.put("filters", filters);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
@@ -490,8 +490,8 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Integer identifier = (Integer) content.get("size");
-			Assert.assertTrue(identifier == 564738);
+			String identifier = (String) content.get("name");
+			Assert.assertTrue(identifier.contains("31 check name match"));
 		}
 	}
 	
