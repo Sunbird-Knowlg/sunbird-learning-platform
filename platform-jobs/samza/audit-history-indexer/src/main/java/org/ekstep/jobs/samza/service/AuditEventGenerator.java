@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -34,6 +35,8 @@ public class AuditEventGenerator implements ISamzaService {
 	private Config config = null;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private SystemStream systemStream = null;
+	private static List<String> systemPropsList = Stream.of(SystemProperties.values())
+            .map(SystemProperties::name).collect(Collectors.toList());
 
 	public AuditEventGenerator() {
 		super();
@@ -106,15 +109,14 @@ public class AuditEventGenerator implements ISamzaService {
 			currStatus = (String) statusMap.get("nv");
 		}
 		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
-		List<SystemProperties> systemPropsList=Arrays.asList(SystemProperties.values());
-		for (SystemProperties systemProperties : systemPropsList) {
-			if(props.contains(systemProperties.name()))
-				props.remove(systemProperties.name());
-		}
+		List<String> propsExceptSystemProps = props.stream()
+				.filter(prop -> !systemPropsList.contains(prop))
+				.collect(Collectors.toList());
+		
 		Map<String, String> context = getContext(channelId);
 		context.put("objectId", objectId);
 		context.put(GraphDACParams.objectType.name(), objectType);
-		String auditMessage = TelemetryGenerator.audit(context, props, currStatus, prevStatus);
+		String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus);
 		LOGGER.debug("Audit Message : " + auditMessage);
 		auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
 		});

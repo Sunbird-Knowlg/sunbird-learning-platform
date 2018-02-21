@@ -1,13 +1,14 @@
 package org.ekstep.orchestrator.router;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
-import org.ekstep.graph.common.mgr.Configuration;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.orchestrator.dac.model.ActorPath;
@@ -31,12 +32,21 @@ public class ServiceLocator {
  			return LanguageRequestRouterPool.getRequestRouter();
 		else if (StringUtils.equalsIgnoreCase(RequestRouters.LEARNING_REQUEST_ROUTER.name(), actorPath.getRouter()))
 			return LearningRequestRouterPool.getRequestRouter();
-		List<String> graphIds = Configuration.graphIds;
+		
+		List<String> services = getPlatformServices();
+		List<String> graphIds = Platform.getGraphIds(services.toArray(new String[services.size()]));
 		if (null != graphIds && !graphIds.isEmpty()) {
 			if (StringUtils.isNotBlank(graphId) && !graphIds.contains(graphId))
 				throw new ServerException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(),
 						graphId + " not supported by this service");
 		}
 		return RequestRouterPool.getRequestRouter();
+	}
+	
+	private static List<String> getPlatformServices() {
+		if (Platform.config.hasPath("platform.services"))
+			return Platform.config.getStringList("platform.services");
+		else 
+			return Arrays.asList("learning", "language");
 	}
 }

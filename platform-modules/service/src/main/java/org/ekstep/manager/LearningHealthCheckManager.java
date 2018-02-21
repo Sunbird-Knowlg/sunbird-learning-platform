@@ -1,6 +1,7 @@
 package org.ekstep.manager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,6 @@ import java.util.concurrent.FutureTask;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.mgr.HealthCheckManager;
-import org.ekstep.graph.common.mgr.Configuration;
 import org.ekstep.orchestrator.dac.service.IOrchestratorDataService;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREAD_NUM);
 		List<FutureTask<Map<String, Object>>> taskList = new ArrayList<FutureTask<Map<String, Object>>>();
 		FutureTask<Map<String, Object>> futureTask_graphs;
-		List<String> graphIds = Configuration.graphIds;
+		List<String> graphIds = Arrays.asList("domain");
 		if (null != graphIds && graphIds.size() > 0) {
 			for (final String id : graphIds) {
 				futureTask_graphs = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {

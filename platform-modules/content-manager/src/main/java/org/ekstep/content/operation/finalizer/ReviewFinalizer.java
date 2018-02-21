@@ -129,7 +129,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		
 		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId, publishType);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
-		String topic = Platform.config.getString("instructionevent.kafka.topic.id");
+		String topic = Platform.config.getString("kafka.topics.instruction");
 		if(StringUtils.isBlank(beJobRequestEvent)) {
 			TelemetryManager.error("Instruction event is not generated properly. # beJobRequestEvent : " + beJobRequestEvent);
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
@@ -159,11 +159,11 @@ public class ReviewFinalizer extends BaseFinalizer {
 		}
 		
 		object.put("id", contentId);
-		object.put("contentType", metadata.get("contentType"));
 		object.put("ver", metadata.get("versionKey"));
 		
 		edata.put("action", action);
 		edata.put("metadata", metadata);
 		edata.put("publish_type", publishType);
+		edata.put("contentType", metadata.get("contentType"));
 	}
 }

@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
-import org.ekstep.graph.common.mgr.Configuration;
 import org.ekstep.graph.dac.mgr.IGraphDACGraphMgr;
 import org.ekstep.graph.dac.mgr.IGraphDACNodeMgr;
 import org.ekstep.graph.dac.mgr.IGraphDACSearchMgr;
@@ -24,7 +23,6 @@ import akka.actor.ActorRef;
 
 public abstract class AbstractDomainObject {
 
-    protected long timeout = Configuration.TIMEOUT;
     protected BaseGraphManager manager;
     protected String graphId;
     private ActorRef parent;

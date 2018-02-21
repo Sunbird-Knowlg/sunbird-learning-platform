@@ -90,10 +90,15 @@ public class PublishPipelineService implements ISamzaService {
 	@SuppressWarnings("unchecked")
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 
+		if(null == message) {
+			LOGGER.info("Ignoring the message because it is not valid for publishing.");
+			metrics.incSkippedCounter();
+			return;
+		}
 		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
 		Map<String, Object> object = (Map<String, Object>) message.get(PublishPipelineParams.object.name());
 		
-		if (!validateObject(edata, object)) {
+		if (!validateObject(edata) || null == object) {
 			LOGGER.info("Ignoring the message because it is not valid for publishing.");
 			metrics.incSkippedCounter();
 			return;
@@ -307,11 +312,9 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 	
-	private boolean validateObject(Map<String, Object> edata, Map<String, Object> object) {
+	private boolean validateObject(Map<String, Object> edata) {
 		
-		if (null == object) 
-			return false;
-		if (!StringUtils.equalsIgnoreCase((String) object.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
+		if (!StringUtils.equalsIgnoreCase((String) edata.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
 			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) <= getMaxIterations()))
 				return true;
 		}

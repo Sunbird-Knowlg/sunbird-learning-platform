@@ -19,7 +19,7 @@ import java.util.Properties;
 
 public class KafkaClient {
 
-	private final static String BOOTSTRAP_SERVERS = Platform.config.getString("graphevent.kafka.url");
+	private final static String BOOTSTRAP_SERVERS = Platform.config.getString("kafka.urls");
 	private static Producer<Long, String> producer;
 	private static Consumer<Long, String> consumer;
 	
@@ -55,14 +55,14 @@ public class KafkaClient {
 	}
 	
 	public static void send(String event, String topic) throws Exception {
-		if(validate(topic)) {
+		//if(validate(topic)) {
 			final Producer<Long, String> producer = getProducer();
 			ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(topic, event);
 			producer.send(record);
-		}else {
-			TelemetryManager.error("Topic id: " + topic + ", does not exists.");
-			throw new ClientException("TOPIC_NOT_EXISTS_EXCEPTION", "Topic id: " + topic + ", does not exists.");
-		}
+		//}else {
+		//	TelemetryManager.error("Topic id: " + topic + ", does not exists.");
+		//	throw new ClientException("TOPIC_NOT_EXISTS_EXCEPTION", "Topic id: " + topic + ", does not exists.");
+		//}
 	}
 	public static boolean validate(String topic) throws Exception{
 		Consumer<Long, String> consumer = getConsumer();
