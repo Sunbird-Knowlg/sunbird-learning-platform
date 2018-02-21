@@ -612,7 +612,7 @@ public class SearchProcessor {
 	private QueryBuilder getMatchPhrasePrefixQuery(String propertyName, List<Object> values) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
-			queryBuilder.should(QueryBuilders.matchPhrasePrefixQuery(
+			queryBuilder.should(QueryBuilders.prefixQuery(
 					propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, ((String) value).toLowerCase()));
 		}
 		return queryBuilder;
