@@ -19,7 +19,7 @@ import java.util.Properties;
 
 public class KafkaClient {
 
-	private final static String BOOTSTRAP_SERVERS = Platform.config.getString("graphevent.kafka.url");
+	private final static String BOOTSTRAP_SERVERS = Platform.config.getString("kafka.urls");
 	private static Producer<Long, String> producer;
 	private static Consumer<Long, String> consumer;
 	

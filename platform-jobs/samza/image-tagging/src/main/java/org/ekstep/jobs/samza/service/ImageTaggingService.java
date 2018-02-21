@@ -101,15 +101,17 @@ public class ImageTaggingService implements ISamzaService {
 	
 	
 	
-	private boolean validateObject(Map<String, Object> edata, Map<String, Object> object) {
+	private boolean validateObject(Map<String, Object> edata) {
 		
-		if (null == object || null == edata) 
+		if (null == edata) 
 			return false;
-		if(StringUtils.isNotBlank((String)object.get(ImageWorkflowEnums.contentType.name())) && 
+		if(StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.contentType.name())) && 
 				StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.mediaType.name())) &&
 				StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.status.name()))) {
-			if(StringUtils.equalsIgnoreCase((String)object.get(ImageWorkflowEnums.contentType.name()), ImageWorkflowEnums.Asset.name()) &&
+			
+			if(StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.contentType.name()), ImageWorkflowEnums.Asset.name()) &&
 					StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.mediaType.name()), ImageWorkflowEnums.image.name())){
+				
 				if(((Integer)edata.get(ImageWorkflowEnums.iteration.name()) == 1 && 
 						StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.status.name()), ImageWorkflowEnums.Processing.name())) || 
 						((Integer)edata.get(ImageWorkflowEnums.iteration.name()) > 1 && 
@@ -127,11 +129,15 @@ public class ImageTaggingService implements ISamzaService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-		
+		if(null == message) {
+			LOGGER.info("Ignoring the message because it is not valid for imagetagging.");
+			metrics.incSkippedCounter();
+			return;
+		}
 		Map<String, Object> edata = (Map<String, Object>) message.get(ImageWorkflowEnums.edata.name());
 		Map<String, Object> object = (Map<String, Object>) message.get(ImageWorkflowEnums.object.name());
 		
-		if (!validateObject(edata, object)) {
+		if (!validateObject(edata) || null == object) {
 			LOGGER.info("Ignoring the message because it is not valid for imagetagging.");
 			metrics.incSkippedCounter();
 			return;
