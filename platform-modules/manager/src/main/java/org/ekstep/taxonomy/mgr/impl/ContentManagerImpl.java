@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -123,6 +125,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private List<String> contentTypeList = Arrays.asList("Story", "Worksheet", "Game", "Simulation", "Puzzle",
 			"Diagnostic", "ContentTemplate", "ItemTemplate");
+	private List<String> finalStatus = Arrays.asList("Flagged", "Live", "Unlisted");
+	private List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
 
 	/*
 	 * (non-Javadoc)
@@ -937,7 +941,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-
 		restrictProps(definition, map, "status", "framework");
 
 		String originalId = contentId;
@@ -983,23 +986,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		TelemetryManager.log("Graph node found: " + graphNode.getIdentifier());
 		Map<String, Object> metadata = graphNode.getMetadata();
 		String status = (String) metadata.get("status");
-		boolean isReviewState = StringUtils.equalsIgnoreCase("Review", status);
-		boolean isFlaggedReviewState = StringUtils.equalsIgnoreCase("FlagReview", status);
-		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
-		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
-		boolean isUnlistedState = StringUtils.equalsIgnoreCase("Unlisted", status);
-
 		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
-			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus);
-			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus);
-			if ((updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
+			if (reviewStatus.contains(inputStatus) && !reviewStatus.contains(status)) {
 				map.put("lastSubmittedOn", DateUtils.format(new Date()));
+			}
 		}
 
 		boolean checkError = false;
 		Response createResponse = null;
-		if (isLiveState || isUnlistedState || isFlaggedState) {
+		if (finalStatus.contains(status)) {
 			if (isImageObjectCreationNeeded) {
 				graphNode.setIdentifier(contentImageId);
 				graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
@@ -1008,7 +1004,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				if (null != lastUpdatedBy)
 					metadata.put("lastUpdatedBy", lastUpdatedBy);
 				graphNode.setGraphId(GRAPH_ID);
-				TelemetryManager.log("Creating content image: " + graphNode.getIdentifier());
 				createResponse = createDataNode(graphNode);
 				checkError = checkError(createResponse);
 				if (!checkError) {
