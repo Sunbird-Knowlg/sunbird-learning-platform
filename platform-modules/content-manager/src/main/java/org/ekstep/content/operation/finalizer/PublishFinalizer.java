@@ -126,6 +126,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			String ecml = getECMLString(ecrf, ecmlType);
 			// Write ECML File
 			writeECMLFile(basePath, ecml, ecmlType);
+			
+			//upload snapshot of content into aws
+			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
+			
 			// Create 'ZIP' Package
 			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
@@ -364,21 +368,10 @@ public class PublishFinalizer extends BaseFinalizer {
 					case "assets":
 						break;
 					case "application/vnd.ekstep.ecml-archive":
-/*						if(content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())!=null)
-							copyLatestS3UrlPath(content, contentPackageExtractionUtil);*/
-						break;
 					case "application/vnd.ekstep.html-archive":
 					case "application/vnd.ekstep.h5p-archive":
-						copyLatestS3UrlPath(content);
+						copyLatestS3Url(content);
 						break;
-					case "video/mp4":
-					case "video/webm":
-					case "video/x-youtube":
-					case "video/youtube":
-					case "text/x-url":
-					case "application/pdf":
-					case "application/epub":
-					case "application/msword":
 					default:
 						String artifactUrl = (String) content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 						content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), artifactUrl);
@@ -388,7 +381,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 	
-	private void copyLatestS3UrlPath(Node content) {
+	private void copyLatestS3Url(Node content) {
 		try {
 			String latestFolderS3Url = contentPackageExtractionUtil.getS3URL(contentId, content, ExtractionType.latest);
 			//copy into previewUrl
