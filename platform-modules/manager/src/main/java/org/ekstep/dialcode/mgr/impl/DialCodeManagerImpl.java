@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -58,18 +57,17 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	private DialCodeGenerator dialCodeGenerator;
 
 	private int defaultLimit = 1000;
-	private List<String> dialHost = Arrays.asList("localhost");
-	private int dialPort = 9300;
+	private String connectionInfo = "localhost:9300";
 	private SearchProcessor processor = null;
 
 	@PostConstruct
 	public void init() {
 		defaultLimit = Platform.config.hasPath("dialcode.search.limit")
 				? Platform.config.getInt("dialcode.search.limit") : defaultLimit;
-		dialHost = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getStringList("dialcode.es_host")
-				: dialHost;
-		dialPort = Platform.config.hasPath("dialcode.es_port") ? Platform.config.getInt("dialcode.es_port") : dialPort;
-		processor = new SearchProcessor(dialHost, dialPort);
+		connectionInfo = Platform.config.hasPath("dialcode.es_conn_info")
+				? Platform.config.getString("dialcode.es_conn_info")
+				: connectionInfo;
+		processor = new SearchProcessor(connectionInfo);
 	}
 
 	/*

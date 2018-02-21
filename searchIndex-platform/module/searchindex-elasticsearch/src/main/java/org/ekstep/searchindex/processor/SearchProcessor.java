@@ -44,8 +44,8 @@ public class SearchProcessor {
 		elasticSearchUtil = new ElasticSearchUtil();
 	}
 
-	public SearchProcessor(List<String> host, int port) {
-		elasticSearchUtil = new ElasticSearchUtil(host, port);
+	public SearchProcessor(String connectionInfo) {
+		elasticSearchUtil = new ElasticSearchUtil(connectionInfo);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

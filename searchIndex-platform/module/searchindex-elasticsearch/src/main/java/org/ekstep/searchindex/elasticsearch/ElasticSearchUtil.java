@@ -67,8 +67,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ElasticSearchUtil {
 
 	private TransportClient client = null;
-	private List<String> hostName = new ArrayList<String>();
-	private int port;
+	private Map<String, Integer> hostPort = new HashMap<String, Integer>();
 	public int defaultResultLimit = 10000;
 	public int defaultResultOffset = 0;
 	private int BATCH_SIZE = 1000;
@@ -97,18 +96,26 @@ public class ElasticSearchUtil {
 		createClient();
 	}
 
-	public ElasticSearchUtil(List<String> host, int port) {
-		initialize(host, port);
+	public ElasticSearchUtil(String connectionInfo) {
+		initialize(connectionInfo);
 		createClient();
 	}
 
 	private void initialize() {
-		hostName = Platform.config.getStringList("search.es_host");
-		port = Platform.config.getInt("search.es_port");
+		setHostPort(Platform.config.getString("search.es_conn_info"));
 		if (Platform.config.hasPath("search.batch.size"))
 			BATCH_SIZE = Platform.config.getInt("search.batch.size");
 	}
-	
+
+	/**
+	 * @param string
+	 */
+	private void setHostPort(String connectionInfo) {
+		for (String info : connectionInfo.split(",")) {
+			hostPort.put(info.split(":")[0], Integer.valueOf(info.split(":")[1]));
+		}
+	}
+
 	public TransportClient getClient() {
 		return client;
 	}
@@ -117,9 +124,8 @@ public class ElasticSearchUtil {
 	 * @param host
 	 * @param port
 	 */
-	private void initialize(List<String> host, int port) {
-		this.hostName = host;
-		this.port = port;
+	private void initialize(String connectionInfo) {
+		setHostPort(connectionInfo);
 		if (Platform.config.hasPath("search.batch.size"))
 			BATCH_SIZE = Platform.config.getInt("search.batch.size");
 	}
@@ -132,8 +138,9 @@ public class ElasticSearchUtil {
 			Settings settings = Settings.settingsBuilder().put("client.transport.sniff", true)
 					.put("client.transport.ignore_cluster_name", true).build();
 			client = TransportClient.builder().settings(settings).addPlugin(DeleteByQueryPlugin.class).build();
-			for(String host: hostName) {
-				client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+			for (String host : hostPort.keySet()) {
+				client.addTransportAddress(
+						new InetSocketTransportAddress(InetAddress.getByName(host), hostPort.get(host)));
 			}
 		} catch (UnknownHostException e) {
 			TelemetryManager.error("Error while creating elasticsearch client ", e);
