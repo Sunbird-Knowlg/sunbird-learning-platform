@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
@@ -950,7 +952,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		String mimeType = (String) map.get(TaxonomyAPIParams.mimeType.name());
 		updateDefaultValuesByMimeType(map, mimeType);
-
+		// Standard Youtube Licence Validation - Start
+		String artifactUrl = (String) map.get(ContentAPIParams.artifactUrl.name());
+		// TODO: Confirm whether licence will come in request map or not. If
+		// yes, it should be also checked before calling
+		// validateYoutubeLicence()
+		// String licence = (String) map.get("licence");
+		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
+			validateYoutubeLicence(artifactUrl, map);
+		// Standard Youtube Licence Validation - End
 		boolean isImageObjectCreationNeeded = false;
 		boolean imageObjectExists = false;
 
@@ -1633,6 +1643,45 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}
+	}
+
+	private void validateYoutubeLicence(String artifactUrl, Map<String, Object> map) throws Exception {
+		
+		Boolean isLicenceValidationRequired = Platform.config.hasPath("learning.content.youtube.validate.licence")
+				? Platform.config.getBoolean("learning.content.youtube.validate.licence") : false;
+
+		if (isLicenceValidationRequired) {
+			String videoId = getVideoIdFromUrl(artifactUrl);
+			String licenceType = getYoutubeLicence(videoId);
+			map.put("licence", licenceType);
+		}
+	}
+
+	private String getVideoIdFromUrl(String artifactUrl) throws Exception {
+		String videoId = null;
+		String[] videoIdRegex = { "\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)",
+				"^([A-Za-z0-9\\-]*)" };
+		try {
+			for (String regex : videoIdRegex) {
+				Pattern compiledPattern = Pattern.compile(regex);
+				Matcher matcher = compiledPattern.matcher(artifactUrl);
+
+				if (matcher.find()) {
+					videoId = matcher.group(1);
+				} else {
+					throw new ClientException("ERR_YOUTUBE_LICENCE_VALIDATION", "Please Provide Valid Youtube URL!");
+				}
+			}
+		} catch (Exception e) {
+			throw new ClientException("ERR_YOUTUBE_LICENCE_VALIDATION", "Please Provide Valid Youtube URL!");
+		}
+		return videoId;
+	}
+
+	private String getYoutubeLicence(String videoId) throws Exception {
+		String licenceType = "";
+		// TODO: Implementation need to be done.
+		return licenceType;
 	}
 
 }

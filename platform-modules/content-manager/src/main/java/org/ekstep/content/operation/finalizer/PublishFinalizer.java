@@ -334,7 +334,10 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private void setPragma(Node node) {
-		if ("video/x-youtube".equalsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
+		if ("video/x-youtube"
+				.equalsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))
+				|| "application/pdf".equalsIgnoreCase(
+						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
 			Object obj = node.getMetadata().get("pragma");
 			List<String> pragma = null;
 			String value = "external";
