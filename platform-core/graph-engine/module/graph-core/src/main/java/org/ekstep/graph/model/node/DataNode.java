@@ -622,7 +622,7 @@ public class DataNode extends AbstractNode {
 		boolean found = false;
 		for (Object rangeVal : range) {
 			if (rangeVal instanceof String) {
-				if (StringUtils.equalsIgnoreCase((String) value, (String) rangeVal)) {
+				if (StringUtils.equals((String) value, (String) rangeVal)) {
 					found = true;
 					break;
 				}

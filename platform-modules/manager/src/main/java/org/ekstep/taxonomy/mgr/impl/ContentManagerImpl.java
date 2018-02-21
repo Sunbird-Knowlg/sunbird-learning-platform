@@ -1054,6 +1054,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return createResponse;
 	}
 
+	// TODO: push this to publish-pipeline.
 	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
 		if (StringUtils.isNotBlank(mimeType)) {
 			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection")
