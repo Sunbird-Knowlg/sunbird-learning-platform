@@ -52,54 +52,6 @@ public class ImageTaggingService implements ISamzaService {
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");
 	}
-
-	/*@SuppressWarnings("unchecked")
-	private Map<String, Object> getImageLifecycleData(Map<String, Object> message) {
-		String eid = (String) message.get("eid");
-		if (null == eid || !StringUtils.equalsIgnoreCase(eid, ImageWorkflowEnums.BE_OBJECT_LIFECYCLE.name())) {
-			return null;
-		}
-		Map<String, Object> edata = (Map<String, Object>) message.get("edata");
-		if (null == edata) {
-			return null;
-		}
-		Map<String, Object> eks = (Map<String, Object>) edata.get("eks");
-		if (null == eks) {
-			return null;
-		}
-		if (null != eks.get(ImageWorkflowEnums.type.name()) && null != eks.get(ImageWorkflowEnums.subtype.name())) {
-			if ((StringUtils.equalsIgnoreCase((String) eks.get("type"), "Asset"))
-					&& (StringUtils.equalsIgnoreCase((String) eks.get("subtype"), "image"))
-					&& (StringUtils.equalsIgnoreCase((String) eks.get("state"), "Processing"))) {
-				return eks;
-			}
-		}
-		return null;
-	}*/
-
-	/*@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-		Map<String, Object> eks = getImageLifecycleData(message);
-		if (null == eks) {
-			metrics.incSkippedCounter();
-			return;
-		}
-		try {
-			String nodeId = (String) eks.get(ImageWorkflowEnums.id.name());
-			Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
-			if ((null != node) && (node.getObjectType().equalsIgnoreCase(ImageWorkflowEnums.content.name()))){
-				imageEnrichment(node);
-				metrics.incSuccessCounter();
-			} else {
-				metrics.incSkippedCounter();
-			}
-		} catch (Exception e) {
-			LOGGER.error("Failed to process message", message, e);
-			metrics.incFailedCounter();
-		}
-	}*/
-	
-	
 	
 	private boolean validateObject(Map<String, Object> edata) {
 		
