@@ -141,6 +141,17 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-youtube -->
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-youtube</artifactId>
+			<version>v3-rev192-1.23.0</version>
+		</dependency>
+		 <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+            <version>1.23.0</version>
+        </dependency>
 	</dependencies>
 
 	<build>
