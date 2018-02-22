@@ -506,7 +506,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		filters.put("status", new ArrayList<String>());
 		request.put("filters", filters);
 		List<String> exists = new ArrayList<String>();
-		exists.add("size");
+		exists.add("objectType");
 		request.put("exists", exists);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
@@ -515,8 +515,8 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Integer size = (Integer) content.get("size");
-			Assert.assertNotNull(size);
+			String objectType = (String) content.get("objectType");
+			Assert.assertNotNull(objectType);
 		}
 	}
 	

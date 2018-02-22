@@ -585,9 +585,9 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			if (exists) {
-				queryBuilder.should(QueryBuilders.existsQuery(((String) value).toLowerCase()));
+				queryBuilder.should(QueryBuilders.existsQuery(String.valueOf(value)));
 			} else {
-				queryBuilder.mustNot(QueryBuilders.existsQuery(((String) value).toLowerCase()));
+				queryBuilder.mustNot(QueryBuilders.existsQuery(String.valueOf(value)));
 			}
 		}
 		return queryBuilder;
