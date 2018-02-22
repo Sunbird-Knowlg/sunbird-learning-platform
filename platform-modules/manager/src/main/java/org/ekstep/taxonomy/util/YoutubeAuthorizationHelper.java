@@ -1,11 +1,14 @@
 package org.ekstep.taxonomy.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
 
@@ -58,10 +61,12 @@ public class YoutubeAuthorizationHelper {
 	public static Credential authorize(List<String> scopes, String credentialDatastore) throws Exception {
 
 		// Load client secrets.
-		// TODO: Need to Check, if Credentials can be configurable through
-		// application.conf
-		Reader clientSecretReader = new InputStreamReader(
-				YoutubeAuthorizationHelper.class.getResourceAsStream("/client_secrets.json"));
+		String clientId = Platform.config.getString("learning.content.youtube.client_id");
+		String clientSecret = Platform.config.getString("learning.content.youtube.client_secret");
+		String cred = "{\"installed\": {\"client_id\": \"" + clientId + "\",\"client_secret\": \"" + clientSecret
+				+ "\"}}";
+		InputStream is = new ByteArrayInputStream(cred.getBytes());
+		Reader clientSecretReader = new InputStreamReader(is);
 
 		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, clientSecretReader);
 
@@ -79,12 +84,11 @@ public class YoutubeAuthorizationHelper {
 		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY,
 				clientSecrets, scopes).setCredentialDataStore(datastore).build();
 
-		// Build the local server and bind it to port 8080
+		// Build the local server and bind it to port 8090
 		// TODO: Need to check if this will work with tomcat
-		LocalServerReceiver localReceiver = new LocalServerReceiver.Builder().setPort(8080).build();
+		LocalServerReceiver localReceiver = new LocalServerReceiver.Builder().setPort(8090).build();
 
 		// Authorize.
-		// TODO: Need to Resolve CTE
 		return new AuthorizationCodeInstalledApp(flow, localReceiver).authorize("user");
 	}
 

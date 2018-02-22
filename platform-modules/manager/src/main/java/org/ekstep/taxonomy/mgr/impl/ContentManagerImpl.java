@@ -1648,7 +1648,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	private void validateYoutubeLicense(String artifactUrl, Map<String, Object> map) throws Exception {
+	public void validateYoutubeLicense(String artifactUrl, Map<String, Object> map) throws Exception {
 		
 		Boolean isLicenseValidationRequired = Platform.config.hasPath("learning.content.youtube.validate.license")
 				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
@@ -1701,7 +1701,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Exception : " + e.getMessage());
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}
