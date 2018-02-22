@@ -202,7 +202,12 @@ public class SearchManager extends SearchBaseActor {
 								}
 							}
 							data.add(boost);
-							data.add(filters.get(key));
+							if (filters.get(key) instanceof Map) {
+								data.add(((Map) filters.get(key)).values().toArray()[0]);
+							} else {
+								data.add(filters.get(key));
+							}
+
 							softConstraintMap.put(key, data);
 							filters.remove(key);
 						}

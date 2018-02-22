@@ -829,9 +829,11 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 	public void testSoftConstraints() {
 		Request request = getSearchRequest();
 		Map<String, Object> filters = new HashMap<String, Object>();
-		filters.put("subject", "Maths");
-		request.put("mode", "soft");
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("notEquals", "31 check name match");
+		filters.put("name", map);
 		request.put("filters", filters);
+		request.put("mode", "soft");
 		List<String> fields = new ArrayList<String>();
 		fields.add("name");
 		fields.add("medium");
@@ -839,7 +841,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		fields.add("contentType");
 		request.put("fields", fields);
 		Map<String, Object> softConstraints = new HashMap<String, Object>();
-		softConstraints.put("medium", 20);
+		softConstraints.put("name", 100);
 		softConstraints.put("subject", 20);
 		request.put("softConstraints", softConstraints);
 		Response response = getSearchResponse(request);
