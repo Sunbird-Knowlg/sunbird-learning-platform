@@ -1677,7 +1677,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			VideoListResponse response = videosListByIdRequest.execute();
 			List<Video> videoList = response.getItems();
 
-			if (!videoList.isEmpty()) {
+			if (null != videoList && !videoList.isEmpty()) {
 				Iterator<Video> itr = videoList.iterator();
 				while (itr.hasNext()) {
 					Video singleVideo = itr.next();
