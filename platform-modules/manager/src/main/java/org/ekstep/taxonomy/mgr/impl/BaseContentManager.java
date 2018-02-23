@@ -23,13 +23,20 @@ public abstract class BaseContentManager extends BaseManager {
 	
 	private static final String DEFAULT_MIME_TYPE = "assets";
 	
-	protected String getActualIdentifier(String identifier) {
+	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
 			return identifier.replace(".img", "");
 		}
 		return identifier;
 	}
 	
+	protected String getImageId(String identifier) {
+		String imageId = "";
+		if (StringUtils.isNotBlank(identifier))
+			imageId = identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		return imageId;
+	}
+
 	protected void isImageContentId(String identifier) {
 		if (StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 			throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),

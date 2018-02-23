@@ -26,8 +26,6 @@ import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.dto.ResponseParams;
-import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
@@ -256,22 +254,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	private void setMimeTypeForUpload(String mimeType, Node node) {
-		node.getMetadata().put("mimeType", mimeType);
-		updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
-	}
-
-	private Response checkAndReturnUploadResponse(Response res) {
-		if (checkError(res)) {
-			return res;
-		} else {
-			String nodeId = (String) res.getResult().get("node_id");
-			String returnNodeId = getActualIdentifier(nodeId);
-			res.getResult().replace("node_id", nodeId, returnNodeId);
-			return res;
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -306,7 +288,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				validateInputNodesForBundling(nodes);
 
 				for (Node node : nodes) {
-					String contentImageId = getContentImageIdentifier(node.getIdentifier());
+					String contentImageId = getImageId(node.getIdentifier());
 					Response getNodeResponse = getDataNode(taxonomyId, contentImageId);
 					if (!checkError(getNodeResponse)) {
 						node = (Node) getNodeResponse.get(GraphDACParams.node.name());
@@ -336,41 +318,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 			return listRes;
 		}
-	}
-
-	/**
-	 * Search nodes.
-	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param contentIds
-	 *            the content ids
-	 * @return the response
-	 */
-	private Response searchNodes(String taxonomyId, List<String> contentIds) {
-		ContentSearchCriteria criteria = new ContentSearchCriteria();
-		List<Filter> filters = new ArrayList<Filter>();
-		Filter filter = new Filter("identifier", SearchConditions.OP_IN, contentIds);
-		filters.add(filter);
-		MetadataCriterion metadata = MetadataCriterion.create(filters);
-		metadata.addFilter(filter);
-		criteria.setMetadata(metadata);
-		List<Request> requests = new ArrayList<Request>();
-		if (StringUtils.isNotBlank(taxonomyId)) {
-			Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-					GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
-			req.put(GraphDACParams.get_tags.name(), true);
-			requests.add(req);
-		} else {
-			for (String tId : TaxonomyManagerImpl.taxonomyIds) {
-				Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-						GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
-				req.put(GraphDACParams.get_tags.name(), true);
-				requests.add(req);
-			}
-		}
-		Response response = getResponse(requests, GraphDACParams.node_list.name(), ContentAPIParams.contents.name());
-		return response;
 	}
 
 	/*
@@ -453,54 +400,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		response.put(ContentAPIParams.content_id.name(), contentId);
 		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
 		response.put(ContentAPIParams.url_expiry.name(), S3PropertyReader.getProperty("s3.upload.url.expiry"));
-		return response;
-	}
-
-	/**
-	 * Gets the folder name.
-	 *
-	 * @param url
-	 *            the url
-	 * @return the folder name
-	 */
-	private String getFolderName(String url) {
-		try {
-			String s = url.substring(0, url.lastIndexOf('/'));
-			return s.substring(s.lastIndexOf('/') + 1);
-		} catch (Exception e) {
-		}
-		return "";
-	}
-
-	/**
-	 * Update node.
-	 *
-	 * @param node
-	 *            the node
-	 * @return the response
-	 */
-	private Response updateDataNode(Node node) {
-		Response response = new Response();
-		if (null != node) {
-			String contentId = node.getIdentifier();
-			// Checking if Content Image Object is being Updated, then return
-			// the Original Content Id
-			if (BooleanUtils.isTrue((Boolean) node.getMetadata().get(TaxonomyAPIParams.isImageObject.name()))) {
-				node.getMetadata().remove(TaxonomyAPIParams.isImageObject.name());
-				node.setIdentifier(node.getIdentifier() + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
-			}
-
-			TelemetryManager.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
-			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-			updateReq.put(GraphDACParams.node.name(), node);
-			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-
-			TelemetryManager.log("Updating the Node ID: " + node.getIdentifier());
-			response = getResponse(updateReq);
-
-			response.put(TaxonomyAPIParams.node_id.name(), contentId);
-			TelemetryManager.log("Returning Node Update Response.");
-		}
 		return response;
 	}
 
@@ -608,263 +507,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return response;
 	}
 
-	protected ResponseParams getSucessStatus() {
-		ResponseParams params = new ResponseParams();
-		params.setErr("0");
-		params.setStatus(StatusType.successful.name());
-		params.setErrmsg("Operation successful");
-		return params;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
-			String mode) {
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
-		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
-
-		// Collections sort method is used to sort the child content list on the
-		// basis of index.
-		if (null != children && !children.isEmpty()) {
-			Collections.sort(children, new Comparator<NodeDTO>() {
-				@Override
-				public int compare(NodeDTO o1, NodeDTO o2) {
-					return o1.getIndex() - o2.getIndex();
-				}
-			});
-		}
-
-		if (null != children && !children.isEmpty()) {
-			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
-			for (NodeDTO dto : children) {
-				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
-				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode);
-				childMap.put("index", dto.getIndex());
-				Map<String, Object> childData = contentCleanUp(childMap);
-				childList.add(childData);
-			}
-			contentMap.put("children", childList);
-		}
-		return contentMap;
-	}
-
-	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
-		if (map.containsKey(TaxonomyAPIParams.identifier.name())) {
-			String identifier = (String) map.get(TaxonomyAPIParams.identifier.name());
-			TelemetryManager.log("Checking if identifier ends with .img" + identifier);
-			if (StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
-				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
-				TelemetryManager.log("replacing image id with content id in response " + identifier + newIdentifier);
-				map.replace(TaxonomyAPIParams.identifier.name(), identifier, newIdentifier);
-			}
-		}
-		return map;
-	}
-
-	private Node getContentNode(String graphId, String contentId, String mode) {
-
-		if (StringUtils.equalsIgnoreCase("edit", mode)) {
-			String contentImageId = getContentImageIdentifier(contentId);
-			Response responseNode = getDataNode(graphId, contentImageId);
-			if (!checkError(responseNode)) {
-				Node content = (Node) responseNode.get(GraphDACParams.node.name());
-				return content;
-			}
-		}
-		Response responseNode = getDataNode(graphId, contentId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-					"Content not found with id: " + contentId);
-
-		Node content = (Node) responseNode.get(GraphDACParams.node.name());
-		return content;
-	}
-
-	private DefinitionDTO getDefinition(String graphId, String objectType) {
-		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-				GraphDACParams.object_type.name(), objectType);
-		Response response = getResponse(request);
-		if (!checkError(response)) {
-			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
-			return definition;
-		}
-		return null;
-	}
-
-	@SuppressWarnings("unused")
-	private String getContentBody(String contentId, String mode) {
-		String body = "";
-		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
-			body = getContentBody(getContentImageIdentifier(contentId));
-		if (StringUtils.isBlank(body))
-			body = getContentBody(contentId);
-		return body;
-	}
-
-	private String getContentBody(String contentId) {
-		Request request = new Request();
-		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
-		request.setOperation(ContentStoreOperations.getContentBody.name());
-		request.put(ContentStoreParams.content_id.name(), contentId);
-		Response response = makeLearningRequest(request);
-		String body = (String) response.get(ContentStoreParams.body.name());
-		return body;
-	}
-
-	private Response getContentProperties(String contentId, List<String> properties) {
-		Request request = new Request();
-		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
-		request.setOperation(ContentStoreOperations.getContentProperties.name());
-		request.put(ContentStoreParams.content_id.name(), contentId);
-		request.put(ContentStoreParams.properties.name(), properties);
-		Response response = makeLearningRequest(request);
-		return response;
-	}
-
-	private Response updateContentProperties(String contentId, Map<String, Object> properties) {
-		Request request = new Request();
-		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
-		request.setOperation(ContentStoreOperations.updateContentProperties.name());
-		request.put(ContentStoreParams.content_id.name(), contentId);
-		request.put(ContentStoreParams.properties.name(), properties);
-		Response response = makeLearningRequest(request);
-		return response;
-	}
-
-	/**
-	 * Make a sync request to LearningRequestRouter
-	 *
-	 * @param request
-	 *            the request object
-	 * @param logger
-	 *            the logger object
-	 * @return the LearningActor response
-	 */
-	private Response makeLearningRequest(Request request) {
-		ActorRef router = LearningRequestRouterPool.getRequestRouter();
-		try {
-			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
-			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
-			if (obj instanceof Response) {
-				Response response = (Response) obj;
-				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: "
-						+ response.getResponseCode() + " | Result: " + response.getResult().keySet());
-				return response;
-			} else {
-				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
-			}
-		} catch (Exception e) {
-			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
-		}
-	}
-
-	private String getContentImageIdentifier(String contentId) {
-		String contentImageId = "";
-		if (StringUtils.isNotBlank(contentId))
-			contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-		return contentImageId;
-	}
-
-	private Node getNodeForOperation(String taxonomyId, String contentId, String operation) {
-		TelemetryManager.log("Taxonomy Id: " + taxonomyId + " | Content Id: " + contentId);
-		Node node = new Node();
-
-		TelemetryManager.log("Fetching the Content Node. | [Content ID: " + contentId + "]");
-		String contentImageId = getContentImageIdentifier(contentId);
-		Response response = getDataNode(taxonomyId, contentImageId);
-		if (checkError(response)) {
-			TelemetryManager.log("Unable to Fetch Content Image Node for Content Id: " + contentId);
-
-			TelemetryManager.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
-			response = getDataNode(taxonomyId, contentId);
-
-			TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
-			if (checkError(response))
-				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
-
-			// Content Image Node is not Available so assigning the original
-			// Content Node as node
-			node = (Node) response.get(GraphDACParams.node.name());
-
-			if (!StringUtils.equalsIgnoreCase(operation, "publish")
-					&& !StringUtils.equalsIgnoreCase(operation, "review")) {
-				// Checking if given Content Id is Image Node
-				if (null != node && isContentImageObject(node))
-					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
-									+ "' does not Exist.]");
-
-				String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
-				if (StringUtils.isNotBlank(status)
-						&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
-								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Unlisted.name(), status)
-								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
-					node = createContentImageNode(taxonomyId, contentImageId, node);
-			}
-		} else {
-			// Content Image Node is Available so assigning it as node
-			node = (Node) response.get(GraphDACParams.node.name());
-			TelemetryManager.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
-		}
-
-		TelemetryManager.log("Returning the Node for Operation with Identifier: " + node.getIdentifier());
-		return node;
-	}
-
-	private Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
-
-		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
-		imageNode.setGraphId(taxonomyId);
-		imageNode.setIdentifier(contentImageId);
-		imageNode.setMetadata(node.getMetadata());
-		imageNode.setInRelations(node.getInRelations());
-		imageNode.setOutRelations(node.getOutRelations());
-		imageNode.setTags(node.getTags());
-		imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
-		Response response = createDataNode(imageNode);
-		if (checkError(response))
-			throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
-					"Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
-							+ "]");
-		Response resp = getDataNode(taxonomyId, contentImageId);
-		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
-		TelemetryManager.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
-		return nodeData;
-	}
-
-	private Response createDataNode(Node node) {
-		Response response = new Response();
-		if (null != node) {
-			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
-			request.put(GraphDACParams.node.name(), node);
-
-			TelemetryManager.log("Creating the Node ID: " + node.getIdentifier());
-			response = getResponse(request);
-		}
-		return response;
-	}
-
-	private void validateInputNodesForBundling(List<Node> nodes) {
-		if (null != nodes && !nodes.isEmpty()) {
-			for (Node node : nodes) {
-				// Validating for Content Image Node
-				if (null != node && isContentImageObject(node))
-					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
-									+ "' does not Exist.]");
-			}
-		}
-	}
-
-	private boolean isContentImageObject(Node node) {
-		boolean isContentImage = false;
-		if (null != node && StringUtils.equalsIgnoreCase(node.getObjectType(),
-				ContentWorkflowPipelineParams.ContentImage.name()))
-			isContentImage = true;
-		return isContentImage;
-	}
-
 	public Response createContent(Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
@@ -935,13 +577,75 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	private String getDefaultFramework() {
-		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
-		// TODO: check channel for default framework.
-		if (Platform.config.hasPath("platform.framework.default"))
-			return Platform.config.getString("platform.framework.default");
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response find(String graphId, String contentId, String mode, List<String> fields) {
+		Response response = new Response();
+
+		Node node = getContentNode(graphId, contentId, mode);
+
+		TelemetryManager.log("Fetching the Data For Content Id: " + node.getIdentifier());
+		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
+		List<String> externalPropsList = getExternalPropsList(definition);
+		if (null == fields)
+			fields = new ArrayList<String>();
 		else
-			return "NCF";
+			fields = new ArrayList<String>(fields);
+
+		// TODO: this is only for backward compatibility. remove after this
+		// release.
+		if (fields.contains("tags")) {
+			fields.remove("tags");
+			fields.add("keywords");
+		}
+
+		List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
+
+		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
+			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
+			if (!checkError(getContentPropsRes)) {
+				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes
+						.get(TaxonomyAPIParams.values.name());
+				if (null != resProps)
+					contentMap.putAll(resProps);
+			}
+		}
+
+		// Get all the languages for a given Content
+		List<String> languages = convertStringArrayToList(
+				(String[]) node.getMetadata().get(TaxonomyAPIParams.language.name()));
+
+		// Eval the language code for all Content Languages
+		List<String> languageCodes = new ArrayList<String>();
+		for (String language : languages)
+			languageCodes.add(LanguageCodeMap.getLanguageCode(language.toLowerCase()));
+		if (null != languageCodes && languageCodes.size() == 1)
+			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
+		else
+			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
+
+		response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
+		response.setParams(getSucessStatus());
+		return response;
+	}
+
+	public Response updateAllContentNodes(String originalId, Map<String, Object> map) throws Exception {
+		if (null == map)
+			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		map.put("versionKey", graphPassportKey);
+		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+		Response updateResponse = updateNode(originalId, CONTENT_OBJECT_TYPE, domainObj);
+		if (checkError(updateResponse))
+			return updateResponse;
+		updateResponse.put(GraphDACParams.node_id.name(), originalId);
+
+		Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+		updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
+		return updateResponse;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1062,115 +766,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return createResponse;
 	}
 
-	// TODO: push this to publish-pipeline.
-	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
-		if (StringUtils.isNotBlank(mimeType)) {
-			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection")
-					|| mimeType.endsWith("epub"))
-				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.gzip.name());
-			else
-				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.identity.name());
-
-			if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url"))
-				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.online.name());
-			else
-				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Response find(String graphId, String contentId, String mode, List<String> fields) {
-		Response response = new Response();
-
-		Node node = getContentNode(graphId, contentId, mode);
-
-		TelemetryManager.log("Fetching the Data For Content Id: " + node.getIdentifier());
-		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
-		List<String> externalPropsList = getExternalPropsList(definition);
-		if (null == fields)
-			fields = new ArrayList<String>();
-		else
-			fields = new ArrayList<String>(fields);
-
-		// TODO: this is only for backward compatibility. remove after this
-		// release.
-		if (fields.contains("tags")) {
-			fields.remove("tags");
-			fields.add("keywords");
-		}
-
-		List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
-
-		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
-			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
-			if (!checkError(getContentPropsRes)) {
-				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes
-						.get(TaxonomyAPIParams.values.name());
-				if (null != resProps)
-					contentMap.putAll(resProps);
-			}
-		}
-
-		// Get all the languages for a given Content
-		List<String> languages = convertStringArrayToList(
-				(String[]) node.getMetadata().get(TaxonomyAPIParams.language.name()));
-
-		// Eval the language code for all Content Languages
-		List<String> languageCodes = new ArrayList<String>();
-		for (String language : languages)
-			languageCodes.add(LanguageCodeMap.getLanguageCode(language.toLowerCase()));
-		if (null != languageCodes && languageCodes.size() == 1)
-			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
-		else
-			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
-
-		response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
-		response.setParams(getSucessStatus());
-		return response;
-	}
-
-	public Response updateAllContentNodes(String originalId, Map<String, Object> map) throws Exception {
-		if (null == map)
-			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-
-		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-		map.put("versionKey", graphPassportKey);
-		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
-		Response updateResponse = updateNode(originalId, CONTENT_OBJECT_TYPE, domainObj);
-		if (checkError(updateResponse))
-			return updateResponse;
-		updateResponse.put(GraphDACParams.node_id.name(), originalId);
-
-		Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
-		updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
-		return updateResponse;
-	}
-
-	private Response updateNode(String identifier, String objectType, Node domainNode) {
-		domainNode.setGraphId(GRAPH_ID);
-		domainNode.setIdentifier(identifier);
-		domainNode.setObjectType(objectType);
-		return updateDataNode(domainNode);
-	}
-
-	private List<String> getExternalPropsList(DefinitionDTO definition) {
-		List<String> list = new ArrayList<String>();
-		if (null != definition) {
-			List<MetadataDefinition> props = definition.getProperties();
-			if (null != props && !props.isEmpty()) {
-				for (MetadataDefinition prop : props) {
-					if (StringUtils.equalsIgnoreCase("external", prop.getDataType())) {
-						list.add(prop.getPropertyName().trim());
-					}
-				}
-			}
-		}
-		return list;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response updateHierarchy(Map<String, Object> data) {
@@ -1228,6 +823,447 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException("ERR_INVALID_HIERARCHY_DATA", "Hierarchy data is empty");
 		}
 		return new Response();
+	}
+
+	/**
+	 * This Method will link single DIAL Code to Multiple Contents.
+	 * 
+	 * @author gauraw
+	 * 
+	 * @param reqMap
+	 * @return
+	 * @throws Exception
+	 */
+	private Response updateDialCodeToContents(List<String> contents, List<String> dialcodes) throws Exception {
+		Response resp;
+		List<String> invalidContent = new ArrayList<String>();
+		List<String> updateFailed = new ArrayList<String>();
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		// TODO: Need to think for Rollback in case of Partial Update
+		for (String contentId : contents) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put(DialCodeEnum.dialcodes.name(), dialcodes);
+			Response responseNode = getDataNode(GRAPH_ID, contentId);
+			if (checkError(responseNode)) {
+				invalidContent.add(contentId);
+			} else {
+				Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
+				resp = updateDialCode(map, definition, contentNode, contentId);
+				if (checkError(responseNode))
+					updateFailed.add(contentId);
+			}
+		}
+		if (invalidContent.isEmpty() && updateFailed.isEmpty()) {
+			resp = new Response();
+			resp.setParams(getSucessStatus());
+			resp.setResponseCode(ResponseCode.OK);
+			return resp;
+		} else if (!invalidContent.isEmpty() && contents.size() == 1) {
+			resp = new Response();
+			resp.setResponseCode(ResponseCode.CLIENT_ERROR);
+			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+					"Content not found with id(s):" + invalidContent));
+			return resp;
+		} else {
+			resp = new Response();
+			resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
+			List<String> messages = new ArrayList<String>();
+			if (!invalidContent.isEmpty())
+				messages.add("Content not found with id(s): " + String.join(",", invalidContent));
+			if (!updateFailed.isEmpty())
+				messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailed));
+
+			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", messages)));
+			return resp;
+		}
+	}
+
+	private void setMimeTypeForUpload(String mimeType, Node node) {
+		node.getMetadata().put("mimeType", mimeType);
+		updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
+	}
+
+	private Response checkAndReturnUploadResponse(Response res) {
+		if (checkError(res)) {
+			return res;
+		} else {
+			String nodeId = (String) res.getResult().get("node_id");
+			String returnNodeId = getId(nodeId);
+			res.getResult().replace("node_id", nodeId, returnNodeId);
+			return res;
+		}
+	}
+
+	/**
+	 * Search nodes.
+	 *
+	 * @param taxonomyId
+	 *            the taxonomy id
+	 * @param contentIds
+	 *            the content ids
+	 * @return the response
+	 */
+	private Response searchNodes(String taxonomyId, List<String> contentIds) {
+		ContentSearchCriteria criteria = new ContentSearchCriteria();
+		List<Filter> filters = new ArrayList<Filter>();
+		Filter filter = new Filter("identifier", SearchConditions.OP_IN, contentIds);
+		filters.add(filter);
+		MetadataCriterion metadata = MetadataCriterion.create(filters);
+		metadata.addFilter(filter);
+		criteria.setMetadata(metadata);
+		List<Request> requests = new ArrayList<Request>();
+		if (StringUtils.isNotBlank(taxonomyId)) {
+			Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+					GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+			req.put(GraphDACParams.get_tags.name(), true);
+			requests.add(req);
+		} else {
+			for (String tId : TaxonomyManagerImpl.taxonomyIds) {
+				Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+						GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+				req.put(GraphDACParams.get_tags.name(), true);
+				requests.add(req);
+			}
+		}
+		Response response = getResponse(requests, GraphDACParams.node_list.name(), ContentAPIParams.contents.name());
+		return response;
+	}
+
+	/**
+	 * Gets the folder name.
+	 *
+	 * @param url
+	 *            the url
+	 * @return the folder name
+	 */
+	private String getFolderName(String url) {
+		try {
+			String s = url.substring(0, url.lastIndexOf('/'));
+			return s.substring(s.lastIndexOf('/') + 1);
+		} catch (Exception e) {
+		}
+		return "";
+	}
+
+	/**
+	 * Update node.
+	 *
+	 * @param node
+	 *            the node
+	 * @return the response
+	 */
+	private Response updateDataNode(Node node) {
+		Response response = new Response();
+		if (null != node) {
+			String contentId = node.getIdentifier();
+			// Checking if Content Image Object is being Updated, then return
+			// the Original Content Id
+			if (BooleanUtils.isTrue((Boolean) node.getMetadata().get(TaxonomyAPIParams.isImageObject.name()))) {
+				node.getMetadata().remove(TaxonomyAPIParams.isImageObject.name());
+				node.setIdentifier(node.getIdentifier() + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
+			}
+
+			TelemetryManager.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
+			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			updateReq.put(GraphDACParams.node.name(), node);
+			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+
+			TelemetryManager.log("Updating the Node ID: " + node.getIdentifier());
+			response = getResponse(updateReq);
+
+			response.put(TaxonomyAPIParams.node_id.name(), contentId);
+			TelemetryManager.log("Returning Node Update Response.");
+		}
+		return response;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
+			String mode) {
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
+		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
+
+		// Collections sort method is used to sort the child content list on the
+		// basis of index.
+		if (null != children && !children.isEmpty()) {
+			Collections.sort(children, new Comparator<NodeDTO>() {
+				@Override
+				public int compare(NodeDTO o1, NodeDTO o2) {
+					return o1.getIndex() - o2.getIndex();
+				}
+			});
+		}
+
+		if (null != children && !children.isEmpty()) {
+			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
+			for (NodeDTO dto : children) {
+				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
+				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode);
+				childMap.put("index", dto.getIndex());
+				Map<String, Object> childData = contentCleanUp(childMap);
+				childList.add(childData);
+			}
+			contentMap.put("children", childList);
+		}
+		return contentMap;
+	}
+
+	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
+		if (map.containsKey(TaxonomyAPIParams.identifier.name())) {
+			String identifier = (String) map.get(TaxonomyAPIParams.identifier.name());
+			TelemetryManager.log("Checking if identifier ends with .img" + identifier);
+			if (StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+				TelemetryManager.log("replacing image id with content id in response " + identifier + newIdentifier);
+				map.replace(TaxonomyAPIParams.identifier.name(), identifier, newIdentifier);
+			}
+		}
+		return map;
+	}
+
+	private Node getContentNode(String graphId, String contentId, String mode) {
+
+		if (StringUtils.equalsIgnoreCase("edit", mode)) {
+			String contentImageId = getImageId(contentId);
+			Response responseNode = getDataNode(graphId, contentImageId);
+			if (!checkError(responseNode)) {
+				Node content = (Node) responseNode.get(GraphDACParams.node.name());
+				return content;
+			}
+		}
+		Response responseNode = getDataNode(graphId, contentId);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+					"Content not found with id: " + contentId);
+
+		Node content = (Node) responseNode.get(GraphDACParams.node.name());
+		return content;
+	}
+
+	private DefinitionDTO getDefinition(String graphId, String objectType) {
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+				GraphDACParams.object_type.name(), objectType);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
+			return definition;
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unused")
+	private String getContentBody(String contentId, String mode) {
+		String body = "";
+		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
+			body = getContentBody(getImageId(contentId));
+		if (StringUtils.isBlank(body))
+			body = getContentBody(contentId);
+		return body;
+	}
+
+	private String getContentBody(String contentId) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getContentBody.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		Response response = makeLearningRequest(request);
+		String body = (String) response.get(ContentStoreParams.body.name());
+		return body;
+	}
+
+	private Response getContentProperties(String contentId, List<String> properties) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getContentProperties.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		request.put(ContentStoreParams.properties.name(), properties);
+		Response response = makeLearningRequest(request);
+		return response;
+	}
+
+	private Response updateContentProperties(String contentId, Map<String, Object> properties) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.updateContentProperties.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		request.put(ContentStoreParams.properties.name(), properties);
+		Response response = makeLearningRequest(request);
+		return response;
+	}
+
+	/**
+	 * Make a sync request to LearningRequestRouter
+	 *
+	 * @param request
+	 *            the request object
+	 * @param logger
+	 *            the logger object
+	 * @return the LearningActor response
+	 */
+	private Response makeLearningRequest(Request request) {
+		ActorRef router = LearningRequestRouterPool.getRequestRouter();
+		try {
+			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
+			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
+			if (obj instanceof Response) {
+				Response response = (Response) obj;
+				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: "
+						+ response.getResponseCode() + " | Result: " + response.getResult().keySet());
+				return response;
+			} else {
+				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
+		}
+	}
+
+	private Node getNodeForOperation(String taxonomyId, String contentId, String operation) {
+		TelemetryManager.log("Taxonomy Id: " + taxonomyId + " | Content Id: " + contentId);
+		Node node = new Node();
+
+		TelemetryManager.log("Fetching the Content Node. | [Content ID: " + contentId + "]");
+		String contentImageId = getImageId(contentId);
+		Response response = getDataNode(taxonomyId, contentImageId);
+		if (checkError(response)) {
+			TelemetryManager.log("Unable to Fetch Content Image Node for Content Id: " + contentId);
+
+			TelemetryManager.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
+			response = getDataNode(taxonomyId, contentId);
+
+			TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			if (checkError(response))
+				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+
+			// Content Image Node is not Available so assigning the original
+			// Content Node as node
+			node = (Node) response.get(GraphDACParams.node.name());
+
+			if (!StringUtils.equalsIgnoreCase(operation, "publish")
+					&& !StringUtils.equalsIgnoreCase(operation, "review")) {
+				// Checking if given Content Id is Image Node
+				if (null != node && isContentImageObject(node))
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
+									+ "' does not Exist.]");
+
+				String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
+				if (StringUtils.isNotBlank(status)
+						&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
+								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Unlisted.name(), status)
+								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
+					node = createContentImageNode(taxonomyId, contentImageId, node);
+			}
+		} else {
+			// Content Image Node is Available so assigning it as node
+			node = (Node) response.get(GraphDACParams.node.name());
+			TelemetryManager.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
+		}
+
+		TelemetryManager.log("Returning the Node for Operation with Identifier: " + node.getIdentifier());
+		return node;
+	}
+
+	private Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
+
+		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
+		imageNode.setGraphId(taxonomyId);
+		imageNode.setIdentifier(contentImageId);
+		imageNode.setMetadata(node.getMetadata());
+		imageNode.setInRelations(node.getInRelations());
+		imageNode.setOutRelations(node.getOutRelations());
+		imageNode.setTags(node.getTags());
+		imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
+		Response response = createDataNode(imageNode);
+		if (checkError(response))
+			throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
+					"Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
+							+ "]");
+		Response resp = getDataNode(taxonomyId, contentImageId);
+		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
+		TelemetryManager.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
+		return nodeData;
+	}
+
+	private Response createDataNode(Node node) {
+		Response response = new Response();
+		if (null != node) {
+			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
+			request.put(GraphDACParams.node.name(), node);
+
+			TelemetryManager.log("Creating the Node ID: " + node.getIdentifier());
+			response = getResponse(request);
+		}
+		return response;
+	}
+
+	private void validateInputNodesForBundling(List<Node> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			for (Node node : nodes) {
+				// Validating for Content Image Node
+				if (null != node && isContentImageObject(node))
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
+									+ "' does not Exist.]");
+			}
+		}
+	}
+
+	private boolean isContentImageObject(Node node) {
+		boolean isContentImage = false;
+		if (null != node && StringUtils.equalsIgnoreCase(node.getObjectType(),
+				ContentWorkflowPipelineParams.ContentImage.name()))
+			isContentImage = true;
+		return isContentImage;
+	}
+
+	private String getDefaultFramework() {
+		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
+		// TODO: check channel for default framework.
+		if (Platform.config.hasPath("platform.framework.default"))
+			return Platform.config.getString("platform.framework.default");
+		else
+			return "NCF";
+	}
+
+	// TODO: push this to publish-pipeline.
+	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
+		if (StringUtils.isNotBlank(mimeType)) {
+			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection")
+					|| mimeType.endsWith("epub"))
+				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.gzip.name());
+			else
+				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.identity.name());
+
+			if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url"))
+				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.online.name());
+			else
+				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
+		}
+	}
+
+	private Response updateNode(String identifier, String objectType, Node domainNode) {
+		domainNode.setGraphId(GRAPH_ID);
+		domainNode.setIdentifier(identifier);
+		domainNode.setObjectType(objectType);
+		return updateDataNode(domainNode);
+	}
+
+	private List<String> getExternalPropsList(DefinitionDTO definition) {
+		List<String> list = new ArrayList<String>();
+		if (null != definition) {
+			List<MetadataDefinition> props = definition.getProperties();
+			if (null != props && !props.isEmpty()) {
+				for (MetadataDefinition prop : props) {
+					if (StringUtils.equalsIgnoreCase("external", prop.getDataType())) {
+						list.add(prop.getPropertyName().trim());
+					}
+				}
+			}
+		}
+		return list;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1541,59 +1577,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
-	 * This Method will link single DIAL Code to Multiple Contents.
-	 * 
-	 * @author gauraw
-	 * 
-	 * @param reqMap
-	 * @return
-	 * @throws Exception
-	 */
-	private Response updateDialCodeToContents(List<String> contents, List<String> dialcodes) throws Exception {
-		Response resp;
-		List<String> invalidContent = new ArrayList<String>();
-		List<String> updateFailed = new ArrayList<String>();
-		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-		// TODO: Need to think for Rollback in case of Partial Update
-		for (String contentId : contents) {
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(DialCodeEnum.dialcodes.name(), dialcodes);
-			Response responseNode = getDataNode(GRAPH_ID, contentId);
-			if (checkError(responseNode)) {
-				invalidContent.add(contentId);
-			} else {
-				Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
-				resp = updateDialCode(map, definition, contentNode, contentId);
-				if (checkError(responseNode))
-					updateFailed.add(contentId);
-			}
-		}
-		if (invalidContent.isEmpty() && updateFailed.isEmpty()) {
-			resp = new Response();
-			resp.setParams(getSucessStatus());
-			resp.setResponseCode(ResponseCode.OK);
-			return resp;
-		} else if (!invalidContent.isEmpty() && contents.size() == 1) {
-			resp = new Response();
-			resp.setResponseCode(ResponseCode.CLIENT_ERROR);
-			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
-					"Content not found with id(s):" + invalidContent));
-			return resp;
-		} else {
-			resp = new Response();
-			resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
-			List<String> messages = new ArrayList<String>();
-			if (!invalidContent.isEmpty())
-				messages.add("Content not found with id(s): " + String.join(",", invalidContent));
-			if (!updateFailed.isEmpty())
-				messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailed));
-
-			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", messages)));
-			return resp;
-		}
-	}
-
-	/**
 	 * This method will Update Content Node
 	 * 
 	 * @author gauraw
@@ -1649,7 +1632,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	public void validateYoutubeLicense(String artifactUrl, Map<String, Object> map) throws Exception {
-		
+
 		Boolean isLicenseValidationRequired = Platform.config.hasPath("learning.content.youtube.validate.license")
 				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
 
@@ -1673,13 +1656,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		String[] videoIdRegex = { "\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)",
 				"^([A-Za-z0-9\\-]*)" };
 
-			for (String regex : videoIdRegex) {
-				Pattern compiledPattern = Pattern.compile(regex);
-				Matcher matcher = compiledPattern.matcher(artifactUrl);
-				if (matcher.find()) {
-					return matcher.group(1);
-				}
+		for (String regex : videoIdRegex) {
+			Pattern compiledPattern = Pattern.compile(regex);
+			Matcher matcher = compiledPattern.matcher(artifactUrl);
+			if (matcher.find()) {
+				return matcher.group(1);
 			}
+		}
 
 		return null;
 	}
@@ -1713,12 +1696,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		YouTube youtube = null;
 		String youtubeAppName = Platform.config.hasPath("learning.content.youtube.application.name")
 				? Platform.config.getString("learning.content.youtube.application.name") : "fetch-youtube-license";
-		youtube = new YouTube.Builder(YoutubeAuthorizationHelper.HTTP_TRANSPORT, YoutubeAuthorizationHelper.JSON_FACTORY,
-				new HttpRequestInitializer() {
+		youtube = new YouTube.Builder(YoutubeAuthorizationHelper.HTTP_TRANSPORT,
+				YoutubeAuthorizationHelper.JSON_FACTORY, new HttpRequestInitializer() {
 					public void initialize(HttpRequest request) throws IOException {
 					}
 				}).setApplicationName(youtubeAppName).build();
 		return youtube;
 	}
-
 }
