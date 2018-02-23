@@ -76,7 +76,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Ignore
 	@Test
-	public void testReviewForEpubContent() {
+	public void testReviewForEpubContent() throws Exception {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/sample4.epub").getFile());
 		
