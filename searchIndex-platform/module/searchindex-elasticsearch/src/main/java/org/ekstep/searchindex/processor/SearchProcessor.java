@@ -517,9 +517,12 @@ public class SearchProcessor {
 	private QueryBuilder getAllFieldsPropertyQuery(List<Object> values) {
 		List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-		queryBuilder.should(
-				QueryBuilders.multiMatchQuery(values.get(0), queryFields.toArray(new String[queryFields.size()]))
-						.operator(Operator.AND).type(Type.CROSS_FIELDS).lenient(true));
+		for (Object value : values) {
+			queryBuilder
+					.should(QueryBuilders.multiMatchQuery(value, queryFields.toArray(new String[queryFields.size()]))
+							.operator(Operator.AND).type(Type.CROSS_FIELDS).lenient(true));
+		}
+
 		return queryBuilder;
 	}
 
