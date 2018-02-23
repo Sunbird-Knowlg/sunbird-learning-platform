@@ -455,7 +455,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response review(String taxonomyId, String contentId, Request request) {
+	public Response review(String taxonomyId, String contentId, Request request) throws Exception {
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
@@ -481,7 +481,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			mimeType = "assets";
 		}
 		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
-
+		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
+		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
+			validateYoutubeLicense(artifactUrl, node);
 		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		String contentType = (String) node.getMetadata().get("contentType");
 		IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
@@ -662,10 +664,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		String mimeType = (String) map.get(TaxonomyAPIParams.mimeType.name());
 		updateDefaultValuesByMimeType(map, mimeType);
-
-		String artifactUrl = (String) map.get(ContentAPIParams.artifactUrl.name());
-		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
-			validateYoutubeLicense(artifactUrl, map);
 
 		boolean isImageObjectCreationNeeded = false;
 		boolean imageObjectExists = false;
@@ -1630,12 +1628,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	public void validateYoutubeLicense(String artifactUrl, Map<String, Object> map) throws Exception {
+	public void validateYoutubeLicense(String artifactUrl, Node node) throws Exception {
 
-		Boolean isLicenseValidationRequired = Platform.config.hasPath("learning.content.youtube.validate.license")
+		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
 				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
 
-		if (isLicenseValidationRequired) {
+		if (isValReq) {
 			String licenseType = null;
 			String videoId = getVideoIdFromUrl(artifactUrl);
 			if (StringUtils.isBlank(videoId))
@@ -1645,9 +1643,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				throw new ClientException("ERR_YOUTUBE_LICENSE_VALIDATION", "Please Provide Valid Youtube URL!");
 			}
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
-				map.put("license", "Standard YouTube License");
+				node.getMetadata().put("license", "Standard YouTube License");
 			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
-				map.put("license", "Creative Commons Attribution (CC BY)");
+				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
 		}
 	}
 
