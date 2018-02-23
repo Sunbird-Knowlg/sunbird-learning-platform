@@ -3484,8 +3484,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		setURI();
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-				.post("/content/v3/publish/" + collectionNode).then().
-				//log().all().
+				.post("/content/v3/publish/" + collectionNode).
+				then().
+				log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
