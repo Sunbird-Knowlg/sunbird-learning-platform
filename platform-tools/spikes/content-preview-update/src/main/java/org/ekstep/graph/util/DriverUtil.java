@@ -25,7 +25,7 @@ public class DriverUtil {
 
 	public static Driver loadDriver(String path) {
 		Driver driver = null;
-		System.out.println(getRoute(path));
+		System.out.println("Neo4j Bolt Path: "+getRoute(path));
 		driver = GraphDatabase.driver(getRoute(path), getConfig());
 		if (null != driver)
 			registerShutdownHook(driver);

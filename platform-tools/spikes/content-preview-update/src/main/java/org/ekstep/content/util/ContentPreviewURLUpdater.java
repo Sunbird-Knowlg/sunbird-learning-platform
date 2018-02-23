@@ -42,8 +42,8 @@ public class ContentPreviewURLUpdater {
 		boolean update = true;
 		while (update) {
 			List<Map<String, Object>> nodes = SearchUtil.getNodes(path, startPosition, resultSize, type);
-			System.out.println("updating first " + nodes.size() + " nodes for type : " + type.name());
 			if (nodes.size() > 0 && !nodes.isEmpty()) {
+				System.out.println("updating " + nodes.size() + " nodes for type : " + type.name());
 				updateContent(nodes, type);
 			} else {
 				update = false;
@@ -77,8 +77,7 @@ public class ContentPreviewURLUpdater {
 								// get latest url
 								previewUrl = AWSUploader.getURL(awsFolderPath);
 							}
-							System.out.println("content id: " + contentId + ", AWS url" + previewUrl);
-
+							System.out.println("content id: " + contentId + ", Generated preview url: " + previewUrl);
 						} catch (Exception e) {
 							System.err.println("skipped! error while processing content, id :" + contentId);
 						} finally {
