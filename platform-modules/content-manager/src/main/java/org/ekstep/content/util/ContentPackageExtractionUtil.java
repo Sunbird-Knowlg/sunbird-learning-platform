@@ -457,5 +457,4 @@ public class ContentPackageExtractionUtil {
 		String path = getExtractionPath(contentId, node, extractionType);
 		return AWSUploader.getURL(s3Bucket, path);
 	}
-	
 }

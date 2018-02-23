@@ -90,6 +90,23 @@
             <artifactId>akka-slf4j_2.11</artifactId>
             <version>2.4.6</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>1.21.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava-jdk5</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
     </dependencies>
     <build>
         <sourceDirectory>${basedir}/app</sourceDirectory>
@@ -100,6 +117,17 @@
             </resource>
         </resources>
         <plugins>
+         <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.16</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Spec.java</include>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.google.code.play2-maven-plugin</groupId>
                 <artifactId>play2-maven-plugin</artifactId>
@@ -112,17 +140,6 @@
                         <version>${play2.plugin.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.16</version>
-                <configuration>
-                    <includes>
-                        <include>**/*Spec.java</include>
-                        <include>**/*Test.java</include>
-                    </includes>
-                </configuration>
             </plugin>
         </plugins>
     </build>

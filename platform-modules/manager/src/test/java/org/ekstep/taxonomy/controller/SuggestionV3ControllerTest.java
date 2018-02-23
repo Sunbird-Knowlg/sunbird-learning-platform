@@ -6,6 +6,7 @@ package org.ekstep.taxonomy.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.dto.Response;
@@ -72,7 +73,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	}
 
 	@AfterClass
-	public static void clean() throws IOException {
+	public static void clean() throws IOException, InterruptedException, ExecutionException {
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 		elasticSearchUtil.deleteIndex(INDEX);
 

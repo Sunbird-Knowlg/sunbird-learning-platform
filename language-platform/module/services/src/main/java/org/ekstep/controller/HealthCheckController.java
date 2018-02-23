@@ -50,7 +50,7 @@ public class HealthCheckController extends BaseController {
 		String apiId = name + ".health.register";
 		Response response;
 		try {
-			response = healthCheckManager.registerGraph(graphId);
+			response = healthCheckManager.registerGraph("language", graphId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			response = new Response();

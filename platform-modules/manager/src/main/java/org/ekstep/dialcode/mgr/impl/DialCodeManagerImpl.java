@@ -14,7 +14,6 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
@@ -58,18 +57,17 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	private DialCodeGenerator dialCodeGenerator;
 
 	private int defaultLimit = 1000;
-	private String dialHost = "localhost";
-	private int dialPort = 9200;
+	private String connectionInfo = "localhost:9300";
 	private SearchProcessor processor = null;
 
 	@PostConstruct
 	public void init() {
 		defaultLimit = Platform.config.hasPath("dialcode.search.limit")
 				? Platform.config.getInt("dialcode.search.limit") : defaultLimit;
-		dialHost = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host")
-				: dialHost;
-		dialPort = Platform.config.hasPath("dialcode.es_port") ? Platform.config.getInt("dialcode.es_port") : dialPort;
-		processor = new SearchProcessor(dialHost, dialPort);
+		connectionInfo = Platform.config.hasPath("dialcode.es_conn_info")
+				? Platform.config.getString("dialcode.es_conn_info")
+				: connectionInfo;
+		processor = new SearchProcessor(connectionInfo);
 	}
 
 	/*
@@ -370,26 +368,6 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		publisherMap.put(DialCodeEnum.updated_on.name(), LocalDateTime.now().toString());
 
 		return publisherMap;
-	}
-
-	/**
-	 * @return Response
-	 */
-	private Response getSuccessResponse() {
-		Response resp = new Response();
-		ResponseParams respParam = new ResponseParams();
-		respParam.setStatus("successful");
-		resp.setParams(respParam);
-		return resp;
-	}
-
-	private Response getPartialSuccessResponse() {
-		Response resp = new Response();
-		ResponseParams respParam = new ResponseParams();
-		respParam.setStatus("partial successful");
-		resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
-		resp.setParams(respParam);
-		return resp;
 	}
 
 	/**

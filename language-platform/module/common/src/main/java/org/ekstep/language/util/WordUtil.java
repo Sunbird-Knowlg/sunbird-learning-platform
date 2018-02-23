@@ -229,9 +229,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 *            Lemma of the word
 	 * 
 	 * @return Word ID
+	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public String getWordIdentifierFromIndex(String languageId, String word) throws IOException {
+	public String getWordIdentifierFromIndex(String languageId, String word) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
@@ -505,9 +506,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 *            Elastic search utility
 	 * 
 	 * @return void
+	 * @throws Exception
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public String getRootWordsFromIndex(String word, String languageId) throws IOException {
+	public String getRootWordsFromIndex(String word, String languageId) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
@@ -1492,12 +1494,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param nodeId
 	 * @return Node
 	 */
-	public Node getDataNode(String languageId, String nodeId) {
-		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
-		request.put(GraphDACParams.node_id.name(), nodeId);
-		request.put(GraphDACParams.get_tags.name(), true);
-
-		Response findRes = getResponse(request);
+	public Node getWordNode(String languageId, String nodeId) {
+		Response findRes = getDataNode(languageId, nodeId);
 		if (checkError(findRes))
 			return null;
 		else {

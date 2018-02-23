@@ -23,11 +23,18 @@ public abstract class BaseContentManager extends BaseManager {
 	
 	private static final String DEFAULT_MIME_TYPE = "assets";
 	
-	protected String getActualIdentifier(String identifier) {
+	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
 			return identifier.replace(".img", "");
 		}
 		return identifier;
+	}
+	
+	protected String getImageId(String identifier) {
+		String imageId = "";
+		if (StringUtils.isNotBlank(identifier))
+			imageId = identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		return imageId;
 	}
 	
 	protected void isImageContentId(String identifier) {
@@ -39,7 +46,7 @@ public abstract class BaseContentManager extends BaseManager {
 	protected void isNodeUnderProcessing(Node node, String operation) {
 		List<String> status = new ArrayList<>();
 		status.add(TaxonomyAPIParams.Processing.name());
-		status.add(TaxonomyAPIParams.Pending.name());
+		//status.add(TaxonomyAPIParams.Pending.name());
 		boolean isProccssing = checkNodeStatus(node, status);
 		if (BooleanUtils.isTrue(isProccssing)) {
 			TelemetryManager.log("Given Content is in Processing Status.");

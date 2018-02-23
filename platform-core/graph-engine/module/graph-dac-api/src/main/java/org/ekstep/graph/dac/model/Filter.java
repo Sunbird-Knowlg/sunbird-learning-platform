@@ -106,7 +106,7 @@ public class Filter implements Serializable {
             sc.params.put("" + pIndex, value);
             pIndex += 1;
         } else if (SearchConditions.OP_IN.equals(getOperator())) {
-            sb.append(" ANY (x in {").append(pIndex).append("} WHERE x in ").append(param).append(property).append(") ");
+        		sb.append(" ").append(param).append(property).append(" in {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
         }

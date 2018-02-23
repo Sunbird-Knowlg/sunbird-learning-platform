@@ -45,10 +45,10 @@ public interface IContentManager {
 	 *         which the content is being uploaded.
 	 */
 	Response upload(String id, String taxonomyId, File uploadedFile, String mimeType);
-	
+
 	/**
-	 * Upload is High level Content Operation to set the <code>artifactUrl</code> of the
-	 * <code>node</code>.
+	 * Upload is High level Content Operation to set the
+	 * <code>artifactUrl</code> of the <code>node</code>.
 	 * 
 	 * 
 	 * <p>
@@ -175,9 +175,9 @@ public interface IContentManager {
 	Response review(String taxonomyId, String contentId, Request request);
 
 	/**
-	 * This method returns the full hierarchy of a content. The
-	 * "Sequence Membership" relation is traversed to compute the hierarchy of
-	 * the content.
+	 * This method returns the full hierarchy of a content. The "Sequence
+	 * Membership" relation is traversed to compute the hierarchy of the
+	 * content.
 	 * 
 	 * A subclass must provide an implementation of this method.
 	 *
@@ -194,38 +194,39 @@ public interface IContentManager {
 	 *         in its Result Set.
 	 */
 	Response getHierarchy(String graphId, String contentId, String mode);
-	
+
 	/**
 	 * This method returns the content.
 	 * 
 	 * A subclass must provide an implementation of this method.
+	 * 
 	 * @param contentId
 	 *            the content <code>identifier</code> whose hierarchy needs to
 	 *            be returned
 	 * @param mode
-	 *            if edit, returns the content's Draft version, else
-	 *            returns the content's Live version. If Live version
-	 *            does not exist, Draft version is returned
-	 * @param fields TODO
+	 *            if edit, returns the content's Draft version, else returns the
+	 *            content's Live version. If Live version does not exist, Draft
+	 *            version is returned
+	 * @param fields
+	 *            TODO
 	 * @param taxonomyId
 	 *            the <code>graph id</code> of the content.
 	 *
-	 * @return the response contains the <code>content</code>
-	 *         in its Result Set.
+	 * @return the response contains the <code>content</code> in its Result Set.
 	 */
 	Response find(String graphId, String contentId, String mode, List<String> fields);
-	
+
 	Response createContent(Map<String, Object> map) throws Exception;
-	
+
 	Response updateContent(String contentId, Map<String, Object> map) throws Exception;
-	
+
 	Response preSignedURL(String taxonomyId, String contentId, String fileName);
-	
+
 	Response updateHierarchy(Map<String, Object> data);
-	
+
 	Response updateAllContentNodes(String contentId, Map<String, Object> map) throws Exception;
-	
+
 	// Method for QR Code Linking with Content
-	Response linkDialCode(Map<String, Object> map) throws Exception;
+	Response linkDialCode(String channelId, Map<String, Object> map) throws Exception;
 
 }

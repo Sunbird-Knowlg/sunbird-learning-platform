@@ -1,6 +1,7 @@
 package org.ekstep.search.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +33,12 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		filters.put("objectType", objectTypes);
 		filters.put("status", new ArrayList<String>());
 		request.put("filters", filters);
+		// request.put("limit", 1);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
 		List<Object> list = (List<Object>) result.get("results");
 		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
+		Assert.assertTrue(list.size() > 1);
 		boolean found = false;
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
@@ -102,6 +104,35 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 			String desc = (String) content.get("name");
 			if (null != desc && !StringUtils.equalsIgnoreCase("31 check name match", desc))
 				found = true;
+		}
+		Assert.assertTrue(found);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSearchByQueryForNotIn() {
+		Request request = getSearchRequest();
+		request.put("query", "हिन्दी");
+		Map<String, Object> filters = new HashMap<String, Object>();
+		List<String> objectTypes = new ArrayList<String>();
+		objectTypes.add("Content");
+		filters.put("objectType", objectTypes);
+		filters.put("status", new ArrayList<String>());
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("notIn", Arrays.asList("31 check name match"));
+		filters.put("name", map);
+		request.put("filters", filters);
+		Response response = getSearchResponse(request);
+		Map<String, Object> result = response.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		Assert.assertNotNull(list);
+		Assert.assertTrue(list.size() > 0);
+		boolean found = true;
+		for (Object obj : list) {
+			Map<String, Object> content = (Map<String, Object>) obj;
+			String desc = (String) content.get("name");
+			if (null != desc && StringUtils.equalsIgnoreCase("31 check name match", desc))
+				found = false;
 		}
 		Assert.assertTrue(found);
 	}
@@ -325,7 +356,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Double identifier = (Double) content.get("size");
+			Integer identifier = (Integer) content.get("size");
 			if (null != identifier)
 				Assert.assertTrue(identifier >= 1000432);
 		}
@@ -351,7 +382,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Double identifier = (Double) content.get("size");
+			Integer identifier = (Integer) content.get("size");
 			if (null != identifier)
 				Assert.assertTrue(identifier <= 564738);
 		}
@@ -441,7 +472,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearchNumericValueFilter() {
+	public void testSearchValueFilter() {
 		Request request = getSearchRequest();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		List<String> objectTypes = new ArrayList<String>();
@@ -449,8 +480,8 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		filters.put("objectType", objectTypes);
 		filters.put("status", new ArrayList<String>());
 		Map<String, Object> name = new HashMap<String, Object>();
-		name.put("value", 564738);
-		filters.put("size", name);
+		name.put("value", "31 check name match");
+		filters.put("name", name);
 		request.put("filters", filters);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
@@ -459,8 +490,8 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Double identifier = (Double) content.get("size");
-			Assert.assertTrue(identifier == 564738);
+			String identifier = (String) content.get("name");
+			Assert.assertTrue(identifier.contains("31 check name match"));
 		}
 	}
 	
@@ -475,7 +506,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		filters.put("status", new ArrayList<String>());
 		request.put("filters", filters);
 		List<String> exists = new ArrayList<String>();
-		exists.add("size");
+		exists.add("objectType");
 		request.put("exists", exists);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
@@ -484,8 +515,8 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertTrue(list.size() >= 1);
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
-			Double size = (Double) content.get("size");
-			Assert.assertNotNull(size);
+			String objectType = (String) content.get("objectType");
+			Assert.assertNotNull(objectType);
 		}
 	}
 	
@@ -526,12 +557,13 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		request.put("filters", filters);
 		List<String> exists = new ArrayList<String>();
 		exists.add("size");
+		exists.add("contentType");
 		request.put("facets", exists);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
 		List<Object> list = (List<Object>) result.get("facets");
 		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() == 1);
+		Assert.assertTrue(list.size() > 1);
 		Map<String, Object> facet = (Map<String, Object>) list.get(0);
 		Assert.assertEquals("size", facet.get("name").toString());
 		List<Object> values = (List<Object>) facet.get("values");
@@ -642,7 +674,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		request.put("filters", filters);
 		Response response = getSearchResponse(request);
 		Map<String, Object> result = response.getResult();
-		Double count = (Double) result.get("count");
+		Integer count = (Integer) result.get("count");
 		Assert.assertNotNull(count);
 	}
 	
@@ -724,7 +756,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		for (Object obj : list) {
 			Map<String, Object> contents = (Map<String, Object>) obj;
 			Set<String> keys = contents.keySet();
-			if(keys.size()==fields.size()+1){
+			if (keys.size() == fields.size()) {
 				if(keys.containsAll(fields)){
 					valid = true;
 					
@@ -791,6 +823,31 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 			validResult = true;
 		}
 		Assert.assertTrue(validResult);
+	}
+
+	@Test
+	public void testSoftConstraints() {
+		Request request = getSearchRequest();
+		Map<String, Object> filters = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("notEquals", "31 check name match");
+		filters.put("name", map);
+		request.put("filters", filters);
+		request.put("mode", "soft");
+		List<String> fields = new ArrayList<String>();
+		fields.add("name");
+		fields.add("medium");
+		fields.add("subject");
+		fields.add("contentType");
+		request.put("fields", fields);
+		Map<String, Object> softConstraints = new HashMap<String, Object>();
+		softConstraints.put("name", 100);
+		softConstraints.put("subject", 20);
+		request.put("softConstraints", softConstraints);
+		Response response = getSearchResponse(request);
+		Map<String, Object> result = response.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		Assert.assertNotNull(list);
 	}
 
 }

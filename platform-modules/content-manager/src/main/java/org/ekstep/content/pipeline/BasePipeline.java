@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -523,6 +524,10 @@ public class BasePipeline extends BaseManager {
 	protected Response searchNodes(String taxonomyId, List<String> contentIds) {
 		TelemetryManager.log("Searching Nodes For Bundling...");
 		ContentSearchCriteria criteria = new ContentSearchCriteria();
+		String maxSizeKey = "publish.content.limit";
+		if (Platform.config.hasPath(maxSizeKey)) {
+			criteria.setResultSize(Platform.config.getInt(maxSizeKey));
+		}
 		List<Filter> filters = new ArrayList<Filter>();
 		Filter filter = new Filter(ContentWorkflowPipelineParams.identifier.name(), SearchConditions.OP_IN, contentIds);
 		filters.add(filter);
@@ -538,7 +543,6 @@ public class BasePipeline extends BaseManager {
 		filters.add(statusFilter);
 
 		MetadataCriterion metadata = MetadataCriterion.create(filters);
-		metadata.addFilter(filter);
 		criteria.setMetadata(metadata);
 		List<Request> requests = new ArrayList<Request>();
 		if (StringUtils.isNotBlank(taxonomyId)) {
@@ -548,16 +552,6 @@ public class BasePipeline extends BaseManager {
 			req.put(GraphDACParams.get_tags.name(), true);
 			requests.add(req);
 		}
-		// else {
-		// for (String tId : TaxonomyManagerImpl.taxonomyIds) {
-		// Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER,
-		// ContentWorkflowPipelineParams.searchNodes.name(),
-		// GraphDACParams.search_criteria.name(),
-		// criteria.getSearchCriteria());
-		// req.put(GraphDACParams.get_tags.name(), true);
-		// requests.add(req);
-		// }
-		// }
 		Response response = getResponse(requests, GraphDACParams.node_list.name(),
 				ContentWorkflowPipelineParams.contents.name());
 		return response;

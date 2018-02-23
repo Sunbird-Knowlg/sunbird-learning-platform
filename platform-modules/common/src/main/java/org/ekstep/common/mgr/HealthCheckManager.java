@@ -3,10 +3,10 @@ package org.ekstep.common.mgr;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.cache.factory.JedisFactory;
-import org.ekstep.graph.common.mgr.Configuration;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 
 import redis.clients.jedis.Jedis;
@@ -14,8 +14,8 @@ public abstract class HealthCheckManager extends BaseManager{
 
 	public abstract Response getAllServiceHealth() throws Exception;
 	
-	public Response registerGraph(String graphId){
-		Configuration.registerNewGraph(graphId);
+	public Response registerGraph(String service, String graphId) {
+		Platform.registerNewGraph(service, graphId);
 		return OK();
 	}
 

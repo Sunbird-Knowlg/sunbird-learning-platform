@@ -9,6 +9,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
@@ -18,9 +19,11 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
-
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -37,6 +40,11 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  */
 public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
+	private static String actorId = "Image Tagging Samza Job";
+	private static String actorType = "System";
+	private static String pdataId = "org.ekstep.platform";
+	private static String pdataVersion = "1.0";
+	private static String action = "imagetagging";
 	/*
 	 * (non-Javadoc)
 	 *
@@ -70,6 +78,12 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			if (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image")) {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
 				response = updateContentNode(contentId, node, urlArray[1]);
+				if (!checkError(response)) {
+					pushInstructionEvent(node, contentId);
+				}else {
+					throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
+							"Error occured during content Upload");
+				}
 			} else {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 				response = updateContentNode(contentId, node, urlArray[1]);
@@ -161,6 +175,52 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 		TelemetryManager.log("Calling the 'Review' Initializer for Node ID: " + contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
+	}
+	
+	private void pushInstructionEvent(Node node, String contentId) throws Exception{
+		Map<String,Object> actor = new HashMap<String,Object>();
+		Map<String,Object> context = new HashMap<String,Object>();
+		Map<String,Object> object = new HashMap<String,Object>();
+		Map<String,Object> edata = new HashMap<String,Object>();
+		
+		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId);
+		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+		String topic = Platform.config.getString("kafka.topics.instruction");
+		if(StringUtils.isBlank(beJobRequestEvent)) {
+			TelemetryManager.error("Instruction event is not generated properly. # beJobRequestEvent : " + beJobRequestEvent);
+			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+		}
+		if(StringUtils.isNotBlank(topic)) {
+			KafkaClient.send(beJobRequestEvent, topic);
+		} else {
+			TelemetryManager.error("Invalid topic id. # topic : " + topic);
+			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
+		}
+	}
+	
+	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context, 
+			Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId) {
+		
+		actor.put("id", actorId);
+		actor.put("type", actorType);
+		
+		context.put("channel", metadata.get("channel")); 
+		Map<String, Object> pdata = new HashMap<>();
+		pdata.put("id", pdataId); 
+		pdata.put("ver", pdataVersion);
+		context.put("pdata", pdata);
+		if (Platform.config.hasPath("s3.env")) {
+			String env = Platform.config.getString("s3.env");
+			context.put("env", env);
+		}
+		
+		object.put("id", contentId);
+		object.put("ver", metadata.get("versionKey"));
+		
+		edata.put("action", action);
+		edata.put("status", metadata.get("status"));
+		edata.put("mediaType", metadata.get("mediaType"));
+		edata.put("contentType", metadata.get("contentType"));
 	}
 
 }

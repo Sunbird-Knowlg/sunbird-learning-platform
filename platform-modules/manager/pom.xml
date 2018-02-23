@@ -122,11 +122,27 @@
 			<artifactId>cassandra-unit</artifactId>
 			<version>3.1.1.0</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.carrotsearch</groupId>
+					<artifactId>hppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.ning</groupId>
+					<artifactId>compress-lzf</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-core</artifactId>
 			<version>3.1.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>

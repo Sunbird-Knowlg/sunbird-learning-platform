@@ -13,13 +13,11 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.enums.ChannelEnum;
 import org.ekstep.framework.mgr.IChannelManager;
-
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
-
 import org.springframework.stereotype.Component;
 
 
@@ -27,15 +25,15 @@ import org.springframework.stereotype.Component;
 public class ChannelManagerImpl extends BaseFrameworkManager implements IChannelManager {
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
-	private String host = "localhost";
-	private int port = 9200;
+	private String connectionInfo = "localhost:9300";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
 	public void init() {
-		host = Platform.config.hasPath("dialcode.es_host") ? Platform.config.getString("dialcode.es_host") : host;
-		port = Platform.config.hasPath("dialcode.es_port") ? Platform.config.getInt("dialcode.es_port") : port;
-		processor = new SearchProcessor(host, port);
+		connectionInfo = Platform.config.hasPath("dialcode.es_conn_info")
+				? Platform.config.getString("dialcode.es_conn_info")
+				: connectionInfo;
+		processor = new SearchProcessor(connectionInfo);
 		
 		try {
 			List<Object> frameworks = getAllFrameworkList();
