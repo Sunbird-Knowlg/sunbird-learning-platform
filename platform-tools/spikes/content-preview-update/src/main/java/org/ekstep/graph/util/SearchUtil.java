@@ -87,7 +87,7 @@ public class SearchUtil {
         	query.append("LIMIT ").append(maxSize).append(" ");
         }
         
-        System.out.println(query);
+        //System.out.println(query);
 		return query.toString();
 	}
 	

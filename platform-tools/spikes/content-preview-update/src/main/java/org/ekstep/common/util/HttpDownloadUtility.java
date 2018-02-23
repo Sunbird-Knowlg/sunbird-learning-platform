@@ -13,12 +13,6 @@ import java.util.List;
 
 import org.ekstep.common.slugs.Slug;
 
-/**
- * A utility that downloads a file from a URL.
- * 
- * @author Mohammad Azharuddin
- *
- */
 public class HttpDownloadUtility {
 
 	private static final int BUFFER_SIZE = 4096;
@@ -36,22 +30,17 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
-			System.out.println("Start Downloading for File: " + fileURL);
-
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
-			System.out.println("Response Code: " + responseCode);
 
 			// always check HTTP response code first
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				System.out.println("Response is OK.");
 
 				String fileName = "";
 				String disposition = httpConn.getHeaderField("Content-Disposition");
 				httpConn.getContentType();
 				httpConn.getContentLength();
-				System.out.println("Content Disposition: " + disposition);
 
 				if (disposition != null) {
 					// extracts file name from header field
@@ -66,7 +55,6 @@ public class HttpDownloadUtility {
 				} else {
 					// extracts file name from URL
 					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
-					System.out.println("File Name: " + fileName);
 				}
 
 				// opens input stream from the HTTP connection
@@ -76,7 +64,6 @@ public class HttpDownloadUtility {
 					saveFile.mkdirs();
 				}
 				String saveFilePath = saveDir + File.separator + fileName;
-				System.out.println("Save File Path: " + saveFilePath);
 
 				// opens an output stream to save into file
 				outputStream = new FileOutputStream(saveFilePath);
@@ -89,15 +76,14 @@ public class HttpDownloadUtility {
 				inputStream.close();
 				File file = new File(saveFilePath);
 				file = Slug.createSlugFile(file);
-				System.out.println("Sliggified File Name: " + file);
 
 				return file;
 			} else {
-				System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+				System.err.println("No file to download. Server replied HTTP code: " + responseCode);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error! While Downloading File:"+ e.getMessage());
+			System.err.println("Error! While Downloading File:"+ e.getMessage());
 		} finally {
 			if (null != httpConn)
 				httpConn.disconnect();
@@ -105,17 +91,17 @@ public class HttpDownloadUtility {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					System.out.println("Error! While Closing the Input Stream: "+ e.getMessage());
+					System.err.println("Error! While Closing the Input Stream: "+ e.getMessage());
 				}
 			if (null != outputStream)
 				try {
 					outputStream.close();
 				} catch (IOException e) {
-					System.out.println("Error! While Closing the Output Stream: "+ e.getMessage());
+					System.err.println("Error! While Closing the Output Stream: "+ e.getMessage());
 				}
 		}
 
-		System.out.println("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
+		System.err.println("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
 		return null;
 	}
 
@@ -139,7 +125,7 @@ public class HttpDownloadUtility {
 				if (file.delete()) {
 					System.out.println(file.getAbsolutePath() + " is deleted!");
 				} else {
-					System.out.println(file.getAbsolutePath() + " not deleted!");
+					System.err.println(file.getAbsolutePath() + " not deleted!");
 				}
 			}
 		}
