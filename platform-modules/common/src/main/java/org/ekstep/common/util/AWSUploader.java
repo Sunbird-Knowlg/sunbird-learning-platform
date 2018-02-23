@@ -253,6 +253,9 @@ public class AWSUploader {
 	
 	public static String getURL(String bucket, String prefix) {
 		AmazonS3 s3client = new AmazonS3Client();
+		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
+		if (null != region)
+			s3client.setRegion(region);
 		return s3client.getUrl(bucket, prefix).toString();
 	}
 	

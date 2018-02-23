@@ -11,10 +11,10 @@ import org.neo4j.driver.v1.StatementResult;
 
 public class NodeUtil {
 
-	public static void updateNode(String graphId, String path, String identifier, Map<String, Object> metadata) {
+	public static void updateNode(String path, String identifier, Map<String, Object> metadata) {
 		if (StringUtils.isNotBlank(identifier) && null != metadata && !metadata.isEmpty()) {
 			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
-			String query = getUpdateNodeQuery(graphId, identifier, metadata, paramValuesMap);
+			String query = getUpdateNodeQuery(identifier, metadata, paramValuesMap);
 			Driver driver = DriverUtil.getDriver(path);
 			try (Session session = driver.session()) {
 				StatementResult result = session.run(query, paramValuesMap);
@@ -26,10 +26,10 @@ public class NodeUtil {
 		}
 	}
 
-	private static String getUpdateNodeQuery(String graphId, String id, Map<String, Object> metadata,
+	private static String getUpdateNodeQuery(String id, Map<String, Object> metadata,
 			Map<String, Object> paramValuesMap) {
 		StringBuilder query = new StringBuilder();
-		query.append("MATCH (ee:" + graphId + " {IL_UNIQUE_ID: '" + id + "'}) ");
+		query.append("MATCH (ee:domain {IL_UNIQUE_ID: '" + id + "'}) ");
 		query.append("SET ");
 		for (Entry<String, Object> entry : metadata.entrySet()) {
 			query.append("ee." + entry.getKey() + " =  { MD_" + entry.getKey() + " }, ");

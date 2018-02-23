@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.content.util.ContentUpdateType;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
@@ -15,7 +16,7 @@ import org.neo4j.driver.v1.types.Node;
 
 public class SearchUtil {
 
-	public static List<Map<String, Object>> getNodes(String graphId, String path, String query) {
+	public static List<Map<String, Object>> getNodes(String path, String query) {
 		List<Map<String, Object>> nodes = new ArrayList<Map<String, Object>>();
 		Driver driver = DriverUtil.getDriver(path);
 		try (Session session = driver.session()) {
@@ -63,23 +64,21 @@ public class SearchUtil {
 		return nodes;
 	}
 	
-	public static List<Map<String, Object>> getAllNodes(String graphId, String path) {
-		return getNodes(graphId, path, getAllNodesQuery(graphId));
-	}
-
-	public static List<Map<String, Object>> getResourceContentNodes(String graphId, String path, int offset, int maxSize) {
-		return getNodes(graphId, path, getResourceContentNodesQuery(graphId, offset, maxSize));
+	
+	public static List<Map<String, Object>> getNodes(String path, int offset, int maxSize, ContentUpdateType type) {
+		return getNodes(path, getNodesQuery(offset, maxSize, type));		
 	}
 	
-	private static String getAllNodesQuery(String graphId) {
+	private static String getNodesQuery(int offset, int maxSize, ContentUpdateType type) {
 		StringBuilder query = new StringBuilder();
-		query.append("MATCH (ee:" + graphId + ") RETURN ee");
-		return query.toString();
-	}
-	
-	private static String getResourceContentNodesQuery(String graphId, int offset, int maxSize) {
-		StringBuilder query = new StringBuilder();
-		query.append("MATCH (ee:" + graphId + "{IL_FUNC_OBJECT_TYPE:'Content', status:'Live'}) where ee.mimeType in [\"application/pdf\", \"application/epub\", \"video/x-youtube\", \"video/mp4\", \"video/webm\"] RETURN ee ");
+		
+		String mimeTypes ="";
+		if (type == ContentUpdateType.NonExtractable)
+			mimeTypes = "\"application/pdf\", \"application/epub\", \"application/msword\", \"video/x-youtube\", \"video/mp4\", \"video/webm\", \"image/jpg\", \"text/x-url\"";
+		else if (type == ContentUpdateType.Extractable)
+			mimeTypes = "\"application/vnd.ekstep.ecml-archive\", \"application/vnd.ekstep.html-archive\", \"application/vnd.ekstep.h5p-archive\"";
+		
+		query.append("MATCH (ee:domain{IL_FUNC_OBJECT_TYPE:'Content', status:'Live'}) where ee.mimeType in [ "+mimeTypes+"] RETURN ee ");
 		
 		if (offset > 0) {
 			query.append("SKIP ").append(offset).append(" ");
@@ -91,4 +90,11 @@ public class SearchUtil {
         System.out.println(query);
 		return query.toString();
 	}
+	
+	public static List<Map<String, Object>> getAllNodes(String path) {
+		StringBuilder query = new StringBuilder();
+		query.append("MATCH (ee:domain) RETURN ee");
+		return getNodes(path, query.toString());
+	}
+
 }
