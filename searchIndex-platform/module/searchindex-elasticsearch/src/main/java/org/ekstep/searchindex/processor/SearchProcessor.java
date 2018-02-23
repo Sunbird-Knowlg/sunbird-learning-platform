@@ -600,7 +600,8 @@ public class SearchProcessor {
 	 */
 	private QueryBuilder getNotInQuery(String propertyName, List<Object> values) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-		queryBuilder.mustNot(QueryBuilders.termsQuery(propertyName, values));
+		queryBuilder
+				.mustNot(QueryBuilders.termsQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, values));
 		return queryBuilder;
 	}
 

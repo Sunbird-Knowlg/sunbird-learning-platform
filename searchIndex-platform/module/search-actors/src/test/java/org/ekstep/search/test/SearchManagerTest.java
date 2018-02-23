@@ -127,12 +127,12 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		List<Object> list = (List<Object>) result.get("results");
 		Assert.assertNotNull(list);
 		Assert.assertTrue(list.size() > 0);
-		boolean found = false;
+		boolean found = true;
 		for (Object obj : list) {
 			Map<String, Object> content = (Map<String, Object>) obj;
 			String desc = (String) content.get("name");
-			if (null != desc && !StringUtils.equalsIgnoreCase("31 check name match", desc))
-				found = true;
+			if (null != desc && StringUtils.equalsIgnoreCase("31 check name match", desc))
+				found = false;
 		}
 		Assert.assertTrue(found);
 	}
