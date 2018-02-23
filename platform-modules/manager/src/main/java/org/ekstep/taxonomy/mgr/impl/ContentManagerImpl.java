@@ -1654,10 +1654,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
 
 		if (isLicenseValidationRequired) {
+			String licenseType = null;
 			String videoId = getVideoIdFromUrl(artifactUrl);
 			if (StringUtils.isBlank(videoId))
 				throw new ClientException("ERR_YOUTUBE_LICENSE_VALIDATION", "Please Provide Valid Youtube URL!");
-			String licenseType = getYoutubeLicense(videoId);
+			licenseType = getYoutubeLicense(videoId);
+			if (StringUtils.isBlank(licenseType)) {
+				throw new ClientException("ERR_YOUTUBE_LICENSE_VALIDATION", "Please Provide Valid Youtube URL!");
+			}
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
 				map.put("license", "Standard YouTube License");
 			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
@@ -1665,10 +1669,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	private String getVideoIdFromUrl(String artifactUrl) throws Exception {
+	private String getVideoIdFromUrl(String artifactUrl) {
 		String[] videoIdRegex = { "\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)",
 				"^([A-Za-z0-9\\-]*)" };
-		try {
+
 			for (String regex : videoIdRegex) {
 				Pattern compiledPattern = Pattern.compile(regex);
 				Matcher matcher = compiledPattern.matcher(artifactUrl);
@@ -1676,9 +1680,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					return matcher.group(1);
 				}
 			}
-		} catch (Exception e) {
-			throw new ClientException("ERR_YOUTUBE_LICENSE_VALIDATION", "Please Provide Valid Youtube URL!");
-		}
+
 		return null;
 	}
 
