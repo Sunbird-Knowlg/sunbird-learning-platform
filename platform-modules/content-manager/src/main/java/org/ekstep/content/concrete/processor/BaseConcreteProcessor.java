@@ -315,8 +315,6 @@ public class BaseConcreteProcessor extends BaseManager {
 	 * @return the response
 	 */
 	protected Response addRelation(String graphId, String objectId1, String relation, String objectId2) {
-		if (StringUtils.isBlank(graphId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Invalid graph Id");
 		if (StringUtils.isBlank(objectId1) || StringUtils.isBlank(objectId2))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Object Id is blank");
 		if (StringUtils.isBlank(relation))

@@ -164,7 +164,7 @@ public class GraphV3Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.updateAllContentNodes(contentId, map);
+			Response response = contentManager.updateAllContents(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);

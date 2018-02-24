@@ -37,14 +37,12 @@ public interface IContentManager {
 	 * @param id
 	 *            the content <code>identifier</code> for which the content
 	 *            package needs to be uploaded.
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 * @param uploadedFile
 	 *            the uploaded file is the <code>zip content package</code>.
 	 * @return the response contains the node id as <code>node_id</code> for
 	 *         which the content is being uploaded.
 	 */
-	Response upload(String id, String taxonomyId, File uploadedFile, String mimeType);
+	Response upload(String id, File uploadedFile, String mimeType);
 
 	/**
 	 * Upload is High level Content Operation to set the
@@ -57,14 +55,12 @@ public interface IContentManager {
 	 * @param id
 	 *            the content <code>identifier</code> for which the content
 	 *            package needs to be uploaded.
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 * @param fileUrl
 	 *            the file URL is the <code>zip content package path</code>.
 	 * @return the response contains the node id as <code>node_id</code> for
 	 *         which the content is being uploaded.
 	 */
-	Response upload(String id, String taxonomyId, String fileUrl, String mimeType);
+	Response upload(String id, String fileUrl, String mimeType);
 
 	/**
 	 * Optimize is High level Content Operation mainly deals with optimizing the
@@ -81,16 +77,13 @@ public interface IContentManager {
 	 * 
 	 * <p>
 	 * A subclass must provide an implementation of this method.
-	 *
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 * 
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be publish.
 	 * @return the response contains the optimization status as
 	 *         <code>optStatus</code>
 	 */
-	Response optimize(String taxonomyId, String contentId);
+	Response optimize(String contentId);
 
 	/**
 	 * Publish is High level Content Operation mainly deals with the tasks
@@ -108,15 +101,13 @@ public interface IContentManager {
 	 * <p>
 	 * A subclass must provide an implementation of this method.
 	 *
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be publish.
 	 * @param requestMap
 	 *            the map of request params
 	 * @return the response contains the ECAR <code>URL</code> in its Result Set
 	 */
-	Response publish(String taxonomyId, String contentId, Map<String, Object> requestMap);
+	Response publish(String contentId, Map<String, Object> requestMap);
 
 	/**
 	 * Bundle is a High level Content Operation mainly deals with providing the
@@ -141,15 +132,13 @@ public interface IContentManager {
 	 *            the request contains the list of content
 	 *            <code>identifiers</code> and bundle file name in its
 	 *            <code>body</code>.
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 * @param version
 	 *            the <code>version</code> of Content Bundle can be seen in
 	 *            <code>Manifest File</code> Header.
 	 * @return the response contains the ECAR <code>URL</code> and node id as
 	 *         <code>node_id</code> in its Result Set
 	 */
-	Response bundle(Request request, String taxonomyId, String version);
+	Response bundle(Request request, String version);
 
 	/**
 	 * Review is High level Content Operation mainly deals with the tasks needed
@@ -163,8 +152,6 @@ public interface IContentManager {
 	 * <p>
 	 * A subclass must provide an implementation of this method.
 	 *
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be review.
 	 * @param requestMap
@@ -172,7 +159,7 @@ public interface IContentManager {
 	 * @return the response contains the Node <code>identifier</code> in its
 	 *         Result Set.
 	 */
-	Response review(String taxonomyId, String contentId, Request request);
+	Response review(String contentId, Request request);
 
 	/**
 	 * This method returns the full hierarchy of a content. The "Sequence
@@ -181,8 +168,6 @@ public interface IContentManager {
 	 * 
 	 * A subclass must provide an implementation of this method.
 	 *
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 * @param contentId
 	 *            the content <code>identifier</code> whose hierarchy needs to
 	 *            be returned
@@ -193,7 +178,7 @@ public interface IContentManager {
 	 * @return the response contains the hierarchy of the <code>content</code>
 	 *         in its Result Set.
 	 */
-	Response getHierarchy(String graphId, String contentId, String mode);
+	Response getHierarchy(String contentId, String mode);
 
 	/**
 	 * This method returns the content.
@@ -209,24 +194,21 @@ public interface IContentManager {
 	 *            version is returned
 	 * @param fields
 	 *            TODO
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 *
 	 * @return the response contains the <code>content</code> in its Result Set.
 	 */
-	Response find(String graphId, String contentId, String mode, List<String> fields);
+	Response find(String contentId, String mode, List<String> fields);
 
-	Response createContent(Map<String, Object> map) throws Exception;
+	Response create(Map<String, Object> map) throws Exception;
 
-	Response updateContent(String contentId, Map<String, Object> map) throws Exception;
+	Response update(String contentId, Map<String, Object> map) throws Exception;
 
-	Response preSignedURL(String taxonomyId, String contentId, String fileName);
+	Response preSignedURL(String contentId, String fileName);
 
 	Response updateHierarchy(Map<String, Object> data);
 
-	Response updateAllContentNodes(String contentId, Map<String, Object> map) throws Exception;
+	Response updateAllContents(String contentId, Map<String, Object> map) throws Exception;
 
-	// Method for QR Code Linking with Content
 	Response linkDialCode(String channelId, Map<String, Object> map) throws Exception;
 
 }

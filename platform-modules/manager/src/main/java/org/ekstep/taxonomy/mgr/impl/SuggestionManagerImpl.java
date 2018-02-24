@@ -161,7 +161,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			if (null != contentId && null != paramsMap){
 				if(StringUtils.isNotBlank(suggestedBy))
 					paramsMap.put(SuggestionCodeConstants.lastUpdatedBy.name(), suggestedBy);
-				contentManager.updateAllContentNodes(contentId, paramsMap);
+				contentManager.updateAllContents(contentId, paramsMap);
 			}
 			
 		} catch (ClientException e) {

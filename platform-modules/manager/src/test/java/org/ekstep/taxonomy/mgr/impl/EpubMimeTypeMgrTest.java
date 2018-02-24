@@ -48,7 +48,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 	public void createEpubContent() throws Exception{
 		Map<String,Object> messageData = mapper.readValue(createEpubContent, new TypeReference<Map<String, Object>>() {
 			});
-		Response result =  mgr.createContent(messageData);
+		Response result =  mgr.create(messageData);
 		node_id = (String)result.getResult().get("node_id");
 	}
 	
@@ -57,7 +57,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/sample.epub").getFile());
 		
-		Response resp = mgr.upload(node_id, "domain", file, null);
+		Response resp = mgr.upload(node_id, file, null);
 		Map<String,Object> mapData = resp.getResult();
 		assertEquals(ResponseCode.OK, resp.getResponseCode());
 		assertEquals(true, mapData.containsKey("content_url"));
@@ -70,7 +70,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 		exception.expect(ClientException.class);
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/content_validator_01.zip").getFile());
-		mgr.upload(node_id, "domain", file, null);
+		mgr.upload(node_id, file, null);
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -80,18 +80,18 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/sample4.epub").getFile());
 		
-		mgr.upload(node_id, "domain", file, null);
+		mgr.upload(node_id, file, null);
 		Map<String,Object> contentMap = new HashMap<String,Object>();
 		contentMap.put("lastPublishedBy", "ilimi");
 		LearningRequestRouterPool.init();
 		Request request = new Request();
 		request.setContext(contentMap);
 
-		Response response = mgr.review("domain", node_id, request);
+		Response response = mgr.review(node_id, request);
 		assertEquals(ResponseCode.OK, response.getResponseCode());
 		List<String> fields = new ArrayList<String>();
 		fields.add("status");
-		Response res = mgr.find("domain", node_id, null, fields);
+		Response res = mgr.find( node_id, null, fields);
 
 		Map<String,Object> reviewResult = res.getResult();
 		assertEquals(true, reviewResult.containsKey("content"));
@@ -107,17 +107,17 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/index.epub").getFile());
 		
-		mgr.upload(node_id, "domain", file, null);
+		mgr.upload(node_id, file, null);
 		Map<String,Object> contentMap = new HashMap<String,Object>();
 		contentMap.put("lastPublishedBy", "ilimi");
 		LearningRequestRouterPool.init();
 
-		Response response = mgr.publish("domain", node_id, contentMap);
+		Response response = mgr.publish(node_id, contentMap);
 		assertEquals(ResponseCode.OK, response.getResponseCode());
 		List<String> fields = new ArrayList<String>();
 		fields.add("status");
 		fields.add("downloadUrl");
-		Response res = mgr.find("domain", node_id, null, fields);
+		Response res = mgr.find(node_id, null, fields);
 
 		Map<String,Object> publishResult = res.getResult();
 		assertEquals(true, publishResult.containsKey("content"));
@@ -130,7 +130,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 				} catch (InterruptedException e) {
 					System.out.println(e);
 				}
-				Response getContent = mgr.find("domain", node_id, null, fields);
+				Response getContent = mgr.find(node_id, null, fields);
                 Map<String,Object> data = getContent.getResult();
                 Map<String,Object> contentData = (Map) data.get("content");
 				if (contentData.get("status").equals(PROCESSING) && contentData.get("status").equals(PENDING)) {

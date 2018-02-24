@@ -27,9 +27,9 @@ public class TagsWorkflowTest {
 		
 		Map<String,Object> messageData = mapper.readValue(createValidContentWithTags, new TypeReference<Map<String, Object>>() {
 		});
-		Response response = mgr.createContent(messageData);
+		Response response = mgr.create(messageData);
 		String node_id = (String)response.getResult().get("node_id");
-		Response resp = mgr.find("domain", node_id, null, null);
+		Response resp = mgr.find(node_id, null, null);
 		Map<String,Object> content = (Map)resp.getResult().get("content");
 //		assertEquals(true, content.containsKey("keywords"));
 	    assertEquals(false, resp.getResult().containsKey("keywords"));
@@ -40,9 +40,9 @@ public class TagsWorkflowTest {
 	public void createContentWithKeywords() throws Exception{
 		Map<String,Object> messageData = mapper.readValue(createValidContentWithKeywords, new TypeReference<Map<String, Object>>() {
 		});
-		Response response = mgr.createContent(messageData);
+		Response response = mgr.create(messageData);
 		String node_id = (String)response.getResult().get("node_id");
-		Response resp = mgr.find("domain", node_id, null, null);
+		Response resp = mgr.find(node_id, null, null);
 		Map<String,Object> content = (Map)resp.getResult().get("content");
 //		assertEquals(true, content.containsKey("keywords"));
 	}
