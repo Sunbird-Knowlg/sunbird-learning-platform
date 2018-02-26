@@ -497,6 +497,31 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 	
 	@SuppressWarnings("unchecked")
 	@Test
+	public void testSearchContainsFilter() {
+		Request request = getSearchRequest();
+		Map<String, Object> filters = new HashMap<String, Object>();
+		List<String> objectTypes = new ArrayList<String>();
+		objectTypes.add("Content");
+		filters.put("objectType", objectTypes);
+		filters.put("status", new ArrayList<String>());
+		Map<String, Object> name = new HashMap<String, Object>();
+		name.put("contains", "check");
+		filters.put("name", name);
+		request.put("filters", filters);
+		Response response = getSearchResponse(request);
+		Map<String, Object> result = response.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		Assert.assertNotNull(list);
+		Assert.assertTrue(list.size() >= 1);
+		for (Object obj : list) {
+			Map<String, Object> content = (Map<String, Object>) obj;
+			String identifier = (String) content.get("name");
+			Assert.assertTrue(identifier.contains("check"));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
 	public void testSearchExistsCondition() {
 		Request request = getSearchRequest();
 		Map<String, Object> filters = new HashMap<String, Object>();
@@ -787,8 +812,8 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		contentType.add("Collection");
 		filters.put("contentType",contentType);
 		request.put("filters", filters);
-		request.put("offset", 0);
-		request.put("limit", 1);
+		request.put("offset", 2000);
+		request.put("limit", 9000);
 		
 		Request request1 = getSearchRequest();
 		Map<String, Object> filters1 = new HashMap<String, Object>();
