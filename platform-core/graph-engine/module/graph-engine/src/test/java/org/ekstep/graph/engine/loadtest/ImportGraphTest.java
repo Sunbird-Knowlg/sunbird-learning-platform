@@ -6,9 +6,12 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.engine.mgr.impl.GraphMgrTest;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.importer.InputStreamValue;
+import org.junit.Before;
+import org.junit.Test;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -17,17 +20,12 @@ import scala.concurrent.Future;
 public class ImportGraphTest {
     ActorRef reqRouter = null;
 
-//    @BeforeTest
+    @Before
     public void init() throws Exception {
         reqRouter = TestUtil.initReqRouter();
     }
 
-//    @AfterTest
-    public void destroy() throws Exception {
-        Thread.sleep(10000);
-    }
-
-//    @Test(threadPoolSize = 100, invocationCount = 100)
+    @Test
     public void testImportGraph() {
         try {
             Request request = new Request();

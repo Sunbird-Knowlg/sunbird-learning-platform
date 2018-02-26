@@ -3,26 +3,26 @@ package org.ekstep.graph.engine.loadtest;
 import org.ekstep.common.dto.Request;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.junit.Before;
+import org.junit.Test;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Future;
 
-public class CreateGraphTest {
+public class CreateGraphTest extends GraphEngineTestSetup {
 
     ActorRef reqRouter = null;
     String SCENARIO_NAME ="CREATE_GRAPH"; 
     
-//    @BeforeTest
+    @Before
     public void init() throws Exception {
-        String logFileName = SCENARIO_NAME +"_" + System.currentTimeMillis();
-//        System.out.println("Logs are captured in "+logFileName+".log file.");
-//        LoggerUtil.config(logFileName);
         reqRouter = TestUtil.initReqRouter();
     }
     
-//    @Test(threadPoolSize=100, invocationCount=100)
+    @Test
     public void testCreateGraph() {
         try {
 
