@@ -195,8 +195,8 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	private Response genCompositeSearchMessage(String graphId, DefinitionDTO def, Integer startPosition,
 			Integer total) {
 		Response response = OK();
-		if (null == total || total > MAX_LIMIT)
-			total = MAX_LIMIT;
+		/*if (null == total || total > MAX_LIMIT)
+			total = MAX_LIMIT;*/
 		int start = 0;
 		if (null != startPosition && startPosition.intValue() > 0)
 			start = startPosition.intValue();
