@@ -49,6 +49,8 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  * @see ContentPipelineProcessor
  */
 public class BaseConcreteProcessor extends BaseManager {
+	
+	private static final String TAXONOMY_ID = "domain";
 
 	/**
 	 * Gets the media.
@@ -184,14 +186,14 @@ public class BaseConcreteProcessor extends BaseManager {
 		Response response = new Response();
 		if (null != map) {
 			Node node = getDataNode(map);
-			Request validateReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
+			Request validateReq = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER,
 					ContentWorkflowPipelineParams.validateNode.name());
 			validateReq.put(GraphDACParams.node.name(), node);
 			Response validateRes = getResponse(validateReq);
 			if (checkError(validateRes)) {
 				response = validateRes;
 			} else {
-				Request createReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
+				Request createReq = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER,
 						ContentWorkflowPipelineParams.createDataNode.name());
 				createReq.put(GraphDACParams.node.name(), node);
 				response = getResponse(createReq);
@@ -213,14 +215,14 @@ public class BaseConcreteProcessor extends BaseManager {
 		Response response = new Response();
 		if (null != map && null != node) {
 			node = updateDataNode(node, map);
-			Request validateReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
+			Request validateReq = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER,
 					ContentWorkflowPipelineParams.validateNode.name());
 			validateReq.put(GraphDACParams.node.name(), node);
 			Response validateRes = getResponse(validateReq);
 			if (checkError(validateRes)) {
 				response = validateRes;
 			} else {
-				Request updateReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
+				Request updateReq = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER,
 						ContentWorkflowPipelineParams.updateDataNode.name());
 				updateReq.put(GraphDACParams.node.name(), node);
 				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());

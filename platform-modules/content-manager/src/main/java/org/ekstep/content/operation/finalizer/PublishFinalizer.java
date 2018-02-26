@@ -41,6 +41,8 @@ import com.rits.cloning.Cloner;
  */
 public class PublishFinalizer extends BaseFinalizer {
 
+	private static final String TAXONOMY_ID = "domain";
+	
 	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
 
@@ -320,7 +322,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Response response = migrateContentImageObjectData(contentId, newNode);
 
 		// delete image..
-		Request request = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
+		Request request = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER,
 				"deleteDataNode");
 		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
 
