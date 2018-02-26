@@ -164,7 +164,7 @@
 			<exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
+                    <artifactId>guava-jdk5</artifactId>
                 </exclusion>
             </exclusions>
 		</dependency>
