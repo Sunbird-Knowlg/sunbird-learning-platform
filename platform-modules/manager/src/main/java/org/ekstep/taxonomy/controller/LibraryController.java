@@ -27,8 +27,6 @@ public class LibraryController extends BaseController {
     @Autowired
     private IContentManager contentManager;
 
-    private String graphId = "domain";
-
     @RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> upload(@PathVariable(value = "id") String id,
@@ -41,7 +39,7 @@ public class LibraryController extends BaseController {
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
-            Response response = contentManager.upload(id, "domain", uploadedFile, null);
+            Response response = contentManager.upload(id, uploadedFile, null);
             TelemetryManager.log("Upload | Response: " , response.getResult());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
@@ -57,7 +55,7 @@ public class LibraryController extends BaseController {
         String apiId = "library.publish";
         TelemetryManager.log("Publish library | Library Id : " + libraryId);
         try {
-            Response response = contentManager.publish(graphId, libraryId, null);
+            Response response = contentManager.publish(libraryId, null);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             TelemetryManager.error("Publish | Exception: " + e.getMessage(), e);

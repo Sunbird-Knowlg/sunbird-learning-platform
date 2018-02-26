@@ -29,9 +29,8 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  */
 public class BundleInitializer extends BaseInitializer {
 
-	/** The logger. */
+	private static final String TAXONOMY_ID = "domain";
 	
-
 	/** The BasePath. */
 	protected String basePath;
 
@@ -116,7 +115,7 @@ public class BundleInitializer extends BaseInitializer {
 		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 		List<String> childrenIds = new ArrayList<String>();
 		TelemetryManager.log("Populating the Recursive (Children) Contents.");
-		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
+		getContentBundleData(TAXONOMY_ID, nodes, contents, childrenIds, false);
 
 		TelemetryManager.log("Total Content To Bundle: " + nodes.size());
 		ContentValidator validator = new ContentValidator();

@@ -92,7 +92,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 		Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response documentResponse = contentManager.createContent(documentContentMap);
+		Response documentResponse = contentManager.create(documentContentMap);
 		contentId = (String) documentResponse.getResult().get(TestParams.node_id.name());
 	}
 

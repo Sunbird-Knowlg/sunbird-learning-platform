@@ -51,9 +51,5 @@ public class Platform {
 		}
 		return graphIds.get(service);
 	}
-	
-	// TODO: remove this entire implementation by check with rayulu.
-	public static void registerNewGraph(String service, String graphId) {
-		
-	}
+
 }

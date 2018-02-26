@@ -141,7 +141,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response documentResponse = contentManager.createContent(documentContentMap);
+			Response documentResponse = contentManager.create(documentContentMap);
 			if (i == 1) {
 				contentId = (String) documentResponse.getResult().get(TestParams.node_id.name());
 				versionKey = (String) documentResponse.getResult().get(TestParams.versionKey.name());
@@ -159,7 +159,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		Map<String, Object> collectionContentMap1 = mapper.readValue(createCollectionContent1,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp1 = contentManager.createContent(collectionContentMap1);
+		Response resp1 = contentManager.create(collectionContentMap1);
 		collectionContent1Id = (String) resp1.getResult().get(TestParams.node_id.name());
 		collectionVersion1Key = (String) resp1.getResult().get(TestParams.versionKey.name());
 
@@ -167,7 +167,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		Map<String, Object> collectionContentMap2 = mapper.readValue(createCollectionContent2,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp2 = contentManager.createContent(collectionContentMap2);
+		Response resp2 = contentManager.create(collectionContentMap2);
 		collectionContent2Id = (String) resp2.getResult().get(TestParams.node_id.name());
 		collectionVersion2Key = (String) resp2.getResult().get(TestParams.versionKey.name());
 
@@ -175,7 +175,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		Map<String, Object> collectionContentMap3 = mapper.readValue(createCollectionContent3,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp3 = contentManager.createContent(collectionContentMap3);
+		Response resp3 = contentManager.create(collectionContentMap3);
 		collectionContent3Id = (String) resp3.getResult().get(TestParams.node_id.name());
 		collectionVersion3Key = (String) resp3.getResult().get(TestParams.versionKey.name());
 	}
