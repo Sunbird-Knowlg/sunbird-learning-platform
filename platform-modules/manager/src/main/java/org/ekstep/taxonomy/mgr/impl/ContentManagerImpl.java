@@ -1,19 +1,15 @@
 package org.ekstep.taxonomy.mgr.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -75,16 +71,10 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.taxonomy.util.YoutubeAuthorizationHelper;
+import org.ekstep.taxonomy.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -251,7 +241,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
+	 * @see
+	 * org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
 	 * Request, java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -469,7 +460,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
 		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
-			validateYoutubeLicense(artifactUrl, node);
+			checkYoutubeLicense(artifactUrl, node);
 		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 
 		String contentType = (String) node.getMetadata().get("contentType");
@@ -1502,8 +1493,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map) This
-	 * Method will update Content Node with DIAL Code in Neo4j.
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map)
+	 * This Method will update Content Node with DIAL Code in Neo4j.
 	 * 
 	 * @author gauraw
 	 */
@@ -1614,76 +1605,23 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	public void validateYoutubeLicense(String artifactUrl, Node node) throws Exception {
-
+	/**
+	 * This method will check YouTube License and Insert as Node MetaData
+	 * 
+	 * @param String
+	 * @param Node
+	 * @return
+	 */
+	private void checkYoutubeLicense(String artifactUrl, Node node) throws Exception {
 		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
 				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
 
 		if (isValReq) {
-			String licenseType = null;
-			String videoId = getVideoIdFromUrl(artifactUrl);
-			if (StringUtils.isBlank(videoId))
-				throw new ClientException("ERR_YOUTUBE_LICENSE_VALIDATION", "Please Provide Valid Youtube URL!");
-			licenseType = getYoutubeLicense(videoId);
-			if (StringUtils.isBlank(licenseType)) {
-				throw new ClientException("ERR_YOUTUBE_LICENSE_VALIDATION", "Please Provide Valid Youtube URL!");
-			}
+			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
 				node.getMetadata().put("license", "Standard YouTube License");
 			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
 		}
-	}
-
-	private String getVideoIdFromUrl(String artifactUrl) {
-		String[] videoIdRegex = { "\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)",
-				"^([A-Za-z0-9\\-]*)" };
-
-		for (String regex : videoIdRegex) {
-			Pattern compiledPattern = Pattern.compile(regex);
-			Matcher matcher = compiledPattern.matcher(artifactUrl);
-			if (matcher.find()) {
-				return matcher.group(1);
-			}
-		}
-
-		return null;
-	}
-
-	private String getYoutubeLicense(String videoId) throws Exception {
-		String licenceType = "";
-		YouTube youtube = getYouTubeService();
-		try {
-			YouTube.Videos.List videosListByIdRequest = youtube.videos().list("status");
-			String apiKey = Platform.config.getString("learning.content.youtube.apikey");
-			videosListByIdRequest.setKey(apiKey);
-			videosListByIdRequest.setId(videoId);
-			VideoListResponse response = videosListByIdRequest.execute();
-			List<Video> videoList = response.getItems();
-
-			if (null != videoList && !videoList.isEmpty()) {
-				Iterator<Video> itr = videoList.iterator();
-				while (itr.hasNext()) {
-					Video singleVideo = itr.next();
-					licenceType = singleVideo.getStatus().getLicense().toString();
-				}
-			}
-		} catch (Exception e) {
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
-		}
-		return licenceType;
-	}
-
-	private static YouTube getYouTubeService() {
-		YouTube youtube = null;
-		String youtubeAppName = Platform.config.hasPath("learning.content.youtube.application.name")
-				? Platform.config.getString("learning.content.youtube.application.name") : "fetch-youtube-license";
-		youtube = new YouTube.Builder(YoutubeAuthorizationHelper.HTTP_TRANSPORT,
-				YoutubeAuthorizationHelper.JSON_FACTORY, new HttpRequestInitializer() {
-					public void initialize(HttpRequest request) throws IOException {
-					}
-				}).setApplicationName(youtubeAppName).build();
-		return youtube;
 	}
 }

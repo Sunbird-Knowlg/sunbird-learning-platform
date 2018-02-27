@@ -593,7 +593,10 @@ public class DataNode extends AbstractNode {
 						}
 					}
 				}
-			} else if (StringUtils.equalsIgnoreCase("json", dataType)) {
+			} else if (StringUtils.equalsIgnoreCase("list", dataType)) {
+-				if (!(value instanceof Object[]) && !(value instanceof List))
+-					messages.add("Metadata " + propName + " should be a list");
+ 			} else if (StringUtils.equalsIgnoreCase("json", dataType)) {
 				ObjectMapper mapper = new ObjectMapper();
 				try {
 					mapper.readValue((String) value, Map.class);

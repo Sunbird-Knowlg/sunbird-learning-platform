@@ -8,32 +8,32 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.junit.Before;
+import org.junit.Test;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Future;
 
-public class CreateNodeTest {
+public class CreateNodeTest extends GraphEngineTestSetup {
     ActorRef reqRouter = null;
-//    String graphId = "GRAPH_" + System.currentTimeMillis();
     String graphId = "JAVA_CS";
     String SCENARIO_NAME ="CREATE_NODE";
     
     private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
     
-    //@BeforeTest
+    @Before
     public void init() throws Exception {
         String logFileName = SCENARIO_NAME +"_" + System.currentTimeMillis();
         logger.info("Logs are captured in "+logFileName+".log file.");
         LoggerUtil.config(logFileName);
         reqRouter = TestUtil.initReqRouter();
         createGraph(reqRouter, graphId);
-        Thread.sleep(5000);
         Future<Object> defNodeRes = saveDefinitionNode(reqRouter, graphId);
         TestUtil.handleFutureBlock(defNodeRes, "saveDefinitionNode", GraphDACParams.node_id.name());
-        Thread.sleep(5000);
     }
     
     private Future<Object> saveDefinitionNode(ActorRef reqRouter2, String graphId2) {
@@ -47,13 +47,8 @@ public class CreateNodeTest {
         Future<Object> req = Patterns.ask(reqRouter, request, TestUtil.timeout);
         return req;
     }
-
-    //@AfterTest
-    public void destroy() throws Exception {
-        Thread.sleep(10000);
-    }
         
-    //@Test(threadPoolSize=500, invocationCount=500)
+    @Test
     public void testCreateNode1() {
         try {
             String nodeId = "Node_"+System.currentTimeMillis()+"_"+Thread.currentThread().getId();
@@ -66,23 +61,8 @@ public class CreateNodeTest {
         }
     }
     
-    //@Test
+    @Test
     public void testCreateNode2() {
-        try {
-            logger.info("Sleep for 10 seconds");
-            logger.info("****************************************************************************************************");
-            logger.info("");
-            Thread.sleep(10000);
-            logger.info("");
-            logger.info("");
-            logger.info("****************************************************************************************************");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    //@Test(threadPoolSize=500, invocationCount=500)
-    public void testCreateNode3() {
         try {
             String nodeId = "Node_"+System.currentTimeMillis()+"_"+Thread.currentThread().getId();
             String objectType = "COURSE";

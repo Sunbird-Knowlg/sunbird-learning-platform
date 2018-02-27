@@ -3,6 +3,7 @@ package org.ekstep.content.operation.finalizer;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -340,10 +341,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private void setPragma(Node node) {
-		if ("video/x-youtube"
-				.equalsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))
-				|| "application/pdf".equalsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
+		List<String> mimeTypes = Arrays.asList("video/x-youtube", "application/pdf");
+		if (mimeTypes.contains((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
 			Object obj = node.getMetadata().get("pragma");
 			List<String> pragma = null;
 			String value = "external";
