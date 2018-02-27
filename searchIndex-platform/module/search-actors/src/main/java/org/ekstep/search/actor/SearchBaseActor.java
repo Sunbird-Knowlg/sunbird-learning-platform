@@ -15,6 +15,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.elasticsearch.action.search.SearchPhaseExecutionException;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
@@ -116,6 +117,8 @@ public abstract class SearchBaseActor extends UntypedActor {
     protected String setErrMessage(Throwable e){
         if(e instanceof MiddlewareException)
         		return e.getMessage();
+		else if (e instanceof SearchPhaseExecutionException)
+			return e.getCause().getMessage();
          else 
         	 	return "Something went wrong in server while processing the request";
     }

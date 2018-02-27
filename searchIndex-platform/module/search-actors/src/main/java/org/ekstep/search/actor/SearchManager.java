@@ -425,9 +425,10 @@ public class SearchManager extends SearchBaseActor {
 								property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
 								break;
 							}
-							case "value": {
+							case "value":
+							case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS_OPERATOR: {
 								property.put(CompositeSearchParams.operation.name(),
-										CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+										CompositeSearchConstants.SEARCH_OPERATION_CONTAINS);
 								break;
 							}
 							default: {

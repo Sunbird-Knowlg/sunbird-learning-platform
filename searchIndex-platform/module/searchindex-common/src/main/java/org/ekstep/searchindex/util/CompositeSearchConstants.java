@@ -60,4 +60,6 @@ public class CompositeSearchConstants {
 	public static final String DIAL_CODE_INDEX_TYPE = "dc";
 	public static final String SEARCH_OPERATION_NOT_IN_OPERATOR = "notIn";
 	public static final String SEARCH_OPERATION_NOT_IN = "NT_IN";
+	public static final String SEARCH_OPERATION_CONTAINS_OPERATOR = "contains";
+
 }
