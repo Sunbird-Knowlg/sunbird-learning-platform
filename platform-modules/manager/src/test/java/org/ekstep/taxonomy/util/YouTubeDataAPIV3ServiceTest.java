@@ -23,14 +23,14 @@ public class YouTubeDataAPIV3ServiceTest {
 	@Test
 	public void testYouTubeService_01() throws Exception {
 		String artifactUrl = "https://www.youtube.com/watch?v=owr198WQpM8";
-		String result = YouTubeDataAPIV3Service.getYoutubeLicense(artifactUrl);
+		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
 		assertEquals("creativeCommon", result);
 	}
 
 	@Test
 	public void testYouTubeService_02() throws Exception {
 		String artifactUrl = "https://www.youtube.com/watch?v=_UR-l3QI2nE";
-		String result = YouTubeDataAPIV3Service.getYoutubeLicense(artifactUrl);
+		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
 		assertEquals("youtube", result);
 	}
 
@@ -38,6 +38,6 @@ public class YouTubeDataAPIV3ServiceTest {
 	public void testYouTubeService_03() throws Exception {
 		exception.expect(ClientException.class);
 		String artifactUrl = "https://goo.gl/bVBJNK";
-		String result = YouTubeDataAPIV3Service.getYoutubeLicense(artifactUrl);
+		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
 	}
 }

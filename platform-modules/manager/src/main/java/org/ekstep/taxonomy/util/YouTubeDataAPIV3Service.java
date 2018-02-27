@@ -42,16 +42,26 @@ public class YouTubeDataAPIV3Service {
 
 	private static final String ERR_MSG = "Please Provide Valid YouTube URL!";
 
+	private static YouTube youtube = null;
+
+	static {
+		String youtubeAppName = Platform.config.hasPath("learning.content.youtube.application.name")
+				? Platform.config.getString("learning.content.youtube.application.name") : "fetch-youtube-license";
+		youtube = new YouTube.Builder(HTTP_TRANSPORT, JSON_FACTORY, new HttpRequestInitializer() {
+			public void initialize(HttpRequest request) throws IOException {
+			}
+		}).setApplicationName(youtubeAppName).build();
+	}
+
 	/**
 	 * This Method will fetch license for given YouTube Video URL.
 	 * 
 	 * @param videoUrl
 	 * @return licenceType
 	 */
-	public static String getYoutubeLicense(String videoUrl) throws Exception {
-		String videoId = getVideoIdFromUrl(videoUrl);
+	public static String getLicense(String videoUrl) throws Exception {
+		String videoId = getIdFromUrl(videoUrl);
 		String licenceType = "";
-		YouTube youtube = getYouTubeService();
 		try {
 			YouTube.Videos.List videosListByIdRequest = youtube.videos().list("status");
 			String apiKey = Platform.config.getString("learning.content.youtube.apikey");
@@ -71,38 +81,22 @@ public class YouTubeDataAPIV3Service {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}
-		if (StringUtils.isBlank(licenceType)) {
+		if (StringUtils.isBlank(licenceType))
 			throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), ERR_MSG);
-		}
+
 		return licenceType;
 	}
 
-	private static String getVideoIdFromUrl(String artifactUrl) {
+	private static String getIdFromUrl(String url) {
 		String[] videoIdRegex = { "\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)",
 				"^([A-Za-z0-9\\-]*)" };
-
 		for (String regex : videoIdRegex) {
 			Pattern compiledPattern = Pattern.compile(regex);
-			Matcher matcher = compiledPattern.matcher(artifactUrl);
+			Matcher matcher = compiledPattern.matcher(url);
 			if (matcher.find()) {
 				return matcher.group(1);
 			}
 		}
 		return null;
 	}
-
-	/**
-	 * This Method will return YouTube Service Object
-	 */
-	private static YouTube getYouTubeService() {
-		YouTube youtube = null;
-		String youtubeAppName = Platform.config.hasPath("learning.content.youtube.application.name")
-				? Platform.config.getString("learning.content.youtube.application.name") : "fetch-youtube-license";
-		youtube = new YouTube.Builder(HTTP_TRANSPORT, JSON_FACTORY, new HttpRequestInitializer() {
-			public void initialize(HttpRequest request) throws IOException {
-			}
-		}).setApplicationName(youtubeAppName).build();
-		return youtube;
-	}
-
 }

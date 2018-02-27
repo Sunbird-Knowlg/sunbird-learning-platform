@@ -1631,7 +1631,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
 
 		if (isValReq) {
-			String licenseType = YouTubeDataAPIV3Service.getYoutubeLicense(artifactUrl);
+			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
 				node.getMetadata().put("license", "Standard YouTube License");
 			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
