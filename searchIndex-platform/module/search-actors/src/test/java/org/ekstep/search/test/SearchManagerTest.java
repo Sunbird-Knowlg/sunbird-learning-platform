@@ -812,8 +812,8 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		contentType.add("Collection");
 		filters.put("contentType",contentType);
 		request.put("filters", filters);
-		request.put("offset", 2000);
-		request.put("limit", 9000);
+		request.put("offset", 0);
+		request.put("limit", 1);
 		
 		Request request1 = getSearchRequest();
 		Map<String, Object> filters1 = new HashMap<String, Object>();
