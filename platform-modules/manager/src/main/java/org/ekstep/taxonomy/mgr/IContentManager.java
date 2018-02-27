@@ -158,8 +158,10 @@ public interface IContentManager {
 	 *            the map of request params
 	 * @return the response contains the Node <code>identifier</code> in its
 	 *         Result Set.
+	 * @throws Exception
 	 */
-	Response review(String contentId, Request request);
+
+	Response review(String contentId, Request request) throws Exception;
 
 	/**
 	 * This method returns the full hierarchy of a content. The "Sequence
