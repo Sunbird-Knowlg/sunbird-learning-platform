@@ -2,10 +2,7 @@ package org.ekstep.taxonomy.util;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.graph.dac.model.Node;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,28 +22,22 @@ public class YouTubeDataAPIV3ServiceTest {
 
 	@Test
 	public void testYouTubeService_01() throws Exception {
-		Node node = new Node();
-		node.setMetadata(new HashMap<>());
 		String artifactUrl = "https://www.youtube.com/watch?v=owr198WQpM8";
-		YouTubeDataAPIV3Service.validateYoutubeLicense(artifactUrl, node);
-		assertEquals("Creative Commons Attribution (CC BY)", (String) node.getMetadata().get("license"));
+		String result = YouTubeDataAPIV3Service.getYoutubeLicense(artifactUrl);
+		assertEquals("creativeCommon", result);
 	}
 
 	@Test
 	public void testYouTubeService_02() throws Exception {
-		Node node = new Node();
-		node.setMetadata(new HashMap<>());
 		String artifactUrl = "https://www.youtube.com/watch?v=_UR-l3QI2nE";
-		YouTubeDataAPIV3Service.validateYoutubeLicense(artifactUrl, node);
-		assertEquals("Standard YouTube License", (String) node.getMetadata().get("license"));
+		String result = YouTubeDataAPIV3Service.getYoutubeLicense(artifactUrl);
+		assertEquals("youtube", result);
 	}
 
 	@Test
 	public void testYouTubeService_03() throws Exception {
 		exception.expect(ClientException.class);
-		Node node = new Node();
-		node.setMetadata(new HashMap<>());
 		String artifactUrl = "https://goo.gl/bVBJNK";
-		YouTubeDataAPIV3Service.validateYoutubeLicense(artifactUrl, node);
+		String result = YouTubeDataAPIV3Service.getYoutubeLicense(artifactUrl);
 	}
 }

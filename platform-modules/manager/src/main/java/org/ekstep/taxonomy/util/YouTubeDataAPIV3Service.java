@@ -6,12 +6,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.graph.dac.model.Node;
 
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -44,34 +43,13 @@ public class YouTubeDataAPIV3Service {
 	private static final String ERR_MSG = "Please Provide Valid YouTube URL!";
 
 	/**
-	 * This method will check YouTube License and Insert as Node MetaData
+	 * This Method will fetch license for given YouTube Video URL.
 	 * 
-	 * @param String
-	 * @param Node
-	 * @return Node
+	 * @param videoUrl
+	 * @return licenceType
 	 */
-	public static Node validateYoutubeLicense(String artifactUrl, Node node) throws Exception {
-		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
-				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
-
-		if (isValReq) {
-			String licenseType = null;
-			String videoId = getVideoIdFromUrl(artifactUrl);
-			if (StringUtils.isBlank(videoId))
-				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), ERR_MSG);
-			licenseType = getYoutubeLicense(videoId);
-			if (StringUtils.isBlank(licenseType)) {
-				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), ERR_MSG);
-			}
-			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
-				node.getMetadata().put("license", "Standard YouTube License");
-			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
-				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
-		}
-		return node;
-	}
-
-	private static String getYoutubeLicense(String videoId) throws Exception {
+	public static String getYoutubeLicense(String videoUrl) throws Exception {
+		String videoId = getVideoIdFromUrl(videoUrl);
 		String licenceType = "";
 		YouTube youtube = getYouTubeService();
 		try {
@@ -92,6 +70,9 @@ public class YouTubeDataAPIV3Service {
 		} catch (Exception e) {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+		}
+		if (StringUtils.isBlank(licenceType)) {
+			throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), ERR_MSG);
 		}
 		return licenceType;
 	}

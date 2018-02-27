@@ -474,7 +474,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
 		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
-			node = YouTubeDataAPIV3Service.validateYoutubeLicense(artifactUrl, node);
+			checkYoutubeLicense(artifactUrl, node);
 		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		String contentType = (String) node.getMetadata().get("contentType");
 		IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
@@ -1616,6 +1616,26 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+		}
+	}
+
+	/**
+	 * This method will check YouTube License and Insert as Node MetaData
+	 * 
+	 * @param String
+	 * @param Node
+	 * @return
+	 */
+	private void checkYoutubeLicense(String artifactUrl, Node node) throws Exception {
+		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
+				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
+
+		if (isValReq) {
+			String licenseType = YouTubeDataAPIV3Service.getYoutubeLicense(artifactUrl);
+			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
+				node.getMetadata().put("license", "Standard YouTube License");
+			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
+				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
 		}
 	}
 
