@@ -45,9 +45,6 @@ public class ContentV2Controller extends BaseController {
 	@Autowired
 	private IContentManager contentManager;
 
-	/** The graph id. */
-	private String graphId = "domain";
-
 	/**
 	 * This method fetches the Content by Content Id
 	 *
@@ -66,7 +63,7 @@ public class ContentV2Controller extends BaseController {
 		TelemetryManager.log("Content GetById | Content Id : " + contentId);
 		try {
 			TelemetryManager.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
-			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
+			response = contentManager.find(contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -82,7 +79,7 @@ public class ContentV2Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.createContent(map);
+			Response response = contentManager.create(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -99,7 +96,7 @@ public class ContentV2Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.updateContent(contentId, map);
+			Response response = contentManager.update(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: "+ e.getMessage(), e);
@@ -137,7 +134,7 @@ public class ContentV2Controller extends BaseController {
 		} else {
 			try {
 				if (StringUtils.isNotBlank(fileUrl)) {
-					Response response = contentManager.upload(contentId, graphId, fileUrl, mimeType);
+					Response response = contentManager.upload(contentId, fileUrl, mimeType);
 					TelemetryManager.log("Upload | Response: " + response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				} else {
@@ -145,7 +142,7 @@ public class ContentV2Controller extends BaseController {
 							+ System.currentTimeMillis() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 					File uploadedFile = new File(name);
 					file.transferTo(uploadedFile);
-					Response response = contentManager.upload(contentId, "domain", uploadedFile, mimeType);
+					Response response = contentManager.upload(contentId, uploadedFile, mimeType);
 					TelemetryManager.log("Upload | Response: ", response.getResult());
 					return getResponseEntity(response, apiId, null);
 				}
@@ -174,7 +171,7 @@ public class ContentV2Controller extends BaseController {
 		TelemetryManager.log("Publish content | Content Id : " + contentId);
 		try {
 			TelemetryManager.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
-			Response response = contentManager.publish(graphId, contentId, null);
+			Response response = contentManager.publish(contentId, null);
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -200,7 +197,7 @@ public class ContentV2Controller extends BaseController {
 		TelemetryManager.log("Optimize content | Content Id : " + contentId);
 		try {
 			TelemetryManager.log("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
-			Response response = contentManager.optimize(graphId, contentId);
+			Response response = contentManager.optimize(contentId);
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -232,7 +229,7 @@ public class ContentV2Controller extends BaseController {
 			request.put(ContentAPIParams.version.name(), "v2");
 
 			TelemetryManager.log("Calling the Manager for 'Bundle' Operation");
-			Response response = contentManager.bundle(request, graphId, "1.1");
+			Response response = contentManager.bundle(request, "1.1");
 			TelemetryManager.log("Archive | Response: " + response);
 
 			return getResponseEntity(response, apiId, null);
@@ -257,7 +254,7 @@ public class ContentV2Controller extends BaseController {
 		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
 		try {
 			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
-			response = contentManager.getHierarchy(graphId, contentId, mode);
+			response = contentManager.getHierarchy(contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -288,7 +285,7 @@ public class ContentV2Controller extends BaseController {
 						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), "content object is blank"),
 						apiId, null);
 			}
-			response = contentManager.preSignedURL(graphId, contentId, fileName);
+			response = contentManager.preSignedURL(contentId, fileName);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);

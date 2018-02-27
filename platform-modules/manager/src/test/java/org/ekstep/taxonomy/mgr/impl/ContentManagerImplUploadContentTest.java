@@ -41,8 +41,6 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 	static ClassLoader classLoader = ContentManagerImplUploadContentTest.class.getClassLoader();
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 
-	static String taxonomyId = "domain";
-
 	static String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
 
 	@Rule
@@ -72,7 +70,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 		String contentId = "";
 		String mimeType = "application/pdf";
 		File file = new File("");
-		Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
+		Response response = contentManager.upload(contentId, file, mimeType);
 	}
 
 	// Empty Taxonomy Id
@@ -84,7 +82,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 		String taxonomyId = "";
 		String mimeType = "application/pdf";
 		File file = new File("");
-		Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
+		Response response = contentManager.upload(contentId, file, mimeType);
 	}
 
 	// Invalid Content Id
@@ -95,7 +93,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 		String contentId = "TEST1.img"; // Invalid Content Id
 		String mimeType = "application/pdf";
 		File file = new File("");
-		Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
+		Response response = contentManager.upload(contentId, file, mimeType);
 	}
 
 	// Empty File
@@ -106,7 +104,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 		String contentId = "TEST1img";
 		String mimeType = "application/pdf";
 		File file = null;
-		Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
+		Response response = contentManager.upload(contentId, file, mimeType);
 	}
 
 	// Upload Document Content
@@ -119,7 +117,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 			String absPath = file1.getAbsolutePath();
 			File file = new File(absPath);
 
-			Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
+			Response response = contentManager.upload(contentId, file, mimeType);
 			String responseCode = (String) response.getResponseCode().toString();
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
@@ -144,7 +142,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 			String absPath = file1.getAbsolutePath();
 			File file = new File(absPath);
 
-			Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
+			Response response = contentManager.upload(contentId, file, mimeType);
 			String responseCode = (String) response.getResponseCode().toString();
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
@@ -173,7 +171,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
 		String mimeType = "application/pdf";
 		exception.expect(ClientException.class);
-		Response response = contentManager.upload(contentId, taxonomyId, fileUrl, mimeType);
+		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 
 	}
 
@@ -184,7 +182,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
 		String mimeType = "application/pdf";
 		exception.expect(ClientException.class);
-		Response response = contentManager.upload(contentId, taxonomyId, fileUrl, mimeType);
+		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 
 	}
 
@@ -195,7 +193,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 		String fileUrl = "";
 		String mimeType = "application/pdf";
 		exception.expect(ClientException.class);
-		Response response1 = contentManager.upload(contentId, taxonomyId, fileUrl, mimeType);
+		Response response1 = contentManager.upload(contentId, fileUrl, mimeType);
 
 	}
 
@@ -207,7 +205,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 			String mimeType = "application/pdf";
 			String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
 
-			Response response = contentManager.upload(contentId, taxonomyId, fileUrl, mimeType);
+			Response response = contentManager.upload(contentId, fileUrl, mimeType);
 			String responseCode = (String) response.getResponseCode().toString();
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
@@ -230,7 +228,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 			String mimeType = "";
 			String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
 
-			Response response = contentManager.upload(contentId, taxonomyId, fileUrl, mimeType);
+			Response response = contentManager.upload(contentId, fileUrl, mimeType);
 			String responseCode = (String) response.getResponseCode().toString();
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
@@ -252,7 +250,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap1.put(TestParams.identifier.name(), "U_Document_001");
-			Response documentResponse1 = contentManager.createContent(documentContentMap1);
+			Response documentResponse1 = contentManager.create(documentContentMap1);
 			String documentVersionKey1 = (String) documentResponse1.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey1))
 				versionKeyMap.put("U_Document_001", documentVersionKey1);
@@ -262,7 +260,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap2.put(TestParams.identifier.name(), "U_Document_002");
-			Response documentResponse2 = contentManager.createContent(documentContentMap2);
+			Response documentResponse2 = contentManager.create(documentContentMap2);
 			String documentVersionKey2 = (String) documentResponse2.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey2))
 				versionKeyMap.put("U_Document_002", documentVersionKey2);
@@ -272,7 +270,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap3.put(TestParams.identifier.name(), "U_Document_003");
-			Response documentResponse3 = contentManager.createContent(documentContentMap3);
+			Response documentResponse3 = contentManager.create(documentContentMap3);
 			String documentVersionKey3 = (String) documentResponse3.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey3))
 				versionKeyMap.put("U_Document_003", documentVersionKey3);
@@ -282,7 +280,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap4.put(TestParams.identifier.name(), "U_Document_004");
-			Response documentResponse4 = contentManager.createContent(documentContentMap4);
+			Response documentResponse4 = contentManager.create(documentContentMap4);
 			String documentVersionKey4 = (String) documentResponse4.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey4))
 				versionKeyMap.put("U_Document_004", documentVersionKey4);

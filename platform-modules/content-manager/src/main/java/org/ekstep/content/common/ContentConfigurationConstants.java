@@ -36,9 +36,6 @@ public class ContentConfigurationConstants {
 	 */
 	public static final String ITEM_CONTROLLER_FILE_EXTENSION = ".json";
 
-	/** The Constant GRAPH_ID is the default Graph ID. */
-	public static final String GRAPH_ID = "domain";
-
 	/** The Constant URL_PATH_SEPERATOR the default URL Path separator. */
 	public static final String URL_PATH_SEPERATOR = "/";
 

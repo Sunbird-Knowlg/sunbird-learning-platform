@@ -42,25 +42,4 @@ public class HealthCheckController extends BaseController {
             return getResponseEntity(response, apiId, null);
 		}
 	}
-	
-	@RequestMapping(value = "/register/{graphId}", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Response> register(@PathVariable(value = "graphId") String graphId) {
-		String name = "language-service";
-		String apiId = name + ".health.register";
-		Response response;
-		try {
-			response = healthCheckManager.registerGraph("language", graphId);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			response = new Response();
-			ResponseParams resStatus = new ResponseParams();
-	        resStatus.setErrmsg(e.getMessage());
-	        resStatus.setStatus(StatusType.failed.name());
-            response.setResponseCode(ResponseCode.SERVER_ERROR);
-            response.setParams(resStatus);
-            response.put("healthy", false);
-            return getResponseEntity(response, apiId, null);
-		}
-	}
 }

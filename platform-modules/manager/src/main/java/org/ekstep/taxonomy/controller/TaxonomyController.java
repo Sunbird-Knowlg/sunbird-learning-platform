@@ -39,22 +39,27 @@ public class TaxonomyController extends BaseController {
 
 	@Autowired
 	private ITaxonomyManager taxonomyManager;
-	
+
 	@PostConstruct
 	public void postConstruct() {
-		if (Platform.config.hasPath("cache.graphs_list")) {
-			TelemetryManager.info("Loading definition nodes to in-memory cache.");
-			List<String> graphIds = Platform.config.getStringList("cache.graphs_list");
-			for (String graphId: graphIds) {
-				TelemetryManager.info("Loading definition nodes to in-memory cache for graph: "+graphId);
-				taxonomyManager.findAllDefinitions(graphId);
+		if (Platform.config.hasPath("platform.services")) {
+			List<String> services = Platform.config.getStringList("platform.services");
+			for (String service : services) {
+				String key = service + ".graph_ids";
+				if (Platform.config.hasPath(key)) {
+					TelemetryManager.info("Loading definition nodes to in-memory cache for service: " + service);
+					List<String> graphIds = Platform.config.getStringList(key);
+					for (String graphId : graphIds) {
+						TelemetryManager.info("Loading definition nodes to in-memory cache for graph: " + graphId);
+						taxonomyManager.findAllDefinitions(graphId);
+					}
+				} else {
+					TelemetryManager.warn("config is not available to load definitions for service: " + service);
+				}
 			}
 			TelemetryManager.info("Loading definition nodes to in-memory cache is complete.");
-		} else {
-			TelemetryManager.warn("Not loading definition nodes to in-memory cache because configuration is not available.");
 		}
 	}
-	
 
 	@RequestMapping(value = "/{graphId:.+}/{objectType:.+}", method = RequestMethod.GET)
 	@ResponseBody
@@ -63,7 +68,7 @@ public class TaxonomyController extends BaseController {
 		String apiId = "ekstep.taxonomy.objecttype.list";
 		try {
 			Response response = taxonomyManager.findAllByObjectType(graphId, objectType);
-			TelemetryManager.log("FindAll | Response: " , response.getResult());
+			TelemetryManager.log("FindAll | Response: ", response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("FindAll | Exception: " + e.getMessage(), e);
@@ -83,7 +88,7 @@ public class TaxonomyController extends BaseController {
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = taxonomyManager.create(id, stream);
-			TelemetryManager.log("Create | Response: " , response.getResult());
+			TelemetryManager.log("Create | Response: ", response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
@@ -127,7 +132,7 @@ public class TaxonomyController extends BaseController {
 					resp.getOutputStream().close();
 				}
 			}
-			TelemetryManager.log("Export | Response: " , response.getResult());
+			TelemetryManager.log("Export | Response: ", response.getResult());
 		} catch (Exception e) {
 			TelemetryManager.error("Create | Exception: " + e.getMessage(), e);
 		}
@@ -141,7 +146,7 @@ public class TaxonomyController extends BaseController {
 		String apiId = "ekstep.taxonomy.delete";
 		try {
 			Response response = taxonomyManager.delete(id);
-			TelemetryManager.log("Delete | Response: " , response.getResult());
+			TelemetryManager.log("Delete | Response: ", response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Delete | Exception: " + e.getMessage(), e);
@@ -158,7 +163,7 @@ public class TaxonomyController extends BaseController {
 		TelemetryManager.log("Create Definition | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.updateDefinition(id, json);
-			TelemetryManager.log("Create Definition | Response: " , response.getResult());
+			TelemetryManager.log("Create Definition | Response: ", response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Create Definition | Exception: " + e.getMessage(), e);
@@ -174,7 +179,7 @@ public class TaxonomyController extends BaseController {
 		TelemetryManager.log("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findDefinition(id, objectType);
-			TelemetryManager.log("Find Definition | Response: " , response.getResult());
+			TelemetryManager.log("Find Definition | Response: ", response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Find Definition | Exception: " + e.getMessage(), e);
@@ -190,7 +195,7 @@ public class TaxonomyController extends BaseController {
 		TelemetryManager.log("Find All Definitions | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findAllDefinitions(id);
-			TelemetryManager.log("Find All Definitions | Response: " , response.getResult());
+			TelemetryManager.log("Find All Definitions | Response: ", response.getResult());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Find All Definitions | Exception: " + e.getMessage(), e);
@@ -203,7 +208,8 @@ public class TaxonomyController extends BaseController {
 	public ResponseEntity<Response> deleteDefinition(@PathVariable(value = "id") String id,
 			@PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.definition.delete";
-		TelemetryManager.log("Delete Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
+		TelemetryManager
+				.log("Delete Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.deleteDefinition(id, objectType);
 			TelemetryManager.log("Delete Definition | Response: " + response);
@@ -226,7 +232,7 @@ public class TaxonomyController extends BaseController {
 			List<String> keys = (List<String>) request.get(TaxonomyAPIParams.property_keys.name());
 			Boolean unique = (Boolean) request.get(TaxonomyAPIParams.unique_constraint.name());
 			Response response = taxonomyManager.createIndex(id, keys, unique);
-			TelemetryManager.log("Create Index | Response: " , response.getResult());
+			TelemetryManager.log("Create Index | Response: ", response.getResult());
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {

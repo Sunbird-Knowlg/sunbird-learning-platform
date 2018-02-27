@@ -47,9 +47,6 @@ public class ContentV3Controller extends BaseController {
 
 	private static final String CHANNEL_ID = "X-Channel-Id";
 
-	/** The graph id. */
-	private String graphId = "domain";
-
 	private String UNDERSCORE = "_";
 
 	private String DOT = ".";
@@ -63,7 +60,7 @@ public class ContentV3Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.createContent(map);
+			Response response = contentManager.create(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -82,7 +79,7 @@ public class ContentV3Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.updateContent(contentId, map);
+			Response response = contentManager.update(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
@@ -121,7 +118,7 @@ public class ContentV3Controller extends BaseController {
 		} else {
 			try {
 				if (StringUtils.isNotBlank(fileUrl)) {
-					Response response = contentManager.upload(contentId, graphId, fileUrl, mimeType);
+					Response response = contentManager.upload(contentId, fileUrl, mimeType);
 					TelemetryManager.log("Upload | Response: " + response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				} else {
@@ -130,7 +127,7 @@ public class ContentV3Controller extends BaseController {
 					File uploadedFile = new File(name);
 					file.transferTo(uploadedFile);
 					uploadedFile = new File(name);
-					Response response = contentManager.upload(contentId, graphId, uploadedFile, mimeType);
+					Response response = contentManager.upload(contentId, uploadedFile, mimeType);
 					TelemetryManager.log("Upload | Response: " + response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				}
@@ -166,7 +163,7 @@ public class ContentV3Controller extends BaseController {
 			request.put(ContentAPIParams.version.name(), "v2");
 
 			TelemetryManager.log("Calling the Manager for 'Bundle' Operation");
-			Response response = contentManager.bundle(request, graphId, "1.1");
+			Response response = contentManager.bundle(request, "1.1");
 			TelemetryManager.log("Archive | Response: " + response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -209,7 +206,7 @@ public class ContentV3Controller extends BaseController {
 						apiId, null);
 			}
 
-			response = contentManager.publish(graphId, contentId, requestMap);
+			response = contentManager.publish(contentId, requestMap);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -248,7 +245,7 @@ public class ContentV3Controller extends BaseController {
 						apiId, null);
 			}
 
-			response = contentManager.publish(graphId, contentId, requestMap);
+			response = contentManager.publish(contentId, requestMap);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -277,7 +274,7 @@ public class ContentV3Controller extends BaseController {
 			TelemetryManager
 					.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]" + contentId);
 			Request request = getRequest(map);
-			response = contentManager.review(graphId, contentId, request);
+			response = contentManager.review(contentId, request);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -301,7 +298,7 @@ public class ContentV3Controller extends BaseController {
 		try {
 			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]"
 					+ contentId);
-			response = contentManager.getHierarchy(graphId, contentId, mode);
+			response = contentManager.getHierarchy(contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -326,7 +323,7 @@ public class ContentV3Controller extends BaseController {
 		try {
 			TelemetryManager.log(
 					"Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]" + contentId);
-			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
+			response = contentManager.find(contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -356,7 +353,7 @@ public class ContentV3Controller extends BaseController {
 						"content object is blank"), apiId, null);
 			}
 
-			response = contentManager.preSignedURL(graphId, contentId, fileName);
+			response = contentManager.preSignedURL(contentId, fileName);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);

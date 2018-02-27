@@ -76,7 +76,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createECMLContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -97,7 +97,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			contentMap.put(TestParams.body.name(), BaseTestUtil.getFileString("Sample_XML_1.ecml"));
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -116,7 +116,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createHTMLContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -135,7 +135,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createAPKContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -155,14 +155,14 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> firstChildMap = mapper.readValue(createECMLContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response firstChildCreationResponse = contentManager.createContent(firstChildMap);
+			Response firstChildCreationResponse = contentManager.create(firstChildMap);
 			String firstChildNodeId = (String) firstChildCreationResponse.getResult().get(TestParams.node_id.name());
 
 			// Creating Second Child
 			Map<String, Object> secondChildMap = mapper.readValue(createHTMLContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response secondChildCreationResponse = contentManager.createContent(secondChildMap);
+			Response secondChildCreationResponse = contentManager.create(secondChildMap);
 			String secondChildNodeId = (String) secondChildCreationResponse.getResult().get(TestParams.node_id.name());
 
 			Map<String, Object> contentMap = mapper.readValue(
@@ -170,7 +170,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -189,7 +189,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createAssetContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -208,7 +208,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createPluginContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -227,7 +227,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createYouTubeContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -246,7 +246,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -265,7 +265,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createH5PContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -284,7 +284,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response response = contentManager.createContent(contentMap);
+			Response response = contentManager.create(contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -304,7 +304,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -328,7 +328,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -352,7 +352,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -377,7 +377,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -401,7 +401,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -425,7 +425,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -449,7 +449,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -473,7 +473,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -497,7 +497,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
 			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
-			Response response = contentManager.updateContent(contentId, contentMap);
+			Response response = contentManager.update(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -521,7 +521,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 			String contentId = "U_ECML_01";
 			String mimeType = "application/vnd.ekstep.ecml-archive";
 			File file = new File("");
-			Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
+			Response response = contentManager.upload(contentId, file, mimeType);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -557,7 +557,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 		map.put("contentType", "Story");
 		map.put("code", "org.ekstep.feb03.story.learningbooks");
 		map.put("mimeType", "application/vnd.ekstep.ecml-archive");
-		Response response = contentManager.createContent(map);
+		Response response = contentManager.create(map);
 		Assert.assertTrue(StringUtils.equalsIgnoreCase("OK", response.getResponseCode().name()));
 		Map<String, Object> metadata = getMetadata(contentId);
 		Assert.assertTrue(StringUtils.equalsIgnoreCase("gzip", (String) metadata.get("contentEncoding")));
@@ -581,7 +581,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 		map.put("code", "org.ekstep.feb03.story.learningbooks");
 		map.put("mimeType", "application/vnd.ekstep.ecml-archive");
 		map.put("tags", Arrays.asList("colors", "animals"));
-		Response response = contentManager.createContent(map);
+		Response response = contentManager.create(map);
 		Assert.assertTrue(StringUtils.equalsIgnoreCase("OK", response.getResponseCode().name()));
 		Map<String, Object> metadata = getMetadata(contentId);
 		Assert.assertTrue(metadata.containsKey("keywords"));
@@ -594,7 +594,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			ecmlContentMap.put(TestParams.identifier.name(), "U_ECML_01");
-			Response ecmlResponse = contentManager.createContent(ecmlContentMap);
+			Response ecmlResponse = contentManager.create(ecmlContentMap);
 			String ecmlVersionKey = (String) ecmlResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(ecmlVersionKey))
 				versionKeyMap.put("U_ECML_01", ecmlVersionKey);
@@ -604,7 +604,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			htmlContentMap.put(TestParams.identifier.name(), "U_HTML_01");
-			Response htmlResponse = contentManager.createContent(htmlContentMap);
+			Response htmlResponse = contentManager.create(htmlContentMap);
 			String htmlVersionKey = (String) htmlResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(htmlVersionKey))
 				versionKeyMap.put("U_HTML_01", htmlVersionKey);
@@ -614,7 +614,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			apkContentMap.put(TestParams.identifier.name(), "U_APK_01");
-			Response apkResponse = contentManager.createContent(apkContentMap);
+			Response apkResponse = contentManager.create(apkContentMap);
 			String apkVersionKey = (String) apkResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(apkVersionKey))
 				versionKeyMap.put("U_APK_01", apkVersionKey);
@@ -625,7 +625,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			collectionContentMap.put(TestParams.identifier.name(), "U_Collection_01");
-			Response collectionResponse = contentManager.createContent(collectionContentMap);
+			Response collectionResponse = contentManager.create(collectionContentMap);
 			String collectionVersionKey = (String) collectionResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(collectionVersionKey))
 				versionKeyMap.put("U_Collection_01", collectionVersionKey);
@@ -635,7 +635,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			assetContentMap.put(TestParams.identifier.name(), "U_Asset_01");
-			Response assetResponse = contentManager.createContent(assetContentMap);
+			Response assetResponse = contentManager.create(assetContentMap);
 			String assetVersionKey = (String) assetResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(assetVersionKey))
 				versionKeyMap.put("U_Asset_01", assetVersionKey);
@@ -646,7 +646,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					});
 			pluginContentMap.put(TestParams.identifier.name(), "U_Plugin_01");
 			pluginContentMap.put(TestParams.code.name(), "U_Plugin_01");
-			Response pluginResponse = contentManager.createContent(pluginContentMap);
+			Response pluginResponse = contentManager.create(pluginContentMap);
 			String pluginVersionKey = (String) pluginResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(pluginVersionKey))
 				versionKeyMap.put("U_Plugin_01", pluginVersionKey);
@@ -656,7 +656,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			youtubeContentMap.put(TestParams.identifier.name(), "U_YouTube_01");
-			Response youtubeResponse = contentManager.createContent(youtubeContentMap);
+			Response youtubeResponse = contentManager.create(youtubeContentMap);
 			String youtubeVersionKey = (String) youtubeResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(youtubeVersionKey))
 				versionKeyMap.put("U_YouTube_01", youtubeVersionKey);
@@ -666,7 +666,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap.put(TestParams.identifier.name(), "U_Document_01");
-			Response documentResponse = contentManager.createContent(documentContentMap);
+			Response documentResponse = contentManager.create(documentContentMap);
 			String documentVersionKey = (String) documentResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey))
 				versionKeyMap.put("U_Document_01", documentVersionKey);
@@ -676,7 +676,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			h5pContentMap.put(TestParams.identifier.name(), "U_H5P_01");
-			Response h5pResponse = contentManager.createContent(h5pContentMap);
+			Response h5pResponse = contentManager.create(h5pContentMap);
 			String h5pVersionKey = (String) h5pResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(h5pVersionKey))
 				versionKeyMap.put("U_H5P_01", h5pVersionKey);
@@ -686,7 +686,7 @@ public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			defaultContentMap.put(TestParams.identifier.name(), "U_Default_01");
-			Response defaultResponse = contentManager.createContent(defaultContentMap);
+			Response defaultResponse = contentManager.create(defaultContentMap);
 			String defaultVersionKey = (String) defaultResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(defaultVersionKey))
 				versionKeyMap.put("U_Default_01", defaultVersionKey);
