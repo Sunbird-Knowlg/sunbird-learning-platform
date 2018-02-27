@@ -34,12 +34,14 @@ public class YouTubeDataAPIV3Service {
 	/**
 	 * Define a global instance of the HTTP transport.
 	 */
-	public static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
 	/**
 	 * Define a global instance of the JSON factory.
 	 */
-	public static final JsonFactory JSON_FACTORY = new JacksonFactory();
+	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+
+	private static final String ERR_MSG = "Please Provide Valid YouTube URL!";
 
 	/**
 	 * This method will check YouTube License and Insert as Node MetaData
@@ -56,10 +58,10 @@ public class YouTubeDataAPIV3Service {
 			String licenseType = null;
 			String videoId = getVideoIdFromUrl(artifactUrl);
 			if (StringUtils.isBlank(videoId))
-				throw new ClientException("ERR_YOUTUBE_LICENSE_VALIDATION", "Please Provide Valid YouTube URL!");
+				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), ERR_MSG);
 			licenseType = getYoutubeLicense(videoId);
 			if (StringUtils.isBlank(licenseType)) {
-				throw new ClientException("ERR_YOUTUBE_LICENSE_VALIDATION", "Please Provide Valid YouTube URL!");
+				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), ERR_MSG);
 			}
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
 				node.getMetadata().put("license", "Standard YouTube License");
