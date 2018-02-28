@@ -16,40 +16,47 @@ public class ContentPreviewURLUpdater {
 	public static String path = "";
 	public static String aws_bucket = "";
 	private static final String tempFileLocation = "/data/contentUpdate/";
+	private static int defaultBatchSize = 100;
 	private ContentPackageExtractionUtil extractionUtil = new ContentPackageExtractionUtil();
 
 	public static void main(String args[]) throws Exception {
-		if (args != null && args.length != 2)
+		if (args != null && args.length >= 3)
 			throw new Exception("provide neo4j_path followed by aws_bucket in arguments to proceed");
 		path = args[0];
 		aws_bucket = args[1];
+		String contentType = args[2];
+		String size = args[3];
 		if (StringUtils.isBlank(path))
 			throw new Exception("Invalid neo4j path.");
 		if (StringUtils.isBlank(aws_bucket))
 			throw new Exception("Invalid AWS bucket.");
+		if (StringUtils.isBlank(contentType)
+				&& (!StringUtils.equalsIgnoreCase(contentType, ContentUpdateType.NonExtractable.name())
+						|| !StringUtils.equalsIgnoreCase(contentType, ContentUpdateType.Extractable.name())))
+			throw new Exception("Invalid Content type");
 		System.out.println("Neo4j path : " + path + ", AWS bucket :" + aws_bucket);
 		ContentPreviewURLUpdater updater = new ContentPreviewURLUpdater();
+		int batchSize = 0;
+		if(StringUtils.isNotBlank(size))
+			batchSize = Integer.parseInt(size);
 		// update Non-Extractable content(like video/Document) previewUrl
-		updater.batchUpdate(ContentUpdateType.NonExtractable);
 		// update Extractable content(like ecml/html/h5p) previewUrl  
-		updater.batchUpdate(ContentUpdateType.Extractable);
+		updater.batchUpdate(ContentUpdateType.valueOf(contentType), batchSize);
 
 	}
 
-	private void batchUpdate(ContentUpdateType type) {
+	private void batchUpdate(ContentUpdateType type, int batchSize) {
 		int startPosition = 0;
-		int resultSize = 1000;
-		boolean update = true;
-		while (update) {
-			List<Map<String, Object>> nodes = SearchUtil.getNodes(path, startPosition, resultSize, type);
-			if (nodes.size() > 0 && !nodes.isEmpty()) {
-				System.out.println("updating " + nodes.size() + " nodes for type : " + type.name());
-				updateContent(nodes, type);
-			} else {
-				update = false;
-			}
-			startPosition += resultSize;
-		}
+		if(batchSize==0)
+			batchSize=defaultBatchSize;
+		int count = SearchUtil.getNodesCount(path, type);
+		System.out.println(count+" contents are found for the type "+ type.name());
+		List<Map<String, Object>> nodes = SearchUtil.getNodes(path, startPosition, batchSize, type);
+		if (nodes.size() > 0 && !nodes.isEmpty()) {
+			System.out.println("updating " + nodes.size() + " nodes for type : " + type.name());
+			updateContent(nodes, type);
+		} 
+		System.out.println("Migration done for size -"+batchSize);
 	}
 
 	private void updateContent(List<Map<String, Object>> nodes, ContentUpdateType type) {

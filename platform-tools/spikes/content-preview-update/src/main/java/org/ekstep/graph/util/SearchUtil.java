@@ -78,7 +78,7 @@ public class SearchUtil {
 		else if (type == ContentUpdateType.Extractable)
 			mimeTypes = "\"application/vnd.ekstep.ecml-archive\", \"application/vnd.ekstep.html-archive\", \"application/vnd.ekstep.h5p-archive\"";
 		
-		query.append("MATCH (ee:domain{IL_FUNC_OBJECT_TYPE:'Content', status:'Live'}) where ee.mimeType in [ "+mimeTypes+"] RETURN ee ");
+		query.append("MATCH (ee:domain{IL_FUNC_OBJECT_TYPE:'Content', status:'Live'}) where ee.mimeType in [ "+mimeTypes+"]  and not exists(ee.previewUrl) RETURN ee ");
 		
 		if (offset > 0) {
 			query.append("SKIP ").append(offset).append(" ");
@@ -91,10 +91,35 @@ public class SearchUtil {
 		return query.toString();
 	}
 	
-	public static List<Map<String, Object>> getAllNodes(String path) {
-		StringBuilder query = new StringBuilder();
-		query.append("MATCH (ee:domain) RETURN ee");
-		return getNodes(path, query.toString());
+	public static int getNodesCount(String path, ContentUpdateType type) {
+		//return getNodes(path, );
+		String query = getCountQuery(type);
+		Driver driver = DriverUtil.getDriver(path);
+		try (Session session = driver.session()) {
+			StatementResult result = session.run(query);
+			if (null != result) {
+				Record record  = result.single();
+				Value nodeValue = record.get("count(ee)");
+				return nodeValue.asInt();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
+	private static String getCountQuery(ContentUpdateType type) {
+		StringBuilder query = new StringBuilder();
+		
+		String mimeTypes ="";
+		if (type == ContentUpdateType.NonExtractable)
+			mimeTypes = "\"application/pdf\", \"application/epub\", \"application/msword\", \"video/x-youtube\", \"video/mp4\", \"video/webm\", \"image/jpg\", \"text/x-url\"";
+		else if (type == ContentUpdateType.Extractable)
+			mimeTypes = "\"application/vnd.ekstep.ecml-archive\", \"application/vnd.ekstep.html-archive\", \"application/vnd.ekstep.h5p-archive\"";
+		
+		query.append("MATCH (ee:domain{IL_FUNC_OBJECT_TYPE:'Content', status:'Live'}) where ee.mimeType in [ "+mimeTypes+"]  and not exists(ee.previewUrl) RETURN count(ee) ");
+		
+        //System.out.println(query);
+		return query.toString();
+	}
 }
