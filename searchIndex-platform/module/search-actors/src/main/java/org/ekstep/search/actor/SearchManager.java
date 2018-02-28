@@ -74,6 +74,7 @@ public class SearchManager extends SearchBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			TelemetryManager.error("Error in SearchManager actor: " + e.getMessage(), e);
 			handleException(e, getSender());
 		} finally {
@@ -132,8 +133,8 @@ public class SearchManager extends SearchBaseActor {
 				}
 			}
 			if (fuzzySearch && filters != null) {
-				Map<String, Double> weightagesMap = new HashMap<String, Double>();
-				weightagesMap.put("default_weightage", 1.0);
+				Map<String, Float> weightagesMap = new HashMap<String, Float>();
+				weightagesMap.put("default_weightage", 1.0f);
 
 				if (StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(graphId)) {
 					Map<String, Object> objDefinition = ObjectDefinitionCache.getMetaData(objectType, graphId);
@@ -253,9 +254,9 @@ public class SearchManager extends SearchBaseActor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Double> getWeightagesMap(String weightagesString)
+	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
-		Map<String, Double> weightagesMap = new HashMap<String, Double>();
+		Map<String, Float> weightagesMap = new HashMap<String, Float>();
 		ObjectMapper mapper = new ObjectMapper();
 		if (weightagesString != null && !weightagesString.isEmpty()) {
 			Map<String, Object> weightagesRequestMap = mapper.readValue(weightagesString,
@@ -263,7 +264,7 @@ public class SearchManager extends SearchBaseActor {
 					});
 
 			for (Map.Entry<String, Object> entry : weightagesRequestMap.entrySet()) {
-				Double weightage = Double.parseDouble(entry.getKey());
+				Float weightage = Float.parseFloat(entry.getKey());
 				if (entry.getValue() instanceof List) {
 					List<String> fields = (List<String>) entry.getValue();
 					for (String field : fields) {

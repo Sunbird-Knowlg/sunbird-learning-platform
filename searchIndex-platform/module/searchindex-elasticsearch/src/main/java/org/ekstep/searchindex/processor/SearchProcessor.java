@@ -18,7 +18,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
-import org.elasticsearch.common.lucene.search.function.FiltersFunctionScoreQuery.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
@@ -386,7 +385,7 @@ public class SearchProcessor {
 		Map<String, Float> weightages = (Map<String, Float>) searchDTO.getAdditionalProperty("weightagesMap");
 		if (weightages == null) {
 			weightages = new HashMap<String, Float>();
-			weightages.put("default_weightage", 1.0F);
+			weightages.put("default_weightage", 1.0f);
 		}
 		List<String> querySearchFeilds = elasticSearchUtil.getQuerySearchFields();
 		List<Map> properties = searchDTO.getProperties();
@@ -414,7 +413,7 @@ public class SearchProcessor {
 						.functionScoreQuery(
 								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, true)),
 								ScoreFunctionBuilders.weightFactorFunction(weight))
-						.scoreMode(ScoreMode.Sum.name()).boostMode(CombineFunction.REPLACE);
+						.boostMode(CombineFunction.REPLACE);
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
@@ -423,7 +422,7 @@ public class SearchProcessor {
 						.functionScoreQuery(
 								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, false)),
 								ScoreFunctionBuilders.weightFactorFunction(weight))
-						.scoreMode(ScoreMode.Sum.name()).boostMode(CombineFunction.REPLACE);
+						.boostMode(CombineFunction.REPLACE);
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
@@ -486,8 +485,8 @@ public class SearchProcessor {
 
 		funcScoreQuery = QueryBuilders
 				.functionScoreQuery(boolQuery,
-						ScoreFunctionBuilders.weightFactorFunction(weightages.get("default_weightage")))
-				.scoreMode(ScoreMode.Sum.name()).boostMode(CombineFunction.REPLACE);
+						ScoreFunctionBuilders.weightFactorFunction(Float.valueOf(weightages.get("default_weightage"))))
+				.boostMode(CombineFunction.REPLACE);
 
 		return funcScoreQuery;
 	}
