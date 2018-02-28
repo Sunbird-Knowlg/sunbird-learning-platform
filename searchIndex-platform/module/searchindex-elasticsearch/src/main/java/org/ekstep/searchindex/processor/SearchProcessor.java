@@ -751,65 +751,11 @@ public class SearchProcessor {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		if (searchDTO.getLimit() == 0)
 			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
-		SearchRequestBuilder query = processSearchWithoutFileteredQuery(searchDTO, groupByFinalList, sort);
+		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
 		SearchResponse searchResult = elasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);
 		return searchResult;
-	}
-
-	/**
-	 * @param searchDTO
-	 * @param groupByFinalList
-	 * @param sort
-	 * @return
-	 */
-	private SearchRequestBuilder processSearchWithoutFileteredQuery(SearchDTO searchDTO,
-			List<Map<String, Object>> groupByFinalList, boolean sort) {
-
-		SearchRequestBuilder searchRequestBuilder = elasticSearchUtil.getSearchRequestBuilder();
-		List<String> fields = searchDTO.getFields();
-		if (null != fields && !fields.isEmpty()) {
-			fields.add(GraphDACParams.objectType.name());
-			fields.add(GraphDACParams.identifier.name());
-			searchRequestBuilder.setFetchSource(fields.toArray(new String[fields.size()]), null);
-		}
-
-		if (searchDTO.getFacets() != null && groupByFinalList != null) {
-			for (String facet : searchDTO.getFacets()) {
-				Map<String, Object> groupByMap = new HashMap<String, Object>();
-				groupByMap.put("groupByParent", facet);
-				groupByFinalList.add(groupByMap);
-			}
-		}
-
-		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
-		elasticSearchUtil.setOffset(searchDTO.getOffset());
-		QueryBuilder query = null;
-
-		if (searchDTO.isFuzzySearch()) {
-			query = prepareFilteredSearchQuery(searchDTO);
-		} else {
-			query = prepareSearchQuery(searchDTO);
-		}
-
-		searchRequestBuilder.setQuery(query);
-
-		if (sort) {
-			Map<String, String> sorting = searchDTO.getSortBy();
-			if (sorting == null || sorting.isEmpty()) {
-				sorting = new HashMap<String, String>();
-				sorting.put("name", "asc");
-				sorting.put("lastUpdatedOn", "desc");
-			}
-			for (String key : sorting.keySet())
-				searchRequestBuilder.addSort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
-						getSortOrder(sorting.get(key)));
-		}
-		setAggregations(groupByFinalList, searchRequestBuilder);
-
-		return searchRequestBuilder;
-
 	}
 
 }
