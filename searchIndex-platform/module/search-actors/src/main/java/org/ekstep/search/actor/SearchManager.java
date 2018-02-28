@@ -74,7 +74,6 @@ public class SearchManager extends SearchBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			TelemetryManager.error("Error in SearchManager actor: " + e.getMessage(), e);
 			handleException(e, getSender());
 		} finally {
