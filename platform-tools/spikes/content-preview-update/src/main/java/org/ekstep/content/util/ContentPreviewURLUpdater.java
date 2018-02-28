@@ -47,20 +47,24 @@ public class ContentPreviewURLUpdater {
 
 	private void batchUpdate(ContentUpdateType type, int batchSize) {
 		int startPosition = 0;
-		if(batchSize==0)
-			batchSize=defaultBatchSize;
+/*		if(batchSize==0)
+			batchSize=defaultBatchSize;*/
+		System.out.println("content type given: "+type.name()+"batchsize set: "+batchSize);
 		int count = SearchUtil.getNodesCount(path, type);
 		System.out.println(count+" contents are found for the type "+ type.name());
 		List<Map<String, Object>> nodes = SearchUtil.getNodes(path, startPosition, batchSize, type);
+		int resultSize = nodes.size();
+		int processed = 0;
 		if (nodes.size() > 0 && !nodes.isEmpty()) {
 			System.out.println("updating " + nodes.size() + " nodes for type : " + type.name());
-			updateContent(nodes, type);
+			processed = updateContent(nodes, type);
 		} 
-		System.out.println("Migration done for size -"+batchSize);
+		System.out.println("Migration done for size -"+batchSize+", graph result size -"+resultSize+", processed count"+processed);
 	}
 
-	private void updateContent(List<Map<String, Object>> nodes, ContentUpdateType type) {
-
+	private int updateContent(List<Map<String, Object>> nodes, ContentUpdateType type) {
+		
+		int count =0;
 		if (type == ContentUpdateType.Extractable) {
 			for (Map<String, Object> node : nodes) {
 				String contentId = (String) node.get(ContentPreveiwUpdaterParams.IL_UNIQUE_ID.name());
@@ -104,6 +108,7 @@ public class ContentPreviewURLUpdater {
 						Map<String, Object> content = new HashMap<>();
 						content.put(ContentPreveiwUpdaterParams.previewUrl.name(), previewUrl);
 						NodeUtil.updateNode(path, contentId, content);
+						count++;
 					}
 
 				}
@@ -116,9 +121,12 @@ public class ContentPreviewURLUpdater {
 					Map<String, Object> content = new HashMap<>();
 					content.put(ContentPreveiwUpdaterParams.previewUrl.name(), artifactUrl);
 					NodeUtil.updateNode(path, contentId, content);
+					count++;
 				}
 			}
 		}
+		
+		return count;
 	}
 
 	private static String getBasePath(String contentId) {
