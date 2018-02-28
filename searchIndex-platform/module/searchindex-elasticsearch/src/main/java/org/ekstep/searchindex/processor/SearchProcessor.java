@@ -18,6 +18,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
+import org.elasticsearch.common.lucene.search.function.FiltersFunctionScoreQuery.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
@@ -220,7 +221,7 @@ public class SearchProcessor {
 			query = prepareSearchQuery(searchDTO);
 		}
 
-		searchRequestBuilder.setQuery(QueryBuilders.boolQuery().filter(query));
+		searchRequestBuilder.setQuery(query);
 
 		if (sortBy) {
 			Map<String, String> sorting = searchDTO.getSortBy();
@@ -234,7 +235,7 @@ public class SearchProcessor {
 						getSortOrder(sorting.get(key)));
 		}
 		setAggregations(groupByFinalList, searchRequestBuilder);
-
+		searchRequestBuilder.setTrackScores(true);
 		return searchRequestBuilder;
 	}
 
@@ -413,6 +414,7 @@ public class SearchProcessor {
 						.functionScoreQuery(
 								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, true)),
 								ScoreFunctionBuilders.weightFactorFunction(weight))
+						.scoreMode(ScoreMode.Sum.name().toLowerCase())
 						.boostMode(CombineFunction.REPLACE);
 				break;
 			}
@@ -422,6 +424,7 @@ public class SearchProcessor {
 						.functionScoreQuery(
 								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, false)),
 								ScoreFunctionBuilders.weightFactorFunction(weight))
+						.scoreMode(ScoreMode.Sum.name().toLowerCase())
 						.boostMode(CombineFunction.REPLACE);
 				break;
 			}
@@ -486,6 +489,7 @@ public class SearchProcessor {
 		funcScoreQuery = QueryBuilders
 				.functionScoreQuery(boolQuery,
 						ScoreFunctionBuilders.weightFactorFunction(Float.valueOf(weightages.get("default_weightage"))))
+				.scoreMode(ScoreMode.Sum.name().toLowerCase())
 				.boostMode(CombineFunction.REPLACE);
 
 		return funcScoreQuery;
