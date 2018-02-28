@@ -20,8 +20,8 @@ public class ContentPreviewURLUpdater {
 	private ContentPackageExtractionUtil extractionUtil = new ContentPackageExtractionUtil();
 
 	public static void main(String args[]) throws Exception {
-		if (args != null && args.length >= 3)
-			throw new Exception("provide neo4j_path followed by aws_bucket in arguments to proceed");
+		if (args != null && args.length < 3)
+			throw new Exception("provide neo4j_path followed by aws_bucket and content_type in arguments to proceed");
 		path = args[0];
 		aws_bucket = args[1];
 		String contentType = args[2];
