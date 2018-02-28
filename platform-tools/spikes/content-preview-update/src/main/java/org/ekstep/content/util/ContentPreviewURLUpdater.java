@@ -59,7 +59,7 @@ public class ContentPreviewURLUpdater {
 			System.out.println("updating " + nodes.size() + " nodes for type : " + type.name());
 			processed = updateContent(nodes, type);
 		} 
-		System.out.println("Migration done for size -"+batchSize+", graph result size -"+resultSize+", processed count"+processed);
+		System.out.println("Migration done for size - "+batchSize+", graph result size - "+resultSize+", processed count - "+processed);
 	}
 
 	private int updateContent(List<Map<String, Object>> nodes, ContentUpdateType type) {
