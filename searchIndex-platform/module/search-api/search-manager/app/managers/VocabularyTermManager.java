@@ -22,13 +22,15 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import common.Constants;
 import common.DetectLanguage;
 import common.VocabularyTermParam;
-import io.searchbox.core.SearchResult;
 import play.api.mvc.Codec;
 import play.libs.F;
 import play.libs.F.Promise;
@@ -40,11 +42,8 @@ import play.mvc.Result;
  */
 public class VocabularyTermManager extends BasePlaySearchManager {
 
-	private static final String SETTING = "{\"settings\":{\"index\":{\"index\":\"" + Constants.VOCABULARY_TERM_INDEX
-			+ "\",\"type\":\"" + Constants.VOCABULARY_TERM_INDEX_TYPE
-			+ "\",\"analysis\":{\"analyzer\":{\"vt_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"vt_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"edge_ngram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}}}";
-	private static final String MAPPING = "{\"" + Constants.VOCABULARY_TERM_INDEX_TYPE
-			+ "\":{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"string\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"string\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}}";
+	private static final String SETTING = "{\"analysis\":{\"analyzer\":{\"vt_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"vt_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"edge_ngram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
+	private static final String MAPPING = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"string\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"string\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}";
 	private ElasticSearchUtil esUtil = null;
 	private SearchProcessor processor = null;
 
@@ -137,7 +136,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			int limit = getLimit(request.get(VocabularyTermParam.limit.name()),
 					VocabularyTermParam.ERR_INVALID_REQUEST.name());
 			map.remove(VocabularyTermParam.limit.name());
-			SearchResult searchResult = searchLemma(map, limit);
+			SearchResponse searchResult = searchLemma(map, limit);
 			List<Map> terms = getResultData(searchResult);
 			Response response = OK();
 			response.put(VocabularyTermParam.count.name(), terms.size());
@@ -169,14 +168,14 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 * @return
 	 * @throws Exception
 	 */
-	private SearchResult searchLemma(Map<String, Object> map, int limit) throws Exception {
+	private SearchResponse searchLemma(Map<String, Object> map, int limit) throws Exception {
 		SearchDTO searchDto = new SearchDTO();
 		searchDto.setFuzzySearch(false);
 		searchDto.setProperties(setSearchProperties(map));
 		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchDto.setFields(getFields());
 		searchDto.setLimit(limit);
-		return (SearchResult) processor.processSearchQueryWithSearchResult(searchDto, false,
+		return processor.processSearchQueryWithSearchResult(searchDto, false,
 				Constants.VOCABULARY_TERM_INDEX, false);
 
 	}
@@ -347,17 +346,15 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 * @param searchResult
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<Map> getResultData(SearchResult searchResult) {
-		Map<String, Object> result_map = (Map) searchResult.getValue(VocabularyTermParam.hits.name());
-		List<Map<String, Object>> results = (List) result_map.get(VocabularyTermParam.hits.name());
+	@SuppressWarnings("rawtypes")
+	private List<Map> getResultData(SearchResponse searchResult) {
+		SearchHits searchHits = searchResult.getHits();
+		SearchHit[] results = searchHits.getHits();
 		List<Map> terms = new ArrayList<Map>();
-		for (Map<String, Object> result : results) {
+		for (SearchHit result : results) {
 			Map<String, Object> term = new HashMap<String, Object>();
-			Map<String, Object> doc = new HashMap<String, Object>();
-			term.put(VocabularyTermParam.score.name(), result.get(VocabularyTermParam._score.name()));
-			doc = (Map<String, Object>) result.get("_source");
-			term.put(VocabularyTermParam.lemma.name(), doc.get(VocabularyTermParam.lemma.name()));
+			term.put(VocabularyTermParam.score.name(), result.getScore());
+			term.put(VocabularyTermParam.lemma.name(), result.getSource().get(VocabularyTermParam.lemma.name()));
 			terms.add(term);
 		}
 
