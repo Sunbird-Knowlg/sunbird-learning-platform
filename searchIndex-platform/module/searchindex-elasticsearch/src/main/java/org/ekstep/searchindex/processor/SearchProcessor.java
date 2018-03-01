@@ -737,8 +737,8 @@ public class SearchProcessor {
 		TelemetryManager.log(" search query: " + query);
 		SearchResponse searchResult = elasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);
-		SearchHits result_map = searchResult.getHits();
-		SearchHit[] result = result_map.getHits();
+		SearchHits resultMap = searchResult.getHits();
+		SearchHit[] result = resultMap.getHits();
 		for (SearchHit hit : result) {
 			response.add(hit.getSource());
 		}
