@@ -26,6 +26,7 @@ public class ContentPreviewURLUpdater {
 		aws_bucket = args[1];
 		String contentType = args[2];
 		String size = args[3];
+		String sOffset = args[4];
 		if (StringUtils.isBlank(path))
 			throw new Exception("Invalid neo4j path.");
 		if (StringUtils.isBlank(aws_bucket))
@@ -37,22 +38,25 @@ public class ContentPreviewURLUpdater {
 		System.out.println("Neo4j path : " + path + ", AWS bucket :" + aws_bucket);
 		ContentPreviewURLUpdater updater = new ContentPreviewURLUpdater();
 		int batchSize = 0;
+		int offset = 0;
 		if(StringUtils.isNotBlank(size))
 			batchSize = Integer.parseInt(size);
+		if(StringUtils.isNotBlank(sOffset))
+			offset = Integer.parseInt(sOffset);
 		// update Non-Extractable content(like video/Document) previewUrl
 		// update Extractable content(like ecml/html/h5p) previewUrl  
-		updater.batchUpdate(ContentUpdateType.valueOf(contentType), batchSize);
+		updater.batchUpdate(ContentUpdateType.valueOf(contentType), batchSize, offset);
 
 	}
 
-	private void batchUpdate(ContentUpdateType type, int batchSize) {
-		int startPosition = 0;
-/*		if(batchSize==0)
+	private void batchUpdate(ContentUpdateType type, int batchSize, int offset) {
+/*		int startPosition = 0;
+		if(batchSize==0)
 			batchSize=defaultBatchSize;*/
 		System.out.println("content type given: "+type.name()+"batchsize set: "+batchSize);
 		int count = SearchUtil.getNodesCount(path, type);
 		System.out.println(count+" contents are found for the type "+ type.name());
-		List<Map<String, Object>> nodes = SearchUtil.getNodes(path, startPosition, batchSize, type);
+		List<Map<String, Object>> nodes = SearchUtil.getNodes(path, offset, batchSize, type);
 		int resultSize = nodes.size();
 		int processed = 0;
 		if (nodes.size() > 0 && !nodes.isEmpty()) {
