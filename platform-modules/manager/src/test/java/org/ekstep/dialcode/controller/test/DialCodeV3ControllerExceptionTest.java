@@ -1,7 +1,10 @@
 package org.ekstep.dialcode.controller.test;
 
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -35,6 +38,16 @@ public class DialCodeV3ControllerExceptionTest {
 	private ResultActions actions;
 	private static final String basePath = "/v3/dialcode";
 
+	@BeforeClass
+	public static void setup() {
+		CompositeSearchConstants.DIAL_CODE_INDEX = "test000000000011";
+	}
+
+	public static void clean() throws Exception {
+		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+		elasticSearchUtil.deleteIndex("test000000000011");
+	}
+
 	@Before
 	public void init() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
@@ -44,7 +57,7 @@ public class DialCodeV3ControllerExceptionTest {
 	@Test
 	public void testDialCode_01() throws Exception {
 		String path = basePath + "/list";
-		String req = "{\"request\": {\"search\": {\"publisher\":\"test\",\"status\":\"Draft\"}}}";
+		String req = "{\"request\": {\"search\": {\"publisher\":\"test0001000001000\",\"status\":\"Draft\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
 		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
@@ -82,21 +95,19 @@ public class DialCodeV3ControllerExceptionTest {
 	@Test
 	public void testDialCode_05() throws Exception {
 		String path = basePath + "/list";
-		String req = "{\"request\": {\"search\": {\"publisher\":\"testpub01\",\"status\":\"Draft\"}}}";
+		String req = "{\"request\": {\"search\": {\"publisher\":\"testpub010001000001000\",\"status\":\"Draft\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
 		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
 	}
 
 	// Search Dial Code -405 -
-	@Ignore
 	@Test
 	public void testDialCode_06() throws Exception {
 		String path = basePath + "/search";
 		String req = "{\"request\": {\"search\": {\"publisher\":\"testpub01\",\"status\":\"Draft\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
-		System.out.println("Response:::::" + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(405, actions.andReturn().getResponse().getStatus());
 	}
 
