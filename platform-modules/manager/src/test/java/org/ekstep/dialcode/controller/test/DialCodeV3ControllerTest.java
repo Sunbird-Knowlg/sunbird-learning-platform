@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.CassandraTestSetup;
@@ -62,7 +63,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	private static String DIALCODE_INDEX_TYPE = "dc";
 	private static final String basePath = "/v3/dialcode";
 	private static ObjectMapper mapper = new ObjectMapper();
-	ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+	static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	private static String cassandraScript_1 = "CREATE KEYSPACE IF NOT EXISTS dialcode_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
 	private static String cassandraScript_2 = "CREATE TABLE IF NOT EXISTS dialcode_store_test.system_config_test (prop_key text,prop_value text,primary key(prop_key));";
@@ -78,12 +79,12 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	@BeforeClass
 	public static void setup() throws Exception {
 		executeScript(cassandraScript_1, cassandraScript_2, cassandraScript_3, cassandraScript_4, cassandraScript_5);
+		createDialCodeIndex();
 
 	}
 
 	@AfterClass
-	public static void finish() throws IOException {
-		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+	public static void finish() throws IOException, InterruptedException, ExecutionException {
 		elasticSearchUtil.deleteIndex(DIALCODE_INDEX);
 	}
 
@@ -370,7 +371,6 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	// @Ignore
 	@Test
 	public void testDialCode_16() throws Exception {
-		createDialCodeIndex();
 		String path = basePath + "/list/";
 		String req = "{\"request\": {\"search\": {\"publisher\":\"mock_pub01\",\"status\":\"Draft\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -644,7 +644,6 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	 */
 	@Test
 	public void testDialCode_33() throws Exception {
-		createDialCodeIndex();
 		String path = basePath + "/search";
 		String req = "{\"request\": {\"search\": {\"identifier\": \"" + dialCode + "\",\"limit\":10}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -661,7 +660,6 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	 */
 	@Test
 	public void testDialCode_34() throws Exception {
-		createDialCodeIndex();
 		String path = basePath + "/sync" + "?identifiers=" + dialCode;
 		String req = "{\"request\":{\"sync\":{\"publisher\":\"mock_pub01\",\"batchCode\":\"ka_math_std1\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -678,7 +676,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	 */
 	@Test
 	public void testDialCode_35() throws Exception {
-		createDialCodeIndex();
+
 		String path = basePath + "/sync";
 		String req = "{\"request\":{\"sync\":{\"channel\":\"test\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -702,21 +700,17 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
-	private void createDialCodeIndex() throws IOException {
+	private static void createDialCodeIndex() throws IOException {
 		CompositeSearchConstants.DIAL_CODE_INDEX = DIALCODE_INDEX;
-		String settings = "{ \"settings\": {   \"index\": {     \"index\": \""
-				+ CompositeSearchConstants.DIAL_CODE_INDEX + "\",     \"type\": \""
-				+ CompositeSearchConstants.DIAL_CODE_INDEX_TYPE
-				+ "\",     \"analysis\": {       \"analyzer\": {         \"dc_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"dc_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
-		String mappings = "{ \"" + CompositeSearchConstants.DIAL_CODE_INDEX_TYPE
-				+ "\" : {    \"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"dc_index_analyzer\",            \"search_analyzer\": \"dc_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"dc_index_analyzer\",        \"search_analyzer\": \"dc_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }}";
+		String settings = "{\"analysis\": {       \"analyzer\": {         \"dc_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"dc_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
+		String mappings = "{\"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"dc_index_analyzer\",            \"search_analyzer\": \"dc_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"dc_index_analyzer\",        \"search_analyzer\": \"dc_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }";
 		elasticSearchUtil.addIndex(CompositeSearchConstants.DIAL_CODE_INDEX,
 				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings);
 
 		populateData();
 	}
 
-	private void populateData() throws JsonProcessingException, IOException {
+	private static void populateData() throws JsonProcessingException, IOException {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		indexDocument.put("identifier", dialCode);
 		indexDocument.put("channel", "channelTest");

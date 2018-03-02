@@ -76,7 +76,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	private static String DIALCODE_INDEX = "testdialcode";
 	private static String DIALCODE_INDEX_TYPE = "dc";
-	private static Boolean isDialCodePopulated = false;
 
 	private static String collectionContent1Id = "";
 	private static String collectionVersion1Key = "";
@@ -92,13 +91,13 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		executeScript(script_1, script_2);
 		createDocumentContent();
 		createCollectionContent();
+		createDialCodeIndex();
 	}
 
 	@Before
 	public void init() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
-		if (!isDialCodePopulated)
-			createDialCodeIndex();
+
 	}
 
 	@AfterClass
@@ -106,22 +105,17 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		elasticSearchUtil.deleteIndex(DIALCODE_INDEX);
 	}
 
-	private void createDialCodeIndex() throws IOException {
+	private static void createDialCodeIndex() throws IOException {
 		CompositeSearchConstants.DIAL_CODE_INDEX = DIALCODE_INDEX;
-		String settings = "{ \"settings\": {   \"index\": {     \"index\": \""
-				+ CompositeSearchConstants.DIAL_CODE_INDEX + "\",     \"type\": \""
-				+ CompositeSearchConstants.DIAL_CODE_INDEX_TYPE
-				+ "\",     \"analysis\": {       \"analyzer\": {         \"dc_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"dc_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
-		String mappings = "{ \"" + CompositeSearchConstants.DIAL_CODE_INDEX_TYPE
-				+ "\" : {    \"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"dc_index_analyzer\",            \"search_analyzer\": \"dc_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"dc_index_analyzer\",        \"search_analyzer\": \"dc_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }}";
+		String settings = "{ \"analysis\": {       \"analyzer\": {         \"dc_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"dc_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
+		String mappings = "{\"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"dc_index_analyzer\",            \"search_analyzer\": \"dc_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"dc_index_analyzer\",        \"search_analyzer\": \"dc_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }";
 		elasticSearchUtil.addIndex(CompositeSearchConstants.DIAL_CODE_INDEX,
 				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings);
 
 		populateData();
-		isDialCodePopulated = true;
 	}
 
-	private void populateData() throws JsonProcessingException, IOException {
+	private static void populateData() throws JsonProcessingException, IOException {
 		for (int i = 0; i < validDialCode.length; i++) {
 			String dialCode = validDialCode[i];
 			Map<String, Object> indexDocument = new HashMap<String, Object>();

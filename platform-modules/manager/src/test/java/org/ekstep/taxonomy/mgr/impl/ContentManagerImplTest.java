@@ -1,13 +1,12 @@
 package org.ekstep.taxonomy.mgr.impl;
 
 import static org.junit.Assert.assertEquals;
-
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.taxonomy.content.common.TestParams;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.AfterClass;
@@ -57,7 +56,6 @@ public class ContentManagerImplTest extends CommonTestSetup {
 				"definitions/dimension_definition.json", "definitions/domain_definition.json");
 		executeScript(script_1, script_2);
 		startKafkaServer();
-
 	}
 
 	@AfterClass

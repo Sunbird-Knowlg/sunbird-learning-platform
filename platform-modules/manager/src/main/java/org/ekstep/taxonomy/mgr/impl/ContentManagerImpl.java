@@ -71,6 +71,7 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
+import org.ekstep.taxonomy.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -240,7 +241,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
+	 * @see
+	 * org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
 	 * Request, java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -434,7 +436,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response review(String contentId, Request request) {
+	public Response review(String contentId, Request request) throws Exception {
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
@@ -454,6 +456,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (StringUtils.isBlank(mimeType)) {
 			mimeType = "assets";
 		}
+
+		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
+		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
+		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
+			checkYoutubeLicense(artifactUrl, node);
+		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 
 		String contentType = (String) node.getMetadata().get("contentType");
 		IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
@@ -1485,8 +1493,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map) This
-	 * Method will update Content Node with DIAL Code in Neo4j.
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map)
+	 * This Method will update Content Node with DIAL Code in Neo4j.
 	 * 
 	 * @author gauraw
 	 */
@@ -1594,6 +1602,26 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+		}
+	}
+
+	/**
+	 * This method will check YouTube License and Insert as Node MetaData
+	 * 
+	 * @param String
+	 * @param Node
+	 * @return
+	 */
+	private void checkYoutubeLicense(String artifactUrl, Node node) throws Exception {
+		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
+				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
+
+		if (isValReq) {
+			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
+				node.getMetadata().put("license", "Standard YouTube License");
+			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
+				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
 		}
 	}
 

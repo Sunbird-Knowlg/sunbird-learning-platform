@@ -99,7 +99,8 @@ public class DataNode extends AbstractNode {
 					}
 					if (null == idx) {
 						idx = index++;
-						// metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
+						// metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(),
+						// idx);
 						relation.setMetadata(metadata);
 					}
 				}
@@ -519,9 +520,11 @@ public class DataNode extends AbstractNode {
 			String propName = def.getPropertyName();
 			String dataType = def.getDataType();
 			List<Object> range = def.getRange();
-			
-			//TODO: the below if condition is to allow term and termlist as datatypes.
-			if (StringUtils.isNotBlank(dataType) && MetadataDefinition.PLATFORM_OBJECTS_AS_DATA_TYPE.contains(dataType.toLowerCase())) {
+
+			// TODO: the below if condition is to allow term and termlist as
+			// datatypes.
+			if (StringUtils.isNotBlank(dataType)
+					&& MetadataDefinition.PLATFORM_OBJECTS_AS_DATA_TYPE.contains(dataType.toLowerCase())) {
 				if (def.getRangeValidation()) {
 					String framework = (String) this.metadata.get("framework");
 					if (StringUtils.isBlank(framework)) {
@@ -536,9 +539,11 @@ public class DataNode extends AbstractNode {
 						List<Object> terms = CategoryCache.getTerms(framework, propName);
 						if (null != terms && !terms.isEmpty()) {
 							range = terms;
-							TelemetryManager.log("Setting range from terms for data validation. framework: " + framework + ", category: "+ propName);
+							TelemetryManager.log("Setting range from terms for data validation. framework: " + framework
+									+ ", category: " + propName);
 						} else {
-							messages.add("Please select a valid framework. This framework doesn't have category: "+ propName);
+							messages.add("Please select a valid framework. This framework doesn't have category: "
+									+ propName);
 							return;
 						}
 					}
@@ -593,6 +598,9 @@ public class DataNode extends AbstractNode {
 						}
 					}
 				}
+			} else if (StringUtils.equalsIgnoreCase("list", dataType)) {
+				if (!(value instanceof Object[]) && !(value instanceof List))
+					messages.add("Metadata " + propName + " should be a list");
 			} else if (StringUtils.equalsIgnoreCase("json", dataType)) {
 				ObjectMapper mapper = new ObjectMapper();
 				try {

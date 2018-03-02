@@ -45,7 +45,7 @@ public class SearchManager extends SearchBaseActor {
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
 				if (null != countResult.get("count")) {
-					Double count = (Double) countResult.get("count");
+					Integer count = (Integer) countResult.get("count");
 					OK("count", count, parent);
 				} else {
 					ERROR("", "count is empty or null", ResponseCode.SERVER_ERROR, "", null, parent);
@@ -74,7 +74,7 @@ public class SearchManager extends SearchBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error in SearchManager actor: "+ e.getMessage(), e);
+			TelemetryManager.error("Error in SearchManager actor: " + e.getMessage(), e);
 			handleException(e, getSender());
 		} finally {
 			if (null != processor)
@@ -87,7 +87,7 @@ public class SearchManager extends SearchBaseActor {
 		SearchDTO searchObj = new SearchDTO();
 		try {
 			Map<String, Object> req = request.getRequest();
-			TelemetryManager.log("Search Request: " , req);
+			TelemetryManager.log("Search Request: ", req);
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
 			int limit = getLimitValue(req.get(CompositeSearchParams.limit.name()));
 			Boolean fuzzySearch = (Boolean) request.get("fuzzy");
@@ -98,7 +98,8 @@ public class SearchManager extends SearchBaseActor {
 				wordChainsRequest = false;
 			List<Map> properties = new ArrayList<Map>();
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
-			if (null == filters) filters = new HashMap<>();
+			if (null == filters)
+				filters = new HashMap<>();
 			if (filters.containsKey("tags")) {
 				Object tags = filters.get("tags");
 				if (null != tags) {
@@ -106,7 +107,7 @@ public class SearchManager extends SearchBaseActor {
 					filters.put("keywords", tags);
 				}
 			}
-			
+
 			Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
 			String objectType = null;
 			if (objectTypeFromFilter != null) {
@@ -131,8 +132,8 @@ public class SearchManager extends SearchBaseActor {
 				}
 			}
 			if (fuzzySearch && filters != null) {
-				Map<String, Double> weightagesMap = new HashMap<String, Double>();
-				weightagesMap.put("default_weightage", 1.0);
+				Map<String, Float> weightagesMap = new HashMap<String, Float>();
+				weightagesMap.put("default_weightage", 1.0f);
 
 				if (StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(graphId)) {
 					Map<String, Object> objDefinition = ObjectDefinitionCache.getMetaData(objectType, graphId);
@@ -180,13 +181,13 @@ public class SearchManager extends SearchBaseActor {
 						softConstraints = mapper.readValue(constraintString, Map.class);
 					}
 				} catch (Exception e) {
-					TelemetryManager.warn("Invalid soft Constraints"+ e.getMessage());
+					TelemetryManager.warn("Invalid soft Constraints" + e.getMessage());
 				}
 			}
-			TelemetryManager.log("Soft Constraints with only Mode: " , softConstraints);
+			TelemetryManager.log("Soft Constraints with only Mode: ", softConstraints);
 			if (null != softConstraints && !softConstraints.isEmpty()) {
 				Map<String, Object> softConstraintMap = new HashMap<>();
-				TelemetryManager.log("SoftConstraints:" , softConstraints);
+				TelemetryManager.log("SoftConstraints:", softConstraints);
 				try {
 					for (String key : softConstraints.keySet()) {
 						if (filters.containsKey(key) && null != filters.get(key)) {
@@ -201,18 +202,23 @@ public class SearchManager extends SearchBaseActor {
 								}
 							}
 							data.add(boost);
-							data.add(filters.get(key));
+							if (filters.get(key) instanceof Map) {
+								data.add(((Map) filters.get(key)).values().toArray()[0]);
+							} else {
+								data.add(filters.get(key));
+							}
+
 							softConstraintMap.put(key, data);
 							filters.remove(key);
 						}
 					}
 				} catch (Exception e) {
-					TelemetryManager.warn("Invalid soft Constraints: "+ e.getMessage());
+					TelemetryManager.warn("Invalid soft Constraints: " + e.getMessage());
 				}
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
-            TelemetryManager.log("SoftConstraints"+ searchObj.getSoftConstraints());
-            
+			TelemetryManager.log("SoftConstraints" + searchObj.getSoftConstraints());
+
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
@@ -247,9 +253,9 @@ public class SearchManager extends SearchBaseActor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Double> getWeightagesMap(String weightagesString)
+	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
-		Map<String, Double> weightagesMap = new HashMap<String, Double>();
+		Map<String, Float> weightagesMap = new HashMap<String, Float>();
 		ObjectMapper mapper = new ObjectMapper();
 		if (weightagesString != null && !weightagesString.isEmpty()) {
 			Map<String, Object> weightagesRequestMap = mapper.readValue(weightagesString,
@@ -257,7 +263,7 @@ public class SearchManager extends SearchBaseActor {
 					});
 
 			for (Map.Entry<String, Object> entry : weightagesRequestMap.entrySet()) {
-				Double weightage = Double.parseDouble(entry.getKey());
+				Float weightage = Float.parseFloat(entry.getKey());
 				if (entry.getValue() instanceof List) {
 					List<String> fields = (List<String>) entry.getValue();
 					for (String field : fields) {
@@ -408,6 +414,10 @@ public class SearchManager extends SearchBaseActor {
 								property.put(CompositeSearchParams.operation.name(),
 										CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL);
 								break;
+							case CompositeSearchConstants.SEARCH_OPERATION_NOT_IN_OPERATOR:
+								property.put(CompositeSearchParams.operation.name(),
+										CompositeSearchConstants.SEARCH_OPERATION_NOT_IN);
+								break;
 							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
 							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
 							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:
@@ -415,9 +425,10 @@ public class SearchManager extends SearchBaseActor {
 								property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
 								break;
 							}
-							case "value": {
+							case "value":
+							case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS_OPERATOR: {
 								property.put(CompositeSearchParams.operation.name(),
-										CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+										CompositeSearchConstants.SEARCH_OPERATION_CONTAINS);
 								break;
 							}
 							default: {
@@ -507,7 +518,7 @@ public class SearchManager extends SearchBaseActor {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
-		TelemetryManager.log("Logging search Response :" , searchResponse);
+		TelemetryManager.log("Logging search Response :", searchResponse);
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
@@ -534,11 +545,6 @@ public class SearchManager extends SearchBaseActor {
 									if (id.endsWith(".img")) {
 										id = id.replace(".img", "");
 										map.replace("identifier", id);
-									}
-									String es_id = (String) map.get("es_metadata_id");
-									if (es_id.endsWith(".img")) {
-										es_id = es_id.replace(".img", "");
-										map.replace("es_metadata_id", es_id);
 									}
 									list.add(map);
 								}

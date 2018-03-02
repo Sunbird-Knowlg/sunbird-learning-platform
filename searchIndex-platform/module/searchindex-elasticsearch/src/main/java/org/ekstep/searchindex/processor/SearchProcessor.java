@@ -15,25 +15,37 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
-
-import com.google.gson.internal.LinkedTreeMap;
-
-import io.searchbox.core.CountResult;
-import io.searchbox.core.SearchResult;
-import net.sf.json.util.JSONBuilder;
-import net.sf.json.util.JSONStringer;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.lucene.search.function.CombineFunction;
+import org.elasticsearch.common.lucene.search.function.FiltersFunctionScoreQuery.ScoreMode;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = null;
 	private ObjectMapper mapper = new ObjectMapper();
-	
+	private static final String ASC_ORDER = "asc";
+	private static final String AND = "AND";
+
 	public SearchProcessor() {
 		elasticSearchUtil = new ElasticSearchUtil();
 	}
-	
-	public SearchProcessor(String host, int port) {
-		elasticSearchUtil = new ElasticSearchUtil(host, port);
+
+	public SearchProcessor(String connectionInfo) {
+		elasticSearchUtil = new ElasticSearchUtil(connectionInfo);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -41,8 +53,8 @@ public class SearchProcessor {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> response = new HashMap<String, Object>();
 
-		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
+		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, true);
+		SearchResponse searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		if (includeResults) {
 			if (searchDTO.isFuzzySearch()) {
 				List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
@@ -52,29 +64,29 @@ public class SearchProcessor {
 				response.put("results", results);
 			}
 		}
-		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
-				.getValue("aggregations");
-		if (aggregations != null && !aggregations.isEmpty()) {
+		Aggregations aggregations = searchResult.getAggregations();
+		if (null != aggregations) {
 			AggregationsResultTransformer transformer = new AggregationsResultTransformer();
 			response.put("facets", (List<Map<String, Object>>) elasticSearchUtil.getCountFromAggregation(aggregations,
 					groupByFinalList, transformer));
 		}
-		response.put("count", searchResult.getTotal());
+		response.put("count", (int) searchResult.getHits().getTotalHits());
 		return response;
 	}
 
 	public Map<String, Object> processCount(SearchDTO searchDTO) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
-		String query = processSearchQuery(searchDTO, null, false);
-		CountResult countResult = elasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-		response.put("count", countResult.getCount());
+		SearchRequestBuilder searchRequestBuilder = processSearchQuery(searchDTO, null, false);
+		int countResult = elasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				searchRequestBuilder);
+		response.put("count", countResult);
 
 		return response;
 	}
 
 	/**
-	 * Returns the list of words which are synonyms of the synsetIds passed in
-	 * the request
+	 * Returns the list of words which are synonyms of the synsetIds passed in the
+	 * request
 	 * 
 	 * @param synsetIds
 	 * @return
@@ -117,11 +129,11 @@ public class SearchProcessor {
 								}
 								String lemma = (String) indexWordDocument.get("lemma");
 								String status = (String) indexWordDocument.get("status");
-								if(!StringUtils.equalsIgnoreCase(status, "Retired")) {
+								if (!StringUtils.equalsIgnoreCase(status, "Retired")) {
 									Map<String, String> wordMap = new HashMap<String, String>();
 									wordMap.put("id", wordId);
 									wordMap.put("lemma", lemma);
-									synsetWordLangList.add(wordMap);									
+									synsetWordLangList.add(wordMap);
 								}
 								wordTranslationList.put(graphId, synsetWordLangList);
 							}
@@ -174,135 +186,21 @@ public class SearchProcessor {
 			elasticSearchUtil.finalize();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort)
-			throws Exception {
-		List<Map> conditionsSetOne = new ArrayList<Map>();
-		List<Map> conditionsSetArithmetic = new ArrayList<Map>();
-		List<Map> conditionsSetMustNot = new ArrayList<Map>();
-		List<Map> conditionsSetShould = new ArrayList<Map>();
-		Map<String, List> conditionsMap = new HashMap<String, List>();
-		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_MUST, conditionsSetOne);
-		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_ARITHMETIC, conditionsSetArithmetic);
-		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_MUST_NOT, conditionsSetMustNot);
-		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_SHOULD, conditionsSetShould);
-		boolean relevanceSort = false;
-		List<Map> properties = searchDTO.getProperties();
+	/**
+	 * @param searchDTO
+	 * @param groupByFinalList
+	 * @param b
+	 * @return
+	 */
+	private SearchRequestBuilder processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList,
+			boolean sortBy) {
 
-		String totalOperation = searchDTO.getOperation();
-		for (Map<String, Object> property : properties) {
-			String propertyName = (String) property.get("propertyName");
-			if (propertyName.equals("*")) {
-				propertyName = "all_fields";
-			}
-			String operation = (String) property.get("operation");
-			List<Object> values;
-			try {
-				values = (List<Object>) property.get("values");
-			} catch (Exception e) {
-				values = Arrays.asList(property.get("values"));
-			}
-			String queryOperation = null;
-			String conditionSet = null;
-			switch (operation) {
-			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
-				queryOperation = "equal";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
-				queryOperation = "equal";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST_NOT;
-				break;
-			}
-
-			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
-				queryOperation = "endsWith";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_LIKE:
-			case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS: {
-				queryOperation = "like";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_NOT_LIKE: {
-				queryOperation = "like";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST_NOT;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH: {
-				queryOperation = "prefix";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_EXISTS: {
-				queryOperation = "exists";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS: {
-				queryOperation = "exists";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST_NOT;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
-				queryOperation = ">";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_ARITHMETIC;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
-				queryOperation = ">=";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_ARITHMETIC;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
-				queryOperation = "<";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_ARITHMETIC;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
-				queryOperation = "<=";
-				conditionSet = CompositeSearchConstants.CONDITION_SET_ARITHMETIC;
-				break;
-			}
-			case CompositeSearchConstants.SEARCH_OPERATION_RANGE: {
-				queryOperation = CompositeSearchConstants.SEARCH_OPERATION_RANGE;
-				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
-				break;
-			}
-			}
-
-			Map<String, Object> condition = new HashMap<String, Object>();
-			if (values.size() > 1) {
-				condition.put("operation", "bool");
-				condition.put("operand", "should");
-				ArrayList<Map> subConditions = new ArrayList<Map>();
-				for (Object value : values) {
-					Map<String, Object> subCondition = new HashMap<String, Object>();
-					subCondition.put("operation", queryOperation);
-					subCondition.put("fieldName", propertyName);
-					subCondition.put("value", value);
-					subConditions.add(subCondition);
-				}
-				condition.put("subConditions", subConditions);
-			} else if (propertyName.equalsIgnoreCase("all_fields")) {
-				relevanceSort = true;
-				List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
-				condition.put("operation", "bool");
-				condition.put("operand", "should");
-				Map<String, Object> queryCondition = new HashMap<String, Object>();
-				queryCondition.put("operation", queryOperation);
-				queryCondition.put("fields", queryFields);
-				queryCondition.put("value", values.get(0));
-				condition.put("queryCondition", queryCondition);
-			} else {
-				condition.put("operation", queryOperation);
-				condition.put("fieldName", propertyName);
-				condition.put("value", values.get(0));
-			}
-			conditionsMap.get(conditionSet).add(condition);
+		SearchRequestBuilder searchRequestBuilder = elasticSearchUtil.getSearchRequestBuilder();
+		List<String> fields = searchDTO.getFields();
+		if (null != fields && !fields.isEmpty()) {
+			fields.add(GraphDACParams.objectType.name());
+			fields.add(GraphDACParams.identifier.name());
+			searchRequestBuilder.setFetchSource(fields.toArray(new String[fields.size()]), null);
 		}
 
 		if (searchDTO.getFacets() != null && groupByFinalList != null) {
@@ -312,630 +210,552 @@ public class SearchProcessor {
 				groupByFinalList.add(groupByMap);
 			}
 		}
+
 		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
 		elasticSearchUtil.setOffset(searchDTO.getOffset());
+		QueryBuilder query = null;
 
-		if (sort && !relevanceSort) {
-			Map<String, String> sortBy = searchDTO.getSortBy();
-			if (sortBy == null || sortBy.isEmpty()) {
-				sortBy = new HashMap<String, String>();
-				sortBy.put("name", "asc");
-				sortBy.put("lastUpdatedOn", "desc");
-				searchDTO.setSortBy(sortBy);
-			}
+		if (searchDTO.isFuzzySearch()) {
+			query = prepareFilteredSearchQuery(searchDTO);
+		} else {
+			query = prepareSearchQuery(searchDTO);
 		}
 
-		if (null != searchDTO.getSoftConstraints() && !searchDTO.getSoftConstraints().isEmpty()) {
-			String conditionShould = CompositeSearchConstants.CONDITION_SET_SHOULD;
-			for (java.util.Map.Entry<String, Object> sc : searchDTO.getSoftConstraints().entrySet()) {
-				Map<String, Object> constraint = new HashMap<String, Object>();
-				constraint.put("operation", "equal");
-				constraint.put("fieldName", sc.getKey());
-				List<Object> data = (List<Object>) sc.getValue();
-				constraint.put("boost", data.get(0));
-				constraint.put("value", data.get(1));
-				conditionsMap.get(conditionShould).add(constraint);
+		searchRequestBuilder.setQuery(query);
+
+		if (sortBy) {
+			Map<String, String> sorting = searchDTO.getSortBy();
+			if (sorting == null || sorting.isEmpty()) {
+				sorting = new HashMap<String, String>();
+				sorting.put("name", "asc");
+				sorting.put("lastUpdatedOn", "desc");
 			}
+			for (String key : sorting.keySet())
+				searchRequestBuilder.addSort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+						getSortOrder(sorting.get(key)));
+		}
+		setAggregations(groupByFinalList, searchRequestBuilder);
+		searchRequestBuilder.setTrackScores(true);
+		return searchRequestBuilder;
+	}
+
+	/**
+	 * @param groupByList
+	 * @param searchRequestBuilder
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private void setAggregations(List<Map<String, Object>> groupByList,
+			SearchRequestBuilder searchRequestBuilder) {
+		TermsBuilder termBuilder = null;
+		if (groupByList != null && !groupByList.isEmpty()) {
+			for (Map<String, Object> groupByMap : groupByList) {
+				String groupByParent = (String) groupByMap.get("groupByParent");
+				termBuilder = AggregationBuilders.terms(groupByParent)
+						.field(groupByParent + CompositeSearchConstants.RAW_FIELD_EXTENSION)
+						.size(elasticSearchUtil.defaultResultLimit);
+				List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
+				if (groupByChildList != null && !groupByChildList.isEmpty()) {
+					for (String childGroupBy : groupByChildList) {
+						termBuilder.subAggregation(AggregationBuilders.terms(childGroupBy)
+								.field(childGroupBy + CompositeSearchConstants.RAW_FIELD_EXTENSION)
+								.size(elasticSearchUtil.defaultResultLimit));
+					}
+				}
+				searchRequestBuilder.addAggregation(termBuilder);
+			}
+		}
+	}
+
+	/**
+	 * @param searchDTO
+	 * @param totalOperation
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private QueryBuilder prepareSearchQuery(SearchDTO searchDTO) {
+		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+		QueryBuilder queryBuilder = null;
+		String totalOperation = searchDTO.getOperation();
+		List<Map> properties = searchDTO.getProperties();
+		for (Map<String, Object> property : properties) {
+			String opertation = (String) property.get("operation");
+
+			List<Object> values;
+			try {
+				values = (List<Object>) property.get("values");
+			} catch (Exception e) {
+				values = Arrays.asList(property.get("values"));
+			}
+
+			String propertyName = (String) property.get("propertyName");
+			if (propertyName.equals("*")) {
+				propertyName = "all_fields";
+				queryBuilder = getAllFieldsPropertyQuery(values);
+				boolQuery.must(queryBuilder);
+				continue;
+			}
+
+			switch (opertation) {
+			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
+				queryBuilder = getMustTermQuery(propertyName, values, true);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
+				queryBuilder = getMustTermQuery(propertyName, values, false);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_IN: {
+				queryBuilder = getNotInQuery(propertyName, values);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
+				queryBuilder = getRegexQuery(propertyName, values);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_LIKE:
+			case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS: {
+				queryBuilder = getMatchPhraseQuery(propertyName, values, true);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_LIKE: {
+				queryBuilder = getMatchPhraseQuery(propertyName, values, false);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH: {
+				queryBuilder = getMatchPhrasePrefixQuery(propertyName, values);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_EXISTS: {
+				queryBuilder = getExistsQuery(propertyName, values, true);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS: {
+				queryBuilder = getExistsQuery(propertyName, values, false);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
+				queryBuilder = getRangeQuery(propertyName, values,
+						CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
+				queryBuilder = getRangeQuery(propertyName, values,
+						CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
+				queryBuilder = getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
+				queryBuilder = getRangeQuery(propertyName, values,
+						CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_RANGE: {
+				queryBuilder = getRangeQuery(propertyName, values);
+				break;
+			}
+			}
+			if (totalOperation.equalsIgnoreCase(AND)) {
+				boolQuery.must(queryBuilder);
+			} else {
+				boolQuery.should(queryBuilder);
+			}
+
+		}
+
+		Map<String, Object> softConstraints = searchDTO.getSoftConstraints();
+		if (null != softConstraints && !softConstraints.isEmpty()) {
+			boolQuery.should(getSoftConstraintQuery(softConstraints));
+			searchDTO.setSortBy(null);
+		}
+		return boolQuery;
+	}
+
+	/**
+	 * @param searchDTO
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private QueryBuilder prepareFilteredSearchQuery(SearchDTO searchDTO) {
+		FunctionScoreQueryBuilder funcScoreQuery = null;
+		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+		QueryBuilder queryBuilder = null;
+		Map<String, Float> weightages = (Map<String, Float>) searchDTO.getAdditionalProperty("weightagesMap");
+		if (weightages == null) {
+			weightages = new HashMap<String, Float>();
+			weightages.put("default_weightage", 1.0f);
+		}
+		List<String> querySearchFeilds = elasticSearchUtil.getQuerySearchFields();
+		List<Map> properties = searchDTO.getProperties();
+		for (Map<String, Object> property : properties) {
+			String opertation = (String) property.get("operation");
+
+			List<Object> values;
+			try {
+				values = (List<Object>) property.get("values");
+			} catch (Exception e) {
+				values = Arrays.asList(property.get("values"));
+			}
+			String propertyName = (String) property.get("propertyName");
+			if (propertyName.equals("*")) {
+				propertyName = "all_fields";
+				queryBuilder = getAllFieldsPropertyQuery(values);
+				boolQuery.must(queryBuilder);
+				continue;
+			}
+
+			switch (opertation) {
+			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
+				float weight = getweight(querySearchFeilds, propertyName);
+				queryBuilder = QueryBuilders
+						.functionScoreQuery(
+								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, true)),
+								ScoreFunctionBuilders.weightFactorFunction(weight))
+						.scoreMode(ScoreMode.Sum.name().toLowerCase())
+						.boostMode(CombineFunction.REPLACE);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
+				float weight = getweight(querySearchFeilds, propertyName);
+				queryBuilder = QueryBuilders
+						.functionScoreQuery(
+								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, false)),
+								ScoreFunctionBuilders.weightFactorFunction(weight))
+						.scoreMode(ScoreMode.Sum.name().toLowerCase())
+						.boostMode(CombineFunction.REPLACE);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
+				queryBuilder = getRegexQuery(propertyName, values);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_LIKE:
+			case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS: {
+				queryBuilder = getMatchPhraseQuery(propertyName, values, true);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_LIKE: {
+				queryBuilder = getMatchPhraseQuery(propertyName, values, false);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH: {
+				queryBuilder = getMatchPhrasePrefixQuery(propertyName, values);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_EXISTS: {
+				queryBuilder = getExistsQuery(propertyName, values, true);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS: {
+				queryBuilder = getExistsQuery(propertyName, values, false);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_IN: {
+				queryBuilder = getNotInQuery(propertyName, values);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
+				queryBuilder = getRangeQuery(propertyName, values,
+						CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
+				queryBuilder = getRangeQuery(propertyName, values,
+						CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
+				queryBuilder = getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN);
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
+				queryBuilder = getRangeQuery(propertyName, values,
+						CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS);
+				break;
+			}
+			}
+			boolQuery.must(queryBuilder);
+		}
+
+		Map<String, Object> softConstraints = searchDTO.getSoftConstraints();
+		if (null != softConstraints && !softConstraints.isEmpty()) {
+			boolQuery.should(getSoftConstraintQuery(softConstraints));
 			searchDTO.setSortBy(null);
 		}
 
-		String query;
-		if (searchDTO.isFuzzySearch()) {
-			Map<String, Double> weightagesMap = (Map<String, Double>) searchDTO.getAdditionalProperty("weightagesMap");
-			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList,
-					searchDTO.getSortBy(), weightagesMap, searchDTO.getFields());
-		} else {
-			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(),
-					searchDTO.getFields());
-		}
-		return query;
+		funcScoreQuery = QueryBuilders
+				.functionScoreQuery(boolQuery,
+						ScoreFunctionBuilders.weightFactorFunction(Float.valueOf(weightages.get("default_weightage"))))
+				.scoreMode(ScoreMode.Sum.name().toLowerCase())
+				.boostMode(CombineFunction.REPLACE);
+
+		return funcScoreQuery;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages,
-			List<String> fields) throws Exception {
-
-		JSONBuilder builder = new JSONStringer();
-		builder.object();
-		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
-		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
-		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
-		List<Map> shouldConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_SHOULD);
-		Map<String, Object> baseConditions = new HashMap<String, Object>();
-		if (null != fields) {
-			fields.add(GraphDACParams.objectType.name());
-			fields.add(GraphDACParams.identifier.name());
-		}
-		if (weightages == null) {
-			weightages = new HashMap<String, Double>();
-			weightages.put("default_weightage", 1.0);
-		}
-
-		builder.key("query").object().key("function_score").object().key("query").object().key("bool").object()
-				.key("must").array();
-
-		for (Map.Entry<String, Object> entry : baseConditions.entrySet()) {
-			if (!entry.getKey().equalsIgnoreCase("weightages")) {
-				String field = entry.getKey();
-
-				if (entry.getValue() instanceof List) {
-					builder.object().key("bool").object().key("should").array();
-					List<String> values = (List<String>) entry.getValue();
-					for (String value : values) {
-						builder.object().key("match").object().key(field + CompositeSearchConstants.RAW_FIELD_EXTENSION)
-								.value(value).endObject().endObject();
-					}
-					builder.endArray().endObject().endObject();
-				} else {
-					String value = (String) entry.getValue();
-					builder.object().key("match").object().key(field + CompositeSearchConstants.RAW_FIELD_EXTENSION)
-							.value(value).endObject().endObject();
+	/**
+	 * @param querySearchFeilds
+	 * @param propertyName
+	 * @return
+	 */
+	private float getweight(List<String> querySearchFeilds, String propertyName) {
+		float weight = 1.0F;
+		if (querySearchFeilds.contains(propertyName)) {
+			for (String field : querySearchFeilds) {
+				if (field.contains(propertyName)) {
+					weight = Float
+							.parseFloat((StringUtils.isNotBlank(field.split("^")[1])) ? field.split("^")[1] : "1.0");
 				}
 			}
 		}
-
-		builder.endArray().endObject().endObject().key("functions").array();
-
-		if (mustConditions != null && !mustConditions.isEmpty()) {
-			for (Map textCondition : mustConditions) {
-				builder.object().key("filter").object();
-				String conditionOperation = (String) textCondition.get("operation");
-				Double weight = weightages.get("default_weightage");
-				if (conditionOperation.equalsIgnoreCase("bool")) {
-					String operand = (String) textCondition.get("operand");
-					builder.key("bool").object();
-					builder.key(operand).array();
-					List<Map> subConditions = (List<Map>) textCondition.get("subConditions");
-					if (null != subConditions && !subConditions.isEmpty()) {
-						for (Map subCondition : subConditions) {
-							builder.object();
-							String queryOperation = (String) subCondition.get("operation");
-							String fieldName = (String) subCondition.get("fieldName");
-							Object value = subCondition.get("value");
-							getConditionsQuery(queryOperation, fieldName, value, builder);
-							builder.endObject();
-							if (weightages.containsKey(fieldName)) {
-								weight = weightages.get(fieldName);
-							}
-						}
-					}
-					builder.endArray();
-					builder.endObject();
-				} else {
-					String queryOperation = (String) textCondition.get("operation");
-					String fieldName = (String) textCondition.get("fieldName");
-					Object value = (Object) textCondition.get("value");
-					getConditionsQuery(queryOperation, fieldName, value, builder);
-					if (weightages.containsKey(fieldName)) {
-						weight = weightages.get(fieldName);
-					}
-				}
-				builder.endObject().key("weight").value(weight).endObject();
-			}
-		}
-
-		if (null != shouldConditions && !shouldConditions.isEmpty()) {
-			String allOperation = "should";
-			builder.key(allOperation).array();
-			for (Map textCondition : shouldConditions) {
-				builder.object();
-				String queryOperation = (String) textCondition.get("operation");
-				String fieldName = (String) textCondition.get("fieldName");
-				Object value = (Object) textCondition.get("value");
-				Integer boost = (Integer) textCondition.get("boost");
-				getConditionsQuery(queryOperation, fieldName, value, boost, builder);
-				builder.endObject();
-			}
-			builder.endArray();
-
-		}
-
-		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
-			for (Map arithmeticCondition : arithmeticConditions) {
-				builder.object().key("filter").object().key("script").object().key("script");
-				String conditionOperation = (String) arithmeticCondition.get("operation");
-				String conditionScript = "";
-				Double weight = weightages.get("default_weightage");
-				if (conditionOperation.equalsIgnoreCase("bool")) {
-					String operand = "||";
-					StringBuffer finalScript = new StringBuffer();
-					finalScript.append("(");
-					List<Map> subConditions = (List<Map>) arithmeticCondition.get("subConditions");
-					List<String> scripts = new ArrayList<String>();
-					for (Map subCondition : subConditions) {
-						StringBuffer script = new StringBuffer();
-						String queryOperation = (String) subCondition.get("operation");
-						String fieldName = (String) subCondition.get("fieldName");
-						Object value = (Object) subCondition.get("value");
-						script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
-								.append(" ").append(value);
-						scripts.add(script.toString());
-						if (weightages.containsKey(fieldName)) {
-							weight = weightages.get(fieldName);
-						}
-					}
-					String tempScript = "";
-					for (String script : scripts) {
-						tempScript = tempScript + operand + script;
-					}
-					tempScript = tempScript.substring(2);
-					finalScript.append(tempScript).append(")");
-					conditionScript = finalScript.toString();
-				} else {
-					StringBuffer script = new StringBuffer();
-					String queryOperation = (String) arithmeticCondition.get("operation");
-					String fieldName = (String) arithmeticCondition.get("fieldName");
-					Object value = (Object) arithmeticCondition.get("value");
-					script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
-							.append(" ").append(value);
-					conditionScript = script.toString();
-					if (weightages.containsKey(fieldName)) {
-						weight = weightages.get(fieldName);
-					}
-				}
-				builder.value(conditionScript).endObject().endObject().key("weight").value(weight).endObject();
-			}
-		}
-
-		if (notConditions != null && !notConditions.isEmpty()) {
-			String allOperation = "must_not";
-			for (Map notCondition : notConditions) {
-
-				builder.object().key("filter").object().key("bool").object().key(allOperation).object();
-				Double weight = weightages.get("default_weightage");
-				String conditionOperation = (String) notCondition.get("operation");
-				if (conditionOperation.equalsIgnoreCase("bool")) {
-					String operand = (String) notCondition.get("operand");
-					builder.key("bool").object();
-					builder.key(operand).array();
-					List<Map> subConditions = (List<Map>) notCondition.get("subConditions");
-					for (Map subCondition : subConditions) {
-						builder.object();
-						String queryOperation = (String) subCondition.get("operation");
-						String fieldName = (String) subCondition.get("fieldName");
-						Object value = subCondition.get("value");
-						getConditionsQuery(queryOperation, fieldName, value, builder);
-						builder.endObject();
-						if (weightages.containsKey(fieldName)) {
-							weight = weightages.get(fieldName);
-						}
-					}
-					builder.endArray();
-					builder.endObject();
-
-				} else {
-					String queryOperation = (String) notCondition.get("operation");
-					String fieldName = (String) notCondition.get("fieldName");
-					Object value = notCondition.get("value");
-					getConditionsQuery(queryOperation, fieldName, value, builder);
-					if (weightages.containsKey(fieldName)) {
-						weight = weightages.get(fieldName);
-					}
-				}
-				builder.endObject().endObject().endObject().key("weight").value(weight).endObject();
-			}
-		}
-
-		builder.endArray().key("score_mode").value("sum").key("boost_mode").value("replace").endObject().endObject();
-
-		if (groupByList != null && !groupByList.isEmpty()) {
-			builder.key("aggs").object();
-			for (Map<String, Object> groupByMap : groupByList) {
-				String groupByParent = (String) groupByMap.get("groupByParent");
-				builder.key(groupByParent).object().key("terms").object().key("field")
-						.value(groupByParent + CompositeSearchConstants.RAW_FIELD_EXTENSION).key("size")
-						.value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
-
-				List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
-				if (groupByChildList != null && !groupByChildList.isEmpty()) {
-					builder.key("aggs").object();
-					for (String childGroupBy : groupByChildList) {
-						builder.key(childGroupBy).object().key("terms").object().key("field")
-								.value(childGroupBy + CompositeSearchConstants.RAW_FIELD_EXTENSION).key("size")
-								.value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
-					}
-					builder.endObject();
-				}
-			}
-			builder.endObject();
-		}
-
-		if (fields != null && !fields.isEmpty()) {
-			builder.key("_source").array();
-			for (String field : fields) {
-				builder.value(field);
-			}
-			builder.endArray();
-		}
-
-		builder.endObject();
-		return builder.toString();
+		return weight;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String makeElasticSearchQuery(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, List<String> fields) throws Exception {
-		JSONBuilder builder = new JSONStringer();
-		builder.object();
-		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
-		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
-		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
-		List<Map> shouldConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_SHOULD);
-		if (null != fields) {
-			fields.add(GraphDACParams.objectType.name());
-			fields.add(GraphDACParams.identifier.name());
-		}
-		if ((mustConditions != null && !mustConditions.isEmpty())
-				|| (null != shouldConditions && !shouldConditions.isEmpty())
-				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
-				|| (notConditions != null && !notConditions.isEmpty())) {
-			builder.key("query").object().key("filtered").object().key("query").object().key("bool").object();
+	/**
+	 * @param values
+	 * @return
+	 */
+	private QueryBuilder getAllFieldsPropertyQuery(List<Object> values) {
+		List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (Object value : values) {
+			queryBuilder
+					.should(QueryBuilders.multiMatchQuery(value, queryFields.toArray(new String[queryFields.size()]))
+							.operator(Operator.AND).type(Type.CROSS_FIELDS).lenient(true));
 		}
 
-		if (mustConditions != null && !mustConditions.isEmpty()) {
-			String allOperation = "should";
-			if (totalOperation == "AND") {
-				allOperation = "must";
-			}
-			builder.key(allOperation).array();
-			for (Map textCondition : mustConditions) {
-				String conditionOperation = (String) textCondition.get("operation");
-				if (conditionOperation.equalsIgnoreCase("bool")) {
-					String operand = (String) textCondition.get("operand");
-					builder.object().key("bool").object();
-					builder.key(operand).array();
-					List<Map> subConditions = (List<Map>) textCondition.get("subConditions");
-					Map<String, Object> queryCondition = (Map<String, Object>) textCondition.get("queryCondition");
-					if (null != subConditions && !subConditions.isEmpty()) {
-						for (Map subCondition : subConditions) {
-							builder.object();
-							String queryOperation = (String) subCondition.get("operation");
-							String fieldName = (String) subCondition.get("fieldName");
-							Object value = subCondition.get("value");
-							getConditionsQuery(queryOperation, fieldName, value, builder);
-							builder.endObject();
-						}
-					} else if (null != queryCondition && !queryCondition.isEmpty()) {
-						builder.object();
-						String queryOperation = (String) queryCondition.get("operation");
-						List<String> queryFields = (List<String>) queryCondition.get("fields");
-						Object value = queryCondition.get("value");
-						getConditionsQuery(queryOperation, queryFields, value, builder);
-						builder.endObject();
-					}
-					builder.endArray();
-					builder.endObject().endObject();
-				} else {
-					builder.object();
-					String queryOperation = (String) textCondition.get("operation");
-					String fieldName = (String) textCondition.get("fieldName");
-					Object value = (Object) textCondition.get("value");
-					getConditionsQuery(queryOperation, fieldName, value, builder);
-					builder.endObject();
-				}
-			}
-			builder.endArray();
-		}
-
-		if (null != shouldConditions && !shouldConditions.isEmpty()) {
-			String allOperation = "should";
-			builder.key(allOperation).array();
-			for (Map textCondition : shouldConditions) {
-				builder.object();
-				String queryOperation = (String) textCondition.get("operation");
-				String fieldName = (String) textCondition.get("fieldName");
-				Object value = (Object) textCondition.get("value");
-				Integer boost = (Integer) textCondition.get("boost");
-				getConditionsQuery(queryOperation, fieldName, value, boost, builder);
-				builder.endObject();
-			}
-			builder.endArray();
-
-		}
-
-		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
-			String allOperation = "||";
-			String scriptOperation = "should";
-			if (totalOperation == "AND") {
-				allOperation = "&&";
-				scriptOperation = "must";
-			}
-			builder.key(scriptOperation).array();
-
-			builder.object().key("script").object().key("script");
-			String overallScript = "";
-			for (Map arithmeticCondition : arithmeticConditions) {
-				String conditionOperation = (String) arithmeticCondition.get("operation");
-				String conditionScript = "";
-				if (conditionOperation.equalsIgnoreCase("bool")) {
-					String operand = "||";
-					StringBuffer finalScript = new StringBuffer();
-					finalScript.append("(");
-					List<Map> subConditions = (List<Map>) arithmeticCondition.get("subConditions");
-					List<String> scripts = new ArrayList<String>();
-					for (Map subCondition : subConditions) {
-						StringBuffer script = new StringBuffer();
-						String queryOperation = (String) subCondition.get("operation");
-						String fieldName = (String) subCondition.get("fieldName");
-						Object value = (Object) subCondition.get("value");
-						script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
-								.append(" ").append(value);
-						scripts.add(script.toString());
-					}
-					String tempScript = "";
-					for (String script : scripts) {
-						tempScript = tempScript + operand + script;
-					}
-					tempScript = tempScript.substring(2);
-					finalScript.append(tempScript).append(")");
-					conditionScript = finalScript.toString();
-				} else {
-					StringBuffer script = new StringBuffer();
-					String queryOperation = (String) arithmeticCondition.get("operation");
-					String fieldName = (String) arithmeticCondition.get("fieldName");
-					Object value = (Object) arithmeticCondition.get("value");
-					script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
-							.append(" ").append(value);
-					conditionScript = script.toString();
-				}
-				overallScript = overallScript + allOperation + conditionScript;
-			}
-			builder.value(overallScript.substring(2));
-			builder.endObject().endObject().endArray();
-		}
-
-		if (notConditions != null && !notConditions.isEmpty()) {
-			String allOperation = "must_not";
-			builder.key(allOperation).array();
-			for (Map notCondition : notConditions) {
-				String conditionOperation = (String) notCondition.get("operation");
-				if (conditionOperation.equalsIgnoreCase("bool")) {
-					String operand = (String) notCondition.get("operand");
-					builder.object().key("bool").object();
-					builder.key(operand).array();
-					List<Map> subConditions = (List<Map>) notCondition.get("subConditions");
-					for (Map subCondition : subConditions) {
-						builder.object();
-						String queryOperation = (String) subCondition.get("operation");
-						String fieldName = (String) subCondition.get("fieldName");
-						Object value = subCondition.get("value");
-						getConditionsQuery(queryOperation, fieldName, value, builder);
-						builder.endObject();
-					}
-					builder.endArray();
-					builder.endObject().endObject();
-				} else {
-					builder.object();
-					String queryOperation = (String) notCondition.get("operation");
-					String fieldName = (String) notCondition.get("fieldName");
-					Object value = notCondition.get("value");
-					getConditionsQuery(queryOperation, fieldName, value, builder);
-					builder.endObject();
-				}
-			}
-			builder.endArray();
-		}
-
-		if ((mustConditions != null && !mustConditions.isEmpty())
-				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
-				|| (notConditions != null && !notConditions.isEmpty())) {
-			builder.endObject().endObject().endObject().endObject();
-		}
-
-		if (groupByList != null && !groupByList.isEmpty()) {
-			builder.key("aggs").object();
-			for (Map<String, Object> groupByMap : groupByList) {
-				String groupByParent = (String) groupByMap.get("groupByParent");
-				builder.key(groupByParent).object().key("terms").object().key("field")
-						.value(groupByParent + CompositeSearchConstants.RAW_FIELD_EXTENSION).key("size")
-						.value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
-
-				List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
-				if (groupByChildList != null && !groupByChildList.isEmpty()) {
-					builder.key("aggs").object();
-					for (String childGroupBy : groupByChildList) {
-						builder.key(childGroupBy).object().key("terms").object().key("field")
-								.value(childGroupBy + CompositeSearchConstants.RAW_FIELD_EXTENSION).key("size")
-								.value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
-					}
-					builder.endObject();
-				}
-			}
-			builder.endObject();
-		}
-
-		if (sortBy != null && !sortBy.isEmpty()) {
-			builder.key("sort").array();
-			List<String> dateFields = elasticSearchUtil.getDateFields();
-			for (Map.Entry<String, String> entry : sortBy.entrySet()) {
-				String fieldName;
-				if (dateFields.contains(entry.getKey())) {
-					fieldName = entry.getKey();
-				} else {
-					fieldName = entry.getKey() + CompositeSearchConstants.RAW_FIELD_EXTENSION;
-				}
-				builder.object().key(fieldName).value(entry.getValue()).endObject();
-			}
-			builder.endArray();
-		}
-
-		if (fields != null && !fields.isEmpty()) {
-			builder.key("_source").array();
-			for (String field : fields) {
-				builder.value(field);
-			}
-			builder.endArray();
-		}
-
-		builder.endObject();
-		return builder.toString();
+		return queryBuilder;
 	}
 
+	/**
+	 * @param softConstraints
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder)
-			throws Exception {
-		switch (queryOperation) {
-		case "equal": {
-			builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).value(value)
-					.endObject();
-			break;
+	private QueryBuilder getSoftConstraintQuery(Map<String, Object> softConstraints) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (String key : softConstraints.keySet()) {
+			List<Object> data = (List<Object>) softConstraints.get(key);
+			queryBuilder
+					.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1))
+							.boost(Integer.valueOf((int) data.get(0)).floatValue()));
 		}
-		case "like": {
-			builder.key("match").object().key(fieldName).object().key("query").value(value).key("operator").value("and")
-					.endObject().endObject();
-			break;
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @param searchOperationGreaterThan
+	 * @return
+	 */
+	private QueryBuilder getRangeQuery(String propertyName, List<Object> values, String opertation) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (Object value : values) {
+			switch (opertation) {
+			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
+				queryBuilder.should(QueryBuilders
+						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).gt(value));
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
+				queryBuilder.should(QueryBuilders
+						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).gte(value));
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
+				queryBuilder.should(QueryBuilders
+						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).lt(value));
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
+				queryBuilder.should(QueryBuilders
+						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).lte(value));
+				break;
+			}
+			}
 		}
-		case "prefix": {
-			String stringValue = (String) value;
-			builder.key("query").object().key("prefix").object()
-					.key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).value(stringValue.toLowerCase())
-					.endObject().endObject();
-			break;
+
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @param b
+	 * @return
+	 */
+	private QueryBuilder getExistsQuery(String propertyName, List<Object> values, boolean exists) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (Object value : values) {
+			if (exists) {
+				queryBuilder.should(QueryBuilders.existsQuery(String.valueOf(value)));
+			} else {
+				queryBuilder.mustNot(QueryBuilders.existsQuery(String.valueOf(value)));
+			}
 		}
-		case "exists": {
-			builder.key("exists").object().key("field").value(value).endObject();
-			break;
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @return
+	 */
+	private QueryBuilder getNotInQuery(String propertyName, List<Object> values) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		queryBuilder
+				.mustNot(QueryBuilders.termsQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, values));
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @return
+	 */
+	private QueryBuilder getMatchPhrasePrefixQuery(String propertyName, List<Object> values) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (Object value : values) {
+			queryBuilder.should(QueryBuilders.prefixQuery(
+					propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, ((String) value).toLowerCase()));
 		}
-		case "endsWith": {
-			String stringValue = (String) value;
-			builder.key("query").object().key("wildcard").object()
-					.key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION)
-					.value("*" + stringValue.toLowerCase()).endObject().endObject();
-			break;
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @param match
+	 * @return
+	 */
+	private QueryBuilder getMatchPhraseQuery(String propertyName, List<Object> values, boolean match) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (Object value : values) {
+			String stringValue = String.valueOf(value);
+			if (match) {
+				queryBuilder.should(QueryBuilders
+						.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+								".*" + stringValue + ".*"));
+			} else {
+				queryBuilder.mustNot(QueryBuilders
+						.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+								".*" + stringValue + ".*"));
+			}
 		}
-		case CompositeSearchConstants.SEARCH_OPERATION_RANGE: {
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @return
+	 */
+	private QueryBuilder getRegexQuery(String propertyName, List<Object> values) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (Object value : values) {
+			String stringValue = String.valueOf(value);
+			queryBuilder.should(QueryBuilders.wildcardQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+					"*" + stringValue.toLowerCase()));
+		}
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @param weightages
+	 * @param match
+	 * @return
+	 */
+	private QueryBuilder getMustTermQuery(String propertyName, List<Object> values, boolean match) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (Object value : values) {
+			if (match) {
+				queryBuilder.should(
+						QueryBuilders.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+			} else {
+				queryBuilder.mustNot(
+						QueryBuilders.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+			}
+		}
+
+		return queryBuilder;
+	}
+
+	/**
+	 * @param propertyName
+	 * @param values
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private QueryBuilder getRangeQuery(String propertyName, List<Object> values) {
+		BoolQueryBuilder queryBuilder = null;
+		for (Object value : values) {
 			Map<String, Object> rangeMap = (Map<String, Object>) value;
 			if (!rangeMap.isEmpty()) {
-				List<String> dateFields = elasticSearchUtil.getDateFields();
-				if (!dateFields.contains(fieldName)) {
-					fieldName = fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
+				for (String key : rangeMap.keySet()) {
+					switch (key) {
+					case CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE: {
+						queryBuilder = (BoolQueryBuilder) getRangeQuery(propertyName, Arrays.asList(rangeMap.get(key)),
+								CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS);
+						break;
+					}
+					case CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE: {
+						queryBuilder = (BoolQueryBuilder) getRangeQuery(propertyName, Arrays.asList(rangeMap.get(key)),
+								CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS);
+						break;
+					}
+					}
 				}
-				builder.key("query").object().key("range").object().key(fieldName).object();
-				for (Map.Entry<String, Object> rangeEntry : rangeMap.entrySet()) {
-					/*
-					 * SimpleDateFormat formatter = new
-					 * SimpleDateFormat("dd/MM/yyyy"); SimpleDateFormat
-					 * esFromatter = new
-					 * SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+"+
-					 * elasticSearchUtil.getTimeZone()+"'"); Object rangeValue;
-					 * try{ String dateString = (String)rangeEntry.getValue();
-					 * if(dateString.split(" ").length>1){ formatter = new
-					 * SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); } try { Date
-					 * date = formatter.parse((String)rangeEntry.getValue());
-					 * rangeValue = esFromatter.format(date); } catch
-					 * (ParseException e) { throw new Exception(
-					 * "Invalid date format"); } }
-					 * catch(java.lang.ClassCastException e){ rangeValue =
-					 * rangeEntry.getValue(); }
-					 */
-					builder.key(rangeEntry.getKey()).value(rangeEntry.getValue());
-				}
-				builder.endObject().endObject().endObject();
 			}
-			break;
 		}
-		}
+		return queryBuilder;
 	}
 
-	private void getConditionsQuery(String queryOperation, List<String> fields, Object value, JSONBuilder builder) {
-		builder.key("multi_match").object();
-		builder.key("query").value(value).key("operator").value("and").key("type").value("cross_fields");
-		if (null != fields && !fields.isEmpty()) {
-			builder.key("fields").array();
-			for (String str : fields)
-				builder.value(str);
-			builder.endArray();
-		}
-		builder.key("lenient").value(true).endObject();
+	/**
+	 * @param string
+	 * @return
+	 */
+	private SortOrder getSortOrder(String value) {
+		return value.equalsIgnoreCase(ASC_ORDER) ? SortOrder.ASC : SortOrder.DESC;
 	}
 
-	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index)
-			throws Exception {
+	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index) throws Exception {
 		return processSearchQuery(searchDTO, includeResults, index, true);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index, boolean sort)
 			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		List<Object> response = new ArrayList<Object>();
-		Map<String, Object> res_map = new HashMap<String, Object>();
 		if (searchDTO.getLimit() == 0)
 			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
-		String query = processSearchQuery(searchDTO, groupByFinalList, sort);
+		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
-		SearchResult searchResult = elasticSearchUtil.search(index, query);
+		SearchResponse searchResult = elasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);
-		Map<String, Object> result_map = (Map) searchResult.getValue("hits");
-		List<Map<String, Object>> result = (List) result_map.get("hits");
-		for (Map<String, Object> map : result) {
-			for (Map.Entry<String, Object> entry : map.entrySet()) {
-				if (entry.getKey().equals("_source")) {
-					res_map = (Map) entry.getValue();
-					response.add(res_map);
-				}
-
-			}
+		SearchHits resultMap = searchResult.getHits();
+		SearchHit[] result = resultMap.getHits();
+		for (SearchHit hit : result) {
+			response.add(hit.getSource());
 		}
 		TelemetryManager.log("search response size: " + response.size());
 		return response;
 	}
 
-	public SearchResult processSearchQueryWithSearchResult(SearchDTO searchDTO, boolean includeResults, String index,
-			boolean sort)
-			throws Exception {
+	public SearchResponse processSearchQueryWithSearchResult(SearchDTO searchDTO, boolean includeResults, String index,
+			boolean sort) throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		if (searchDTO.getLimit() == 0)
 			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
-		String query = processSearchQuery(searchDTO, groupByFinalList, sort);
+		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
-		SearchResult searchResult = elasticSearchUtil.search(index, query);
+		SearchResponse searchResult = elasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);
 		return searchResult;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void getConditionsQuery(String queryOperation, String fieldName, Object value, Integer boost,
-			JSONBuilder builder) {
-		List<String> object = null;
-		try {
-		if(value instanceof String){
-			object = new ArrayList<>();
-			object.add((String) value);
-		}else if(value instanceof List){
-			object = (List<String>) value;
-		}else if(value instanceof String[]){
-			object = Arrays.asList();
-		}
-		}catch (Exception e) {
-			TelemetryManager.error("Exception: "+ e.getMessage(), e);
-		}
-		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object()
-				.key("query").array();
-				for(String val : object){
-					builder.value(val);
-				}
-		builder.endArray().key("boost").value(boost).endObject().endObject();
-	}
 }
