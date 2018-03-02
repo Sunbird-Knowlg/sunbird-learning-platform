@@ -5,15 +5,17 @@ import java.util.Map;
 
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.InitableTask;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.StreamTask;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.apache.samza.task.WindowableTask;
+import org.ekstep.jobs.samza.service.AuditEventGenerator;
 import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
 import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.service.AuditEventGenerator;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 
@@ -29,7 +31,7 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 	public void init(Config config, TaskContext context) throws Exception {
 
 		try {
-			metrics = new JobMetrics(context);
+			metrics = new JobMetrics(context, config.get("job.name"), config.get("output.metrics.topic.name"));
 			auditHistoryMsgProcessor.initialize(config);
 			contentAuditProcessor.initialize(config);
 			LOGGER.info("Task initialized");
@@ -39,7 +41,6 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator)
 			throws Exception {
@@ -66,6 +67,8 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 
 	@Override
 	public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
+		Map<String, Object> event = metrics.collect();
+		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
 		metrics.clear();
 	}
 

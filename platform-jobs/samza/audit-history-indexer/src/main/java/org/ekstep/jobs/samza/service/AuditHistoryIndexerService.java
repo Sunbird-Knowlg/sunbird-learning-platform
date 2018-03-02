@@ -64,7 +64,8 @@ public class AuditHistoryIndexerService implements ISamzaService {
 			LOGGER.debug("Audit learning event received");
 			try {
 				AuditHistoryRecord record = getAuditHistory(message);
-				LOGGER.debug("Audit record created");
+				String identifier = (String) message.get("nodeUniqueId");
+				LOGGER.info("Audit record created for " + identifier);
 				Map<String, Object> entity_map = mapper.convertValue(record, Map.class);
 				String document = mapper.writeValueAsString(entity_map);
 				LOGGER.debug("Saving the record into ES");
@@ -75,7 +76,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				metrics.incFailedCounter();
 			}
 		} else {
-			LOGGER.debug("Learning event not qualified for audit");
+			LOGGER.info("Learning event not qualified for audit");
 			metrics.incSkippedCounter();
 		}
 	}
