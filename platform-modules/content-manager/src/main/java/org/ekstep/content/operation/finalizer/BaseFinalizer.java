@@ -66,9 +66,9 @@ public class BaseFinalizer extends BasePipeline {
 	 *            the ContentNode
 	 * @param basePath
 	 *            the filePath checks if node metadata contains appIcon and
-	 *            downloadFile checks if fileIsNotEmpty & fileIsFile and
-	 *            generates thumbline for it checks if thumbline isNotEmpty and
-	 *            creates thumbFile uploads thumbFile to s3
+	 *            downloadFile checks if fileIsNotEmpty & fileIsFile and generates
+	 *            thumbline for it checks if thumbline isNotEmpty and creates
+	 *            thumbFile uploads thumbFile to s3
 	 */
 	protected void createThumbnail(String basePath, Node node) {
 		try {
@@ -105,7 +105,7 @@ public class BaseFinalizer extends BasePipeline {
 									thumbFile.delete();
 									TelemetryManager.log("Deleted local Thumbnail file");
 								} catch (Exception e) {
-									TelemetryManager.error("Error! While deleting the Thumbnail File: "+ thumbFile, e);
+									TelemetryManager.error("Error! While deleting the Thumbnail File: " + thumbFile, e);
 								}
 							}
 						}
@@ -113,7 +113,7 @@ public class BaseFinalizer extends BasePipeline {
 							appIconFile.delete();
 							TelemetryManager.log("Deleted local AppIcon file");
 						} catch (Exception e) {
-							TelemetryManager.error("Error! While deleting the App Icon File: "+ appIcon, e);
+							TelemetryManager.error("Error! While deleting the App Icon File: " + appIcon, e);
 						}
 					}
 				}
@@ -140,7 +140,8 @@ public class BaseFinalizer extends BasePipeline {
 						}
 					}
 				} catch (Exception e) {
-					TelemetryManager.error("Error!Unable to downnload Stage Icon for Content Id: " + node.getIdentifier(), e);
+					TelemetryManager
+							.error("Error!Unable to downnload Stage Icon for Content Id: " + node.getIdentifier(), e);
 					throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 							ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR
 									+ " | [Unable to download Stage Icon for Content Id: '" + node.getIdentifier()
@@ -149,7 +150,7 @@ public class BaseFinalizer extends BasePipeline {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! Unable to download appIcon for content Id: "+ node.getIdentifier() , e);
+			TelemetryManager.error("Error! Unable to download appIcon for content Id: " + node.getIdentifier(), e);
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.APP_ICON_DOWNLOAD_ERROR
 							+ " | [Unable to Download App Icon for Content Id: '" + node.getIdentifier() + "' ]",
@@ -196,7 +197,7 @@ public class BaseFinalizer extends BasePipeline {
 			file = new File(basePath + File.separator + stageIconId);
 
 			ImageIO.write(bufferedImage, mimeType, file);
-			TelemetryManager.log("StageIcon Downloaded File: "+ stageIconId);
+			TelemetryManager.log("StageIcon Downloaded File: " + stageIconId);
 		} catch (Exception e) {
 			TelemetryManager.error("Something went wrong when downloading base64 image", e);
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
@@ -210,47 +211,53 @@ public class BaseFinalizer extends BasePipeline {
 		String thumbUrl = "";
 		String stageIconId = null;
 		ObjectMapper mapper = new ObjectMapper();
+		File stageIcon = null;
 		try {
 			if (stageIconFile.contains("http")) {
 				stageIconFile = StringUtils.removeEnd(stageIconFile, "?format=base64");
 				stageIconId = stageIconFile.substring((stageIconFile.indexOf("/stage") + 7), stageIconFile.length());
-			}
-			HttpURLConnection httpConn = null;
-			TelemetryManager.log("Start Downloading for File: " + stageIconId);
 
-			URL url = new URL(stageIconFile);
-			httpConn = (HttpURLConnection) url.openConnection();
-			int responseCode = httpConn.getResponseCode();
-			TelemetryManager.log("Response Code: " + responseCode);
+				HttpURLConnection httpConn = null;
+				TelemetryManager.log("Start Downloading for File: " + stageIconId);
 
-			// always check HTTP response code first
-			if (responseCode == HttpURLConnection.HTTP_OK) {
-				TelemetryManager.log("Response is OK.");
-				BufferedReader br = new BufferedReader(new InputStreamReader((httpConn.getInputStream())));
-				StringBuilder sb = new StringBuilder();
-				String output;
-				while ((output = br.readLine()) != null) {
-					sb.append(output);
-				}
-				String result = sb.toString();
-				Map<String, Object> dataMap = mapper.readValue(result, Map.class);
-				dataMap = (Map<String, Object>) dataMap.get("result");
-				String base64Data = (String) dataMap.get("result");
-				File stageIcon = downloadStageIconFiles(basePath, base64Data, stageIconId);
-				if (stageIcon.exists()) {
-					TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
-					String folderName = S3PropertyReader.getProperty(s3Artifact) + "/"
-							+ ContentWorkflowPipelineParams.screenshots.name();
-					String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
-					if (null != urlArray && urlArray.length >= 2) {
-						thumbUrl = urlArray[IDX_S3_URL];
+				URL url = new URL(stageIconFile);
+				httpConn = (HttpURLConnection) url.openConnection();
+				int responseCode = httpConn.getResponseCode();
+				TelemetryManager.log("Response Code: " + responseCode);
+
+				// always check HTTP response code first
+				if (responseCode == HttpURLConnection.HTTP_OK) {
+					TelemetryManager.log("Response is OK.");
+					BufferedReader br = new BufferedReader(new InputStreamReader((httpConn.getInputStream())));
+					StringBuilder sb = new StringBuilder();
+					String output;
+					while ((output = br.readLine()) != null) {
+						sb.append(output);
 					}
-					stageIcon.delete();
-					TelemetryManager.log("Deleted local Thumbnail file");
+					String result = sb.toString();
+					Map<String, Object> dataMap = mapper.readValue(result, Map.class);
+					dataMap = (Map<String, Object>) dataMap.get("result");
+					String base64Data = (String) dataMap.get("result");
+					stageIcon = downloadStageIconFiles(basePath, base64Data, stageIconId);
+
 				}
+			} else {
+				stageIcon = downloadStageIconFiles(basePath, stageIconFile, stageIconId);
+			}
+
+			if (stageIcon.exists()) {
+				TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
+				String folderName = S3PropertyReader.getProperty(s3Artifact) + "/"
+						+ ContentWorkflowPipelineParams.screenshots.name();
+				String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
+				if (null != urlArray && urlArray.length >= 2) {
+					thumbUrl = urlArray[IDX_S3_URL];
+				}
+				stageIcon.delete();
+				TelemetryManager.log("Deleted local Thumbnail file");
 			}
 		} catch (Exception e) {
-				TelemetryManager.error("Error! While Processing the StageIcon File.", e);
+			TelemetryManager.error("Error! While Processing the StageIcon File.", e);
 
 		}
 		return thumbUrl;
@@ -264,9 +271,8 @@ public class BaseFinalizer extends BasePipeline {
 	 * @param type
 	 *            the EcmlType
 	 * @param basePath
-	 *            the filePath checks if ecml string or ecmlType is empty,
-	 *            throws ClientException else creates a File and writes the ecml
-	 *            to file
+	 *            the filePath checks if ecml string or ecmlType is empty, throws
+	 *            ClientException else creates a File and writes the ecml to file
 	 */
 	protected void writeECMLFile(String basePath, String ecml, String ecmlType) {
 		try {
@@ -295,8 +301,7 @@ public class BaseFinalizer extends BasePipeline {
 	 * @param ecrf
 	 *            the ECRF
 	 * @param type
-	 *            the EcmlType checks if ecmlType is JSON/ECML converts ECRF to
-	 *            ecml
+	 *            the EcmlType checks if ecmlType is JSON/ECML converts ECRF to ecml
 	 * @return ecml
 	 */
 	protected String getECMLString(Plugin ecrf, String ecmlType) {
@@ -323,7 +328,7 @@ public class BaseFinalizer extends BasePipeline {
 	 */
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
-			TelemetryManager.log("Creating Zip File: "+ zipFileName);
+			TelemetryManager.log("Creating Zip File: " + zipFileName);
 			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
 			appZip.generateFileList(new File(basePath));
 			appZip.zipIt(zipFileName);
@@ -337,7 +342,7 @@ public class BaseFinalizer extends BasePipeline {
 
 			if (StringUtils.equalsIgnoreCase(node.getObjectType(), ContentWorkflowPipelineParams.ContentImage.name())
 					|| (!StringUtils.equalsIgnoreCase(status, ContentWorkflowPipelineParams.Flagged.name())
-					&& !StringUtils.equalsIgnoreCase(status, ContentWorkflowPipelineParams.Live.name())))
+							&& !StringUtils.equalsIgnoreCase(status, ContentWorkflowPipelineParams.Live.name())))
 				nodeForOperation = node;
 			else {
 				String contentImageId = getContentImageIdentifier(node.getIdentifier());
@@ -370,7 +375,7 @@ public class BaseFinalizer extends BasePipeline {
 	}
 
 	protected Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
-		TelemetryManager.log("Taxonomy Id: " + taxonomyId + " :: "+  "Content Id: " + contentImageId);
+		TelemetryManager.log("Taxonomy Id: " + taxonomyId + " :: " + "Content Id: " + contentImageId);
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(),
 				ContentConfigurationConstants.CONTENT_IMAGE_OBJECT_TYPE);
 		imageNode.setGraphId(taxonomyId);
