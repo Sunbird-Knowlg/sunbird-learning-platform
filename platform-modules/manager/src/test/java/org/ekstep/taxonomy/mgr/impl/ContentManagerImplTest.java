@@ -1,6 +1,5 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.junit.AfterClass;
@@ -28,5 +27,4 @@ public class ContentManagerImplTest extends GraphEngineTestSetup {
 	public static void clean() {
 
 	}
-
 }

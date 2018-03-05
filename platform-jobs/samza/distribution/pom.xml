@@ -12,7 +12,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
-			<version>0.0.34</version>
+			<version>0.0.35</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -36,6 +36,12 @@
 			<version>0.0.26</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava-jdk5</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
@@ -47,7 +53,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.81</version>
+			<version>0.0.82</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

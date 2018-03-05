@@ -115,9 +115,9 @@ public abstract class SearchBaseActor extends UntypedActor {
     }
     
     protected String setErrMessage(Throwable e){
-        if(e instanceof MiddlewareException)
+		if (e instanceof MiddlewareException)
         		return e.getMessage();
-		else if (e instanceof SearchPhaseExecutionException)
+		else if  (e instanceof SearchPhaseExecutionException)
 			return e.getCause().getMessage();
          else 
         	 	return "Something went wrong in server while processing the request";

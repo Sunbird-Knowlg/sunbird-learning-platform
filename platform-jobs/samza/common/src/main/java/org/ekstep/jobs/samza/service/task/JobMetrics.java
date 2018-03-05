@@ -1,20 +1,31 @@
 package org.ekstep.jobs.samza.service.task;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.samza.metrics.Counter;
 import org.apache.samza.metrics.MetricsRegistry;
 import org.apache.samza.task.TaskContext;
 
 public class JobMetrics {
 
+	private String jobName;
+	private String topic;
 	private final Counter successMessageCount;
 	private final Counter failedMessageCount;
 	private final Counter skippedMessageCount;
 
 	public JobMetrics(TaskContext context) {
+		this(context, null, null);
+	}
+
+	public JobMetrics(TaskContext context, String jName, String topic) {
 		MetricsRegistry metricsRegistry = context.getMetricsRegistry();
 		successMessageCount = metricsRegistry.newCounter(getClass().getName(), "success-message-count");
 		failedMessageCount = metricsRegistry.newCounter(getClass().getName(), "failed-message-count");
 		skippedMessageCount = metricsRegistry.newCounter(getClass().getName(), "skipped-message-count");
+		jobName = jName;
+		this.topic = topic;
 	}
 
 	public void clear() {
@@ -34,4 +45,30 @@ public class JobMetrics {
 	public void incSkippedCounter() {
 		skippedMessageCount.inc();
 	}
+
+	public String getJobName() {
+		return jobName;
+	}
+
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public Map<String, Object> collect() {
+		Map<String, Object> metricsEvent = new HashMap<>();
+		metricsEvent.put("job-name", jobName);
+		metricsEvent.put("success-message-count", successMessageCount.getCount());
+		metricsEvent.put("failed-message-count", failedMessageCount.getCount());
+		metricsEvent.put("skipped-message-count", skippedMessageCount.getCount());
+		return metricsEvent;
+	}
+
 }
