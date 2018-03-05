@@ -1,12 +1,5 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.ekstep.common.exception.ClientException;
-import org.ekstep.graph.dac.model.Node;
-
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.junit.AfterClass;
