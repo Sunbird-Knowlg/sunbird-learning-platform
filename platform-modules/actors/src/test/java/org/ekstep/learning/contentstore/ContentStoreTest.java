@@ -18,7 +18,7 @@ import com.datastax.driver.core.Row;
 public class ContentStoreTest extends CassandraTestSetup {
 
 	private static String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS content_store WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}";
-	private static String createTable = "CREATE TABLE IF NOT EXISTS content_store.content_data (content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob, PRIMARY KEY (content_id));";
+	private static String createTable = "CREATE TABLE IF NOT EXISTS content_store.content_data (content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob,screenshots blob, PRIMARY KEY (content_id));";
 
 	ContentStore contentStore = new ContentStore();
 
