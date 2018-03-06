@@ -12,6 +12,7 @@ import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.datastax.driver.core.BoundStatement;
@@ -37,6 +38,7 @@ public class ContentStore extends CassandraStore {
 		boolean index = Platform.config.hasPath("content.index") ? Platform.config.getBoolean("content.index") : false;
 		String objectType = "Content";
 		initialise(keyspace, table, objectType, index);
+		nodeType = CompositeSearchConstants.NODE_TYPE_DATA;
 	}
 
 	public void updateContentBody(String contentId, String body) {

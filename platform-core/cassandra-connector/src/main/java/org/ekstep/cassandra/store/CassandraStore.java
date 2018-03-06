@@ -45,6 +45,7 @@ public abstract class CassandraStore {
 	private String table = null;
 	private boolean index = false;
 	private String objectType = null;
+	protected String nodeType = CassandraStoreParams.EXTERNAL.name();
 
 	protected void initialise(String keyspace, String table, String objectType) {
 		initialise(keyspace, table, objectType, false);
@@ -395,7 +396,7 @@ public abstract class CassandraStore {
 				dataMap.put(CompositeSearchParams.nodeUniqueId.name(), identifier);
 				dataMap.put(CompositeSearchParams.requestId.name(), null);
 				dataMap.put(CompositeSearchParams.operationType.name(), operation);
-				dataMap.put(CompositeSearchParams.nodeType.name(), CassandraStoreParams.EXTERNAL.name());
+				dataMap.put(CompositeSearchParams.nodeType.name(), nodeType);
 				dataMap.put(CompositeSearchParams.userId.name(), CassandraStoreParams.ANONYMOUS.name());
 				dataMap.put(CompositeSearchParams.objectType.name(), objectType);
 				dataMap.put(CompositeSearchParams.index.name(), index);
