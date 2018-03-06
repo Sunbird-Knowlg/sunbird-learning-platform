@@ -7,6 +7,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
@@ -100,7 +101,9 @@ public class ReviewFinalizer extends BaseFinalizer {
 			node.getMetadata().put("publish_type", publishType); //Added for executing publish operation locally
 			
 			response = new Response();
-			response.getParams().setStatus(StatusType.successful.name());
+			ResponseParams param = new ResponseParams();
+			param.setStatus(StatusType.successful.name());
+			response.setParams(param);
 			response.put("publishStatus", "Publish Event for Content Id '" + node.getIdentifier() + "' is pussed Successfully!");
 			response.put("node_id", node.getIdentifier());
 		} else {
