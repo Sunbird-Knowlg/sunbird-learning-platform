@@ -31,7 +31,7 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 	public void init(Config config, TaskContext context) throws Exception {
 
 		try {
-			metrics = new JobMetrics(context, config.get("job.name"), config.get("output.metrics.topic.name"));
+			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			auditHistoryMsgProcessor.initialize(config);
 			contentAuditProcessor.initialize(config);
 			LOGGER.info("Task initialized");
