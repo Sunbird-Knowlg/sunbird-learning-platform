@@ -14,6 +14,7 @@ public class JobMetrics {
 	private final Counter successMessageCount;
 	private final Counter failedMessageCount;
 	private final Counter skippedMessageCount;
+	private final Counter errorMessageCount;
 
 	public JobMetrics(TaskContext context) {
 		this(context, null, null);
@@ -24,6 +25,7 @@ public class JobMetrics {
 		successMessageCount = metricsRegistry.newCounter(getClass().getName(), "success-message-count");
 		failedMessageCount = metricsRegistry.newCounter(getClass().getName(), "failed-message-count");
 		skippedMessageCount = metricsRegistry.newCounter(getClass().getName(), "skipped-message-count");
+		errorMessageCount = metricsRegistry.newCounter(getClass().getName(), "error-message-count");
 		jobName = jName;
 		this.topic = topic;
 	}
@@ -46,6 +48,10 @@ public class JobMetrics {
 		skippedMessageCount.inc();
 	}
 
+	public void incErrorCounter() {
+        errorMessageCount.inc();
+    }
+
 	public String getJobName() {
 		return jobName;
 	}
@@ -67,6 +73,7 @@ public class JobMetrics {
 		metricsEvent.put("job-name", jobName);
 		metricsEvent.put("success-message-count", successMessageCount.getCount());
 		metricsEvent.put("failed-message-count", failedMessageCount.getCount());
+		metricsEvent.put("error-message-count", errorMessageCount.getCount());		
 		metricsEvent.put("skipped-message-count", skippedMessageCount.getCount());
 		return metricsEvent;
 	}

@@ -49,8 +49,8 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 			contentAuditProcessor.processMessage(outgoingMap, metrics, collector);
 			auditHistoryMsgProcessor.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
-			metrics.incFailedCounter();
-			LOGGER.error("Message processing failed", outgoingMap, e);
+			metrics.incErrorCounter();
+			LOGGER.error("Message processing Error", outgoingMap, e);
 		}
 	}
 
