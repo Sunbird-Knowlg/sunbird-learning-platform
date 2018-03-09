@@ -41,7 +41,14 @@ public class SearchManager extends SearchBaseActor {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
 				SearchDTO searchDTO = getSearchDTO(request);
 				Map<String, Object> lstResult = processor.processSearch(searchDTO, true);
-				OK(lstResult, parent);
+				String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
+				if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
+					Map<String, Object> result = getCollectionsResult(lstResult, processor);
+					OK(result, parent);
+				} else {
+					OK(lstResult, parent);
+				}
+
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
 				if (null != countResult.get("count")) {
@@ -601,4 +608,48 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return result;
 	}
+
+	/**
+	 * @param lstResult
+	 * @param processor
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Map<String, Object> getCollectionsResult(Map<String, Object> lstResult, SearchProcessor processor) {
+		List<Map> contentResults = (List<Map>) lstResult.get("results");
+		if (null != contentResults && !contentResults.isEmpty()) {
+			try {
+				List<String> contentIds = new ArrayList<String>();
+				for (Map<String, Object> content : contentResults) {
+					contentIds.add((String) content.get("identifier"));
+				}
+
+				Request request = new Request();
+				Map<String, Object> filters = new HashMap<String, Object>();
+				List<String> objectTypes = new ArrayList<String>();
+				objectTypes.add("Content");
+				filters.put(CompositeSearchParams.objectType.name(), objectTypes);
+				List<String> contentTypes = new ArrayList<String>();
+				contentTypes.add("Collection");
+				filters.put("contentType", contentTypes);
+				filters.put("childNodes", contentIds);
+				request.put(CompositeSearchParams.filters.name(), filters);
+				SearchDTO searchDTO = getSearchDTO(request);
+				Map<String, Object> collectionResult = processor.processSearch(searchDTO, true);
+				collectionResult.put("collection", collectionResult.get("results"));
+				collectionResult.put("collectionCount", collectionResult.get("count"));
+				collectionResult.remove("count");
+				collectionResult.remove("results");
+				lstResult.putAll(collectionResult);
+				return lstResult;
+			} catch (Exception e) {
+				TelemetryManager.error("Error while fetching the collection for the contents : ", e);
+				return lstResult;
+			}
+
+		} else {
+			return lstResult;
+		}
+	}
+
 }
