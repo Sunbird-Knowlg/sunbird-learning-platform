@@ -513,7 +513,7 @@ public class PublishPipelineService implements ISamzaService {
 			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
-			Set<String> childNodes = new HashSet<>();
+			
 			int leafCount = 0;
 			getTypeCount(content, "mimeType", mimeTypeMap);
 			getTypeCount(content, "contentType", contentTypeMap);
@@ -521,7 +521,7 @@ public class PublishPipelineService implements ISamzaService {
 			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			leafCount = getLeafNodeCount(content, leafCount);
 			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
-			getChildNode(content, childNodes);
+			List<String> childNodes = getChildNode(content);
 			content.put(ContentAPIParams.childNodes.name(), childNodes);
 			LOGGER.info("Write hirerachy to JSON File :" + contentId);
 			String data = mapper.writeValueAsString(content);
@@ -586,6 +586,11 @@ public class PublishPipelineService implements ISamzaService {
 				leafCount++;
 		}
 		return leafCount;
+	}
+	private List<String> getChildNode(Map<String, Object> data) {
+		Set<String> childrenSet = new HashSet<>();
+		getChildNode(data, childrenSet);
+		return new ArrayList<>(childrenSet);
 	}
 	
 	@SuppressWarnings("unchecked")
