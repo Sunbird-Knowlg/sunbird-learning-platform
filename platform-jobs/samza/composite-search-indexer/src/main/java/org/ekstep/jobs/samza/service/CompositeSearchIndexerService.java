@@ -51,8 +51,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 				LOGGER.debug("Composite record added/updated");
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
-				LOGGER.error("Failed to process message", message, ex);
-				metrics.incFailedCounter();
+				LOGGER.error("Error while processing message:", message, ex);
+				metrics.incErrorCounter();
 			}
 		} else {
 			LOGGER.info("Learning event not qualified for indexing");

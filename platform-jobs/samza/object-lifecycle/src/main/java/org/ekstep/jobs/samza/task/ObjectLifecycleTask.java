@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.InitableTask;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.StreamTask;
@@ -25,7 +27,9 @@ public class ObjectLifecycleTask implements StreamTask, InitableTask, Windowable
 	private ISamzaService service = new ObjectLifecycleService();
 
 	@Override
-	public void window(MessageCollector arg0, TaskCoordinator arg1) throws Exception {
+	public void window(MessageCollector collector, TaskCoordinator arg1) throws Exception {
+		Map<String, Object> event = metrics.collect();
+		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
 		metrics.clear();
 	}
 
@@ -33,7 +37,7 @@ public class ObjectLifecycleTask implements StreamTask, InitableTask, Windowable
 	public void init(Config config, TaskContext context) throws Exception {
 
 		try {
-			metrics = new JobMetrics(context);
+			metrics = new JobMetrics(context, config.get("job.name"), config.get("output.metrics.topic.name"));
 			service.initialize(config);
 			LOGGER.info("Task initialized");
 		} catch(Exception ex) {
