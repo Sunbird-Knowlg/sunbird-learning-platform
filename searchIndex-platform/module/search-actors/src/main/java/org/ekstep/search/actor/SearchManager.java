@@ -629,10 +629,11 @@ public class SearchManager extends SearchBaseActor {
 				List<String> objectTypes = new ArrayList<String>();
 				objectTypes.add("Content");
 				filters.put(CompositeSearchParams.objectType.name(), objectTypes);
-				List<String> contentTypes = new ArrayList<String>();
-				contentTypes.add("Collection");
-				filters.put("contentType", contentTypes);
+				List<String> mimeTypes = new ArrayList<String>();
+				mimeTypes.add("application/vnd.ekstep.content-collection");
+				filters.put("mimeType", mimeTypes);
 				filters.put("childNodes", contentIds);
+
 				request.put(CompositeSearchParams.filters.name(), filters);
 				SearchDTO searchDTO = getSearchDTO(request);
 				Map<String, Object> collectionResult = processor.processSearch(searchDTO, true);
