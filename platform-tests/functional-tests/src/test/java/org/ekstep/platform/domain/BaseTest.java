@@ -104,7 +104,7 @@ public class BaseTest
 	{
 		builderres.expectStatusCode(200);
 		builderres.expectBody("params.size()", is(5));
-		builderres.expectBody("params.status", equalTo("successful"));
+		// builderres.expectBody("params.status", equalTo("successful"));
 		builderres.expectBody("params.errmsg", equalTo(null));
 		builderres.expectBody("responseCode", equalTo("OK"));
 		ResponseSpecification responseSpec = builderres.build();

@@ -513,6 +513,7 @@ public class PublishPipelineService implements ISamzaService {
 			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
+			
 			int leafCount = 0;
 			getTypeCount(content, "mimeType", mimeTypeMap);
 			getTypeCount(content, "contentType", contentTypeMap);
@@ -520,6 +521,8 @@ public class PublishPipelineService implements ISamzaService {
 			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			leafCount = getLeafNodeCount(content, leafCount);
 			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			List<String> childNodes = getChildNode(content);
+			content.put(ContentAPIParams.childNodes.name(), childNodes);
 			LOGGER.info("Write hirerachy to JSON File :" + contentId);
 			String data = mapper.writeValueAsString(content);
 			File file = new File(getBasePath(contentId) + "TOC.json");
@@ -542,6 +545,7 @@ public class PublishPipelineService implements ISamzaService {
 			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
 	}
 	
@@ -582,6 +586,23 @@ public class PublishPipelineService implements ISamzaService {
 				leafCount++;
 		}
 		return leafCount;
+	}
+	private List<String> getChildNode(Map<String, Object> data) {
+		Set<String> childrenSet = new HashSet<>();
+		getChildNode(data, childrenSet);
+		return new ArrayList<>(childrenSet);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void getChildNode(Map<String, Object> data, Set<String> childrenSet) {
+		List<Object> children = (List<Object>) data.get("children");
+		if (null != children && !children.isEmpty()) {
+			for (Object child : children) {
+				Map<String, Object> childMap = (Map<String, Object>) child;
+				childrenSet.add((String)childMap.get("identifier"));
+				getChildNode(childMap, childrenSet);
+			}
+		}
 	}
 	
 	private String getBasePath(String contentId) {

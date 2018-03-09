@@ -1445,7 +1445,9 @@
 					"range": [
 						"numeracy",
 						"literacy",
-						"science"
+						"science",
+						"artificial_intelligence",
+						"biology"
 					],
 					"required": false,
 					"displayProperty": "Editable",

@@ -72,8 +72,8 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				esUtil.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX, AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
-				LOGGER.error("Failed to process message", message, ex);
-				metrics.incFailedCounter();
+				LOGGER.error("Error while processing message", message, ex);
+				metrics.incErrorCounter();
 			}
 		} else {
 			LOGGER.info("Learning event not qualified for audit");
