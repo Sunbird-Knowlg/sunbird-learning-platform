@@ -37,7 +37,7 @@ public class ObjectLifecycleTask implements StreamTask, InitableTask, Windowable
 	public void init(Config config, TaskContext context) throws Exception {
 
 		try {
-			metrics = new JobMetrics(context, config.get("job.name"), config.get("output.metrics.topic.name"));
+			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			service.initialize(config);
 			LOGGER.info("Task initialized");
 		} catch(Exception ex) {

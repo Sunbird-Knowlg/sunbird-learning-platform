@@ -39,7 +39,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	private static int MAXITERTIONCOUNT= 2;
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
-		metrics = new JobMetrics(context, config.get("job.name"), config.get("output.metrics.topic.name"));
+		metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 		ISamzaService service = initialize();
 		service.initialize(config);
 		this.config = config;
