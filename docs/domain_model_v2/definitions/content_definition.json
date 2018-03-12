@@ -186,7 +186,7 @@
 				{
 					"required": false,
 					"dataType": "JSON",
-					"propertyName": "badgesList",
+					"propertyName": "badgeAssertions",
 					"title": "List of Badges",
 					"description": "",
 					"category": "General",
