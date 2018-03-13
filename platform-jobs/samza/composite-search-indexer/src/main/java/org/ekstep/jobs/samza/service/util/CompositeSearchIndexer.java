@@ -147,7 +147,7 @@ public class CompositeSearchIndexer {
 
 		switch (fieldType) {
 		case "JSONList":
-			return mapper.readValue((String) propertyNewValue, new TypeReference<List<Map>>() {
+			return mapper.readValue((String) propertyNewValue, new TypeReference<List>() {
 			});
 		}
 
