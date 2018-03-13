@@ -10,14 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.samza.config.Config;
-import org.apache.samza.config.MapConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -30,7 +27,7 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 public class CompositeSearchIndexer {
 
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexer.class);
-	public ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = new ObjectMapper();
 	private ElasticSearchUtil esUtil = null;
 	private Map<String, String> nestedFields = new HashMap<String, String>();
 
@@ -227,27 +224,4 @@ public class CompositeSearchIndexer {
 		}
 		}
 	}
-
-	public static void main(String[] args) throws Exception {
-		Map<String, String> props = new HashMap<String, String>();
-		props.put("search.es_conn_info", "localhost:9300");
-		props.put("nested.fields", "badgeAssertions:jsonList");
-		/*JobMetrics metrics = mock(JobMetrics.class);*/
-		Config config = new MapConfig(props);
-		JSONUtils.loadProperties(config);
-		CompositeSearchIndexer indexer = new CompositeSearchIndexer(new ElasticSearchUtil());
-		indexer.createCompositeSearchIndex();
-
-		String emessage = "{\"ets\":1520922733196,\"channel\":\"in.ekstep\",\"transactionData\":{\"properties\":{\"code\":{\"ov\":null,\"nv\":\"test-content-badge4\"},\"channel\":{\"ov\":null,\"nv\":\"in.ekstep\"},\"language\":{\"ov\":null,\"nv\":[\"English\"]},\"mimeType\":{\"ov\":null,\"nv\":\"application/pdf\"},\"idealScreenSize\":{\"ov\":null,\"nv\":\"normal\"},\"createdOn\":{\"ov\":null,\"nv\":\"2018-03-13T12:02:07.711+0530\"},\"badgeAssertions\":{\"ov\":null,\"nv\":\"[{\\\"id\\\":\\\"badge3\\\",\\\"issue\\\":{\\\"id\\\":\\\"ekstep\\\"}}]\"},\"contentDisposition\":{\"ov\":null,\"nv\":\"inline\"},\"lastUpdatedOn\":{\"ov\":null,\"nv\":\"2018-03-13T12:02:07.711+0530\"},\"contentEncoding\":{\"ov\":null,\"nv\":\"identity\"},\"contentType\":{\"ov\":null,\"nv\":\"Resource\"},\"audience\":{\"ov\":null,\"nv\":[\"Learner\"]},\"IL_SYS_NODE_TYPE\":{\"ov\":null,\"nv\":\"DATA_NODE\"},\"visibility\":{\"ov\":null,\"nv\":\"Default\"},\"os\":{\"ov\":null,\"nv\":[\"All\"]},\"mediaType\":{\"ov\":null,\"nv\":\"content\"},\"osId\":{\"ov\":null,\"nv\":\"org.ekstep.quiz.app\"},\"versionKey\":{\"ov\":null,\"nv\":\"1520922727711\"},\"idealScreenDensity\":{\"ov\":null,\"nv\":\"hdpi\"},\"framework\":{\"ov\":null,\"nv\":\"NCF\"},\"compatibilityLevel\":{\"ov\":null,\"nv\":1.0},\"IL_FUNC_OBJECT_TYPE\":{\"ov\":null,\"nv\":\"Content\"},\"name\":{\"ov\":null,\"nv\":\"Test content Badging\"},\"IL_UNIQUE_ID\":{\"ov\":null,\"nv\":\"do_11245939898551500813\"},\"status\":{\"ov\":null,\"nv\":\"Draft\"},\"resourceType\":{\"ov\":null,\"nv\":\"Story\"}}},\"label\":\"Test content Badging\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2018-03-13T12:02:13.196+0530\",\"objectType\":\"Content\",\"nodeUniqueId\":\"do_11245939898551500813\",\"requestId\":null,\"operationType\":\"CREATE\",\"nodeGraphId\":281654,\"graphId\":\"domain\"}";
-
-		Map<String, Object> message = indexer.mapper.readValue(emessage, new TypeReference<Map<String, Object>>() {
-		});
-
-		String objectType = (String) message.get("objectType");
-		String graphId = (String) message.get("graphId");
-		String uniqueId = (String) message.get("nodeUniqueId");
-
-		indexer.processESMessage(graphId, objectType, uniqueId, message, null);
-	}
-
 }
