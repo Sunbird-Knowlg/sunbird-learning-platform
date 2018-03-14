@@ -23,6 +23,7 @@ import com.datastax.driver.core.Session;
 
 import akka.actor.ActorRef;
 import akka.util.Timeout;
+import info.batey.kafka.unit.KafkaUnit;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -33,6 +34,7 @@ public class CommonTestSetup {
 
 	static ClassLoader classLoader = CommonTestSetup.class.getClassLoader();
 	static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
+	private static KafkaUnit kafkaServer = null;
 	private static TaxonomyManagerImpl taxonomyMgr = new TaxonomyManagerImpl();
 	private static GraphDatabaseService graphDb = null;
 
@@ -93,7 +95,6 @@ public class CommonTestSetup {
 	}
 
 	protected static void executeScript(String... querys) {
-
 		try {
 			session = CassandraConnector.getSession();
 			for (String query : querys) {
@@ -151,5 +152,33 @@ public class CommonTestSetup {
 		if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
 			System.out.println(resp.getParams().getErr() + " :: " + resp.getParams().getErrmsg());
 		}
+	}
+
+	protected static void startKafkaServer() {
+		String zookeeperUrl = Platform.config.hasPath("learning.test.zookeeper.url")
+				? Platform.config.getString("learning.test.zookeeper.url") : "localhost:2080";
+		String kafkaUrl = Platform.config.hasPath("learning.test.kafka.url")
+				? Platform.config.getString("learning.test.kafka.url") : "localhost:9098";
+
+		try {
+			kafkaServer = new KafkaUnit(zookeeperUrl, kafkaUrl);
+			kafkaServer.startup();
+			System.out.println("Embedded Kafka Started!");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected static void tearKafkaServer() {
+		kafkaServer.shutdown();
+		System.out.println("Embedded Kafka Shutdown Successfully!");
+	}
+
+	public void createTopicWithPartition(String topicName, int partition) {
+		kafkaServer.createTopic(topicName, partition);
+	}
+
+	public void createTopic(String topicName) {
+		kafkaServer.createTopic(topicName);
 	}
 }
