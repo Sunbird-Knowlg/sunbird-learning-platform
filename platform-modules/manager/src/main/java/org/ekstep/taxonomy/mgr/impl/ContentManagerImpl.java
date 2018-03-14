@@ -314,7 +314,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
-		
+
 		Response response = new Response();
 		Node node = getNodeForOperation(contentId, "optimize");
 
@@ -449,7 +449,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		// Fetching body from Content Store.
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
-		
+
 		node.getMetadata().put(TaxonomyAPIParams.lastSubmittedOn.name(), DateUtils.formatCurrentDate());
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
@@ -1523,7 +1523,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
 			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
 					"Max limit for link content to dialcode in a request is " + maxLimit);
-		validateDialCodes(channelId, dialcodes);
+		// validateDialCodes(channelId, dialcodes);
 		Response resp = updateDialCodeToContents(contents, dialcodes);
 		if (ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
 			Map<String, Object> props = new HashMap<String, Object>();
@@ -1623,5 +1623,59 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.lang.String,
+	 * java.util.List)
+	 */
+	@Override
+	public Response linkDialCode(String channelId, List<Map<String, Object>> reqList) throws Exception {
+		if (null == reqList || 0 == reqList.size())
+			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
+		Response resp = null;
+		List<String> errorMsgList = new ArrayList<String>();
+		int clientErrorCount = 0;
+		int partialSucessCount = 0;
+		int successCount = 0;
+
+		List<String> dialCodeList = new ArrayList<String>();
+
+		for (Map<String, Object> map : reqList) {
+			Object dialObj = map.get(DialCodeEnum.dialcode.name());
+			dialCodeList.addAll(getList(dialObj));
+		}
+		// Validate all DIAL Code
+		validateDialCodes(channelId, dialCodeList);
+
+		for (Map<String, Object> map : reqList) {
+			resp = linkDialCode(channelId, map);
+			if (!checkError(resp))
+				successCount += 1;
+			if (checkError(resp) && resp.getResponseCode() == ResponseCode.PARTIAL_SUCCESS) {
+				partialSucessCount += 1;
+				errorMsgList.add(resp.getParams().getErrmsg());
+			}
+			if (checkError(resp) && resp.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				clientErrorCount += 1;
+				errorMsgList.add(resp.getParams().getErrmsg());
+			}
+		}
+
+		if (!errorMsgList.isEmpty() && (partialSucessCount > 0 || (successCount > 0 && clientErrorCount > 0))) {
+			resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
+			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", errorMsgList)));
+			return resp;
+		} else if (!errorMsgList.isEmpty() && (clientErrorCount > 0 && successCount == 0)) {
+			resp.setResponseCode(ResponseCode.CLIENT_ERROR);
+			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", errorMsgList)));
+			return resp;
+		}
+
+		return resp;
 	}
 }

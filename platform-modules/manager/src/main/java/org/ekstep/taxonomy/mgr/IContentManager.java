@@ -212,4 +212,6 @@ public interface IContentManager {
 
 	Response linkDialCode(String channelId, Map<String, Object> map) throws Exception;
 
+	Response linkDialCode(String channelId, List<Map<String, Object>> reqList) throws Exception;
+
 }
