@@ -106,5 +106,4 @@ public class ContentManagerImplTest extends CommonTestSetup {
 		assertEquals("Publish Operation for Content Id 'UT_Document_001' Started Successfully!",
 				(String) response.getResult().get("publishStatus"));
 	}
-
 }

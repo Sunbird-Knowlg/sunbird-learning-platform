@@ -1624,5 +1624,4 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
 		}
 	}
-
 }

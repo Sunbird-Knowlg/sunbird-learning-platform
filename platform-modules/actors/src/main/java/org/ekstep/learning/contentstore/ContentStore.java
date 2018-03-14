@@ -12,6 +12,7 @@ import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.datastax.driver.core.BoundStatement;
@@ -19,20 +20,27 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ContentStore extends CassandraStore {
 
 	private static final String PROPERTY_SUFFIX = "__txt";
-	
+	private static ObjectMapper mapper = new ObjectMapper();
+
 	public ContentStore() {
 		super();
-		String keyspace = Platform.config.hasPath("content.keyspace.name") ? Platform.config.getString("content.keyspace.name") : "content_store";
-		String table = Platform.config.hasPath("content.keyspace.table") ? Platform.config.getString("content.keyspace.table") : "content_data";
+		String keyspace = Platform.config.hasPath("content.keyspace.name")
+				? Platform.config.getString("content.keyspace.name")
+				: "content_store";
+		String table = Platform.config.hasPath("content.keyspace.table")
+				? Platform.config.getString("content.keyspace.table")
+				: "content_data";
 		boolean index = Platform.config.hasPath("content.index") ? Platform.config.getBoolean("content.index") : false;
 		String objectType = "Content";
 		initialise(keyspace, table, objectType, index);
+		nodeType = CompositeSearchConstants.NODE_TYPE_DATA;
 	}
-	
+
 	public void updateContentBody(String contentId, String body) {
 		updateContentProperty(contentId, "body", body);
 	}
@@ -60,13 +68,13 @@ public class ContentStore extends CassandraStore {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! Executing get content property: " + e.getMessage(),  e);
+			TelemetryManager.error("Error! Executing get content property: " + e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
 					"Error fetching property from Content Store.");
 		}
 		return null;
 	}
-	
+
 	public Map<String, Object> getContentProperties(String contentId, List<String> properties) {
 		TelemetryManager.log("GetContentProperties | Content: " + contentId + " | Properties: " + properties);
 		Session session = CassandraConnector.getSession();
@@ -96,9 +104,10 @@ public class ContentStore extends CassandraStore {
 		}
 		return null;
 	}
-	
+
 	public void updateContentProperty(String contentId, String property, String value) {
-		TelemetryManager.log("UpdateContentProperty | Content: " + contentId + " | Property: " + property + " - Value: " + value);
+		TelemetryManager.log(
+				"UpdateContentProperty | Content: " + contentId + " | Property: " + property + " - Value: " + value);
 		Session session = CassandraConnector.getSession();
 		String query = getUpdateQuery(property);
 		if (StringUtils.isBlank(query))
@@ -127,15 +136,21 @@ public class ContentStore extends CassandraStore {
 		String query = getUpdateQuery(map.keySet());
 		PreparedStatement ps = session.prepare(query);
 		Object[] values = new Object[map.size() + 1];
-		int i = 0;
-		for (Entry<String, Object> entry : map.entrySet()) {
-			String value = (String) entry.getValue();
-			values[i] = value;
-			i += 1;
-		}
-		values[i] = contentId;
-		BoundStatement bound = ps.bind(values);
 		try {
+			int i = 0;
+			for (Entry<String, Object> entry : map.entrySet()) {
+				String value = "";
+				if (entry.getValue() instanceof String) {
+					value = (String) entry.getValue();
+				} else {
+					value = mapper.writeValueAsString(entry.getValue());
+				}
+				values[i] = value;
+				i += 1;
+			}
+			values[i] = contentId;
+			BoundStatement bound = ps.bind(values);
+
 			session.execute(bound);
 			logTransactionEvent("UPDATE", contentId, map);
 		} catch (Exception e) {
@@ -149,7 +164,8 @@ public class ContentStore extends CassandraStore {
 		StringBuilder sb = new StringBuilder();
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("select blobAsText(").append(property).append(") as ");
-			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " + getKeyspace() +"."+getTable() +  " where content_id = ?");
+			sb.append(property.trim()).append(PROPERTY_SUFFIX)
+					.append(" from " + getKeyspace() + "." + getTable() + " where content_id = ?");
 		}
 		return sb.toString();
 	}
@@ -168,24 +184,24 @@ public class ContentStore extends CassandraStore {
 				selectFields.append(property.trim()).append(PROPERTY_SUFFIX).append(", ");
 			}
 			sb.append(StringUtils.removeEnd(selectFields.toString(), ", "));
-			sb.append(" from " + getKeyspace() +"."+ getTable() + " where content_id = ?");
+			sb.append(" from " + getKeyspace() + "." + getTable() + " where content_id = ?");
 		}
 		return sb.toString();
 	}
-	
+
 	private String getUpdateQuery(String property) {
 		StringBuilder sb = new StringBuilder();
 		if (StringUtils.isNotBlank(property)) {
-			sb.append("UPDATE " + getKeyspace() +"."+getTable() + " SET last_updated_on = dateOf(now()), ");
+			sb.append("UPDATE " + getKeyspace() + "." + getTable() + " SET last_updated_on = dateOf(now()), ");
 			sb.append(property.trim()).append(" = textAsBlob(?) where content_id = ?");
 		}
 		return sb.toString();
 	}
-	
+
 	private String getUpdateQuery(Set<String> properties) {
 		StringBuilder sb = new StringBuilder();
 		if (null != properties && !properties.isEmpty()) {
-			sb.append("UPDATE " + getKeyspace() +"."+ getTable() + " SET last_updated_on = dateOf(now()), ");
+			sb.append("UPDATE " + getKeyspace() + "." + getTable() + " SET last_updated_on = dateOf(now()), ");
 			StringBuilder updateFields = new StringBuilder();
 			for (String property : properties) {
 				if (StringUtils.isBlank(property))
@@ -199,6 +215,5 @@ public class ContentStore extends CassandraStore {
 		}
 		return sb.toString();
 	}
-	
-	
+
 }

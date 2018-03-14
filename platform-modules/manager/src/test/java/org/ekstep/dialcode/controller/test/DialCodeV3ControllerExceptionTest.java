@@ -37,6 +37,16 @@ public class DialCodeV3ControllerExceptionTest {
 	MockMvc mockMvc;
 	private ResultActions actions;
 	private static final String basePath = "/v3/dialcode";
+	
+	@BeforeClass
+	public static void setup(){
+		CompositeSearchConstants.DIAL_CODE_INDEX ="test000000000011";
+	}
+	
+	public static void clean() throws Exception{
+		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+		elasticSearchUtil.deleteIndex("test000000000011");
+	}
 
 	@BeforeClass
 	public static void setup() {
@@ -55,7 +65,6 @@ public class DialCodeV3ControllerExceptionTest {
 
 	// List Dial Code - 500 - SERVER_ERROR
 	@Test
-	@Ignore
 	public void testDialCode_01() throws Exception {
 		String path = basePath + "/list";
 		String req = "{\"request\": {\"search\": {\"publisher\":\"test0001000001000\",\"status\":\"Draft\"}}}";

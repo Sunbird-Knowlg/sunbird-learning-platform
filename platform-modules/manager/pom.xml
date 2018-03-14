@@ -169,11 +169,9 @@
 			<artifactId>google-api-services-youtube</artifactId>
 			<version>v3-rev182-1.22.0</version>
 			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-			</exclusions>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava-jdk5</artifactId>
+      </exclusion>
 		</dependency>
 		<dependency>
 			<groupId>com.google.oauth-client</groupId>

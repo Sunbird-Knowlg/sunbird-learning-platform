@@ -160,7 +160,6 @@ public interface IContentManager {
 	 *         Result Set.
 	 * @throws Exception
 	 */
-
 	Response review(String contentId, Request request) throws Exception;
 
 	/**

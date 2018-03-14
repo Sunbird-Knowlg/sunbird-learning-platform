@@ -135,70 +135,6 @@ public class ContentPackageExtractionUtil {
 	}
 
 	/**
-	 * Extract ECAR package.
-	 *
-	 * @param node
-	 *            the node
-	 * @param extractionType
-	 *            the extraction type
-	 */
-	public void extractContentPackage(String contentId, Node node, ExtractionType extractionType, boolean slugFile) {
-
-		// Validating the Parameters
-		TelemetryManager.log("Validating Node Object.");
-		if (null == node)
-			throw new ClientException(ContentErrorCodes.INVALID_NODE.name(),
-					"Error! Content (Node Object) cannot be 'null'");
-
-		TelemetryManager.log("Validating Extraction Type.");
-		if (null == extractionType)
-			throw new ClientException(ContentErrorCodes.INVALID_EXTRACTION.name(),
-					"Error! Invalid Content Extraction Type.");
-
-		// Reading Content Package (artifact) URL
-		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
-		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-		if (StringUtils.isBlank(artifactUrl)
-				|| (!StringUtils.endsWithIgnoreCase(artifactUrl, ContentAPIParams.zip.name())
-						&& extractableMimeTypes.containsKey(mimeType)))
-			throw new ClientException(ContentErrorCodes.INVALID_ECAR.name(), "Error! Invalid ECAR Url.");
-
-		if (extractableMimeTypes.containsKey(mimeType)) {
-			TelemetryManager.log("Given Content Belongs to Extractable Category of MimeTypes.");
-			String extractionBasePath = getBasePath(contentId);
-			String contentPackageDownloadPath = getBasePath(contentId);
-			try {
-				// Download Content Package
-				File contentPackageFile = HttpDownloadUtility.downloadFile(artifactUrl, contentPackageDownloadPath);
-				if (null == contentPackageFile)
-					throw new ServerException(ContentErrorCodes.INVALID_ARTIFACT.name(),
-							"Error! Unable to download the Content Package (from artifact Url) for Content Package Extraction on Storage Space.");
-
-				// UnZip the Content Package
-				UnzipUtility unzipUtility = new UnzipUtility();
-				unzipUtility.unzip(contentPackageFile.getAbsolutePath(), extractionBasePath);
-
-				// Extract Content Package
-				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
-			} catch (IOException e) {
-				TelemetryManager.error(
-						"Error! While unzipping the content package [Content Package Extraction to Storage Space]", e);
-			} finally {
-				try {
-					TelemetryManager.log("Deleting Locally Extracted File.");
-					File dir = new File(contentPackageDownloadPath);
-					if (dir.exists())
-						dir.delete();
-				} catch (SecurityException e) {
-					TelemetryManager.error("Error! While deleting the local download directory: " + contentPackageDownloadPath, e);
-				} catch (Exception e) {
-					TelemetryManager.error("Error! Something went wrong while deleting the local download directory: " + contentPackageDownloadPath, e);
-				}
-			}
-		}
-	}
-
-	/**
 	 * Extract content package.
 	 *
 	 * @param node
@@ -260,8 +196,8 @@ public class ContentPackageExtractionUtil {
 					unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
 				}
 
-				// Extract Content Package
-				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
+				// upload Extracted Content Package
+				uploadExtractedPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
 				TelemetryManager.error("Error! While unzipping the content package file: "+ e.getMessage(), e);
 			} catch (Exception e) {
@@ -289,7 +225,7 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	public void extractPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
+	public void uploadExtractedPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
 			boolean slugFile) {
 		List<String> lstUploadedFilesUrl = new ArrayList<String>();
 		String awsFolderPath = "";
@@ -521,5 +457,4 @@ public class ContentPackageExtractionUtil {
 		String path = getExtractionPath(contentId, node, extractionType);
 		return AWSUploader.getURL(s3Bucket, path);
 	}
-	
 }
