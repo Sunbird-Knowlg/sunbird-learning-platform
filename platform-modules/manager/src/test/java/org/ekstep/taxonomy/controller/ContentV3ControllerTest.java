@@ -1,5 +1,7 @@
 package org.ekstep.taxonomy.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,11 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
-import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
+import org.ekstep.test.common.CommonTestSetup;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,7 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentV3ControllerTest extends GraphEngineTestSetup {
+public class ContentV3ControllerTest extends CommonTestSetup {
 
 	/** The context. */
 	@Autowired
@@ -63,10 +65,14 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	private static String[] validDialCode = { "ABC123", "BCD123", "CDE123", "DEF123", "EFG123" };
+	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+	private static String script_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
+	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
 
 	private static String contentId = "";
 	private static String contentId2 = "";
 	private static String versionKey = "";
+	private static String versionKey2 = "";
 
 	private static String DIALCODE_INDEX = "testdialcode";
 	private static String DIALCODE_INDEX_TYPE = "dc";
@@ -78,12 +84,11 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	private static String collectionContent3Id = "";
 	private static String collectionVersion3Key = "";
 
-	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Test Contnet\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
-
 	@BeforeClass
 	public static void setup() throws Exception {
 		loadDefinition("definitions/content_definition.json", "definitions/concept_definition.json",
 				"definitions/dimension_definition.json", "definitions/domain_definition.json");
+		executeScript(script_1, script_2);
 		createDocumentContent();
 		createCollectionContent();
 		createDialCodeIndex();
@@ -131,7 +136,6 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 			elasticSearchUtil.addDocumentWithId(DIALCODE_INDEX, CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, dialCode,
 					mapper.writeValueAsString(indexDocument));
 		}
-
 	}
 
 	public static void createDocumentContent() throws Exception {
@@ -147,10 +151,9 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 				versionKey = (String) documentResponse.getResult().get(TestParams.versionKey.name());
 			} else if (i == 2) {
 				contentId2 = (String) documentResponse.getResult().get(TestParams.node_id.name());
+				versionKey2 = (String) documentResponse.getResult().get(TestParams.versionKey.name());
 			}
-
 		}
-
 	}
 
 	public static void createCollectionContent() throws Exception {
@@ -213,14 +216,27 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 * Update Content
 	 * 
 	 */
-	@Ignore
 	@Test
 	public void testContentV3Controller_03() throws Exception {
-		String path = basePath + "/update/" + contentId;
+		String path = basePath + "/update/" + contentId2;
 		String updateDocumentContent = "{\"request\": {\"content\": {\"name\": \"Updated Test Contnet\",\"versionKey\": \""
-				+ versionKey + "\"}}}";
+				+ versionKey2 + "\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(updateDocumentContent));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Upload with File. Expect: 200
+	 * 
+	 */
+	@Test
+	public void testContentV3Controller_04() throws Exception {
+		String path = basePath + "/upload/" + contentId;
+		File inputFile = getResourceFile("test1.pdf");
+		FileInputStream fileStream = new FileInputStream(inputFile);
+		MockMultipartFile testFile = new MockMultipartFile("file", "test1.pdf", "application/pdf", fileStream);
+		actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(path).file(testFile).header("user-id", "ilimi"));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -230,7 +246,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 */
 	@Ignore
 	@Test
-	public void testContentV3Controller_04() throws Exception {
+	public void testContentV3Controller_05() throws Exception {
 		String path = basePath + "/review/" + contentId;
 		String publishReqBody = "{\"request\": {\"content\" : {}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -242,11 +258,10 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 * Publish Content
 	 * 
 	 */
-
 	@Ignore
 	@Test
-	public void testContentV3Controller_05() throws Exception {
-		String path = basePath + "/publish/" + collectionContent2Id;
+	public void testContentV3Controller_06() throws Exception {
+		String path = basePath + "/publish/" + contentId;
 		String publishReqBody = "{\"request\": {\"content\" : {\"lastPublishedBy\" : \"Ekstep\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(publishReqBody));
@@ -257,11 +272,17 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 * Unlisted Publish Content
 	 * 
 	 */
-
 	@Ignore
 	@Test
-	public void testContentV3Controller_06() throws Exception {
-		String path = basePath + "/unlisted/publish/" + collectionContent3Id;
+	public void testContentV3Controller_07() throws Exception {
+		String path = basePath + "/upload/" + contentId2;
+		File inputFile = getResourceFile("test2.pdf");
+		FileInputStream fileStream = new FileInputStream(inputFile);
+		MockMultipartFile testFile = new MockMultipartFile("file", "test2.pdf", "application/pdf", fileStream);
+		actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(path).file(testFile).header("user-id", "ilimi"));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		path = basePath + "/unlisted/publish/" + contentId2;
 		String publishReqBody = "{\"request\": {\"content\" : {\"lastPublishedBy\" : \"Ekstep\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(publishReqBody));
@@ -274,7 +295,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 */
 
 	@Test
-	public void testContentV3Controller_07() throws Exception {
+	public void testContentV3Controller_08() throws Exception {
 		String path = basePath + "/hierarchy/" + collectionContent3Id;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -288,7 +309,7 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 	 */
 	@Ignore
 	@Test
-	public void testContentV3Controller_08() throws Exception {
+	public void testContentV3Controller_09() throws Exception {
 		String path = basePath + "/bundle";
 		String bundleReqBody = "{\"request\": {\"content_identifiers\": [\"" + contentId
 				+ "\"],\"file_name\": \"test_dev_bundle\"}}";
@@ -297,22 +318,26 @@ public class ContentV3ControllerTest extends GraphEngineTestSetup {
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
-	/*
-	 * Upload with File
-	 * 
-	 */
-	@Ignore
 	@Test
-	public void testContentV3Controller_09() throws Exception {
+	public void testContentV3Controller_10() throws Exception {
 		String path = basePath + "/upload/" + contentId;
-		FileInputStream fis = new FileInputStream(getResourceFile("test.pdf"));
+		FileInputStream fis = new FileInputStream(getResourceFile("pdf.pdf"));
 		MockMultipartFile multipartFile = new MockMultipartFile("file", fis);
 		Map<String, String> contentTypeParams = new HashMap<String, String>();
 		contentTypeParams.put("boundary", "265001916915724");
 		MediaType mediaType = new MediaType("multipart", "form-data", contentTypeParams);
 		actions = mockMvc
 				.perform(MockMvcRequestBuilders.post(path).contentType(mediaType).content(multipartFile.getBytes()));
-		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testContentV3Controller_11() throws Exception {
+		String path = basePath + "/upload/" + contentId;
+		FileInputStream fis = new FileInputStream(getResourceFile("pdf.pdf"));
+		MockMultipartFile multipartFile = new MockMultipartFile("file", fis);
+		actions = mockMvc.perform(fileUpload(path).file(multipartFile));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*

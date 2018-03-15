@@ -1,8 +1,8 @@
 package org.ekstep.dialcode.controller.test;
 
-
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,11 +44,6 @@ public class DialCodeV3ControllerExceptionTest {
 		CompositeSearchConstants.DIAL_CODE_INDEX ="test000000000011";
 	}
 	
-	public static void clean() throws Exception{
-		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-		elasticSearchUtil.deleteIndex("test000000000011");
-	}
-
 	@Before
 	public void init() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
@@ -104,14 +99,12 @@ public class DialCodeV3ControllerExceptionTest {
 	}
 
 	// Search Dial Code -405 -
-	@Ignore
 	@Test
 	public void testDialCode_06() throws Exception {
 		String path = basePath + "/search";
 		String req = "{\"request\": {\"search\": {\"publisher\":\"testpub01\",\"status\":\"Draft\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
-		System.out.println("Response:::::" + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(405, actions.andReturn().getResponse().getStatus());
 	}
 
