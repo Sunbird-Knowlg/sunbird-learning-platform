@@ -1,6 +1,7 @@
 package org.ekstep.taxonomy.controller;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -391,8 +392,8 @@ public class ContentV3Controller extends BaseController {
 		String apiId = "ekstep.content.dialcode.link";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.linkDialCode(channelId, map);
+			List<Map<String, Object>> reqList = (List<Map<String, Object>>) request.get("contents");
+			Response response = contentManager.linkDialCode(channelId, reqList);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Linking Dial Code with Content: " + e.getMessage(), e);

@@ -28,6 +28,9 @@ public class DialCodeV3APITest extends BaseTest {
 
 	private static String publisherId = "";
 	private static String dialCodeId = "";
+	private static String dialCodeId_2 = "";
+	private static String contentId_1 = "";
+	private static String contentId_2 = "";
 
 	@Before
 	public void init() {
@@ -35,6 +38,8 @@ public class DialCodeV3APITest extends BaseTest {
 			createPublisher();
 		if (StringUtils.isBlank(dialCodeId))
 			generateDialCode();
+		if (StringUtils.isBlank(contentId_1))
+			createContent();
 	}
 
 	private void createPublisher() {
@@ -43,20 +48,43 @@ public class DialCodeV3APITest extends BaseTest {
 		setURI();
 		Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
 				.body(createPublisherReq).with().contentType(JSON).when().post("dialcode/v3/publisher/create").then()
-				.spec(get200ResponseSpec()).extract().response();
+				.extract().response();
 		JsonPath jp = R.jsonPath();
 		publisherId = jp.get("result.identifier");
 	}
 
 	private void generateDialCode() {
-		String dialCodeGenReq = "{\"request\": {\"dialcodes\": {\"count\":1,\"publisher\": \"" + publisherId + "\"}}}";
+		String dialCodeGenReq = "{\"request\": {\"dialcodes\": {\"count\":2,\"publisher\": \"" + publisherId + "\"}}}";
 		setURI();
 		Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
-				.body(dialCodeGenReq).with().contentType(JSON).when().post("dialcode/v3/generate").then()
-				.spec(get200ResponseSpec()).extract().response();
+				.body(dialCodeGenReq).with().contentType(JSON).when().post("dialcode/v3/generate").then().extract()
+				.response();
 		JsonPath jp = R.jsonPath();
 		List<String> dialcodes = jp.get("result.dialcodes");
 		dialCodeId = dialcodes.get(0);
+		dialCodeId_2 = dialcodes.get(1);
+
+	}
+
+	private void createContent() {
+		for (int i = 1; i <= 2; i++) {
+			int rn = generateRandomInt(0, 999999);
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn
+					+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"
+					+ rn
+					+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			setURI();
+			Response res = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+					.body(createValidContent).with().contentType(JSON).when().post("content/v3/create").then().extract()
+					.response();
+			JsonPath jp = res.jsonPath();
+			String identifier = jp.get("result.node_id");
+			if (i == 1)
+				contentId_1 = identifier;
+			if (i == 2)
+				contentId_2 = identifier;
+
+		}
 	}
 
 	@Test
@@ -73,16 +101,23 @@ public class DialCodeV3APITest extends BaseTest {
 		// Get Publisher and validate
 		setURI();
 		Response res2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
-				.when()
-				.get("dialcode/v3/publisher/read/" + nodeId).then().
-				spec(get200ResponseSpec()).extract().response();
+				.when().get("dialcode/v3/publisher/read/" + nodeId).then().spec(get200ResponseSpec()).extract()
+				.response();
 
 		JsonPath jP2 = res2.jsonPath();
 		String identifier = jP2.get("result.publisher.identifier");
 		assertEquals(nodeId, identifier);
 	}
 
-
+	@Test
+	public void createPublisherExpect400() {
+		String createPublisherReq = "{\"request\": {\"publisher\": {\"identifier\":\"" + publisherId
+				+ "\",\"name\": \"Functional Test Publisher\"}}}";
+		setURI();
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(createPublisherReq).with().contentType(JSON).when().post("dialcode/v3/publisher/create").then()
+				.spec(get400ResponseSpec());
+	}
 
 	@Test
 	public void generateDIALCodeExpect200() {
@@ -101,6 +136,14 @@ public class DialCodeV3APITest extends BaseTest {
 	}
 
 	@Test
+	public void generateDIALCodeExpect400() {
+		String dialCodeGenReq = "{\"request\": {\"dialcodes\": {\"count\":2,\"publisher\": \"\"}}}";
+		setURI();
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).body(dialCodeGenReq)
+				.with().contentType(JSON).when().post("dialcode/v3/generate").then().spec(get400ResponseSpec());
+	}
+
+	@Test
 	public void readDIALCodeExpect200() {
 		setURI();
 		Response res = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
@@ -116,13 +159,19 @@ public class DialCodeV3APITest extends BaseTest {
 	}
 
 	@Test
+	public void readDIALCodeExpect404() {
+		setURI();
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).when()
+				.get("/dialcode/v3/read/" + "AA").then().spec(get404ResponseSpec());
+	}
+
+	@Test
 	public void updateDIALCodeExpect200() {
 		String dialCodeUpdateReq = "{\"request\": {\"dialcode\": {\"metadata\": {\"class\":\"Test Class\",\"subject\":\"Test Subject\",\"board\":\"Test Board\"}}}}";
 		setURI();
 		Response res = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
 				.body(dialCodeUpdateReq).with().contentType(JSON).when().patch("/dialcode/v3/update/" + dialCodeId)
-				.then()
-				.spec(get200ResponseSpec()).extract().response();
+				.then().spec(get200ResponseSpec()).extract().response();
 		JsonPath jp = res.jsonPath();
 		String identifier = jp.get("result.identifier");
 		assertEquals(identifier, dialCodeId);
@@ -134,8 +183,7 @@ public class DialCodeV3APITest extends BaseTest {
 		setURI();
 		Response res = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
 				.body(dialCodePublishReq).with().contentType(JSON).when().post("/dialcode/v3/publish/" + dialCodeId)
-				.then()
-				.spec(get200ResponseSpec()).extract().response();
+				.then().spec(get200ResponseSpec()).extract().response();
 		JsonPath jp = res.jsonPath();
 		String identifier = jp.get("result.identifier");
 		assertEquals(identifier, dialCodeId);
@@ -159,7 +207,16 @@ public class DialCodeV3APITest extends BaseTest {
 				.spec(get200ResponseSpec()).extract().response();
 		JsonPath jp = res.jsonPath();
 		int count = jp.get("result.count");
-		assertEquals(1, count);
+		assertEquals(2, count);
+	}
+
+	@Test
+	public void listDialCodeExpect400() {
+		String listDialCodeReq = "{\"request\": {\"search\": {}}}";
+		setURI();
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(listDialCodeReq).with().contentType(JSON).when().post("dialcode/v3/list").then()
+				.spec(get400ResponseSpec());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -178,6 +235,56 @@ public class DialCodeV3APITest extends BaseTest {
 			map = (Map<String, Object>) dialcodes.get(0);
 		String identifier = (String) map.get("identifier");
 		assertEquals(dialCodeId, identifier);
+	}
+
+	@Test
+	public void linkDialCodeToContentExpect200() {
+		setURI();
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId_1
+				+ "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get200ResponseSpec());
+	}
+
+	@Test
+	public void linkDialCodeToContentsExpect200() {
+		setURI();
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId_1 + "\",\""
+				+ contentId_2 + "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get200ResponseSpec());
+	}
+
+	@Test
+	public void linkDialCodesToContentExpect200() {
+		setURI();
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId_1
+				+ "\"],\"dialcode\": [\"" + dialCodeId + "\",\"" + dialCodeId_2 + "\"]}}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get200ResponseSpec());
+	}
+
+	@Test
+	public void linkDialCodesToContentsExpect400() {
+		setURI();
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId_1 + "\",\""
+				+ contentId_2 + "\"],\"dialcode\": [\"" + dialCodeId + "\",\"" + "ABC123" + "\"]}}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get400ResponseSpec());
+	}
+
+	@Test
+	public void linkDialCodeToContentExpect400() {
+		setURI();
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + "do_ABC123"
+				+ "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get400ResponseSpec());
 	}
 
 }
