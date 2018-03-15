@@ -1,5 +1,6 @@
 package org.ekstep.sync.tool.shell;
 
+import org.ekstep.sync.tool.service.CompositeIndexSyncManager;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -13,5 +14,7 @@ public class SyncCommand implements CommandMarker{
 			@CliOption(key = { "type" }, mandatory = true, help = "Object type of node object") final String type) {
 		System.out.println("Id: " + id);
 		System.out.println("Type: " + type);
+		CompositeIndexSyncManager compositeIndexSyncManager = new CompositeIndexSyncManager();
+		compositeIndexSyncManager.syncNode("domain", id);
 	}
 }
