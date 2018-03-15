@@ -1528,8 +1528,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private void validateDialCodes(String channelId, Set<String> dialcodes) throws Exception {
+	private void validateDialCodes(String channelId, Set<String> dialcodesList) throws Exception {
 		List<Object> resultList = null;
+		List<String> dialcodes = new ArrayList<String>(dialcodesList);
 		List<String> invalidDialCodeList = new ArrayList<String>(dialcodes);
 		Integer dialcodeCount = dialcodes.size();
 		Map<String, Object> requestMap = new HashMap<String, Object>();
