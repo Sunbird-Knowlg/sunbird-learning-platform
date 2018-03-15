@@ -67,7 +67,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private static String[] validDialCode = { "ABC123", "BCD123", "CDE123", "DEF123", "EFG123" };
 	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 	private static String script_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
-	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
+	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
 
 	private static String contentId = "";
 	private static String contentId2 = "";
@@ -223,7 +223,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 				+ versionKey2 + "\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(updateDocumentContent));
-		System.out.println("Response:" + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -259,7 +258,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * Publish Content
 	 * 
 	 */
-
+	@Ignore
 	@Test
 	public void testContentV3Controller_06() throws Exception {
 		String path = basePath + "/publish/" + contentId;
@@ -273,7 +272,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * Unlisted Publish Content
 	 * 
 	 */
-
+	@Ignore
 	@Test
 	public void testContentV3Controller_07() throws Exception {
 		String path = basePath + "/upload/" + contentId2;

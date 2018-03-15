@@ -44,12 +44,6 @@ public class DialCodeV3ControllerExceptionTest {
 		CompositeSearchConstants.DIAL_CODE_INDEX ="test000000000011";
 	}
 	
-	@AfterClass
-	public static void clean() throws Exception{
-		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-		elasticSearchUtil.deleteIndex("test000000000011");
-	}
-
 	@Before
 	public void init() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();

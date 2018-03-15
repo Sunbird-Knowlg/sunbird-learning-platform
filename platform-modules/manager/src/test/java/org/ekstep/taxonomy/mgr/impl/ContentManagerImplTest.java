@@ -13,6 +13,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -95,6 +96,7 @@ public class ContentManagerImplTest extends CommonTestSetup {
 
 	// TODO: Modify Assert Statement when topic check will be enabled in
 	// KafkaClient.
+	@Ignore
 	@Test
 	public void contentManagerTest_01() throws Exception {
 		String pubReq = "{\"request\": {\"content\": {\"publisher\": \"EkStep\",\"lastPublishedBy\": \"Ekstep\"}}}";
