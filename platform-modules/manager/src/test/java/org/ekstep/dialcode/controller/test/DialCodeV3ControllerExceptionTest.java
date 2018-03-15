@@ -2,6 +2,7 @@ package org.ekstep.dialcode.controller.test;
 
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -43,7 +44,7 @@ public class DialCodeV3ControllerExceptionTest {
 		CompositeSearchConstants.DIAL_CODE_INDEX ="test000000000011";
 	}
 	
-	@BeforeClass
+	@AfterClass
 	public static void clean() throws Exception{
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 		elasticSearchUtil.deleteIndex("test000000000011");
