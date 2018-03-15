@@ -670,7 +670,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			for (String prop : externalPropsList) {
 				if (null != map.get(prop))
 					externalProps.put(prop, map.get(prop));
-				map.remove(prop);
+				if (StringUtils.equalsIgnoreCase(ContentAPIParams.screenshots.name(), prop) && null != map.get(prop)) {
+					map.put(prop, null);
+				} else {
+					map.remove(prop);
+				}
+
 			}
 		}
 
