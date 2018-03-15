@@ -237,5 +237,15 @@ public class BaseTest
 		log().all().
 		spec(get200ResponseSpec());	
 	}
+	
+	public ResponseSpecification get207ResponseSpec()
+	{
+		builderres.expectStatusCode(207);
+		builderres.expectBody("params.size()", is(5));
+		builderres.expectBody("params.status", equalTo("failed"));
+		builderres.expectBody("responseCode", equalTo("PARTIAL_SUCCESS"));
+		ResponseSpecification responseSpec = builderres.build();
+		return responseSpec;
+	}
 
 }
