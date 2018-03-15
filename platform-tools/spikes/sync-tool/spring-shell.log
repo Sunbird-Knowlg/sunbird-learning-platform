@@ -1,0 +1,7 @@
+// Spring Shell 1.2.0.RELEASE log opened at 2018-03-15 11:27:01
+syncabc --user amit
+syncabc --user sumit
+// Spring Shell 1.2.0.RELEASE log opened at 2018-03-15 11:36:12
+syncbyid --id 1001 --type Content
+// Spring Shell 1.2.0.RELEASE log opened at 2018-03-15 11:53:50
+syncbyid --id 1001 --type Content
