@@ -15,6 +15,11 @@ public class SyncCommand implements CommandMarker{
 		System.out.println("Id: " + id);
 		System.out.println("Type: " + type);
 		CompositeIndexSyncManager compositeIndexSyncManager = new CompositeIndexSyncManager();
-		compositeIndexSyncManager.syncNode("domain", id);
+		try {
+			compositeIndexSyncManager.syncNode("domain", id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
