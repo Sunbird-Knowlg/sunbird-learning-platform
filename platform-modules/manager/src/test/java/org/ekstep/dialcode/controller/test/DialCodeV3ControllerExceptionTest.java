@@ -43,17 +43,8 @@ public class DialCodeV3ControllerExceptionTest {
 		CompositeSearchConstants.DIAL_CODE_INDEX ="test000000000011";
 	}
 	
-	public static void clean() throws Exception{
-		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-		elasticSearchUtil.deleteIndex("test000000000011");
-	}
-
 	@BeforeClass
-	public static void setup() {
-		CompositeSearchConstants.DIAL_CODE_INDEX = "test000000000011";
-	}
-
-	public static void clean() throws Exception {
+	public static void clean() throws Exception{
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 		elasticSearchUtil.deleteIndex("test000000000011");
 	}
