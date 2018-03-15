@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -1526,7 +1528,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private void validateDialCodes(String channelId, List<String> dialcodes) throws Exception {
+	private void validateDialCodes(String channelId, Set<String> dialcodes) throws Exception {
 		List<Object> resultList = null;
 		List<String> invalidDialCodeList = new ArrayList<String>(dialcodes);
 		Integer dialcodeCount = dialcodes.size();
@@ -1656,7 +1658,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
 					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
 
-		List<String> dialCodeList = new ArrayList<String>();
+		Set<String> dialCodeList = new HashSet<String>();
 
 		for (Map<String, Object> map : reqList) {
 			if (null == map)
