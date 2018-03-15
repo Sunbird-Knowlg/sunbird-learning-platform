@@ -1,5 +1,7 @@
 package org.ekstep.sync.tool.shell;
 
+import java.util.List;
+
 import org.ekstep.sync.tool.service.CompositeIndexSyncManager;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -21,5 +23,19 @@ public class SyncCommand implements CommandMarker{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	@CliCommand(value = "syncByFileObjType", help = "Sync data from Neo4j to Elastic Search by Id listed in a file")
+	public void syncByFile(@CliOption(key = {"filePath"}, mandatory = true, help = "File Path of the csv file") String filePath,
+			@CliOption(key = {"objectType"}, mandatory = true, help = "Object type needs to be validated") String objectType) throws Exception{
+		csvFileParser parser = new csvFileParser();
+		List<String> ids = parser.csvData(filePath, objectType);
+		System.out.println("Ids are: " +ids);
+	}
+	
+	@CliCommand(value = "syncByFileId", help = "Sync data from Neo4j to Elastic Search by Id listed in a file")
+	public void syncByFile(@CliOption(key = {"filePath"}, mandatory = true, help = "File Path of the csv file") String filePath) throws Exception{
+		csvFileParser parser = new csvFileParser();
+		List<String> ids = parser.csvData(filePath);
+		System.out.println("Ids are: " +ids);
 	}
 }
