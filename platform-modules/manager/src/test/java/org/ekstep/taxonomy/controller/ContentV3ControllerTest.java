@@ -348,8 +348,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_01() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": [\"" + contentId
-				+ "\"],\"dialcode\": [\"ABC123\"]}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -363,8 +363,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_02() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": \"" + contentId
-				+ "\",\"dialcode\": \"ABC123\"}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": \"" + contentId
+				+ "\",\"dialcode\": \"ABC123\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -380,8 +380,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_03() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": \"" + "abc123"
-				+ "\",\"dialcode\": \"ABC123\"}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": \"" + "abc123"
+				+ "\",\"dialcode\": \"ABC123\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -396,8 +396,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_04() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": [\"" + "abc123"
-				+ "\"],\"dialcode\": [\"ABC123\"]}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + "abc123"
+				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -411,8 +411,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_05() throws Exception {
 		String path = basePath + "/dialcodes/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": \"" + contentId
-				+ "\",\"dialcode\": \"ABC123\"}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": \"" + contentId
+				+ "\",\"dialcode\": \"ABC123\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
@@ -426,8 +426,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_06() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": [\"" + contentId + "\",\"" + contentId2
-				+ "\"],\"dialcode\": \"ABC123\"}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId + "\",\"" + contentId2
+				+ "\"],\"dialcode\": \"ABC123\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -442,8 +442,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_07() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": [\"" + contentId + "\",\"" + contentId2
-				+ "\"],\"dialcode\": [\"ABC123\",\"BCD123\"]}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId + "\",\"" + contentId2
+				+ "\"],\"dialcode\": [\"ABC123\",\"BCD123\"]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -458,8 +458,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_08() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": [\"" + contentId
-				+ "\"],\"dialcode\": [\"ABC123\",\"BCD123\"]}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+				+ "\"],\"dialcode\": [\"ABC123\",\"BCD123\"]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -475,8 +475,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_09() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": [\"" + contentId
-				+ "\"],\"dialcode\": [\"ABC123\",\"DDD123\"]}]}}";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+				+ "\"],\"dialcode\": [\"ABC123\",\"DDD123\"]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -491,8 +491,58 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testDialCodeLink_10() throws Exception {
 		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"contents\": [{\"identifier\": [\"" + contentId
+		String dialCodeLinkReq = "{\"request\": {\"content\": [{\"identifier\": [\"" + contentId
 				+ "\"],\"dialcode\": [\"DDD123\"]}]}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testDialCodeLink_11() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":[{\"dialcode\":\"ABC123\",\"identifier\":\"" + contentId
+				+ "\"},{\"dialcode\":\"BCD123\",\"identifier\":\"" + contentId + "\"}]}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testDialCodeLink_12() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":[{\"dialcode\":\"ABC123\",\"identifier\":\"" + contentId
+				+ "\"},{\"dialcode\":\"BCD123\",\"identifier\":\"" + "do_abc123" + "\"}]}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(207, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testDialCodeLink_13() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":[{\"dialcode\":\"ABC123\",\"identifier\":\"" + "do_pqr123"
+				+ "\"},{\"dialcode\":\"BCD123\",\"identifier\":\"" + "do_abc123" + "\"}]}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testDialCodeLink_14() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":[{\"dialcode\":\"DDD123\",\"identifier\":\"" + "do_pqr123"
+				+ "\"},{\"dialcode\":\"BCD123\",\"identifier\":\"" + "do_abc123" + "\"}]}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testDialCodeLink_15() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":[{\"dialcode\":[\"DDD123\",\"ABC123\"],\"identifier\":[\"do_abc\",\"do_def\"]},{\"dialcode\":\"BCD123\",\"identifier\":\""
+				+ "do_abc123" + "\"}]}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
