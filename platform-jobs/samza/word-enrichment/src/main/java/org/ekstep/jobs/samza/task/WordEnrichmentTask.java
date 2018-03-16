@@ -46,7 +46,7 @@ public class WordEnrichmentTask implements StreamTask, InitableTask, WindowableT
 		try {
 			service.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
-			metrics.incFailedCounter();
+			metrics.incErrorCounter();
 			LOGGER.error("Message processing failed", outgoingMap, e);
 		}
 	}

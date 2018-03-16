@@ -24,7 +24,6 @@
 		<module>publish-pipeline</module>
 		<module>upload-content</module>
 		<module>image-tagging</module>
-		<module>object-lifecycle</module>
 		<module>word-enrichment</module>
 		<module>distribution</module>
   	</modules>

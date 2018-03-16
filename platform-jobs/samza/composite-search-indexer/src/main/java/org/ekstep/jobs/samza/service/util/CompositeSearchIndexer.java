@@ -192,6 +192,7 @@ public class CompositeSearchIndexer {
 		if (null == definitionNode) {
 			metrics.incFailedCounter();
 			LOGGER.info("Failed to fetch definition node from cache");
+			return;
 		}
 		Map<String, Object> definition = mapper.convertValue(definitionNode, new TypeReference<Map<String, Object>>() {
 		});

@@ -56,7 +56,6 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			}
 		} else {
 			LOGGER.info("Learning event not qualified for indexing");
-			metrics.incSkippedCounter();
 		}
 	}
 

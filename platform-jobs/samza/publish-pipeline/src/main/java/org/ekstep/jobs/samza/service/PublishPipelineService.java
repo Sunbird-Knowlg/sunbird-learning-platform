@@ -92,7 +92,6 @@ public class PublishPipelineService implements ISamzaService {
 
 		if(null == message) {
 			LOGGER.info("Ignoring the message because it is not valid for publishing.");
-			metrics.incSkippedCounter();
 			return;
 		}
 		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
@@ -100,7 +99,6 @@ public class PublishPipelineService implements ISamzaService {
 		
 		if (!validateObject(edata) || null == object) {
 			LOGGER.info("Ignoring the message because it is not valid for publishing.");
-			metrics.incSkippedCounter();
 			return;
 		}
 		
@@ -120,7 +118,7 @@ public class PublishPipelineService implements ISamzaService {
 				}
 			}catch(Exception e) {
 				LOGGER.error("Failed to process message", message, e);
-				metrics.incFailedCounter();
+				metrics.incErrorCounter();
 			}
 		}else {
 			metrics.incSkippedCounter();
