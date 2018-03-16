@@ -24,7 +24,7 @@ public class SyncCommand implements CommandMarker{
 			e.printStackTrace();
 		}
 	}
-	@CliCommand(value = "syncByFileObjType", help = "Sync data from Neo4j to Elastic Search by Id listed in a file")
+	@CliCommand(value = "syncByFileObjType", help = "Sync data from Neo4j to Elastic Search by Id and objectType listed in a file")
 	public void syncByFile(@CliOption(key = {"filePath"}, mandatory = true, help = "File Path of the csv file") String filePath,
 			@CliOption(key = {"objectType"}, mandatory = true, help = "Object type needs to be validated") String objectType) throws Exception{
 		csvFileParser parser = new csvFileParser();
@@ -38,4 +38,14 @@ public class SyncCommand implements CommandMarker{
 		List<String> ids = parser.csvData(filePath);
 		System.out.println("Ids are: " +ids);
 	}
+	
+	@CliCommand(value = "syncByDateRange", help = "Sync data from Neo4j to Elastic Search by the given date range")
+	public void syncByDateRange(@CliOption(key = {"startDate"}, mandatory = true, help = "Start date of the data to be synced") String startDate,
+			@CliOption(key = {"endDate"}, mandatory = true, help = "End date of the data to be synced") String endDate, 
+			@CliOption(key = {"objectType"}, mandatory = true, help = "Object type needs to be validated") String objectType) throws Exception{
+		dateRangeDataFetcher fetcher = new dateRangeDataFetcher();
+		List<String> ids = fetcher.neo4jData(objectType, startDate, endDate);
+		System.out.println("Ids are: " +ids);
+	}
+
 }
