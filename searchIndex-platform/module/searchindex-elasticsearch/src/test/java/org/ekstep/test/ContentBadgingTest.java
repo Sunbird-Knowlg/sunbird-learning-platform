@@ -3,6 +3,8 @@
  */
 package org.ekstep.test;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -127,23 +129,12 @@ public class ContentBadgingTest {
 		property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
 		properties.add(property);
 
-		/*SearchRequestBuilder searchRequestBuilder = elasticSearchUtil.getSearchRequestBuilder();
-		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
-				.should(QueryBuilders.matchQuery("identifier", "do_10000031"));
-		queryBuilder.should(QueryBuilders.matchQuery("badgesList.issuer.id", "abc"));
-		QueryBuilder query = QueryBuilders.boolQuery().should(queryBuilder);
-		
-		searchRequestBuilder.setQuery(query);
-		searchRequestBuilder.setTrackScores(true);
-		
-		SearchResponse searchResult = elasticSearchUtil.search("testbadge", searchRequestBuilder);*/
-
 		searchDTO.setProperties(properties);
 		searchDTO.setLimit(100);
 		searchDTO.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, Object> response = searchprocessor.processSearch(searchDTO, true);
 
-		System.out.println(response);
+		assertNotNull(response);
 
 	}
 

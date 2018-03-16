@@ -126,7 +126,6 @@ public class ObjectDefinitionCache {
 	}
 
     public static void resyncDefinition(String objectType, String graphId) throws Exception {
-	    System.out.println("resyncDefinition : " + objectType + " -- " + graphId);
 		getDefinitionFromGraph(objectType, graphId);
 	}
     
