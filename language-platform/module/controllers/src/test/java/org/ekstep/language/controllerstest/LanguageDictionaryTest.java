@@ -16,7 +16,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -45,7 +44,6 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 	private WebApplicationContext context;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
-	static ElasticSearchUtil util;
 	String uploadfolder = "language_assets";
 	private String uploadFileName = "testSsf.txt";
 	private static boolean init = false;

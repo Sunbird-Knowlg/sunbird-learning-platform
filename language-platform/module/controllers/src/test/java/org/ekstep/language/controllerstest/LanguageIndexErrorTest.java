@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
@@ -20,7 +21,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
-import org.ekstep.language.util.ElasticSearchUtil;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -75,7 +76,7 @@ public class LanguageIndexErrorTest extends BaseLanguageTest{
 	}
 
 	@AfterClass
-	public static void close() throws IOException, InterruptedException {
+	public static void close() throws IOException, InterruptedException, ExecutionException {
 		util.deleteIndex("citation_index_" + TEST_LANGUAGE);
 		util.deleteIndex("word_index_" + TEST_LANGUAGE);
 		util.deleteIndex("word_info_index_" + TEST_LANGUAGE);
