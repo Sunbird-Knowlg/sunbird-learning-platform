@@ -811,37 +811,25 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return
 	 * @throws Exception
 	 */
-	private Map<String, Object> updateDialCodeToContents(List<String> contents, List<String> dialcodes)
-			throws Exception {
+	private void updateDialCodeToContents(List<String> contents, List<String> dialcodes,
+			Map<String, Set<String>> resultMap) throws Exception {
 		Response resp;
-		List<String> invalidContent = new ArrayList<String>();
-		List<String> updateFailed = new ArrayList<String>();
-		List<String> updateSuccess = new ArrayList<String>();
-		Map<String, Object> resultMap = new HashMap<String, Object>();
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		for (String contentId : contents) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put(DialCodeEnum.dialcodes.name(), dialcodes);
 			Response responseNode = getDataNode(TAXONOMY_ID, contentId);
 			if (checkError(responseNode)) {
-				invalidContent.add(contentId);
+				resultMap.get("invalidContentList").add(contentId);
 			} else {
 				Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
 				resp = updateDialCode(map, definition, contentNode, contentId);
 				if (!checkError(resp))
-					updateSuccess.add(contentId);
+					resultMap.get("updateSuccessList").add(contentId);
 				else
-					updateFailed.add(contentId);
+					resultMap.get("updateFailedList").add(contentId);
 			}
 		}
-		if (!updateSuccess.isEmpty())
-			resultMap.put("updateSuccessList", updateSuccess);
-		if (!invalidContent.isEmpty())
-			resultMap.put("invalidContentList", invalidContent);
-		if (!updateFailed.isEmpty())
-			resultMap.put("updateFailedList", updateFailed);
-
-		return resultMap;
 	}
 
 	private void setMimeTypeForUpload(String mimeType, Node node) {
@@ -1577,40 +1565,76 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.lang.String,
 	 * java.util.List)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Response linkDialCode(String channelId, List<Map<String, Object>> reqList) throws Exception {
-		List<String> invalidContentList = new ArrayList<String>();
-		List<String> updateFailedList = new ArrayList<String>();
-		List<String> updateSuccessList = new ArrayList<String>();
+	public Response linkDialCode(String channelId, Object reqObj) throws Exception {
 		List<String> dialcodeList = new ArrayList<String>();
 		List<String> contentList = new ArrayList<String>();
-		Response resp;
-		Map<String, Object> resultMap = null;
+		Map<String, Set<String>> resultMap = initializeResultMap();
+		List<Map<String, Object>> reqList = getRequestList(reqObj);
 
 		validateDialCodeLinkRequest(channelId, reqList);
 
 		for (Map<String, Object> map : reqList) {
-
 			Object dialObj = map.get(DialCodeEnum.dialcode.name());
 			Object contentObj = map.get("identifier");
 			List<String> dialcodes = getList(dialObj);
 			List<String> contents = getList(contentObj);
 			dialcodeList.addAll(dialcodes);
 			contentList.addAll(contents);
-
-			resultMap = updateDialCodeToContents(contents, dialcodes);
-
-			if (resultMap.containsKey("invalidContentList"))
-				invalidContentList.addAll((List<String>) resultMap.get("invalidContentList"));
-
-			if (resultMap.containsKey("updateFailedList"))
-				updateFailedList.addAll((List<String>) resultMap.get("updateFailedList"));
-
-			if (resultMap.containsKey("updateSuccessList"))
-				updateSuccessList.addAll((List<String>) resultMap.get("updateSuccessList"));
-
+			updateDialCodeToContents(contents, dialcodes, resultMap);
 		}
+
+		Response resp = prepareResponse(resultMap);
+
+		if (!checkError(resp) && ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
+			Map<String, Object> props = new HashMap<String, Object>();
+			props.put(DialCodeEnum.dialcode.name(), dialcodeList);
+			props.put("identifier", contentList);
+			TelemetryManager.info("DIAL code linked to content", props);
+		} else
+			TelemetryManager.error(resp.getParams().getErrmsg());
+
+		return resp;
+	}
+
+	/**
+	 * @param reqObj
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> getRequestList(Object reqObj) {
+		List<Map<String, Object>> reqList = null;
+		try {
+			reqList = (List<Map<String, Object>>) reqObj;
+		} catch (Exception e) {
+			Map<String, Object> reqMap = (Map<String, Object>) reqObj;
+			if (null != reqMap)
+				reqList = Arrays.asList(reqMap);
+		}
+		return reqList;
+	}
+
+	/**
+	 * @return
+	 */
+	private Map<String, Set<String>> initializeResultMap() {
+		Map<String, Set<String>> resultMap = new HashMap<String, Set<String>>();
+		resultMap.put("invalidContentList", new HashSet<String>());
+		resultMap.put("updateFailedList", new HashSet<String>());
+		resultMap.put("updateSuccessList", new HashSet<String>());
+		return resultMap;
+	}
+
+	/**
+	 * @param resultMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private Response prepareResponse(Map<String, Set<String>> resultMap) {
+		Response resp;
+		Set<String> invalidContentList = (Set<String>) resultMap.get("invalidContentList");
+		Set<String> updateFailedList = (Set<String>) resultMap.get("updateFailedList");
+		Set<String> updateSuccessList = (Set<String>) resultMap.get("updateSuccessList");
 
 		if (invalidContentList.isEmpty() && updateFailedList.isEmpty()) {
 			resp = new Response();
@@ -1631,15 +1655,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailedList));
 
 			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", messages)));
-		}
-
-		if (!checkError(resp) && ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
-			Map<String, Object> props = new HashMap<String, Object>();
-			props.put(DialCodeEnum.dialcode.name(), dialcodeList);
-			props.put("identifier", contentList);
-			TelemetryManager.info("DIAL code linked to content", props);
-		} else {
-			TelemetryManager.error(resp.getParams().getErrmsg());
 		}
 
 		return resp;
