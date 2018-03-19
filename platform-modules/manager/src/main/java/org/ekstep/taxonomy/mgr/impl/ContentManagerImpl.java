@@ -816,9 +816,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	private void updateDialCodeToContents(List<String> contents, List<String> dialcodes,
 			Map<String, Set<String>> resultMap) throws Exception {
 		Response resp;
+		List<String> dialCodes = null;
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		for (String contentId : contents) {
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -828,6 +830,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				resultMap.get("invalidContentList").add(contentId);
 			} else {
 				Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
+				if (contentNode.getMetadata().containsKey(DialCodeEnum.dialcodes.name()))
+					dialCodes = Arrays.asList((String[]) contentNode.getMetadata().get(DialCodeEnum.dialcodes.name()));
+				if (null != dialCodes && dialCodes.size() > 0) {
+					Set<String> set = new HashSet<String>(dialcodes);
+					set.addAll(dialCodes);
+					map.put(DialCodeEnum.dialcodes.name(), new ArrayList<String>(set));
+				}
 				resp = updateDialCode(map, definition, contentNode, contentId);
 				if (!checkError(resp))
 					resultMap.get("updateSuccessList").add(contentId);
@@ -1534,7 +1543,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					String identifier = (String) map.get(ContentAPIParams.identifier.name());
 					invalidDialCodeList.remove(identifier);
 				}
-				throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+				throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
 						"DIAL Code not found with id(s):" + invalidDialCodeList);
 			}
 		} else {
@@ -1647,7 +1656,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			resp.setResponseCode(ResponseCode.OK);
 		} else if (!invalidContentList.isEmpty() && updateSuccessList.size() == 0) {
 			resp = new Response();
-			resp.setResponseCode(ResponseCode.CLIENT_ERROR);
+			resp.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
 			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
 					"Content not found with id(s):" + invalidContentList));
 		} else {
@@ -1703,10 +1712,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		int maxLimit = 10;
 		if (Platform.config.hasPath("dialcode.link.content.max"))
 			maxLimit = Platform.config.getInt("dialcode.link.content.max");
-
-		if (dialcodes.size() > 1 && contents.size() > 1)
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
-					DialCodeErrorMessage.ERR_INVALID_DIALCODE_LINK_REQUEST);
 
 		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
 			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
