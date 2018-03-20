@@ -29,7 +29,7 @@ public class CompositeSearchIndexer {
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexer.class);
 	private ObjectMapper mapper = new ObjectMapper();
 	private ElasticSearchUtil esUtil = null;
-	private Map<String, String> nestedFields = new HashMap<String, String>();
+	private List<String> nestedFields = new ArrayList<String>();
 
 	private ControllerUtil util = new ControllerUtil();
 	public CompositeSearchIndexer(ElasticSearchUtil esUtil) {
@@ -44,7 +44,7 @@ public class CompositeSearchIndexer {
 		if (Platform.config.hasPath("nested.fields")) {
 			String fieldsList = Platform.config.getString("nested.fields");
 			for (String field : fieldsList.split(",")) {
-				nestedFields.put(field.split(":")[0], field.split(":")[1]);
+				nestedFields.add(field);
 			}
 		}
 	}
@@ -83,8 +83,10 @@ public class CompositeSearchIndexer {
 						if (propertyNewValue == null)
 							indexDocument.remove(propertyName);
 						else {
-							if (nestedFields.containsKey(propertyName)) {
-								propertyNewValue = getNestedPropertyValue(propertyName, propertyNewValue);
+							if (nestedFields.contains(propertyName)) {
+								propertyNewValue = mapper.readValue((String) propertyNewValue,
+										new TypeReference<Object>() {
+										});
 							}
 							indexDocument.put(propertyName, propertyNewValue);
 						}
@@ -134,24 +136,6 @@ public class CompositeSearchIndexer {
 		indexDocument.put("objectType", (String) message.get("objectType"));
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
 		return indexDocument;
-	}
-
-	/**
-	 * @param propertyNewValue
-	 * @param propertyNewValue2
-	 * @return
-	 * @throws Exception
-	 */
-	private Object getNestedPropertyValue(String propertyName, Object propertyNewValue) throws Exception {
-		String fieldType = nestedFields.get(propertyName);
-
-		switch (fieldType) {
-		case "JSONList":
-			return mapper.readValue((String) propertyNewValue, new TypeReference<List>() {
-			});
-		}
-
-		return propertyNewValue;
 	}
 
 	private void upsertDocument(String uniqueId, String jsonIndexDocument) throws Exception {
