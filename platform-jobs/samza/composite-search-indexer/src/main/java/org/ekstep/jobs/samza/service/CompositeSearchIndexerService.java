@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.service.util.CompositeSearchIndexer;
 import org.ekstep.jobs.samza.service.util.DialCodeIndexer;
@@ -50,7 +51,10 @@ public class CompositeSearchIndexerService implements ISamzaService {
 				processMessage(message, metrics);
 				LOGGER.debug("Composite record added/updated");
 				metrics.incSuccessCounter();
-			} catch (Exception ex) {
+			} catch(PlatformException ex) {
+				LOGGER.error("Error while processing message:", message, ex);
+				metrics.incFailedCounter();				
+			}catch (Exception ex) {
 				LOGGER.error("Error while processing message:", message, ex);
 				metrics.incErrorCounter();
 			}

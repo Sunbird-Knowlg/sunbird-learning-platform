@@ -75,8 +75,10 @@ public class AuditEventGenerator implements ISamzaService {
 			if (null != objectType) {
 				collector.send(new OutgoingMessageEnvelope(systemStream, auditMap));
 				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_raw_topic"));
+				metrics.incSuccessCounter();
 			}
 		} catch (Exception e) {
+			metrics.incErrorCounter();
 			LOGGER.error("Failed to process message", message, e);
 		}
 	}

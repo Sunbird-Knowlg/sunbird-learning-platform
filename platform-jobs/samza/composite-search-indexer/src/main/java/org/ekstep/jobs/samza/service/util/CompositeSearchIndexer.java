@@ -14,6 +14,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
+import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
@@ -174,9 +176,10 @@ public class CompositeSearchIndexer {
 
 		DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
 		if (null == definitionNode) {
-			metrics.incFailedCounter();
 			LOGGER.info("Failed to fetch definition node from cache");
-			return;
+			throw new PlatformException(PlatformErrorCodes.ERR_DEFINITION_NOT_FOUND.name(),
+					"defnition node for graphId:" + graphId + " and objectType:" + objectType
+							+ " is null due to some issue");
 		}
 		Map<String, Object> definition = mapper.convertValue(definitionNode, new TypeReference<Map<String, Object>>() {
 		});
