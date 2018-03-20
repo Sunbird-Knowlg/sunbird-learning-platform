@@ -23,14 +23,14 @@ public class AuditEventGeneratorTask implements StreamTask, InitableTask, Window
 	static JobLogger LOGGER = new JobLogger(AuditEventGeneratorTask.class);
 
 	private JobMetrics metrics;
-	ISamzaService contentAuditProcessor = new AuditEventGenerator();
+	ISamzaService auditEventGenerator = new AuditEventGenerator();
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
 
 		try {
 			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
-			contentAuditProcessor.initialize(config);
+			auditEventGenerator.initialize(config);
 			LOGGER.info("Task initialized");
 		} catch (Exception ex) {
 			LOGGER.error("Task initialization failed", ex);
@@ -43,7 +43,7 @@ public class AuditEventGeneratorTask implements StreamTask, InitableTask, Window
 			throws Exception {
 		Map<String, Object> outgoingMap = getMessage(envelope);
 		try {
-			contentAuditProcessor.processMessage(outgoingMap, metrics, collector);
+			auditEventGenerator.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
 			metrics.incErrorCounter();
 			LOGGER.error("Message processing Error", outgoingMap, e);

@@ -3,7 +3,6 @@
  */
 package org.ekstep.jobs.samza.service;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +75,9 @@ public class AuditEventGenerator implements ISamzaService {
 				collector.send(new OutgoingMessageEnvelope(systemStream, auditMap));
 				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_raw_topic"));
 				metrics.incSuccessCounter();
+			} else {
+				LOGGER.info("skipped event as the objectype is not available, event ="+auditMap);
+				metrics.incSkippedCounter();
 			}
 		} catch (Exception e) {
 			metrics.incErrorCounter();
