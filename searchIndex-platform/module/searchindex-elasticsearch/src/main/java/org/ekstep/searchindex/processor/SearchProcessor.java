@@ -296,7 +296,7 @@ public class SearchProcessor {
 				continue;
 			}
 
-			propertyName = checkForNestedProperty(propertyName);
+			propertyName = propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
 
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
@@ -409,7 +409,7 @@ public class SearchProcessor {
 				continue;
 			}
 
-			propertyName = checkForNestedProperty(propertyName);
+			propertyName = propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
 
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {

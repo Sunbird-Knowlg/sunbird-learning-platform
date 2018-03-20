@@ -7,12 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
@@ -43,7 +46,7 @@ public class SearchManager extends SearchBaseActor {
 				Map<String, Object> lstResult = processor.processSearch(searchDTO, true);
 				String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
 				if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
-					Map<String, Object> result = getCollectionsResult(lstResult, processor);
+					Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
 					OK(result, parent);
 				} else {
 					OK(lstResult, parent);
@@ -612,10 +615,12 @@ public class SearchManager extends SearchBaseActor {
 	/**
 	 * @param lstResult
 	 * @param processor
+	 * @param parentRequest
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Map<String, Object> getCollectionsResult(Map<String, Object> lstResult, SearchProcessor processor) {
+	private Map<String, Object> getCollectionsResult(Map<String, Object> lstResult, SearchProcessor processor,
+			Request parentRequest) {
 		List<Map> contentResults = (List<Map>) lstResult.get("results");
 		if (null != contentResults && !contentResults.isEmpty()) {
 			try {
@@ -633,14 +638,14 @@ public class SearchManager extends SearchBaseActor {
 				mimeTypes.add("application/vnd.ekstep.content-collection");
 				filters.put("mimeType", mimeTypes);
 				filters.put("childNodes", contentIds);
-
+				request.put(CompositeSearchParams.sort_by.name(),
+						parentRequest.get(CompositeSearchParams.sort_by.name()));
+				request.put(CompositeSearchParams.fields.name(),
+						getCollectionFields(getList(parentRequest.get(CompositeSearchParams.fields.name()))));
 				request.put(CompositeSearchParams.filters.name(), filters);
 				SearchDTO searchDTO = getSearchDTO(request);
 				Map<String, Object> collectionResult = processor.processSearch(searchDTO, true);
-				collectionResult.put("collection", collectionResult.get("results"));
-				collectionResult.put("collectionCount", collectionResult.get("count"));
-				collectionResult.remove("count");
-				collectionResult.remove("results");
+				collectionResult = prepareCollectionResult(collectionResult, contentIds);
 				lstResult.putAll(collectionResult);
 				return lstResult;
 			} catch (Exception e) {
@@ -651,6 +656,44 @@ public class SearchManager extends SearchBaseActor {
 		} else {
 			return lstResult;
 		}
+	}
+
+	/**
+	 * @param fieldlist
+	 * @param object
+	 * @return
+	 */
+	private Object getCollectionFields(List<String> fieldlist) {
+		List<String> fields = Platform.config.hasPath("search.fields.mode_collection")
+				? Platform.config.getStringList("search.fields.mode_collection")
+				: Arrays.asList("identifier", "name", "objectType", "contentType", "mimeType", "size", "childNodes");
+
+		if (null != fieldlist && !fieldlist.isEmpty()) {
+			fields.addAll(fieldlist);
+			fields = fields.stream().distinct().collect(Collectors.toList());
+		}
+		return fields;
+	}
+
+	/**
+	 * @param collectionResult
+	 * @param contentIds
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Map<String, Object> prepareCollectionResult(Map<String, Object> collectionResult, List<String> contentIds) {
+		List<Map> results = new ArrayList<Map>();
+		for (Map<String, Object> collection : (List<Map>) collectionResult.get("results")) {
+			List<String> childNodes = (List<String>) collection.get("childNodes");
+			childNodes = (List<String>) CollectionUtils.intersection(childNodes, contentIds);
+			collection.put("childNodes", childNodes);
+			results.add(collection);
+		}
+		collectionResult.put("collections", results);
+		collectionResult.put("collectionsCount", collectionResult.get("count"));
+		collectionResult.remove("count");
+		collectionResult.remove("results");
+		return collectionResult;
 	}
 
 }
