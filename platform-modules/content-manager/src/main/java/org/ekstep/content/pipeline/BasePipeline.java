@@ -112,9 +112,8 @@ public class BasePipeline extends BaseManager {
 			Cloner cloner = new Cloner();
 			Node clonedNode = cloner.deepClone(node);
 			Request updateReq = getRequest(clonedNode.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-			if (null != clonedNode.getMetadata().get("channel"))
-				updateReq.getContext().put(GraphDACParams.CHANNEL_ID.name(),
-						(String) clonedNode.getMetadata().get("channel"));
+			if(null != clonedNode.getMetadata().get("channel"))
+				updateReq.getContext().put(GraphDACParams.CHANNEL_ID.name(), (String)clonedNode.getMetadata().get("channel"));
 			updateReq.put(GraphDACParams.node.name(), clonedNode);
 			updateReq.put(GraphDACParams.node_id.name(), clonedNode.getIdentifier());
 			response = getResponse(updateReq);
@@ -157,16 +156,15 @@ public class BasePipeline extends BaseManager {
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				Response response = (Response) obj;
-				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: "
-						+ response.getResponseCode() + " | Result: " + response.getResult().keySet());
+				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
+						+ " | Result: " + response.getResult().keySet());
 				return response;
 			} else {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Something went wrong" + e.getMessage(), e);
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-					"Something went wrong while processing the request", e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something went wrong while processing the request", e);
 		}
 	}
 
@@ -213,8 +211,8 @@ public class BasePipeline extends BaseManager {
 	}
 
 	/**
-	 * gets the AwsUploadFolder Name from the PropertiesUtil class by loading from
-	 * propertiesFile
+	 * gets the AwsUploadFolder Name from the PropertiesUtil class by loading
+	 * from propertiesFile
 	 * 
 	 * @return AWS Upload FolderName
 	 */
@@ -235,7 +233,8 @@ public class BasePipeline extends BaseManager {
 	 * @param uploadFile
 	 *            is the file to to uploaded
 	 * @param folder
-	 *            is the AWS folder calls the AWSUploader to upload the file the AWS
+	 *            is the AWS folder calls the AWSUploader to upload the file the
+	 *            AWS
 	 * @return String[] of the uploaded URL
 	 */
 	protected String[] uploadToAWS(File uploadFile, String folder) {
@@ -290,7 +289,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				TelemetryManager.warn("Error! While getting the file size from AWS" + key);
+				TelemetryManager.warn("Error! While getting the file size from AWS"+ key);
 			}
 		}
 		return bytes;
@@ -311,7 +310,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return sdf.format(date);
 			} catch (Exception e) {
-				TelemetryManager.error("Error! While Converting the Date Format." + date, e);
+				TelemetryManager.error("Error! While Converting the Date Format."+ date, e);
 			}
 		}
 		return null;
@@ -408,8 +407,9 @@ public class BasePipeline extends BaseManager {
 	 * gets the ContentBundleData form all Collections
 	 * 
 	 * @param graphId,
-	 *            listOfNodes to be bundled, contents, childrenIds and Status(live)
-	 *            call getContentBundleData() to Bundle all data with status as LIVE
+	 *            listOfNodes to be bundled, contents, childrenIds and
+	 *            Status(live) call getContentBundleData() to Bundle all data
+	 *            with status as LIVE
 	 */
 	protected void getContentBundleData(String graphId, List<Node> nodes, List<Map<String, Object>> ctnts,
 			List<String> childrenIds) {
@@ -439,7 +439,7 @@ public class BasePipeline extends BaseManager {
 			if (null == node.getMetadata())
 				node.setMetadata(new HashMap<String, Object>());
 			String status = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
-			if ((onlyLive && (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status)
+			if ((onlyLive && (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status) 
 					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Unlisted.name(), status)))
 					|| !onlyLive) {
 				metadata.putAll(node.getMetadata());
@@ -455,9 +455,6 @@ public class BasePipeline extends BaseManager {
 					List<NodeDTO> children = new ArrayList<NodeDTO>();
 					List<NodeDTO> preRequisites = new ArrayList<NodeDTO>();
 					for (Relation rel : node.getOutRelations()) {
-						System.out.println("Node relation data ## for id: " + node.getIdentifier() + " ObjectType: "
-								+ node.getObjectType() + " RelEndNodeObjType: " + rel.getEndNodeObjectType()
-								+ " EndNodeId: " + rel.getEndNodeId());
 						if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
 								rel.getRelationType())
 								&& StringUtils.equalsIgnoreCase(node.getObjectType(), rel.getEndNodeObjectType())) {

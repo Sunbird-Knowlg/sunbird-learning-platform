@@ -131,7 +131,8 @@ public class PublishPipelineService implements ISamzaService {
 		
 		double eventPkgVersion = (double)((eventMetadata.get("pkgVersion") == null) ? 0.0 : eventMetadata.get("pkgVersion"));
 		double objPkgVersion = (double)((objMetadata.get("pkgVersion") == null) ? 0.0 : objMetadata.get("pkgVersion"));
-		return (eventPkgVersion > objPkgVersion || objPkgVersion == 0.0);
+		
+		return (objPkgVersion<=eventPkgVersion);
 	}
 	
 	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics) throws Exception {
@@ -153,11 +154,14 @@ public class PublishPipelineService implements ISamzaService {
 	private void prePublishUpdate(Map<String, Object> edata, Node node) {
 		Map<String, Object> metadata = (Map<String, Object>)edata.get("metadata");
 		node.getMetadata().putAll(metadata);
-		node.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
-		node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), "Processing");
+		
+		String prevState = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
+		node.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
+		node.getMetadata().put("status", "Processing");
+		
 		util.updateNode(node);
 		edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.Processing.name());
-		LOGGER.debug("Updated status to Processing for content: " + node.getIdentifier());
+		LOGGER.debug("Node status :: Processing for NodeId :: " + node.getIdentifier());
 	}
 	
 	private Node getNode(String nodeId) {
