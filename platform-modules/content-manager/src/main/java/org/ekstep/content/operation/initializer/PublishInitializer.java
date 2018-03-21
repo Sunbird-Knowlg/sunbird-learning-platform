@@ -99,7 +99,6 @@ public class PublishInitializer extends BaseInitializer {
 			}
 
 			// Call Finalyzer 
-			TelemetryManager.log("Calling Finalizer");
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);
