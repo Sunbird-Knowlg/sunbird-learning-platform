@@ -335,12 +335,12 @@
 				},
 				{
 					"required": false,
-					"dataType": "List",
+					"dataType": "external",
 					"propertyName": "screenshots",
 					"title": "Screenshots",
 					"description": "",
-					"category": "General",
-					"displayProperty": "Editable",
+					"category": "Authoring",
+					"displayProperty": "Hidden",
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'table', 'order': 7 }",
 					"indexed": true,
@@ -2240,7 +2240,8 @@
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content"
+						"Content",
+						"ContentImage"
 					],
 					"title": "children",
 					"description": "Child content items (in sorted order) in case of collections like Textbooks",

@@ -81,8 +81,16 @@ public class ConvertGraphNode {
                             list = new ArrayList<NodeDTO>();
                             outRelMap.put(key, list);
                         }
-                        list.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(), getDescription(outRel.getEndNodeMetadata()),
-                                outRel.getEndNodeObjectType(), outRel.getRelationType(), outRel.getMetadata()));
+						String objectType = outRel.getEndNodeObjectType();
+						String id = outRel.getEndNodeId();
+						if (StringUtils.endsWith(objectType, "Image")) {
+							objectType = objectType.replace("Image", "");
+							id = id.replace(".img", "");
+						}
+						NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
+								getDescription(outRel.getEndNodeMetadata()), outRel.getEndNodeObjectType(),
+								outRel.getRelationType(), outRel.getMetadata());
+						list.add(child);
                     }
                 }
                 updateReturnMap(map, outRelMap, outRelDefMap);
