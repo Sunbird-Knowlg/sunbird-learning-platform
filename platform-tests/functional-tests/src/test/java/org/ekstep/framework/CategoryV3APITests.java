@@ -24,7 +24,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		delete("/framework/v3/category/master/retire/"+categoryId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 	}
 	
@@ -41,7 +41,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			post("/framework/v3/category/master/create").
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -55,7 +55,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		get("/framework/v3/category/master/read/"+categoryId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		retireCreatedCategory(categoryId);
 	}
@@ -73,7 +73,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			post("/framework/v3/category/master/create").
 			then().
-			log().all().
+			//log().all().
 			//spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -90,7 +90,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/master/create").
 		then().
-		log().all().
+		//log().all().
 		spec(get400ResponseSpec());	
 		retireCreatedCategory(categoryId);
 	}
@@ -107,7 +107,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/master/create").
 		then().
-		log().all().
+		//log().all().
 		spec(get400ResponseSpec());		
 	}
 	
@@ -123,7 +123,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/master/creat").
 		then().
-		log().all().
+		//log().all().
 		spec(get404ResponseSpec());		
 	}
 	
@@ -140,7 +140,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			post("/framework/v3/category/master/create").
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -154,7 +154,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		get("/framework/v3/category/master/read/"+categoryId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		retireCreatedCategory(categoryId);
 	}
@@ -168,7 +168,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		get("/framework/v3/category/master/read/akldshf").
 		then().
-		log().all().
+		//log().all().
 		spec(get404ResponseSpec());
 	}
 	
@@ -181,7 +181,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		get("/framework/v3/category/master/read/").
 		then().
-		log().all().
+		//log().all().
 		spec(get500ResponseSpec());
 	}
 	
@@ -198,7 +198,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			post("/framework/v3/category/master/create").
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -215,7 +215,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		patch("/framework/v3/category/master/update/"+categoryId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		
 		// Read category and validate
@@ -229,7 +229,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			get("/framework/v3/category/master/read/"+categoryId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -251,7 +251,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		patch("/framework/v3/category/master/update/fashdk").
 		then().
-		log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -269,7 +269,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/master/search").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec()).
 		body("result.categories.status", hasItems("Live"));
 	}
@@ -287,7 +287,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			post("/framework/v3/category/master/create").
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -304,7 +304,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/master/search").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec()).
 		body("result.categories.identifier", hasItems(categoryId));
 		retireCreatedCategory(categoryId);
@@ -322,7 +322,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/master/search").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 	}	
 	
@@ -339,7 +339,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			post("/framework/v3/category/master/create").
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -353,7 +353,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		delete("/framework/v3/category/master/retire/"+categoryId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		
 		// Read category and validate
@@ -367,7 +367,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			get("/framework/v3/category/master/read/"+categoryId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -385,7 +385,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		delete("/framework/v3/category/master/retire/kbfjfaehkajg").
 		then().
-		log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -402,7 +402,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			post("/framework/v3/category/master/create").
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -416,7 +416,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		delete("/framework/v3/category/master/retire/"+categoryId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		
 		// Read category and validate
@@ -430,7 +430,7 @@ public class CategoryV3APITests extends BaseTest{
 			when().
 			get("/framework/v3/category/master/read/"+categoryId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -445,7 +445,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		delete("/framework/v3/category/master/retire/"+categoryId).
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 	}
 	
@@ -458,7 +458,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		delete("/framework/v3/category/master/retire/").
 		then().
-		log().all().
+		//log().all().
 		spec(get500ResponseSpec());
 	}
 }
