@@ -11,8 +11,10 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.LearningActorNames;
@@ -289,6 +291,24 @@ public class ControllerUtil extends BaseLearningManager {
 		TelemetryManager.info("Node children count:"+ nodes.size());
 		return nodes;
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	public List<Node> getNodes(String graphId, String objectType, int startPosition, int batchSize) {
+		SearchCriteria sc = new SearchCriteria();
+		//sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		sc.setObjectType(objectType);
+		sc.setResultSize(batchSize);
+		sc.setStartPosition(startPosition);
+		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.search_criteria.name(), sc);
+		req.put(GraphDACParams.get_tags.name(), true);
+		Response listRes = getResponse(req);
+		if (checkError(listRes))
+			throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: " + graphId);
+		else {
+			List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+			return nodes;
+		}
+	}
 }
 

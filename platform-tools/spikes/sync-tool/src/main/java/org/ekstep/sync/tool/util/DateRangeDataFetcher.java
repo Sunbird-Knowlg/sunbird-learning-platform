@@ -1,4 +1,4 @@
-package org.ekstep.sync.tool.shell;
+package org.ekstep.sync.tool.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 
-public class dateRangeDataFetcher {
+public class DateRangeDataFetcher {
 
 	public List<String> neo4jData(String objectType, String startDate, String endDate) {
 		List<String> identifiers = new ArrayList<>();

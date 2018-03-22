@@ -1,11 +1,11 @@
-package org.ekstep.sync.tool.shell;
+package org.ekstep.sync.tool.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class csvFileParser {
+public class CSVFileParser {
 
 	public List<String> csvData(String filePath, String objectType) throws Exception{
 		String path = filePath;

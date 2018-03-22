@@ -187,7 +187,7 @@ public class CompositeIndexSyncMessage {
 	}
 	
 	private void upsertDocument(String uniqueId, String jsonIndexDocument) throws Exception {
-		System.out.println("jsonIndexDocument: " + jsonIndexDocument);
+		//System.out.println("jsonIndexDocument: " + jsonIndexDocument);
 		esUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
