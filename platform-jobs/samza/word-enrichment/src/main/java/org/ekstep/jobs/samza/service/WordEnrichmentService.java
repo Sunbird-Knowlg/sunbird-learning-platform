@@ -49,7 +49,6 @@ public class WordEnrichmentService implements ISamzaService {
 		if(null == message.get("syncMessage")){
 			Map<String, Object> transactionData = getTransactionEvent(message);
 			if (null == transactionData) {
-				metrics.incSkippedCounter();
 				return;
 			}
 			try {
@@ -63,7 +62,7 @@ public class WordEnrichmentService implements ISamzaService {
 						case "CREATE": {
 							if (checkPropertyExist(transactionData, WordEnrichmentParams.properties.name())) {
 								enrichWord(transactionData, languageId, identifier);
-								
+								metrics.incSuccessCounter();
 							} else {
 								metrics.incSkippedCounter();
 							}
@@ -72,30 +71,32 @@ public class WordEnrichmentService implements ISamzaService {
 						case "UPDATE": {
 							if (checkPropertyExist(transactionData, WordEnrichmentParams.properties.name())) {
 								enrichWord(transactionData, languageId, identifier);
+								metrics.incSuccessCounter();
 							} 
 							else if (checkPropertyListExist(transactionData, WordEnrichmentParams.addedRelations.name())
 									|| checkPropertyListExist(transactionData, WordEnrichmentParams.removedRelations.name())) {
 								copyPrimaryMeaningMetadata(transactionData, languageId, identifier);
+								metrics.incSuccessCounter();
 							} else {
 								metrics.incSkippedCounter();
 							}
 							break;
 						}
 					}
-				} else if (StringUtils.equalsIgnoreCase(objectType, WordEnrichmentParams.synset.name())
-						&& StringUtils.equalsIgnoreCase(operationType, "UPDATE")
-						&& checkPropertyExist(transactionData, WordEnrichmentParams.properties.name())) {
-					syncWordsMetadata(transactionData, languageId, identifier);
-				} else {
-					metrics.incSkippedCounter();
+				} else if (StringUtils.equalsIgnoreCase(objectType, WordEnrichmentParams.synset.name())) {
+					
+					if(StringUtils.equalsIgnoreCase(operationType, "UPDATE")
+							&& checkPropertyExist(transactionData, WordEnrichmentParams.properties.name())) {
+						syncWordsMetadata(transactionData, languageId, identifier);
+						metrics.incSuccessCounter();						
+					} else {
+						metrics.incSkippedCounter();
+					}
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to process message. Word enrichment failed", message, e);
-				metrics.incFailedCounter();
+				metrics.incErrorCounter();
 			}
-		}
-		else{
-			metrics.incSkippedCounter();
 		}
 	}
 

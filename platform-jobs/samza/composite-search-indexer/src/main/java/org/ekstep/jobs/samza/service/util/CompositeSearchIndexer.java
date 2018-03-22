@@ -12,7 +12,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
+import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
@@ -28,22 +31,36 @@ public class CompositeSearchIndexer {
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexer.class);
 	private ObjectMapper mapper = new ObjectMapper();
 	private ElasticSearchUtil esUtil = null;
+	private List<String> nestedFields = new ArrayList<String>();
 
 	private ControllerUtil util = new ControllerUtil();
 	public CompositeSearchIndexer(ElasticSearchUtil esUtil) {
 		this.esUtil = esUtil;
+		setNestedFields();
+	}
+
+	/**
+	 * @return
+	 */
+	private void setNestedFields() {
+		if (Platform.config.hasPath("nested.fields")) {
+			String fieldsList = Platform.config.getString("nested.fields");
+			for (String field : fieldsList.split(",")) {
+				nestedFields.add(field);
+			}
+		}
 	}
 
 	public void createCompositeSearchIndex() throws IOException {
 		String settings = "{\"analysis\": {       \"analyzer\": {         \"cs_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"cs_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
-		String mappings = "{\"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"cs_index_analyzer\",            \"search_analyzer\": \"cs_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"cs_index_analyzer\",        \"search_analyzer\": \"cs_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }";
+		String mappings = "{\"dynamic_templates\":[{\"nested\":{\"match_mapping_type\":\"nested\",\"mapping\":{\"type\":\"nested\",\"fields\":{\"type\":\"nested\"}}}},{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"string\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"string\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}";
 		esUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Map<String, Object> getIndexDocument(Map<String, Object> message,
-			Map<String, String> relationMap, boolean updateRequest) throws IOException {
+			Map<String, String> relationMap, boolean updateRequest) throws Exception {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		String uniqueId = (String) message.get("nodeUniqueId");
 		if (updateRequest) {
@@ -68,6 +85,11 @@ public class CompositeSearchIndexer {
 						if (propertyNewValue == null)
 							indexDocument.remove(propertyName);
 						else {
+							if (nestedFields.contains(propertyName)) {
+								propertyNewValue = mapper.readValue((String) propertyNewValue,
+										new TypeReference<Object>() {
+										});
+							}
 							indexDocument.put(propertyName, propertyNewValue);
 						}
 					}
@@ -154,8 +176,10 @@ public class CompositeSearchIndexer {
 
 		DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
 		if (null == definitionNode) {
-			metrics.incFailedCounter();
 			LOGGER.info("Failed to fetch definition node from cache");
+			throw new PlatformException(PlatformErrorCodes.ERR_DEFINITION_NOT_FOUND.name(),
+					"defnition node for graphId:" + graphId + " and objectType:" + objectType
+							+ " is null due to some issue");
 		}
 		Map<String, Object> definition = mapper.convertValue(definitionNode, new TypeReference<Map<String, Object>>() {
 		});
@@ -188,5 +212,4 @@ public class CompositeSearchIndexer {
 		}
 		}
 	}
-
 }

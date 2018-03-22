@@ -26,11 +26,11 @@ public class PublishPipelineTask extends AbstractTask {
 	@Override
 	public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		try {
-			System.out.println("Starting of service.processMessage...");
+			LOGGER.info("Starting of service.processMessage...");
 			service.processMessage(message,  metrics, collector);
-			System.out.println("Completed service.processMessage...");
+			LOGGER.info("Completed service.processMessage...");
 		} catch (Exception e) {
-			metrics.incFailedCounter();
+			metrics.incErrorCounter();
 			LOGGER.error("Message processing failed", message, e);
 		}
 	}

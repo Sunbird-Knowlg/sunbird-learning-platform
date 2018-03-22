@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Property;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
@@ -23,6 +24,7 @@ import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
@@ -216,7 +218,11 @@ public class Neo4JBoltNodeOperations {
 
 		TelemetryManager.log("Validating the Update Operation for Node Id: " + node.getIdentifier());
 		versionValidator.validateUpdateOperation(graphId, node);
-		node.getMetadata().remove(GraphDACParams.versionKey.name());
+		String version = (String) node.getMetadata().get(GraphDACParams.versionKey.name());
+		if (!StringUtils.equalsIgnoreCase(
+				Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY), version)) {
+			node.getMetadata().remove(GraphDACParams.versionKey.name());
+		}
 		TelemetryManager.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 
 		// Adding Channel and App Id

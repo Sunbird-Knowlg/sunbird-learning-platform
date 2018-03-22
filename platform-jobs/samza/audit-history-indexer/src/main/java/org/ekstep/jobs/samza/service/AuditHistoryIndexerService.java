@@ -77,7 +77,6 @@ public class AuditHistoryIndexerService implements ISamzaService {
 			}
 		} else {
 			LOGGER.info("Learning event not qualified for audit");
-			metrics.incSkippedCounter();
 		}
 	}
 

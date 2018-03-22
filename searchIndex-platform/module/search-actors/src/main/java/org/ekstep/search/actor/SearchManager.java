@@ -7,12 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
@@ -41,7 +44,14 @@ public class SearchManager extends SearchBaseActor {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
 				SearchDTO searchDTO = getSearchDTO(request);
 				Map<String, Object> lstResult = processor.processSearch(searchDTO, true);
-				OK(lstResult, parent);
+				String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
+				if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
+					Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
+					OK(result, parent);
+				} else {
+					OK(lstResult, parent);
+				}
+
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
 				if (null != countResult.get("count")) {
@@ -601,4 +611,89 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return result;
 	}
+
+	/**
+	 * @param lstResult
+	 * @param processor
+	 * @param parentRequest
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Map<String, Object> getCollectionsResult(Map<String, Object> lstResult, SearchProcessor processor,
+			Request parentRequest) {
+		List<Map> contentResults = (List<Map>) lstResult.get("results");
+		if (null != contentResults && !contentResults.isEmpty()) {
+			try {
+				List<String> contentIds = new ArrayList<String>();
+				for (Map<String, Object> content : contentResults) {
+					contentIds.add((String) content.get("identifier"));
+				}
+
+				Request request = new Request();
+				Map<String, Object> filters = new HashMap<String, Object>();
+				List<String> objectTypes = new ArrayList<String>();
+				objectTypes.add("Content");
+				filters.put(CompositeSearchParams.objectType.name(), objectTypes);
+				List<String> mimeTypes = new ArrayList<String>();
+				mimeTypes.add("application/vnd.ekstep.content-collection");
+				filters.put("mimeType", mimeTypes);
+				filters.put("childNodes", contentIds);
+				request.put(CompositeSearchParams.sort_by.name(),
+						parentRequest.get(CompositeSearchParams.sort_by.name()));
+				request.put(CompositeSearchParams.fields.name(),
+						getCollectionFields(getList(parentRequest.get(CompositeSearchParams.fields.name()))));
+				request.put(CompositeSearchParams.filters.name(), filters);
+				SearchDTO searchDTO = getSearchDTO(request);
+				Map<String, Object> collectionResult = processor.processSearch(searchDTO, true);
+				collectionResult = prepareCollectionResult(collectionResult, contentIds);
+				lstResult.putAll(collectionResult);
+				return lstResult;
+			} catch (Exception e) {
+				TelemetryManager.error("Error while fetching the collection for the contents : ", e);
+				return lstResult;
+			}
+
+		} else {
+			return lstResult;
+		}
+	}
+
+	/**
+	 * @param fieldlist
+	 * @param object
+	 * @return
+	 */
+	private Object getCollectionFields(List<String> fieldlist) {
+		List<String> fields = Platform.config.hasPath("search.fields.mode_collection")
+				? Platform.config.getStringList("search.fields.mode_collection")
+				: Arrays.asList("identifier", "name", "objectType", "contentType", "mimeType", "size", "childNodes");
+
+		if (null != fieldlist && !fieldlist.isEmpty()) {
+			fields.addAll(fieldlist);
+			fields = fields.stream().distinct().collect(Collectors.toList());
+		}
+		return fields;
+	}
+
+	/**
+	 * @param collectionResult
+	 * @param contentIds
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Map<String, Object> prepareCollectionResult(Map<String, Object> collectionResult, List<String> contentIds) {
+		List<Map> results = new ArrayList<Map>();
+		for (Map<String, Object> collection : (List<Map>) collectionResult.get("results")) {
+			List<String> childNodes = (List<String>) collection.get("childNodes");
+			childNodes = (List<String>) CollectionUtils.intersection(childNodes, contentIds);
+			collection.put("childNodes", childNodes);
+			results.add(collection);
+		}
+		collectionResult.put("collections", results);
+		collectionResult.put("collectionsCount", collectionResult.get("count"));
+		collectionResult.remove("count");
+		collectionResult.remove("results");
+		return collectionResult;
+	}
+
 }

@@ -10,7 +10,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -36,7 +35,6 @@ public class LanguageToolsTest {
 	private WebApplicationContext context;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
-	static ElasticSearchUtil util;
 	private static String TEST_LANGUAGE = "hi";
 
 	static {

@@ -13,7 +13,6 @@ import org.apache.samza.task.StreamTask;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.apache.samza.task.WindowableTask;
-import org.ekstep.jobs.samza.service.AuditEventGenerator;
 import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -25,7 +24,6 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 
 	private JobMetrics metrics;
 	ISamzaService auditHistoryMsgProcessor = new AuditHistoryIndexerService();
-	ISamzaService contentAuditProcessor = new AuditEventGenerator();
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
@@ -33,7 +31,6 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 		try {
 			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			auditHistoryMsgProcessor.initialize(config);
-			contentAuditProcessor.initialize(config);
 			LOGGER.info("Task initialized");
 		} catch (Exception ex) {
 			LOGGER.error("Task initialization failed", ex);
@@ -46,7 +43,6 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 			throws Exception {
 		Map<String, Object> outgoingMap = getMessage(envelope);
 		try {
-			contentAuditProcessor.processMessage(outgoingMap, metrics, collector);
 			auditHistoryMsgProcessor.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
 			metrics.incErrorCounter();

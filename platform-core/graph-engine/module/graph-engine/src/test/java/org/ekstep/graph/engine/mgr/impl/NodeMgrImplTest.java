@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams.StatusType;
@@ -29,6 +30,7 @@ import org.ekstep.graph.engine.loadtest.TestUtil;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.importer.InputStreamValue;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -350,7 +352,8 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			node.setMetadata(contentMap);
 			node.setGraphId(graphId);
 			node.setObjectType(objectType);
-
+			node.getMetadata().put(GraphDACParams.versionKey.name(),
+					Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY));
 			Request request = new Request();
 			request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
 			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
@@ -358,6 +361,42 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			request.put(GraphDACParams.node_id.name(), "testNode1");
 			request.put(GraphDACParams.node.name(), node);
 			request.put(GraphDACParams.object_type.name(), objectType);
+
+			System.out.println("Before Update Version : " + contentVersion.get("testNode1"));
+
+			Future<Object> response = Patterns.ask(reqRouter, request, TestUtil.timeout);
+
+			handleFutureBlock(response, "updateDataNode", GraphDACParams.node_id.name(),
+					GraphDACParams.versionKey.name());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testC1() {
+		try {
+			String graphId = "domain";
+			String objectType = "Content";
+			Map<String, Object> contentMap = mapper.readValue(
+					"{\"name\":\"TestdataNodeUpdate\",\"versionKey\":\"" + contentVersion.get("testNode2") + "\"}",
+					new TypeReference<Map<String, Object>>() {
+					});
+
+			Node node = new Node();
+			node.setNodeType("DATA_NODE");
+			node.setMetadata(contentMap);
+			node.setGraphId(graphId);
+			node.setObjectType(objectType);
+			Request request = new Request();
+			request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
+			request.setOperation("updateDataNode");
+			request.put(GraphDACParams.node_id.name(), "testNode2");
+			request.put(GraphDACParams.node.name(), node);
+			request.put(GraphDACParams.object_type.name(), objectType);
+
+			System.out.println("Before Update Version : " + contentVersion.get("testNode2"));
 
 			Future<Object> response = Patterns.ask(reqRouter, request, TestUtil.timeout);
 
@@ -515,7 +554,7 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 					Assert.assertTrue(StringUtils.isNotBlank((String) ar.get(param)));
 
 					if (null != versionKey) {
-						// System.out.println(ar.get(versionKey));
+						System.out.println((String) ar.get(param) + ":" + ar.get(versionKey));
 						contentVersion.put((String) ar.get(param), (String) ar.get(versionKey));
 						// System.out.println("VersionKey : " + contentVersion.get("testNode1"));
 					}

@@ -383,7 +383,6 @@ public class ContentV3Controller extends BaseController {
 	 * @param requestMap
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/dialcode/link", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> linkDialCode(@RequestBody Map<String, Object> requestMap,
@@ -391,8 +390,8 @@ public class ContentV3Controller extends BaseController {
 		String apiId = "ekstep.content.dialcode.link";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.linkDialCode(channelId, map);
+			Object reqObj = request.get("content");
+			Response response = contentManager.linkDialCode(channelId, reqObj);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Linking Dial Code with Content: " + e.getMessage(), e);

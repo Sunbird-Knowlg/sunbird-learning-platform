@@ -296,6 +296,8 @@ public class SearchProcessor {
 				continue;
 			}
 
+			propertyName = propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
+
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
 				queryBuilder = getMustTermQuery(propertyName, values, true);
@@ -407,6 +409,8 @@ public class SearchProcessor {
 				continue;
 			}
 
+			propertyName = propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
+
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
 				float weight = getweight(querySearchFeilds, propertyName);
@@ -496,6 +500,18 @@ public class SearchProcessor {
 	}
 
 	/**
+	 * @param propertyName
+	 * @return
+	 */
+	private String checkForNestedProperty(String propertyName) {
+		if (!propertyName.contains(".")) {
+			return propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
+		} else {
+			return propertyName;
+		}
+	}
+
+	/**
 	 * @param querySearchFeilds
 	 * @param propertyName
 	 * @return
@@ -557,22 +573,22 @@ public class SearchProcessor {
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
 				queryBuilder.should(QueryBuilders
-						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).gt(value));
+						.rangeQuery(propertyName).gt(value));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
 				queryBuilder.should(QueryBuilders
-						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).gte(value));
+						.rangeQuery(propertyName).gte(value));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
 				queryBuilder.should(QueryBuilders
-						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).lt(value));
+						.rangeQuery(propertyName).lt(value));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
 				queryBuilder.should(QueryBuilders
-						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).lte(value));
+						.rangeQuery(propertyName).lte(value));
 				break;
 			}
 			}
@@ -607,7 +623,7 @@ public class SearchProcessor {
 	private QueryBuilder getNotInQuery(String propertyName, List<Object> values) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		queryBuilder
-				.mustNot(QueryBuilders.termsQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, values));
+				.mustNot(QueryBuilders.termsQuery(propertyName, values));
 		return queryBuilder;
 	}
 
@@ -620,7 +636,7 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			queryBuilder.should(QueryBuilders.prefixQuery(
-					propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, ((String) value).toLowerCase()));
+					propertyName, ((String) value).toLowerCase()));
 		}
 		return queryBuilder;
 	}
@@ -637,11 +653,11 @@ public class SearchProcessor {
 			String stringValue = String.valueOf(value);
 			if (match) {
 				queryBuilder.should(QueryBuilders
-						.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+						.regexpQuery(propertyName,
 								".*" + stringValue + ".*"));
 			} else {
 				queryBuilder.mustNot(QueryBuilders
-						.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+						.regexpQuery(propertyName,
 								".*" + stringValue + ".*"));
 			}
 		}
@@ -657,7 +673,7 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			String stringValue = String.valueOf(value);
-			queryBuilder.should(QueryBuilders.wildcardQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+			queryBuilder.should(QueryBuilders.wildcardQuery(propertyName,
 					"*" + stringValue.toLowerCase()));
 		}
 		return queryBuilder;
@@ -675,10 +691,10 @@ public class SearchProcessor {
 		for (Object value : values) {
 			if (match) {
 				queryBuilder.should(
-						QueryBuilders.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+						QueryBuilders.matchQuery(propertyName, value));
 			} else {
 				queryBuilder.mustNot(
-						QueryBuilders.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+						QueryBuilders.matchQuery(propertyName, value));
 			}
 		}
 

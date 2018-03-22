@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
+import org.apache.samza.system.OutgoingMessageEnvelope;
+import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.InitableTask;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.StreamTask;
@@ -28,7 +30,7 @@ public class WordEnrichmentTask implements StreamTask, InitableTask, WindowableT
 	public void init(Config config, TaskContext context) throws Exception {
 
 		try {
-			metrics = new JobMetrics(context);
+			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			service.initialize(config);
 			LOGGER.info("Task initialized");
 		} catch(Exception ex) {
@@ -44,7 +46,7 @@ public class WordEnrichmentTask implements StreamTask, InitableTask, WindowableT
 		try {
 			service.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
-			metrics.incFailedCounter();
+			metrics.incErrorCounter();
 			LOGGER.error("Message processing failed", outgoingMap, e);
 		}
 	}
@@ -62,6 +64,8 @@ public class WordEnrichmentTask implements StreamTask, InitableTask, WindowableT
 	
 	@Override
 	public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
+		Map<String, Object> event = metrics.collect();
+		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
 		metrics.clear();
 	}
 }

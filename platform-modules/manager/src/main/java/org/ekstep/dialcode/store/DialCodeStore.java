@@ -32,15 +32,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DialCodeStore extends CassandraStore {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	
+
 	public DialCodeStore() {
 		super();
-		String keyspace = Platform.config.hasPath("dialcode.keyspace.name") ? Platform.config.getString("dialcode.keyspace.name") : "dialcode_store";
-		String table = Platform.config.hasPath("dialcode.keyspace.table") ? Platform.config.getString("dialcode.keyspace.table") : "dial_code";
+		String keyspace = Platform.config.hasPath("dialcode.keyspace.name")
+				? Platform.config.getString("dialcode.keyspace.name") : "dialcode_store";
+		String table = Platform.config.hasPath("dialcode.keyspace.table")
+				? Platform.config.getString("dialcode.keyspace.table") : "dial_code";
 		boolean index = Platform.config.hasPath("dialcode.index") ? Platform.config.getBoolean("dialcode.index") : true;
 		String objectType = Platform.config.hasPath("dialcode.object_type")
-				? Platform.config.getString("dialcode.object_type")
-				: DialCodeEnum.DialCode.name();
+				? Platform.config.getString("dialcode.object_type") : DialCodeEnum.DialCode.name();
 		initialise(keyspace, table, objectType, index);
 	}
 
@@ -60,7 +61,7 @@ public class DialCodeStore extends CassandraStore {
 			dialCodeObj = setDialCodeData(row);
 		} catch (Exception e) {
 			throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_INFO,
-					DialCodeErrorMessage.ERR_DIALCODE_INFO);
+					DialCodeErrorMessage.ERR_DIALCODE_INFO + dialCode);
 		}
 		return dialCodeObj;
 	}

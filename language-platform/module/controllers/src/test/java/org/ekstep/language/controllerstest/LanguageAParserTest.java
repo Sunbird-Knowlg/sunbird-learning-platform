@@ -23,7 +23,6 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.common.LanguageCommonTestHelper;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.language.util.ElasticSearchUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -51,8 +50,6 @@ public class LanguageAParserTest extends BaseLanguageTest {
 	private WebApplicationContext context;
 //	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private ResultActions actions;
-	static ElasticSearchUtil util;
-	
 
 	static {
 		LanguageRequestRouterPool.init();
