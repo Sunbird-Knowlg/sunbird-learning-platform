@@ -268,23 +268,59 @@ public class DialCodeV3APITest extends BaseTest {
 	}
 
 	@Test
-	public void linkDialCodesToContentsExpect400() {
+	public void linkDialCodesToContentsExpect200() {
 		setURI();
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId_1 + "\",\""
-				+ contentId_2 + "\"],\"dialcode\": [\"" + dialCodeId + "\",\"" + "ABC123" + "\"]}}}";
+				+ contentId_2 + "\"],\"dialcode\": [\"" + dialCodeId + "\",\"" + dialCodeId_2 + "\"]}}}";
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
 				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
-				.spec(get400ResponseSpec());
+				.spec(get200ResponseSpec());
 	}
 
 	@Test
-	public void linkDialCodeToContentExpect400() {
+	public void linkDialCodeToContentExpect404() {
 		setURI();
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + "do_ABC123"
 				+ "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
 				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
-				.spec(get400ResponseSpec());
+				.spec(get404ResponseSpec());
+	}
+	
+	@Test
+	public void linkDialCodeToContent_Bulk_Expect200() {
+		setURI();
+		String dialCodeLinkReq="{\"request\":{\"content\":[{\"dialcode\":\""+dialCodeId+"\",\"identifier\":\""+contentId_1+"\"},{\"dialcode\":\""+dialCodeId_2+"\",\"identifier\":\""+contentId_1+"\"}]}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get200ResponseSpec());
+	}
+	
+	@Test
+	public void linkDialCodeToContent_Bulk_Expect207() {
+		setURI();
+		String dialCodeLinkReq="{\"request\":{\"content\":[{\"dialcode\":\""+dialCodeId+"\",\"identifier\":\""+contentId_1+"\"},{\"dialcode\":\""+dialCodeId_2+"\",\"identifier\":\""+"do_abc123"+"\"}]}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get207ResponseSpec());
+	}
+	
+	@Test
+	public void linkDialCodeToContent_Bulk_Expect404() {
+		setURI();
+		String dialCodeLinkReq="{\"request\":{\"content\":[{\"dialcode\":\""+"ABCAAA"+"\",\"identifier\":\""+contentId_1+"\"},{\"dialcode\":\""+dialCodeId_2+"\",\"identifier\":\""+"do_abc123"+"\"}]}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get404ResponseSpec());
+	}
+	
+	@Test
+	public void linkDialCodeToContent_Bulk_1_Expect404() {
+		setURI();
+		String dialCodeLinkReq="{\"request\":{\"content\":[{\"dialcode\":\""+dialCodeId+"\",\"identifier\":\""+"do_def123"+"\"},{\"dialcode\":\""+dialCodeId_2+"\",\"identifier\":\""+"do_abc123"+"\"}]}}";
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.spec(get404ResponseSpec());
 	}
 
 }
