@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.telemetry.dto.Actor;
 import org.ekstep.telemetry.dto.Context;
 import org.ekstep.telemetry.dto.Producer;
@@ -24,7 +25,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TelemetryGenerator {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static Producer producer = new Producer("org.ekstep.learning.platform", "1.0");
+	private static String pdataId = Platform.config.hasPath("telemetry.pdata_id")
+			? Platform.config.getString("telemetry.pdata_id")
+			: "dev.ekstep.learning.platform";
+	private static Producer producer = new Producer(pdataId, "1.0");
 
 	
 	public static void setComponent(String component) {
