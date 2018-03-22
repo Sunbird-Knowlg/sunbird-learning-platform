@@ -40,6 +40,8 @@ public class CategoryManagerImpl extends BaseFrameworkManager implements ICatego
 	public Response updateCategory(String categoryId, Map<String, Object> map) {
 		if (null == map)
 			throw new ClientException("ERR_INVALID_CATEGORY_OBJECT", "Invalid Request");
+		if (map.containsKey("code") && StringUtils.isNotBlank((String)map.get("code")))
+			throw new ClientException("ERR_CATEGORY_UPDATE", "code updation is not allowed.");
 		return update(categoryId, CATEGORY_OBJECT_TYPE, map);
 
 	}
