@@ -12,6 +12,10 @@ import org.testng.Assert;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
+/**
+ * @author Vignesh
+ *
+ */
 public class CategoryV3APITests extends BaseTest{
 	int rn = generateRandomInt(0, 999999);
 	String jsonCreateCategoryRequest = "{\"request\":{\"category\":{\"name\":\"LP_FT_CategoryName_"+rn+"\",\"description\":\"Description of Category.\",\"code\":\"LP_FT_Category_"+rn+"\"}}}";
