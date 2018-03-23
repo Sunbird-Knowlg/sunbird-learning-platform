@@ -154,6 +154,12 @@ public class TelemetryManager {
 		String event = TelemetryGenerator.audit(context, props, state, prevState);
 		telemetryHandler.send(event, Level.INFO);
 	}
+	
+	public static void search(String query, Object filters, Object sort, String correlationId, int size) {
+		Map<String, String> context = getContext();
+		String event = TelemetryGenerator.search(context, query, filters, sort, correlationId, size);
+		telemetryHandler.send(event, Level.INFO);
+	}
 
 	/**
 	 * To log exception with message and params for user specified log level as a
