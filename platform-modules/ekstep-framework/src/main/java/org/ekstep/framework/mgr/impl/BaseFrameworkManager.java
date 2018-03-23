@@ -6,7 +6,6 @@ package org.ekstep.framework.mgr.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,6 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.framework.enums.FrameworkEnum;
-import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
@@ -35,8 +33,9 @@ import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
 /**
  * @author pradyumna
@@ -48,6 +47,7 @@ public class BaseFrameworkManager extends BaseManager {
 			: "domain";
 
 	private ObjectMapper mapper = new ObjectMapper();
+	private ElasticSearchUtil esUtil = new ElasticSearchUtil();
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
@@ -476,13 +476,12 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 	protected void generateFrameworkHierarchy(String objectId) throws Exception {
-		List<Map<String, Object>> list = new ArrayList<>();
 		Response responseNode = getDataNode(GRAPH_ID, objectId);
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + objectId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
-			list.add(getFrameworkEvent(node));
+			pushFrameworkEvent(node);
 		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "CategoryInstance")) {
 			List<Relation> inRelations = node.getInRelations();
 			if (null != inRelations && !inRelations.isEmpty()) {
@@ -504,34 +503,22 @@ public class BaseFrameworkManager extends BaseManager {
 				}
 			}
 		}
-		LogAsyncGraphEvent.pushMessageToLogger(list);
 	}
 
-	protected Map<String, Object> getFrameworkEvent(Node node) throws Exception {
-		Map<String, Object> frameworkEvent = new HashMap<>();
-		Map<String, Object> hierarchy = new HashMap<>();
-		hierarchy.put("ov", null);
+	protected void pushFrameworkEvent(Node node) throws Exception {
+		Map<String, Object> frameworkDocument = new HashMap<>();
 		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false);
 		CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
-		hierarchy.put("nv", mapper.writeValueAsString(frameworkHierarchy));
-		Map<String, Object> properties = new HashMap<>();
-		properties.put("fr_hierarchy", hierarchy);
-		Map<String, Object> transactionData = new HashMap<>();
-		transactionData.put("properties", properties);
-		frameworkEvent.put(GraphDACParams.transactionData.name(), transactionData);
 
-		frameworkEvent.put(GraphDACParams.userId.name(), "ANONYMOUS");
-		frameworkEvent.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
-		frameworkEvent.put(GraphDACParams.label.name(), node.getMetadata().get("name"));
-		frameworkEvent.put(GraphDACParams.graphId.name(), GRAPH_ID);
-		frameworkEvent.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
-		frameworkEvent.put(GraphDACParams.ets.name(), System.currentTimeMillis());
-		frameworkEvent.put(GraphDACParams.nodeGraphId.name(), node.getId());
-		frameworkEvent.put(GraphDACParams.nodeUniqueId.name(), node.getIdentifier());
-		frameworkEvent.put(GraphDACParams.nodeType.name(), node.getNodeType());
-		frameworkEvent.put(GraphDACParams.objectType.name(), node.getObjectType());
-		frameworkEvent.put(GraphDACParams.requestId.name(), null);
-		return frameworkEvent;
+		frameworkDocument.put("fr_hierarchy", mapper.writeValueAsString(frameworkHierarchy));
+		frameworkDocument.put("graph_id", GRAPH_ID);
+		frameworkDocument.put("node_id", (int) node.getId());
+		frameworkDocument.put("identifier", node.getIdentifier());
+		frameworkDocument.put("objectType", node.getObjectType());
+		frameworkDocument.put("nodeType", node.getNodeType());
+		esUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, node.getIdentifier(),
+				mapper.writeValueAsString(frameworkDocument));
 	}
 
 }

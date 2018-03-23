@@ -22,7 +22,7 @@ import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.search.router.SearchRequestRouterPool;
-import org.ekstep.telemetry.util.LogTelemetryEventUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -197,7 +197,10 @@ public class BasePlaySearchManager extends Results {
 		String queryString = (String) request.get(CompositeSearchParams.query.name());
 		Object filters = request.get(CompositeSearchParams.filters.name());
 		Object sort = request.get(CompositeSearchParams.sort_by.name());
-		LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count,request);
+		// LogTelemetryEventUtil.logContentSearchEvent(queryString, filters,
+		// sort, correlationId, count, request);
+		TelemetryManager.search(queryString, filters, sort, correlationId, count);
+
 	}
 
 	public Promise<Result> getSearchResponse(Response searchResult, Request req) {
