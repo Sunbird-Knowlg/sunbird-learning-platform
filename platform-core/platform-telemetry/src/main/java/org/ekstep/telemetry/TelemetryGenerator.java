@@ -134,8 +134,11 @@ public class TelemetryGenerator {
 		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
+		if (StringUtils.isNotBlank(query))
 		edata.put("query", query);
+		if (null != filters)
 		edata.put("filters", filters);
+		if (null != sort)
 		edata.put("sort", sort);
 		edata.put("correlationid", correlationId);
 		edata.put("size", size);
