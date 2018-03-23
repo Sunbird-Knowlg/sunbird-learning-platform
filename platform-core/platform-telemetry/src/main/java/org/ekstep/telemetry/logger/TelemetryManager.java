@@ -158,7 +158,7 @@ public class TelemetryManager {
 	public static void search(String query, Object filters, Object sort, String correlationId, int size) {
 		Map<String, String> context = getContext();
 		String event = TelemetryGenerator.search(context, query, filters, sort, correlationId, size);
-		telemetryHandler.send(event, Level.INFO);
+		telemetryHandler.send(event, Level.INFO, true);
 	}
 
 	/**
