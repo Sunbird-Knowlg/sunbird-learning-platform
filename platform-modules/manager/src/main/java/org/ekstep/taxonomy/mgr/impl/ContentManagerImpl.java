@@ -634,6 +634,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
+		if(map.containsKey("dialcodes")) {
+			map.remove("dialcodes");
+		}
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		restrictProps(definition, map, "status", "framework");
 
@@ -1258,6 +1261,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		idMap.put(nodeId, id);
 		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
+		if(metadata.containsKey("dialcodes")) {
+			metadata.remove("dialcodes");
+		}
 		metadata.put("identifier", id);
 		metadata.put("objectType", objectType);
 		if (BooleanUtils.isTrue(isNew)) {
