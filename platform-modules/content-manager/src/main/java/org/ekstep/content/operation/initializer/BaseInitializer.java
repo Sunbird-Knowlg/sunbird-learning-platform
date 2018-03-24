@@ -65,7 +65,9 @@ public class BaseInitializer extends BasePipeline {
 	protected Plugin getECRFObject(String contentBody) {
 		Plugin plugin = new Plugin();
 		String ecml = contentBody;
+		TelemetryManager.log("Content Body: " + ecml);
 		String ecmlType = getECMLType(contentBody);
+		TelemetryManager.error("EcmlType: " + ecmlType);
 		if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.ecml.name())) {
 			XMLContentParser parser = new XMLContentParser();
 			plugin = parser.parseContent(ecml);
