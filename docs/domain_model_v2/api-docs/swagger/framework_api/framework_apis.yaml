@@ -102,6 +102,35 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
+  '/copy/{frameworkId}':
+    post:
+      summary: Copy a Framework
+      description: 'This API copy an framework for partner, based on the request body for a given channel'
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.copy
+      produces:
+        - application/json
+      parameters:
+        - name: frameworkId
+          in: path
+          required: true
+          type: string
+        - $ref: '#/parameters/FrameworkRequestObject'
+      responses:
+        '200':
+          description: Framework copy Successfully
+          schema:
+            $ref: '#/definitions/FrameworkCopyResponse'
+        '400':
+          description: 'Error While copying Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: 'Error While copying Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
   /list:
     post:
       summary: Lists an Framework
@@ -190,9 +219,9 @@ definitions:
       - request
   FrameworkListObject:
     properties:
-      sortBy:
+      status:
         type: string
-        description: sortBy
+        description: status
   FrameworkRequestObject:
     title: Framework Request Object
     type: object
@@ -211,6 +240,12 @@ definitions:
       - framework
   FrameworkCreateResponse:
     description: Create Framework Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  FrameworkCopyResponse:
+    description: Copy Framework Response
     type: object
     allOf:
       - $ref: '#/definitions/ResultWithNodeId'
@@ -237,26 +272,23 @@ definitions:
     title: Framework Metadata
     type: object
     properties:
-      identifier:
-        type: string
-        description: Identifier of the Framework
       name:
         type: string
         description: Name of the Framework
+      description:
+        type: string
+        description: Description for the Framework
       code:
         type: string
         description: Unique code for the Framework
-      status:
+      type:
         type: string
-        description: Status of the Framework
-      owner:
-        type: string
-        description: owner for the framework
-      inRelations:
+        description: type of the Framework
+      channels:
         type: array
         items:
           $ref: '#/definitions/inRelations'
-      outRelations:
+      categories:
         type: array
         items:
           $ref: '#/definitions/outRelations'
@@ -344,7 +376,7 @@ definitions:
     title: Response Framework Array
     type: object
     properties:
-      content:
+      frameworks:
         type: array
         items:
           $ref: '#/definitions/Framework'

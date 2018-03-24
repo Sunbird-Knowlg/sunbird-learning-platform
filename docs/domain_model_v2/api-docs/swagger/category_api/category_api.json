@@ -289,9 +289,9 @@
       },
         "categoryListObject": {
             "properties": {
-                "sortBy": {
+                "status": {
                     "type": "string",
-                    "description": "sortBy"
+                    "description": "status"
                 }
             }
         },
@@ -371,29 +371,19 @@
             "title": "category Metadata",
             "type": "object",
             "properties": {
-                "identifier": {
-                    "type": "string",
-                    "description": "Identifier of the category"
-                },
                 "name": {
                     "type": "string",
                     "description": "Name of the category"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the category"
                 },
                 "code": {
                     "type": "string",
                     "description": "Unique code for the category"
                 },
-                "status": {
-                    "type": "string",
-                    "description": "Status of the category"
-                },
-                "inRelations": {
-                   "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/inRelations"
-                    }
-                },
-                "outRelations": {
+                "terms": {
                   "type": "array",
                     "items": {
                         "$ref": "#/definitions/outRelations"
