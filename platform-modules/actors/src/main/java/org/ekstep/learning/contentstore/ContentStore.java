@@ -140,7 +140,9 @@ public class ContentStore extends CassandraStore {
 			int i = 0;
 			for (Entry<String, Object> entry : map.entrySet()) {
 				String value = "";
-				if (entry.getValue() instanceof String) {
+				if (null == entry.getValue()) {
+					value = "";
+				} else if (entry.getValue() instanceof String) {
 					value = (String) entry.getValue();
 				} else {
 					value = mapper.writeValueAsString(entry.getValue());
