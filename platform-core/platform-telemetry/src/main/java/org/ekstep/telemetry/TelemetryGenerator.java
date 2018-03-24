@@ -130,18 +130,18 @@ public class TelemetryGenerator {
 	}
 
 	
-	public static String search(Map<String, String> context, String query, Object filters, Object sort, String correlationId, int size) {
+	public static String search(Map<String, String> context, String query, Object filters, Object sort,
+			String correlationId, int size, Object topN, String type) {
 		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
-		if (StringUtils.isNotBlank(query))
+		edata.put("type", type);
 		edata.put("query", query);
-		if (null != filters)
 		edata.put("filters", filters);
-		if (null != sort)
 		edata.put("sort", sort);
 		edata.put("correlationid", correlationId);
 		edata.put("size", size);
+		edata.put("topn", topN);
 		Telemetry telemetry = new Telemetry("SEARCH", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 	}
