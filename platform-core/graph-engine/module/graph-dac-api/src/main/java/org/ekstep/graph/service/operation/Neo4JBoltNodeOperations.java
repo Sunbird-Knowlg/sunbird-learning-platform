@@ -252,7 +252,8 @@ public class Neo4JBoltNodeOperations {
 					tx.success();
 					if (null == result || !result.hasNext())
 						throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-								DACErrorMessageConstants.NODE_NOT_FOUND + " | " + node.getIdentifier());
+								DACErrorMessageConstants.NODE_NOT_FOUND + " | " + node.getIdentifier(),
+								node.getIdentifier());
 					for (Record record : result.list()) {
 						try {
 							org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();

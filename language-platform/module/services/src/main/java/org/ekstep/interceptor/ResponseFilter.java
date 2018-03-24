@@ -40,6 +40,8 @@ public class ResponseFilter implements Filter {
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
 		String channelId = httpRequest.getHeader("X-Channel-Id");
 		String appId = httpRequest.getHeader("X-App-Id");
+		String path = httpRequest.getRequestURI();
+
 		if (StringUtils.isNotBlank(consumerId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
 
@@ -51,7 +53,7 @@ public class ResponseFilter implements Filter {
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
 
-		if (!isMultipart) {
+		if (!isMultipart && !path.contains("/health")) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			TelemetryManager.log("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr());
 			
@@ -74,7 +76,7 @@ public class ResponseFilter implements Filter {
 	private String getEnv(RequestWrapper requestWrapper) {
 		String path = requestWrapper.getRequestURI();
 
-		if (path.contains("/health") || path.contains("/sync") || path.contains("/definitions")) {
+		if (path.contains("/sync") || path.contains("/definitions")) {
 			return "system";
 		} else if (path.contains("/tools")) {
 			return "tools";

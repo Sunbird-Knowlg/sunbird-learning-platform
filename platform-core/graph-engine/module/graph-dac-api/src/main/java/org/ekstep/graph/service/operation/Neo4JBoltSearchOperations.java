@@ -138,7 +138,7 @@ public class Neo4JBoltSearchOperations {
 						.run(SearchQueryGenerationUtil.generateGetNodeByUniqueIdCypherQuery(parameterMap));
 				if (null == result || !result.hasNext())
 					throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-							DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]: "+ nodeId);
+							DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]: " + nodeId, nodeId);
 
 				Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 				Map<Long, Object> relationMap = new HashMap<Long, Object>();

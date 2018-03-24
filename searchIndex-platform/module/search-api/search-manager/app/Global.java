@@ -42,39 +42,45 @@ public class Global extends GlobalSettings {
 				Promise<Result> call = delegate.call(ctx);
 				call.onRedeem((r) -> {
 					try {
-						JsonNode requestData = request.body().asJson();
-						org.ekstep.common.dto.Request req = mapper.convertValue(requestData,
-								org.ekstep.common.dto.Request.class);
+						String path = request.uri();
+						if (!path.contains("/health")) {
+							JsonNode requestData = request.body().asJson();
+							org.ekstep.common.dto.Request req = mapper.convertValue(requestData,
+									org.ekstep.common.dto.Request.class);
 
-						byte[] body = JavaResultExtractor.getBody(r, 0l);
-						Response responseObj = mapper.readValue(body, Response.class);
+							byte[] body = JavaResultExtractor.getBody(r, 0l);
+							Response responseObj = mapper.readValue(body, Response.class);
 
-						Map<String, Object> data = new HashMap<String, Object>();
-						data.put("StartTime", startTime);
-						data.put("Request", req);
-						data.put("Response", responseObj);
-						data.put("RemoteAddress", request.remoteAddress());
-						data.put("ContentLength", body.length);
-						data.put("Status", r.status());
-						data.put("Protocol", request.secure() ? "HTTPS" : "HTTP");
-						data.put("Method", request.method());
-						data.put("X-Session-ID", request.getHeader("X-Session-ID"));
-						String consumerId = request.getHeader("X-Consumer-ID");
-						data.put("X-Consumer-ID", consumerId);
-						data.put("X-Device-ID", request.getHeader("X-Device-ID"));
-						data.put("X-Authenticated-Userid", request.getHeader("X-Authenticated-Userid"));
-						if (StringUtils.isNotBlank(consumerId))
-							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
-						data.put("env", "search");
-						data.put("path", request.uri());
-						String channelId = request.getHeader("X-Channel-ID");
-						if (StringUtils.isNotBlank(channelId))
-							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
-						else
-							ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
-						TelemetryAccessEventUtil.writeTelemetryEventLog(data);
-						accessLogger.info(request.remoteAddress() + " " + request.host() + " " + request.method() + " "
-								+ request.uri() + " " + r.status() + " " + body.length);
+							Map<String, Object> data = new HashMap<String, Object>();
+							data.put("StartTime", startTime);
+							data.put("Request", req);
+							data.put("Response", responseObj);
+							data.put("RemoteAddress", request.remoteAddress());
+							data.put("ContentLength", body.length);
+							data.put("Status", r.status());
+							data.put("Protocol", request.secure() ? "HTTPS" : "HTTP");
+							data.put("Method", request.method());
+							data.put("X-Session-ID", request.getHeader("X-Session-ID"));
+							String consumerId = request.getHeader("X-Consumer-ID");
+							data.put("X-Consumer-ID", consumerId);
+							data.put("X-Device-ID", request.getHeader("X-Device-ID"));
+							data.put("X-Authenticated-Userid", request.getHeader("X-Authenticated-Userid"));
+							if (StringUtils.isNotBlank(consumerId))
+								ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(),
+										consumerId);
+							data.put("env", "search");
+							data.put("path", path);
+							String channelId = request.getHeader("X-Channel-ID");
+							if (StringUtils.isNotBlank(channelId))
+								ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(),
+										channelId);
+							else
+								ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(),
+										"in.ekstep");
+							TelemetryAccessEventUtil.writeTelemetryEventLog(data);
+							accessLogger.info(request.remoteAddress() + " " + request.host() + " " + request.method()
+									+ " " + request.uri() + " " + r.status() + " " + body.length);
+						}
 					} catch (Exception e) {
 						accessLogger.error(e.getMessage());
 					}
