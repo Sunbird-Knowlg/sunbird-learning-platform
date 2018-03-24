@@ -3,7 +3,9 @@ package managers;
 import static akka.pattern.Patterns.ask;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -11,6 +13,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -61,7 +64,7 @@ public class BasePlaySearchManager extends Results {
 									Promise<Result> searchResult = getSearchResponse(response, request);
 									int count = (response.getResult() == null ? 0
 											: (Integer) response.getResult().get("count"));
-									writeTelemetryLog(request, correlationId, count);
+									writeTelemetryLog(request, correlationId, response);
 									return searchResult.get(SearchRequestRouterPool.REQ_TIMEOUT);
 								}
 								return ok(getResult(response, request, null, correlationId)).as("application/json");
@@ -193,14 +196,58 @@ public class BasePlaySearchManager extends Results {
 		return sdf.format(new Date());
 	}
 
-	protected void writeTelemetryLog(Request request, String correlationId, Integer count) {
-		String queryString = (String) request.get(CompositeSearchParams.query.name());
-		Object filters = request.get(CompositeSearchParams.filters.name());
-		Object sort = request.get(CompositeSearchParams.sort_by.name());
-		// LogTelemetryEventUtil.logContentSearchEvent(queryString, filters,
-		// sort, correlationId, count, request);
-		TelemetryManager.search(queryString, filters, sort, correlationId, count);
+	protected void writeTelemetryLog(Request request, String correlationId, Response response) {
+		String query = StringUtils.isBlank((String) request.get(CompositeSearchParams.query.name())) ? ""
+				: (String) request.get(CompositeSearchParams.query.name());
+		Map<String, Object> filters = (null != request.get(CompositeSearchParams.filters.name()))
+				? (Map<String, Object>) request.get(CompositeSearchParams.filters.name()) : new HashMap();
+		Object sort = (null != request.get(CompositeSearchParams.sort_by.name()))
+				? request.get(CompositeSearchParams.sort_by.name()) : new HashMap();
+		int count = (response.getResult() == null ? 0 : (Integer) response.getResult().get("count"));
+		Object topN = getTopNResult(response.getResult());
+		String type = getType(filters);
+		TelemetryManager.search(query, filters, sort, correlationId, count, topN, type);
+	}
 
+	@SuppressWarnings("unchecked")
+	private String getType(Map<String, Object> filters) {
+		if(null != filters.get("objectType")){
+			List<String> objectType = (List<String>) filters.get("objectType");
+			if (objectType.size() == 2 && objectType.contains("ContentImage")) {
+				return objectType.get(0).toLowerCase();
+			} else if (objectType.size() == 1) {
+				return objectType.get(0).toLowerCase();
+			} else {
+				return "all";
+			}
+		}else{
+			return "all";
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> getTopNResult(Map<String, Object> result) {
+		List<Map<String, Object>> contentList = (List<Map<String, Object>>) result.get("results");
+		if (null == contentList || contentList.isEmpty()) {
+			return new ArrayList<>();
+		}
+		Integer topN = Platform.config.hasPath("telemetry.search.topn")
+				? Platform.config.getInt("telemetry.search.topn") : 5;
+		List<Map<String, Object>> list = new ArrayList<>();
+		if (topN < contentList.size()) {
+			for (int i = 0; i < topN; i++) {
+				Map<String, Object> m = new HashMap<>();
+				m.put("identifier", contentList.get(i).get("identifier"));
+				list.add(m);
+			}
+		} else {
+			for (int i = 0; i < contentList.size(); i++) {
+				Map<String, Object> m = new HashMap<>();
+				m.put("identifier", contentList.get(i).get("identifier"));
+				list.add(m);
+			}
+		}
+		return list;
 	}
 
 	public Promise<Result> getSearchResponse(Response searchResult, Request req) {
