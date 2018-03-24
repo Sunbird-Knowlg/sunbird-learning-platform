@@ -209,11 +209,14 @@ public class BasePlaySearchManager extends Results {
 		TelemetryManager.search(query, filters, sort, correlationId, count, topN, type);
 	}
 
+	@SuppressWarnings("unchecked")
 	private String getType(Map<String, Object> filters) {
 		if(null != filters.get("objectType")){
 			List<String> objectType = (List<String>) filters.get("objectType");
-			if (objectType.size() == 1) {
-				return objectType.get(0);
+			if (objectType.size() == 2 && objectType.contains("ContentImage")) {
+				return objectType.get(0).toLowerCase();
+			} else if (objectType.size() == 1) {
+				return objectType.get(0).toLowerCase();
 			} else {
 				return "all";
 			}
@@ -224,8 +227,10 @@ public class BasePlaySearchManager extends Results {
 
 	@SuppressWarnings("unchecked")
 	private List<Map<String, Object>> getTopNResult(Map<String, Object> result) {
-
-		List<Map<String, Object>> contentList = (List<Map<String, Object>>) result.get("content");
+		List<Map<String, Object>> contentList = (List<Map<String, Object>>) result.get("results");
+		if (null == contentList || contentList.isEmpty()) {
+			return new ArrayList<>();
+		}
 		Integer topN = Platform.config.hasPath("telemetry.search.topn")
 				? Platform.config.getInt("telemetry.search.topn") : 5;
 		List<Map<String, Object>> list = new ArrayList<>();
@@ -236,7 +241,6 @@ public class BasePlaySearchManager extends Results {
 				list.add(m);
 			}
 		} else {
-
 			for (int i = 0; i < contentList.size(); i++) {
 				Map<String, Object> m = new HashMap<>();
 				m.put("identifier", contentList.get(i).get("identifier"));
