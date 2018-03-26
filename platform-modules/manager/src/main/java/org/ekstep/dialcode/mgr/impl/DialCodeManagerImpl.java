@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -439,7 +440,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		searchDto.setLimit(limit);
 		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
 				CompositeSearchConstants.DIAL_CODE_INDEX, false);
-
+		writeTelemetrySearchLog(channelId, map, searchResult);
 		return searchResult;
 	}
 
@@ -488,6 +489,49 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		}
 
 		return properties;
+	}
+
+	private void writeTelemetrySearchLog(String channelId, Map<String, Object> searchCriteria,
+			List<Object> searchResult) {
+
+		String query = "";
+		String type = DialCodeEnum.DialCode.name();
+		Map sort = new HashMap();
+
+		String correlationId = UUID.randomUUID().toString();
+		Map<String, Object> filters = new HashMap<String, Object>();
+		filters.put(DialCodeEnum.objectType.name(), DialCodeEnum.DialCode.name());
+		filters.put(DialCodeEnum.channel.name(), channelId);
+		filters.putAll(searchCriteria);
+
+		int count = (searchResult.isEmpty() ? 0 : (Integer) searchResult.size());
+		Object topN = getTopNResult(searchResult);
+		TelemetryManager.search(query, filters, sort, correlationId, count, topN, type);
+
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> getTopNResult(List<Object> result) {
+		if (null == result || result.isEmpty()) {
+			return new ArrayList<>();
+		}
+		Integer topN = Platform.config.hasPath("telemetry.search.topn")
+				? Platform.config.getInt("telemetry.search.topn") : 5;
+		List<Map<String, Object>> list = new ArrayList<>();
+		if (topN < result.size()) {
+			for (int i = 0; i < topN; i++) {
+				Map<String, Object> m = new HashMap<>();
+				m.put("identifier", ((Map<String, Object>) result.get(i)).get("identifier"));
+				list.add(m);
+			}
+		} else {
+			for (int i = 0; i < result.size(); i++) {
+				Map<String, Object> m = new HashMap<>();
+				m.put("identifier", ((Map<String, Object>) result.get(i)).get("identifier"));
+				list.add(m);
+			}
+		}
+		return list;
 	}
 
 }
