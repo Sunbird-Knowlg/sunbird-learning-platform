@@ -1452,12 +1452,7 @@
 					"title": "Domain",
 					"description": "",
 					"category": "General",
-					"dataType": "Multi-Select",
-					"range": [
-						"numeracy",
-						"literacy",
-						"science"
-					],
+					"dataType": "List",
 					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
