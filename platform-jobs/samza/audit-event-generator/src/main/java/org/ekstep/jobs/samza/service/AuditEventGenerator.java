@@ -34,8 +34,11 @@ public class AuditEventGenerator implements ISamzaService {
 	private Config config = null;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private SystemStream systemStream = null;
-	private static List<String> systemPropsList = Stream.of(SystemProperties.values())
-            .map(SystemProperties::name).collect(Collectors.toList());
+	private static List<String> systemPropsList = null;
+	static {
+		systemPropsList = Stream.of(SystemProperties.values()).map(SystemProperties::name).collect(Collectors.toList());
+		systemPropsList.add("SYS_INTERNAL_LAST_UPDATED_ON");
+	}
 
 	public AuditEventGenerator() {
 		super();
