@@ -695,6 +695,90 @@
                 },
                 "security": []
             }
+        },
+        "/hierarchy/update": {
+            "post": {
+                "tags": [
+                    "Core"
+                ],
+                "summary": "Update Content hierarchy",
+                "description": "The _content_ endpoint is used to update the content and its hierarchy into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create or update the content hierarchy into the platfrom, The endpoint returns the parrent content identifier as content_id i.e. the identifier of collection content and identifiers map which will hold dummy id as key and generated identifier as value.",
+                "operationId": "content.hierarchy.update",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentUpdateHierarchyRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Created Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUpdateHierarchyResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error while Content Hierarchy Updation! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentCreateErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentCreateErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/hierarchy/{contentId}": {
+            "get": {
+                "tags": [
+                    "Core"
+                ],
+                "summary": "Get Content Hierarchy Object",
+                "description": "The _hierarchy/{contentId}_ endpoint with 'GET' method is used to fetch the content hierarchy from the _EkStep Platform_. This endpoint returns the entire Content Object with default fields including hierarchy. The Consumer can get the non-default fields by passing the comma separated list of fields in a query parameter _fields_ For Example: _/content/{contentId}?fields?body,soundCredits_",
+                "operationId": "ekstep.learning.content.hierarchy",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentHierarchyGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Content Fetch! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentGetErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Content Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentGetErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Fetch! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentGetErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
         }
     },
     "parameters": {
@@ -741,6 +825,15 @@
             "required": true,
             "schema": {
                 "$ref": "#/definitions/ContentRequestObject"
+            }
+        },
+        "ContentUpdateHierarchyRequestObject": {
+            "name": "Request",
+            "in": "body",
+            "description": "Content Update hierarchy Request Object",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/ContentUpdateHierarchyRequestObject"
             }
         },
         "ContentSearchRequestObject": {
@@ -1616,12 +1709,211 @@
                 }
             }
         },
-        "ContentResponseObject": {
+        "ContentHierarchyResponse": {
+            "title": "Content Response Metadata",
+            "type": "object",
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "Identifier of the content"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the content"
+                },
+                "code": {
+                    "type": "string",
+                    "description": "Unique code for the content"
+                },
+                "keywords": {
+                    "type": "string",
+                    "description": ""
+                },
+                "appIcon": {
+                    "type": "string",
+                    "description": ""
+                },
+                "grayScaleAppIcon": {
+                    "type": "string",
+                    "description": ""
+                },
+                "size": {
+                    "type": "number",
+                    "description": ""
+                },
+                "downloadUrl": {
+                    "type": "string",
+                    "description": "URL to download the content"
+                },
+                "artifactUrl": {
+                    "type": "string",
+                    "description": "URL to download the content"
+                },
+                "pkgVersion": {
+                    "type": "number",
+                    "description": "Version number of the package file"
+                },
+                "loadingMessage": {
+                    "type": "string",
+                    "description": "Loading Message"
+                },
+                "launchUrl": {
+                    "type": "string",
+                    "description": "URL to launch the game"
+                },
+                "osId": {
+                    "type": "string",
+                    "description": "Operating System specific Id"
+                },
+                "posterImage": {
+                    "type": "string",
+                    "description": ""
+                },
+                "activity_class": {
+                    "type": "string",
+                    "description": ""
+                },
+                "filter": {
+                    "type": "string",
+                    "description": "Example - 'Delhi Curriculum'"
+                },
+                "mimeType": {
+                    "type": "string",
+                    "description": ""
+                },
+                "minSupportedVersion": {
+                    "type": "string",
+                    "description": "Minimum Supported Version of this content"
+                },
+                "checksum": {
+                    "type": "string",
+                    "description": "Checksum value of the story package file"
+                },
+                "lastUpdatedOn": {
+                    "type": "string",
+                    "description": ""
+                },
+                "createdOn": {
+                    "type": "string",
+                    "description": ""
+                },
+                "status": {
+                    "type": "string",
+                    "description": ""
+                },
+                "contentType": {
+                    "type": "string",
+                    "description": ""
+                },
+                "visibility": {
+                    "type": "string",
+                    "description": "Visibility (set as 'Parent' to hide this from any other list view)"
+                },
+                "thumbnail": {
+                    "type": "string",
+                    "description": ""
+                },
+                "language": {
+                    "type": "string",
+                    "description": ""
+                },
+                "owner": {
+                    "type": "string",
+                    "description": "Content Owner"
+                },
+                "collaborators": {
+                    "type": "string",
+                    "description": "Collaborators"
+                },
+                "voiceCredits": {
+                    "type": "string",
+                    "description": "Voice Credits"
+                },
+                "soundCredits": {
+                    "type": "string",
+                    "description": "Audio and background scores by"
+                },
+                "imageCredits": {
+                    "type": "string",
+                    "description": "Images created by"
+                },
+                "portalOwner": {
+                    "type": "string",
+                    "description": "Portal Owner"
+                },
+                "developer": {
+                    "type": "string",
+                    "description": "Content Developer"
+                },
+                "attributions": {
+                    "type": "string",
+                    "description": "Attributions/Credits"
+                },
+                "forkable": {
+                    "type": "boolean",
+                    "description": "Forkable"
+                },
+                "translatable": {
+                    "type": "boolean",
+                    "description": "Translatable"
+                },
+                "mediaType": {
+                    "type": "string",
+                    "description": ""
+                },
+                "optStatus": {
+                    "type": "string",
+                    "description": ""
+                },
+                "domain": {
+                    "type": "string",
+                    "description": ""
+                },
+                "lastPublishedOn": {
+                    "type": "string",
+                    "description": ""
+                },
+                "collections":{
+                    "title": "Response Content Object",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CollectionResponseObject"
+                    }
+                },
+                "children":{
+                    "title": "Response Children Object",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ChildrenResponseObject"
+                    }
+                }
+            }
+        },
+        "CollectionResponseObject": {
+            "title": "Response Collection Object",
+            "type": "object",
+            "properties": {}
+        },
+        "ChildrenResponseObject": {
+            "title": "Response Children Object",
+            "type": "object",
+            "properties": {}
+        },
+       "ContentResponseObject": {
             "title": "Response Content Object",
             "type": "object",
             "properties": {
                 "content": {
                     "$ref": "#/definitions/ContentResponse"
+                }
+            }
+        },
+        "ContentHierarchyResponseObject": {
+            "title": "Response Hierarchy Content Object",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "$ref": "#/definitions/ContentHierarchyResponse"
                 }
             }
         },
@@ -2561,12 +2853,56 @@
                 }
             }
         },
+        "ResultUpdateHierarchy": {
+            "title": "Result - Content Update Hierarchy",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/ResultUpdateHierarchyMap"
+                }
+            },
+            "required": [
+                "result"
+            ]
+        },
+        "ResultUpdateHierarchyMap":{
+            "title": "Result - Content Update Hierarchy",
+            "type": "object",
+            "properties": {
+                "content_id": {
+                    "type": "string",
+                    "description": "Parent content id"
+                },
+                "identifiers": {
+                    "$ref": "#/definitions/NewContentMap"
+                }
+            }
+        },
+        "NewContentMap":{
+            "title": "Newly created content",
+            "type": "object",
+            "properties": {
+                "dummyNode": {
+                    "type": "string",
+                    "description": "Dummy Node Id"
+                }
+            }
+        },
         "ResultWithContentResponse": {
             "title": "Result Containing Content Object",
             "type": "object",
             "properties": {
                 "result": {
                     "$ref": "#/definitions/ContentResponseObject"
+                }
+            }
+        },
+        "ResultWithContentHierarchyResponse": {
+            "title": "Result Containing Content Object",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/ContentHierarchyResponseObject"
                 }
             }
         },
@@ -2629,6 +2965,115 @@
             "required": [
                 "content"
             ]
+        },
+        "ContentUpdateHierarchyRequestObject": {
+            "title": "Content Update Hierarchy Request Object",
+            "type": "object",
+            "properties": {
+                "request": {
+                    "$ref": "#/definitions/ContentDataObject"
+                }
+            },
+            "required": [
+                "request"
+            ]
+        },
+        "ContentDataObject": {
+            "title": "Content Update Hierarchy Object",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/DataObject"
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "DataObject": {
+            "title": "Content Update Hierarchy Object",
+            "type": "object",
+            "properties": {
+                "nodesModified": {
+                    "$ref": "#/definitions/ContentNodesModified"
+                },
+                "hierarchy": {
+                    "$ref": "#/definitions/ContentHierarchy"
+                }
+            },
+            "required": [
+                "NodesModified",
+                "hierarchy"
+            ]
+        },
+        "ContentNodesModified": {
+            "title": "Content Update Hierarchy Object",
+            "type": "object",
+            "properties": {
+                "dummyNode": {
+                    "$ref": "#/definitions/ContentDummyNode"
+                }
+            },
+            "required": [
+                "dummyNode"
+            ]
+        },
+        "ContentDummyNode": {
+            "title": "Content Metadata",
+            "type": "object",
+            "properties": {
+                "isNew": {
+                    "type": "boolean",
+                    "description": "Whether the content is new or existing"
+                },
+                "root": {
+                    "type": "boolean",
+                    "description": "Whether the content is root node"
+                },
+                "metadata":{
+                    "$ref": "#/definitions/Content"
+                }
+             },
+            "required": [
+                "metadata"
+            ]
+        },
+        "ContentHierarchy":{
+            "title": "Content Hierarchy",
+            "type": "object",
+            "properties": {
+                "dummyNode": {
+                    "$ref": "#/definitions/DummyNodeHierarchy"
+                }
+             },
+            "required": [
+                "dummyNode"
+            ]
+        },
+        "DummyNodeHierarchy": {
+            "title": "Dummy Node Hierarchy",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the content"
+                },
+                "contentType": {
+                    "type": "string",
+                    "description": "contentType of the content"
+                },
+                "root": {
+                    "type": "boolean",
+                    "description": "Whether the contetn is root"
+                },
+                "children": {
+                    "type": "array",
+                    "description": "children of the content",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+             }
         },
         "ContentSearchRequestObject": {
             "title": "Content Search Request Object",
@@ -2699,6 +3144,18 @@
                 }
             ]
         },
+        "ContentUpdateHierarchyResponse": {
+            "description": "Create Content Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultUpdateHierarchy"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
         "ContentUpdateResponse": {
             "title": "Update Content Response",
             "type": "object",
@@ -2717,6 +3174,18 @@
             "allOf": [
                 {
                     "$ref": "#/definitions/ResultWithContentResponse"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "ContentHierarchyGetResponse": {
+            "title": "Get Content Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithContentHierarchyResponse"
                 },
                 {
                     "$ref": "#/definitions/ResponseHeader"
