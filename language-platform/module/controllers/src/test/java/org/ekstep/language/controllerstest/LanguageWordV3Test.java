@@ -2,15 +2,19 @@ package org.ekstep.language.controllerstest;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
+import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,6 +42,7 @@ public class LanguageWordV3Test extends GraphEngineTestSetup{
 	private ResultActions actions;
 	private static boolean init = false;
 	private static String wordId = "";
+	private static String wordPmId = "";
 	private final static String TEST_LANGUAGE = "en";
 	private final static String TEST_COMMON_LANGUAGE = "language";
 
@@ -63,7 +68,7 @@ public class LanguageWordV3Test extends GraphEngineTestSetup{
 	@SuppressWarnings("rawtypes")
 	public void createWordTest() throws JsonParseException,
 			JsonMappingException, IOException {
-		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"testword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
+		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"testword\",\"primaryMeaning\":{\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"]},\"status\":\"Draft\"}]}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v3/words/create?language_id=" + TEST_LANGUAGE;
@@ -79,17 +84,32 @@ public class LanguageWordV3Test extends GraphEngineTestSetup{
 		}
 
 		Response response = jsonToObject(actions);
-		Assert.assertEquals("successful", response.getParams().getStatus());
-		Map<String, Object> result = response.getResult();
-		List nodeIds = (List) result.get("node_ids");
+		List nodeIds = (List) response.getResult().get("node_ids");
 		wordId = (String)nodeIds.get(0);
+		
+		path = "/v3/words/read/" +wordId +"?language_id=en";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
+					"user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Response resp = jsonToObject(actions);
+		Assert.assertEquals("successful", resp.getParams().getStatus());
+		Map<String, Object> result = resp.getResult();
+		Map<String, Object> wordNode = (Map<String, Object>) result
+				.get("Word");
+		Assert.assertNotNull(wordNode);
+		wordPmId = (String)wordNode.get(LanguageParams.primaryMeaningId.name());
 	}
 
 	
 	@Test
 	public void createDuplicateWordTest() throws JsonParseException,
 			JsonMappingException, IOException {
-		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"testword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
+		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"testword\",\"primaryMeaning\":{\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v3/words/create?language_id=" + TEST_LANGUAGE;
@@ -131,10 +151,10 @@ public class LanguageWordV3Test extends GraphEngineTestSetup{
 	}
 	
 	@Test
-	public void updateWordTest() throws JsonParseException,
+	public void updateWordPrimaryMeaningTest() throws JsonParseException,
 			JsonMappingException, IOException {
 		
-		String updateWordRequest = "{\"request\":{\"word\":{\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"meanig changed\"}}}}";
+		String updateWordRequest = "{\"request\":{\"word\":{\"primaryMeaning\":{\"identifier\":\""+wordPmId+"\",\"gloss\":\"meanig changed\"}}}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v3/words/update/"+wordId+"?language_id=" + TEST_LANGUAGE;
@@ -174,11 +194,80 @@ public class LanguageWordV3Test extends GraphEngineTestSetup{
 		Assert.assertNotNull(wordNode);
 		List<Map<String, Object>> synsets= (List<Map<String, Object>>)wordNode.get("synsets");
 		Assert.assertNotNull(synsets);
-		Map<String,Object> synset = synsets.get(0);
-		String gloss = (String)synset.get("gloss");
+		Map<String, Map<String,Object>> synsetsById =synsetListToMap(synsets);
+		Map<String,Object> primaryMeaning = synsetsById.get(wordPmId);
+		Assert.assertNotNull(primaryMeaning);
+		String gloss = (String)primaryMeaning.get("gloss");
 		Assert.assertEquals(gloss, "meanig changed");
 	}
 	
+	@Test
+	public void updateWordOtherMeaningTest() throws JsonParseException,
+			JsonMappingException, IOException {
+		
+		String updateWordRequest = "{\"request\":{\"word\":{\"otherMeanings\": [ { \"gender\": \"n\", \"pos\": \"Preposition\", \"gloss\": \"otherMeaning1\" }, { \"picture\": \"\", \"gender\": \"f\", \"pos\": \"Pronoun\", \"gloss\": \"otherMeaning2\" } ]}}}";
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v3/words/update/"+wordId+"?language_id=" + TEST_LANGUAGE;
+				
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(updateWordRequest.getBytes())
+					.header("user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Response response = jsonToObject(actions);
+		Assert.assertEquals("successful", response.getParams().getStatus());
+		Map<String, Object> result = response.getResult();
+		List<String> nodeIds = (List<String>) result.get("node_ids");
+		String nodeId = (String) nodeIds.get(0);
+		Assert.assertEquals(wordId, nodeId);
+		
+		path = "/v3/words/read/" +wordId +"?language_id=en";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
+					"user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Response resp = jsonToObject(actions);
+		Assert.assertEquals("successful", resp.getParams().getStatus());
+		result = resp.getResult();
+		Map<String, Object> wordNode = (Map<String, Object>) result
+				.get("Word");
+		Assert.assertNotNull(wordNode);
+		List<Map<String, Object>> synsets= (List<Map<String, Object>>)wordNode.get("synsets");
+		Assert.assertNotNull(synsets);
+		Assert.assertEquals(3, synsets.size());
+/*		Map<String, Map<String,Object>> synsetsById =synsetListToMap(synsets);
+		Map<String,Object> oth1 = synsetsById.get("en_72");
+		Assert.assertNotNull(oth1);
+		String oth1Gloss = (String)oth1.get("gloss");
+		Assert.assertEquals("otherMeaning1", oth1Gloss);
+		Map<String,Object> oth2 = synsetsById.get("en_73");
+		Assert.assertNotNull(oth2);
+		String oth2Gloss = (String)oth2.get("gloss");
+		Assert.assertEquals("otherMeaning2", oth2Gloss);*/
+
+	}
+	
+	private static Map<String, Map<String, Object>> synsetListToMap(List<Map<String, Object>> synsets){
+
+		Map<String, Map<String, Object>> result = new HashMap<>();
+		
+		for(Map<String, Object> synset:synsets) {
+			result.put((String) synset.get(LanguageParams.identifier.name()), synset);
+		}
+
+		return result;
+	}
 	public static Response jsonToObject(ResultActions actions) {
 		String content = null;
 		Response resp = null;
