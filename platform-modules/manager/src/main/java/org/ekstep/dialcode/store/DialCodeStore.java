@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.store.CassandraStore;
@@ -48,9 +47,6 @@ public class DialCodeStore extends CassandraStore {
 			throws Exception {
 		Map<String, Object> data = getInsertData(channel, publisher, batchCode, dialCode, dialCodeIndex);
 		insert(dialCode, data);
-		List<String> keys = data.keySet().stream().collect(Collectors.toList());
-		// TelemetryManager.audit((String) dialCode, getObjectType(), keys,
-		// "Draft", null);
 	}
 
 	public DialCode read(String dialCode) throws Exception {
@@ -68,10 +64,6 @@ public class DialCodeStore extends CassandraStore {
 
 	public void update(String id, Map<String, Object> data) throws Exception {
 		update(DialCodeEnum.identifier.name(), id, data);
-		List<String> keys = data.keySet().stream().collect(Collectors.toList());
-		String status = (String) data.get("status");
-		// TelemetryManager.audit((String) id, getObjectType(), keys, status,
-		// null);
 	}
 
 	private static Map<String, Object> getInsertData(String channel, String publisher, String batchCode,
