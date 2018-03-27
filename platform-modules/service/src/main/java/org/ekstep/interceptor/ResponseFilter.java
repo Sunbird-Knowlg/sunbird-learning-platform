@@ -44,11 +44,14 @@ public class ResponseFilter implements Filter {
 
 		if (StringUtils.isNotBlank(consumerId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
-
+		TelemetryManager.info("Channel before setting global context :: " + channelId);
 		if (StringUtils.isNotBlank(channelId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		else
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
+
+		TelemetryManager.info("Channel inside global context :: "
+				+ ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
 
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
