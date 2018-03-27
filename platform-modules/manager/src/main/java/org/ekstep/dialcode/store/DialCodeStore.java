@@ -15,7 +15,6 @@ import org.ekstep.dialcode.common.DialCodeErrorCodes;
 import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.model.DialCode;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.Row;
@@ -50,7 +49,8 @@ public class DialCodeStore extends CassandraStore {
 		Map<String, Object> data = getInsertData(channel, publisher, batchCode, dialCode, dialCodeIndex);
 		insert(dialCode, data);
 		List<String> keys = data.keySet().stream().collect(Collectors.toList());
-		TelemetryManager.audit((String) dialCode, getObjectType(), keys, "Draft", null);
+		// TelemetryManager.audit((String) dialCode, getObjectType(), keys,
+		// "Draft", null);
 	}
 
 	public DialCode read(String dialCode) throws Exception {
@@ -70,7 +70,8 @@ public class DialCodeStore extends CassandraStore {
 		update(DialCodeEnum.identifier.name(), id, data);
 		List<String> keys = data.keySet().stream().collect(Collectors.toList());
 		String status = (String) data.get("status");
-		TelemetryManager.audit((String) id, getObjectType(), keys, status, null);
+		// TelemetryManager.audit((String) id, getObjectType(), keys, status,
+		// null);
 	}
 
 	private static Map<String, Object> getInsertData(String channel, String publisher, String batchCode,
