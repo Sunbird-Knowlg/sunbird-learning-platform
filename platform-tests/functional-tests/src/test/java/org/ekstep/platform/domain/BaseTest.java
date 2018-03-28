@@ -27,7 +27,7 @@ public class BaseTest
 	public String UrlContentType = "text/plain";
 	public String uploadContentType = "multipart/form-data";
 	public String userId = "ilimi";
-	public String channelId = "test.ChannelId";
+	public String channelId = "Test";
 	public String appId = "test.appId";
 	
 	public String APIToken = Platform.config.getString("ft.access_key");

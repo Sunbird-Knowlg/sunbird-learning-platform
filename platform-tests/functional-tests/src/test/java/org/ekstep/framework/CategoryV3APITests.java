@@ -94,7 +94,7 @@ public class CategoryV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/master/create").
 		then().
-		//log().all().
+		log().all().
 		spec(get400ResponseSpec());	
 		retireCreatedCategory(categoryId);
 	}
@@ -227,9 +227,6 @@ public class CategoryV3APITests extends BaseTest{
 		Response R1 =
 			given().
 			spec(getRequestSpecification(contentType, userId, APIToken, channelId)).
-			body(jsonCreateCategoryRequest).
-			with().
-			contentType(JSON).			
 			when().
 			get("/framework/v3/category/master/read/"+categoryId).
 			then().
