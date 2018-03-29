@@ -21,6 +21,7 @@ import org.ekstep.graph.dac.mgr.impl.Neo4JBoltSearchMgrImpl;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,7 +48,7 @@ public class MigrateScreenshots extends CassandraStore {
 		MigrateScreenshots obj = new MigrateScreenshots(args[0]);
 		Map<String, Object> screenshotData = obj.getDatafromNeo4j(args[0]);
 		obj.updateToCassandra(screenshotData);
-		obj.removeFromNeo4j(screenshotData.keySet(), args[0]);
+		// obj.removeFromNeo4j(screenshotData.keySet(), args[0]);
 	}
 
 	/**
@@ -73,6 +74,11 @@ public class MigrateScreenshots extends CassandraStore {
 		
 		String fromKeyspace = Platform.config.getString("content.keyspace");
 
+		String selectQuery = "select count(screenshots) as count from " + fromKeyspace + ".content_data;";
+
+		ResultSet results = session.execute(selectQuery);
+		System.out.println("Before Update Cassandra Count : " + results.one().getObject("count"));
+
 		String query = "update " + fromKeyspace + ".content_data SET screenshots = textAsBlob(?) where content_id=?";
 		PreparedStatement statement = session.prepare(query);
 		BoundStatement boundStatement = new BoundStatement(statement);
@@ -92,8 +98,10 @@ public class MigrateScreenshots extends CassandraStore {
 			}
 
 		}
-
 		System.out.println("Updated to cassandra : : " + count);
+
+		results = session.execute(selectQuery);
+		System.out.println("After Update Cassandra Count : " + results.one().getObject("count"));
 	}
 
 	/**
