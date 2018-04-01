@@ -68,7 +68,7 @@ public class LanguageWordV3Test extends GraphEngineTestSetup{
 	@SuppressWarnings("rawtypes")
 	public void createWordTest() throws JsonParseException,
 			JsonMappingException, IOException {
-		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"testword\",\"primaryMeaning\":{\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"]},\"status\":\"Draft\"}]}}";
+		String wordReqString = "{\"request\":{\"words\":[{\"lemma\":\"testword\",\"primaryMeaning\":{\"gloss\":\"meaning1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"], \"synonyms\":[{\"lemma\":\"lemma2\"},{\"lemma\":\"lemma2\"}]},\"status\":\"Draft\",\"otherMeanings\":[{\"gender\":\"n\",\"pos\":\"Preposition\",\"gloss\":\"otherMeaning1\"}]}]}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v3/words/create?language_id=" + TEST_LANGUAGE;

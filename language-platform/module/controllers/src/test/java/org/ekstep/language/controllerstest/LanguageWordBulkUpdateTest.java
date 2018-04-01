@@ -12,10 +12,11 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.language.common.BaseLanguageTest;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,18 +35,27 @@ import org.springframework.web.context.WebApplicationContext;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class LanguageWordBulkUpdateTest  extends BaseLanguageTest{
+public class LanguageWordBulkUpdateTest  extends GraphEngineTestSetup{
 
 	@Autowired
 	private WebApplicationContext context;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
+	private final static String TEST_LANGUAGE = "en";
+	private final static String TEST_COMMON_LANGUAGE = "language";
+
 	
 	static {
 		LanguageRequestRouterPool.init();
         SearchRequestRouterPool.init(RequestRouterPool.getActorSystem());		
 	}
 	
+	@BeforeClass
+	public static void createDefinition() throws Exception {
+		loadDefinitionByGraphId(TEST_LANGUAGE, "definitions/PhoneticBoundaryDefinition.json", "definitions/SynsetDefinition.json", "definitions/TraversalRuleDefinition.json", "definitions/VarnaDefinition.json", "definitions/WordDefinitionNode.json", "definitions/wordset_definition.json");
+		loadDefinitionByGraphId(TEST_COMMON_LANGUAGE, "definitions/language/GradeLevelComplexity.json", "definitions/language/WordComplexityDefinition.json");
+	}
+
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void bulkUpdateSuccess() throws JsonParseException,
