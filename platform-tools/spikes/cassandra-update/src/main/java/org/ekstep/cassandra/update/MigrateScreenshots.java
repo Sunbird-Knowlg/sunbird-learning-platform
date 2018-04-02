@@ -47,7 +47,9 @@ public class MigrateScreenshots extends CassandraStore {
 		MigrateScreenshots obj = new MigrateScreenshots(args[0]);
 		Map<String, Object> screenshotData = obj.getDatafromNeo4j(args[0]);
 		obj.updateToCassandra(screenshotData);
+		System.out.println("Data migrated successfully");
 		// obj.removeFromNeo4j(screenshotData.keySet(), args[0]);
+		System.exit(0);
 	}
 
 	/**
