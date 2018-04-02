@@ -2188,7 +2188,8 @@
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content"
+						"Content",
+						"ContentImage"
 					],
 					"title": "collections",
 					"description": "Which all collections is this content part of",

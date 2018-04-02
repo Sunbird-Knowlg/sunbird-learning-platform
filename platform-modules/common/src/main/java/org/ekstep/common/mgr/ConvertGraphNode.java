@@ -65,8 +65,14 @@ public class ConvertGraphNode {
                             list = new ArrayList<NodeDTO>();
                             inRelMap.put(inRel.getRelationType() + inRel.getStartNodeObjectType(), list);
                         }
-                        list.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(), getDescription(inRel.getStartNodeMetadata()),
-                                inRel.getStartNodeObjectType(), inRel.getRelationType()));
+						String objectType = inRel.getStartNodeObjectType();
+						String id = inRel.getStartNodeId();
+						if (StringUtils.endsWith(objectType, "Image")) {
+							objectType = objectType.replace("Image", "");
+							id = id.replace(".img", "");
+						}
+						list.add(new NodeDTO(id, inRel.getStartNodeName(), getDescription(inRel.getStartNodeMetadata()),
+								objectType, inRel.getRelationType()));
                     }
                 }
                 updateReturnMap(map, inRelMap, inRelDefMap);
@@ -141,7 +147,14 @@ public class ConvertGraphNode {
         if (null != relMap && !relMap.isEmpty()) {
             for (Entry<String, List<NodeDTO>> entry : relMap.entrySet()) {
                 if (relDefMap.containsKey(entry.getKey())) {
-                    map.put(relDefMap.get(entry.getKey()), entry.getValue());
+					String returnKey = relDefMap.get(entry.getKey());
+					if (map.containsKey(returnKey)) {
+						List<NodeDTO> nodes = (List<NodeDTO>) map.get(returnKey);
+						nodes.addAll(entry.getValue());
+						map.put(returnKey, nodes);
+					} else {
+						map.put(returnKey, entry.getValue());
+					}
                 }
             }
         } else if (null != relDefMap && !relDefMap.isEmpty()) {
