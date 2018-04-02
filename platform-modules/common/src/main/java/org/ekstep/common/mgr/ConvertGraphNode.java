@@ -90,13 +90,22 @@ public class ConvertGraphNode {
 						String objectType = outRel.getEndNodeObjectType();
 						String id = outRel.getEndNodeId();
 						if (StringUtils.endsWith(objectType, "Image")) {
-							objectType = objectType.replace("Image", "");
-							id = id.replace(".img", "");
+							if (!StringUtils.equalsIgnoreCase("Default",
+									(String) outRel.getEndNodeMetadata().get("visibility"))) {
+								objectType = objectType.replace("Image", "");
+								id = id.replace(".img", "");
+								NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
+										getDescription(outRel.getEndNodeMetadata()), outRel.getEndNodeObjectType(),
+										outRel.getRelationType(), outRel.getMetadata());
+								list.add(child);
+							}
+
+						} else {
+							NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
+									getDescription(outRel.getEndNodeMetadata()), outRel.getEndNodeObjectType(),
+									outRel.getRelationType(), outRel.getMetadata());
+							list.add(child);
 						}
-						NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
-								getDescription(outRel.getEndNodeMetadata()), outRel.getEndNodeObjectType(),
-								outRel.getRelationType(), outRel.getMetadata());
-						list.add(child);
                     }
                 }
                 updateReturnMap(map, outRelMap, outRelDefMap);
