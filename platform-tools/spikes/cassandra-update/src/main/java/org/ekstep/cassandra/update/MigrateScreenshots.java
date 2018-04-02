@@ -12,7 +12,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.store.CassandraStore;
-import org.ekstep.cassandra.store.CassandraStoreParams;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -92,7 +91,6 @@ public class MigrateScreenshots extends CassandraStore {
 				Map<String, Object> requestMap = new HashMap<String, Object>();
 
 				requestMap.put("screenshots", screenshots);
-				logTransactionEvent(CassandraStoreParams.UPDATE.name(), id, requestMap);
 			} else {
 				System.out.println("Ignored ID :: " + id + " because screenshots is : : " + screenshotData.get(id));
 			}
