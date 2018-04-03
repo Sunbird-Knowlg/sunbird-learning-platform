@@ -531,7 +531,8 @@ public class SearchProcessorTest {
 		fields.add("contentType");
 		searchObj.setFields(fields);
 		Map<String, Object> softConstraints = new HashMap<String, Object>();
-		softConstraints.put("name", Arrays.asList(100, "31 check name match"));
+		softConstraints.put("name",
+				Arrays.asList(100, Arrays.asList("31 check name match", "check ends with value32")));
 		searchObj.setSoftConstraints(softConstraints);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchObj.setLimit(100);
@@ -539,7 +540,7 @@ public class SearchProcessorTest {
 		List<Map> results = (List<Map>) response.get("results");
 		Assert.assertNotNull(results);
 		Assert.assertEquals("31 check name match", results.get(0).get("name"));
-
+		Assert.assertEquals("check ends with value32", results.get(1).get("name"));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
