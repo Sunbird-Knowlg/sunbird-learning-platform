@@ -2189,8 +2189,7 @@
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content",
-						"ContentImage"
+						"Content"
 					],
 					"title": "collections",
 					"description": "Which all collections is this content part of",
@@ -2251,8 +2250,7 @@
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content",
-						"ContentImage"
+						"Content"
 					],
 					"title": "children",
 					"description": "Child content items (in sorted order) in case of collections like Textbooks",
