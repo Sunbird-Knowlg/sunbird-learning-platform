@@ -218,6 +218,7 @@ public class SearchProcessor {
 
 		if (searchDTO.isFuzzySearch()) {
 			query = prepareFilteredSearchQuery(searchDTO);
+			relevanceSort = true;
 		} else {
 			query = prepareSearchQuery(searchDTO);
 		}
