@@ -538,6 +538,7 @@ public class SearchProcessorTest {
 		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
 		List<Map> results = (List<Map>) response.get("results");
 		Assert.assertNotNull(results);
+		Assert.assertEquals("31 check name match", results.get(0).get("name"));
 
 	}
 
