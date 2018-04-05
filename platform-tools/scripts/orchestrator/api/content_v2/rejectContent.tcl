@@ -19,8 +19,9 @@ if {$check_error} {
 		set status_val [$node_metadata get "status"]
 		set status_val_str [java::new String [$status_val toString]]
 		set isReviewState [$status_val_str equalsIgnoreCase "Review"]
-                set isLiveState [$status_val_str equalsIgnoreCase "Live"]
-                set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
+        set isLiveState [$status_val_str equalsIgnoreCase "Live"]
+        set isUnlistedState [$status_val_str equalsIgnoreCase "Unlisted"]
+        set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
 		if {$isReviewState == 1} {
 			set request [java::new HashMap]
 			$request put "versionKey" [$node_metadata get "versionKey"]
@@ -33,7 +34,7 @@ if {$check_error} {
 			set create_response [updateDataNode $graph_id $content_id $domain_obj]
                         set check_error [check_response_error $create_response]
  			return $create_response
-		} elseif {$isLiveState == 1} {
+		} elseif {$isLiveState == 1 || $isUnlistedState == 1 } {
 			set content_image_id ${content_id}.img
  			set resp_get_node [getDataNode $graph_id $content_image_id]
 			set check_error [check_response_error $resp_get_node]
@@ -56,7 +57,7 @@ if {$check_error} {
 					set check_error [check_response_error $create_image_response]
                                		 $create_image_response put "node_id" $original_content_id 
 					return $create_image_response
-                                } else {
+                } else {
  					set result_map [java::new HashMap]
 					$result_map put "code" "ERR_CONTENT_NOT_IN_REVIEW"
 					$result_map put "message" "Content $content_id is not in review state to reject"

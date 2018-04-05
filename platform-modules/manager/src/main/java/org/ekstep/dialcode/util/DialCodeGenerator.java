@@ -62,12 +62,11 @@ public class DialCodeGenerator {
 	public Map<Double, String> generate(double count, String channel, String publisher, String batchCode)
 			throws Exception {
 		Map<Double, String> codes = new HashMap<Double, String>();
-		double startIndex = getMaxIndex();
 		int totalChars = alphabet.length;
 		BigDecimal exponent = BigDecimal.valueOf(totalChars);
 		exponent = exponent.pow(length.intValue());
 		double codesCount = 0;
-		double lastIndex = startIndex;
+		double lastIndex = 0;
 		while (codesCount < count) {
 			lastIndex = getMaxIndex();
 			BigDecimal number = new BigDecimal(lastIndex);

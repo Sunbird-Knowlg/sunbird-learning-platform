@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
+import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
@@ -34,136 +35,155 @@ import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
+import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PublishPipelineService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
 
 	private String contentId;
-	
+
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
 	private static final String s3Content = "s3.content.folder";
 
 	private static final String s3Artifact = "s3.artifact.folder";
-	
+
 	private static final String COLLECTION_CONTENT_MIMETYPE = "application/vnd.ekstep.content-collection";
 
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	private Map<String, Object> parameterMap = new HashMap<String,Object>();
+	private Map<String, Object> parameterMap = new HashMap<String, Object>();
 
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	private ControllerUtil util = new ControllerUtil();
 
 	private Config config = null;
-	
-	private static int MAXITERTIONCOUNT= 2;
-	
+
+	private static int MAXITERTIONCOUNT = 2;
+
+	private SystemStream systemStream = null;
+
 	protected int getMaxIterations() {
-		if(Platform.config.hasPath("max.iteration.count.samza.job")) 
+		if (Platform.config.hasPath("max.iteration.count.samza.job"))
 			return Platform.config.getInt("max.iteration.count.samza.job");
-		else 
+		else
 			return MAXITERTIONCOUNT;
 	}
-	
+
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
 		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
-		LOGGER.info("Akka actors initialized");	
+		LOGGER.info("Akka actors initialized");
+		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
+		LOGGER.info("Stream initialized for Failed Events");
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
+			throws Exception {
 
-		if(null == message) {
+		if (null == message) {
 			LOGGER.info("Ignoring the message because it is not valid for publishing.");
 			return;
 		}
 		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
 		Map<String, Object> object = (Map<String, Object>) message.get(PublishPipelineParams.object.name());
-		
+
 		if (!validateObject(edata) || null == object) {
 			LOGGER.info("Ignoring the message because it is not valid for publishing.");
 			return;
 		}
-		
+
 		String nodeId = (String) object.get(PublishPipelineParams.id.name());
-		if(StringUtils.isNotBlank(nodeId)) {
+		if (StringUtils.isNotBlank(nodeId)) {
 			try {
 				Node node = getNode(nodeId);
 				if (null != node) {
-					if(prePublishValidation(node, (Map<String, Object>)edata.get("metadata"))) {
-						LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
+					if (prePublishValidation(node, (Map<String, Object>) edata.get("metadata"))) {
+						LOGGER.info(
+								"Node fetched for publish and content enrichment operation : " + node.getIdentifier());
 						prePublishUpdate(edata, node);
 						processJob(edata, nodeId, metrics);
 					}
-				}else {
+				} else {
 					metrics.incSkippedCounter();
 					LOGGER.debug("Invalid Node Object. Unable to process the event", message);
 				}
-			}catch(Exception e) {
+			} catch (PlatformException e) {
+				LOGGER.error("Failed to process message", message, e);
+				metrics.incFailedCounter();
+				FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
+						PlatformErrorCodes.PROCESSING_ERROR.name(), e.getMessage());
+			} catch (Exception e) {
 				LOGGER.error("Failed to process message", message, e);
 				metrics.incErrorCounter();
+				FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
+						PlatformErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
 			}
-		}else {
+		} else {
 			metrics.incSkippedCounter();
 			LOGGER.debug("Invalid NodeId. Unable to process the event", message);
 		}
 	}
-	
+
 	private boolean prePublishValidation(Node node, Map<String, Object> eventMetadata) {
 		Map<String, Object> objMetadata = (Map<String, Object>) node.getMetadata();
-		
-		double eventPkgVersion = (double)((eventMetadata.get("pkgVersion") == null) ? 0.0 : eventMetadata.get("pkgVersion"));
-		double objPkgVersion = (double)((objMetadata.get("pkgVersion") == null) ? 0.0 : objMetadata.get("pkgVersion"));
-		
-		return (objPkgVersion<=eventPkgVersion);
+
+		double eventPkgVersion = (double) ((eventMetadata.get("pkgVersion") == null) ? 0.0
+				: eventMetadata.get("pkgVersion"));
+		double objPkgVersion = (double) ((objMetadata.get("pkgVersion") == null) ? 0.0 : objMetadata.get("pkgVersion"));
+
+		return (objPkgVersion <= eventPkgVersion);
 	}
-	
+
 	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics) throws Exception {
-		
+
 		Node node = getNode(contentId);
-		node.getMetadata().put(PublishPipelineParams.publish_type.name(), edata.get(PublishPipelineParams.publish_type.name()));
-		if(publishContent(node)) {
+		node.getMetadata().put(PublishPipelineParams.publish_type.name(),
+				edata.get(PublishPipelineParams.publish_type.name()));
+		if (publishContent(node)) {
 			metrics.incSuccessCounter();
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
 			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
-		}else {
-			metrics.incFailedCounter();
+		} else {
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.FAILED.name());
 			LOGGER.debug("Node publish operation :: FAILED :: For NodeId :: " + node.getIdentifier());
+			throw new PlatformException(PlatformErrorCodes.PUBLISH_FAILED.name(),
+					"Node publish operation failed for Node Id:" + node.getIdentifier());
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void prePublishUpdate(Map<String, Object> edata, Node node) {
-		Map<String, Object> metadata = (Map<String, Object>)edata.get("metadata");
+		Map<String, Object> metadata = (Map<String, Object>) edata.get("metadata");
 		node.getMetadata().putAll(metadata);
-		
+
 		String prevState = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
 		node.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
 		node.getMetadata().put("status", "Processing");
-		
+
 		util.updateNode(node);
 		edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.Processing.name());
 		LOGGER.debug("Node status :: Processing for NodeId :: " + node.getIdentifier());
 	}
-	
+
 	private Node getNode(String nodeId) {
 		Node node = null;
 		String imgNodeId = nodeId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
@@ -173,28 +193,33 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		return node;
 	}
-	
-	private boolean publishContent(Node node) throws Exception{
+
+	private boolean publishContent(Node node) throws Exception {
 		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
-		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()), COLLECTION_CONTENT_MIMETYPE)) {
+		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
+				COLLECTION_CONTENT_MIMETYPE)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
-			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
+			nodesToPublish.forEach(
+					nodeDTO -> publishCollectionNode(nodeDTO, (String) node.getMetadata().get("publish_type")));
 			if (!nodes.isEmpty()) {
-				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), getCompatabilityLevel(nodes));
+				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(),
+						getCompatabilityLevel(nodes));
 			}
 		}
 		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
 		LOGGER.debug("Publish processing done for content: " + node.getIdentifier());
-		
-		
+
 		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
-		if(StringUtils.equalsIgnoreCase((String)publishedNode.getMetadata().get(PublishPipelineParams.status.name()), PublishPipelineParams.Failed.name()))
+		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
+				PublishPipelineParams.Failed.name()))
 			return false;
-		
+
 		LOGGER.debug("Content Enrichment start for content: " + node.getIdentifier());
-		if(StringUtils.equalsIgnoreCase(((String)publishedNode.getMetadata().get(PublishPipelineParams.mimeType.name())), COLLECTION_CONTENT_MIMETYPE)) {
+		if (StringUtils.equalsIgnoreCase(
+				((String) publishedNode.getMetadata().get(PublishPipelineParams.mimeType.name())),
+				COLLECTION_CONTENT_MIMETYPE)) {
 			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 			publishedNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
 			processCollection(publishedNode);
@@ -204,11 +229,12 @@ public class PublishPipelineService implements ISamzaService {
 	}
 
 	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
-		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare( n1.getCompatibilityLevel(), n2.getCompatibilityLevel());
+		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare(n1.getCompatibilityLevel(),
+				n2.getCompatibilityLevel());
 		Optional<NodeDTO> maxNode = nodes.stream().max(comp);
 		if (maxNode.isPresent())
 			return maxNode.get().getCompatibilityLevel();
-		else 
+		else
 			return 1;
 	}
 
@@ -246,9 +272,8 @@ public class PublishPipelineService implements ISamzaService {
 	}
 
 	private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
-		return dedup(nodes).stream()
-				.filter(node -> StringUtils.equalsIgnoreCase(node.getMimeType(),
-						"application/vnd.ekstep.content-collection")
+		return dedup(nodes).stream().filter(
+				node -> StringUtils.equalsIgnoreCase(node.getMimeType(), "application/vnd.ekstep.content-collection")
 						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft"))
 				.filter(node -> StringUtils.equalsIgnoreCase(node.getVisibility(), "parent"))
 				.sorted(new Comparator<NodeDTO>() {
@@ -261,7 +286,7 @@ public class PublishPipelineService implements ISamzaService {
 
 	private void publishCollectionNode(NodeDTO node, String publishType) {
 		Node graphNode = util.getNode("domain", node.getIdentifier());
-		if(StringUtils.isNotEmpty(publishType)) {
+		if (StringUtils.isNotEmpty(publishType)) {
 			graphNode.getMetadata().put("publish_type", publishType);
 		}
 		publishNode(graphNode, node.getMimeType());
@@ -269,8 +294,9 @@ public class PublishPipelineService implements ISamzaService {
 
 	private void publishNode(Node node, String mimeType) {
 		if (null == node)
-			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(), ContentErrorMessageConstants.INVALID_CONTENT
-					+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
+			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
+					ContentErrorMessageConstants.INVALID_CONTENT
+							+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
 		String nodeId = node.getIdentifier().replace(".img", "");
 		LOGGER.info("Publish processing start for node: " + nodeId);
 		String basePath = PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location"));
@@ -279,18 +305,18 @@ public class PublishPipelineService implements ISamzaService {
 			setContentBody(node, mimeType);
 			LOGGER.debug("Fetched body from cassandra");
 			parameterMap.put(PublishPipelineParams.node.name(), node);
-			parameterMap.put(PublishPipelineParams.ecmlType.name(),
-					PublishManager.isECMLContent(mimeType));
+			parameterMap.put(PublishPipelineParams.ecmlType.name(), PublishManager.isECMLContent(mimeType));
 			LOGGER.info("Initializing the publish pipeline for: " + node.getIdentifier());
 			InitializePipeline pipeline = new InitializePipeline(basePath, nodeId);
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.info("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
-							+ nodeId + "]", e.getMessage());
+			LOGGER.info(
+					"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
+							+ nodeId + "]",
+					e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
-			node.getMetadata().put(PublishPipelineParams.status.name(),
-					PublishPipelineParams.Failed.name());
+			node.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
 			util.updateNode(node);
 			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
 					e.getMessage());
@@ -306,14 +332,16 @@ public class PublishPipelineService implements ISamzaService {
 
 	private void setContentBody(Node node, String mimeType) {
 		if (PublishManager.isECMLContent(mimeType)) {
-			node.getMetadata().put(PublishPipelineParams.body.name(), PublishManager.getContentBody(node.getIdentifier()));
+			node.getMetadata().put(PublishPipelineParams.body.name(),
+					PublishManager.getContentBody(node.getIdentifier()));
 		}
 	}
-	
+
 	private boolean validateObject(Map<String, Object> edata) {
-		
-		if (!StringUtils.equalsIgnoreCase((String) edata.get(PublishPipelineParams.contentType.name()), PublishPipelineParams.Asset.name())) {
-			if(((Integer)edata.get(PublishPipelineParams.iteration.name()) <= getMaxIterations()))
+
+		if (!StringUtils.equalsIgnoreCase((String) edata.get(PublishPipelineParams.contentType.name()),
+				PublishPipelineParams.Asset.name())) {
+			if (((Integer) edata.get(PublishPipelineParams.iteration.name()) <= getMaxIterations()))
 				return true;
 		}
 		return false;
@@ -327,7 +355,7 @@ public class PublishPipelineService implements ISamzaService {
 		Map<String, Object> dataMap = null;
 		dataMap = processChildren(node, graphId, dataMap);
 		LOGGER.debug("Children nodes process for collection - " + contentId);
-		if(null != dataMap){
+		if (null != dataMap) {
 			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
 				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
 					continue;
@@ -364,14 +392,15 @@ public class PublishPipelineService implements ISamzaService {
 				node.getMetadata().put("keywords", keywordsList);
 			}
 		}
-		
-		if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(PublishPipelineParams.visibility.name()), PublishPipelineParams.Default.name())) {
+
+		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.visibility.name()),
+				PublishPipelineParams.Default.name())) {
 			processCollectionForTOC(node);
 		}
-		
+
 		util.updateNode(node);
-		if(null != dataMap) {
-			if(null != dataMap.get("concepts")){
+		if (null != dataMap) {
+			if (null != dataMap.get("concepts")) {
 				List<String> concepts = new ArrayList<>();
 				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
 				if (!concepts.isEmpty()) {
@@ -380,11 +409,12 @@ public class PublishPipelineService implements ISamzaService {
 			}
 		}
 	}
-	
-	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap) throws Exception {
+
+	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap)
+			throws Exception {
 		List<String> children;
 		children = getChildren(node);
-		if(!children.isEmpty()){
+		if (!children.isEmpty()) {
 			dataMap = new HashMap<String, Object>();
 			for (String child : children) {
 				Node childNode = util.getNode(graphId, child);
@@ -394,10 +424,10 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		return dataMap;
 	}
-	
+
 	private List<String> getChildren(Node node) throws Exception {
 		List<String> children = new ArrayList<>();
-		if(null != node.getOutRelations()){
+		if (null != node.getOutRelations()) {
 			for (Relation rel : node.getOutRelations()) {
 				if (PublishPipelineParams.content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
 					children.add(rel.getEndNodeId());
@@ -406,7 +436,7 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		return children;
 	}
-	
+
 	private Map<String, Object> processChild(Node node) throws Exception {
 
 		Map<String, Object> result = new HashMap<>();
@@ -476,9 +506,10 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		return result;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap) throws Exception {
+	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap)
+			throws Exception {
 		if (dataMap.isEmpty()) {
 			dataMap.putAll(childDataMap);
 		} else {
@@ -500,7 +531,7 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		return dataMap;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void processCollectionForTOC(Node node) throws Exception {
 
@@ -511,7 +542,7 @@ public class PublishPipelineService implements ISamzaService {
 			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
-			
+
 			int leafCount = 0;
 			getTypeCount(content, "mimeType", mimeTypeMap);
 			getTypeCount(content, "contentType", contentTypeMap);
@@ -546,7 +577,7 @@ public class PublishPipelineService implements ISamzaService {
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void getTypeCount(Map<String, Object> data, String type, Map<String, Object> typeMap) {
 		List<Object> children = (List<Object>) data.get("children");
@@ -568,7 +599,7 @@ public class PublishPipelineService implements ISamzaService {
 		}
 
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private Integer getLeafNodeCount(Map<String, Object> data, int leafCount) {
 		List<Object> children = (List<Object>) data.get("children");
@@ -585,29 +616,30 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		return leafCount;
 	}
+
 	private List<String> getChildNode(Map<String, Object> data) {
 		Set<String> childrenSet = new HashSet<>();
 		getChildNode(data, childrenSet);
 		return new ArrayList<>(childrenSet);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void getChildNode(Map<String, Object> data, Set<String> childrenSet) {
 		List<Object> children = (List<Object>) data.get("children");
 		if (null != children && !children.isEmpty()) {
 			for (Object child : children) {
 				Map<String, Object> childMap = (Map<String, Object>) child;
-				childrenSet.add((String)childMap.get("identifier"));
+				childrenSet.add((String) childMap.get("identifier"));
 				getChildNode(childMap, childrenSet);
 			}
 		}
 	}
-	
+
 	private String getBasePath(String contentId) {
 		String path = "";
 		if (!StringUtils.isBlank(contentId))
-			path = this.config.get("lp.tempfile.location") + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
-					+ File.separator + contentId;
+			path = this.config.get("lp.tempfile.location") + File.separator + System.currentTimeMillis()
+					+ ContentAPIParams._temp.name() + File.separator + contentId;
 		return path;
 	}
 

@@ -22,8 +22,8 @@ public class FailedEventsUtil {
 		failedEventMap.put("jobName", metrics.getJobName());
 		failedEventMap.put("errorCode", errorCode);
 		failedEventMap.put("errorMessage", errorMessage);
-		failedEventMap.put("eventMessage", eventMessage);
-		collector.send(new OutgoingMessageEnvelope(sysStream, failedEventMap));
+		eventMessage.put("failInfo", failedEventMap);
+		collector.send(new OutgoingMessageEnvelope(sysStream, eventMessage));
 		LOGGER.debug("Event sent to fail topic for job : " + metrics.getJobName());
 	}
 }

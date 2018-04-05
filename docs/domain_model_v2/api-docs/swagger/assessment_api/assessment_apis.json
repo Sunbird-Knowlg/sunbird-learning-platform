@@ -480,7 +480,7 @@
         "security": []
       }
     },
-     "/itemsets/list": {
+    "/itemsets/list": {
       "post": {
         "summary": "Lists an itemset",
         "description": "This API is used to list and retrieve all itemsets from the Item repository based on the given search creteria in the request body",
@@ -596,7 +596,7 @@
         }
       }
     },
-     "listAssessmentRequest": {
+    "listAssessmentRequest": {
       "type": "object",
       "required": [
         "id",
@@ -731,7 +731,7 @@
         }
       }
     },
-     "listitemsetRequest": {
+    "listitemsetRequest": {
       "type": "object",
       "required": [
         "id",
@@ -956,7 +956,7 @@
         }
       }
     },
-      "listAssessmentItemResponse": {
+    "listAssessmentItemResponse": {
       "title": "search Response",
       "properties": {
         "id": {
@@ -1504,9 +1504,6 @@
           "type": "string",
           "description": "date of creation"
         },
-        "gradeLevel": {
-          "type": "object"
-        },
         "conceptIds": {
           "type": "object"
         },
@@ -1535,7 +1532,7 @@
           "type": "number",
           "description": "number of answers"
         },
-        "template_Id": {
+        "template_id": {
           "type": "string",
           "description": "template Id"
         },
@@ -1554,6 +1551,139 @@
         "lastUpdatedOn": {
           "type": "string",
           "description": "last updated date"
+        },
+        "status": {
+          "type": "string",
+          "description": "status"
+        },
+        "owner": {
+          "type": "string",
+          "description": "owner"
+        },
+        "question_audio": {
+          "type": "string",
+          "description": "question_audio"
+        },
+        "question_image": {
+          "type": "string",
+          "description": "question_image"
+        },
+        "media": {
+          "type": "object",
+          "description": "media"
+        },
+        "model": {
+          "type": "object",
+          "description": "model"
+        },
+        "lhs_options": {
+          "type": "object",
+          "description": "lhs_options"
+        },
+        "rhs_options": {
+          "type": "object",
+          "description": "rhs_options"
+        },
+        "responses": {
+          "type": "object",
+          "description": "responses"
+        },
+        "answer": {
+          "type": "object",
+          "description": "answer"
+        },
+        "hints": {
+          "type": "object",
+          "description": "hints"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "purpose"
+        },
+        "depth_of_knowledge": {
+          "type": "string",
+          "description": "depth_of_knowledge"
+        },
+        "used_for": {
+          "type": "string",
+          "description": "used_for"
+        },
+        "feedback": {
+          "type": "number",
+          "description": "feedback"
+        },
+        "max_time": {
+          "type": "number",
+          "description": "max_time"
+        },
+        "gradeLevel": {
+          "type": "array",
+          "description": "gradeLevel",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source": {
+          "type": "string",
+          "description": "source"
+        },
+        "rendering_metadata": {
+          "type": "object",
+          "description": "rendering_metadata"
+        },
+        "description": {
+          "type": "string",
+          "description": "description"
+        },
+        "learningObjective": {
+          "type": "array",
+          "description": "learningObjective",
+          "items": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "type": "string",
+          "description": "example"
+        },
+        "validators": {
+          "type": "array",
+          "description": "validators",
+          "items": {
+            "type": "string"
+          }
+        },
+        "references": {
+          "type": "string",
+          "description": "references"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "createdBy"
+        },
+        "lastUpdatedBy": {
+          "type": "string",
+          "description": "lastUpdatedBy"
+        },
+        "version": {
+          "type": "number",
+          "description": "version"
+        },
+        "versionDate": {
+          "type": "string",
+          "description": "versionDate"
+        },
+        "versionCreatedBy": {
+          "type": "string",
+          "description": "versionCreatedBy"
+        },
+        "itemType": {
+          "type": "string",
+          "description": "itemType"
+        },
+        "category": {
+          "type": "string",
+          "description": "category"
         }
       }
     },

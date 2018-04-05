@@ -87,7 +87,7 @@ public class ContentBundle {
 		urlFields.add("grayScaleAppIcon");
 		urlFields.add("posterImage");
 		urlFields.add("artifactUrl");
-		urlFields.add("screenshots");
+		//urlFields.add("screenshots");
 
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
@@ -98,6 +98,9 @@ public class ContentBundle {
 						ContentWorkflowPipelineParams.Parent.name());
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
+			// TODO: Added code for removing screenshots, as 'screenshot' is external property, it should not be in manifest file. But this code can be removed later.
+			if(content.containsKey("screenshots"))
+					content.remove("screenshots");
 			for (Map.Entry<String, Object> entry : content.entrySet()) {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
