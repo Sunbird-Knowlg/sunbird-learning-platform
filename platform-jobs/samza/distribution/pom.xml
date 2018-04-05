@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-event-generator</artifactId>
-			<version>0.0.10</version>
+			<version>0.0.11</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
