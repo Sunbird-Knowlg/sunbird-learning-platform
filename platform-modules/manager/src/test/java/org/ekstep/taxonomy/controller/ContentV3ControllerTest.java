@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.TestParams;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
@@ -90,9 +91,11 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		loadDefinition("definitions/content_definition.json", "definitions/concept_definition.json",
 				"definitions/dimension_definition.json", "definitions/domain_definition.json");
 		executeScript(script_1, script_2);
+		LearningRequestRouterPool.init();
 		createDocumentContent();
 		createCollectionContent();
 		createDialCodeIndex();
+		uploadContent();
 	}
 
 	@Before
@@ -155,6 +158,16 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 				versionKey2 = (String) documentResponse.getResult().get(TestParams.versionKey.name());
 			}
 		}
+	}
+
+	private static void uploadContent() {
+		String mimeType = "application/pdf";
+		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
+		ContentManagerImpl contentManager = new ContentManagerImpl();
+		Response response = contentManager.upload(contentId, fileUrl, mimeType);
+		String responseCode = (String) response.getResponseCode().toString();
+		if ("OK".equalsIgnoreCase(responseCode))
+			versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 	}
 
 	public static void createCollectionContent() throws Exception {
@@ -245,7 +258,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * Review Content
 	 * 
 	 */
-	@Ignore
 	@Test
 	public void testContentV3Controller_05() throws Exception {
 		String path = basePath + "/review/" + contentId;
