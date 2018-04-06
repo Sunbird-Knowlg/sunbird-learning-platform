@@ -39,6 +39,7 @@ public class SearchProcessor {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static final String ASC_ORDER = "asc";
 	private static final String AND = "AND";
+	private boolean relevanceSort = false;
 
 	public SearchProcessor() {
 		elasticSearchUtil = new ElasticSearchUtil();
@@ -217,13 +218,15 @@ public class SearchProcessor {
 
 		if (searchDTO.isFuzzySearch()) {
 			query = prepareFilteredSearchQuery(searchDTO);
+			relevanceSort = true;
 		} else {
 			query = prepareSearchQuery(searchDTO);
 		}
 
 		searchRequestBuilder.setQuery(query);
 
-		if (sortBy) {
+		if (sortBy && !relevanceSort
+				&& (null == searchDTO.getSoftConstraints() || searchDTO.getSoftConstraints().isEmpty())) {
 			Map<String, String> sorting = searchDTO.getSortBy();
 			if (sorting == null || sorting.isEmpty()) {
 				sorting = new HashMap<String, String>();
@@ -290,11 +293,14 @@ public class SearchProcessor {
 
 			String propertyName = (String) property.get("propertyName");
 			if (propertyName.equals("*")) {
+				relevanceSort = true;
 				propertyName = "all_fields";
 				queryBuilder = getAllFieldsPropertyQuery(values);
 				boolQuery.must(queryBuilder);
 				continue;
 			}
+
+			propertyName = propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
 
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
@@ -380,9 +386,7 @@ public class SearchProcessor {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private QueryBuilder prepareFilteredSearchQuery(SearchDTO searchDTO) {
-		FunctionScoreQueryBuilder funcScoreQuery = null;
-		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-		QueryBuilder queryBuilder = null;
+		FunctionScoreQueryBuilder queryBuilder = QueryBuilders.functionScoreQuery();
 		Map<String, Float> weightages = (Map<String, Float>) searchDTO.getAdditionalProperty("weightagesMap");
 		if (weightages == null) {
 			weightages = new HashMap<String, Float>();
@@ -401,98 +405,93 @@ public class SearchProcessor {
 			}
 			String propertyName = (String) property.get("propertyName");
 			if (propertyName.equals("*")) {
+				relevanceSort = true;
 				propertyName = "all_fields";
-				queryBuilder = getAllFieldsPropertyQuery(values);
-				boolQuery.must(queryBuilder);
+				queryBuilder.add(getAllFieldsPropertyQuery(values),
+						ScoreFunctionBuilders.weightFactorFunction(weightages.get("default_weightage")));
 				continue;
 			}
 
+			propertyName = propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
+			float weight = getweight(querySearchFeilds, propertyName);
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
-				float weight = getweight(querySearchFeilds, propertyName);
-				queryBuilder = QueryBuilders
-						.functionScoreQuery(
-								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, true)),
-								ScoreFunctionBuilders.weightFactorFunction(weight))
-						.scoreMode(ScoreMode.Sum.name().toLowerCase())
-						.boostMode(CombineFunction.REPLACE);
+				queryBuilder.add(getMustTermQuery(propertyName, values, true),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
-				float weight = getweight(querySearchFeilds, propertyName);
-				queryBuilder = QueryBuilders
-						.functionScoreQuery(
-								QueryBuilders.boolQuery().filter(getMustTermQuery(propertyName, values, false)),
-								ScoreFunctionBuilders.weightFactorFunction(weight))
-						.scoreMode(ScoreMode.Sum.name().toLowerCase())
-						.boostMode(CombineFunction.REPLACE);
+				queryBuilder.add(getMustTermQuery(propertyName, values, true),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
-				queryBuilder = getRegexQuery(propertyName, values);
+				queryBuilder.add(getRegexQuery(propertyName, values),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LIKE:
 			case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS: {
-				queryBuilder = getMatchPhraseQuery(propertyName, values, true);
+				queryBuilder.add(getMatchPhraseQuery(propertyName, values, true),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_LIKE: {
-				queryBuilder = getMatchPhraseQuery(propertyName, values, false);
+				queryBuilder.add(getMatchPhraseQuery(propertyName, values, false),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH: {
-				queryBuilder = getMatchPhrasePrefixQuery(propertyName, values);
+				queryBuilder.add(getMatchPhrasePrefixQuery(propertyName, values),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_EXISTS: {
-				queryBuilder = getExistsQuery(propertyName, values, true);
+				queryBuilder.add(getExistsQuery(propertyName, values, true),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS: {
-				queryBuilder = getExistsQuery(propertyName, values, false);
+				queryBuilder.add(getExistsQuery(propertyName, values, false),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_IN: {
-				queryBuilder = getNotInQuery(propertyName, values);
+				queryBuilder.add(getNotInQuery(propertyName, values),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
-				queryBuilder = getRangeQuery(propertyName, values,
-						CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN);
+				queryBuilder.add(
+						getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
-				queryBuilder = getRangeQuery(propertyName, values,
-						CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS);
+				queryBuilder.add(
+						getRangeQuery(propertyName, values,
+								CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
-				queryBuilder = getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN);
+				queryBuilder.add(
+						getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
-				queryBuilder = getRangeQuery(propertyName, values,
-						CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS);
+				queryBuilder.add(
+						getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			}
-			boolQuery.must(queryBuilder);
 		}
 
-		Map<String, Object> softConstraints = searchDTO.getSoftConstraints();
-		if (null != softConstraints && !softConstraints.isEmpty()) {
-			boolQuery.should(getSoftConstraintQuery(softConstraints));
-			searchDTO.setSortBy(null);
-		}
+		queryBuilder.scoreMode(ScoreMode.Sum.name().toLowerCase()).boostMode(CombineFunction.REPLACE);
 
-		funcScoreQuery = QueryBuilders
-				.functionScoreQuery(boolQuery,
-						ScoreFunctionBuilders.weightFactorFunction(Float.valueOf(weightages.get("default_weightage"))))
-				.scoreMode(ScoreMode.Sum.name().toLowerCase())
-				.boostMode(CombineFunction.REPLACE);
-
-		return funcScoreQuery;
+		return queryBuilder;
 	}
 
 	/**
@@ -538,9 +537,17 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (String key : softConstraints.keySet()) {
 			List<Object> data = (List<Object>) softConstraints.get(key);
-			queryBuilder
-					.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1))
-							.boost(Integer.valueOf((int) data.get(0)).floatValue()));
+			if(data.get(1) instanceof List) {
+				List<Object> dataList = (List<Object>) data.get(1);
+				for(Object value: dataList) {
+					queryBuilder.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+				}
+			}
+			else {
+				queryBuilder.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1)));
+			}
+			
+			queryBuilder.boost(Integer.valueOf((int) data.get(0)).floatValue());
 		}
 		return queryBuilder;
 	}
@@ -557,22 +564,22 @@ public class SearchProcessor {
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
 				queryBuilder.should(QueryBuilders
-						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).gt(value));
+						.rangeQuery(propertyName).gt(value));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
 				queryBuilder.should(QueryBuilders
-						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).gte(value));
+						.rangeQuery(propertyName).gte(value));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
 				queryBuilder.should(QueryBuilders
-						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).lt(value));
+						.rangeQuery(propertyName).lt(value));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
 				queryBuilder.should(QueryBuilders
-						.rangeQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION).lte(value));
+						.rangeQuery(propertyName).lte(value));
 				break;
 			}
 			}
@@ -607,7 +614,7 @@ public class SearchProcessor {
 	private QueryBuilder getNotInQuery(String propertyName, List<Object> values) {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		queryBuilder
-				.mustNot(QueryBuilders.termsQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, values));
+				.mustNot(QueryBuilders.termsQuery(propertyName, values));
 		return queryBuilder;
 	}
 
@@ -620,7 +627,7 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			queryBuilder.should(QueryBuilders.prefixQuery(
-					propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, ((String) value).toLowerCase()));
+					propertyName, ((String) value).toLowerCase()));
 		}
 		return queryBuilder;
 	}
@@ -637,11 +644,11 @@ public class SearchProcessor {
 			String stringValue = String.valueOf(value);
 			if (match) {
 				queryBuilder.should(QueryBuilders
-						.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+						.regexpQuery(propertyName,
 								".*" + stringValue + ".*"));
 			} else {
 				queryBuilder.mustNot(QueryBuilders
-						.regexpQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+						.regexpQuery(propertyName,
 								".*" + stringValue + ".*"));
 			}
 		}
@@ -657,7 +664,7 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			String stringValue = String.valueOf(value);
-			queryBuilder.should(QueryBuilders.wildcardQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+			queryBuilder.should(QueryBuilders.wildcardQuery(propertyName,
 					"*" + stringValue.toLowerCase()));
 		}
 		return queryBuilder;
@@ -675,10 +682,10 @@ public class SearchProcessor {
 		for (Object value : values) {
 			if (match) {
 				queryBuilder.should(
-						QueryBuilders.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+						QueryBuilders.matchQuery(propertyName, value));
 			} else {
 				queryBuilder.mustNot(
-						QueryBuilders.matchQuery(propertyName + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+						QueryBuilders.matchQuery(propertyName, value));
 			}
 		}
 

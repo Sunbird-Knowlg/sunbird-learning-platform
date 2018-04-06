@@ -27,7 +27,7 @@ public class BaseTest
 	public String UrlContentType = "text/plain";
 	public String uploadContentType = "multipart/form-data";
 	public String userId = "ilimi";
-	public String channelId = "test.ChannelId";
+	public String channelId = "Test";
 	public String appId = "test.appId";
 	
 	public String APIToken = Platform.config.getString("ft.access_key");
@@ -236,6 +236,16 @@ public class BaseTest
 	then().
 		log().all().
 		spec(get200ResponseSpec());	
+	}
+	
+	public ResponseSpecification get207ResponseSpec()
+	{
+		builderres.expectStatusCode(207);
+		builderres.expectBody("params.size()", is(5));
+		builderres.expectBody("params.status", equalTo("failed"));
+		builderres.expectBody("responseCode", equalTo("PARTIAL_SUCCESS"));
+		ResponseSpecification responseSpec = builderres.build();
+		return responseSpec;
 	}
 
 }

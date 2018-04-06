@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.store.CassandraStore;
@@ -15,7 +14,6 @@ import org.ekstep.dialcode.common.DialCodeErrorCodes;
 import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
 import org.ekstep.dialcode.model.DialCode;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.Row;
@@ -32,15 +30,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DialCodeStore extends CassandraStore {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	
+
 	public DialCodeStore() {
 		super();
-		String keyspace = Platform.config.hasPath("dialcode.keyspace.name") ? Platform.config.getString("dialcode.keyspace.name") : "dialcode_store";
-		String table = Platform.config.hasPath("dialcode.keyspace.table") ? Platform.config.getString("dialcode.keyspace.table") : "dial_code";
+		String keyspace = Platform.config.hasPath("dialcode.keyspace.name")
+				? Platform.config.getString("dialcode.keyspace.name") : "dialcode_store";
+		String table = Platform.config.hasPath("dialcode.keyspace.table")
+				? Platform.config.getString("dialcode.keyspace.table") : "dial_code";
 		boolean index = Platform.config.hasPath("dialcode.index") ? Platform.config.getBoolean("dialcode.index") : true;
 		String objectType = Platform.config.hasPath("dialcode.object_type")
-				? Platform.config.getString("dialcode.object_type")
-				: DialCodeEnum.DialCode.name();
+				? Platform.config.getString("dialcode.object_type") : DialCodeEnum.DialCode.name();
 		initialise(keyspace, table, objectType, index);
 	}
 
@@ -48,8 +47,6 @@ public class DialCodeStore extends CassandraStore {
 			throws Exception {
 		Map<String, Object> data = getInsertData(channel, publisher, batchCode, dialCode, dialCodeIndex);
 		insert(dialCode, data);
-		List<String> keys = data.keySet().stream().collect(Collectors.toList());
-		TelemetryManager.audit((String) dialCode, getObjectType(), keys, "Draft", null);
 	}
 
 	public DialCode read(String dialCode) throws Exception {
@@ -60,16 +57,13 @@ public class DialCodeStore extends CassandraStore {
 			dialCodeObj = setDialCodeData(row);
 		} catch (Exception e) {
 			throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_INFO,
-					DialCodeErrorMessage.ERR_DIALCODE_INFO);
+					DialCodeErrorMessage.ERR_DIALCODE_INFO + dialCode);
 		}
 		return dialCodeObj;
 	}
 
 	public void update(String id, Map<String, Object> data) throws Exception {
 		update(DialCodeEnum.identifier.name(), id, data);
-		List<String> keys = data.keySet().stream().collect(Collectors.toList());
-		String status = (String) data.get("status");
-		TelemetryManager.audit((String) id, getObjectType(), keys, status, null);
 	}
 
 	private static Map<String, Object> getInsertData(String channel, String publisher, String batchCode,

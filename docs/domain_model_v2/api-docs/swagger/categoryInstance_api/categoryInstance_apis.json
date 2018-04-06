@@ -656,33 +656,33 @@
             "title": "Category Metadata",
             "type": "object",
             "properties": {
-                "identifier": {
-                    "type": "string",
-                    "description": "Identifier of the Category instance"
-                },
                 "name": {
                     "type": "string",
                     "description": "Name of the Category instance"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the Category instance"
                 },
                 "code": {
                     "type": "string",
                     "description": "Unique code for the Category instance"
                 },
-                "status": {
-                    "type": "string",
-                    "description": "Status of the Category instance"
-                },
-                "translations": {
-                    "type": "object",
-                    "description": "translations for the Category instance"
-                },
-                "inRelations": {
+                "frameworks": {
                     "type": "array",
+                    "description": "In case of creation of Framework Category",
                     "items": {
                         "$ref": "#/definitions/inRelations"
                     }
                 },
-                "outRelations": {
+                "channels": {
+                    "type": "array",
+                    "description": "In case of creation of Channel Category",
+                    "items": {
+                        "$ref": "#/definitions/inRelations"
+                    }
+                },
+                "terms": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/outRelations"

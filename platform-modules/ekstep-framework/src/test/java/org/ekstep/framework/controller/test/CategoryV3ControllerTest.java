@@ -122,7 +122,7 @@ public class CategoryV3ControllerTest extends GraphEngineTestSetup {
 
 	@Test
 	public void updateCategoryForValidNodeId() throws Exception {
-		String request = "{\"request\":{\"category\":{\"description\":\"LP category API\",\"name\":\"test\",\"code\":\"testUpdate\"}}}";
+		String request = "{\"request\":{\"category\":{\"description\":\"LP category API\",\"name\":\"test\"}}}";
 		String path = base_category_path + "/update/" + node_id;
 		actions = this.mockMvc
 				.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON).content(request));

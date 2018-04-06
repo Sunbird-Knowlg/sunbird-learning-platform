@@ -184,6 +184,19 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "badgeAssertions",
+					"title": "List of Badges",
+					"description": "",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"required": true,
 					"dataType": "Select",
 					"propertyName": "mimeType",
@@ -335,12 +348,12 @@
 				},
 				{
 					"required": false,
-					"dataType": "List",
+					"dataType": "external",
 					"propertyName": "screenshots",
 					"title": "Screenshots",
 					"description": "",
-					"category": "General",
-					"displayProperty": "Editable",
+					"category": "Authoring",
+					"displayProperty": "Hidden",
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'table', 'order': 7 }",
 					"indexed": true,
@@ -824,6 +837,7 @@
 						"Free Art License",
 						"Open Audio License",
 						"Open Game License",
+						"Standard YouTube License",
 						"Other"
 					],
 					"category": "Ownership",
@@ -1439,12 +1453,7 @@
 					"title": "Domain",
 					"description": "",
 					"category": "General",
-					"dataType": "Multi-Select",
-					"range": [
-						"numeracy",
-						"literacy",
-						"science"
-					],
+					"dataType": "List",
 					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
@@ -2240,7 +2249,8 @@
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content"
+						"Content",
+						"ContentImage"
 					],
 					"title": "children",
 					"description": "Child content items (in sorted order) in case of collections like Textbooks",

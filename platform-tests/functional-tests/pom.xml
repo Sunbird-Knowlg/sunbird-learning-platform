@@ -145,13 +145,21 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
-					<argLine>-Xmx1024m</argLine>
+			        <fork>true</fork>
+          			<meminitial>1024m</meminitial>
+          			<maxmem>2048m</maxmem>
+          			<compilerArgs>
+						<arg>-XX:MaxPermSize=2048m</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>--Xmx2048m</argLine>
+				</configuration>
 				<version>2.20</version>
 			</plugin>
 		</plugins>

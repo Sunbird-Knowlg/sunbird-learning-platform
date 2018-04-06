@@ -40,9 +40,10 @@ public class ResponseFilter implements Filter {
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
 		String channelId = httpRequest.getHeader("X-Channel-Id");
 		String appId = httpRequest.getHeader("X-App-Id");
+		String path = httpRequest.getRequestURI();
+
 		if (StringUtils.isNotBlank(consumerId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
-
 		if (StringUtils.isNotBlank(channelId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		else
@@ -51,7 +52,7 @@ public class ResponseFilter implements Filter {
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
 
-		if (!isMultipart) {
+		if (!isMultipart && !path.contains("/health")) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			TelemetryManager.log("Path: " + requestWrapper.getServletPath()+ " | Remote Address: " + request.getRemoteAddr());
 
@@ -77,8 +78,7 @@ public class ResponseFilter implements Filter {
 				|| path.contains("/taxonomy/")) {
 			return "core";
 		}
-		if (path.contains("/sync/") || path.contains("v3/system") || path.contains("/health")
-				|| path.contains("/v3/languages/list")) {
+		if (path.contains("/sync/") || path.contains("v3/system") || path.contains("/v3/languages/list")) {
 			return "system";
 		}
 		if (path.contains("/domain")) {

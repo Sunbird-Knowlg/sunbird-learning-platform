@@ -34,6 +34,7 @@ public class JobMetrics {
 		successMessageCount.clear();
 		failedMessageCount.clear();
 		skippedMessageCount.clear();
+		errorMessageCount.clear();
 	}
 
 	public void incSuccessCounter() {

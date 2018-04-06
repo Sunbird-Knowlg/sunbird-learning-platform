@@ -978,34 +978,60 @@
             "title": "Term Metadata",
             "type": "object",
             "properties": {
-                "identifier": {
+                "name": {
                     "type": "string",
-                    "description": "Identifier of the Category instance"
+                    "description": "Name of the Category instance"
                 },
-                "label": {
+                "code": {
                     "type": "string",
-                    "description": "Unique Label of the Term"
+                    "description": "Unique Code of the Term"
                 },
-                "value": {
+                "description": {
                     "type": "string",
-                    "description": "valueof tem object"
+                    "description": "Description of term object"
                 },
-                "status": {
+                "index": {
                     "type": "string",
-                    "description": "Status of the Category instance"
+                    "description": "Index of the Category instance"
                 },
-                "translations": {
-                    "type": "object",
-                    "description": "translations for the Category instance"
-                },
-                "inRelations": {
+                "categories": {
                     "type": "array",
+                    "description": "For master category",
                     "items": {
                         "$ref": "#/definitions/inRelations"
                     }
                 },
-                "outRelations": {
+                "categoryinstances": {
                     "type": "array",
+                    "description": "For category instance",
+                    "items": {
+                        "$ref": "#/definitions/inRelations"
+                    }
+                },
+                "parents": {
+                    "type": "array",
+                    "description": "Parrent terms",
+                    "items": {
+                        "$ref": "#/definitions/inRelations"
+                    }
+                },
+                "associationswith": {
+                    "type": "array",
+                    "description": "Terms with which term is associated",
+                    "items": {
+                        "$ref": "#/definitions/outRelations"
+                    }
+                },
+                "children": {
+                    "type": "array",
+                    "description": "Children terms",
+                    "items": {
+                        "$ref": "#/definitions/outRelations"
+                    }
+                },
+                "associations": {
+                    "type": "array",
+                    "description": "Terms which are associated with term",
                     "items": {
                         "$ref": "#/definitions/outRelations"
                     }

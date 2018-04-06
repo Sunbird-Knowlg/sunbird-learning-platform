@@ -483,7 +483,9 @@ public class BaseQueryGenerationUtil {
 
 			// Adding Metadata
 			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
-				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
+				if (!StringUtils.equalsIgnoreCase(entry.getKey(), GraphDACParams.versionKey.name())) {
+					query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey()
+							+ " =  { MD_"
 						+ entry.getKey() + " }, ");
 
 				TelemetryManager.log("Adding Entry: " + entry.getKey() + "Value: "+ entry.getValue());
@@ -491,6 +493,7 @@ public class BaseQueryGenerationUtil {
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
 				TelemetryManager.log("Populating ParamMap:", paramValuesMap);
+				}
 			}
 
 			if (null != node.getMetadata()
@@ -503,12 +506,14 @@ public class BaseQueryGenerationUtil {
 				paramValuesMap.put("AP_" + AuditProperties.lastUpdatedOn.name(), date);
 			}
 
-			String versionKey = Long.toString(DateUtils.parse(date).getTime());
-			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
-					.append(GraphDACParams.versionKey.name()).append(CypherQueryConfigurationConstants.EQUALS)
-					.append(" { MD_" + GraphDACParams.versionKey.name() + " } ")
-					.append(CypherQueryConfigurationConstants.COMMA);
-			paramValuesMap.put("MD_" + GraphDACParams.versionKey.name(), versionKey);
+			if (StringUtils.isBlank((String) node.getMetadata().get(GraphDACParams.versionKey.name()))) {
+				String versionKey = Long.toString(DateUtils.parse(date).getTime());
+				query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+						.append(GraphDACParams.versionKey.name()).append(CypherQueryConfigurationConstants.EQUALS)
+						.append(" { MD_" + GraphDACParams.versionKey.name() + " } ")
+						.append(CypherQueryConfigurationConstants.COMMA);
+				paramValuesMap.put("MD_" + GraphDACParams.versionKey.name(), versionKey);
+			}
 
 			queryMap.put(GraphDACParams.query.name(),
 					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));

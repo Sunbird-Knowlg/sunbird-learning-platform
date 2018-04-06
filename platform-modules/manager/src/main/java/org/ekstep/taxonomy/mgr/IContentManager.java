@@ -210,6 +210,6 @@ public interface IContentManager {
 
 	Response updateAllContents(String contentId, Map<String, Object> map) throws Exception;
 
-	Response linkDialCode(String channelId, Map<String, Object> map) throws Exception;
+	Response linkDialCode(String channelId, Object reqObj) throws Exception;
 
 }

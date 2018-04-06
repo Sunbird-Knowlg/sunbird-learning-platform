@@ -4,15 +4,20 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
+import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
+import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.service.util.CompositeSearchIndexer;
 import org.ekstep.jobs.samza.service.util.DialCodeIndexer;
+import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
@@ -24,6 +29,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 
 	private DialCodeIndexer dcIndexer = null;
 
+	private SystemStream systemStream = null;
+
 	@Override
 	public void initialize(Config config) throws Exception {
 		JSONUtils.loadProperties(config);
@@ -31,6 +38,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
+		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		csIndexer = new CompositeSearchIndexer(esUtil);
 		csIndexer.createCompositeSearchIndex();
 		LOGGER.info(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + " created");
@@ -50,13 +58,23 @@ public class CompositeSearchIndexerService implements ISamzaService {
 				processMessage(message, metrics);
 				LOGGER.debug("Composite record added/updated");
 				metrics.incSuccessCounter();
-			} catch (Exception ex) {
-				LOGGER.error("Failed to process message", message, ex);
+			} catch (PlatformException ex) {
+				LOGGER.error("Error while processing message:", message, ex);
 				metrics.incFailedCounter();
+				FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
+						PlatformErrorCodes.SYSTEM_ERROR.name(), ex.getMessage());
+			} catch (Exception ex) {
+				LOGGER.error("Error while processing message:", message, ex);
+				metrics.incErrorCounter();
+				if (null != message) {
+					String errorCode = ex instanceof NoNodeAvailableException ? PlatformErrorCodes.SYSTEM_ERROR.name()
+							: PlatformErrorCodes.PROCESSING_ERROR.name();
+					FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
+							errorCode, ex.getMessage());
+				}
 			}
 		} else {
 			LOGGER.info("Learning event not qualified for indexing");
-			metrics.incSkippedCounter();
 		}
 	}
 

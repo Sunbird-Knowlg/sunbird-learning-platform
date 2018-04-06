@@ -113,6 +113,11 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == ecrf)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
+		if (node.getIdentifier().endsWith(".img")) {
+			String updatedVersion = preUpdateNode(node.getIdentifier());
+			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
+		}
+
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
 		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
@@ -338,6 +343,29 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		return response;
+	}
+
+	/**
+	 * @param contentId2
+	 * @return
+	 */
+	private String preUpdateNode(String identifier) {
+		identifier = identifier.replace(".img", "");
+		Response response = getDataNode(TAXONOMY_ID, identifier);
+		if (!checkError(response)) {
+			Node node = (Node) response.get(GraphDACParams.node.name());
+			Response updateResp = updateNode(node);
+			if (!checkError(updateResp)) {
+				return (String) updateResp.get(GraphDACParams.versionKey.name());
+			} else {
+				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+						ContentErrorMessageConstants.CONTENT_IMAGE_MIGRATION_ERROR + " | [Content Id: " + contentId
+								+ "]");
+			}
+		} else {
+			throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+					ContentErrorMessageConstants.CONTENT_IMAGE_MIGRATION_ERROR + " | [Content Id: " + contentId + "]");
+		}
 	}
 
 	private void setPragma(Node node) {

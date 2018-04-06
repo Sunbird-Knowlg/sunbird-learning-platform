@@ -179,7 +179,12 @@ public class AWSUploader {
 			AmazonS3 s3client = new AmazonS3Client();
 			ObjectListing objectListing = s3client
 					.listObjects(new ListObjectsRequest().withBucketName(sourceBucketName).withPrefix(sourcePrefix));
-			for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+			List<S3ObjectSummary> summries = objectListing.getObjectSummaries();
+			while(objectListing.isTruncated()) {
+				objectListing = s3client.listNextBatchOfObjects(objectListing);
+				summries.addAll(objectListing.getObjectSummaries());
+			}
+			for (S3ObjectSummary objectSummary : summries) {
 				TelemetryManager.log("[AWS UPLOADER UTILITY | Copying By Prefix]: " + objectSummary.getKey());
 
 				// Source Key

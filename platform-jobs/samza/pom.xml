@@ -20,14 +20,14 @@
 	<modules>
 		<module>common</module>
 		<module>audit-history-indexer</module>
+	    <module>audit-event-generator</module>	
 		<module>composite-search-indexer</module>
 		<module>publish-pipeline</module>
 		<module>upload-content</module>
 		<module>image-tagging</module>
-		<module>object-lifecycle</module>
 		<module>word-enrichment</module>
 		<module>distribution</module>
-  	</modules>
+  </modules>
 
 	<build>
 		<plugins>

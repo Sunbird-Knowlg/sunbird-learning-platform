@@ -107,6 +107,7 @@
 						<exclude>**/dto/**</exclude>
 						<exclude>**/enums/**</exclude>
 						<exclude>**/router/**</exclude>
+						<exclude>**/util/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>

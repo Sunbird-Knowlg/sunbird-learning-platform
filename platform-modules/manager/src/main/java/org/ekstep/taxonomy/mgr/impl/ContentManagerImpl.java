@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -314,7 +316,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
-		
+
 		Response response = new Response();
 		Node node = getNodeForOperation(contentId, "optimize");
 
@@ -449,7 +451,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		// Fetching body from Content Store.
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
-		
+
 		node.getMetadata().put(TaxonomyAPIParams.lastSubmittedOn.name(), DateUtils.formatCurrentDate());
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
@@ -632,6 +634,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
+		if(map.containsKey("dialcodes")) {
+			map.remove("dialcodes");
+		}
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		restrictProps(definition, map, "status", "framework");
 
@@ -670,7 +675,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			for (String prop : externalPropsList) {
 				if (null != map.get(prop))
 					externalProps.put(prop, map.get(prop));
-				map.remove(prop);
+				if (StringUtils.equalsIgnoreCase(ContentAPIParams.screenshots.name(), prop) && null != map.get(prop)) {
+					map.put(prop, null);
+				} else {
+					map.remove(prop);
+				}
+
 			}
 		}
 
@@ -809,47 +819,33 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return
 	 * @throws Exception
 	 */
-	private Response updateDialCodeToContents(List<String> contents, List<String> dialcodes) throws Exception {
+	@SuppressWarnings("unchecked")
+	private void updateDialCodeToContents(List<String> contents, List<String> dialcodes,
+			Map<String, Set<String>> resultMap) throws Exception {
 		Response resp;
-		List<String> invalidContent = new ArrayList<String>();
-		List<String> updateFailed = new ArrayList<String>();
+		List<String> dialCodes = null;
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-		// TODO: Need to think for Rollback in case of Partial Update
 		for (String contentId : contents) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put(DialCodeEnum.dialcodes.name(), dialcodes);
 			Response responseNode = getDataNode(TAXONOMY_ID, contentId);
 			if (checkError(responseNode)) {
-				invalidContent.add(contentId);
+				resultMap.get("invalidContentList").add(contentId);
 			} else {
 				Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
+				if (contentNode.getMetadata().containsKey(DialCodeEnum.dialcodes.name()))
+					dialCodes = Arrays.asList((String[]) contentNode.getMetadata().get(DialCodeEnum.dialcodes.name()));
+				if (null != dialCodes && dialCodes.size() > 0) {
+					Set<String> set = new HashSet<String>(dialcodes);
+					set.addAll(dialCodes);
+					map.put(DialCodeEnum.dialcodes.name(), new ArrayList<String>(set));
+				}
 				resp = updateDialCode(map, definition, contentNode, contentId);
-				if (checkError(responseNode))
-					updateFailed.add(contentId);
+				if (!checkError(resp))
+					resultMap.get("updateSuccessList").add(contentId);
+				else
+					resultMap.get("updateFailedList").add(contentId);
 			}
-		}
-		if (invalidContent.isEmpty() && updateFailed.isEmpty()) {
-			resp = new Response();
-			resp.setParams(getSucessStatus());
-			resp.setResponseCode(ResponseCode.OK);
-			return resp;
-		} else if (!invalidContent.isEmpty() && contents.size() == 1) {
-			resp = new Response();
-			resp.setResponseCode(ResponseCode.CLIENT_ERROR);
-			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
-					"Content not found with id(s):" + invalidContent));
-			return resp;
-		} else {
-			resp = new Response();
-			resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
-			List<String> messages = new ArrayList<String>();
-			if (!invalidContent.isEmpty())
-				messages.add("Content not found with id(s): " + String.join(",", invalidContent));
-			if (!updateFailed.isEmpty())
-				messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailed));
-
-			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", messages)));
-			return resp;
 		}
 	}
 
@@ -1265,6 +1261,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		idMap.put(nodeId, id);
 		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
+		if(metadata.containsKey("dialcodes")) {
+			metadata.remove("dialcodes");
+		}
 		metadata.put("identifier", id);
 		metadata.put("objectType", objectType);
 		if (BooleanUtils.isTrue(isNew)) {
@@ -1384,8 +1383,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						outRelations = new ArrayList<Relation>();
 					int index = 1;
 					for (String childId : children) {
-						if (idMap.containsKey(childId))
+						if (idMap.containsKey(childId)) {
 							childId = idMap.get(childId);
+						}
+						else {
+							Node nodeForRelation = getNodeForUpdateHierarchy(graphId, childId, "update", false);
+							childId = nodeForRelation.getIdentifier();
+						}
+						
 						Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
 						Map<String, Object> metadata = new HashMap<String, Object>();
 						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
@@ -1490,53 +1495,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.util.Map)
-	 * This Method will update Content Node with DIAL Code in Neo4j.
-	 * 
-	 * @author gauraw
-	 */
-	public Response linkDialCode(String channelId, Map<String, Object> map) throws Exception {
-		if (null == map)
-			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
-					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
-
-		Object dialObj = map.get(DialCodeEnum.dialcode.name());
-		Object contentObj = map.get("identifier");
-		List<String> dialcodes = getList(dialObj);
-		List<String> contents = getList(contentObj);
-
-		if (null == dialcodes || null == contents)
-			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
-					"Pelase provide required properties in request.");
-
-		int maxLimit = 10;
-		if (Platform.config.hasPath("dialcode.link.content.max"))
-			maxLimit = Platform.config.getInt("dialcode.link.content.max");
-
-		if (dialcodes.size() > 1 && contents.size() > 1)
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
-					DialCodeErrorMessage.ERR_INVALID_DIALCODE_LINK_REQUEST);
-
-		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
-					"Max limit for link content to dialcode in a request is " + maxLimit);
-		validateDialCodes(channelId, dialcodes);
-		Response resp = updateDialCodeToContents(contents, dialcodes);
-		if (ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
-			Map<String, Object> props = new HashMap<String, Object>();
-			props.put(DialCodeEnum.dialcode.name(), dialcodes);
-			props.put("identifier", contents);
-			TelemetryManager.info("DIAL code linked to content", props);
-		} else {
-			TelemetryManager.error(resp.getParams().getErrmsg());
-		}
-
-		return resp;
-	}
-
 	@SuppressWarnings("unchecked")
 	private static List<String> getList(Object param) {
 		List<String> paramList = null;
@@ -1579,8 +1537,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private void validateDialCodes(String channelId, List<String> dialcodes) throws Exception {
+	private void validateDialCodes(String channelId, Set<String> dialcodesList) throws Exception {
 		List<Object> resultList = null;
+		List<String> dialcodes = new ArrayList<String>(dialcodesList);
 		List<String> invalidDialCodeList = new ArrayList<String>(dialcodes);
 		Integer dialcodeCount = dialcodes.size();
 		Map<String, Object> requestMap = new HashMap<String, Object>();
@@ -1596,7 +1555,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					String identifier = (String) map.get(ContentAPIParams.identifier.name());
 					invalidDialCodeList.remove(identifier);
 				}
-				throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+				throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
 						"DIAL Code not found with id(s):" + invalidDialCodeList);
 			}
 		} else {
@@ -1623,5 +1582,151 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.taxonomy.mgr.IContentManager#linkDialCode(java.lang.String,
+	 * java.util.List)
+	 */
+	@Override
+	public Response linkDialCode(String channelId, Object reqObj) throws Exception {
+		List<String> dialcodeList = new ArrayList<String>();
+		List<String> contentList = new ArrayList<String>();
+		Map<String, Set<String>> resultMap = initializeResultMap();
+		List<Map<String, Object>> reqList = getRequestList(reqObj);
+
+		validateDialCodeLinkRequest(channelId, reqList);
+
+		for (Map<String, Object> map : reqList) {
+			Object dialObj = map.get(DialCodeEnum.dialcode.name());
+			Object contentObj = map.get("identifier");
+			List<String> dialcodes = getList(dialObj);
+			List<String> contents = getList(contentObj);
+			dialcodeList.addAll(dialcodes);
+			contentList.addAll(contents);
+			updateDialCodeToContents(contents, dialcodes, resultMap);
+		}
+
+		Response resp = prepareResponse(resultMap);
+
+		if (!checkError(resp) && ResponseCode.OK.name().equals(resp.getResponseCode().name())) {
+			Map<String, Object> props = new HashMap<String, Object>();
+			props.put(DialCodeEnum.dialcode.name(), dialcodeList);
+			props.put("identifier", contentList);
+			TelemetryManager.info("DIAL code linked to content", props);
+		} else
+			TelemetryManager.error(resp.getParams().getErrmsg());
+
+		return resp;
+	}
+
+	/**
+	 * @param reqObj
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> getRequestList(Object reqObj) {
+		List<Map<String, Object>> reqList = null;
+		try {
+			reqList = (List<Map<String, Object>>) reqObj;
+		} catch (Exception e) {
+			Map<String, Object> reqMap = (Map<String, Object>) reqObj;
+			if (null != reqMap)
+				reqList = Arrays.asList(reqMap);
+		}
+		return reqList;
+	}
+
+	/**
+	 * @return
+	 */
+	private Map<String, Set<String>> initializeResultMap() {
+		Map<String, Set<String>> resultMap = new HashMap<String, Set<String>>();
+		resultMap.put("invalidContentList", new HashSet<String>());
+		resultMap.put("updateFailedList", new HashSet<String>());
+		resultMap.put("updateSuccessList", new HashSet<String>());
+		return resultMap;
+	}
+
+	/**
+	 * @param resultMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private Response prepareResponse(Map<String, Set<String>> resultMap) {
+		Response resp;
+		Set<String> invalidContentList = (Set<String>) resultMap.get("invalidContentList");
+		Set<String> updateFailedList = (Set<String>) resultMap.get("updateFailedList");
+		Set<String> updateSuccessList = (Set<String>) resultMap.get("updateSuccessList");
+
+		if (invalidContentList.isEmpty() && updateFailedList.isEmpty()) {
+			resp = new Response();
+			resp.setParams(getSucessStatus());
+			resp.setResponseCode(ResponseCode.OK);
+		} else if (!invalidContentList.isEmpty() && updateSuccessList.size() == 0) {
+			resp = new Response();
+			resp.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
+			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+					"Content not found with id(s):" + invalidContentList));
+		} else {
+			resp = new Response();
+			resp.setResponseCode(ResponseCode.PARTIAL_SUCCESS);
+			List<String> messages = new ArrayList<String>();
+			if (!invalidContentList.isEmpty())
+				messages.add("Content not found with id(s): " + String.join(",", invalidContentList));
+			if (!updateFailedList.isEmpty())
+				messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailedList));
+
+			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", messages)));
+		}
+
+		return resp;
+	}
+
+	/**
+	 * @param channelId
+	 * @param reqList
+	 */
+	private void validateDialCodeLinkRequest(String channelId, List<Map<String, Object>> reqList) throws Exception {
+		if (null == reqList || 0 == reqList.size())
+			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
+
+		Set<String> dialCodeList = new HashSet<String>();
+
+		for (Map<String, Object> map : reqList) {
+			if (null == map)
+				throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+						DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
+			Object dialObj = map.get(DialCodeEnum.dialcode.name());
+			Object contentObj = map.get("identifier");
+			List<String> dialcodes = getList(dialObj);
+			List<String> contents = getList(contentObj);
+			validateReqStructure(dialcodes, contents);
+			dialCodeList.addAll(dialcodes);
+		}
+		// Validate all DIAL Code
+		validateDialCodes(channelId, dialCodeList);
+	}
+
+	/**
+	 * @param dialcodes
+	 * @param contents
+	 */
+	private void validateReqStructure(List<String> dialcodes, List<String> contents) {
+		if (null == dialcodes || null == contents)
+			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+					"Pelase provide required properties in request.");
+
+		int maxLimit = 10;
+		if (Platform.config.hasPath("dialcode.link.content.max"))
+			maxLimit = Platform.config.getInt("dialcode.link.content.max");
+
+		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
+			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
+					"Max limit for link content to dialcode in a request is " + maxLimit);
 	}
 }

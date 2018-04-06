@@ -91,7 +91,6 @@ public class ImageTaggingService implements ISamzaService {
 		
 		if (!validateObject(edata) || null == object) {
 			LOGGER.info("Ignoring the message because it is not valid for imagetagging.");
-			metrics.incSkippedCounter();
 			return;
 		}
 		try {
@@ -104,8 +103,8 @@ public class ImageTaggingService implements ISamzaService {
 				metrics.incSkippedCounter();
 			}
 		} catch (Exception e) {
-			LOGGER.error("Failed to process message", message, e);
-			metrics.incFailedCounter();
+			LOGGER.error("Error while processing message", message, e);
+			metrics.incErrorCounter();
 			edata.put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.FAILED.name());
 		}
 	}

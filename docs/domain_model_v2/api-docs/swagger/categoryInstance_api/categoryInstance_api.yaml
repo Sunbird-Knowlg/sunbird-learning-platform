@@ -2,9 +2,7 @@ swagger: '2.0'
 info:
   version: '3.0'
   title: Category Instance API
-  description: >-
-    Category instance is an instance of a master list category within a
-    framework/Channel
+  description: Category instance is an instance of a master list category within a framework/Channel
   license:
     name: EkStep License
     url: 'http:www.EkStep.in'
@@ -18,20 +16,14 @@ produces:
   - application/json
 tags:
   - name: Framework
-    description: >-
-      Everything related to CRUD Operations of the category instance for a
-      Framework
+    description: Everything related to CRUD Operations of the category instance for a Framework
   - name: Channel
-    description: >-
-      Everything related to CRUD Operations of the category instance for a
-      Channel
+    description: Everything related to CRUD Operations of the category instance for a Channel
 paths:
   '/framework/v3/category/create?framework={frameworkId}':
     post:
       summary: Creates a category Instance for a given Framework
-      description: >-
-        This API creates an category instance form a master category node for a
-        given framework
+      description: This API creates an category instance form a master category node for a given framework
       tags:
         - Framework
       operationId: ekstep.learning.framework.categoryinstance.create
@@ -50,27 +42,18 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceCreateResponse'
         '400':
-          description: >-
-            Error While creating Framework! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'
+          description: 'Error While creating Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While creating Framework! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'
+          description: 'Error While creating Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   '/framework/v3/category/read/{categoryInstanceId}?framework={frameworkId}':
     get:
       summary: Gets an Category Instance for a given framework
-      description: >-
-        This API is used to fetch an category instance from the _EkStep
-        Platform_.This endpoint returns the entire category instance Object with
-        default fields. 
+      description: 'This API is used to fetch an category instance from the _EkStep Platform_.This endpoint returns the entire category instance Object with default fields. '
       tags:
         - Framework
       operationId: ekstep.learning.framework.category.read
@@ -93,27 +76,18 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceGetResponse'
         '400':
-          description: >-
-            Error While fetching the CategoryInstance! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
+          description: 'Error While fetching the CategoryInstance! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While fetching the CategoryInstance! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
+          description: 'Error While fetching the CategoryInstance! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   '/framework/v3/category/update/{categoryInstanceId}?framework={frameworkId}':
     patch:
       summary: Updates the category Instance for a given framework
-      description: >-
-        This API is used to update an category instance for a given framework
-        based on the request body provided from the _EkStep Platform_. This
-        endpoint return node_Id on updation
+      description: This API is used to update an category instance for a given framework based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation
       tags:
         - Framework
       operationId: ekstep.learning.framework.category.update
@@ -136,28 +110,18 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceUpdateResponse'
         '400':
-          description: >-
-            Error While Updating the categoryInstance! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
+          description: 'Error While Updating the categoryInstance! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While Updating the categoryInstance! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
+          description: 'Error While Updating the categoryInstance! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   '/framework/v3/category/search?framework={frameworkId}':
     post:
-      summary: >-
-        searchs for category instance for a given framework based on search
-        criteria
-      description: >-
-        This API is used to search and retrieve all category for a given channel
-        from repository based on the given list creteria in the request body
+      summary: searchs for category instance for a given framework based on search criteria
+      description: This API is used to search and retrieve all category for a given channel from repository based on the given list creteria in the request body
       tags:
         - Framework
       operationId: ekstep.learning.framework.categoryinstance.search
@@ -176,18 +140,11 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceSearchResponse'
         '400':
-          description: >-
-            Error While fetching all category instance for a given framework! |
-            Error occurred while operation, mostly because of the input given by
-            client, In general it is 'Client Exception'
+          description: 'Error While fetching all category instance for a given framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While fetching all category instance for a given framework! |
-            Error occurred while operation, mostly because of erroneous
-            condition on server, In general it is 'Server Exception' or
-            'Exception'
+          description: 'Error While fetching all category instance for a given framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
@@ -195,11 +152,7 @@ paths:
     delete:
       tags:
         - Framework
-      summary: >-
-        This API is used to delete (Retire) the category instance from the
-        _EkStep Platform_. It consumes the category instance Identifier as
-        'categoryinstanceId' and 'framworkId ' on which the delete (Retire)
-        operation has to be performed.
+      summary: This API is used to delete (Retire) the category instance from the _EkStep Platform_. It consumes the category instance Identifier as 'categoryinstanceId' and 'framworkId ' on which the delete (Retire) operation has to be performed.
       operationId: ekstep.learning.framework.categoryinstance.retire
       produces:
         - application/json
@@ -219,10 +172,7 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceDeleteResponse'
         '400':
-          description: >-
-            Error While category instance Retire! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
+          description: 'Error While category instance Retire! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '404':
@@ -230,10 +180,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While category instance Retire! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
+          description: 'Error While category instance Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
@@ -259,27 +206,18 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceCreateResponse'
         '400':
-          description: >-
-            Error While creating categoryinstance for a given channel! | Error
-            occurred while operation, mostly because of the input given by
-            client, In general it is 'Client Exception'
+          description: 'Error While creating categoryinstance for a given channel! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While creating categoryinstance for a given channel! | Error
-            occurred while operation, mostly because of erroneous condition on
-            server, In general it is 'Server Exception' or 'Exception'
+          description: 'Error While creating categoryinstance for a given channel! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   '/channel/v3/category/read/{categoryInstanceId}':
     get:
       summary: Gets an Category Instance for a given channel
-      description: >-
-        This API is used to fetch an category instance from the _EkStep
-        Platform_.This endpoint returns the entire category instance Object with
-        default fields. 
+      description: 'This API is used to fetch an category instance from the _EkStep Platform_.This endpoint returns the entire category instance Object with default fields. '
       tags:
         - Channel
       operationId: ekstep.learning.channel.categoryinstance.read
@@ -302,27 +240,18 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceGetResponse'
         '400':
-          description: >-
-            Error While fetching the CategoryInstance! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
+          description: 'Error While fetching the CategoryInstance! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While fetching the CategoryInstance! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
+          description: 'Error While fetching the CategoryInstance! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   '/channel/v3/category/update/{categoryInstanceId}':
     patch:
       summary: Updates the given category Instance for a given channel
-      description: >-
-        This API is used to update an category instance for a given channel
-        based on the request body provided from the _EkStep Platform_. This
-        endpoint return node_Id on updation
+      description: This API is used to update an category instance for a given channel based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation
       tags:
         - Channel
       operationId: ekstep.learning.channel.categoryinstance.update
@@ -346,28 +275,18 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceUpdateResponse'
         '400':
-          description: >-
-            Error While Updating the categoryInstance for a given channel! |
-            Error occurred while operation, mostly because of the input given by
-            client, In general it is 'Client Exception'
+          description: 'Error While Updating the categoryInstance for a given channel! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While Updating the categoryInstance for a given channel! |
-            Error occurred while operation, mostly because of erroneous
-            condition on server, In general it is 'Server Exception' or
-            'Exception'
+          description: 'Error While Updating the categoryInstance for a given channel! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   /channel/v3/category/search:
     post:
       summary: Searchs for an category instance for a given channel
-      description: >-
-        This API is used to list and retrieve all category instance for a given
-        channel from repository based on the given list creteria in the request
-        body
+      description: This API is used to list and retrieve all category instance for a given channel from repository based on the given list creteria in the request body
       tags:
         - Channel
       operationId: ekstep.learning.channel.categoryinstance.search
@@ -382,24 +301,15 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            Category Instance search results returned Successfully for a given
-            channel
+          description: Category Instance search results returned Successfully for a given channel
           schema:
             $ref: '#/definitions/CategoryInstanceSearchResponse'
         '400':
-          description: >-
-            Error While Searching all category instance for a given channel! |
-            Error occurred while operation, mostly because of the input given by
-            client, In general it is 'Client Exception'
+          description: 'Error While Searching all category instance for a given channel! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While Searching all category instance for a given channel! |
-            Error occurred while operation, mostly because of erroneous
-            condition on server, In general it is 'Server Exception' or
-            'Exception'
+          description: 'Error While Searching all category instance for a given channel! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
@@ -407,11 +317,7 @@ paths:
     delete:
       tags:
         - Channel
-      summary: >-
-        This API is used to delete (Retire) the category instance from the
-        _EkStep Platform_. It consumes the category instance Identifier as
-        'categoryinstanceId' and 'channelId ' on which the delete (Retire)
-        operation has to be performed.
+      summary: This API is used to delete (Retire) the category instance from the _EkStep Platform_. It consumes the category instance Identifier as 'categoryinstanceId' and 'channelId ' on which the delete (Retire) operation has to be performed.
       operationId: ekstep.learning.channel.categoryinstance.retire
       produces:
         - application/json
@@ -432,10 +338,7 @@ paths:
           schema:
             $ref: '#/definitions/CategoryInstanceDeleteResponse'
         '400':
-          description: >-
-            Error While category instance Retire! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
+          description: 'Error While category instance Retire! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '404':
@@ -443,10 +346,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: >-
-            Error While category instance Retire! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
+          description: 'Error While category instance Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
@@ -527,26 +427,26 @@ definitions:
     title: Category Metadata
     type: object
     properties:
-      identifier:
-        type: string
-        description: Identifier of the Category instance
       name:
         type: string
         description: Name of the Category instance
+      description:
+        type: string
+        description: Description of the Category instance
       code:
         type: string
         description: Unique code for the Category instance
-      status:
-        type: string
-        description: Status of the Category instance
-      translations:
-        type: object
-        description: translations for the Category instance
-      inRelations:
+      frameworks:
         type: array
+        description: In case of creation of Framework Category
         items:
           $ref: '#/definitions/inRelations'
-      outRelations:
+      channels:
+        type: array
+        description: In case of creation of Channel Category
+        items:
+          $ref: '#/definitions/inRelations'
+      terms:
         type: array
         items:
           $ref: '#/definitions/outRelations'

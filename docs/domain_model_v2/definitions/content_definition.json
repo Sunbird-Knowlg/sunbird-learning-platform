@@ -184,6 +184,19 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "badgeAssertions",
+					"title": "List of Badges",
+					"description": "",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"required": true,
 					"dataType": "Select",
 					"propertyName": "mimeType",

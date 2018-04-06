@@ -104,7 +104,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.7.9</version>
+				<version>0.8.0</version>
 				<configuration>
 					<excludes>
 						<exclude>**/common/**</exclude>
@@ -122,6 +122,7 @@
 						<exclude>**/Base**</exclude>
 						<exclude>**/ControllerUtil**</exclude>
 						<exclude>**/Indowordnet**</exclude>
+						<exclude>**/*DataSyncManager*/**</exclude>					
 						<!-- Import is not yet implemented -->
 						<exclude>**/Import*/**</exclude>
 						<exclude>**/*Controller.class</exclude>

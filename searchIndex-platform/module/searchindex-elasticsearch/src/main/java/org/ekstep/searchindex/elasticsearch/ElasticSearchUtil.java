@@ -144,7 +144,6 @@ public class ElasticSearchUtil {
 			}
 		} catch (UnknownHostException e) {
 			TelemetryManager.error("Error while creating elasticsearch client ", e);
-			e.printStackTrace();
 		}
 
 	}
@@ -219,7 +218,6 @@ public class ElasticSearchUtil {
 			TelemetryManager.log("Added " + response.getId() + " to index " + response.getIndex());
 		} catch (IOException e) {
 			TelemetryManager.error("Error while adding document to index :" + indexName, e);
-			e.printStackTrace();
 		}
 	}
 
@@ -231,7 +229,6 @@ public class ElasticSearchUtil {
 			TelemetryManager.log("Added " + response.getId() + " to index " + response.getIndex());
 		} catch (IOException e) {
 			TelemetryManager.error("Error while adding document to index :" + indexName, e);
-			e.printStackTrace();
 		}
 	}
 
@@ -247,7 +244,6 @@ public class ElasticSearchUtil {
 			TelemetryManager.log("Updated " + response.getId() + " to index " + response.getIndex());
 		} catch (IOException e) {
 			TelemetryManager.error("Error while updating document to index :" + indexName, e);
-			e.printStackTrace();
 		}
 
 	}

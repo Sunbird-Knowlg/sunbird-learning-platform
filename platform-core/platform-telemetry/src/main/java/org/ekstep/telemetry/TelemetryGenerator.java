@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.telemetry.dto.Actor;
 import org.ekstep.telemetry.dto.Context;
 import org.ekstep.telemetry.dto.Producer;
@@ -24,7 +25,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TelemetryGenerator {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static Producer producer = new Producer("org.ekstep.learning.platform", "1.0");
+	private static String pdataId = Platform.config.hasPath("telemetry.pdata_id")
+			? Platform.config.getString("telemetry.pdata_id")
+			: "dev.ekstep.learning.platform";
+	private static Producer producer = new Producer(pdataId, "1.0");
 
 	
 	public static void setComponent(String component) {
@@ -126,8 +130,20 @@ public class TelemetryGenerator {
 	}
 
 	
-	public static String search(Map<String, String> context) {
-		return null;
+	public static String search(Map<String, String> context, String query, Object filters, Object sort,
+			String correlationId, int size, Object topN, String type) {
+		Actor actor = getActor(context);
+		Context eventContext = getContext(context);
+		Map<String, Object> edata = new HashMap<String, Object>();
+		edata.put("type", type);
+		edata.put("query", query);
+		edata.put("filters", filters);
+		edata.put("sort", sort);
+		edata.put("correlationid", correlationId);
+		edata.put("size", size);
+		edata.put("topn", topN);
+		Telemetry telemetry = new Telemetry("SEARCH", actor, eventContext, edata);
+		return getTelemetry(telemetry);
 	}
 	
 	public static String audit(Map<String, String> context, List<String> props, String state, String prevState) {

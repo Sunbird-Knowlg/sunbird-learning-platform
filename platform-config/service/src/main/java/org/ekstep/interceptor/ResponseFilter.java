@@ -40,6 +40,7 @@ public class ResponseFilter implements Filter {
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
 		String channelId = httpRequest.getHeader("X-Channel-Id");
 		String appId = httpRequest.getHeader("X-App-Id");
+		String path = httpRequest.getRequestURI();
 		if (StringUtils.isNotBlank(consumerId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
 
@@ -51,7 +52,7 @@ public class ResponseFilter implements Filter {
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
 
-		if (!isMultipart) {
+		if (!isMultipart && !path.contains("/health")) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			TelemetryManager.log("Path: " + requestWrapper.getServletPath() + " | Remote Address: "
 					+ request.getRemoteAddr() + " | Params: " + request.getParameterMap());
@@ -66,19 +67,14 @@ public class ResponseFilter implements Filter {
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
-			TelemetryManager.log("Path: " + httpRequest.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
-					+ " | Params: " + request.getParameterMap());
+			TelemetryManager.log("Path: " + httpRequest.getServletPath() + " | Remote Address: "
+					+ request.getRemoteAddr() + " | Params: " + request.getParameterMap());
 			chain.doFilter(request, response);
 		}
 	}
 
 	private String getEnv(RequestWrapper requestWrapper) {
-		String path = requestWrapper.getRequestURI();
-		if (path.contains("/health")) {
-			return "system";
-		} else {
-			return "config";
-		}
+		return "config";
 	}
 
 	@Override

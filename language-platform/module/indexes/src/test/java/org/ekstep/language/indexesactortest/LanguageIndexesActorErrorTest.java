@@ -17,7 +17,6 @@ import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.index.common.BaseLanguageTest;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.language.util.ElasticSearchUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
 import org.springframework.test.web.servlet.ResultActions;
@@ -29,7 +28,6 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 
 	//	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private static ObjectMapper mapper = new ObjectMapper();
-	static ElasticSearchUtil util;
 	
 //	private static String TEST_LANGUAGE = "testindexactorerror";
 //	private static String TEST_LOAD_LANGUAGE = "testindexactorerrorload";

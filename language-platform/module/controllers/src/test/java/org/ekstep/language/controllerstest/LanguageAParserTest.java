@@ -19,14 +19,13 @@ import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
-import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.common.LanguageCommonTestHelper;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.language.util.ElasticSearchUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,29 +40,27 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class LanguageAParserTest extends BaseLanguageTest {
+public class LanguageAParserTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
 //	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private ResultActions actions;
-	static ElasticSearchUtil util;
-	
+	private final static String TEST_LANGUAGE = "en";
+	private final static String TEST_COMMON_LANGUAGE = "language";
 
 	static {
 		LanguageRequestRouterPool.init();
 	}
 
-//	@BeforeClass
+	@BeforeClass
 	public static void init() throws Exception {
-		// Definitions
-//		deleteDefinitionStatic(TEST_LANGUAGE_NEW);
-//		createDefinitionsStatic(TEST_LANGUAGE_NEW);
-		// createData();
+		loadDefinitionByGraphId(TEST_LANGUAGE, "definitions/PhoneticBoundaryDefinition.json", "definitions/SynsetDefinition.json", "definitions/TraversalRuleDefinition.json", "definitions/VarnaDefinition.json", "definitions/WordDefinitionNode.json", "definitions/wordset_definition.json");
+		loadDefinitionByGraphId(TEST_COMMON_LANGUAGE, "definitions/language/GradeLevelComplexity.json", "definitions/language/WordComplexityDefinition.json");
+
 	}
 
 //	@AfterClass
@@ -180,7 +177,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 	@Test
 	public void parserTest() throws JsonParseException, JsonMappingException, IOException {
 		createData();
-		String contentString = "{\"request\":{\"language_id\":\""+TEST_LANGUAGE+"\",\"wordSuggestions\":true,\"relatedWords\":false,\"translations\":true,\"equivalentWords\":true,\"limit\":10,\"content\":\"wordOne\"}}";
+		String contentString = "{\"request\":{\"language_id\":\""+TEST_LANGUAGE+"\",\"wordSuggestions\":true,\"relatedWords\":true,\"translations\":true,\"equivalentWords\":true,\"limit\":10,\"content\":\"wordOne\"}}";
 		String word = "wordOne";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();

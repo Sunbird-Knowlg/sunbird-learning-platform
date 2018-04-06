@@ -18,6 +18,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.connector.util.CassandraConnectorStoreParam;
+import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.enums.CompositeSearchParams;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.common.DateUtils;
@@ -403,9 +405,18 @@ public abstract class CassandraStore {
 				dataMap.put(CompositeSearchParams.audit.name(), false);
 				dataMap.put(CompositeSearchParams.ets.name(), System.currentTimeMillis());
 				dataMap.put(CompositeSearchParams.createdOn.name(), DateUtils.format(new Date()));
+				dataMap.put("channel", getChannel("in.ekstep"));
 				message.add(dataMap);
 				LogAsyncGraphEvent.pushMessageToLogger(message);
 			}
 		}
+	}
+
+	private String getChannel(String defaultVal) {
+		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
+		if (StringUtils.isBlank(channel))
+			return defaultVal;
+		else
+			return channel;
 	}
 }

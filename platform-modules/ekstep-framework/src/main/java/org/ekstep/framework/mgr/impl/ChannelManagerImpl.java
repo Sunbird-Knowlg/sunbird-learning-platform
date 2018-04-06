@@ -25,15 +25,11 @@ import org.springframework.stereotype.Component;
 public class ChannelManagerImpl extends BaseFrameworkManager implements IChannelManager {
 
 	private static final String CHANNEL_OBJECT_TYPE = "Channel";
-	private String connectionInfo = "localhost:9300";
 	private SearchProcessor processor = null;
 	
 	@PostConstruct
 	public void init() {
-		connectionInfo = Platform.config.hasPath("dialcode.es_conn_info")
-				? Platform.config.getString("dialcode.es_conn_info")
-				: connectionInfo;
-		processor = new SearchProcessor(connectionInfo);
+		processor = new SearchProcessor();
 		
 		try {
 			List<Object> frameworks = getAllFrameworkList();
