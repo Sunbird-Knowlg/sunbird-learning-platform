@@ -89,7 +89,8 @@ public class DialCodeV3APITest extends BaseTest {
 	}
 
 	@Test
-	public void updateDialcodeLiveAndImageExpectSuccess200(){
+	public void linkDialCodeWithLiveAndImageContentExpectSuccess200() throws InterruptedException{
+		//Create Content
 		int rn = generateRandomInt(0, 999999);
 		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		setURI();
@@ -101,13 +102,16 @@ public class DialCodeV3APITest extends BaseTest {
 				contentType(JSON).
 				when().
 				post("content/v3/create").
-				then().
+				then().//log().all().
 				extract().
 				response();
 		
 		JsonPath jp = res.jsonPath();
 		String identifier = jp.get("result.node_id");
 		
+		Thread.sleep(3000);
+		
+		// Link 1st DIAL Code to Content
 		setURI();
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier + "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
 		given().
@@ -117,21 +121,21 @@ public class DialCodeV3APITest extends BaseTest {
 		contentType(JSON).
 		when().
 		post("content/v3/dialcode/link").
-		then().
+		then().//log().all().
 		spec(get200ResponseSpec());	
 		
 		// Upload Content
 		setURI();
 		given().
 		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
-		multiPart(new File(path + "/uploadContent.zip")).
+		multiPart(new File(path + "/pdf.pdf")).
 		when().
 		post("/content/v3/upload/" + identifier)
 		.then().
 		//log().all().
 		spec(get200ResponseSpec());
 
-		// Publish created content
+		// Publish Created Content
 		setURI();
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
@@ -142,7 +146,9 @@ public class DialCodeV3APITest extends BaseTest {
 		//log().all().
 		spec(get200ResponseSpec());
 		
-		// Get and validate
+		Thread.sleep(5000);
+		
+		// Get Published Content and Validate
 		setURI();
 		Response R2 = 
 				given().
@@ -150,10 +156,10 @@ public class DialCodeV3APITest extends BaseTest {
 				when().
 				get("/content/v3/read/" + identifier).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
-
+		
 		// Validate the response
 		JsonPath jp2 = R2.jsonPath();
 		String status = jp2.get("result.content.status");
@@ -161,7 +167,7 @@ public class DialCodeV3APITest extends BaseTest {
 		String versionKey = jp2.get("result.content.versionKey");
 		Assert.assertTrue(status.equals("Live") && dialcode_1.contains(dialCodeId));
 		
-		// Update content meta data
+		// Update content metadata to create Image Node
 		jsonUpdateMetadata = jsonUpdateMetadata.replace("version_key", versionKey);
 		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();};
 		setURI();
@@ -174,7 +180,8 @@ public class DialCodeV3APITest extends BaseTest {
 		then().//log().all().
 		spec(get200ResponseSpec());
 		
-		// Link dialcode2
+		// Link 2nd DIAL Code to Content.
+		// Expected : 2nd DIAL Code Should be linked with both image and Live Content
 		setURI();
 		String dialCodeLinkReqUpdated = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier+ "\"],\"dialcode\": [\"" + dialCodeId_2 + "\"]}}}";
 		given().
@@ -184,28 +191,28 @@ public class DialCodeV3APITest extends BaseTest {
 		contentType(JSON).
 		when().
 		post("content/v3/dialcode/link").
-		then().
+		then().//log().all().
 		spec(get200ResponseSpec());	
 		
-		// Get and validate
+		// Get Image Content and validate
 		setURI();
 		Response R3 = 
 				given().
 				spec(getRequestSpecification(contentType, userId, APIToken)).
 				when().
-				get("/content/v3/read/" + identifier).
+				get("/content/v3/read/" + identifier+"?mode=edit").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
 		// Validate the response
 		JsonPath jp3 = R3.jsonPath();
 		String statusImage = jp3.get("result.content.status");
-		ArrayList<String> dialcode_Image = jp2.get("result.content.dialcodes");
+		ArrayList<String> dialcode_Image = jp3.get("result.content.dialcodes");
 		Assert.assertTrue(statusImage.equals("Draft") && dialcode_Image.contains(dialCodeId) && dialcode_Image.contains(dialCodeId_2));
-		
-		// Publish the content and validate
+
+		// Publish the content image and validate
 		setURI();
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
@@ -215,8 +222,9 @@ public class DialCodeV3APITest extends BaseTest {
 		then().
 		//log().all().
 		spec(get200ResponseSpec());
+		Thread.sleep(5000);
 		
-		// Get and validate
+		// Get Content and validate
 		setURI();
 		Response R4 = 
 				given().
@@ -224,7 +232,7 @@ public class DialCodeV3APITest extends BaseTest {
 				when().
 				get("/content/v3/read/" + identifier).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -391,7 +399,7 @@ public class DialCodeV3APITest extends BaseTest {
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId_1
 				+ "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
-				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
+				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then().log().all()
 				.spec(get200ResponseSpec());
 	}
 
