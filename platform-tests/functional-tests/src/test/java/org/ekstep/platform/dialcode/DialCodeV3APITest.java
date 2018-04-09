@@ -4,11 +4,15 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.platform.content.ContentPublishWorkflowTests;
 import org.ekstep.platform.domain.BaseTest;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,9 +26,10 @@ import com.jayway.restassured.response.Response;
 public class DialCodeV3APITest extends BaseTest {
 
 	int rn = generateRandomInt(0, 999999);
-
-	private String createPublisherReq = "{\"request\": {\"publisher\": {\"identifier\":\"LFT_PUB_" + rn
-			+ "\",\"name\": \"Functional Test Publisher\"}}}";
+	static ClassLoader classLoader = DialCodeV3APITest.class.getClassLoader();
+	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
+	String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"version_key\",\"language\":[\"Tamil\",\"Telugu\"]}}}";
+	private String createPublisherReq = "{\"request\": {\"publisher\": {\"identifier\":\"LFT_PUB_" + rn+ "\",\"name\": \"Functional Test Publisher\"}}}";
 
 	private static String publisherId = "";
 	private static String dialCodeId = "";
@@ -69,10 +74,7 @@ public class DialCodeV3APITest extends BaseTest {
 	private void createContent() {
 		for (int i = 1; i <= 2; i++) {
 			int rn = generateRandomInt(0, 999999);
-			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn
-					+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"
-					+ rn
-					+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 			setURI();
 			Response res = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
 					.body(createValidContent).with().contentType(JSON).when().post("content/v3/create").then().extract()
@@ -83,10 +85,156 @@ public class DialCodeV3APITest extends BaseTest {
 				contentId_1 = identifier;
 			if (i == 2)
 				contentId_2 = identifier;
-
 		}
 	}
 
+	@Test
+	public void updateDialcodeLiveAndImageExpectSuccess200(){
+		int rn = generateRandomInt(0, 999999);
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+		setURI();
+		Response res = 
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+				body(createValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().
+				response();
+		
+		JsonPath jp = res.jsonPath();
+		String identifier = jp.get("result.node_id");
+		
+		setURI();
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier + "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+		body(dialCodeLinkReq).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/dialcode/link").
+		then().
+		spec(get200ResponseSpec());	
+		
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + identifier)
+		.then().
+		//log().all().
+		spec(get200ResponseSpec());
+
+		// Publish created content
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/" + identifier).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+		
+		// Get and validate
+		setURI();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + identifier).
+				then().
+				log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		// Validate the response
+		JsonPath jp2 = R2.jsonPath();
+		String status = jp2.get("result.content.status");
+		ArrayList<String> dialcode_1 = jp2.get("result.content.dialcodes");
+		String versionKey = jp2.get("result.content.versionKey");
+		Assert.assertTrue(status.equals("Live") && dialcode_1.contains(dialCodeId));
+		
+		// Update content meta data
+		jsonUpdateMetadata = jsonUpdateMetadata.replace("version_key", versionKey);
+		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();};
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonUpdateMetadata).
+		with().
+		contentType("application/json").
+		when().patch("/content/v3/update/" + identifier).
+		then().//log().all().
+		spec(get200ResponseSpec());
+		
+		// Link dialcode2
+		setURI();
+		String dialCodeLinkReqUpdated = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier+ "\"],\"dialcode\": [\"" + dialCodeId_2 + "\"]}}}";
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+		body(dialCodeLinkReqUpdated).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/dialcode/link").
+		then().
+		spec(get200ResponseSpec());	
+		
+		// Get and validate
+		setURI();
+		Response R3 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + identifier).
+				then().
+				log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		// Validate the response
+		JsonPath jp3 = R3.jsonPath();
+		String statusImage = jp3.get("result.content.status");
+		ArrayList<String> dialcode_Image = jp2.get("result.content.dialcodes");
+		Assert.assertTrue(statusImage.equals("Draft") && dialcode_Image.contains(dialCodeId) && dialcode_Image.contains(dialCodeId_2));
+		
+		// Publish the content and validate
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/" + identifier).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+		
+		// Get and validate
+		setURI();
+		Response R4 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + identifier).
+				then().
+				log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		// Validate the response
+		JsonPath jp4 = R4.jsonPath();
+		String statusNew = jp4.get("result.content.status");
+		ArrayList<String> dialcodeNew = jp4.get("result.content.dialcodes");
+		Assert.assertTrue(statusNew.equals("Live") && dialcodeNew.contains(dialCodeId) && dialcodeNew.contains(dialCodeId_2));
+	}
+	
 	@Test
 	public void createPublisherExpect200() {
 		setURI();
@@ -323,4 +471,5 @@ public class DialCodeV3APITest extends BaseTest {
 				.spec(get404ResponseSpec());
 	}
 
+	
 }

@@ -659,8 +659,7 @@ public class FrameworkCategoryInstanceV3APITests extends BaseTest {
 		post("/framework/v3/category/search/?framework="+frameworkId).
 		then().
 		log().all().
-		spec(get200ResponseSpec()).
-		body("result.terms.status", hasItems("Live"));
+		spec(get200ResponseSpec());
 	}
 	
 	// Retire framework category instance
