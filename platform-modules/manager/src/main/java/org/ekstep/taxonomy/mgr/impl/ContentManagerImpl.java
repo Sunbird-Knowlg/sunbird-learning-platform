@@ -634,7 +634,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		if(map.containsKey("dialcodes")) {
+		if (map.containsKey("dialcodes")) {
 			map.remove("dialcodes");
 		}
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
@@ -823,7 +823,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private void updateDialCodeToContents(List<String> contents, List<String> dialcodes,
 			Map<String, Set<String>> resultMap) throws Exception {
 		Response resp;
+		Response imageResp = null;
+		boolean imageObjectExists = false;
+		String contentImageId = "";
 		List<String> dialCodes = null;
+		Node imageNode = null;
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		for (String contentId : contents) {
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -832,6 +836,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (checkError(responseNode)) {
 				resultMap.get("invalidContentList").add(contentId);
 			} else {
+				contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+				Response imageNodeResponse = getDataNode(TAXONOMY_ID, contentImageId);
+				if (!checkError(imageNodeResponse)) {
+					imageObjectExists = true;
+					imageNode = (Node) imageNodeResponse.get(GraphDACParams.node.name());
+				}
 				Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
 				if (contentNode.getMetadata().containsKey(DialCodeEnum.dialcodes.name()))
 					dialCodes = Arrays.asList((String[]) contentNode.getMetadata().get(DialCodeEnum.dialcodes.name()));
@@ -840,11 +850,28 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					set.addAll(dialCodes);
 					map.put(DialCodeEnum.dialcodes.name(), new ArrayList<String>(set));
 				}
-				resp = updateDialCode(map, definition, contentNode, contentId);
-				if (!checkError(resp))
-					resultMap.get("updateSuccessList").add(contentId);
-				else
-					resultMap.get("updateFailedList").add(contentId);
+				if (imageObjectExists) {
+					imageResp = updateDialCode(map, definition, imageNode, contentImageId);
+					if (!checkError(imageResp)) {
+						resp = updateDialCode(map, definition, contentNode, contentId);
+						if (checkError(resp)) {
+							map.put(DialCodeEnum.dialcodes.name(), Arrays
+									.asList((String[]) contentNode.getMetadata().get(DialCodeEnum.dialcodes.name())));
+							imageResp = updateDialCode(map, definition, imageNode, contentImageId);
+							resultMap.get("updateFailedList").add(contentId);
+						} else {
+							resultMap.get("updateSuccessList").add(contentId);
+						}
+					} else {
+						resultMap.get("updateFailedList").add(contentId);
+					}
+				} else {
+					resp = updateDialCode(map, definition, contentNode, contentId);
+					if (!checkError(resp))
+						resultMap.get("updateSuccessList").add(contentId);
+					else
+						resultMap.get("updateFailedList").add(contentId);
+				}
 			}
 		}
 	}
@@ -1261,7 +1288,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		idMap.put(nodeId, id);
 		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
-		if(metadata.containsKey("dialcodes")) {
+		if (metadata.containsKey("dialcodes")) {
 			metadata.remove("dialcodes");
 		}
 		metadata.put("identifier", id);
@@ -1385,12 +1412,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					for (String childId : children) {
 						if (idMap.containsKey(childId)) {
 							childId = idMap.get(childId);
-						}
-						else {
+						} else {
 							Node nodeForRelation = getNodeForUpdateHierarchy(graphId, childId, "update", false);
 							childId = nodeForRelation.getIdentifier();
 						}
-						
+
 						Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
 						Map<String, Object> metadata = new HashMap<String, Object>();
 						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
