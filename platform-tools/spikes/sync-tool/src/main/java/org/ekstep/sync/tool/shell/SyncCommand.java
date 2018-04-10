@@ -20,10 +20,10 @@ public class SyncCommand implements CommandMarker {
 	@Autowired
 	CompositeIndexSyncManager compositeIndexSyncManager;
 
-	@CliCommand(value = {"syncbyid","syncbyids"}, help = "Sync data from Neo4j to Elastic Search by Id(s)")
+	@CliCommand(value = "syncbyids", help = "Sync data from Neo4j to Elastic Search by Id(s)")
 	public void syncByIds(@CliOption(key = {
 			"graphId" }, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
-			@CliOption(key = { "ids" }, mandatory = true, help = "Unique Id of node object") final String[] ids)
+			@CliOption(key = { "id","ids" }, mandatory = true, help = "Unique Id of node object") final String[] ids)
 			throws Exception {
 		
 		long startTime = System.currentTimeMillis();

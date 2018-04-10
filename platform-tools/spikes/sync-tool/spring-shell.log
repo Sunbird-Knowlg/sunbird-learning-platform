@@ -45,3 +45,5 @@ syncbyids --ids org.ekstep.story.hi.moon
 // [failed] syncbyids --ids test
 exit
 // Spring Shell 1.2.0.RELEASE log closed at 2018-04-10 12:37:05
+// null 1.2.0.RELEASE log opened at 2018-04-10 13:11:06
+help
