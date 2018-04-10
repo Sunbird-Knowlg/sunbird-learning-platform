@@ -393,6 +393,32 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public void updateDataNodes(final Request request) {
+		final ActorRef parent = getSender();
+		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+		List<String> nodeIds = (List<String>) request.get(GraphDACParams.node_ids.name());
+		Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
+
+		if (!validateRequired(nodeIds, metadata)) {
+			throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_MISSING_REQ_PARAMS.name(),
+					"Required parameters are missing...");
+		} else {
+			StringBuilder sb = new StringBuilder();
+			Map<String, Object> params = new HashMap<String, Object>();
+			int pIndex = 1;
+			sb.append("MATCH (n:" + graphId + ") WHERE n.IL_UNIQUE_ID IN {1} SET");
+			params.put("" + pIndex, nodeIds);
+			pIndex += 1;
+			pIndex = getFilterQuery(metadata, sb, params, "n", pIndex);
+			sb.append(" ;");
+			Graph graph = new Graph(this, graphId);
+			Response response = graph.executeUpdateQuery(request, sb.toString(), params);
+			sendResponse(response, parent);
+		}
+
+	}
+
 	/**
 	 * Gets the relations delta.
 	 *
@@ -688,5 +714,20 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 				handleException(e, getSender());
 			}
 		}
+	}
+
+	private int getFilterQuery(Map<String, Object> metadata, StringBuilder sb, Map<String, Object> params, String index,
+			int pIndex) {
+		int i = 0;
+		for (String key : metadata.keySet()) {
+			sb.append(" ").append(index).append(".").append(key).append(" = {").append(pIndex).append("} ");
+			params.put("" + pIndex, metadata.get(key));
+			pIndex += 1;
+			if (i < metadata.size() - 1) {
+				sb.append(", ");
+				i++;
+			}
+		}
+		return pIndex;
 	}
 }

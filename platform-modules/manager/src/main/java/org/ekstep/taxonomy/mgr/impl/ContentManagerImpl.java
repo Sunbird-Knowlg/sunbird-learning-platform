@@ -819,16 +819,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	private void updateDialCodeToContents(List<String> contents, List<String> dialcodes,
 			Map<String, Set<String>> resultMap) throws Exception {
 		Response resp;
-		Response imageResp = null;
 		boolean imageObjectExists = false;
 		String contentImageId = "";
 		List<String> dialCodes = null;
 		Node imageNode = null;
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		DefinitionDTO imageDefinition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
 		for (String contentId : contents) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put(DialCodeEnum.dialcodes.name(), dialcodes);
@@ -851,27 +850,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					map.put(DialCodeEnum.dialcodes.name(), new ArrayList<String>(set));
 				}
 				if (imageObjectExists) {
-					imageResp = updateDialCode(map, definition, imageNode, contentImageId);
-					if (!checkError(imageResp)) {
-						resp = updateDialCode(map, definition, contentNode, contentId);
-						if (checkError(resp)) {
-							map.put(DialCodeEnum.dialcodes.name(), Arrays
-									.asList((String[]) contentNode.getMetadata().get(DialCodeEnum.dialcodes.name())));
-							imageResp = updateDialCode(map, definition, imageNode, contentImageId);
-							resultMap.get("updateFailedList").add(contentId);
-						} else {
-							resultMap.get("updateSuccessList").add(contentId);
-						}
-					} else {
-						resultMap.get("updateFailedList").add(contentId);
-					}
+					ConvertToGraphNode.convertToGraphNode(map, definition, contentNode);
+					ConvertToGraphNode.convertToGraphNode(map, imageDefinition, imageNode);
+					resp = updateDataNodes(map, Arrays.asList(contentId, contentImageId), contentNode.getGraphId());
 				} else {
 					resp = updateDialCode(map, definition, contentNode, contentId);
-					if (!checkError(resp))
-						resultMap.get("updateSuccessList").add(contentId);
-					else
-						resultMap.get("updateFailedList").add(contentId);
 				}
+				if (!checkError(resp))
+					resultMap.get("updateSuccessList").add(contentId);
+				else
+					resultMap.get("updateFailedList").add(contentId);
 			}
 		}
 	}
@@ -1599,7 +1587,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	private void checkYoutubeLicense(String artifactUrl, Node node) throws Exception {
 		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
-				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
+				? Platform.config.getBoolean("learning.content.youtube.validate.license")
+				: false;
 
 		if (isValReq) {
 			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
@@ -1754,5 +1743,24 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
 			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
 					"Max limit for link content to dialcode in a request is " + maxLimit);
+	}
+
+	/**
+	 * @param map
+	 * @param asList
+	 * @param graphId
+	 * @return
+	 */
+	private Response updateDataNodes(Map<String, Object> map, List<String> idList, String graphId) {
+		Response response = new Response();
+		TelemetryManager.log("Getting Update Node Request For Node ID: " + idList);
+		Request updateReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "updateDataNodes");
+		updateReq.put(GraphDACParams.node_ids.name(), idList);
+		updateReq.put(GraphDACParams.metadata.name(), map);
+
+		TelemetryManager.log("Updating DialCodes for :" + idList);
+		response = getResponse(updateReq);
+		TelemetryManager.log("Returning Node Update Response.");
+		return response;
 	}
 }
