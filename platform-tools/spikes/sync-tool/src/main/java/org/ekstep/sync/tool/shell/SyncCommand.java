@@ -20,26 +20,34 @@ public class SyncCommand implements CommandMarker {
 	@Autowired
 	CompositeIndexSyncManager compositeIndexSyncManager;
 
-	@CliCommand(value = "syncbyids", help = "Sync data from Neo4j to Elastic Search by Ids")
+	@CliCommand(value = {"syncbyid","syncbyids"}, help = "Sync data from Neo4j to Elastic Search by Id(s)")
 	public void syncByIds(@CliOption(key = {
 			"graphId" }, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
 			@CliOption(key = { "ids" }, mandatory = true, help = "Unique Id of node object") final String[] ids)
 			throws Exception {
-
+		
+		long startTime = System.currentTimeMillis();
 		List<String> identifiers = Arrays.asList(ids);
 		compositeIndexSyncManager.syncNode(graphId, identifiers);
+		long endTime = System.currentTimeMillis();
+        long exeTime = endTime - startTime;
+        System.out.println("Total time of execution: "+exeTime +"ms");
 	}
 
-	@CliCommand(value = "syncbyfile", help = "Sync data from Neo4j to Elastic Search by Id and objectType listed in a file")
+	@CliCommand(value = "syncbyfile", help = "Sync data from Neo4j to Elastic Search by Id and objectType(optional) listed in a file")
 	public void syncByFile(@CliOption(key = {
 			"graphId" }, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
 			@CliOption(key = { "filePath" }, mandatory = true, help = "File Path of the csv file") String filePath,
 			@CliOption(key = { "objectType" }, mandatory = false, help = "Object type ") String objectType)
 			throws Exception {
-
+		
+		long startTime = System.currentTimeMillis();
 		List<String> identifiers;
 		identifiers = CSVFileParserUtil.getIdentifiers(filePath, objectType);
 		compositeIndexSyncManager.syncNode(graphId, identifiers);
+		long endTime = System.currentTimeMillis();
+        long exeTime = endTime - startTime;
+        System.out.println("Total time of execution: "+exeTime +"ms");
 	}
 
 	@CliCommand(value = "syncbyobjecttype", help = "Sync data from Neo4j to Elastic Search by the given object type")
@@ -49,14 +57,15 @@ public class SyncCommand implements CommandMarker {
 					"objectType" }, mandatory = true, help = "Object type needs to be validated") String objectType)
 			throws Exception {
 
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"); // TODO: Remove this line
-		LocalDateTime now = LocalDateTime.now(); // TODO: Remove this line
-		System.out.println("START_TIME" + dtf.format(now)); // TODO: Remove this line
-
+		long startTime = System.currentTimeMillis();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime start = LocalDateTime.now();
 		compositeIndexSyncManager.syncNode(graphId, objectType);
-
-		now = LocalDateTime.now(); // TODO: Remove this line
-		System.out.println("END_TIME: " + dtf.format(now));// TODO: Remove this line
+		long endTime = System.currentTimeMillis();
+        long exeTime = endTime - startTime;
+        System.out.println("Total time of execution: "+exeTime +"ms");
+        LocalDateTime end = LocalDateTime.now();
+		System.out.println("START_TIME" + dtf.format(start)+"END_TIME: " + dtf.format(end));
 	}
 
 	@CliCommand(value = "syncbydaterange", help = "Sync data from Neo4j to Elastic Search by the given date range")
@@ -69,6 +78,7 @@ public class SyncCommand implements CommandMarker {
 			@CliOption(key = {
 					"objectType" }, mandatory = true, help = "Object type needs to be validated") String objectType)
 			throws Exception {
+		
 		DateRangeDataFetcher fetcher = new DateRangeDataFetcher();
 		List<String> ids = fetcher.neo4jData(objectType, startDate, endDate);
 		System.out.println("Ids are: " + ids);
