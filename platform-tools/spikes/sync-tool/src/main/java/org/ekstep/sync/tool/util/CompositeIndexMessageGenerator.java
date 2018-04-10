@@ -13,9 +13,9 @@ import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 
-public class CompositeIndexGenerateMessage {
+public class CompositeIndexMessageGenerator {
 
-	public static Map<String, Object> getKafkaMessage(Node node) {
+	public static Map<String, Object> getMessage(Node node) {
 	    Map<String, Object> map = new HashMap<String, Object>();
         Map<String, Object> transactionData = new HashMap<String, Object>();
         if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
