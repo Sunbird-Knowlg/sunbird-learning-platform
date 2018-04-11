@@ -10,19 +10,28 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class LPShellBanner extends DefaultBannerProvider {
  
-    public String getBanner() {
+	/*
+		 _   _            _  _   _       _____ ____    ____                     _____           _ 
+		| \ | | ___  ___ | || | (_)     | ____/ ___|  / ___| _   _ _ __   ___  |_   _|__   ___ | |
+		|  \| |/ _ \/ _ \| || |_| |_____|  _| \___ \  \___ \| | | | '_ \ / __|   | |/ _ \ / _ \| |
+		| |\  |  __/ (_) |__   _| |_____| |___ ___) |  ___) | |_| | | | | (__    | | (_) | (_) | |
+		|_| \_|\___|\___/   |_|_/ |     |_____|____/  |____/ \__, |_| |_|\___|   |_|\___/ \___/|_|
+		                      |__/                           |___/                                
+
+	 */
+	public String getBanner() {
         StringBuffer buf = new StringBuffer();
-        buf.append(" _   _            _  _   _   ____                     _____           _ ")
+        buf.append(" _   _            _  _   _       _____ ____    ____                     _____           _ ")
             .append(OsUtils.LINE_SEPARATOR);
-        buf.append("| \\ | | ___  ___ | || | (_) / ___| _   _ _ __   ___  |_   _|__   ___ | |")
+        buf.append("| \\ | | ___  ___ | || | (_)     | ____/ ___|  / ___| _   _ _ __   ___  |_   _|__   ___ | |")
             .append(OsUtils.LINE_SEPARATOR);
-        buf.append("|  \\| |/ _ \\/ _ \\| || |_| | \\___ \\| | | | '_ \\ / __|   | |/ _ \\ / _ \\| |")
+        buf.append("|  \\| |/ _ \\/ _ \\| || |_| |_____|  _| \\___ \\  \\___ \\| | | | '_ \\ / __|   | |/ _ \\ / _ \\| |")
             .append(OsUtils.LINE_SEPARATOR);
-        buf.append("| |\\  |  __/ (_) |__   _| |  ___) | |_| | | | | (__    | | (_) | (_) | |")
+        buf.append("| |\\  |  __/ (_) |__   _| |_____| |___ ___) |  ___) | |_| | | | | (__    | | (_) | (_) | |")
         .append(OsUtils.LINE_SEPARATOR);
-        buf.append("|_| \\_|\\___|\\___/   |_|_/ | |____/ \\__, |_| |_|\\___|   |_|\\___/ \\___/|_|")
+        buf.append("|_| \\_|\\___|\\___/   |_|_/ |     |_____|____/  |____/ \\__, |_| |_|\\___|   |_|\\___/ \\___/|_|")
         .append(OsUtils.LINE_SEPARATOR);
-        buf.append("                      |__/         |___/                                ")
+        buf.append("                      |__/                           |___/                                ")
         .append(OsUtils.LINE_SEPARATOR);
         buf.append("Version:")
             .append(this.getVersion());
