@@ -19,14 +19,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-event-generator</artifactId>
-			<version>0.0.12</version>
+			<version>0.0.13</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.41</version>
+			<version>0.0.42</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
