@@ -48,7 +48,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 				when().
 				post("/framework/v3/category/master/create").
 				then().
-				log().all().
+				// log().all().
 				extract().response();
 			
 		JsonPath jp1 = R.jsonPath();
@@ -71,7 +71,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Read and validate the category instance
@@ -81,7 +81,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/read/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 		}
 
@@ -97,7 +97,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -113,7 +113,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -129,7 +129,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -147,7 +147,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			setURI();
@@ -159,7 +159,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -175,7 +175,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/creat").
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -193,7 +193,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Read and validate the category instance
@@ -203,7 +203,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/read/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 		}
 		
@@ -216,7 +216,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/read/famdsnfkj").
 			then().
-			log().all().
+			// log().all().
 			spec(get404ResponseSpec());
 		}
 		
@@ -229,7 +229,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/read/").
 			then().
-			log().all().
+			// log().all().
 			spec(get500ResponseSpec());
 		}
 		
@@ -247,7 +247,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Read and validate the category instance
@@ -257,7 +257,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/read/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -275,7 +275,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Read and validate the category instance
@@ -285,7 +285,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/read/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -302,7 +302,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 					when().
 					post("content/v3/create").
 					then().
-					//log().all().
+					//// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -316,7 +316,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/read/"+nodeId).
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 			
 		}
@@ -335,7 +335,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Update framework category instance
@@ -348,7 +348,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/"+instanceId).
 			then().
-			//log().all().
+			//// log().all().
 			spec(get200ResponseSpec());
 			
 			// Read and validate the category instance
@@ -359,7 +359,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/read"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 			
@@ -380,7 +380,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/laksng").
 			then().
-			//log().all().
+			//// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -398,7 +398,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			setURI();
@@ -410,7 +410,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/laksng").
 			then().
-			//log().all().
+			//// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -428,7 +428,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			setURI();
@@ -440,7 +440,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/"+instanceId).
 			then().
-			//log().all().
+			//// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -458,7 +458,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			setURI();
@@ -470,7 +470,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/"+instanceId).
 			then().
-			//log().all().
+			//// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -488,7 +488,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			setURI();
@@ -500,7 +500,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/search").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec()).
 			body("result.terms.status", hasItems("Live"));
 		}
@@ -517,7 +517,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/search").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 		}
 		
@@ -533,7 +533,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/search").
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -551,7 +551,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			setURI();
@@ -563,7 +563,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/search").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 		}
 		
@@ -581,7 +581,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Retire the category instance
@@ -591,7 +591,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			delete("/channel/v3/category/retire/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Read and validate the status
@@ -602,7 +602,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 				when().
 				get("/channel/v3/category/read/"+instanceId).
 				then().
-				//log().all().
+				//// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 			
@@ -620,7 +620,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			delete("/channel/v3/category/retire/adjsfi").
 			then().
-			log().all().
+			// log().all().
 			spec(get404ResponseSpec());
 		}
 		
@@ -633,7 +633,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			delete("/channel/v3/category/retire/").
 			then().
-			log().all().
+			// log().all().
 			spec(get500ResponseSpec());
 		}
 		
@@ -651,7 +651,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Retire the category instance
@@ -661,7 +661,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			delete("/channel/v3/category/retire/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -679,7 +679,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Retire the category instance
@@ -689,7 +689,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			delete("/channel/v3/category/retire/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 		}
 		
@@ -706,7 +706,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 					when().
 					post("content/v3/create").
 					then().
-					//log().all().
+					//// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -720,7 +720,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/category/retire/"+nodeId).
 			then().
-			log().all().
+			// log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -738,7 +738,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			post("/channel/v3/category/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Retire the category instance
@@ -748,7 +748,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			delete("/channel/v3/category/retire/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Retire the retired category instance
@@ -758,7 +758,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			delete("/channel/v3/category/retire/"+instanceId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 		}	
 }
