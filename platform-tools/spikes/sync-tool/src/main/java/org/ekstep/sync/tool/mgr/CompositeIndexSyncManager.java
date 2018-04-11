@@ -1,4 +1,4 @@
-package org.ekstep.sync.tool.service;
+package org.ekstep.sync.tool.mgr;
 
 import java.util.ArrayList;
 import java.util.HashSet;

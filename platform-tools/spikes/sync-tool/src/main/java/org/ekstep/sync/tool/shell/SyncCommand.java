@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-import org.ekstep.sync.tool.service.CompositeIndexSyncManager;
+import org.ekstep.sync.tool.mgr.CompositeIndexSyncManager;
 import org.ekstep.sync.tool.util.CSVFileParserUtil;
 import org.ekstep.sync.tool.util.DateRangeDataFetcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +65,7 @@ public class SyncCommand implements CommandMarker {
         long exeTime = endTime - startTime;
         System.out.println("Total time of execution: "+exeTime +"ms");
         LocalDateTime end = LocalDateTime.now();
-		System.out.println("START_TIME" + dtf.format(start)+"END_TIME: " + dtf.format(end));
+		System.out.println("START_TIME" + dtf.format(start)+", END_TIME: " + dtf.format(end));
 	}
 
 	@CliCommand(value = "syncbydaterange", help = "Sync data from Neo4j to Elastic Search by the given date range")
