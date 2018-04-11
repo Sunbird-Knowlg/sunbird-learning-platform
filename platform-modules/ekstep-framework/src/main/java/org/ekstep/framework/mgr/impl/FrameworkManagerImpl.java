@@ -113,7 +113,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				if (null != searchResult && !searchResult.isEmpty()) {
 					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
 					Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"), Map.class);
-					if(null != hierarchy && hierarchy.isEmpty()) {
+					if (null != hierarchy && !hierarchy.isEmpty()) {
 						Object categories = hierarchy.get("categories");
 						if (categories != null) {
 							responseMap.put("categories", categories);
