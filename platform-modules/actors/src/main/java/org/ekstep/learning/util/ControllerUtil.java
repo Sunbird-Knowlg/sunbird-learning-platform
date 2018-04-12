@@ -310,5 +310,32 @@ public class ControllerUtil extends BaseLearningManager {
 			return nodes;
 		}
 	}
+	
+	public List<String> getNodesWithInDateRange(String graphId, String objectType, String startDate, String endDate) {
+
+		List<String> nodeIds = new ArrayList<>();
+		String objectTypeQuery = "";
+		if(StringUtils.isNotBlank(objectType))
+			objectTypeQuery="{IL_FUNC_OBJECT_TYPE:'"+objectType+"'}";			
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		String queryString ="MATCH (n:{0}{1})  WITH split(left(n.lastUpdatedOn, 10), {2}) AS dd, n where {4}>=toInt(dd[0]+dd[1]+dd[2])>={3} return n.IL_UNIQUE_ID as identifier";
+		String query = MessageFormat.format(queryString, graphId, objectTypeQuery, "'-'", startDate, endDate);
+        request.put(GraphDACParams.query.name(), query);
+        List<String> props = new ArrayList<String>();
+        props.add("identifier");
+        request.put(GraphDACParams.property_keys.name(), props);
+        Response response = getResponse(request);
+        if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (null != list && !list.isEmpty()) {
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> properties = list.get(i);
+					nodeIds.add((String)properties.get("identifier"));
+				}
+			}
+		}
+		return nodeIds;
+	}
 }
 

@@ -1,10 +1,14 @@
 package org.ekstep.sync.tool.mgr;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -27,10 +31,9 @@ import org.springframework.stereotype.Component;
 public class CompositeIndexSyncManager {
 
 	private ControllerUtil util = new ControllerUtil();
-	
+
 	@Autowired
 	private CompositeIndexSyncer compositeIndexSyncer;
-
 
 	@PostConstruct
 	public void init() throws Exception {
@@ -42,10 +45,10 @@ public class CompositeIndexSyncManager {
 			throw new ClientException("BLANK_GRAPH_ID", "Graph Id is blank.");
 		if (identifiers.isEmpty())
 			throw new ClientException("BLANK_IDENTIFIER", "Identifier is blank.");
-		
+
 		Set<String> ids = new HashSet<>(identifiers);
-		if(ids.size()!=identifiers.size())
-			System.out.println("unique number of node identifiers: "+ids.size());
+		if (ids.size() != identifiers.size())
+			System.out.println("unique number of node identifiers: " + ids.size());
 		Response response = util.getDataNodes(graphId, identifiers);
 		if (response.getResponseCode() != ResponseCode.OK)
 			throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND",
@@ -58,8 +61,9 @@ public class CompositeIndexSyncManager {
 			compositeIndexSyncer.processMessage(csMessage);
 			ids.remove(node.getIdentifier());
 		}
-		if(ids.size()!=0)
-			System.out.println("("+ids.size()+") Nodes not found: "+ids +", remaining nodes got synced successfully");
+		if (ids.size() != 0)
+			System.out.println(
+					"(" + ids.size() + ") Nodes not found: " + ids + ", remaining nodes got synced successfully");
 	}
 
 	public void syncNode(String graphId, String objectType) throws Exception {
@@ -76,6 +80,42 @@ public class CompositeIndexSyncManager {
 				}
 				i++;
 			}
+		}
+
+	}
+
+	public void syncNode(String graphId, String objectType, String startDate, String endDate) throws Exception {
+		SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+		inputFormat.setLenient(false);
+
+		Date start;
+		Date end;
+		try {
+			start = inputFormat.parse(startDate);
+			end = inputFormat.parse(endDate);
+		} catch (ParseException e) {
+			throw new ClientException("ERR_DATE_FORMAT", "DATE Should be in the format of yyyy-MM-dd");
+		}
+
+		long diffInMillies = end.getTime() - start.getTime();
+		if (diffInMillies < 0)
+			throw new ClientException("ERR_DATE_RANGE_INCORRECT",
+					"End Date should be more than or equal to Start Date");
+
+		long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+		if (diff > 364)
+			throw new ClientException("ERR_DATE_RANGE_MORE_THAN_TEAR",
+					"Date range differnce should not be more than a year");
+
+		startDate = startDate.replaceAll("-", "");
+		endDate = endDate.replaceAll("-", "");
+		List<String> ids = util.getNodesWithInDateRange(graphId, objectType, startDate, endDate);
+
+		if (!ids.isEmpty()) {
+			System.out.println(ids.size() + " node(s) got matched with given condition(s) for sync");
+			syncNode(graphId, ids);
+		} else {
+			System.out.println("No node got matched with given condition(s)");
 		}
 
 	}
