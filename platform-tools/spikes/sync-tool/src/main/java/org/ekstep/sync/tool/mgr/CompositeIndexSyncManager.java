@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ public class CompositeIndexSyncManager {
 		if (identifiers.isEmpty())
 			throw new ClientException("BLANK_IDENTIFIER", "Identifier is blank.");
 
+		Map<String, Object> errors = new HashMap<>();
 		Set<String> uniqueIds = new HashSet<>(identifiers);
 		if (uniqueIds.size() != identifiers.size()) {
 			System.out.println("unique number of node identifiers: " + uniqueIds.size());
@@ -66,11 +68,15 @@ public class CompositeIndexSyncManager {
 				throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND", "Objects not found ");
 			for (Node node : nodes) {
 				Map<String, Object> csMessage = CompositeIndexMessageGenerator.getMessage(node);
-				compositeIndexSyncer.processMessage(csMessage);
+				try {
+					compositeIndexSyncer.processMessage(csMessage);
+				} catch (Exception e) {
+					errors.put(node.getIdentifier(), e.getMessage());
+				}
 				uniqueIds.remove(node.getIdentifier());
 			}
 
-			//clear the already batched node ids from  the list
+			// clear the already batched node ids from the list
 			identifiers.subList(0, currentBatchSize).clear();
 		}
 
@@ -78,9 +84,13 @@ public class CompositeIndexSyncManager {
 			System.out.println("(" + uniqueIds.size() + ") Nodes not found: " + uniqueIds
 					+ ", remaining nodes got synced successfully");
 		}
+		if (!errors.isEmpty())
+			System.out.println(
+					"Error while pushing data to ElasticSearch for the below nodes(nodeId, errormsg)" + errors);
 	}
 
 	public void syncNode(String graphId, String objectType) throws Exception {
+		Map<String, Object> errors = new HashMap<>();
 		List<Node> nodes = getNodeByObjectType(graphId, objectType);
 		if (!nodes.isEmpty()) {
 			int i = 1;
@@ -90,11 +100,20 @@ public class CompositeIndexSyncManager {
 
 				if (null != node) {
 					Map<String, Object> csMessage = CompositeIndexMessageGenerator.getMessage(node);
-					compositeIndexSyncer.processMessage(csMessage);
+					try {
+						compositeIndexSyncer.processMessage(csMessage);
+					} catch(Exception e) {
+						errors.put(node.getIdentifier(), e.getMessage());	
+					}
 				}
 				i++;
 			}
 		}
+		
+		if (!errors.isEmpty())
+			System.out.println(
+					"Error while pushing data to ElasticSearch for the below nodes(nodeId, errormsg)" + errors);
+
 
 	}
 
