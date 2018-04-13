@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 public class CompositeIndexSyncManager {
 
 	private ControllerUtil util = new ControllerUtil();
+	private final static int batchSize = 1000;
 
 	@Autowired
 	private CompositeIndexSyncer compositeIndexSyncer;
@@ -46,24 +47,37 @@ public class CompositeIndexSyncManager {
 		if (identifiers.isEmpty())
 			throw new ClientException("BLANK_IDENTIFIER", "Identifier is blank.");
 
-		Set<String> ids = new HashSet<>(identifiers);
-		if (ids.size() != identifiers.size())
-			System.out.println("unique number of node identifiers: " + ids.size());
-		Response response = util.getDataNodes(graphId, identifiers);
-		if (response.getResponseCode() != ResponseCode.OK)
-			throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND",
-					"Error: " + response.getParams().getErrmsg());
-		List<Node> nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
-		if (nodes == null || nodes.isEmpty())
-			throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND", "Objects not found ");
-		for (Node node : nodes) {
-			Map<String, Object> csMessage = CompositeIndexMessageGenerator.getMessage(node);
-			compositeIndexSyncer.processMessage(csMessage);
-			ids.remove(node.getIdentifier());
+		Set<String> uniqueIds = new HashSet<>(identifiers);
+		if (uniqueIds.size() != identifiers.size()) {
+			System.out.println("unique number of node identifiers: " + uniqueIds.size());
+			identifiers = new ArrayList<>(uniqueIds);
 		}
-		if (ids.size() != 0)
-			System.out.println(
-					"(" + ids.size() + ") Nodes not found: " + ids + ", remaining nodes got synced successfully");
+
+		while (!identifiers.isEmpty()) {
+			int currentBatchSize = (identifiers.size() >= batchSize) ? batchSize : identifiers.size();
+			List<String> batch_ids = identifiers.subList(0, currentBatchSize);
+
+			Response response = util.getDataNodes(graphId, batch_ids);
+			if (response.getResponseCode() != ResponseCode.OK)
+				throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND",
+						"Error: " + response.getParams().getErrmsg());
+			List<Node> nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
+			if (nodes == null || nodes.isEmpty())
+				throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND", "Objects not found ");
+			for (Node node : nodes) {
+				Map<String, Object> csMessage = CompositeIndexMessageGenerator.getMessage(node);
+				compositeIndexSyncer.processMessage(csMessage);
+				uniqueIds.remove(node.getIdentifier());
+			}
+
+			//clear the already batched node ids from  the list
+			identifiers.subList(0, currentBatchSize).clear();
+		}
+
+		if (uniqueIds.size() != 0) {
+			System.out.println("(" + uniqueIds.size() + ") Nodes not found: " + uniqueIds
+					+ ", remaining nodes got synced successfully");
+		}
 	}
 
 	public void syncNode(String graphId, String objectType) throws Exception {
@@ -130,16 +144,16 @@ public class CompositeIndexSyncManager {
 			def = util.getDefinition(graphId, objectType);
 			if (null != def) {
 				int start = 0;
-				int batch = 1000;
 				boolean found = true;
 				while (found) {
-					List<Node> nodes = util.getNodes(graphId, def.getObjectType(), start, batch);
+					List<Node> nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
 					if (null != nodes && !nodes.isEmpty()) {
 						for (Node node : nodes) {
 							identifiers.add(node);
 						}
-						System.out.println("sent " + start + " + " + batch + " -- " + def.getObjectType() + " objects");
-						start += batch;
+						System.out.println(
+								"sent " + start + " + " + batchSize + " -- " + def.getObjectType() + " objects");
+						start += batchSize;
 					} else {
 						found = false;
 						break;
