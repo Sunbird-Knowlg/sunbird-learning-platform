@@ -4,10 +4,9 @@
 
 package org.ekstep.graph.engine.mgr.impl;
 
-
-
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,54 +55,23 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
-	static String createNodeData = "{\"code\":\"dc1\",\n" +
-			"   		\"mimeType\":\"application/pdf\",\n" + 
-			"   		\"name\":\"TestdataNodeCreate\"}";
+	static String createNodeData = "{\"code\":\"dc1\",\n" + "   		\"mimeType\":\"application/pdf\",\n"
+			+ "   		\"name\":\"TestdataNodeCreate\"}";
 
 	static String updateNodeData = "{\"name\":\"TestdataNodeUpdate\"}";
-	
-	static String metadata = "{\"limit\": 50,\n" +
-			"        \"status\": [\n" + 
-			"          \"Live\"\n" + 
-			"        ],\n" + 
-			"        \"ttl\": 0.08,\n" + 
-			"        \"variants\": {\n" + 
-			"          \"high\": {\n" + 
-			"            \"dimensions\": [\n" + 
-			"              1024,\n" + 
-			"              1024\n" + 
-			"            ],\n" + 
-			"            \"dpi\": 240\n" + 
-			"          },\n" + 
-			"          \"medium\": {\n" + 
-			"            \"dimensions\": [\n" + 
-			"              512,\n" + 
-			"              512\n" + 
-			"            ],\n" + 
-			"            \"dpi\": 240\n" + 
-			"          },\n" + 
-			"          \"low\": {\n" + 
-			"            \"dimensions\": [\n" + 
-			"              128,\n" + 
-			"              128\n" + 
-			"            ],\n" + 
-			"            \"dpi\": 240\n" + 
-			"          }\n" + 
-			"        },\n" + 
-			"        \"softConstraints\": {\n" + 
-			"          \"medium\": 15,\n" + 
-			"          \"ageGroup\": 1,\n" + 
-			"          \"gradeLevel\": 7,\n" + 
-			"          \"board\": 4\n" + 
-			"        },\n" + 
-			"        \"versionCheckMode\": \"STRICT\",\n" + 
-			"        \"allowStatusUpdate\": true,\n" + 
-			"        \"fields\": [\n" + 
-			"          \"identifier\",\n" + 
-			"          \"name\",\n" + 
-			"          \"code\"\n" + 
-			"        ]\n" + 
-			"      }";
+
+	static String metadata = "{\"limit\": 50,\n" + "        \"status\": [\n" + "          \"Live\"\n" + "        ],\n"
+			+ "        \"ttl\": 0.08,\n" + "        \"variants\": {\n" + "          \"high\": {\n"
+			+ "            \"dimensions\": [\n" + "              1024,\n" + "              1024\n" + "            ],\n"
+			+ "            \"dpi\": 240\n" + "          },\n" + "          \"medium\": {\n"
+			+ "            \"dimensions\": [\n" + "              512,\n" + "              512\n" + "            ],\n"
+			+ "            \"dpi\": 240\n" + "          },\n" + "          \"low\": {\n"
+			+ "            \"dimensions\": [\n" + "              128,\n" + "              128\n" + "            ],\n"
+			+ "            \"dpi\": 240\n" + "          }\n" + "        },\n" + "        \"softConstraints\": {\n"
+			+ "          \"medium\": 15,\n" + "          \"ageGroup\": 1,\n" + "          \"gradeLevel\": 7,\n"
+			+ "          \"board\": 4\n" + "        },\n" + "        \"versionCheckMode\": \"STRICT\",\n"
+			+ "        \"allowStatusUpdate\": true,\n" + "        \"fields\": [\n" + "          \"identifier\",\n"
+			+ "          \"name\",\n" + "          \"code\"\n" + "        ]\n" + "      }";
 	static Map<String, String> contentVersion = new HashMap<String, String>();
 	static long timeout = 50000;
 	protected static Timeout t = new Timeout(Duration.create(60, TimeUnit.SECONDS));
@@ -113,7 +81,7 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 		loadDefinition("definitions/domain_definition.json", "definitions/content_definition.json",
 				"definitions/concept_definition.json", "definitions/dimension_definition.json");
 	}
-	
+
 	@AfterClass
 	public static void afterTest() {
 		try {
@@ -122,7 +90,6 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			e.printStackTrace();
 		}
 	}
-
 
 	/**
 	 * 
@@ -317,7 +284,6 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 
 			handleFutureBlock(response, "searchNodes", null, null);
 
-
 			Request request1 = new Request();
 			request1.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
 			request1.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
@@ -334,6 +300,37 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 		}
 	}
 
+	@Test
+	public void testB5() {
+		try {
+			String graphId = "domain";
+			String objectType = "Content";
+			Request request = new Request();
+			request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
+			request.setOperation("updateDataNodes");
+			List<String> idlist = Arrays.asList("testNode1", "testNode2");
+			Map<String, Object> metadata = new HashMap<>();
+			metadata.put("dialcodes", Arrays.asList("6178HD"));
+			request.put(GraphDACParams.node_ids.name(), idlist);
+			request.put(GraphDACParams.metadata.name(), metadata);
+			Future<Object> response1 = Patterns.ask(reqRouter, request, TestUtil.timeout);
+			handleFutureBlock(response1, "updateDataNodes", null, null);
+			Request request1 = new Request();
+			request1.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+			request1.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
+			request1.setOperation("getDataNode");
+			request1.put(GraphDACParams.node_id.name(), "testNode1");
+			request1.put(GraphDACParams.object_type.name(), objectType);
+
+			Future<Object> response = Patterns.ask(reqRouter, request1, TestUtil.timeout);
+
+			handleFutureBlock(response, "getDataNode", null, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	/*
 	 * updateDataNode
 	 */
@@ -345,7 +342,7 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			Map<String, Object> contentMap = mapper.readValue(
 					"{\"name\":\"TestdataNodeUpdate\",\"versionKey\":\"" + contentVersion.get("testNode1") + "\"}",
 					new TypeReference<Map<String, Object>>() {
-			});
+					});
 
 			Node node = new Node();
 			node.setNodeType("DATA_NODE");
@@ -417,7 +414,7 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			request.setOperation("deleteDataNode");
 			request.put(GraphDACParams.node_id.name(), "testNode2");
 			Future<Object> resp = Patterns.ask(reqRouter, request, TestUtil.timeout);
-	
+
 			handleFutureBlock(resp, "deleteDataNode", null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -433,14 +430,13 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			definitionDto.setObjectType("Taxonomy");
 			definitionDto.setMetadata(mapper.readValue(metadata, new TypeReference<Map<String, Object>>() {
 			}));
-			
+
 			request.getContext().put(GraphHeaderParams.graph_id.name(), "test");
 			request.setManagerName(GraphEngineManagers.NODE_MANAGER);
 			request.setOperation("saveDefinitionNode");
 			request.put(GraphDACParams.definition_node.name(), definitionDto);
 			Future<Object> response = Patterns.ask(reqRouter, request, t);
 			handleFutureBlock(response, "saveDefinitionNode", GraphDACParams.node_id.name(), null);
-
 
 			Request request1 = new Request();
 			request1.getContext().put(GraphHeaderParams.graph_id.name(), "test");
@@ -449,7 +445,6 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			request1.setOperation("getNodeDefinition");
 			Future<Object> response1 = Patterns.ask(reqRouter, request1, t);
 			handleFutureBlock(response1, "getNodeDefinition", null, null);
-
 
 			Request request2 = new Request();
 			request2.getContext().put(GraphHeaderParams.graph_id.name(), "test");
@@ -462,7 +457,7 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
+
 	}
 
 	@Test
@@ -528,15 +523,16 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 			if (arg1 instanceof Response) {
 				Response ar = (Response) arg1;
 				// System.out.println(ar.getResult());
-				
+
 				// @SuppressWarnings("unchecked")
-				// List<DefinitionDTO> dtos = (List<DefinitionDTO>) ar.getResult().get("definition_nodes");
+				// List<DefinitionDTO> dtos = (List<DefinitionDTO>)
+				// ar.getResult().get("definition_nodes");
 				// for(DefinitionDTO dto : dtos) {
-				// 	System.out.println(dto.getIdentifier() + " : : " + dto.getObjectType());
+				// System.out.println(dto.getIdentifier() + " : : " + dto.getObjectType());
 
 				// }
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -563,10 +559,9 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 					Assert.assertTrue(ar.getParams().getStatus().equals(StatusType.successful.name()));
 				}
 
-
 			} else {
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

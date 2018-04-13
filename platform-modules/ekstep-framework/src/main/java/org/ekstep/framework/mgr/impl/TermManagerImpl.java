@@ -117,7 +117,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		if (null == request || request.isEmpty())
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (request.containsKey(TermEnum.code.name()))
-			return ERROR("ERR_SERVER_ERROR", "Term Code cannot be updated", ResponseCode.SERVER_ERROR);
+			return ERROR("ERR_CODE_UPDATION_NOT_ALLOWED", "Term Code cannot be updated", ResponseCode.CLIENT_ERROR);
 		
 		String categoryId = category;
 		if (null != scopeId) {
