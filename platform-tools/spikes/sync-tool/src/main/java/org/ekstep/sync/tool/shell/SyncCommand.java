@@ -2,6 +2,7 @@ package org.ekstep.sync.tool.shell;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class SyncCommand implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		List<String> identifiers = Arrays.asList(ids);
+		List<String> identifiers = new ArrayList<>(Arrays.asList(ids));
 		compositeIndexSyncManager.syncNode(graphId, identifiers);
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;

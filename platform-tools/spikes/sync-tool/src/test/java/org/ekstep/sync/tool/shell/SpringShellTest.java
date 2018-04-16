@@ -5,7 +5,8 @@ import org.junit.BeforeClass;
 import org.springframework.shell.Bootstrap;
 import org.springframework.shell.core.JLineShellComponent;
 
-public abstract class AbstractShellIntegrationTest {
+//
+public class SpringShellTest extends GraphEngineTestSetup{
 
 	private static JLineShellComponent shell;
 	

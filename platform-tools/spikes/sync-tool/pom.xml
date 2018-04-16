@@ -46,7 +46,13 @@
 		<groupId>junit</groupId>
 		<artifactId>junit</artifactId>
 		<version>4.12</version>
-	</dependency>			
+	</dependency>
+ 	<dependency>
+	    <groupId>org.neo4j</groupId>
+	    <artifactId>neo4j-bolt</artifactId>
+	    <version>3.0.4</version>
+		<scope>test</scope>
+	</dependency>
   </dependencies>
   <build>
   	<plugins>
