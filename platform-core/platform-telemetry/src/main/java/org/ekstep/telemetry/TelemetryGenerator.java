@@ -17,24 +17,25 @@ import org.ekstep.telemetry.dto.Telemetry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * {@link TelemetryGenerator} uses context and other parameters to generate event JSON in string format.
+ * {@link TelemetryGenerator} uses context and other parameters to generate
+ * event JSON in string format.
+ * 
  * @author Mahesh
  *
  */
-
 public class TelemetryGenerator {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String environment = Platform.config.getString("telemetry_env");
 	private static Producer producer = new Producer(environment + ".ekstep.learning.platform", "1.0");
 
-	
 	public static void setComponent(String component) {
 		producer.setPid(component);
 	}
-	
+
 	/**
 	 * To generate api_access LOG telemetry JSON string.
+	 * 
 	 * @param context
 	 * @param params
 	 * @return
@@ -50,9 +51,10 @@ public class TelemetryGenerator {
 		Telemetry telemetry = new Telemetry("LOG", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 	}
-	
+
 	/**
 	 * To generate normal LOG telemetry JSON string with all params.
+	 * 
 	 * @param context
 	 * @param type
 	 * @param level
@@ -61,7 +63,8 @@ public class TelemetryGenerator {
 	 * @param params
 	 * @return
 	 */
-	public static String log(Map<String, String> context, String type, String level, String message, String pageid, Map<String, Object> params) {
+	public static String log(Map<String, String> context, String type, String level, String message, String pageid,
+			Map<String, Object> params) {
 		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
@@ -75,9 +78,10 @@ public class TelemetryGenerator {
 		Telemetry telemetry = new Telemetry("LOG", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 	}
-	
+
 	/**
 	 * To generate normal LOG telemetry JSON string with required params.
+	 * 
 	 * @param context
 	 * @param type
 	 * @param level
@@ -90,6 +94,7 @@ public class TelemetryGenerator {
 
 	/**
 	 * To generate ERROR telemetry JSON string with all params.
+	 * 
 	 * @param context
 	 * @param code
 	 * @param type
@@ -117,6 +122,7 @@ public class TelemetryGenerator {
 
 	/**
 	 * To generate ERROR telemetry JSON string with required params.
+	 * 
 	 * @param context
 	 * @param code
 	 * @param type
@@ -127,7 +133,17 @@ public class TelemetryGenerator {
 		return error(context, code, type, stacktrace, null, null);
 	}
 
-	
+	/**
+	 * @param context
+	 * @param query
+	 * @param filters
+	 * @param sort
+	 * @param correlationId
+	 * @param size
+	 * @param topN
+	 * @param type
+	 * @return
+	 */
 	public static String search(Map<String, String> context, String query, Object filters, Object sort,
 			String correlationId, int size, Object topN, String type) {
 		Actor actor = getActor(context);
@@ -143,8 +159,18 @@ public class TelemetryGenerator {
 		Telemetry telemetry = new Telemetry("SEARCH", actor, eventContext, edata);
 		return getTelemetry(telemetry);
 	}
-	
-	public static String audit(Map<String, String> context, List<String> props, String state, String prevState) {
+
+	/**
+	 * @param context
+	 * @param props
+	 * @param state
+	 * @param prevState
+	 * @param cdata
+	 * @return
+	 */
+	public static String audit(Map<String, String> context, List<String> props, String state, String prevState,
+			List<Map<String, Object>> cdata) {
+		Telemetry telemetry = null;
 		Actor actor = getActor(context);
 		Context eventContext = getContext(context);
 		Map<String, Object> edata = new HashMap<String, Object>();
@@ -153,18 +179,32 @@ public class TelemetryGenerator {
 			edata.put("state", state);
 		if (StringUtils.isNotBlank(prevState))
 			edata.put("prevstate", prevState);
-		Telemetry telemetry = new Telemetry("AUDIT", actor, eventContext, edata);
+		if (null != cdata && !cdata.isEmpty())
+			telemetry = new Telemetry("AUDIT", actor, eventContext, edata, cdata);
+		else
+			telemetry = new Telemetry("AUDIT", actor, eventContext, edata);
 		Target object = new Target(context.get("objectId"), context.get("objectType"));
 		telemetry.setObject(object);
 		return getTelemetry(telemetry);
 	}
-	
+
+	/**
+	 * @param context
+	 * @param props
+	 * @param state
+	 * @param prevState
+	 * @return
+	 */
+	public static String audit(Map<String, String> context, List<String> props, String state, String prevState) {
+		return audit(context, props, state, prevState, null);
+	}
+
 	private static Actor getActor(Map<String, String> context) {
 		String actorId = context.get(TelemetryParams.ACTOR.name());
 		if (StringUtils.isBlank(actorId))
 			actorId = "org.ekstep.learning.platform";
 		return new Actor(actorId, "System");
-		
+
 	}
 
 	private static Context getContext(Map<String, String> context) {

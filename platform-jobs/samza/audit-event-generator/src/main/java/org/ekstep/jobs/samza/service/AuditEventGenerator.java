@@ -1,9 +1,7 @@
-/**
- * 
- */
 package org.ekstep.jobs.samza.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +41,7 @@ public class AuditEventGenerator implements ISamzaService {
 	private ControllerUtil util = new ControllerUtil();
 	static {
 		systemPropsList = Stream.of(SystemProperties.values()).map(SystemProperties::name).collect(Collectors.toList());
-		systemPropsList.add("SYS_INTERNAL_LAST_UPDATED_ON");
+		systemPropsList.addAll(Arrays.asList("SYS_INTERNAL_LAST_UPDATED_ON", "lastUpdatedOn", "versionKey"));
 	}
 
 	public AuditEventGenerator() {
@@ -85,7 +83,7 @@ public class AuditEventGenerator implements ISamzaService {
 				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_raw_topic"));
 				metrics.incSuccessCounter();
 			} else {
-				LOGGER.info("skipped event as the objectype is not available, event ="+auditMap);
+				LOGGER.info("skipped event as the objectype is not available, event =" + auditMap);
 				metrics.incSkippedCounter();
 			}
 		} catch (Exception e) {
@@ -94,19 +92,30 @@ public class AuditEventGenerator implements ISamzaService {
 		}
 	}
 
-	private static Map<String, String> getContext(String channelId) {
+	/**
+	 * @param channelId
+	 * @param env
+	 * @return
+	 */
+	private static Map<String, String> getContext(String channelId, String env) {
 		Map<String, String> context = new HashMap<String, String>();
 		context.put(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform");
 		context.put(TelemetryParams.CHANNEL.name(), channelId);
-		context.put(TelemetryParams.ENV.name(), "system");
+		context.put(TelemetryParams.ENV.name(), env);
 		return context;
 	}
 
+	/**
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getAuditMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> auditMap = null;
 		String objectId = (String) message.get(GraphDACParams.nodeUniqueId.name());
 		String objectType = (String) message.get(GraphDACParams.objectType.name());
+		String env = (null != objectType) ? objectType.toLowerCase().replace("image", "") : "system";
 		String graphId = (String) message.get(GraphDACParams.graphId.name());
 		DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
 		Map<String, String> inRelations = new HashMap<>();
@@ -134,19 +143,61 @@ public class AuditEventGenerator implements ISamzaService {
 		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
 		props.addAll(getRelationProps(addedRelations, inRelations, outRelations));
 		props.addAll(getRelationProps(removedRelations, inRelations, outRelations));
-		List<String> propsExceptSystemProps = props.stream()
-				.filter(prop -> !systemPropsList.contains(prop))
+		List<String> propsExceptSystemProps = props.stream().filter(prop -> !systemPropsList.contains(prop))
 				.collect(Collectors.toList());
-		
-		Map<String, String> context = getContext(channelId);
+		List<Map<String, Object>> cdata = getCData(addedRelations, removedRelations, propertyMap);
+		Map<String, String> context = getContext(channelId, env);
 		context.put("objectId", objectId);
 		context.put(GraphDACParams.objectType.name(), objectType);
-		String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus);
+		String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus, cdata);
 		LOGGER.debug("Audit Message : " + auditMessage);
 		auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
 		});
 
 		return auditMap;
+	}
+
+	/**
+	 * @param addedRelations
+	 * @param removedRelations
+	 * @param propertyMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> getCData(List<Map<String, Object>> addedRelations,
+			List<Map<String, Object>> removedRelations, Map<String, Object> propertyMap) {
+
+		List<Map<String, Object>> cdata = new ArrayList<Map<String, Object>>();
+
+		if (null != propertyMap && !propertyMap.isEmpty() && propertyMap.containsKey("dialcodes")) {
+			Map<String, Object> dialcodeMap = (Map<String, Object>) propertyMap.get("dialcodes");
+			List<String> dialcodes = (List<String>) dialcodeMap.get("nv");
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("id", dialcodes);
+			map.put("type", "DialCode");
+			cdata.add(map);
+		}
+
+		if (null != addedRelations && !addedRelations.isEmpty())
+			prepareCData(cdata, addedRelations);
+
+		if (null != removedRelations && !removedRelations.isEmpty())
+			prepareCData(cdata, addedRelations);
+
+		return cdata;
+	}
+
+	/**
+	 * @param cdata
+	 * @param relations
+	 */
+	private void prepareCData(List<Map<String, Object>> cdata, List<Map<String, Object>> relations) {
+		for (Map<String, Object> relation : relations) {
+			HashMap<String, Object> cMap = new HashMap<String, Object>();
+			cMap.put("id", relation.get("id"));
+			cMap.put("type", relation.get("type"));
+			cdata.add(cMap);
+		}
 	}
 
 	/**
@@ -172,6 +223,11 @@ public class AuditEventGenerator implements ISamzaService {
 
 	}
 
+	/**
+	 * @param definition
+	 * @param inRelations
+	 * @param outRelations
+	 */
 	private void getRelationDefinitionMaps(DefinitionDTO definition, Map<String, String> inRelations,
 			Map<String, String> outRelations) {
 		if (null != definition) {
@@ -188,6 +244,11 @@ public class AuditEventGenerator implements ISamzaService {
 		}
 	}
 
+	/**
+	 * @param rDef
+	 * @param relDefMap
+	 * @param rel
+	 */
 	private static void getRelationDefinitionKey(RelationDefinition rDef, Map<String, String> relDefMap, String rel) {
 		if (null != rDef.getObjectTypes() && !rDef.getObjectTypes().isEmpty()) {
 			for (String type : rDef.getObjectTypes()) {

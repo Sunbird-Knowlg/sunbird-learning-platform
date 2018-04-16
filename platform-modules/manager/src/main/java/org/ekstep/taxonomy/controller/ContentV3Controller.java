@@ -63,6 +63,7 @@ public class ContentV3Controller extends BaseController {
 			Response response = contentManager.create(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -132,7 +133,7 @@ public class ContentV3Controller extends BaseController {
 					return getResponseEntity(response, apiId, null);
 				}
 			} catch (Exception e) {
-				TelemetryManager.error("Upload | Exception: " + e.getMessage(), e);
+				TelemetryManager.error("Exception: " + e.getMessage(), e);
 				return getExceptionResponseEntity(e, apiId, null);
 			}
 		}
@@ -167,6 +168,7 @@ public class ContentV3Controller extends BaseController {
 			TelemetryManager.log("Archive | Response: " + response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -209,6 +211,7 @@ public class ContentV3Controller extends BaseController {
 			response = contentManager.publish(contentId, requestMap);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -248,6 +251,7 @@ public class ContentV3Controller extends BaseController {
 			response = contentManager.publish(contentId, requestMap);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -277,6 +281,7 @@ public class ContentV3Controller extends BaseController {
 			response = contentManager.review(contentId, request);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -301,6 +306,7 @@ public class ContentV3Controller extends BaseController {
 			response = contentManager.getHierarchy(contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -326,6 +332,7 @@ public class ContentV3Controller extends BaseController {
 			response = contentManager.find(contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -356,6 +363,7 @@ public class ContentV3Controller extends BaseController {
 			response = contentManager.preSignedURL(contentId, fileName);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
