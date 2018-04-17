@@ -124,7 +124,7 @@ public class SyncCommandTest extends SpringShellTest{
 		PrintStream err = System.err;
 		System.setErr(null);	
 		try {
-			cr = getShell().executeCommand("syncbydaterange --objectType Content --startDate 2017-05-20 --endDate 2017-05-31");
+			cr = getShell().executeCommand("syncbydaterange --objectType Content --startDate 2017-05-20 --endDate 2017-05-19");
 		}catch (Exception e) {
 			Assert.assertEquals("ERR_DATE_RANGE_INCORRECT: End Date should be more than or equal to Start Date", cr.getException());			
 		}
