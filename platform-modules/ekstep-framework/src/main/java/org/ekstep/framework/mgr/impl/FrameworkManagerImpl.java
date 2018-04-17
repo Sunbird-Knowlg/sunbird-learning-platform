@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -116,10 +117,15 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 					if (null != hierarchy && !hierarchy.isEmpty()) {
 						List<Map<String, Object>> categories = hierarchy.get("categories");
 						
+						String concepts = "{\"identifier\":\"xyz\",\"name\":\"Concepts\",\"code\":\"concepts\",\"description\":\"\",\"index\":"
+								+ (categories.size() + 1)
+								+ ",\"status\":\"Live\",\"domains\":[{\"identifier\":\"numeracy\",\"name\":\"Numeracy\",\"objectType\":\"Domain\",\"children\":[{\"identifier\":\"D5\",\"name\":\"Data Handling\",\"objectType\":\"Dimension\",\"children\":[]},{\"identifier\":\"D1\",\"name\":\"Geometry\",\"objectType\":\"Dimension\",\"children\":[]},{\"identifier\":\"testDimension1\",\"name\":\"Measurement\",\"objectType\":\"Dimension\",\"children\":[]},{\"identifier\":\"D4\",\"name\":\"Measurement\",\"objectType\":\"Dimension\",\"children\":[]},{\"identifier\":\"D2\",\"name\":\"Number sense\",\"objectType\":\"Dimension\",\"children\":[{\"identifier\":\"C6\",\"name\":\"Counting\",\"objectType\":\"Concept\",\"children\":[{\"identifier\":\"C49\",\"name\":\"Counting objects\",\"objectType\":\"Concept\",\"children\":[{\"identifier\":\"C211\",\"name\":\"Count to 20\",\"objectType\":\"Concept\",\"children\":[{\"identifier\":\"C455\",\"name\":\"Learner does not know the order of numbers.\",\"objectType\":\"Concept\",\"children\":[]},{\"identifier\":\"C456\",\"name\":\"Learner is not able to count till a specified number within a given set.\",\"objectType\":\"Concept\",\"children\":[]},{\"identifier\":\"C451\",\"name\":\"Learner is not able to match the number of objects and its numeral values.\",\"objectType\":\"Concept\",\"children\":[]},{\"identifier\":\"C460\",\"name\":\"Learner skips all even numbers while counting.\",\"objectType\":\"Concept\",\"children\":[]}]}]}]},{\"identifier\":\"C8\",\"name\":\"Place value\",\"objectType\":\"Concept\",\"children\":[{\"identifier\":\"C71\",\"name\":\"Expand a number with respect to place values\",\"objectType\":\"Concept\",\"children\":[]}]}]}]}]}";
+						categories.add(mapper.readValue(concepts, Map.class));
 						if (categories != null) {
 							if (returnCategories != null && !returnCategories.isEmpty()) {
 								responseMap.put("categories",
-										categories.stream().filter(p -> returnCategories.contains(p.get("code"))));
+										categories.stream().filter(p -> returnCategories.contains(p.get("code")))
+												.collect(Collectors.toList()));
 							} else {
 								responseMap.put("categories", categories);
 							}
