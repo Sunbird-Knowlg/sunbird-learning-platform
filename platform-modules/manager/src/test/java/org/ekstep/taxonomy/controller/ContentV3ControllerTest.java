@@ -624,10 +624,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		path = basePath + "/dialcode/link";
 		String dialCodeDeLinkReq = "{\"request\":{\"content\":{\"dialcode\":\"\",\"identifier\":\"" + contentId
 				+ "\"}}}";
-		System.out.println(dialCodeDeLinkReq);
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeDeLinkReq));
-		System.out.println(actions.andReturn().getResponse().getContentAsString());
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 
 		path = basePath + "/read/" + contentId;
@@ -660,10 +658,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 		path = basePath + "/dialcode/link";
 		String dialCodeDeLinkReq = "{\"request\":{\"content\":{\"dialcode\":[],\"identifier\":\"" + contentId + "\"}}}";
-		System.out.println(dialCodeDeLinkReq);
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeDeLinkReq));
-		System.out.println(actions.andReturn().getResponse().getContentAsString());
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 
 		path = basePath + "/read/" + contentId;
@@ -697,10 +693,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		path = basePath + "/dialcode/link";
 		String dialCodeDeLinkReq = "{\"request\":{\"content\":{\"dialcode\":[\"\"],\"identifier\":\"" + contentId
 				+ "\"}}}";
-		System.out.println(dialCodeDeLinkReq);
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeDeLinkReq));
-		System.out.println(actions.andReturn().getResponse().getContentAsString());
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 
 		path = basePath + "/read/" + contentId;
