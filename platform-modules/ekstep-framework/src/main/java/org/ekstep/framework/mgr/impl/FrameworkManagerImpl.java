@@ -114,7 +114,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
 					Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"), Map.class);
 					if (null != hierarchy && !hierarchy.isEmpty()) {
-						List<Map<String, Object>> categories = hierarchy.get("categories");
+						List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy.get("categories");
 						
 						String concepts = "{\"identifier\":\"xyz\",\"name\":\"Concepts\",\"code\":\"concepts\",\"description\":\"\",\"index\":"
 								+ (categories.size() + 1)
