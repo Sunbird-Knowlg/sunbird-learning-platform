@@ -318,7 +318,7 @@ public class ControllerUtil extends BaseLearningManager {
 		if(StringUtils.isNotBlank(objectType))
 			objectTypeQuery="{IL_FUNC_OBJECT_TYPE:'"+objectType+"'}";			
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String queryString ="MATCH (n:{0}{1})  WITH split(left(n.lastUpdatedOn, 10), {2}) AS dd, n where {4}>=toInt(dd[0]+dd[1]+dd[2])>={3} return n.IL_UNIQUE_ID as identifier";
+		String queryString ="MATCH (n:{0}{1})  WITH split(left(n.lastUpdatedOn, 10), {2}) AS dd, n where {4}>=toInt(dd[0]+dd[1]+dd[2])>={3} and NOT n.IL_SYS_NODE_TYPE in [\"TAG\", \"DEFINITION_NODE\", \"ROOT_NODE\"] return n.IL_UNIQUE_ID as identifier";
 		String query = MessageFormat.format(queryString, graphId, objectTypeQuery, "'-'", startDate, endDate);
         request.put(GraphDACParams.query.name(), query);
         List<String> props = new ArrayList<String>();

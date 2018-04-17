@@ -65,6 +65,7 @@ public class SyncCommandTest extends SpringShellTest{
 			Assert.assertEquals("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND: Objects not found ", cr.getException());			
 		}
 		System.setErr(err);	
+		Assert.assertFalse( cr.isSuccess() );
 	}
 
 	@Test
@@ -73,9 +74,11 @@ public class SyncCommandTest extends SpringShellTest{
 		//Execute command
 		cr = getShell().executeCommand("syncbyids --ids do_112178562079178752118");
 		Assert.assertNull(cr.getException());
+		Assert.assertTrue( cr.isSuccess() );
 		//Execute command
-		cr = getShell().executeCommand("syncbyids --ids domain_48763,domain_14658");
+		cr = getShell().executeCommand("syncbyids --ids domain_48763,domain_14658,do_112178562079178752118");
 		Assert.assertNull(cr.getException());
+		Assert.assertTrue( cr.isSuccess() );
 	}
 	
 	@Test
@@ -84,6 +87,7 @@ public class SyncCommandTest extends SpringShellTest{
 		//Execute command
 		cr = getShell().executeCommand("syncbyobjecttype --objectType AssessmentItem");
 		Assert.assertNull(cr.getException());
+		Assert.assertTrue( cr.isSuccess() );
 	}
 	
 	private static void createCompositeSearchIndex() throws Exception {

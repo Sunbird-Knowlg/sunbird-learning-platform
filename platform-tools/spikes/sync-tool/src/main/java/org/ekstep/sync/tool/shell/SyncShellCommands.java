@@ -2,23 +2,21 @@ package org.ekstep.sync.tool.shell;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import org.ekstep.sync.tool.mgr.CompositeIndexSyncManager;
-import org.ekstep.sync.tool.util.CSVFileParserUtil;
+import org.ekstep.sync.tool.mgr.ISyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SyncCommand implements CommandMarker {
+public class SyncShellCommands implements CommandMarker {
 
 	@Autowired
-	CompositeIndexSyncManager compositeIndexSyncManager;
+	@Qualifier("neo4jESSyncManager") 
+	ISyncManager indexSyncManager;
 
 	@CliCommand(value = "syncbyids", help = "Sync data from Neo4j to Elastic Search by Id(s)")
 	public void syncByIds(@CliOption(key = {
@@ -29,8 +27,7 @@ public class SyncCommand implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		List<String> identifiers = new ArrayList<>(Arrays.asList(ids));
-		compositeIndexSyncManager.syncNode(graphId, identifiers);
+		indexSyncManager.syncByIds(graphId, ids);
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");
@@ -48,9 +45,7 @@ public class SyncCommand implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		List<String> identifiers;
-		identifiers = CSVFileParserUtil.getIdentifiers(filePath, objectType);
-		compositeIndexSyncManager.syncNode(graphId, identifiers);
+		indexSyncManager.syncByFile(graphId, filePath, objectType);		
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");
@@ -68,7 +63,7 @@ public class SyncCommand implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		compositeIndexSyncManager.syncNode(graphId, objectType);
+		indexSyncManager.syncByObjectType(graphId, objectType);
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");
@@ -89,7 +84,7 @@ public class SyncCommand implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		compositeIndexSyncManager.syncNode(graphId, objectType, startDate, endDate);
+		indexSyncManager.syncByDateRange(graphId, startDate, endDate, objectType);
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");
