@@ -1,13 +1,17 @@
 package org.ekstep.taxonomy.controller;
 
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -346,6 +350,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * List) When: Link Dial Code API Hits Then: 200 - OK.
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testDialCodeLink_01() throws Exception {
 		String path = basePath + "/dialcode/link";
@@ -353,7 +358,14 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
-		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response response = getResponse(actions);
+		List<String> dialcodes = (List<String>) (List<String>) ((Map<String, Object>) response.getResult()
+				.get("content")).get("dialcodes");
+		assertEquals("ABC123", (String) dialcodes.get(0));
 	}
 
 	/*
@@ -548,6 +560,175 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+
+	// Link Dial Code - Blank Identifier - Expect: 400
+	@Test
+	public void testDialCodeLink_16() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":{\"dialcode\":\"ABC123\",\"identifier\":\"\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	// Link Dial Code - Blank Identifier ([]) - Expect: 400
+	@Test
+	public void testDialCodeLink_17() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":{\"dialcode\":\"ABC123\",\"identifier\":[]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	// Link Dial Code - Blank Identifier ([""]) - Expect: 400
+	@Test
+	public void testDialCodeLink_18() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":{\"dialcode\":\"ABC123\",\"identifier\":[\"\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	// Link Dial Code - Invalid Request Body - Expect: 400
+	@Test
+	public void testDialCodeLink_19() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\":{\"content\":{}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	// De Link Dial Code. Provided Blank DialCode (""). Expected : 200 - OK.
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testDialCodeDeLink_01() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		path = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response response = getResponse(actions);
+		List<String> dialcodes = (List<String>) (List<String>) ((Map<String, Object>) response.getResult()
+				.get("content")).get("dialcodes");
+		assertEquals("ABC123", (String) dialcodes.get(0));
+
+		path = basePath + "/dialcode/link";
+		String dialCodeDeLinkReq = "{\"request\":{\"content\":{\"dialcode\":\"\",\"identifier\":\"" + contentId
+				+ "\"}}}";
+		System.out.println(dialCodeDeLinkReq);
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeDeLinkReq));
+		System.out.println(actions.andReturn().getResponse().getContentAsString());
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		path = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		List<String> dialcodeList = (List<String>) (List<String>) ((Map<String, Object>) resp.getResult()
+				.get("content")).get("dialcodes");
+		assertEquals(null, dialcodeList);
+	}
+
+	// De Link Dial Code. Provided Blank DialCode ([]) Expected : 200 - OK.
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testDialCodeDeLink_02() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		path = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response response = getResponse(actions);
+		List<String> dialcodes = (List<String>) (List<String>) ((Map<String, Object>) response.getResult()
+				.get("content")).get("dialcodes");
+		assertEquals("ABC123", (String) dialcodes.get(0));
+
+		path = basePath + "/dialcode/link";
+		String dialCodeDeLinkReq = "{\"request\":{\"content\":{\"dialcode\":[],\"identifier\":\"" + contentId + "\"}}}";
+		System.out.println(dialCodeDeLinkReq);
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeDeLinkReq));
+		System.out.println(actions.andReturn().getResponse().getContentAsString());
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		path = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		List<String> dialcodeList = (List<String>) (List<String>) ((Map<String, Object>) resp.getResult()
+				.get("content")).get("dialcodes");
+		assertEquals(null, dialcodeList);
+	}
+
+	// De Link Dial Code. Provided Blank DialCode ([""]) Expected : 200 - OK.
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testDialCodeDeLink_03() throws Exception {
+		String path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		path = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response response = getResponse(actions);
+		List<String> dialcodes = (List<String>) (List<String>) ((Map<String, Object>) response.getResult()
+				.get("content")).get("dialcodes");
+		assertEquals("ABC123", (String) dialcodes.get(0));
+
+		path = basePath + "/dialcode/link";
+		String dialCodeDeLinkReq = "{\"request\":{\"content\":{\"dialcode\":[\"\"],\"identifier\":\"" + contentId
+				+ "\"}}}";
+		System.out.println(dialCodeDeLinkReq);
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(dialCodeDeLinkReq));
+		System.out.println(actions.andReturn().getResponse().getContentAsString());
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		path = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		List<String> dialcodeList = (List<String>) (List<String>) ((Map<String, Object>) resp.getResult()
+				.get("content")).get("dialcodes");
+		assertEquals(null, dialcodeList);
+	}
+
+	/**
+	 * @param actions
+	 * @return
+	 */
+	public static Response getResponse(ResultActions actions) {
+		String content = null;
+		Response resp = null;
+		try {
+			content = actions.andReturn().getResponse().getContentAsString();
+			if (StringUtils.isNotBlank(content))
+				resp = mapper.readValue(content, Response.class);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resp;
 	}
 
 }
