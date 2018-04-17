@@ -103,8 +103,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	// TODO : Delete this method and uncomment above method
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response readFramework(String frameworkId) throws Exception {
-
+	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		if (Platform.config.hasPath("framework.es.sync")) {
 			if (Platform.config.getBoolean("framework.es.sync")) {
@@ -112,17 +111,26 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				List<Object> searchResult = searchFramework(frameworkId);
 				if (null != searchResult && !searchResult.isEmpty()) {
 					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
-					Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
-					Object categories = hierarchy.get("categories");
-					if (categories != null) {
-						responseMap.put("categories", categories);
+					Map<String, List<Map<String, Object>>> hierarchy = mapper
+							.readValue((String) framework.get("fr_hierarchy"), Map.class);
+					if (null != hierarchy && !hierarchy.isEmpty()) {
+						List<Map<String, Object>> categories = hierarchy.get("categories");
+						
+						if (categories != null) {
+							if (returnCategories != null && !returnCategories.isEmpty()) {
+								responseMap.put("categories",
+										categories.stream().filter(p -> returnCategories.contains(p.get("code"))));
+							} else {
+								responseMap.put("categories", categories);
+							}
+						}
 					}
 				}
 			}
 		}
-		
 		return response;
 	}
+
 
 	private List<Object> searchFramework(String frameworkId) throws Exception {
 		List<Object> searchResult = new ArrayList<Object>();
