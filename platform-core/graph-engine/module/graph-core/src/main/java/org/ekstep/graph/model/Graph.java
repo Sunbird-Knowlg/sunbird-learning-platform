@@ -438,6 +438,15 @@ public class Graph extends AbstractDomainObject {
 		}
 	}
 
+	public Response executeUpdateQuery(Request req, String query, Map<String, Object> params) {
+		Request request = new Request(req);
+		request.put(GraphDACParams.query.name(), query);
+		if (null != params && !params.isEmpty())
+			request.put(GraphDACParams.params.name(), params);
+		Response response = searchMgr.executeQuery(request);
+		return response;
+	}
+
 	@SuppressWarnings("unchecked")
 	public void getNodesByObjectType(Request req) {
 		String objectType = (String) req.get(GraphDACParams.object_type.name());

@@ -389,6 +389,32 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Test
+	public void testSearchMinMaxFilter() {
+		Request request = getSearchRequest();
+		Map<String, Object> filters = new HashMap<String, Object>();
+		List<String> objectTypes = new ArrayList<String>();
+		objectTypes.add("Content");
+		filters.put("objectType", objectTypes);
+		filters.put("status", new ArrayList<String>());
+		Map<String, Object> name = new HashMap<String, Object>();
+		name.put("min", 564737);
+		name.put("max", 564739);
+		filters.put("size", name);
+		request.put("filters", filters);
+		Response response = getSearchResponse(request);
+		Map<String, Object> result = response.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		Assert.assertNotNull(list);
+		for (Object obj : list) {
+			Map<String, Object> content = (Map<String, Object>) obj;
+			Integer size = (Integer) content.get("size");
+			if (null != size)
+				Assert.assertTrue(size == 564738);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	@Ignore
 	@Test
 	public void testSearchLTFilter() {
