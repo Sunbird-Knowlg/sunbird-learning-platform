@@ -2183,6 +2183,54 @@
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
 					"indexed": true
+				},
+				{
+					"propertyName": "publishChecklist",
+					"title": "Publish Checklist",
+					"description": "Publish checklist.",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text',  'order': 15}",
+					"indexed": true
+				},
+				{
+					"propertyName": "publishComment",
+					"title": "Publish Comment",
+					"description": "Publish Comments.",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 16}",
+					"indexed": true
+				},
+				{
+					"propertyName": "rejectReasons",
+					"title": "Reject Reasons",
+					"description": "Reject reasons.",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text',  'order': 17}",
+					"indexed": true
+				},
+				{
+					"propertyName": "rejectComment",
+					"title": "Reject Comment",
+					"description": "Reject Comments.",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 18}",
+					"indexed": true
 				}
 			],
 			"inRelations": [
