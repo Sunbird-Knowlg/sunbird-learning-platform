@@ -184,6 +184,9 @@ public class TelemetryGenerator {
 		else
 			telemetry = new Telemetry("AUDIT", actor, eventContext, edata);
 		Target object = new Target(context.get("objectId"), context.get("objectType"));
+		String pkgVersion = (String) context.get("pkgVersion");
+		if (StringUtils.isNotBlank(pkgVersion))
+			object.setVer(pkgVersion);
 		telemetry.setObject(object);
 		return getTelemetry(telemetry);
 	}

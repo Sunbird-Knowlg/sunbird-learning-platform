@@ -133,7 +133,7 @@ public class AuditEventGenerator implements ISamzaService {
 				.get(GraphDACParams.addedRelations.name());
 		List<Map<String, Object>> removedRelations = (List<Map<String, Object>>) transactionData
 				.get(GraphDACParams.removedRelations.name());
-
+		String pkgVersion = (String) ((Map<String, Object>) propertyMap.get("pkgVersion")).get("nv");
 		String prevStatus = "";
 		String currStatus = "";
 		if (null != statusMap) {
@@ -149,6 +149,8 @@ public class AuditEventGenerator implements ISamzaService {
 		Map<String, String> context = getContext(channelId, env);
 		context.put("objectId", objectId);
 		context.put(GraphDACParams.objectType.name(), objectType);
+		if (StringUtils.isNotBlank(pkgVersion))
+			context.put("pkgVersion", pkgVersion);
 		String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus, cdata);
 		LOGGER.debug("Audit Message : " + auditMessage);
 		auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
