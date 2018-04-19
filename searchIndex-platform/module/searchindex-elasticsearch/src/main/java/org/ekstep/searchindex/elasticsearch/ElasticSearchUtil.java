@@ -194,7 +194,7 @@ public class ElasticSearchUtil {
 			if (null != createIndexResponse && createIndexResponse.isAcknowledged()) {
 				if (StringUtils.isNotBlank(documentType) && StringUtils.isNotBlank(mappings)) {
 					PutMappingResponse mappingResponse = client.admin().indices().preparePutMapping(indexName)
-							.setType(documentType).setSource(mappings).get();
+							.setType(documentType).setSource(mappings, XContentType.JSON).get();
 					if (mappingResponse.isAcknowledged()) {
 						response = true;
 					} else {

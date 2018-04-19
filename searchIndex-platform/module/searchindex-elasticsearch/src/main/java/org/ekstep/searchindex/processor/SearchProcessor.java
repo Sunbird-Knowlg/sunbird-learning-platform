@@ -29,7 +29,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder.FilterFunctionBuilder;
-import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -531,10 +530,17 @@ public class SearchProcessor {
 	 */
 	private QueryBuilder getAllFieldsPropertyQuery(List<Object> values) {
 		List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
+		Map<String, Float> queryFieldsMap = new HashMap<>();
+		for (String field : queryFields) {
+			if (field.contains("^"))
+				queryFieldsMap.put(field.split("\\^")[0], Float.valueOf(field.split("\\^")[1]));
+			else
+				queryFieldsMap.put(field, 1.0f);
+		}
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			queryBuilder
-					.should(QueryBuilders.multiMatchQuery(value, queryFields.toArray(new String[queryFields.size()]))
+					.should(QueryBuilders.multiMatchQuery(value).fields(queryFieldsMap)
 							.operator(Operator.AND).type(Type.CROSS_FIELDS).lenient(true));
 		}
 
