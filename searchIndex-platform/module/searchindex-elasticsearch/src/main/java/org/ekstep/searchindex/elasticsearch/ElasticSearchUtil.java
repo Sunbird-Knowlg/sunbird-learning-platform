@@ -285,16 +285,16 @@ public class ElasticSearchUtil {
 
 	}
 
-	public void bulkIndexWithIndexId(String indexName, String documentType, Map<String, String> jsonObjects)
+	public void bulkIndexWithIndexId(String indexName, String documentType, Map<String, Object> jsonObjects)
 			throws Exception {
 		if (isIndexExists(indexName)) {
 			if (!jsonObjects.isEmpty()) {
 				int count = 0;
 				BulkRequestBuilder bulkRequest = client.prepareBulk();
-				for (Map.Entry<String, String> entry : jsonObjects.entrySet()) {
+				for (String key : jsonObjects.keySet()) {
 					count++;
-					bulkRequest.add(client.prepareIndex(indexName, documentType).setId(entry.getKey())
-							.setSource(entry.getValue(), XContentType.JSON));
+					bulkRequest.add(client.prepareIndex(indexName, documentType).setId(key)
+							.setSource((Map<String, Object>) jsonObjects.get(key)));
 					if (count % BATCH_SIZE == 0 || (count % BATCH_SIZE < BATCH_SIZE && count == jsonObjects.size())) {
 						BulkResponse bulkResponse = bulkRequest.get();
 						if (bulkResponse.hasFailures()) {
