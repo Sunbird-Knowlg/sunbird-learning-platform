@@ -354,7 +354,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 		for (SearchHit result : results) {
 			Map<String, Object> term = new HashMap<String, Object>();
 			term.put(VocabularyTermParam.score.name(), result.getScore());
-			term.put(VocabularyTermParam.lemma.name(), result.getSource().get(VocabularyTermParam.lemma.name()));
+			term.put(VocabularyTermParam.lemma.name(), result.getSourceAsMap().get(VocabularyTermParam.lemma.name()));
 			terms.add(term);
 		}
 
