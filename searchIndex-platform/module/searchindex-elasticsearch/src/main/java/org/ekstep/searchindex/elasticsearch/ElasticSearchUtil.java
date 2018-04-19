@@ -48,7 +48,6 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.plugin.deletebyquery.DeleteByQueryPlugin;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -56,6 +55,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -137,7 +137,7 @@ public class ElasticSearchUtil {
 		try {
 			Settings settings = Settings.builder().put("client.transport.sniff", true)
 					.put("client.transport.ignore_cluster_name", true).build();
-			client = TransportClient.builder().settings(settings).addPlugin(DeleteByQueryPlugin.class).build();
+			client = new PreBuiltTransportClient(settings);// TransportClient.builder().settings(settings).addPlugin(DeleteByQueryPlugin.class).build();
 			for (String host : hostPort.keySet()) {
 				client.addTransportAddress(
 						new TransportAddress(InetAddress.getByName(host), hostPort.get(host)));
@@ -178,14 +178,14 @@ public class ElasticSearchUtil {
 		return actionGet.isExists();
 	}
 
-	public boolean addIndex(String indexName, String documentType, Settings settings, String mappings)
+	public boolean addIndex(String indexName, String documentType, String settings, String mappings)
 			throws IOException {
 		boolean response = false;
 		CreateIndexResponse createIndexResponse = null;
 		if (!isIndexExists(indexName)) {
 			CreateIndexRequestBuilder createIndexBuilder = client.admin().indices().prepareCreate(indexName);
-			if (StringUtils.isNoneBlank(settings)) {
-				createIndexResponse = createIndexBuilder.setSettings(settings).get();
+			if (StringUtils.isNotBlank(settings)) {
+				createIndexResponse = createIndexBuilder.setSettings(settings, XContentType.JSON).get();
 				response = true;
 			} else {
 				createIndexResponse = createIndexBuilder.get();
