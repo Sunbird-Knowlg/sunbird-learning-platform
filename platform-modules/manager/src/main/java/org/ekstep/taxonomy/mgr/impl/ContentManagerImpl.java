@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -817,51 +818,26 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
-	 * This Method will link single DIAL Code to Multiple Contents.
-	 * 
-	 * @author gauraw
-	 * 
-	 * @param reqMap
-	 * @return
+	 * @param contents
+	 * @param dialcodes
+	 * @param resultMap
 	 * @throws Exception
 	 */
 	private void updateDialCodeToContents(List<String> contents, List<String> dialcodes,
 			Map<String, Set<String>> resultMap) throws Exception {
 		Response resp;
-		boolean imageObjectExists = false;
-		String contentImageId = "";
-		List<String> dialCodes = null;
-		Node imageNode = null;
-		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-		DefinitionDTO imageDefinition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
 		for (String contentId : contents) {
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(DialCodeEnum.dialcodes.name(), dialcodes);
+			if (!dialcodes.isEmpty())
+				map.put(DialCodeEnum.dialcodes.name(), dialcodes);
+			else
+				map.put(DialCodeEnum.dialcodes.name(), null);
+
 			Response responseNode = getDataNode(TAXONOMY_ID, contentId);
 			if (checkError(responseNode)) {
 				resultMap.get("invalidContentList").add(contentId);
 			} else {
-				contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-				Response imageNodeResponse = getDataNode(TAXONOMY_ID, contentImageId);
-				if (!checkError(imageNodeResponse)) {
-					imageObjectExists = true;
-					imageNode = (Node) imageNodeResponse.get(GraphDACParams.node.name());
-				}
-				Node contentNode = (Node) responseNode.get(GraphDACParams.node.name());
-				if (contentNode.getMetadata().containsKey(DialCodeEnum.dialcodes.name()))
-					dialCodes = Arrays.asList((String[]) contentNode.getMetadata().get(DialCodeEnum.dialcodes.name()));
-				if (null != dialCodes && dialCodes.size() > 0) {
-					Set<String> set = new HashSet<String>(dialcodes);
-					set.addAll(dialCodes);
-					map.put(DialCodeEnum.dialcodes.name(), new ArrayList<String>(set));
-				}
-				if (imageObjectExists) {
-					ConvertToGraphNode.convertToGraphNode(map, definition, contentNode);
-					ConvertToGraphNode.convertToGraphNode(map, imageDefinition, imageNode);
-					resp = updateDataNodes(map, Arrays.asList(contentId, contentImageId), contentNode.getGraphId());
-				} else {
-					resp = updateDialCode(map, definition, contentNode, contentId);
-				}
+				resp = updateDialCode(map, contentId);
 				if (!checkError(resp))
 					resultMap.get("updateSuccessList").add(contentId);
 				else
@@ -1515,6 +1491,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
+	/**
+	 * @param param
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	private static List<String> getList(Object param) {
 		List<String> paramList = null;
@@ -1522,65 +1502,68 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			paramList = (List<String>) param;
 		} catch (Exception e) {
 			String str = (String) param;
-			if (StringUtils.isNotBlank(str))
-				paramList = Arrays.asList(str);
+			paramList = Arrays.asList(str);
+		}
+		if (null != paramList) {
+			paramList = paramList.stream().filter(x -> x != null && x != "" && x != " ").collect(Collectors.toList());
 		}
 		return paramList;
 	}
 
 	/**
-	 * This method will Update Content Node
-	 * 
-	 * @author gauraw
-	 * 
 	 * @param map
-	 * @param definition
-	 * @param contentNode
 	 * @param contentId
-	 * @return Response
+	 * @return
 	 */
-	private Response updateDialCode(Map<String, Object> map, DefinitionDTO definition, Node contentNode,
-			String contentId) {
-		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-		map.put(DialCodeEnum.versionKey.name(), graphPassportKey);
+	private Response updateDialCode(Map<String, Object> map, String contentId) {
+		Response resp;
 		try {
-			Node graphObj = ConvertToGraphNode.convertToGraphNode(map, definition, contentNode);
-			graphObj.setGraphId(TAXONOMY_ID);
-			graphObj.setIdentifier(contentId);
-			graphObj.setObjectType(CONTENT_OBJECT_TYPE);
-			Response updateResponse = updateDataNode(graphObj);
-			return updateResponse;
+			String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+			Response imageNodeResponse = getDataNode(TAXONOMY_ID, contentImageId);
+			if (!checkError(imageNodeResponse)) {
+				resp = updateDataNodes(map, Arrays.asList(contentId, contentImageId), TAXONOMY_ID);
+			} else
+				resp = updateDataNodes(map, Arrays.asList(contentId), TAXONOMY_ID);
+
+			return resp;
 		} catch (Exception e) {
 			return ERROR(DialCodeErrorCodes.ERR_DIALCODE_LINK, DialCodeErrorMessage.ERR_DIALCODE_LINK,
 					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
 
+	/**
+	 * @param channelId
+	 * @param dialcodesList
+	 * @throws Exception
+	 */
 	@SuppressWarnings({ "unchecked" })
 	private void validateDialCodes(String channelId, Set<String> dialcodesList) throws Exception {
-		List<Object> resultList = null;
-		List<String> dialcodes = new ArrayList<String>(dialcodesList);
-		List<String> invalidDialCodeList = new ArrayList<String>(dialcodes);
-		Integer dialcodeCount = dialcodes.size();
-		Map<String, Object> requestMap = new HashMap<String, Object>();
-		requestMap.put(ContentAPIParams.identifier.name(), dialcodes);
-		Response searchResponse = dialCodeMgr.searchDialCode(channelId, requestMap);
-		if (searchResponse.getResponseCode() == ResponseCode.OK) {
-			Map<String, Object> result = searchResponse.getResult();
-			Integer count = (Integer) result.get(DialCodeEnum.count.name());
-			if (dialcodeCount != count) {
-				resultList = (List<Object>) result.get(DialCodeEnum.dialcodes.name());
-				for (Object obj : resultList) {
-					Map<String, Object> map = (Map<String, Object>) obj;
-					String identifier = (String) map.get(ContentAPIParams.identifier.name());
-					invalidDialCodeList.remove(identifier);
+		if (!dialcodesList.isEmpty()) {
+			List<Object> resultList = null;
+			List<String> dialcodes = new ArrayList<String>(dialcodesList);
+			List<String> invalidDialCodeList = new ArrayList<String>(dialcodes);
+			Integer dialcodeCount = dialcodes.size();
+			Map<String, Object> requestMap = new HashMap<String, Object>();
+			requestMap.put(ContentAPIParams.identifier.name(), dialcodes);
+			Response searchResponse = dialCodeMgr.searchDialCode(channelId, requestMap);
+			if (searchResponse.getResponseCode() == ResponseCode.OK) {
+				Map<String, Object> result = searchResponse.getResult();
+				Integer count = (Integer) result.get(DialCodeEnum.count.name());
+				if (dialcodeCount != count) {
+					resultList = (List<Object>) result.get(DialCodeEnum.dialcodes.name());
+					for (Object obj : resultList) {
+						Map<String, Object> map = (Map<String, Object>) obj;
+						String identifier = (String) map.get(ContentAPIParams.identifier.name());
+						invalidDialCodeList.remove(identifier);
+					}
+					throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+							"DIAL Code not found with id(s):" + invalidDialCodeList);
 				}
-				throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
-						"DIAL Code not found with id(s):" + invalidDialCodeList);
+			} else {
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 			}
-		} else {
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}
 	}
 
@@ -1593,8 +1576,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	private void checkYoutubeLicense(String artifactUrl, Node node) throws Exception {
 		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
-				? Platform.config.getBoolean("learning.content.youtube.validate.license")
-				: false;
+				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
 
 		if (isValReq) {
 			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
@@ -1676,7 +1658,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @param resultMap
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	private Response prepareResponse(Map<String, Set<String>> resultMap) {
 		Response resp;
 		Set<String> invalidContentList = (Set<String>) resultMap.get("invalidContentList");
@@ -1717,7 +1698,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
 
 		Set<String> dialCodeList = new HashSet<String>();
-
 		for (Map<String, Object> map : reqList) {
 			if (null == map)
 				throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
@@ -1727,9 +1707,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			List<String> dialcodes = getList(dialObj);
 			List<String> contents = getList(contentObj);
 			validateReqStructure(dialcodes, contents);
-			dialCodeList.addAll(dialcodes);
+			if (!dialcodes.isEmpty())
+				dialCodeList.addAll(dialcodes);
 		}
-		// Validate all DIAL Code
 		validateDialCodes(channelId, dialCodeList);
 	}
 
@@ -1738,7 +1718,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @param contents
 	 */
 	private void validateReqStructure(List<String> dialcodes, List<String> contents) {
-		if (null == dialcodes || null == contents)
+		if (null == dialcodes || null == contents || contents.isEmpty())
 			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
 					"Pelase provide required properties in request.");
 
@@ -1763,7 +1743,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Request updateReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "updateDataNodes");
 		updateReq.put(GraphDACParams.node_ids.name(), idList);
 		updateReq.put(GraphDACParams.metadata.name(), map);
-
 		TelemetryManager.log("Updating DialCodes for :" + idList);
 		response = getResponse(updateReq);
 		TelemetryManager.log("Returning Node Update Response.");
