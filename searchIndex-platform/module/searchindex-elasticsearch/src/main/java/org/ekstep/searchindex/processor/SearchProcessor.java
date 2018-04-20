@@ -541,14 +541,16 @@ public class SearchProcessor {
 			if(data.get(1) instanceof List) {
 				List<Object> dataList = (List<Object>) data.get(1);
 				for(Object value: dataList) {
-					queryBuilder.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+					queryBuilder
+							.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, value)
+									.boost(Integer.valueOf((int) data.get(0)).floatValue()));
 				}
 			}
 			else {
-				queryBuilder.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1)));
+				queryBuilder.should(
+						QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1))
+								.boost(Integer.valueOf((int) data.get(0)).floatValue()));
 			}
-			
-			queryBuilder.boost(Integer.valueOf((int) data.get(0)).floatValue());
 		}
 		return queryBuilder;
 	}

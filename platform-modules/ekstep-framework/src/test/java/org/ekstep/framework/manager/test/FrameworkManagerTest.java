@@ -2,6 +2,7 @@ package org.ekstep.framework.manager.test;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -139,7 +140,7 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 
 		exception.expect(ResourceNotFoundException.class);
 		String frameworkId = "test1234"; // Invalid framework id
-		Response response = frameworkManager.readFramework(frameworkId);
+		Response response = frameworkManager.readFramework(frameworkId, Arrays.asList());
 		String responseCode = (String) response.getResponseCode().toString();
 		int resCode = response.getResponseCode().code();
 		assertTrue(responseCode.equals("ERR_DATA_NOT_FOUND"));
