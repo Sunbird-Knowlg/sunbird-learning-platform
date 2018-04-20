@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class LPShellBanner extends DefaultBannerProvider {
+public class SyncShellBanner extends DefaultBannerProvider {
  
 	/*
 		 _   _            _  _   _       _____ ____    ____                     _____           _ 

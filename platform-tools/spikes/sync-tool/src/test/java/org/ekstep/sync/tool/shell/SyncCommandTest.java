@@ -6,9 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
+import java.net.URL;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -78,7 +77,7 @@ public class SyncCommandTest extends SpringShellTest{
 	}
 
 	@Test
-	public void testNodeById() throws Exception {
+	public void testSyncNodeById() throws Exception {
 		CommandResult cr = new CommandResult(false);
 		//Execute command
 		cr = getShell().executeCommand("syncbyids --ids do_112178562079178752118");
@@ -100,7 +99,7 @@ public class SyncCommandTest extends SpringShellTest{
 	}
 	
 	@Test
-	public void testNodeByObjectType() throws Exception {
+	public void testSyncNodeByObjectType() throws Exception {
 		CommandResult cr = new CommandResult(false);
 		//Execute command
 		cr = getShell().executeCommand("syncbyobjecttype --objectType AssessmentItem");
@@ -117,7 +116,24 @@ public class SyncCommandTest extends SpringShellTest{
 	}
 	
 	@Test
-	public void testNodeByDateRangeIncorrectFormat() throws Exception {
+	public void testSyncNodeByInvalidObjectType() throws Exception {
+		CommandResult cr = new CommandResult(false);
+		//Execute command
+		cr = getShell().executeCommand("syncbyobjecttype --objectType Word");
+		Assert.assertNull(cr.getException());
+		Assert.assertTrue( cr.isSuccess() );
+		List<String> ids = Arrays.asList("ek.n.q_QAFTB_88","do_10096483","do_112178562079178752118","test.ftb_010","do_11225380345346457614","do_11225380550993510416","do_11225380647183155217","do_11225381096194867211","do_11225562396351692815","do_112255733460467712120","do_112255733481611264121","do_112257049614336000119","do_112257049883033600120","do_112257050142777344121","do_112257050369056768122","do_112257683409166336123","do_112257683430334464124","do_112257852917121024153","do_112258573914611712145","do_112260519610449920119");
+		List<String> resultDocs = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
+				ids);
+
+		assertNotNull(resultDocs);
+		assertEquals(0, resultDocs.size());
+
+	}
+
+	@Test
+	public void testSyncNodeByDateRangeIncorrectFormat() throws Exception {
 		CommandResult cr = new CommandResult(false);
 
 		//Execute command
@@ -134,24 +150,64 @@ public class SyncCommandTest extends SpringShellTest{
 	}
 	
 	@Test
-	public void testNodeByDateRange() throws Exception {
+	public void testSyncNodeByDateRangeIncorrectDateFormat() throws Exception {
+		CommandResult cr = new CommandResult(false);
+
+		//Execute command
+		PrintStream err = System.err;
+		System.setErr(null);	
+		try {
+			cr = getShell().executeCommand("syncbydaterange --objectType Content --startDate 2017-may-20 --endDate 2017-may-25");
+		}catch (Exception e) {
+			Assert.assertEquals("ERR_DATE_FORMAT: DATE Should be in the format of yyyy-MM-dd", cr.getException());			
+		}
+		Assert.assertFalse( cr.isSuccess() );
+		System.setErr(err);
+
+	}
+
+	@Test
+	public void testSyncNodeByDateRange() throws Exception {
 		CommandResult cr = new CommandResult(false);
 		//Execute command
-/*		Date date = new Date();
-		SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
-*/		String lastUpdateOn = "2017-05-24";
+		String lastUpdateOn = "2017-05-24";
 		cr = getShell().executeCommand("syncbydaterange --objectType Content --startDate "+lastUpdateOn+" --endDate "+lastUpdateOn);
 		Assert.assertNull(cr.getException());
 		Assert.assertTrue( cr.isSuccess() );
-		/*List<String> ids = Arrays.asList("domain_45479","domain_59928","domain_60417","domain_60416","domain_64218","domain_66114","domain_66054","domain_66660","domain_67990","domain_71704","domain_71696","do_20072217","do_20072974","do_20090738","do_20091628","do_20092171","do_20092600","do_20092936","do_10094603","do_112210971276910592140","do_112210971791319040141","do_1122231162122158081270","do_11223461584894361615","do_11223581104224665618","do_112237494329991168117","do_112240998295363584176","do_11224138489488179211","do_11224140303463219212","do_112241625578528768126","do_11224287670964224011","do_112246524249202688192","do_1122470219843502081120");
+	}
+	
+	@Test
+	public void testSyncNodeByFile() throws Exception {
+		CommandResult cr = new CommandResult(false);
+		//Execute command
+		String testFilepath = SyncShellCommands.class.getClassLoader().getResource("testFile.csv").getPath();
+		cr = getShell().executeCommand("syncbyfile  --filePath "+testFilepath);
+		Assert.assertNull(cr.getException());
+		Assert.assertTrue( cr.isSuccess() );
+		List<String> ids = Arrays.asList("domain_45479","domain_59928","domain_60417","domain_60416","domain_64218","domain_66114","domain_66054","domain_66660","domain_67990","domain_71704","domain_71696","do_20072217","do_20072974","do_20090738","do_20091628","do_20092171","do_20092600","do_20092936","do_10094603","do_112210971276910592140","do_112210971791319040141","do_1122231162122158081270","do_11223461584894361615","do_11223581104224665618","do_112237494329991168117","do_112240998295363584176","do_11224138489488179211","do_11224140303463219212","do_112241625578528768126","do_11224287670964224011","do_112246524249202688192","do_1122470219843502081120","do_112257050142777344121","do_112257050369056768122","do_112257683409166336123","do_112257683430334464124","do_112257852917121024153","do_112258573914611712145","do_112260519610449920119");
 		List<String> resultDocs = elasticSearchUtil.getMultiDocumentAsStringByIdList(
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
 				ids);
 
 		assertNotNull(resultDocs);
-		assertEquals(32, resultDocs.size());*/
+		assertEquals(38, resultDocs.size());
 	}
 	
+	@Test
+	public void testSyncNodeByFileWithObjectType() throws Exception {
+		CommandResult cr = new CommandResult(false);
+		//Execute command
+		String testFilepath = SyncShellCommands.class.getClassLoader().getResource("testFile.csv").getPath();
+		cr = getShell().executeCommand("syncbyfile  --objectType Content --filePath "+testFilepath);
+		Assert.assertNull(cr.getException());
+		Assert.assertTrue( cr.isSuccess() );
+		List<String> ids = Arrays.asList("domain_45479","domain_59928","domain_60417","domain_60416","domain_64218","domain_66114","domain_66054","domain_66660","domain_67990","domain_71704","domain_71696","do_20072217","do_20072974","do_20090738","do_20091628","do_20092171","do_20092600","do_20092936","do_10094603","do_112210971276910592140","do_112210971791319040141","do_1122231162122158081270","do_11223461584894361615","do_11223581104224665618","do_112237494329991168117","do_112240998295363584176","do_11224138489488179211","do_11224140303463219212","do_112241625578528768126","do_11224287670964224011","do_112246524249202688192","do_1122470219843502081120","do_112257050142777344121","do_112257050369056768122","do_112257683409166336123","do_112257683430334464124","do_112257852917121024153","do_112258573914611712145","do_112260519610449920119");		List<String> resultDocs = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
+				ids);
+
+		assertNotNull(resultDocs);
+		assertEquals(31, resultDocs.size());
+	}
 	private static void createCompositeSearchIndex() throws Exception {
 		CompositeSearchConstants.COMPOSITE_SEARCH_INDEX = "testcompositeindex";
 		String settings = "{\"analysis\": {       \"analyzer\": {         \"cs_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"cs_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
