@@ -73,8 +73,8 @@ public class SyncCommandTest extends SpringShellTest{
 		}catch (Exception e) {
 			Assert.assertEquals("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND: Objects not found ", cr.getException());			
 		}
-		System.setErr(err);	
 		Assert.assertFalse( cr.isSuccess() );
+		System.setErr(err);	
 	}
 
 	@Test
@@ -137,12 +137,19 @@ public class SyncCommandTest extends SpringShellTest{
 	public void testNodeByDateRange() throws Exception {
 		CommandResult cr = new CommandResult(false);
 		//Execute command
-		Date date = new Date();
+/*		Date date = new Date();
 		SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String today = inputFormat.format(date);
-		cr = getShell().executeCommand("syncbydaterange --objectType Content --startDate "+today+" --endDate "+today);
+*/		String lastUpdateOn = "2017-05-24";
+		cr = getShell().executeCommand("syncbydaterange --objectType Content --startDate "+lastUpdateOn+" --endDate "+lastUpdateOn);
 		Assert.assertNull(cr.getException());
 		Assert.assertTrue( cr.isSuccess() );
+		/*List<String> ids = Arrays.asList("domain_45479","domain_59928","domain_60417","domain_60416","domain_64218","domain_66114","domain_66054","domain_66660","domain_67990","domain_71704","domain_71696","do_20072217","do_20072974","do_20090738","do_20091628","do_20092171","do_20092600","do_20092936","do_10094603","do_112210971276910592140","do_112210971791319040141","do_1122231162122158081270","do_11223461584894361615","do_11223581104224665618","do_112237494329991168117","do_112240998295363584176","do_11224138489488179211","do_11224140303463219212","do_112241625578528768126","do_11224287670964224011","do_112246524249202688192","do_1122470219843502081120");
+		List<String> resultDocs = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
+				ids);
+
+		assertNotNull(resultDocs);
+		assertEquals(32, resultDocs.size());*/
 	}
 	
 	private static void createCompositeSearchIndex() throws Exception {
