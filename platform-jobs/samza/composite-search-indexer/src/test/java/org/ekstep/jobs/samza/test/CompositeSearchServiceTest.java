@@ -35,7 +35,6 @@ public class CompositeSearchServiceTest extends BaseTest {
 
 	@Test
 	public void testMessageWithProperties() throws Exception {
-	    client = server.client();
 		Map<String,Object>	messageData = mapper.readValue(validMessage, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
@@ -55,7 +54,6 @@ public class CompositeSearchServiceTest extends BaseTest {
 	
 	@Test
 	public void testMessageWithAddedRelations() throws Exception {
-		client = server.client();
 		Map<String,Object>	messageData = mapper.readValue(messageWithAddedRelations, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
@@ -75,7 +73,6 @@ public class CompositeSearchServiceTest extends BaseTest {
 	
 	@Test
 	public void testMessageWithRemovedRelations() throws Exception {
-		client = server.client();
 		Map<String,Object>	messageData = mapper.readValue(messageWithRemovedRelations, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
