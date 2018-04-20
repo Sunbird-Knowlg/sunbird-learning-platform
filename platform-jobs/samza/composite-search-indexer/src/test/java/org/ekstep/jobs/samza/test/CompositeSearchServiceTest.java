@@ -99,7 +99,7 @@ public class CompositeSearchServiceTest extends BaseTest {
 				.setQuery(QueryBuilders.termQuery("_id", identifier)).execute().actionGet();
 		SearchHits hits = response.getHits();
 		for (SearchHit hit : hits.getHits()) {
-			Map<String, Object> fields = hit.getSource();
+			Map<String, Object> fields = hit.getSourceAsMap();
 			return fields;
 		}
 		return null;

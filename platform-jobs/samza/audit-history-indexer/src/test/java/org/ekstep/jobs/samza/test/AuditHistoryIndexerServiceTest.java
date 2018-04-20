@@ -16,12 +16,14 @@ import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -108,7 +110,7 @@ public class AuditHistoryIndexerServiceTest {
 				.setQuery(QueryBuilders.termQuery("graphId", graphId)).execute().actionGet();
 		SearchHits hits = response.getHits();
 		for (SearchHit hit : hits.getHits()) {
-			Map<String, Object> fields = hit.getSource();
+			Map<String, Object> fields = hit.getSourceAsMap();
 			return fields;
 		}
 		return null;
