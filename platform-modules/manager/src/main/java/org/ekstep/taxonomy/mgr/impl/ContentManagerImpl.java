@@ -1743,8 +1743,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return response;
 	}
 
-	public Response copyContent(String contentId, Map<String, Object> requestMap) {
-		Node existingNode = validateCopyContentRequest(contentId, requestMap);
+	@Override
+	public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
+		Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);
 
 		String mimeType = (String) existingNode.getMetadata().get("mimeType");
 		Map<String, String> idMap = new HashMap<>();
@@ -1756,22 +1757,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		return OK("node_id", idMap);
 
-		/*Map<String, Node> nodes = new HashMap<>();
-		getAllNodesToCopy(contentId, nodes);
-		
-		// Copy the metadata and update the idMap
-		Map<String, Node> newNodes = new HashMap<>();
-		Map<String, String> idMap = copyMetadata(contentId, requestMap, nodes, newNodes);
-		Response creatResponse = getBulkUpdateResponse(new ArrayList<Node>(newNodes.values()));
-		if (checkError(creatResponse))
-			return creatResponse;
-		
-		copyRelations(nodes, newNodes, idMap);
-		Response updateResponse = getBulkUpdateResponse(new ArrayList<Node>(newNodes.values()));
-		if (checkError(updateResponse))
-			return updateResponse;
-		
-		return OK("node_id", idMap);*/
 	}
 
 	/**
@@ -1780,8 +1765,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return
 	 */
 	private Map<String, String> copyCollectionContent(Node existingNode, Map<String, Object> requestMap) {
+		// Copying Root Node
+		Map<String, String> idMap = copyContentData(existingNode, requestMap);
 
-		return null;
+		return idMap;
 	}
 
 	/**
@@ -1789,174 +1776,92 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @param requestMap
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private Map<String, String> copyContentData(Node existingNode, Map<String, Object> requestMap) {
 		String newId = Identifier.getIdentifier(existingNode.getGraphId(), Identifier.getUniqueIdFromTimestamp());
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		Node copyNode = copyMetdata(existingNode, requestMap, newId);
+
+		Response response = createDataNode(copyNode);
+		if (checkError(response)) {
+			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+		}
+		// Copy the externalProperties in cassandra
+		List<String> externalPropsList = getExternalPropsList(definition);
+		Response bodyResponse = getContentProperties(existingNode.getIdentifier(), externalPropsList);
+		if (!checkError(bodyResponse)) {
+			Map<String, Object> extValues = (Map<String, Object>) bodyResponse.get(ContentStoreParams.values.name());
+			if (null != extValues && !extValues.isEmpty()) {
+				updateContentProperties(newId, extValues);
+			}
+		}
+
+		Map<String, String> idMap = new HashMap<>();
+		idMap.put(existingNode.getIdentifier(), newId);
+		return idMap;
+	}
+
+	/**
+	 * @param existingNode
+	 * @param requestMap
+	 * @return
+	 */
+	private Node copyMetdata(Node existingNode, Map<String, Object> requestMap, String newId) {
 		Node copyNode = new Node(newId, existingNode.getNodeType(), existingNode.getObjectType());
+		copyNode.setMetadata(existingNode.getMetadata());
+		copyNode.setGraphId(existingNode.getGraphId());
+
 		copyNode.getMetadata().putAll(requestMap);
 		copyNode.getMetadata().put("status", "Draft");
 		copyNode.getMetadata().put("downloadUrl", null);
 		copyNode.getMetadata().put("variants", null);
 		copyNode.getMetadata().put("pkgVersion", null);
 		copyNode.getMetadata().put("dialcodes", null);
+		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
 		
-		// String artifactUrl = copyArtifact
+		String artifactUrl = copyArtifact((String) existingNode.getMetadata().get("artifactUrl"), copyNode);
+		copyNode.getMetadata().put("artifactUrl", artifactUrl);
 		
-		Response response = createDataNode(copyNode);
-		if(checkError(response)) 
-			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
-		
-		return null;
+		return copyNode;
+	}
+
+	/**
+	 * @param string
+	 * @param copyNode
+	 * @return
+	 */
+	private String copyArtifact(String artifacturl, Node copyNode) {
+		if (StringUtils.isBlank(artifacturl)) {
+			return null;
+		}
+
+		String mimeType = (String) copyNode.getMetadata().get("mimeType");
+		IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory
+				.getManager((String) copyNode.getMetadata().get("contentType"), mimeType);
+
+		// Need to implement new copy behaviour in BaseMimeTypeManager and copy the
+		// artifact in s3
+
+		return artifacturl;
 	}
 
 	/**
 	 * @param contentId
 	 * @param requestMap
+	 * @param mode
 	 */
 
-	private Node validateCopyContentRequest(String contentId, Map<String, Object> requestMap) {
-		if (null == requestMap || requestMap.isEmpty()) {
+	private Node validateCopyContentRequest(String contentId, Map<String, Object> requestMap, String mode) {
+		if (null == requestMap || !(requestMap.containsKey("createdBy"))) {
 			throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
 		}
 
-		Response response = getDataNode(TAXONOMY_ID, contentId);
-		if (!checkError(response)) {
-			Node node = (Node) response.get(GraphDACParams.node.name());
-			String status = (String) node.getMetadata().get("status");
-			List<String> invalidStatusList = Platform.config.getStringList("learning.content.copy.invalid_status_list");
-			if (invalidStatusList.contains(status)) {
-				throw new ClientException("ERR_INVALID_REQUEST",
-						"Cannot copy content in " + status.toLowerCase() + " status");
-			} else {
-				return node;
-			}
-		} else {
-			throw new ClientException(response.getParams().getErr(), response.getParams().getErrmsg());
-		}
-
+		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+		String status = (String) node.getMetadata().get("status");
+		List<String> invalidStatusList = Platform.config.getStringList("learning.content.copy.invalid_status_list");
+		if (invalidStatusList.contains(status))
+			throw new ClientException("ERR_INVALID_REQUEST",
+					"Cannot copy content in " + status.toLowerCase() + " status");
+		return node;
 	}
-
-	/*	*//**
-			 * @param nodes
-			 * @param newNodes
-			 * @param idMap
-			 */
-	/*
-	private void copyRelations(Map<String, Node> nodes, Map<String, Node> newNodes, Map<String, String> idMap) {
-	for (String oldId : idMap.keySet()) {
-		String newNodeId = idMap.get(oldId);
-		Node oldNode = nodes.get(oldId);
-		List<Relation> inRelations = new ArrayList<>();
-		List<Relation> outRelations = new ArrayList<>();
-		populateRelations(inRelations, outRelations, oldNode, newNodeId, idMap);
-		if (!inRelations.isEmpty())
-			newNodes.get(newNodeId).setInRelations(inRelations);
-		if (!outRelations.isEmpty())
-			newNodes.get(newNodeId).setOutRelations(outRelations);
-	
-		newNodes.get(newNodeId).getMetadata().remove("isNew");
-	}
-	}
-	
-	*//**
-		 * @param inRelations
-		 * @param outRelations
-		 * @param oldNode
-		 * @param newNodeId
-		 * @param idMap
-		 */
-	/*
-	
-	private void populateRelations(List<Relation> inRelations, List<Relation> outRelations, Node oldNode,
-	String newNodeId, Map<String, String> idMap) {
-	if (null != oldNode.getInRelations() && !oldNode.getInRelations().isEmpty()) {
-	for (Relation relation : oldNode.getInRelations()) {
-		Relation rel = null;
-		if (idMap.keySet().contains(relation.getStartNodeId()))
-			rel = new Relation(idMap.get(relation.getStartNodeId()), relation.getRelationType(), newNodeId);
-		else
-			rel = new Relation(relation.getStartNodeId(), relation.getRelationType(), newNodeId);
-		rel.setMetadata(relation.getMetadata());
-		inRelations.add(rel);
-	}
-	}
-	if (null != oldNode.getOutRelations() && !oldNode.getOutRelations().isEmpty()) {
-	for (Relation relation : oldNode.getOutRelations()) {
-		Relation rel = null;
-		if (idMap.keySet().contains(relation.getEndNodeId()))
-			rel = new Relation(newNodeId, relation.getRelationType(), idMap.get(relation.getEndNodeId()));
-		else
-			rel = new Relation(newNodeId, relation.getRelationType(), relation.getEndNodeId());
-		rel.setMetadata(relation.getMetadata());
-		outRelations.add(rel);
-	}
-	}
-	}
-	
-	*//**
-		 * @param contentId
-		 * @param requestMap
-		 * @param newNodes
-		 * @return
-		 */
-	/*
-	
-	private Map<String, String> copyMetadata(String contentId, Map<String, Object> requestMap, Map<String, Node> nodes,
-	Map<String, Node> newNodes) {
-	Map<String, String> idMap = new HashMap<>();
-	for (Node node : nodes.values()) {
-	Node copyNode = new Node(node.getGraphId(), node.getMetadata());
-	copyNode.setObjectType(node.getObjectType());
-	copyNode.setNodeType(node.getNodeType());
-	String newId = Identifier.getIdentifier(copyNode.getGraphId(), Identifier.getUniqueIdFromTimestamp());
-	copyNode.setIdentifier(newId);
-	if (StringUtils.equalsIgnoreCase(node.getIdentifier(), contentId))
-		copyNode.getMetadata().putAll(requestMap);
-	copyNode.getMetadata().put("status", "Draft");
-	copyNode.getMetadata().put("downloadUrl", null);
-	copyNode.getMetadata().put("variants", null);
-	copyNode.getMetadata().put("pkgVersion", null);
-	copyNode.getMetadata().put("dialcodes", null);
-	copyNode.getMetadata().put("isNew", true);
-	newNodes.put(copyNode.getIdentifier(), copyNode);
-	idMap.put(node.getIdentifier(), copyNode.getIdentifier());
-	}
-	
-	return idMap;
-	}
-	
-	*//**
-		 * @param newNodes
-		 * @return
-		 */
-	/*
-	
-	private Response getBulkUpdateResponse(List<Node> newNodes) {
-	Request request = getRequest(TAXONOMY_ID, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
-	request.put(GraphDACParams.nodes.name(), newNodes);
-	return getResponse(request);
-	}
-	
-	
-	
-	*//**
-		 * @param contentId
-		 * @param nodes
-		 * @return
-		 *//*
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				private void getAllNodesToCopy(String contentId, Map<String, Node> nodes) {
-				Response response = getDataNode(TAXONOMY_ID, contentId);
-				if (!checkError(response)) {
-					Node node = (Node) response.get(GraphDACParams.node.name());
-					nodes.put(node.getIdentifier(), node);
-					Map<String, Object> metadata = node.getMetadata();
-					if (null != metadata.get("children") && !((List) metadata.get("children")).isEmpty()) {
-						for (Map<String, Object> child : (List<Map>) metadata.get("children")) {
-							if (StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
-								getAllNodesToCopy((String) child.get("identifier"), nodes);
-							}
-						}
-					}
-				}
-			}*/
 }
