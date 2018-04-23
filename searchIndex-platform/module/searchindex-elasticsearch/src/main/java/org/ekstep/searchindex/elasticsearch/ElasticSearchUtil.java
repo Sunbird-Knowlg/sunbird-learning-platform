@@ -83,7 +83,7 @@ public class ElasticSearchUtil {
 		this.offset = offset;
 	}
 
-	public ElasticSearchUtil(int resultSize) {
+	public ElasticSearchUtil(int resultSize) throws UnknownHostException {
 		initialize();
 		if (resultSize < defaultResultLimit) {
 			this.resultLimit = resultSize;
@@ -91,12 +91,12 @@ public class ElasticSearchUtil {
 		createClient();
 	}
 
-	public ElasticSearchUtil() {
+	public ElasticSearchUtil() throws UnknownHostException {
 		initialize();
 		createClient();
 	}
 
-	public ElasticSearchUtil(String connectionInfo) {
+	public ElasticSearchUtil(String connectionInfo) throws UnknownHostException {
 		initialize(connectionInfo);
 		createClient();
 	}
@@ -131,21 +131,17 @@ public class ElasticSearchUtil {
 	}
 
 	/**
+	 * @throws UnknownHostException 
 	 * 
 	 */
-	private void createClient() {
-		try {
-			Settings settings = Settings.settingsBuilder().put("client.transport.sniff", true)
-					.put("client.transport.ignore_cluster_name", true).build();
-			client = TransportClient.builder().settings(settings).addPlugin(DeleteByQueryPlugin.class).build();
-			for (String host : hostPort.keySet()) {
-				client.addTransportAddress(
-						new InetSocketTransportAddress(InetAddress.getByName(host), hostPort.get(host)));
-			}
-		} catch (UnknownHostException e) {
-			TelemetryManager.error("Error while creating elasticsearch client ", e);
+	private void createClient() throws UnknownHostException {
+		Settings settings = Settings.settingsBuilder().put("client.transport.sniff", true)
+				.put("client.transport.ignore_cluster_name", true).build();
+		client = TransportClient.builder().settings(settings).addPlugin(DeleteByQueryPlugin.class).build();
+		for (String host : hostPort.keySet()) {
+			client.addTransportAddress(
+					new InetSocketTransportAddress(InetAddress.getByName(host), hostPort.get(host)));
 		}
-
 	}
 
 	public void finalize() {
@@ -210,41 +206,29 @@ public class ElasticSearchUtil {
 		return response;
 	}
 
-	public void addDocumentWithId(String indexName, String documentType, String documentId, String document) {
-		try {
-			Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
-			});
-			IndexResponse response = client.prepareIndex(indexName, documentType, documentId).setSource(doc).get();
-			TelemetryManager.log("Added " + response.getId() + " to index " + response.getIndex());
-		} catch (IOException e) {
-			TelemetryManager.error("Error while adding document to index :" + indexName, e);
-		}
+	public void addDocumentWithId(String indexName, String documentType, String documentId, String document) throws IOException {
+		Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
+		});
+		IndexResponse response = client.prepareIndex(indexName, documentType, documentId).setSource(doc).get();
+		TelemetryManager.log("Added " + response.getId() + " to index " + response.getIndex());
 	}
 
-	public void addDocument(String indexName, String documentType, String document) {
-		try {
-			Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
-			});
-			IndexResponse response = client.prepareIndex(indexName, documentType).setSource(doc).get();
-			TelemetryManager.log("Added " + response.getId() + " to index " + response.getIndex());
-		} catch (IOException e) {
-			TelemetryManager.error("Error while adding document to index :" + indexName, e);
-		}
+	public void addDocument(String indexName, String documentType, String document)  throws IOException {
+		Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
+		});
+		IndexResponse response = client.prepareIndex(indexName, documentType).setSource(doc).get();
+		TelemetryManager.log("Added " + response.getId() + " to index " + response.getIndex());
 	}
 
 	public void updateDocument(String indexName, String documentType, String document, String documentId)
-			throws InterruptedException, ExecutionException {
-		try {
-			Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
-			});
-			IndexRequest indexRequest = new IndexRequest(indexName, documentType, documentId).source(doc);
-			UpdateRequest request = new UpdateRequest().index(indexName).type(documentType).id(documentId).doc(doc)
-					.upsert(indexRequest);
-			UpdateResponse response = client.update(request).get();
-			TelemetryManager.log("Updated " + response.getId() + " to index " + response.getIndex());
-		} catch (IOException e) {
-			TelemetryManager.error("Error while updating document to index :" + indexName, e);
-		}
+			throws InterruptedException, ExecutionException, IOException {
+		Map<String, Object> doc = mapper.readValue(document, new TypeReference<Map<String, Object>>() {
+		});
+		IndexRequest indexRequest = new IndexRequest(indexName, documentType, documentId).source(doc);
+		UpdateRequest request = new UpdateRequest().index(indexName).type(documentType).id(documentId).doc(doc)
+				.upsert(indexRequest);
+		UpdateResponse response = client.update(request).get();
+		TelemetryManager.log("Updated " + response.getId() + " to index " + response.getIndex());
 
 	}
 
