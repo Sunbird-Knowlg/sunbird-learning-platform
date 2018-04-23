@@ -108,7 +108,7 @@ public class TclExecutorActor extends UntypedActor {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void init(List<OrchestratorScript> scripts) {
+	private void init(List<OrchestratorScript> scripts) throws MiddlewareException, Exception {
 		interpreter = new Interp();
 		if (null != scripts && !scripts.isEmpty()) {
 			for (OrchestratorScript script : scripts) {
@@ -128,7 +128,7 @@ public class TclExecutorActor extends UntypedActor {
 						} catch (MiddlewareException e) {
 							throw e;
 						} catch (Exception e) {
-							TelemetryManager.error("Error initialising command: "  + script.getName(), e);
+							throw e;
 						}
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));

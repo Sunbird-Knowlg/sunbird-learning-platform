@@ -66,8 +66,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 						orchestratorScript = mapper.readValue(row.getString("reqmap"), OrchestratorScript.class);
 				}
 			} catch (Exception e) {
-				TelemetryManager.error("Error! Executing Get Script: "+ e.getMessage(), e);
-				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error fetching script from Orchestrator Store.");
+				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing Get Script: "+ e.getMessage(), e);
 			}
 			return orchestratorScript;
 		}
@@ -95,8 +94,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				
 				return script.getName();
 			} catch (Exception e) {
-				TelemetryManager.error("Error! Executing create Script: "+ e.getMessage(), e);
-				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error creating script in Orchestrator Store.");
+				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing create Script: "+ e.getMessage(), e);
 			}
 		}
 		return null;
@@ -121,8 +119,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				
 				return command.getName();
 			} catch (Exception e) {
-				TelemetryManager.error("Error! Executing create Command: "+ e.getMessage(), e);
-				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error creating command in Orchestrator Store.");
+				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing create Command: "+ e.getMessage(), e);
 			}
 		}
 		return null;
@@ -144,8 +141,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				String query = getInsertQuery(scriptMap);
 				session.execute(query);
 			} catch (Exception e) {
-				TelemetryManager.error("Error! Executing update Script:"+ e.getMessage(), e);
-				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error updating script in Orchestrator Store.");
+				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing update Script:"+ e.getMessage(), e);
 			}
 		}
 	}
@@ -174,8 +170,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! Executing Get All Scripts: "+ e.getMessage(), e);
-			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error fetching all Scripts from Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing Get All Scripts: "+ e.getMessage(), e);
 		}
 		return list;
 	}
@@ -204,8 +199,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! Executing Get All Commands:" + e.getMessage(), e);
-			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error fetching all Commands from Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing Get All Commands:" + e.getMessage(), e);
 		}
 		return list;
 	}
@@ -237,8 +231,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! Executing Get Scripts By RequestPath: "+ e.getMessage(), e);
-			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error fetching Scripts By RequestPath Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing Get Scripts By RequestPath: "+ e.getMessage(), e);
 		}
 		return list;
 	}
@@ -253,8 +246,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			else
 				return false;
 		}catch(Exception e) {
-			TelemetryManager.error("Error! Executing do Establish Connection: "+ e.getMessage(), e);
-			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error in establishing connection with Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing do Establish Connection: "+ e.getMessage(), e);
 		}
 			
 	}
@@ -272,8 +264,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 		try {
 			session.execute(query);
 		}catch(Exception e) {
-			TelemetryManager.error("Error! Executing Remove script: "+ e.getMessage(), e);
-			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error in removing script from Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing Remove script: "+ e.getMessage(), e);
 		}
 	}
 	
