@@ -8,5 +8,5 @@ package org.ekstep.framework.enums;
  *
  */
 public enum TermEnum {
-	identifier, hasSequenceMember, code, term, status, Live, Retired, Term, parents, categoryinstances, terms;
+	identifier, hasSequenceMember, code, term, status, Live, Retired, Term, parents, categoryinstances, terms, categories;
 }
