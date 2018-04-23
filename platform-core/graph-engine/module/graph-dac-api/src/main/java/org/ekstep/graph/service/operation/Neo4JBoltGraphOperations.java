@@ -87,7 +87,6 @@ public class Neo4JBoltGraphOperations {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While modifing data in Neo4J.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -133,7 +132,6 @@ public class Neo4JBoltGraphOperations {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While modifing data in Neo4J.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -168,7 +166,6 @@ public class Neo4JBoltGraphOperations {
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While modifing data in Neo4J.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -238,7 +235,6 @@ public class Neo4JBoltGraphOperations {
 				NodeCacheManager.deleteDataNode(graphId, endNodeId);
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While modifing data in Neo4J.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -312,7 +308,6 @@ public class Neo4JBoltGraphOperations {
 					NodeCacheManager.deleteDataNode(graphId, endNodeId);
 				}
 			} catch (Exception e) {
-				TelemetryManager.error("Error! While modifing data in Neo4J.", e);
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			}
@@ -372,7 +367,6 @@ public class Neo4JBoltGraphOperations {
 			NodeCacheManager.deleteDataNode(graphId, startNodeId);
 			NodeCacheManager.deleteDataNode(graphId, endNodeId);
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While modifing data in Neo4J.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -969,7 +963,6 @@ public class Neo4JBoltGraphOperations {
 			addInRelations(tr, graphId, addInRelations);
 			tr.success();
 		} catch (Exception e) {
-			TelemetryManager.error("Bulk update failed in DAC for GraphId: " + graphId, e);
 			if (null != tr)
 				tr.failure();
 			throw new ServerException("ERR_BULK_UPDATE_OPERATION", "Bulk update operation failed: " + e.getMessage());

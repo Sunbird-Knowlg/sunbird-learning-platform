@@ -91,29 +91,27 @@ public class Neo4JBoltNodeOperations {
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					for (Record record : result.list()) {
+						org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 						try {
-							org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 							String versionKey = (String) neo4JNode.get(GraphDACParams.versionKey.name()).asString();
 							String identifier = (String) neo4JNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
-							try {
-								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
-							} catch (Exception e) {
-								TelemetryManager.error("Error! While updating redis cache From Neo4J node.", e);
-								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
-										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
-							}
 						} catch (Exception e) {
-							TelemetryManager.error("Error! While Fetching 'versionKey' from Neo4J node.", e);
+							//suppress exception happened when versionKey is null
+						}
+						try {
+							updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
+						} catch (Exception e) {
+							throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
+									DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 						}
 					}
 				}
 			}
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
-				TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -162,22 +160,20 @@ public class Neo4JBoltNodeOperations {
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					for (Record record : result.list()) {
+						org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 						try {
-							org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 							String versionKey = (String) neo4JNode.get(GraphDACParams.versionKey.name()).asString();
 							String identifier = (String) neo4JNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
-							try {
-								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
-							} catch (Exception e) {
-								TelemetryManager.error("Error! While updating redis cache From Neo4J Node.", e);
-								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
-										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
-							}
 						} catch (Exception e) {
-							TelemetryManager.error("Error! While Fetching 'versionKey' From Neo4J Node.", e);
+						}
+						try {
+							updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
+						} catch (Exception e) {
+							throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
+									DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 						}
 					}
 				} catch (org.neo4j.driver.v1.exceptions.ClientException e) {
@@ -190,7 +186,6 @@ public class Neo4JBoltNodeOperations {
 			}
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
-				TelemetryManager.error("Error! While writing data to Neo4J node.", e);
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			}
@@ -255,22 +250,21 @@ public class Neo4JBoltNodeOperations {
 								DACErrorMessageConstants.NODE_NOT_FOUND + " | " + node.getIdentifier(),
 								node.getIdentifier());
 					for (Record record : result.list()) {
+						org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 						try {
-							org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 							String versionKey = (String) neo4JNode.get(GraphDACParams.versionKey.name()).asString();
 							String identifier = (String) neo4JNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
-							try {
-								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
-							} catch (Exception e) {
-								TelemetryManager.error("Error! While updating redis cache From Neo4J node.", e);
-								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
-										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
-							}
 						} catch (Exception e) {
-							TelemetryManager.error("Error! While Fetching 'versionKey' From Neo4J Node.", e);
+							//suppress exception happened when versionKey is null
+						}
+						try {
+							updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
+						} catch (Exception e) {
+							throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
+									DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 						}
 					}
 				}
@@ -278,7 +272,6 @@ public class Neo4JBoltNodeOperations {
 
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
-				TelemetryManager.error("Error! While writing data to Neo4J node.",  e);
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -398,7 +391,6 @@ public class Neo4JBoltNodeOperations {
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While writing data to Neo4J node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -437,7 +429,6 @@ public class Neo4JBoltNodeOperations {
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -474,11 +465,9 @@ public class Neo4JBoltNodeOperations {
 			try {
 				RedisStoreUtil.deleteNodeProperties(graphId, nodeId);
 			} catch (Exception e) {
-				TelemetryManager.error("Error! While deleting redis cache From Neo4J Node.", e);
 			}
 
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -523,7 +512,6 @@ public class Neo4JBoltNodeOperations {
 					TelemetryManager.log("Upsert Root Node Operation | ", record.asMap());
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error! While writing data to Neo4J Node.", e);
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}

@@ -19,20 +19,16 @@ public class RoutingUtil {
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | [Graph Id: " + graphId + "]");
 
 		String routeUrl = "bolt://localhost:7687";
-		try {
-			String baseKey = DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX + StringUtils.lowerCase(graphOperation.name())
-					+ DACConfigurationConstants.DOT;
-			if (Platform.config.hasPath(baseKey + graphId)) {
-				routeUrl = Platform.config.getString(baseKey + graphId);
-			} else if (Platform.config.hasPath(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID)) {
-				routeUrl = Platform.config.getString(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID);
-			} else {
-				TelemetryManager.warn("Graph connection configuration not defined.");
-			}
-			TelemetryManager.log("Request path for graph: " + graphId + " | URL: " + routeUrl);
-		} catch (Exception e) {
-			TelemetryManager.error("Error fetching location from graph.properties", e);
+		String baseKey = DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX + StringUtils.lowerCase(graphOperation.name())
+				+ DACConfigurationConstants.DOT;
+		if (Platform.config.hasPath(baseKey + graphId)) {
+			routeUrl = Platform.config.getString(baseKey + graphId);
+		} else if (Platform.config.hasPath(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID)) {
+			routeUrl = Platform.config.getString(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID);
+		} else {
+			TelemetryManager.warn("Graph connection configuration not defined.");
 		}
+		TelemetryManager.log("Request path for graph: " + graphId + " | URL: " + routeUrl);
 		return routeUrl;
 	}
 }

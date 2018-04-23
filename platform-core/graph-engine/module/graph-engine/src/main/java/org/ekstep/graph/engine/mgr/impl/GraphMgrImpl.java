@@ -49,7 +49,6 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
             Graph graph = new Graph(this, graphId);
             graph.create(request);
         } catch (Exception e) {
-        	TelemetryManager.error("Error in Create Graph: "+ e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -62,7 +61,6 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
             Graph graph = new Graph(this, graphId);
             graph.createUniqueConstraint(request);
         } catch (Exception e) {
-        	TelemetryManager.error("Error in Create Unique Constraint: "+ e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -75,7 +73,6 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
             Graph graph = new Graph(this, graphId);
             graph.createIndex(request);
         } catch (Exception e) {
-        	TelemetryManager.error("Error in Create Index: "+e.getMessage(), e);
             handleException(e, getSender());
         }
     }

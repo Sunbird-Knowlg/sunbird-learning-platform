@@ -750,6 +750,7 @@ public class Graph extends AbstractDomainObject {
 
 	@SuppressWarnings("unchecked")
 	public void exportGraph(final Request request) {
+		OutputStream outputStream = null;
 		try {
 			final String format = (String) request.get(GraphEngineParams.format.name());
 			SearchCriteria sc = null;
@@ -794,18 +795,8 @@ public class Graph extends AbstractDomainObject {
 
 			List<Node> nodes = (List<Node>) nodesResponse.get(GraphDACParams.node_list.name());
 			List<Relation> relations = (List<Relation>) relationsResponse.get(GraphDACParams.relations.name());
-			OutputStream outputStream = new ByteArrayOutputStream();
-			try {
-				outputStream = GraphWriterFactory.getData(format, nodes, relations);
-			} catch (Exception e) {
-				try {
-					if (null != outputStream)
-						outputStream.close();
-				} catch (IOException e1) {
-					TelemetryManager.error("Error! While closing the input stream.", e);
-				}
-				TelemetryManager.error("Error! While reading the data.", e);
-			}
+			outputStream = new ByteArrayOutputStream();
+			outputStream = GraphWriterFactory.getData(format, nodes, relations);
 			Response response = new Response();
 			ResponseParams params = new ResponseParams();
 			params.setErr("0");
@@ -813,18 +804,16 @@ public class Graph extends AbstractDomainObject {
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
+			manager.returnResponse(Futures.successful(response), getParent());
+
+		} catch (Exception e) {
+			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), e.getMessage(), e);
+		} finally {
 			try {
 				if (null != outputStream)
 					outputStream.close();
 			} catch (IOException e) {
-				TelemetryManager.error("Error! While Closing the Input Stream.", e);
 			}
-
-			manager.returnResponse(Futures.successful(response), getParent());
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), e.getMessage(), e);
 		}
 	}
 

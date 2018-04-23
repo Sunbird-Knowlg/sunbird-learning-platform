@@ -22,7 +22,7 @@ public class JSONUtils {
 					List<Object> list = mapper.readValue(value, List.class);
 					return list;
 				} catch (Exception ex) {
-					TelemetryManager.error("Something Went Wrong While Converting JSON String ('" + value + "') to JSON Object.", e);
+					//suppress error due to invalid map while converting JSON and return null
 				}
 			}
 		}
