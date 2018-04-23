@@ -135,7 +135,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			Response responseNode = getDataNode(GRAPH_ID, categoryId);
 			Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
 			String objectType = dataNode.getObjectType();
-			if(StringUtils.equalsIgnoreCase(StringUtils.lowerCase(objectType), TermEnum.categoryinstances.name())) {
+			if(StringUtils.equalsIgnoreCase(StringUtils.lowerCase(objectType), TermEnum.categoryinstance.name())) {
 				request.put(TermEnum.categories.name(), null);
 			}
 		}
