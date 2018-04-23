@@ -16,6 +16,8 @@ import static play.test.Helpers.route;
 
 import java.io.IOException;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.junit.AfterClass;
@@ -196,7 +198,8 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Test
+	@Ignore
+	//@Test
 	public void testSuggestStartsWith() {
 		String json = "{\"request\":{\"text\" : {\"startsWith\":\"add\"}}}";
 		try {
@@ -212,7 +215,8 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Test
+	@Ignore
+	//@Test
 	public void testSuggestNotEquals() {
 		String json = "{\"request\":{\"text\" : {\"notEquals\":\"add\"}}}";
 		try {
@@ -228,7 +232,8 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Test
+	@Ignore
+	//@Test
 	public void testSuggestInvalidOperation() {
 		String json = "{\"request\":{\"text\" : {\"not\":\"add\"}}}";
 		try {
@@ -259,7 +264,8 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Test
+	@Ignore
+	//@Test
 	public void testSuggestWithoutLimit() {
 		String json = "{\"request\":{\"text\" : \"add\"}}";
 		try {
@@ -275,7 +281,8 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Test
+	@Ignore
+	//@Test
 	public void testSuggestWithInvalidRequest() {
 		String json = "{\"request\":{\"text\" : \"\"}}";
 		try {
