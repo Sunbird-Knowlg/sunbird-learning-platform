@@ -445,7 +445,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 					DialCodeErrorMessage.ERR_INVALID_PUBLISHER, ResponseCode.CLIENT_ERROR);
 
 	}
-
+	
 	/**
 	 * @param channelId
 	 * @param map
@@ -465,8 +465,12 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		searchDto.setFields(getFields());
 		searchDto.setLimit(limit);
 		searchDto.setOffset(offset);
+		
+		Map<String, String> sortBy = new HashMap<String, String>();
+		sortBy.put("dialcode_index", "asc");
+		searchDto.setSortBy(sortBy);
 		SearchResponse searchResponse = processor.processSearchQueryWithSearchResult(searchDto, false,
-				CompositeSearchConstants.DIAL_CODE_INDEX, false);
+				CompositeSearchConstants.DIAL_CODE_INDEX, true);
 		searchResult = esUtil.getDocumentsFromHits(searchResponse.getHits());
 		dialCodeSearch.put(DialCodeEnum.count.name(), (int) searchResponse.getHits().getTotalHits());
 		dialCodeSearch.put(DialCodeEnum.dialcodes.name(), searchResult);
