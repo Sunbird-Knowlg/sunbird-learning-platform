@@ -2181,6 +2181,32 @@
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
 					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "totalQuestions",
+					"title": "Total Questions",
+					"description": "",
+					"category": "General",
+					"displayProperty": "General",
+					"defaultValue": "",
+					"renderingHints": "{ 'order': 20 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "totalScore",
+					"title": "Total Score",
+					"description": "",
+					"category": "General",
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{ 'order': 20 }",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
