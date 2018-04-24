@@ -14,6 +14,12 @@
   			<artifactId>cassandra-connector</artifactId>
   			<version>1.0-SNAPSHOT</version>
   			<type>jar</type>
+  			<exclusions>
+  				<exclusion>
+  					<groupId>org.apache.logging.log4j</groupId>
+  					<artifactId>log4j-api</artifactId>
+  				</exclusion>
+  			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
@@ -21,6 +27,12 @@
   			<version>1.0-SNAPSHOT</version>
   			<type>test-jar</type>
   			<scope>test</scope>
+  			<exclusions>
+  				<exclusion>
+  					<groupId>org.apache.logging.log4j</groupId>
+  					<artifactId>log4j-api</artifactId>
+  				</exclusion>
+  			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
@@ -39,6 +51,12 @@
 			<artifactId>platform-dac</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
