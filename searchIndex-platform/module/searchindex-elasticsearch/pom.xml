@@ -77,6 +77,12 @@
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
 			<version>6.2.3</version>
+			<exclusions>
+			<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion> 
+			</exclusions>
 		</dependency>
 		<dependency>
 		    <groupId>org.elasticsearch.client</groupId>
