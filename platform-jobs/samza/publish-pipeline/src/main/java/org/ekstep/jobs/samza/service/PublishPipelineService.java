@@ -208,15 +208,13 @@ public class PublishPipelineService implements ISamzaService {
 						getCompatabilityLevel(nodes));
 			}
 		}
-		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
-		LOGGER.debug("Publish processing done for content: " + node.getIdentifier());
-
-		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
+		Node graphNode = util.getNode("domain", node.getIdentifier());
+		publishNode(graphNode, (String) graphNode.getMetadata().get(PublishPipelineParams.mimeType.name()));
+		Node publishedNode = getNode(graphNode.getIdentifier().replace(".img", ""));
 		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
 				PublishPipelineParams.Failed.name()))
 			return false;
 
-		LOGGER.debug("Content Enrichment start for content: " + node.getIdentifier());
 		if (StringUtils.equalsIgnoreCase(
 				((String) publishedNode.getMetadata().get(PublishPipelineParams.mimeType.name())),
 				COLLECTION_CONTENT_MIMETYPE)) {
