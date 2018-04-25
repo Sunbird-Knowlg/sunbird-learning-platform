@@ -65,7 +65,8 @@ public class PublishTask implements Runnable {
 			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
 			
 		}
-		publishNode(node, (String) node.getMetadata().get("mimeType"));
+		Node graphNode = util.getNode("domain", node.getIdentifier());
+		publishNode(graphNode, (String) graphNode.getMetadata().get("mimeType"));
 		TelemetryManager.info("Publish processing done for content: "+ node.getIdentifier());
 		
 		TelemetryManager.info("Content enrichment start for content: " + node.getIdentifier());
