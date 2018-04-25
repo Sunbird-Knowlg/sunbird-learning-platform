@@ -40,7 +40,7 @@ public class TclExecutorActor extends UntypedActor {
 
 	private Interp interpreter;
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 
 	public TclExecutorActor(List<OrchestratorScript> commands) {
@@ -75,17 +75,17 @@ public class TclExecutorActor extends UntypedActor {
 						request.getAction())) {
 					long startTime = System.currentTimeMillis();
 					perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-			                + request.getRequestId() + ",TclExecutorActor,"
-			                + request.getScript().getName() + ",STARTTIME," + startTime);
+							+ request.getRequestId() + ",TclExecutorActor," + request.getScript().getName()
+							+ ",STARTTIME," + startTime);
 					Object result = execute(request.getScript(), request.getParams());
 					long endTime = System.currentTimeMillis();
-	                long exeTime = endTime - startTime;
-	                perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-	                        + request.getRequestId() + ",TclExecutorActor,"
-	                        + request.getScript().getName() + ",ENDTIME," + endTime);
-	                perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-                            + request.getRequestId() + ",TclExecutorActor,"
-                            + request.getScript().getName() + ",successful," + exeTime);
+					long exeTime = endTime - startTime;
+					perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+							+ request.getRequestId() + ",TclExecutorActor," + request.getScript().getName()
+							+ ",ENDTIME," + endTime);
+					perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+							+ request.getRequestId() + ",TclExecutorActor," + request.getScript().getName()
+							+ ",successful," + exeTime);
 					if (result instanceof Response)
 						response = (Response) result;
 					else
@@ -108,7 +108,7 @@ public class TclExecutorActor extends UntypedActor {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void init(List<OrchestratorScript> scripts) throws MiddlewareException, Exception {
+	private void init(List<OrchestratorScript> scripts) {
 		interpreter = new Interp();
 		if (null != scripts && !scripts.isEmpty()) {
 			for (OrchestratorScript script : scripts) {
@@ -128,7 +128,7 @@ public class TclExecutorActor extends UntypedActor {
 						} catch (MiddlewareException e) {
 							throw e;
 						} catch (Exception e) {
-							throw e;
+							TelemetryManager.error("Error initialising command: " + script.getName(), e);
 						}
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));
@@ -162,7 +162,7 @@ public class TclExecutorActor extends UntypedActor {
 		}
 		return false;
 	}
-	
+
 	private Object execute(OrchestratorScript script, Map<String, Object> params) {
 		try {
 			if (StringUtils.equalsIgnoreCase(ScriptTypes.SCRIPT.name(), script.getType())) {
@@ -220,7 +220,7 @@ public class TclExecutorActor extends UntypedActor {
 			case TCL.ERROR:
 				TelemetryManager.warn("tcl interpretation error" + interpreter.getResult().toString());
 				msg = interpreter.getResult().toString();
-				if(StringUtils.contains(msg, "tcl.lang.TclException") || StringUtils.contains(msg, "java.")){
+				if (StringUtils.contains(msg, "tcl.lang.TclException") || StringUtils.contains(msg, "java.")) {
 					msg = "| Invalid request format |";
 				}
 				break;

@@ -17,6 +17,25 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class Telemetry {
 
+	private String eid;
+	private long ets = System.currentTimeMillis();
+	private String ver = "3.0";
+	private String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();;
+	private Actor actor;
+	private Context context;
+	private Target object;
+	private Map<String, Object> edata;
+	private List<Map<String, Object>> cdata;
+	private List<String> tags;
+
+	/**
+	 * @param eid
+	 * @param ets
+	 * @param ver
+	 * @param actor
+	 * @param context
+	 * @param edata
+	 */
 	public Telemetry(String eid, long ets, String ver, Actor actor, Context context, Map<String, Object> edata) {
 		super();
 		this.eid = eid;
@@ -27,6 +46,12 @@ public class Telemetry {
 		this.edata = edata;
 	}
 
+	/**
+	 * @param eid
+	 * @param actor
+	 * @param context
+	 * @param edata
+	 */
 	public Telemetry(String eid, Actor actor, Context context, Map<String, Object> edata) {
 		super();
 		this.eid = eid;
@@ -51,17 +76,6 @@ public class Telemetry {
 		this.edata = edata;
 		this.cdata = cdata;
 	}
-
-	private String eid;
-	private long ets = System.currentTimeMillis();
-	private String ver = "3.0";
-	private String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();;
-	private Actor actor;
-	private Context context;
-	private Target object;
-	private Map<String, Object> edata;
-	private List<Map<String, Object>> cdata;
-	private List<String> tags;
 
 	/**
 	 * @return the eid
@@ -196,6 +210,20 @@ public class Telemetry {
 	 */
 	public void setTags(List<String> tags) {
 		this.tags = tags;
+	}
+
+	/**
+	 * @return cdata
+	 */
+	public List<Map<String, Object>> getCdata() {
+		return cdata;
+	}
+
+	/**
+	 * @param cdata
+	 */
+	public void setCdata(List<Map<String, Object>> cdata) {
+		this.cdata = cdata;
 	}
 
 }

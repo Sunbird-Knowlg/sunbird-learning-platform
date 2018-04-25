@@ -133,7 +133,12 @@ public class AuditEventGenerator implements ISamzaService {
 				.get(GraphDACParams.addedRelations.name());
 		List<Map<String, Object>> removedRelations = (List<Map<String, Object>>) transactionData
 				.get(GraphDACParams.removedRelations.name());
-		String pkgVersion = (String) ((Map<String, Object>) propertyMap.get("pkgVersion")).get("nv");
+
+		String pkgVersion = "";
+		Map<String, Object> pkgVerMap = (Map<String, Object>) propertyMap.get("pkgVersion");
+		if (null != pkgVerMap)
+			pkgVersion = (String) pkgVerMap.get("nv");
+
 		String prevStatus = "";
 		String currStatus = "";
 		if (null != statusMap) {
@@ -174,10 +179,12 @@ public class AuditEventGenerator implements ISamzaService {
 		if (null != propertyMap && !propertyMap.isEmpty() && propertyMap.containsKey("dialcodes")) {
 			Map<String, Object> dialcodeMap = (Map<String, Object>) propertyMap.get("dialcodes");
 			List<String> dialcodes = (List<String>) dialcodeMap.get("nv");
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("id", dialcodes);
-			map.put("type", "DialCode");
-			cdata.add(map);
+			if (null != dialcodes) {
+				HashMap<String, Object> map = new HashMap<String, Object>();
+				map.put("id", dialcodes);
+				map.put("type", "DialCode");
+				cdata.add(map);
+			}
 		}
 
 		if (null != addedRelations && !addedRelations.isEmpty())
