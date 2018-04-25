@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 
-@Ignore
+
 public class ContentStoreTest extends CassandraTestSetup {
 
 	private static String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS content_store WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}";
