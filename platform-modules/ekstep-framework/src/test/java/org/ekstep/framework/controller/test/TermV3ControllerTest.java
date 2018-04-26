@@ -355,7 +355,7 @@ public class TermV3ControllerTest extends GraphEngineTestSetup {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			MockHttpServletResponse response = actions.andReturn().getResponse();
-			Assert.assertEquals(500, response.getStatus());
+			Assert.assertEquals(400, response.getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}

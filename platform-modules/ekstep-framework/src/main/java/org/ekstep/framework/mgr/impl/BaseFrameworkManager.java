@@ -496,7 +496,7 @@ public class BaseFrameworkManager extends BaseManager {
 			List<Relation> inRelations = node.getInRelations();
 			if (null != inRelations && !inRelations.isEmpty()) {
 				for (Relation rel : inRelations) {
-					if (StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance")
+					if ((StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance") || StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Term"))
 							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
 						generateFrameworkHierarchy(rel.getStartNodeId());
 					}
@@ -510,7 +510,7 @@ public class BaseFrameworkManager extends BaseManager {
 		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false);
 		CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
 
-		frameworkDocument.put("fr_hierarchy", mapper.writeValueAsString(frameworkHierarchy));
+		frameworkDocument.put("fw_hierarchy", mapper.writeValueAsString(frameworkHierarchy));
 		frameworkDocument.put("graph_id", GRAPH_ID);
 		frameworkDocument.put("node_id", (int) node.getId());
 		frameworkDocument.put("identifier", node.getIdentifier());

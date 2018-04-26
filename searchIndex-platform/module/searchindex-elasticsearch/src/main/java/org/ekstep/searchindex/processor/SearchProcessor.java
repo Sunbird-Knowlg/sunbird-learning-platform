@@ -24,6 +24,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -540,14 +541,16 @@ public class SearchProcessor {
 			if(data.get(1) instanceof List) {
 				List<Object> dataList = (List<Object>) data.get(1);
 				for(Object value: dataList) {
-					queryBuilder.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, value));
+					queryBuilder
+							.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, value)
+									.boost(Integer.valueOf((int) data.get(0)).floatValue()));
 				}
 			}
 			else {
-				queryBuilder.should(QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1)));
+				queryBuilder.should(
+						QueryBuilders.matchQuery(key + CompositeSearchConstants.RAW_FIELD_EXTENSION, data.get(1))
+								.boost(Integer.valueOf((int) data.get(0)).floatValue()));
 			}
-			
-			queryBuilder.boost(Integer.valueOf((int) data.get(0)).floatValue());
 		}
 		return queryBuilder;
 	}
@@ -699,20 +702,18 @@ public class SearchProcessor {
 	 */
 	@SuppressWarnings("unchecked")
 	private QueryBuilder getRangeQuery(String propertyName, List<Object> values) {
-		BoolQueryBuilder queryBuilder = null;
+		RangeQueryBuilder queryBuilder = new RangeQueryBuilder(propertyName);
 		for (Object value : values) {
 			Map<String, Object> rangeMap = (Map<String, Object>) value;
 			if (!rangeMap.isEmpty()) {
 				for (String key : rangeMap.keySet()) {
 					switch (key) {
 					case CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE: {
-						queryBuilder = (BoolQueryBuilder) getRangeQuery(propertyName, Arrays.asList(rangeMap.get(key)),
-								CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS);
+						queryBuilder.from(rangeMap.get(key));
 						break;
 					}
 					case CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE: {
-						queryBuilder = (BoolQueryBuilder) getRangeQuery(propertyName, Arrays.asList(rangeMap.get(key)),
-								CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS);
+						queryBuilder.to(rangeMap.get(key));
 						break;
 					}
 					}

@@ -151,7 +151,7 @@
 				"objectTypes": [
 					"CategoryInstance"
 				],
-				"title": "categoryinstances",
+				"title": "categories",
 				"description": "CategoryInstance using the term",
 				"required": false,
 				"renderingHints": "{ 'order': 8}"

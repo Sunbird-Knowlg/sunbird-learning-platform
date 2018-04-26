@@ -28,9 +28,11 @@ import org.ekstep.dialcode.store.DialCodeStore;
 import org.ekstep.dialcode.store.PublisherStore;
 import org.ekstep.dialcode.util.DialCodeGenerator;
 import org.ekstep.searchindex.dto.SearchDTO;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.elasticsearch.action.search.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -58,8 +60,10 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	private DialCodeGenerator dialCodeGenerator;
 
 	private int defaultLimit = 1000;
+	private int defaultOffset = 0;
 	private String connectionInfo = "localhost:9300";
 	private SearchProcessor processor = null;
+	private ElasticSearchUtil esUtil = null;
 
 	@PostConstruct
 	public void init() {
@@ -69,6 +73,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 				? Platform.config.getString("dialcode.es_conn_info")
 				: connectionInfo;
 		processor = new SearchProcessor(connectionInfo);
+		esUtil = new ElasticSearchUtil(connectionInfo);
 	}
 
 	/*
@@ -189,13 +194,31 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
 		int limit = getLimit(map, DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST);
+		int offset = getOffset(map, DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST);
 		map.remove("limit");
-		List<Object> dialCodeList = searchDialCodes(channelId, map, limit);
+		map.remove("offset");
+		Map<String, Object> dialCodeSearch = searchDialCodes(channelId, map, limit, offset);
 
 		Response resp = getSuccessResponse();
-		resp.put(DialCodeEnum.count.name(), dialCodeList.size());
-		resp.put(DialCodeEnum.dialcodes.name(), dialCodeList);
+		resp.put(DialCodeEnum.count.name(), dialCodeSearch.get(DialCodeEnum.count.name()));
+		resp.put(DialCodeEnum.dialcodes.name(), dialCodeSearch.get(DialCodeEnum.dialcodes.name()));
 		return resp;
+	}
+
+	/**
+	 * @param map
+	 * @param errInvalidSearchRequest
+	 * @return
+	 */
+	private int getOffset(Map<String, Object> map, String errCode) {
+		int offset = defaultOffset;
+		try {
+			if (map.containsKey("offset"))
+				offset = (int) map.get("offset");
+		} catch (Exception e) {
+			throw new ClientException(errCode, "Please provide valid offset.");
+		}
+		return offset;
 	}
 
 	private int getLimit(Map<String, Object> map, String errCode) {
@@ -422,14 +445,17 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 					DialCodeErrorMessage.ERR_INVALID_PUBLISHER, ResponseCode.CLIENT_ERROR);
 
 	}
-
+	
 	/**
 	 * @param channelId
 	 * @param map
+	 * @param offset
 	 * @return
 	 * @throws Exception
 	 */
-	private List<Object> searchDialCodes(String channelId, Map<String, Object> map, int limit) throws Exception {
+	private Map<String, Object> searchDialCodes(String channelId, Map<String, Object> map, int limit, int offset)
+			throws Exception {
+		Map<String, Object> dialCodeSearch = new HashMap<String, Object>();
 		List<Object> searchResult = new ArrayList<Object>();
 		SearchDTO searchDto = new SearchDTO();
 		searchDto.setFuzzySearch(false);
@@ -438,10 +464,18 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchDto.setFields(getFields());
 		searchDto.setLimit(limit);
-		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
-				CompositeSearchConstants.DIAL_CODE_INDEX, false);
-		writeTelemetrySearchLog(channelId, map, searchResult);
-		return searchResult;
+		searchDto.setOffset(offset);
+		
+		Map<String, String> sortBy = new HashMap<String, String>();
+		sortBy.put("dialcode_index", "asc");
+		searchDto.setSortBy(sortBy);
+		SearchResponse searchResponse = processor.processSearchQueryWithSearchResult(searchDto, false,
+				CompositeSearchConstants.DIAL_CODE_INDEX, true);
+		searchResult = esUtil.getDocumentsFromHits(searchResponse.getHits());
+		dialCodeSearch.put(DialCodeEnum.count.name(), (int) searchResponse.getHits().getTotalHits());
+		dialCodeSearch.put(DialCodeEnum.dialcodes.name(), searchResult);
+		writeTelemetrySearchLog(channelId, map, dialCodeSearch);
+		return dialCodeSearch;
 	}
 
 	/**
@@ -491,8 +525,9 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		return properties;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void writeTelemetrySearchLog(String channelId, Map<String, Object> searchCriteria,
-			List<Object> searchResult) {
+			Map<String, Object> dialCodeSearch) {
 
 		String query = "";
 		String type = DialCodeEnum.DialCode.name();
@@ -504,8 +539,8 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		filters.put(DialCodeEnum.channel.name(), channelId);
 		filters.putAll(searchCriteria);
 
-		int count = (searchResult.isEmpty() ? 0 : (Integer) searchResult.size());
-		Object topN = getTopNResult(searchResult);
+		int count = (int) dialCodeSearch.get(DialCodeEnum.count.name());
+		Object topN = getTopNResult((List<Object>) dialCodeSearch.get(DialCodeEnum.dialcodes.name()));
 		TelemetryManager.search(query, filters, sort, correlationId, count, topN, type);
 
 	}

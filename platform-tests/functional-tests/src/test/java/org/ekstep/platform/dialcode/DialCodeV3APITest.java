@@ -14,6 +14,7 @@ import org.ekstep.platform.content.ContentPublishWorkflowTests;
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
@@ -210,7 +211,7 @@ public class DialCodeV3APITest extends BaseTest {
 		JsonPath jp3 = R3.jsonPath();
 		String statusImage = jp3.get("result.content.status");
 		ArrayList<String> dialcode_Image = jp3.get("result.content.dialcodes");
-		Assert.assertTrue(statusImage.equals("Draft") && dialcode_Image.contains(dialCodeId) && dialcode_Image.contains(dialCodeId_2));
+		Assert.assertTrue(statusImage.equals("Draft") && dialcode_Image.contains(dialCodeId_2));
 
 		// Publish the content image and validate
 		setURI();
@@ -240,7 +241,7 @@ public class DialCodeV3APITest extends BaseTest {
 		JsonPath jp4 = R4.jsonPath();
 		String statusNew = jp4.get("result.content.status");
 		ArrayList<String> dialcodeNew = jp4.get("result.content.dialcodes");
-		Assert.assertTrue(statusNew.equals("Live") && dialcodeNew.contains(dialCodeId) && dialcodeNew.contains(dialCodeId_2));
+		Assert.assertTrue(statusNew.equals("Live")  && dialcodeNew.contains(dialCodeId_2));
 	}
 	
 	@Test
@@ -377,7 +378,8 @@ public class DialCodeV3APITest extends BaseTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void searchDialCodeExpect200() {
+	public void searchDialCodeExpect200() throws InterruptedException {
+		Thread.sleep(2000);
 		String searchReq = "{\"request\": {\"search\": {\"identifier\": \"" + dialCodeId + "\"}}}";
 		setURI();
 		Response res = given().spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
@@ -404,7 +406,8 @@ public class DialCodeV3APITest extends BaseTest {
 	}
 
 	@Test
-	public void linkDialCodeToContentsExpect200() {
+	public void linkDialCodeToContentsExpect200() throws Exception {
+		Thread.sleep(3000);
 		setURI();
 		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId_1 + "\",\""
 				+ contentId_2 + "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
@@ -478,6 +481,275 @@ public class DialCodeV3APITest extends BaseTest {
 				.body(dialCodeLinkReq).with().contentType(JSON).when().post("content/v3/dialcode/link").then()
 				.spec(get404ResponseSpec());
 	}
+	
+	//Un Link Dial Code. Provided Blank DialCode (""). Expected : 200 - OK.
+	@Test
+	public void unLinkDialCodeToContent_1_Expect200() throws Exception{
+		//Create Content
+		int rn = generateRandomInt(0, 999999);
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+		setURI();
+		Response res = 
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+				body(createValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().//log().all().
+				extract().
+				response();
+		
+		JsonPath jp = res.jsonPath();
+		String identifier = jp.get("result.node_id");
+		
+		Thread.sleep(3000);
+		
+		// Link DIAL Code to Content
+		setURI();
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier + "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+		body(dialCodeLinkReq).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/dialcode/link").
+		then().//log().all().
+		spec(get200ResponseSpec());
+		
+		//UnLink DIAL Code From Content
+		
+		setURI();
+		String dialCodeUnLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier + "\"],\"dialcode\":\"\"}}}";
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+		body(dialCodeUnLinkReq).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/dialcode/link").
+		then().//log().all().
+		spec(get200ResponseSpec());
+		
+		// Get Content and Validate
+		setURI();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + identifier).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+		
+		// Validate the response
+		JsonPath jp2 = R2.jsonPath();
+		ArrayList<String> dialcode_1 = jp2.get("result.content.dialcodes");
+		Assert.assertEquals(null,dialcode_1);
+	}
+	
+	//Un Link Dial Code. Provided Blank DialCode ([]). Expected : 200 - OK.
+		@Test
+		public void unLinkDialCodeToContent_2_Expect200() throws Exception{
+			//Create Content
+			int rn = generateRandomInt(0, 999999);
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			setURI();
+			Response res = 
+					given().
+					spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+					body(createValidContent).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().//log().all().
+					extract().
+					response();
+			
+			JsonPath jp = res.jsonPath();
+			String identifier = jp.get("result.node_id");
+			
+			Thread.sleep(3000);
+			
+			// Link DIAL Code to Content
+			setURI();
+			String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier + "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+			given().
+			spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+			body(dialCodeLinkReq).
+			with().
+			contentType(JSON).
+			when().
+			post("content/v3/dialcode/link").
+			then().//log().all().
+			spec(get200ResponseSpec());
+			
+			//UnLink DIAL Code From Content
+			
+			setURI();
+			String dialCodeUnLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier + "\"],\"dialcode\":[]}}}";
+			given().
+			spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+			body(dialCodeUnLinkReq).
+			with().
+			contentType(JSON).
+			when().
+			post("content/v3/dialcode/link").
+			then().//log().all().
+			spec(get200ResponseSpec());
+			
+			// Get Content and Validate
+			setURI();
+			Response R2 = 
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/" + identifier).
+					then().
+					//log().all().
+					spec(get200ResponseSpec()).
+					extract().response();
+			
+			// Validate the response
+			JsonPath jp2 = R2.jsonPath();
+			ArrayList<String> dialcode_1 = jp2.get("result.content.dialcodes");
+			Assert.assertEquals(null,dialcode_1);
+		}
+		
+		//Un Link Dial Code. Provided Blank DialCode ([""]). Expected : 200 - OK.
+		@Test
+		public void unLinkDialCodeToContent_3_Expect200() throws Exception{
+			//Create Content
+			int rn = generateRandomInt(0, 999999);
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			setURI();
+			Response res = 
+					given().
+					spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+					body(createValidContent).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().//log().all().
+					extract().
+					response();
+			
+			JsonPath jp = res.jsonPath();
+			String identifier = jp.get("result.node_id");
+			
+			Thread.sleep(3000);
+			
+			// Link DIAL Code to Content
+			setURI();
+			String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier + "\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+			given().
+			spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+			body(dialCodeLinkReq).
+			with().
+			contentType(JSON).
+			when().
+			post("content/v3/dialcode/link").
+			then().//log().all().
+			spec(get200ResponseSpec());
+			
+			//UnLink DIAL Code From Content
+			
+			setURI();
+			String dialCodeUnLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + identifier + "\"],\"dialcode\":[\"\"]}}}";
+			given().
+			spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+			body(dialCodeUnLinkReq).
+			with().
+			contentType(JSON).
+			when().
+			post("content/v3/dialcode/link").
+			then().//log().all().
+			spec(get200ResponseSpec());
+			
+			// Get Content and Validate
+			setURI();
+			Response R2 = 
+					given()
+					.spec(getRequestSpecification(contentType, userId, APIToken))
+					.when()
+					.get("/content/v3/read/" + identifier)
+					.then()
+					//.log().all()
+					.spec(get200ResponseSpec())
+					.extract().response();
+			
+			// Validate the response
+			JsonPath jp2 = R2.jsonPath();
+			ArrayList<String> dialcode_1 = jp2.get("result.content.dialcodes");
+			Assert.assertEquals(null,dialcode_1);
+		}
+		
+		//Link Dial Code to Content (Provided Blank Identifier ("")). Expected: 400
+		@Test
+		public void linkDialCodeToInvalidContent_1_Expect400() {
+			setURI();
+			String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": \"\",\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+			given()
+			.spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+			.body(dialCodeLinkReq)
+			.with()
+			.contentType(JSON)
+			.when().post("content/v3/dialcode/link")
+			.then().log().all()
+			.spec(get400ResponseSpec());
+		}
+		
+		//Link Dial Code to Content (Provided Blank Identifier ([""])). Expected: 400
+		@Test
+		public void linkDialCodeToInvalidContent_2_Expect400() {
+			setURI();
+			String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"\"],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+			given()
+			.spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+			.body(dialCodeLinkReq)
+			.with()
+			.contentType(JSON)
+			.when().post("content/v3/dialcode/link")
+			.then()//.log().all()
+			.spec(get400ResponseSpec());
+		}
+		
+		//Link Dial Code to Content (Provided Blank Identifier ([""])). Expected: 400
+		@Test
+		public void linkDialCodeToInvalidContent_3_Expect400() {
+			setURI();
+			String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [],\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+			given()
+			.spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+			.body(dialCodeLinkReq)
+			.with()
+			.contentType(JSON)
+			.when().post("content/v3/dialcode/link")
+			.then()//.log().all()
+			.spec(get400ResponseSpec());
+		}
+		
+		//Link Dial Code to Content (Provided Blank Identifier (" ")). Expected: 400
+		//Actual : 404
+		@Ignore
+		@Test
+		public void linkDialCodeToInvalidContent_4_Expect400() {
+			setURI();
+			String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": \" \",\"dialcode\": [\"" + dialCodeId + "\"]}}}";
+			given()
+			.spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId))
+			.body(dialCodeLinkReq)
+			.with()
+			.contentType(JSON)
+			.when().post("content/v3/dialcode/link")
+			.then()//.log().all()
+			.spec(get400ResponseSpec());
+		}
 
 	
 }

@@ -644,11 +644,16 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	 */
 	@Test
 	public void testDialCode_33() throws Exception {
+		createDialCodeIndex();
+		Thread.sleep(2000);
 		String path = basePath + "/search";
-		String req = "{\"request\": {\"search\": {\"identifier\": \"" + dialCode + "\",\"limit\":10}}}";
+		String req = "{\"request\": {\"search\": {\"identifier\": \"" + dialCode + "\",\"limit\":10,\"offset\":0}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(req));
+		ObjectMapper objectMapper = new ObjectMapper();
+		Response response = objectMapper.readValue(actions.andReturn().getResponse().getContentAsString(), Response.class);
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(1, (int) response.getResult().get("count"));
 	}
 
 	/*
@@ -712,6 +717,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 
 	private static void populateData() throws JsonProcessingException, IOException {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
+		indexDocument.put("dialcode_index", 1);
 		indexDocument.put("identifier", dialCode);
 		indexDocument.put("channel", "channelTest");
 		indexDocument.put("batchcode", "test_math_std1");

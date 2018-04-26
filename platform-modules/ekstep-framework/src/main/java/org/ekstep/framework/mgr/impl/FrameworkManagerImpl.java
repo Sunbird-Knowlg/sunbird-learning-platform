@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -103,8 +104,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	// TODO : Delete this method and uncomment above method
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response readFramework(String frameworkId) throws Exception {
-
+	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		if (Platform.config.hasPath("framework.es.sync")) {
 			if (Platform.config.getBoolean("framework.es.sync")) {
@@ -112,17 +112,31 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				List<Object> searchResult = searchFramework(frameworkId);
 				if (null != searchResult && !searchResult.isEmpty()) {
 					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
-					Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fr_hierarchy"), Map.class);
-					Object categories = hierarchy.get("categories");
-					if (categories != null) {
-						responseMap.put("categories", categories);
+					Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"), Map.class);
+					if (null != hierarchy && !hierarchy.isEmpty()) {
+						List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy.get("categories");
+						
+						String concepts = "{\"identifier\":\"xyz\",\"name\":\"Concepts\",\"code\":\"concepts\",\"description\":\"\",\"index\":"
+								+ (categories.size() + 1)
+								+ ",\"status\":\"Live\",\"domains\":[{\"identifier\":\"numeracy\",\"name\":\"Numeracy\",\"objectType\":\"Domain\",\"children\":[{\"identifier\":\"D5\",\"name\":\"Data Handling\",\"objectType\":\"Dimension\",\"children\":[]},{\"identifier\":\"D1\",\"name\":\"Geometry\",\"objectType\":\"Dimension\",\"children\":[]},{\"identifier\":\"testDimension1\",\"name\":\"Measurement\",\"objectType\":\"Dimension\",\"children\":[]},{\"identifier\":\"D4\",\"name\":\"Measurement\",\"objectType\":\"Dimension\",\"children\":[]},{\"identifier\":\"D2\",\"name\":\"Number sense\",\"objectType\":\"Dimension\",\"children\":[{\"identifier\":\"C6\",\"name\":\"Counting\",\"objectType\":\"Concept\",\"children\":[{\"identifier\":\"C49\",\"name\":\"Counting objects\",\"objectType\":\"Concept\",\"children\":[{\"identifier\":\"C211\",\"name\":\"Count to 20\",\"objectType\":\"Concept\",\"children\":[{\"identifier\":\"C455\",\"name\":\"Learner does not know the order of numbers.\",\"objectType\":\"Concept\",\"children\":[]},{\"identifier\":\"C456\",\"name\":\"Learner is not able to count till a specified number within a given set.\",\"objectType\":\"Concept\",\"children\":[]},{\"identifier\":\"C451\",\"name\":\"Learner is not able to match the number of objects and its numeral values.\",\"objectType\":\"Concept\",\"children\":[]},{\"identifier\":\"C460\",\"name\":\"Learner skips all even numbers while counting.\",\"objectType\":\"Concept\",\"children\":[]}]}]}]},{\"identifier\":\"C8\",\"name\":\"Place value\",\"objectType\":\"Concept\",\"children\":[{\"identifier\":\"C71\",\"name\":\"Expand a number with respect to place values\",\"objectType\":\"Concept\",\"children\":[]}]}]}]}]}";
+						categories.add(mapper.readValue(concepts, Map.class));
+						if (categories != null) {
+							if (returnCategories != null && !returnCategories.isEmpty()) {
+								responseMap.put("categories",
+										categories.stream().filter(p -> returnCategories.contains(p.get("code")))
+												.collect(Collectors.toList()));
+							} else {
+								responseMap.put("categories", categories);
+							}
+						}
 					}
+					
 				}
 			}
 		}
-		
 		return response;
 	}
+
 
 	private List<Object> searchFramework(String frameworkId) throws Exception {
 		List<Object> searchResult = new ArrayList<Object>();
@@ -142,7 +156,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 	private List<String> getFields() {
 		List<String> fields = new ArrayList<String>();
-		fields.add("fr_hierarchy");
+		fields.add("fw_hierarchy");
 		return fields;
 	}
 

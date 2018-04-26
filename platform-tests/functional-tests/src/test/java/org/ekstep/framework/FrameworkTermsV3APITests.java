@@ -79,10 +79,9 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		body("{\"request\":{\"category\":{\"name\":\""+categoryId+"\",\"description\":\"Test framework category instance\",\"code\":\""+categoryId+"\"}}}").
 		with().
 		contentType(JSON).
-		when().
-		post("/framework/v3/category/create?framework="+frameworkId).
 		then().
-		log().all();
+		post("/framework/v3/category/create?framework="+frameworkId);
+		// log().all();
 	}
 
 	// Create and validate valid framework term
