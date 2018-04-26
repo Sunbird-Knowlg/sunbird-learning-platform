@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -1774,9 +1776,100 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		// Copying Root Node
 		Map<String, String> idMap = copyContentData(existingNode, requestMap);
 
-		// copyhierarchy(existingNode, idMap, mode);
+		copyhierarchy(existingNode, idMap, mode);
 
 		return idMap;
+	}
+
+	/**
+	 * @param existingNode
+	 * @param idMap
+	 * @param mode
+	 */
+	private void copyhierarchy(Node existingNode, Map<String, String> idMap, String mode) {
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		Map<String, Object> contentMap = getContentHierarchyRecursive(existingNode.getGraphId(), existingNode,
+				definition, mode);
+
+		Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
+				(List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
+
+		Response response = updateHierarchy(updateRequest);
+		if (checkError(response)) {
+			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+		}
+	}
+
+	/**
+	 * @param contentMap
+	 * @param existingNode
+	 * @param idMap
+	 * @return
+	 */
+	private Map<String, Object> prepareUpdateHierarchyRequest(List<Map<String, Object>> children, Node existingNode,
+			Map<String, String> idMap) {
+		Map<String, Object> nodesModified = new HashMap<>();
+		Map<String, Object> hierarchy = new HashMap<>();
+
+		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+		Map<String, Object> nullPropMap = nullPropList.stream()
+				.collect(Collectors.toMap(Function.identity(), prop -> null));
+
+		Map<String, Object> parentHierarchy = new HashMap<>();
+		parentHierarchy.put("children", new ArrayList<>());
+		parentHierarchy.put("root", true);
+		parentHierarchy.put("contentType", existingNode.getMetadata().get("contentType"));
+		hierarchy.put(idMap.get(existingNode.getIdentifier()), parentHierarchy);
+		populateHierarchy(children, nodesModified, hierarchy, idMap.get(existingNode.getIdentifier()), nullPropMap);
+
+		Map<String, Object> data = new HashMap<>();
+		data.put("nodesModified", nodesModified);
+		data.put("hierarchy", hierarchy);
+
+		return data;
+
+	}
+
+	/**
+	 * @param children
+	 * @param nodesModified
+	 * @param hierarchy
+	 * @param idMap
+	 */
+	private void populateHierarchy(List<Map<String, Object>> children, Map<String, Object> nodesModified,
+			Map<String, Object> hierarchy, String parentId, Map<String, Object> nullPropMap) {
+		if (null != children && !children.isEmpty()) {
+			for (Map<String, Object> child : children) {
+				String id = (String) child.get("identifier");
+				if (StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+					// NodesModified and hierarchy
+					id = UUID.randomUUID().toString();
+					Map<String, Object> metadata = new HashMap<>();
+					metadata.putAll(child);
+					metadata.putAll(nullPropMap);
+					metadata.put("children", new ArrayList<>());
+					metadata.remove("identifier");
+
+					// TBD: Populate artifactUrl
+
+					Map<String, Object> modifiedNode = new HashMap<>();
+					modifiedNode.put("metadata", metadata);
+					modifiedNode.put("root", false);
+					modifiedNode.put("isNew", true);
+					nodesModified.put(id, modifiedNode);
+				}
+				Map<String, Object> parentHierarchy = new HashMap<>();
+				parentHierarchy.put("children", new ArrayList<>());
+				parentHierarchy.put("root", true);
+				parentHierarchy.put("contentType", child.get("contentType"));
+				hierarchy.put(id, parentHierarchy);
+				((List) ((Map<String, Object>) hierarchy.get(parentId)).get("children")).add(id);
+
+				populateHierarchy((List<Map<String, Object>>) child.get("children"), nodesModified, hierarchy, id,
+						nullPropMap);
+			}
+		}
+
 	}
 
 	/**
@@ -1821,12 +1914,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		copyNode.getMetadata().putAll(requestMap);
 		copyNode.getMetadata().put("status", "Draft");
-		copyNode.getMetadata().put("downloadUrl", null);
-		copyNode.getMetadata().put("variants", null);
-		copyNode.getMetadata().put("pkgVersion", null);
-		copyNode.getMetadata().put("dialcodes", null);
-		copyNode.getMetadata().put("s3Key", null);
-		copyNode.getMetadata().put("lastPublishedOn", null);
+		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+		Map<String, Object> nullPropMap = nullPropList.stream()
+				.collect(Collectors.toMap(Function.identity(), prop -> null));
+		copyNode.getMetadata().putAll(nullPropMap);
 		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
 		
 		String artifactUrl = copyArtifact((String) existingNode.getMetadata().get("artifactUrl"), copyNode);
