@@ -294,11 +294,12 @@ public class ElasticSearchUtil {
 				for (Map.Entry<String, String> entry : jsonObjects.entrySet()) {
 					count++;
 					bulkRequest.add(client.prepareIndex(indexName, documentType).setId(entry.getKey())
-							.setSource(entry.getValue(), XContentType.JSON));
+							.setSource(entry.getValue()));
 					if (count % BATCH_SIZE == 0 || (count % BATCH_SIZE < BATCH_SIZE && count == jsonObjects.size())) {
 						BulkResponse bulkResponse = bulkRequest.get();
 						if (bulkResponse.hasFailures()) {
 							// TODO: throw exception;
+							System.out.println(bulkResponse.buildFailureMessage());
 						}
 					}
 				}
@@ -315,11 +316,12 @@ public class ElasticSearchUtil {
 				BulkRequestBuilder bulkRequest = client.prepareBulk();
 				for (String jsonString : jsonObjects) {
 					bulkRequest
-							.add(client.prepareIndex(indexName, documentType).setSource(jsonString, XContentType.JSON));
+							.add(client.prepareIndex(indexName, documentType).setSource(jsonString));
 				}
 				BulkResponse bulkResponse = bulkRequest.get();
 				if (bulkResponse.hasFailures()) {
 					// TODO: throw exception;
+					System.out.println(bulkResponse.buildFailureMessage());
 				}
 			}
 		} else {
