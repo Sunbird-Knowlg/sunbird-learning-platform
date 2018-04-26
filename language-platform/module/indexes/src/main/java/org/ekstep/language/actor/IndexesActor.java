@@ -394,7 +394,7 @@ public class IndexesActor extends LanguageBaseActor {
 		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		WordUtil wordUtil = new WordUtil();
-		Map<String, Object> wordIndexes = new HashMap<String, Object>();
+		Map<String, String> wordIndexes = new HashMap<String, String>();
 		for (Map<String, String> wordMap : words) {
 			String word = wordMap.get("word");
 			String rootWord = wordMap.get("rootWord");

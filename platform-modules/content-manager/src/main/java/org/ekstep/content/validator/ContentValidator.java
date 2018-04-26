@@ -16,7 +16,6 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.content.common.AssetsMimeTypeMap;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -25,6 +24,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.neo4j.io.fs.FileUtils;
 
 /**
  * The Class ContentValidator, mainly used for validating ContentNode and

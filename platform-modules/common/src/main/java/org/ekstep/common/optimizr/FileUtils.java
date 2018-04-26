@@ -172,34 +172,4 @@ public class FileUtils {
         String outputFolder = input.getParent();
         return outputFolder + "/" + outputFileName;
     }
-
-	/**
-	 * @param file
-	 * @return Boolean
-	 */
-	public static boolean deleteFile(File file) {
-		if (!file.exists())
-			return true;
-
-		int count = 0;
-		boolean deleted;
-		do {
-			deleted = file.delete();
-			if (!deleted) {
-				count++;
-				waitAndThenTriggerGC();
-			}
-		} while (!deleted && count <= 5);
-		return deleted;
-	}
-
-	private static void waitAndThenTriggerGC() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			Thread.interrupted();
-		}
-		System.gc();
-	}
-
 }

@@ -10,12 +10,10 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-
 
 public class ContentStoreTest extends CassandraTestSetup {
 

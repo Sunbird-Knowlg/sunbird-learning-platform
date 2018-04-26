@@ -302,8 +302,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayList<String> citiationIndexes = new ArrayList<String>();
-		Map<String, Object> wordIndexesWithId = new HashMap<String, Object>();
-		Map<String, Object> wordIndexInfoWithId = new HashMap<String, Object>();
+		Map<String, String> wordIndexesWithId = new HashMap<String, String>();
+		Map<String, String> wordIndexInfoWithId = new HashMap<String, String>();
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 		createCitationIndex(citationIndexName, Constants.CITATION_INDEX_TYPE, elasticSearchUtil);

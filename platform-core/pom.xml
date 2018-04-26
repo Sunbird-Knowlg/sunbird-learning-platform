@@ -29,7 +29,6 @@
 		<module>platform-dac</module>
     	<module>platform-telemetry</module>
     	<module>kafka-client</module>
-	    <module>neo4j-bolt-test</module>
 	</modules>
 
 	<dependencies>

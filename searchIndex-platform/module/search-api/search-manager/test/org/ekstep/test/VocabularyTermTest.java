@@ -16,8 +16,6 @@ import static play.test.Helpers.route;
 
 import java.io.IOException;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
-
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.junit.AfterClass;
@@ -64,7 +62,7 @@ public class VocabularyTermTest extends WithApplication {
 		Constants.VOCABULARY_TERM_INDEX = VOCABULARY_TERM_INDEX;
 		System.out.println("creating index: " + VOCABULARY_TERM_INDEX);
 		String settings = "{\"analysis\":{\"analyzer\":{\"vt_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"vt_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"edge_ngram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
-		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}";
+		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"string\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"string\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}";
 		elasticSearchUtil.addIndex(VOCABULARY_TERM_INDEX, VOCABULARY_TERM_INDEX_TYPE, settings, mappings);
 	}
 
@@ -198,8 +196,7 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Ignore
-	//@Test
+	@Test
 	public void testSuggestStartsWith() {
 		String json = "{\"request\":{\"text\" : {\"startsWith\":\"add\"}}}";
 		try {
@@ -215,8 +212,7 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Ignore
-	//@Test
+	@Test
 	public void testSuggestNotEquals() {
 		String json = "{\"request\":{\"text\" : {\"notEquals\":\"add\"}}}";
 		try {
@@ -232,8 +228,7 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Ignore
-	//@Test
+	@Test
 	public void testSuggestInvalidOperation() {
 		String json = "{\"request\":{\"text\" : {\"not\":\"add\"}}}";
 		try {
@@ -264,8 +259,7 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Ignore
-	//@Test
+	@Test
 	public void testSuggestWithoutLimit() {
 		String json = "{\"request\":{\"text\" : \"add\"}}";
 		try {
@@ -281,8 +275,7 @@ public class VocabularyTermTest extends WithApplication {
 		}
 	}
 
-	@Ignore
-	//@Test
+	@Test
 	public void testSuggestWithInvalidRequest() {
 		String json = "{\"request\":{\"text\" : \"\"}}";
 		try {

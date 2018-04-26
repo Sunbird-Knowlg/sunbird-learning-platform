@@ -18,23 +18,20 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
-import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery.ScoreMode;
-//import org.elasticsearch.common.lucene.search.function.FiltersFunctionScoreQuery.ScoreMode;
+import org.elasticsearch.common.lucene.search.function.FiltersFunctionScoreQuery.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-// import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
+import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
-import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
-import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder.FilterFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 public class SearchProcessor {
@@ -254,7 +251,7 @@ public class SearchProcessor {
 	@SuppressWarnings("unchecked")
 	private void setAggregations(List<Map<String, Object>> groupByList,
 			SearchRequestBuilder searchRequestBuilder) {
-		TermsAggregationBuilder termBuilder = null;
+		TermsBuilder termBuilder = null;
 		if (groupByList != null && !groupByList.isEmpty()) {
 			for (Map<String, Object> groupByMap : groupByList) {
 				String groupByParent = (String) groupByMap.get("groupByParent");
@@ -390,9 +387,7 @@ public class SearchProcessor {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private QueryBuilder prepareFilteredSearchQuery(SearchDTO searchDTO) {
-		//FunctionScoreQueryBuilder queryBuilder = QueryBuilders.functionScoreQuery();
-		List<FilterFunctionBuilder> filterFunctionBuilder = new ArrayList<>();
-		
+		FunctionScoreQueryBuilder queryBuilder = QueryBuilders.functionScoreQuery();
 		Map<String, Float> weightages = (Map<String, Float>) searchDTO.getAdditionalProperty("weightagesMap");
 		if (weightages == null) {
 			weightages = new HashMap<String, Float>();
@@ -413,10 +408,8 @@ public class SearchProcessor {
 			if (propertyName.equals("*")) {
 				relevanceSort = true;
 				propertyName = "all_fields";
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getAllFieldsPropertyQuery(values), 
-				ScoreFunctionBuilders.weightFactorFunction(weightages.get("default_weightage"))));
-			//	queryBuilder.add(getAllFieldsPropertyQuery(values),
-				//		ScoreFunctionBuilders.weightFactorFunction(weightages.get("default_weightage")));
+				queryBuilder.add(getAllFieldsPropertyQuery(values),
+						ScoreFunctionBuilders.weightFactorFunction(weightages.get("default_weightage")));
 				continue;
 			}
 
@@ -424,86 +417,82 @@ public class SearchProcessor {
 			float weight = getweight(querySearchFeilds, propertyName);
 			switch (opertation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getMustTermQuery(propertyName, values, true), 
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getMustTermQuery(propertyName, values, true),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getMustTermQuery(propertyName, values, true),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getMustTermQuery(propertyName, values, true),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getRegexQuery(propertyName, values),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getRegexQuery(propertyName, values),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LIKE:
 			case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getMatchPhraseQuery(propertyName, values, true),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getMatchPhraseQuery(propertyName, values, true),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_LIKE: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getMatchPhraseQuery(propertyName, values, false),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getMatchPhraseQuery(propertyName, values, false),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getMatchPhrasePrefixQuery(propertyName, values),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getMatchPhrasePrefixQuery(propertyName, values),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_EXISTS: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getExistsQuery(propertyName, values, true),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getExistsQuery(propertyName, values, true),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getExistsQuery(propertyName, values, false),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getExistsQuery(propertyName, values, false),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_IN: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getNotInQuery(propertyName, values),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(getNotInQuery(propertyName, values),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getRangeQuery(
-						propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				queryBuilder.add(
+						getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN),
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+				queryBuilder.add(
 						getRangeQuery(propertyName, values,
 								CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+				queryBuilder.add(
 						getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
-				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+				queryBuilder.add(
 						getRangeQuery(propertyName, values, CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS),
-						ScoreFunctionBuilders.weightFactorFunction(weight)));
+						ScoreFunctionBuilders.weightFactorFunction(weight));
 				break;
 			}
 			}
 		}
 
-		FunctionScoreQueryBuilder queryBuilder = QueryBuilders
-				.functionScoreQuery(
-						filterFunctionBuilder.toArray(new FilterFunctionBuilder[filterFunctionBuilder.size()]))
-				.boostMode(CombineFunction.REPLACE).scoreMode(ScoreMode.SUM);
+		queryBuilder.scoreMode(ScoreMode.Sum.name().toLowerCase()).boostMode(CombineFunction.REPLACE);
+
 		return queryBuilder;
-
-
 	}
 
 	/**
@@ -530,17 +519,10 @@ public class SearchProcessor {
 	 */
 	private QueryBuilder getAllFieldsPropertyQuery(List<Object> values) {
 		List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
-		Map<String, Float> queryFieldsMap = new HashMap<>();
-		for (String field : queryFields) {
-			if (field.contains("^"))
-				queryFieldsMap.put(field.split("\\^")[0], Float.valueOf(field.split("\\^")[1]));
-			else
-				queryFieldsMap.put(field, 1.0f);
-		}
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			queryBuilder
-					.should(QueryBuilders.multiMatchQuery(value).fields(queryFieldsMap)
+					.should(QueryBuilders.multiMatchQuery(value, queryFields.toArray(new String[queryFields.size()]))
 							.operator(Operator.AND).type(Type.CROSS_FIELDS).lenient(true));
 		}
 
@@ -766,7 +748,7 @@ public class SearchProcessor {
 		SearchHits resultMap = searchResult.getHits();
 		SearchHit[] result = resultMap.getHits();
 		for (SearchHit hit : result) {
-			response.add(hit.getSourceAsMap());
+			response.add(hit.getSource());
 		}
 		TelemetryManager.log("search response size: " + response.size());
 		return response;

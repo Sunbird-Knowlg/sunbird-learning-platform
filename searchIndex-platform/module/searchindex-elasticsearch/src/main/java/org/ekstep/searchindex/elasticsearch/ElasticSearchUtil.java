@@ -44,18 +44,18 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.plugin.deletebyquery.DeleteByQueryPlugin;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -135,12 +135,12 @@ public class ElasticSearchUtil {
 	 */
 	private void createClient() {
 		try {
-			Settings settings = Settings.builder().put("client.transport.sniff", true)
+			Settings settings = Settings.settingsBuilder().put("client.transport.sniff", true)
 					.put("client.transport.ignore_cluster_name", true).build();
-			client = new PreBuiltTransportClient(settings);// TransportClient.builder().settings(settings).addPlugin(DeleteByQueryPlugin.class).build();
+			client = TransportClient.builder().settings(settings).addPlugin(DeleteByQueryPlugin.class).build();
 			for (String host : hostPort.keySet()) {
 				client.addTransportAddress(
-						new TransportAddress(InetAddress.getByName(host), hostPort.get(host)));
+						new InetSocketTransportAddress(InetAddress.getByName(host), hostPort.get(host)));
 			}
 		} catch (UnknownHostException e) {
 			TelemetryManager.error("Error while creating elasticsearch client ", e);
@@ -184,8 +184,8 @@ public class ElasticSearchUtil {
 		CreateIndexResponse createIndexResponse = null;
 		if (!isIndexExists(indexName)) {
 			CreateIndexRequestBuilder createIndexBuilder = client.admin().indices().prepareCreate(indexName);
-			if (StringUtils.isNotBlank(settings)) {
-				createIndexResponse = createIndexBuilder.setSettings(settings, XContentType.JSON).get();
+			if (StringUtils.isNoneBlank(settings)) {
+				createIndexResponse = createIndexBuilder.setSettings(settings).get();
 				response = true;
 			} else {
 				createIndexResponse = createIndexBuilder.get();
@@ -194,7 +194,7 @@ public class ElasticSearchUtil {
 			if (null != createIndexResponse && createIndexResponse.isAcknowledged()) {
 				if (StringUtils.isNotBlank(documentType) && StringUtils.isNotBlank(mappings)) {
 					PutMappingResponse mappingResponse = client.admin().indices().preparePutMapping(indexName)
-							.setType(documentType).setSource(mappings, XContentType.JSON).get();
+							.setType(documentType).setSource(mappings).get();
 					if (mappingResponse.isAcknowledged()) {
 						response = true;
 					} else {
@@ -285,13 +285,13 @@ public class ElasticSearchUtil {
 
 	}
 
-	public void bulkIndexWithIndexId(String indexName, String documentType, Map<String, Object> jsonObjects)
+	public void bulkIndexWithIndexId(String indexName, String documentType, Map<String, String> jsonObjects)
 			throws Exception {
 		if (isIndexExists(indexName)) {
 			if (!jsonObjects.isEmpty()) {
 				int count = 0;
 				BulkRequestBuilder bulkRequest = client.prepareBulk();
-				for (String key : jsonObjects.keySet()) {
+				for (Map.Entry<String, String> entry : jsonObjects.entrySet()) {
 					count++;
 					bulkRequest.add(client.prepareIndex(indexName, documentType).setId(entry.getKey())
 							.setSource(entry.getValue()));
@@ -345,7 +345,7 @@ public class ElasticSearchUtil {
 	public List<Object> getDocumentsFromHits(SearchHits hits) {
 		List<Object> documents = new ArrayList<Object>();
 		for (SearchHit hit : hits) {
-				documents.add(hit.getSourceAsMap());
+				documents.add(hit.getSource());
 		}
 		return documents;
 	}
@@ -360,7 +360,7 @@ public class ElasticSearchUtil {
 	public List<Map> getDocumentsFromHitsWithScore(SearchHits hits) {
 		List<Map> documents = new ArrayList<Map>();
 		for (SearchHit hit : hits) {
-			Map<String, Object> hitDocument = hit.getSourceAsMap();
+			Map<String, Object> hitDocument = hit.getSource();
 			hitDocument.put("score", hit.getScore());
 			documents.add(hitDocument);
 		}
@@ -384,7 +384,7 @@ public class ElasticSearchUtil {
 	public List<Map> getDocumentsFromHitsWithId(SearchHits hits) {
 		List<Map> documents = new ArrayList<Map>();
 		for (SearchHit hit : hits) {
-			Map<String, Object> hitDocument = (Map) hit.getSourceAsMap();
+			Map<String, Object> hitDocument = (Map) hit.getSource();
 			hitDocument.put("id", hit.getId());
 			documents.add(hitDocument);
 		}
@@ -589,7 +589,7 @@ public class ElasticSearchUtil {
 				for (Map<String, Object> groupByMap : groupByList) {
 					String groupByParent = (String) groupByMap.get("groupByParent");
 					List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
-					TermsAggregationBuilder termBuilder = AggregationBuilders.terms(groupByParent).field(groupByParent);
+					TermsBuilder termBuilder = AggregationBuilders.terms(groupByParent).field(groupByParent);
 					if (groupByChildList != null && !groupByChildList.isEmpty()) {
 						for (String childGroupBy : groupByChildList) {
 							termBuilder.subAggregation(AggregationBuilders.terms(childGroupBy).field(childGroupBy));
@@ -628,7 +628,7 @@ public class ElasticSearchUtil {
 				String groupByParent = (String) aggregationsMap.get("groupByParent");
 				Terms terms = aggregations.get(groupByParent);
 				List<Map<String, Object>> parentGroupList = new ArrayList<Map<String, Object>>();
-				List<Bucket> buckets = (List<Bucket>) terms.getBuckets();
+				List<Bucket> buckets = terms.getBuckets();
 				for (Bucket bucket : buckets) {
 					Map<String, Object> parentCountObject = new HashMap<String, Object>();
 					parentCountObject.put("count", bucket.getDocCount());
@@ -638,7 +638,7 @@ public class ElasticSearchUtil {
 						Map<String, Object> groupByChildMap = new HashMap<String, Object>();
 						for (String groupByChild : groupByChildList) {
 							Terms subTerms = subAggregations.get(groupByChild);
-							List<Bucket> childBuckets = (List<Bucket>) subTerms.getBuckets();
+							List<Bucket> childBuckets = subTerms.getBuckets();
 							Map<String, Long> childCountMap = new HashMap<String, Long>();
 							for (Bucket childBucket : childBuckets) {
 								childCountMap.put(childBucket.getKeyAsString(), childBucket.getDocCount());

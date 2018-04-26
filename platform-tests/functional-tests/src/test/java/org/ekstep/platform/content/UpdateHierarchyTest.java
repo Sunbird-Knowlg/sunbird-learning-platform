@@ -234,7 +234,7 @@ public class UpdateHierarchyTest extends BaseTest{
 			when().
 			get("/content/v3/read/"+textBookId).
 			then().
-			//log().all().
+			log().all().
 			spec(get200ResponseSpec()).
 			extract().
 			response();
@@ -273,7 +273,6 @@ public class UpdateHierarchyTest extends BaseTest{
 		}
 	}
 	String downloadUrl = jPath1.get("result.content.downloadUrl");
-	
 	String ecarName = "ecar_" + rn + "";
 	try{
 	FileUtils.copyURLToFile(new URL(downloadUrl), new File(downloadPath + "/" + ecarName + ".zip"));
