@@ -1,5 +1,6 @@
 package org.ekstep.framework.mgr;
 
+import java.util.List;
 import java.util.Map;
 
 import org.ekstep.common.dto.Response;
@@ -19,7 +20,7 @@ public interface IFrameworkManager {
 
 	Response createFramework(Map<String, Object> map, String channelId) throws Exception;
 	
-	Response readFramework(String frameworkId) throws Exception;
+	Response readFramework(String frameworkId, List<String> categories) throws Exception;
 	
 	Response updateFramework(String frameworkId,String channelId, Map<String, Object> map) throws Exception;
 	

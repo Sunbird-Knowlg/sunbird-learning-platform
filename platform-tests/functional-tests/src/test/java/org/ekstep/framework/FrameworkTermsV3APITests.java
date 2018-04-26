@@ -48,7 +48,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 				when().
 				post("/framework/v3/category/master/create").
 				then().
-				log().all().
+				// log().all().
 				extract().response();
 		
 		JsonPath jp1 = R.jsonPath();
@@ -64,7 +64,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 				when().
 				post("/framework/v3/create").
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -79,10 +79,9 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		body("{\"request\":{\"category\":{\"name\":\""+categoryId+"\",\"description\":\"Test framework category instance\",\"code\":\""+categoryId+"\"}}}").
 		with().
 		contentType(JSON).
-		when().
-		post("/framework/v3/category/create?framework="+frameworkId).
 		then().
-		log().all();
+		post("/framework/v3/category/create?framework="+frameworkId);
+		// log().all();
 	}
 
 	// Create and validate valid framework term
@@ -99,7 +98,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Validate the created framework term
@@ -109,7 +108,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		get("/framework/v3/term/read/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 	}
 	
@@ -125,7 +124,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework=&category=").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -141,7 +140,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework=avdhvsafd&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 
 	}
@@ -158,7 +157,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category=lkvpasdgs").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -174,7 +173,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -192,7 +191,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		setURI();
@@ -204,7 +203,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -220,7 +219,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 	}
 	
@@ -238,7 +237,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Validate the created framework term
@@ -248,7 +247,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		get("/framework/v3/term/read/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 	}
 	
@@ -261,7 +260,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		get("/framework/v3/term/read/acdsnjva?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get404ResponseSpec());
 	}
 	
@@ -279,7 +278,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		// Validate the created framework term
@@ -289,7 +288,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		get("/framework/v3/term/read/"+termId+"?framework="+frameworkId+"&category=asdnlkv").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -307,7 +306,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		// Validate the created framework term
@@ -317,7 +316,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		get("/framework/v3/term/read/"+termId+"?framework=adsnjva&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -330,7 +329,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		get("/framework/v3/term/read/?framework=&category=").
 		then().
-		log().all().
+		// log().all().
 		spec(get500ResponseSpec());
 	}
 	
@@ -346,7 +345,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 	
 		setURI();
@@ -358,7 +357,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/search?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec()).
 		body("result.terms.status", hasItems("Live"));
 	}
@@ -375,7 +374,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/search?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 	}
 	
@@ -391,7 +390,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		setURI();
@@ -403,7 +402,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/search?framework="+frameworkId+"&category=ajkdvjks").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -419,7 +418,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		setURI();
@@ -431,7 +430,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/search?framework=asdkska&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -447,7 +446,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/search?framework=&category=").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -465,7 +464,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Search the created framework term
@@ -478,7 +477,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/search?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 	}
 	
@@ -496,7 +495,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Update the framework term
@@ -509,7 +508,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		patch("/framework/v3/term/update/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		//log().all().
+		//// log().all().
 		spec(get200ResponseSpec());
 		
 		// Read channel and validate
@@ -520,7 +519,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 			when().
 			get("/framework/v3/term/read/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 			then().
-			//log().all().
+			//// log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -541,7 +540,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		patch("/framework/v3/term/update/caskasl?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		//log().all().
+		//// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -559,7 +558,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		// Update the framework term
@@ -572,7 +571,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		patch("/framework/v3/term/update/"+termId+"?framework="+frameworkId+"&category=acksdlfls").
 		then().
-		//log().all().
+		//// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -590,7 +589,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		// Update the framework term
@@ -603,7 +602,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		patch("/framework/v3/term/update/"+termId+"?framework=asdfaoisdf&category="+categoryId+"").
 		then().
-		//log().all().
+		//// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -621,7 +620,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		// Update the framework term
@@ -634,7 +633,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		patch("/framework/v3/term/update/"+termId+"?framework=&category=").
 		then().
-		//log().all().
+		//// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -652,7 +651,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		// Update the framework term
@@ -665,7 +664,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		patch("/framework/v3/term/update/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -683,7 +682,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Retire the created framework term
@@ -693,7 +692,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		delete("/framework/v3/term/retire/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Read and validate the status
@@ -704,7 +703,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 			when().
 			get("/framework/v3/term/read/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 			then().
-			//log().all().
+			//// log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -722,7 +721,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		delete("/framework/v3/term/retire/aksjdjv?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -740,7 +739,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		// Retire the created framework term
@@ -750,7 +749,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		delete("/framework/v3/term/retire/"+termId+"?framework="+frameworkId+"&category=avsdkans").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -768,7 +767,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		then().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"");
 //		then().
-//		log().all();
+//		// log().all();
 //		spec(get200ResponseSpec());
 		
 		// Retire the created framework term
@@ -778,7 +777,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		delete("/framework/v3/term/retire/"+termId+"?framework=vakdslvn&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -791,7 +790,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		delete("/framework/v3/term/retire/?framework=&category=").
 		then().
-		log().all().
+		// log().all().
 		spec(get500ResponseSpec());
 	}
 	
@@ -809,7 +808,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		post("/framework/v3/term/create?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Retire the created framework term
@@ -819,7 +818,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		delete("/framework/v3/term/retire/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Retire the retired framework term
@@ -829,7 +828,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		when().
 		delete("/framework/v3/term/retire/"+termId+"?framework="+frameworkId+"&category="+categoryId+"").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 	}
 }

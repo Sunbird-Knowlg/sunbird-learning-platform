@@ -90,7 +90,6 @@ public class BaseTest
 		builderreq.addHeader("Content-Type", content_type);
 		builderreq.addHeader("Authorization", APIToken);
 		builderreq.addHeader("X-Channel-Id", channelId);
-		builderreq.addHeader("X-App-Id", appId);
 		RequestSpecification requestSpec = builderreq.build();
 		return requestSpec;
 	}
