@@ -1752,7 +1752,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (!StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.content-collection")) {
 			idMap = copyContentData(existingNode, requestMap);
 		} else {
-			idMap = copyCollectionContent(existingNode, requestMap);
+			idMap = copyCollectionContent(existingNode, requestMap, mode);
 		}
 
 		return OK("node_id", idMap);
@@ -1764,9 +1764,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @param requestMap
 	 * @return
 	 */
-	private Map<String, String> copyCollectionContent(Node existingNode, Map<String, Object> requestMap) {
+	private Map<String, String> copyCollectionContent(Node existingNode, Map<String, Object> requestMap, String mode) {
 		// Copying Root Node
 		Map<String, String> idMap = copyContentData(existingNode, requestMap);
+
+		// copyhierarchy(existingNode, idMap, mode);
 
 		return idMap;
 	}
@@ -1817,6 +1819,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		copyNode.getMetadata().put("variants", null);
 		copyNode.getMetadata().put("pkgVersion", null);
 		copyNode.getMetadata().put("dialcodes", null);
+		copyNode.getMetadata().put("s3Key", null);
+		copyNode.getMetadata().put("lastPublishedOn", null);
 		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
 		
 		String artifactUrl = copyArtifact((String) existingNode.getMetadata().get("artifactUrl"), copyNode);
