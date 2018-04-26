@@ -19,17 +19,29 @@ if {$check_error} {
 		set status_val_str [java::new String [$status_val toString]]
 		set isFlaggedstate [$status_val_str equalsIgnoreCase "Flagged"]
 		if {$isFlaggedstate == 1} {
-			set request [java::new HashMap]
-			$request put "flagReasons" [java::null]
-			$request put "versionKey" [$node_metadata get "versionKey"]
-			$request put "status" "Live"
-			$request put "objectType" $object_type
-			$request put "identifier" $content_id
-			set resp_def_node [getDefinition $graph_id $object_type]
-			set def_node [get_resp_value $resp_def_node "definition_node"]
-			set domain_obj [convert_to_graph_node $request $def_node]
-			set create_response [updateDataNode $graph_id $content_id $domain_obj]
-                        return $create_response
+			set content_image_id ${content_id}.img
+			set get_node_response [getDataNode $graph_id $content_image_id]
+			set get_node_response_error [check_response_error $get_node_response]
+			if {$get_node_response_error} {
+				set request [java::new HashMap]
+				$request put "flagReasons" [java::null]
+				$request put "versionKey" [$node_metadata get "versionKey"]
+				$request put "status" "Live"
+				$request put "objectType" $object_type
+				$request put "identifier" $content_id
+				set resp_def_node [getDefinition $graph_id $object_type]
+				set def_node [get_resp_value $resp_def_node "definition_node"]
+				set domain_obj [convert_to_graph_node $request $def_node]
+				set create_response [updateDataNode $graph_id $content_id $domain_obj]
+				return $create_response
+			} else {
+				set result_map [java::new HashMap]
+				$result_map put "code" "ERR_CONTENT_ALREADY_ACCEPTED"
+				$result_map put "message" "Content $content_id - flag is already accepted"
+				$result_map put "responseCode" [java::new Integer 400]
+				set response_list [create_error_response $result_map]
+				return $response_list
+			}
 		} else {
 			set result_map [java::new HashMap]
 			$result_map put "code" "ERR_CONTENT_NOT_FLAGGED"

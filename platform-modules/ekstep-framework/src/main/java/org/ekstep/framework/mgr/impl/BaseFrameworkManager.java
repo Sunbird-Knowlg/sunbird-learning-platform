@@ -496,7 +496,7 @@ public class BaseFrameworkManager extends BaseManager {
 			List<Relation> inRelations = node.getInRelations();
 			if (null != inRelations && !inRelations.isEmpty()) {
 				for (Relation rel : inRelations) {
-					if (StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance")
+					if ((StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance") || StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Term"))
 							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
 						generateFrameworkHierarchy(rel.getStartNodeId());
 					}

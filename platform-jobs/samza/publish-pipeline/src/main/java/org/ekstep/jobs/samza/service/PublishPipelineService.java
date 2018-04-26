@@ -156,9 +156,9 @@ public class PublishPipelineService implements ISamzaService {
 	private void processJob(Map<String, Object> edata, String contentId, JobMetrics metrics) throws Exception {
 
 		Node node = getNode(contentId);
-		node.getMetadata().put(PublishPipelineParams.publish_type.name(),
-				edata.get(PublishPipelineParams.publish_type.name()));
-		if (publishContent(node)) {
+		String publishType = (String) edata.get(PublishPipelineParams.publish_type.name());
+		node.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);
+		if (publishContent(node, publishType)) {
 			metrics.incSuccessCounter();
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
 			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
@@ -194,7 +194,7 @@ public class PublishPipelineService implements ISamzaService {
 		return node;
 	}
 
-	private boolean publishContent(Node node) throws Exception {
+	private boolean publishContent(Node node, String publishType) throws Exception {
 		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
@@ -208,15 +208,15 @@ public class PublishPipelineService implements ISamzaService {
 						getCompatabilityLevel(nodes));
 			}
 		}
-		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
-		LOGGER.debug("Publish processing done for content: " + node.getIdentifier());
-
-		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
+		Node latestNode = util.getNode("domain", node.getIdentifier());
+		latestNode.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);
+		publishNode(latestNode, (String) latestNode.getMetadata().get(PublishPipelineParams.mimeType.name()));
+		
+		Node publishedNode = getNode(latestNode.getIdentifier().replace(".img", ""));
 		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
 				PublishPipelineParams.Failed.name()))
 			return false;
 
-		LOGGER.debug("Content Enrichment start for content: " + node.getIdentifier());
 		if (StringUtils.equalsIgnoreCase(
 				((String) publishedNode.getMetadata().get(PublishPipelineParams.mimeType.name())),
 				COLLECTION_CONTENT_MIMETYPE)) {

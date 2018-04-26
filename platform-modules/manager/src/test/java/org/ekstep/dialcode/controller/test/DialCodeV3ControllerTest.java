@@ -717,6 +717,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 
 	private static void populateData() throws JsonProcessingException, IOException {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
+		indexDocument.put("dialcode_index", 1);
 		indexDocument.put("identifier", dialCode);
 		indexDocument.put("channel", "channelTest");
 		indexDocument.put("batchcode", "test_math_std1");

@@ -339,7 +339,7 @@ public class ChannelTermsV3APITests extends BaseTest{
 		when().
 		patch("/channel/v3/term/update/"+termId+"?category="+categoryId+"").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		
 		// Read channel and validate
@@ -350,7 +350,7 @@ public class ChannelTermsV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/term/read/?category="+categoryId+"").
 			then().
-			//// log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -371,7 +371,7 @@ public class ChannelTermsV3APITests extends BaseTest{
 		when().
 		patch("/channel/v3/term/update/aslcndj?category="+categoryId+"").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 
 	}
@@ -406,7 +406,7 @@ public class ChannelTermsV3APITests extends BaseTest{
 		when().
 		patch("/channel/v3/term/update/"+termId+"?category=ajskdvhiua").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -440,7 +440,7 @@ public class ChannelTermsV3APITests extends BaseTest{
 		when().
 		patch("/channel/v3/term/update/"+termId+"?category="+categoryId+"").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -457,7 +457,7 @@ public class ChannelTermsV3APITests extends BaseTest{
 		when().
 		patch("/channel/v3/term/update/?category="+categoryId+"").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -499,7 +499,7 @@ public class ChannelTermsV3APITests extends BaseTest{
 			when().
 			get("/channel/v3/term/read/"+termId+"?category="+categoryId+"").
 			then().
-			//// log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		

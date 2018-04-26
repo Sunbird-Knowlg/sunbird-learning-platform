@@ -302,7 +302,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 					when().
 					post("content/v3/create").
 					then().
-					//// log().all().
+					//log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -348,7 +348,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/"+instanceId).
 			then().
-			//// log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 			
 			// Read and validate the category instance
@@ -380,7 +380,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/laksng").
 			then().
-			//// log().all().
+			//log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -410,7 +410,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/laksng").
 			then().
-			//// log().all().
+			//log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -440,7 +440,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/"+instanceId).
 			then().
-			//// log().all().
+			//log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -470,7 +470,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 			when().
 			patch("/channel/v3/category/update/"+instanceId).
 			then().
-			//// log().all().
+			//log().all().
 			spec(get400ResponseSpec());
 		}
 		
@@ -602,7 +602,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 				when().
 				get("/channel/v3/category/read/"+instanceId).
 				then().
-				//// log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 			
@@ -706,7 +706,7 @@ public class ChannelCategoryInstanceV3APITests extends BaseTest{
 					when().
 					post("content/v3/create").
 					then().
-					//// log().all().
+					//log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
