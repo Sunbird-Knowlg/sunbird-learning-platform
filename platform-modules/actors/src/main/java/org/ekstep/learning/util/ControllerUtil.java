@@ -11,8 +11,10 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.LearningActorNames;
@@ -289,6 +291,51 @@ public class ControllerUtil extends BaseLearningManager {
 		TelemetryManager.info("Node children count:"+ nodes.size());
 		return nodes;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Node> getNodes(String graphId, String objectType, int startPosition, int batchSize) {
+		SearchCriteria sc = new SearchCriteria();
+		//sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		sc.setObjectType(objectType);
+		sc.setResultSize(batchSize);
+		sc.setStartPosition(startPosition);
+		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.search_criteria.name(), sc);
+		req.put(GraphDACParams.get_tags.name(), true);
+		Response listRes = getResponse(req);
+		if (checkError(listRes))
+			throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: " + graphId);
+		else {
+			List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+			return nodes;
+		}
+	}
+	
+	public List<String> getNodesWithInDateRange(String graphId, String objectType, String startDate, String endDate) {
 
+		List<String> nodeIds = new ArrayList<>();
+		String objectTypeQuery = "";
+		if(StringUtils.isNotBlank(objectType))
+			objectTypeQuery="{IL_FUNC_OBJECT_TYPE:'"+objectType+"'}";			
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		String queryString ="MATCH (n:{0}{1})  WITH split(left(n.lastUpdatedOn, 10), {2}) AS dd, n where {4}>=toInt(dd[0]+dd[1]+dd[2])>={3} and NOT n.IL_SYS_NODE_TYPE in [\"TAG\", \"DEFINITION_NODE\", \"ROOT_NODE\"] return n.IL_UNIQUE_ID as identifier";
+		String query = MessageFormat.format(queryString, graphId, objectTypeQuery, "'-'", startDate, endDate);
+        request.put(GraphDACParams.query.name(), query);
+        List<String> props = new ArrayList<String>();
+        props.add("identifier");
+        request.put(GraphDACParams.property_keys.name(), props);
+        Response response = getResponse(request);
+        if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (null != list && !list.isEmpty()) {
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> properties = list.get(i);
+					nodeIds.add((String)properties.get("identifier"));
+				}
+			}
+		}
+		return nodeIds;
+	}
 }
 

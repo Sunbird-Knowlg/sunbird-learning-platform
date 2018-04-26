@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
+import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
 import org.ekstep.graph.common.Identifier;
@@ -933,12 +934,16 @@ public class Neo4JBoltGraphOperations {
 
 	private static void upsertRootNode(String graphId, Integer nodesCount, Integer relationsCount, Request request) {
 		String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
-		Node node = Neo4JBoltSearchOperations.getNodeByUniqueId(graphId, rootNodeUniqueId, true, request);
-		if (null == node) {
-			node = new Node();
-			node.setGraphId(graphId);
-			node.setIdentifier(rootNodeUniqueId);
-			node.setMetadata(new HashMap<String, Object>());
+		Node node = null;
+		try {
+			node = Neo4JBoltSearchOperations.getNodeByUniqueId(graphId, rootNodeUniqueId, true, request);
+		} catch(ResourceNotFoundException e) {
+			if (null == node) {
+				node = new Node();
+				node.setGraphId(graphId);
+				node.setIdentifier(rootNodeUniqueId);
+				node.setMetadata(new HashMap<String, Object>());
+			}
 		}
 		node.getMetadata().put(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
 

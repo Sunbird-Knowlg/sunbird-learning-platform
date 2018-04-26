@@ -127,6 +127,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		for (int i = 0; i < validDialCode.length; i++) {
 			String dialCode = validDialCode[i];
 			Map<String, Object> indexDocument = new HashMap<String, Object>();
+			indexDocument.put("dialcode_index", i);
 			indexDocument.put("identifier", dialCode);
 			indexDocument.put("channel", "channelTest");
 			indexDocument.put("batchcode", "test_math_std1");
@@ -614,7 +615,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
-	// De Link Dial Code. Provided Blank DialCode (""). Expected : 200 - OK.
+	// UnLink Dial Code. Provided Blank DialCode (""). Expected : 200 - OK.
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testDialCodeDeLink_01() throws Exception {
@@ -649,7 +650,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		assertEquals(null, dialcodeList);
 	}
 
-	// De Link Dial Code. Provided Blank DialCode ([]) Expected : 200 - OK.
+	// UnLink Dial Code. Provided Blank DialCode ([]) Expected : 200 - OK.
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testDialCodeDeLink_02() throws Exception {
@@ -683,7 +684,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		assertEquals(null, dialcodeList);
 	}
 
-	// De Link Dial Code. Provided Blank DialCode ([""]) Expected : 200 - OK.
+	// UnLink Dial Code. Provided Blank DialCode ([""]) Expected : 200 - OK.
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testDialCodeDeLink_03() throws Exception {
