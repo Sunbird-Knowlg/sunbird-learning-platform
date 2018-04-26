@@ -406,8 +406,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
+			if(!validatePublishChecklist(requestMap.get("publishChecklist"))) {
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PUBLISH_CHECKLIST.name(), "Invalid Publish Checklist.");
+			}
 			publisher = (String) requestMap.get("lastPublishedBy");
 			node.getMetadata().putAll(requestMap);
+			
+			node.getMetadata().put("rejectReasons", null);
+			node.getMetadata().put("rejectComment", null);
 		}
 		if (StringUtils.isNotBlank(publisher)) {
 			TelemetryManager.log("LastPublishedBy: " + publisher);
@@ -1741,5 +1747,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		response = getResponse(updateReq);
 		TelemetryManager.log("Returning Node Update Response.");
 		return response;
+	}
+	
+	/**
+	 * @param publishChecklistObj
+	 */
+	protected boolean validatePublishChecklist(Object publishChecklistObj) {
+		try {
+			List<String> publishChecklist = (List<String>) publishChecklistObj;
+			if(null == publishChecklist || publishChecklist.isEmpty()) {
+				return false;
+			}
+			
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 }

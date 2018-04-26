@@ -219,7 +219,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/term/create?category="+categoryId+"");
 //		then().
-//		// log().all().
+		// log().all().
 //		spec(get200ResponseSpec());
 		
 		// Validate the created category term
@@ -382,7 +382,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		patch("/framework/v3/category/term/update/"+termId+"?category="+categoryId+"").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		
 		// Read channel and validate
@@ -393,7 +393,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 			when().
 			get("/framework/v3/category/term/read/"+termId+"?category="+categoryId+"").
 			then().
-			//// log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -414,7 +414,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		patch("/framework/v3/category/term/update/caskasl?category="+categoryId+"").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -432,7 +432,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/term/create?category="+categoryId+"");
 //		then().
-//		// log().all().
+//		log().all().
 //		spec(get200ResponseSpec());
 		
 		// Update the category term
@@ -445,7 +445,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		patch("/framework/v3/category/term/update/"+termId+"?category=acksdlfls").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -463,7 +463,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/term/create?category="+categoryId+"");
 //		then().
-//		// log().all().
+//		log().all().
 //		spec(get200ResponseSpec());
 		
 		// Update the category term
@@ -476,7 +476,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		patch("/framework/v3/category/term/update/"+termId+"?category=").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -494,7 +494,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/term/create?category="+categoryId+"");
 //		then().
-//		// log().all().
+//		log().all().
 //		spec(get200ResponseSpec());
 		
 		// Update the category term
@@ -507,7 +507,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		patch("/framework/v3/category/term/update/"+termId+"?category="+categoryId+"").
 		then().
-		//// log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 	
@@ -546,7 +546,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 			when().
 			get("/framework/v3/category/term/read/"+termId+"?category="+categoryId+"").
 			then().
-			//// log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 		
@@ -582,7 +582,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/term/create?category="+categoryId+"");
 //		then().
-//		// log().all().
+//		log().all().
 //		spec(get200ResponseSpec());
 		
 		// Retire the created category term
@@ -623,7 +623,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/term/create?category="+categoryId+"");
 //		then().
-//		// log().all().
+		// log().all().
 //		spec(get200ResponseSpec());
 		
 		// Retire the created category term
