@@ -5,6 +5,9 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,12 +19,14 @@ import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,23 +44,25 @@ public class AuditHistoryIndexerServiceTest {
 	private AuditHistoryIndexerService service = new AuditHistoryIndexerService();
 	private static File tempDir = null;
 	private static Settings settings = null;
-	private static Node server = null;
+	private static TransportClient server = null;
 	private MessageCollector collector;
 	private ObjectMapper mapper = new ObjectMapper();
+	private static String hostAddress = "localhost";
+	private static int port = 9300;
 	static String clusterName = null;
 	static Client client = null;
 
 	@BeforeClass
-	public static void beforeClass(){
+	public static void beforeClass() throws UnknownHostException{
 		tempDir = new File(System.getProperty("user.dir") + "/tmp");
 		settings = Settings.builder()
 				.put("path.home", tempDir.getAbsolutePath())
 				.put("transport.tcp.port","9500")
 				.build();
-		server = NodeBuilder.nodeBuilder().settings(settings).build();
+		server = new PreBuiltTransportClient(settings);
+		server.addTransportAddress(new TransportAddress(InetAddress.getByName(hostAddress), port ));
+		//server = NodeBuilder.nodeBuilder().settings(settings).build();
 		clusterName = server.settings().get("cluster.name");
-		server.start();
-		client = server.client();
 	}
 	
 	@AfterClass
@@ -108,7 +115,7 @@ public class AuditHistoryIndexerServiceTest {
 				.setQuery(QueryBuilders.termQuery("graphId", graphId)).execute().actionGet();
 		SearchHits hits = response.getHits();
 		for (SearchHit hit : hits.getHits()) {
-			Map<String, Object> fields = hit.getSource();
+			Map<String, Object> fields = hit.getSourceAsMap();
 			return fields;
 		}
 		return null;
