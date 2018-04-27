@@ -23,9 +23,9 @@ public class SyncMessageGenerator {
 	public static Map<String, Map<String, String>> definitionMap = new HashMap<>();
 	private static ControllerUtil util = new ControllerUtil();
 
-	public static Map<String, String> getMessages(List<Node> nodes, String objectType, Map<String, String> errors)
+	public static Map<String, Object> getMessages(List<Node> nodes, String objectType, Map<String, String> errors)
 			throws Exception {
-		Map<String, String> messages = new HashMap<>();
+		Map<String, Object> messages = new HashMap<>();
 
 		if (StringUtils.isBlank(objectType))
 			loadDefinitionsOf(nodes);
@@ -35,8 +35,8 @@ public class SyncMessageGenerator {
 				Map<String, String> relationMap = definitionMap.get(node.getObjectType());
 				if (relationMap != null) {
 					Map<String, Object> nodeMap = getMessage(node);
-					String message = getJSONMessage(nodeMap, relationMap);
-					messages.put(node.getIdentifier(), message);
+					// String message = getJSONMessage(nodeMap, relationMap);
+					messages.put(node.getIdentifier(), nodeMap);
 				}
 			} catch (Exception e) {
 				errors.put(node.getIdentifier(), e.getMessage());

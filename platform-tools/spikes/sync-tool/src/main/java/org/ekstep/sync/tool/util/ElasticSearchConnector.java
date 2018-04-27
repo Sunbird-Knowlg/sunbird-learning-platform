@@ -36,19 +36,20 @@ public class ElasticSearchConnector {
 	
 	public void createIndexIfNotExist() throws IOException {
 		String settings = "{\"analysis\": {       \"analyzer\": {         \"cs_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"cs_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
-		if (Platform.config.hasPath("search.settings"))
-			settings = Platform.config.getString("search.settings");
 		String mappings = "{\"dynamic_templates\":[{\"nested\":{\"match_mapping_type\":\"nested\",\"mapping\":{\"type\":\"nested\",\"fields\":{\"type\":\"nested\"}}}},{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"string\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"fw_hierarchy\":{\"type\":\"string\",\"index\":\"no\"},\"all_fields\":{\"type\":\"string\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}";
+		if (Platform.config.hasPath("search.settings"))
+			mappings = Platform.config.getString("search.mappings");
+		System.out.println("settings=" + settings + ", \n mappings=" + mappings);
 		if (Platform.config.hasPath("search.mappings"))
 			settings = Platform.config.getString("search.mappings");
 		esUtil.addIndex(indexName, documentType, settings, mappings);
 	}
 
-	public void bulkImport(Map<String, String> messages) throws Exception {
+	public void bulkImport(Map<String, Object> messages) throws Exception {
 		esUtil.bulkIndexWithIndexId(indexName, documentType, messages);
 	}
 	
-	public void bulkImportAutoID(List<String> messages) throws Exception {
+	public void bulkImportAutoID(List<Map<String, Object>> messages) throws Exception {
 		esUtil.bulkIndexWithAutoGenerateIndexId(indexName, documentType, messages);
 	}
 }

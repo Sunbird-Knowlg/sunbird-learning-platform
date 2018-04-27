@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
