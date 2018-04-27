@@ -25,7 +25,6 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -258,7 +257,7 @@ public abstract class BaseController {
 			try {
 				list = Arrays.asList(array);
 			} catch (Exception e) {
-				TelemetryManager.error("Error! Something went wrong while converting array to list: " + array, e);
+				throw e;
 			}
 		}
 		return list;

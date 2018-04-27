@@ -17,33 +17,25 @@ public class EncryptionUtil {
 			'K', 'e', 'y' };
 
 	@SuppressWarnings("restriction")
-	public static String encrypt(String data) {
+	public static String encrypt(String data) throws Exception {
 		String encryptedValue = "";
-		try {
-			Key key = generateKey();
-			Cipher c = Cipher.getInstance(ALGO);
-			c.init(Cipher.ENCRYPT_MODE, key);
-			byte[] encVal = c.doFinal(data.getBytes());
-			encryptedValue = new BASE64Encoder().encode(encVal);
-		} catch (Exception e) {
-			TelemetryManager.error("Error! While Encrypting Data.", e);
-		}
+		Key key = generateKey();
+		Cipher c = Cipher.getInstance(ALGO);
+		c.init(Cipher.ENCRYPT_MODE, key);
+		byte[] encVal = c.doFinal(data.getBytes());
+		encryptedValue = new BASE64Encoder().encode(encVal);
 		return encryptedValue;
 	}
 
 	@SuppressWarnings("restriction")
-	public static String decrypt(String encryptedData) {
+	public static String decrypt(String encryptedData) throws Exception {
 		String decryptedValue = "";
-		try {
-			Key key = generateKey();
-			Cipher c = Cipher.getInstance(ALGO);
-			c.init(Cipher.DECRYPT_MODE, key);
-			byte[] decordedValue = new BASE64Decoder().decodeBuffer(encryptedData);
-			byte[] decValue = c.doFinal(decordedValue);
-			decryptedValue = new String(decValue);
-		} catch (Exception e) {
-			TelemetryManager.error("Error! While Decrypting Values.", e);
-		}
+		Key key = generateKey();
+		Cipher c = Cipher.getInstance(ALGO);
+		c.init(Cipher.DECRYPT_MODE, key);
+		byte[] decordedValue = new BASE64Decoder().decodeBuffer(encryptedData);
+		byte[] decValue = c.doFinal(decordedValue);
+		decryptedValue = new String(decValue);
 		return decryptedValue;
 	}
 

@@ -88,15 +88,27 @@ public class YouTubeDataAPIV3Service {
 	}
 
 	private static String getIdFromUrl(String url) {
+		String videoLink = getVideoLink(url);
 		String[] videoIdRegex = { "\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)",
 				"^([A-Za-z0-9\\-]*)" };
 		for (String regex : videoIdRegex) {
 			Pattern compiledPattern = Pattern.compile(regex);
-			Matcher matcher = compiledPattern.matcher(url);
+			Matcher matcher = compiledPattern.matcher(videoLink);
 			if (matcher.find()) {
 				return matcher.group(1);
 			}
 		}
 		return null;
+	}
+
+	private static String getVideoLink(String url) {
+		final String youTubeUrlRegEx = "^(https?)?(://)?(www.)?(m.)?((youtube.com)|(youtu.be))/";
+		Pattern compiledPattern = Pattern.compile(youTubeUrlRegEx);
+		Matcher matcher = compiledPattern.matcher(url);
+
+		if (matcher.find()) {
+			return url.replace(matcher.group(), "");
+		}
+		return url;
 	}
 }

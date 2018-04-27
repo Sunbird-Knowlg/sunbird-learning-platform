@@ -55,6 +55,7 @@ public class BaseDACMgr {
 	protected Response handleException(Throwable e) {
 		if (e instanceof ResourceNotFoundException) {
 			ResourceNotFoundException err = (ResourceNotFoundException) e;
+
 			if (!StringUtils.endsWithIgnoreCase(err.getIdentifier(), ".img")) {
 				//TelemetryManager.error("Exception occured in class:" + e.getClass().getName(), e);
 			}

@@ -37,9 +37,14 @@ public class TelemetryAccessEventUtil {
 			}
 
 			Map<String, String> context = new HashMap<String, String>();
-			context.put(TelemetryParams.ENV.name(), (String) data.get("env"));
+			Map<String, Object> fwApis = getFrameworkAPIs();
+			if (fwApis.containsKey(response.getId()))
+				context.put(TelemetryParams.ENV.name(), (String) fwApis.get(response.getId()));
+			else
+				context.put(TelemetryParams.ENV.name(), (String) data.get("env"));
 			ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ENV.name(), (String) data.get("env"));
-			context.put(TelemetryParams.CHANNEL.name(), (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
+			context.put(TelemetryParams.CHANNEL.name(),
+					(String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name()));
 			if (null != data.get("X-Session-ID")) {
 				context.put("sid", (String) data.get("X-Session-ID"));
 			} else if (null != request && null != request.getParams()) {
@@ -77,7 +82,39 @@ public class TelemetryAccessEventUtil {
 
 	}
 
-	
+	/**
+	 * @return
+	 */
+	private static Map<String, Object> getFrameworkAPIs() {
+		Map<String, Object> apis = new HashMap<String, Object>();
+
+		apis.put("ekstep.learning.categoryinstance.create", "categoryinstance");
+		apis.put("ekstep.learning.categoryinstance.read", "categoryinstance");
+		apis.put("ekstep.learning.categoryinstance.update", "categoryinstance");
+		apis.put("ekstep.learning.categoryinstance.search", "categoryinstance");
+		apis.put("ekstep.learning.categoryinstance.retire", "categoryinstance");
+
+		apis.put("ekstep.learning.category.term.create", "term");
+		apis.put("ekstep.learning.category.term.read", "term");
+		apis.put("ekstep.learning.category.term.update", "term");
+		apis.put("ekstep.learning.category.term.search", "term");
+		apis.put("ekstep.learning.category.term.retire", "term");
+
+		apis.put("ekstep.learning.framework.term.create", "term");
+		apis.put("ekstep.learning.framework.term.read", "term");
+		apis.put("ekstep.learning.framework.term.update", "term");
+		apis.put("ekstep.learning.framework.term.search", "term");
+		apis.put("ekstep.learning.framework.term.retire", "term");
+
+		apis.put("ekstep.learning.channel.term.create", "term");
+		apis.put("ekstep.learning.channel.term.read", "term");
+		apis.put("ekstep.learning.channel.term.update", "term");
+		apis.put("ekstep.learning.channel.term.search", "term");
+		apis.put("ekstep.learning.channel.term.retire", "term");
+
+		return apis;
+	}
+
 	private static String getRequestString(Request request) {
 		try {
 			return mapper.writeValueAsString(request.getRequest());
@@ -86,7 +123,7 @@ public class TelemetryAccessEventUtil {
 		}
 		return null;
 	}
-	
+
 	public static void writeTelemetryEventLog(RequestWrapper requestWrapper, ResponseWrapper responseWrapper) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		Request request = null;

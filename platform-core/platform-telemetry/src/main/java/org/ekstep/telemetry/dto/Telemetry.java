@@ -9,31 +9,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
  * Telemetry V3 POJO to generate telemetry event.
+ * 
  * @author mahesh
  *
  */
 
 @JsonInclude(Include.NON_NULL)
 public class Telemetry {
-
-	public Telemetry(String eid, long ets, String ver, Actor actor, Context context,
-			Map<String, Object> edata) {
-		super();
-		this.eid = eid;
-		this.ets = ets;
-		this.ver = ver;
-		this.actor = actor;
-		this.context = context;
-		this.edata = edata;
-	}
-
-	public Telemetry(String eid, Actor actor, Context context, Map<String, Object> edata) {
-		super();
-		this.eid = eid;
-		this.actor = actor;
-		this.context = context;
-		this.edata = edata;
-	}
 
 	private String eid;
 	private long ets = System.currentTimeMillis();
@@ -43,7 +25,57 @@ public class Telemetry {
 	private Context context;
 	private Target object;
 	private Map<String, Object> edata;
+	private List<Map<String, Object>> cdata;
 	private List<String> tags;
+
+	/**
+	 * @param eid
+	 * @param ets
+	 * @param ver
+	 * @param actor
+	 * @param context
+	 * @param edata
+	 */
+	public Telemetry(String eid, long ets, String ver, Actor actor, Context context, Map<String, Object> edata) {
+		super();
+		this.eid = eid;
+		this.ets = ets;
+		this.ver = ver;
+		this.actor = actor;
+		this.context = context;
+		this.edata = edata;
+	}
+
+	/**
+	 * @param eid
+	 * @param actor
+	 * @param context
+	 * @param edata
+	 */
+	public Telemetry(String eid, Actor actor, Context context, Map<String, Object> edata) {
+		super();
+		this.eid = eid;
+		this.actor = actor;
+		this.context = context;
+		this.edata = edata;
+	}
+
+	/**
+	 * @param eid
+	 * @param actor
+	 * @param context
+	 * @param edata
+	 * @param cdata
+	 */
+	public Telemetry(String eid, Actor actor, Context context, Map<String, Object> edata,
+			List<Map<String, Object>> cdata) {
+		super();
+		this.eid = eid;
+		this.actor = actor;
+		this.context = context;
+		this.edata = edata;
+		this.cdata = cdata;
+	}
 
 	/**
 	 * @return the eid
@@ -178,6 +210,20 @@ public class Telemetry {
 	 */
 	public void setTags(List<String> tags) {
 		this.tags = tags;
+	}
+
+	/**
+	 * @return cdata
+	 */
+	public List<Map<String, Object>> getCdata() {
+		return cdata;
+	}
+
+	/**
+	 * @param cdata
+	 */
+	public void setCdata(List<Map<String, Object>> cdata) {
+		this.cdata = cdata;
 	}
 
 }
