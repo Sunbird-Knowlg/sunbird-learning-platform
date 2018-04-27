@@ -8,16 +8,6 @@ set resp_get_node [getDataNode $graph_id $content_id]
 set check_error [check_response_error $resp_get_node]
 set original_content_id $content_id
 set isContentNull [java::isnull $content]
-if {$isContentNull == 1} {
-	set result_map [java::new HashMap]
-	$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
-	$result_map put "message" "Invalid Reject Request."
-	$result_map put "responseCode" [java::new Integer 400]
-	set response_list [create_error_response $result_map]
-	return $response_list
-}
-set rejectReasons [$content get "rejectReasons"]
-set rejectComment [$content get "rejectComment"]
 proc isNotEmpty {list} {
 	set exist false
 	set isListNull [java::isnull $list]
@@ -48,38 +38,21 @@ if {$check_error} {
 			$request put "status" "Draft"
 			$request put "objectType" $object_type
 			$request put "identifier" $content_id
-			set isRejectReasonsNull [java::isnull $rejectReasons]
-			if {$isRejectReasonsNull == 0} {
-				set rejectReasons [java::cast ArrayList $rejectReasons]
-				set hasRejectReasons [isNotEmpty $rejectReasons]
-				if {$hasRejectReasons} {
-					$request put "rejectReasons" $rejectReasons
-				} else {
-					set result_map [java::new HashMap]
-					$result_map put "code" "ERR_CONTENT_INVALID_REJECT_RESONS"
-					$result_map put "message" "Invalid Reject Reasons."
-					$result_map put "responseCode" [java::new Integer 400]
-					set response_list [create_error_response $result_map]
-					return $response_list
+			if {$isContentNull == 0} {
+				set rejectReasons [$content get "rejectReasons"]
+				set rejectComment [$content get "rejectComment"]
+				set isRejectReasonsNull [java::isnull $rejectReasons]
+				if {$isRejectReasonsNull == 0} {
+					set rejectReasons [java::cast ArrayList $rejectReasons]
+					set hasRejectReasons [isNotEmpty $rejectReasons]
+					if {$hasRejectReasons} {
+						$request put "rejectReasons" $rejectReasons
+					}
 				}
-			} else {
-				set result_map [java::new HashMap]
-				$result_map put "code" "ERR_CONTENT_INVALID_REJECT_RESONS"
-				$result_map put "message" "Invalid Reject Reasons."
-				$result_map put "responseCode" [java::new Integer 400]
-				set response_list [create_error_response $result_map]
-				return $response_list
-			}
-			set isRejectCommentNull [java::isnull $rejectComment]
-			if {$isRejectCommentNull == 0} {
-				$request put "rejectComment" $rejectComment
-			} else {
-				set result_map [java::new HashMap]
-				$result_map put "code" "ERR_CONTENT_INVALID_REJECT_COMMENT"
-				$result_map put "message" "Invalid Reject Comment."
-				$result_map put "responseCode" [java::new Integer 400]
-				set response_list [create_error_response $result_map]
-				return $response_list
+				set isRejectCommentNull [java::isnull $rejectComment]
+				if {$isRejectCommentNull == 0} {
+					$request put "rejectComment" $rejectComment
+				}
 			}
 			$request put "publishChecklist" [java::null]
 			$request put "publishComment" [java::null]
@@ -108,38 +81,21 @@ if {$check_error} {
 				set isReviewState [$status_val_str equalsIgnoreCase "Review"]
 				if {$isReviewState == 1} {
 					$image_metadata put "status" "Draft"
-					set isRejectReasonsNull [java::isnull $rejectReasons]
-					if {$isRejectReasonsNull == 0} {
-						set rejectReasons [java::cast ArrayList $rejectReasons]
-						set hasRejectReasons [isNotEmpty $rejectReasons]
-						if {$hasRejectReasons} {
-							$image_metadata put "rejectReasons" $rejectReasons
-						} else {
-							set result_map [java::new HashMap]
-							$result_map put "code" "ERR_CONTENT_INVALID_REJECT_RESONS"
-							$result_map put "message" "Invalid Reject Reasons."
-							$result_map put "responseCode" [java::new Integer 400]
-							set response_list [create_error_response $result_map]
-							return $response_list
+					if {$isContentNull == 0} {
+						set rejectReasons [$content get "rejectReasons"]
+						set rejectComment [$content get "rejectComment"]
+						set isRejectReasonsNull [java::isnull $rejectReasons]
+						if {$isRejectReasonsNull == 0} {
+							set rejectReasons [java::cast ArrayList $rejectReasons]
+							set hasRejectReasons [isNotEmpty $rejectReasons]
+							if {$hasRejectReasons} {
+								$request put "rejectReasons" $rejectReasons
+							}
 						}
-					} else {
-						set result_map [java::new HashMap]
-						$result_map put "code" "ERR_CONTENT_INVALID_REJECT_RESONS"
-						$result_map put "message" "Invalid Reject Reasons."
-						$result_map put "responseCode" [java::new Integer 400]
-						set response_list [create_error_response $result_map]
-						return $response_list
-					}
-					set isRejectCommentNull [java::isnull $rejectComment]
-					if {$isRejectCommentNull == 0} {
-						$image_metadata put "rejectComment" $rejectComment
-					} else {
-						set result_map [java::new HashMap]
-						$result_map put "code" "ERR_CONTENT_INVALID_REJECT_COMMENT"
-						$result_map put "message" "Invalid Reject Comment."
-						$result_map put "responseCode" [java::new Integer 400]
-						set response_list [create_error_response $result_map]
-						return $response_list
+						set isRejectCommentNull [java::isnull $rejectComment]
+						if {$isRejectCommentNull == 0} {
+							$request put "rejectComment" $rejectComment
+						}
 					}
 					$image_metadata put "publishChecklist" [java::null]
 					$image_metadata put "publishComment" [java::null]
@@ -175,38 +131,21 @@ if {$check_error} {
 				set isReviewState [$status_val_str equalsIgnoreCase "FlagReview"]
 				if {$isReviewState == 1} {
 					$image_metadata put "status" "FlagDraft"
-					set isRejectReasonsNull [java::isnull $rejectReasons]
-					if {$isRejectReasonsNull == 0} {
-						set rejectReasons [java::cast ArrayList $rejectReasons]
-						set hasRejectReasons [isNotEmpty $rejectReasons]
-						if {$hasRejectReasons} {
-							$image_metadata put "rejectReasons" $rejectReasons
-						} else {
-							set result_map [java::new HashMap]
-							$result_map put "code" "ERR_CONTENT_INVALID_REJECT_RESONS"
-							$result_map put "message" "Invalid Reject Reasons."
-							$result_map put "responseCode" [java::new Integer 400]
-							set response_list [create_error_response $result_map]
-							return $response_list
+					if {$isContentNull == 0} {
+						set rejectReasons [$content get "rejectReasons"]
+						set rejectComment [$content get "rejectComment"]
+						set isRejectReasonsNull [java::isnull $rejectReasons]
+						if {$isRejectReasonsNull == 0} {
+							set rejectReasons [java::cast ArrayList $rejectReasons]
+							set hasRejectReasons [isNotEmpty $rejectReasons]
+							if {$hasRejectReasons} {
+								$request put "rejectReasons" $rejectReasons
+							}
 						}
-					} else {
-						set result_map [java::new HashMap]
-						$result_map put "code" "ERR_CONTENT_INVALID_REJECT_RESONS"
-						$result_map put "message" "Invalid Reject Reasons."
-						$result_map put "responseCode" [java::new Integer 400]
-						set response_list [create_error_response $result_map]
-						return $response_list
-					}
-					set isRejectCommentNull [java::isnull $rejectComment]
-					if {$isRejectCommentNull == 0} {
-						$image_metadata put "rejectComment" $rejectComment
-					} else {
-						set result_map [java::new HashMap]
-						$result_map put "code" "ERR_CONTENT_INVALID_REJECT_COMMENT"
-						$result_map put "message" "Invalid Reject Comment."
-						$result_map put "responseCode" [java::new Integer 400]
-						set response_list [create_error_response $result_map]
-						return $response_list
+						set isRejectCommentNull [java::isnull $rejectComment]
+						if {$isRejectCommentNull == 0} {
+							$request put "rejectComment" $rejectComment
+						}
 					}
 					$image_metadata put "publishChecklist" [java::null]
 					$image_metadata put "publishComment" [java::null]
