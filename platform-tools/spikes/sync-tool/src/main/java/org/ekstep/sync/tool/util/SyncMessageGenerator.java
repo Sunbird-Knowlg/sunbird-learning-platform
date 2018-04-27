@@ -35,8 +35,8 @@ public class SyncMessageGenerator {
 				Map<String, String> relationMap = definitionMap.get(node.getObjectType());
 				if (relationMap != null) {
 					Map<String, Object> nodeMap = getMessage(node);
-					// String message = getJSONMessage(nodeMap, relationMap);
-					messages.put(node.getIdentifier(), nodeMap);
+					Map<String, Object>  message = getJSONMessage(nodeMap, relationMap);
+					messages.put(node.getIdentifier(), message);
 				}
 			} catch (Exception e) {
 				errors.put(node.getIdentifier(), e.getMessage());
@@ -45,7 +45,7 @@ public class SyncMessageGenerator {
 		return messages;
 	}
 
-	public static String getJSONMessage(Map<String, Object> message, Map<String, String> relationMap) throws Exception {
+	public static Map<String, Object> getJSONMessage(Map<String, Object> message, Map<String, String> relationMap) throws Exception {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
@@ -84,7 +84,7 @@ public class SyncMessageGenerator {
 		indexDocument.put("objectType", (String) message.get("objectType"));
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
 
-		return mapper.writeValueAsString(indexDocument);
+		return indexDocument;
 	}
 
 	public static Map<String, Object> getMessage(Node node) {
