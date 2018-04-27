@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -1812,9 +1811,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Map<String, Object> hierarchy = new HashMap<>();
 
 		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
-		Map<String, Object> nullPropMap = nullPropList.stream()
-				.collect(Collectors.toMap(Function.identity(), prop -> null));
-
+		Map<String, Object> nullPropMap = new HashMap<>();
+		nullPropList.forEach(i -> nullPropMap.put(i, null));
 		Map<String, Object> parentHierarchy = new HashMap<>();
 		parentHierarchy.put("children", new ArrayList<>());
 		parentHierarchy.put("root", true);
@@ -1915,8 +1913,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		copyNode.getMetadata().putAll(requestMap);
 		copyNode.getMetadata().put("status", "Draft");
 		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
-		Map<String, Object> nullPropMap = nullPropList.stream()
-				.collect(Collectors.toMap(Function.identity(), prop -> null));
+		Map<String, Object> nullPropMap = new HashMap<>();
+		nullPropList.forEach(i -> nullPropMap.put(i, null));
 		copyNode.getMetadata().putAll(nullPropMap);
 		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
 		
