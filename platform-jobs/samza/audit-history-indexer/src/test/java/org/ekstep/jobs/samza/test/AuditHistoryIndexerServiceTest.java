@@ -5,6 +5,8 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,12 +18,13 @@ import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,30 +40,32 @@ public class AuditHistoryIndexerServiceTest {
 	private String invalidMessage = "{\"ets\":1500888709490,\"requestId\":null,\"transactionData\":{\"properties\":{\"IL_SYS_NODE_TYPE\":{\"ov\":null,\"nv\":\"DATA_NODE\"},\"morphology\":{\"ov\":null,\"nv\":false},\"consumerId\":{\"ov\":null,\"nv\":\"a6654129-b58d-4dd8-9cf2-f8f3c2f458bc\"},\"channel\":{\"ov\":null,\"nv\":\"in.ekstep\"},\"lemma\":{\"ov\":null,\"nv\":\"ವಿಶ್ಲೇಷಣೆ\"},\"createdOn\":{\"ov\":null,\"nv\":\"2017-07-24T09:32:18.130+0000\"},\"versionKey\":{\"ov\":null,\"nv\":\"1500888738130\"},\"IL_FUNC_OBJECT_TYPE\":{\"ov\":null,\"nv\":\"Word\"},\"ekstepWordnet\":{\"ov\":null,\"nv\":false},\"lastUpdatedOn\":{\"ov\":null,\"nv\":\"2017-07-24T09:32:18.130+0000\"},\"isPhrase\":{\"ov\":null,\"nv\":false},\"IL_UNIQUE_ID\":{\"ov\":null,\"nv\":\"ka_11229528054276096015\"},\"status\":{\"ov\":null,\"nv\":\"Draft\"}}},\"operationType\":\"CREATE\",\"nodeGraphId\":433342,\"label\":\"ವಿಶ್ಲೇಷಣೆ\",\"graphId\":\"ka\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-07-24T09:31:49.490+0000\",\"objectType\":\"Word\"}";
 	
 	private AuditHistoryIndexerService service = new AuditHistoryIndexerService();
+	private static String hostAddress = "localhost";
+	private static int port = 9300;
 	private static File tempDir = null;
 	private static Settings settings = null;
-	private static Node server = null;
+	protected static TransportClient client = null;
 	private MessageCollector collector;
 	private ObjectMapper mapper = new ObjectMapper();
 	static String clusterName = null;
-	static Client client = null;
 
 	@BeforeClass
-	public static void beforeClass(){
+	public static void beforeClass() throws UnknownHostException {
 		tempDir = new File(System.getProperty("user.dir") + "/tmp");
 		settings = Settings.builder()
 				.put("path.home", tempDir.getAbsolutePath())
 				.put("transport.tcp.port","9500")
 				.build();
-		server = NodeBuilder.nodeBuilder().settings(settings).build();
-		clusterName = server.settings().get("cluster.name");
-		server.start();
-		client = server.client();
+		Settings settings = Settings.builder().put("client.transport.sniff", true)
+				.put("client.transport.ignore_cluster_name", true).build();
+		client = new PreBuiltTransportClient(settings);
+		client.addTransportAddress(new TransportAddress(InetAddress.getByName(hostAddress), port));
+		clusterName = client.settings().get("cluster.name");
 	}
 	
 	@AfterClass
 	public static void afterClass() throws IOException{
-		server.close();
+		client.close();
 		FileUtil.deleteDir(tempDir);
 	}
 	
@@ -108,7 +113,7 @@ public class AuditHistoryIndexerServiceTest {
 				.setQuery(QueryBuilders.termQuery("graphId", graphId)).execute().actionGet();
 		SearchHits hits = response.getHits();
 		for (SearchHit hit : hits.getHits()) {
-			Map<String, Object> fields = hit.getSource();
+			Map<String, Object> fields = hit.getSourceAsMap();
 			return fields;
 		}
 		return null;

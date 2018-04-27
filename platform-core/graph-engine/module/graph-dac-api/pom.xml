@@ -58,10 +58,10 @@
 			<version>1.4.5</version>
 		</dependency>
 		<dependency>
-			<groupId>net.iot-solutions.graphdb</groupId>
-			<artifactId>jcypher</artifactId>
-			<version>3.6.0</version>
-		</dependency>
+		    <groupId>org.neo4j</groupId>
+		    <artifactId>neo4j-graphdb-api</artifactId>
+		    <version>3.0.3</version>
+ 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>unit-tests</artifactId>
