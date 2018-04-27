@@ -29,10 +29,10 @@ public class CategoryCache {
 				setFramework(id, categories);
 			}
 		} catch (Exception e) {
-			TelemetryManager.error("Error while setting category cache for framework: "+ id, e);
+			throw e;
 		}
 	}
-	
+
 	private static String getKey(String framework, String category) {
 		return "cat_" + framework + category;
 	}
@@ -44,7 +44,7 @@ public class CategoryCache {
 				List<Object> terms = getTerms(category, "terms");
 				if (!terms.isEmpty()) {
 					String key = getKey(framework, catName);
-					TelemetryManager.info("Setting framework category cache with key: "+ key);
+					TelemetryManager.info("Setting framework category cache with key: " + key);
 					RedisStoreUtil.saveList(key, terms);
 				}
 			}

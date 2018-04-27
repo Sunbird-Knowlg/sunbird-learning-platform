@@ -58,7 +58,8 @@ public class ContentV2Controller extends BaseController {
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.info";
-		TelemetryManager.info("Executing Content Get API (Java Version) (API Version V2) For Content Id: " + contentId + ".");
+		TelemetryManager
+				.info("Executing Content Get API (Java Version) (API Version V2) For Content Id: " + contentId + ".");
 		Response response;
 		TelemetryManager.log("Content GetById | Content Id : " + contentId);
 		try {
@@ -66,6 +67,7 @@ public class ContentV2Controller extends BaseController {
 			response = contentManager.find(contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -82,6 +84,7 @@ public class ContentV2Controller extends BaseController {
 			Response response = contentManager.create(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -92,30 +95,33 @@ public class ContentV2Controller extends BaseController {
 	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.update";
-		TelemetryManager.info("Executing Content Update API (Java Version) (API Version V2) For Content Id: " + contentId + ".", requestMap);
+		TelemetryManager.info(
+				"Executing Content Update API (Java Version) (API Version V2) For Content Id: " + contentId + ".",
+				requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
 			Response response = contentManager.update(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.error("Exception: "+ e.getMessage(), e);
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Upload' operation of content
-	 * work-flow.
+	 * This method carries all the tasks related to 'Upload' operation of
+	 * content work-flow.
 	 * 
 	 *
 	 * @param contentId
-	 *            The Content Id for which the Content Package needs to be Uploaded.
+	 *            The Content Id for which the Content Package needs to be
+	 *            Uploaded.
 	 * @param file
 	 *            The Content Package File
 	 * @param userId
-	 *            Unique id of the user mainly for authentication purpose, It can
-	 *            impersonation details as well.
+	 *            Unique id of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
@@ -154,15 +160,16 @@ public class ContentV2Controller extends BaseController {
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Publish' operation of content
-	 * work-flow.
+	 * This method carries all the tasks related to 'Publish' operation of
+	 * content work-flow.
 	 *
 	 * @param contentId
 	 *            The Content Id which needs to be published.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It can
-	 *            impersonation details as well.
-	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
+	 *            Unique 'id' of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
+	 * @return The Response entity with Content Id and ECAR URL in its Result
+	 *         Set.
 	 */
 	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
@@ -175,19 +182,20 @@ public class ContentV2Controller extends BaseController {
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Optimize' operation of content
-	 * work-flow. This includes compressing images, audio and videos.
+	 * This method carries all the tasks related to 'Optimize' operation of
+	 * content work-flow. This includes compressing images, audio and videos.
 	 *
 	 * @param contentId
 	 *            Content Id which needs to be optimized.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It can
-	 *            impersonation details as well.
+	 *            Unique 'id' of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/optimize/{id:.+}", method = RequestMethod.GET)
@@ -201,22 +209,23 @@ public class ContentV2Controller extends BaseController {
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 
 	/**
-	 * This method carries all the tasks related of bundling the contents into one
-	 * package, It includes all the operations valid for the Publish operation but
-	 * without making the status of content as 'Live'. i.e. It bundles content of
-	 * all status with a 'expiry' date.
+	 * This method carries all the tasks related of bundling the contents into
+	 * one package, It includes all the operations valid for the Publish
+	 * operation but without making the status of content as 'Live'. i.e. It
+	 * bundles content of all status with a 'expiry' date.
 	 *
 	 * @param map
 	 *            the map contains the parameter for creating the Bundle e.g.
 	 *            "identifier" List.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It can
-	 *            impersonation details as well.
+	 *            Unique 'id' of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
 	 * @return The Response entity with a Bundle URL in its Result Set.
 	 */
 	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
@@ -234,6 +243,7 @@ public class ContentV2Controller extends BaseController {
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -253,10 +263,12 @@ public class ContentV2Controller extends BaseController {
 		Response response;
 		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
+			TelemetryManager
+					.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
 			response = contentManager.getHierarchy(contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -276,18 +288,17 @@ public class ContentV2Controller extends BaseController {
 			if (null != requestMap) {
 				fileName = (String) requestMap.get("fileName");
 				if (StringUtils.isBlank(fileName)) {
-					return getExceptionResponseEntity(
-							new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"),
-							apiId, null);
+					return getExceptionResponseEntity(new ClientException(
+							ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"), apiId, null);
 				}
 			} else {
-				return getExceptionResponseEntity(
-						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), "content object is blank"),
-						apiId, null);
+				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
+						"content object is blank"), apiId, null);
 			}
 			response = contentManager.preSignedURL(contentId, fileName);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
