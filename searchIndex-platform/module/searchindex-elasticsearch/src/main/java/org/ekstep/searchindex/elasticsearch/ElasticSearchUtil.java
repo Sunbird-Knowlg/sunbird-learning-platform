@@ -315,7 +315,7 @@ public class ElasticSearchUtil {
 				for (String key : jsonObjects.keySet()) {
 					count++;
 					bulkRequest.add(client.prepareIndex(indexName, documentType).setId(key)
-							.setSource(jsonObjects.get(key), XContentType.JSON));
+							.setSource((Map<String, Object>) jsonObjects.get(key)));
 					if (count % BATCH_SIZE == 0 || (count % BATCH_SIZE < BATCH_SIZE && count == jsonObjects.size())) {
 						BulkResponse bulkResponse = bulkRequest.get();
 						if (bulkResponse.hasFailures()) {
@@ -330,14 +330,14 @@ public class ElasticSearchUtil {
 		}
 	}
 
-	public void bulkIndexWithAutoGenerateIndexId(String indexName, String documentType, List<String> jsonObjects)
+	public void bulkIndexWithAutoGenerateIndexId(String indexName, String documentType,
+			List<Map<String, Object>> jsonObjects)
 			throws Exception {
 		if (isIndexExists(indexName)) {
 			if (!jsonObjects.isEmpty()) {
 				BulkRequestBuilder bulkRequest = client.prepareBulk();
-				for (String jsonString : jsonObjects) {
-					bulkRequest
-							.add(client.prepareIndex(indexName, documentType).setSource(jsonString, XContentType.JSON));
+				for (Map<String, Object> json : jsonObjects) {
+					bulkRequest.add(client.prepareIndex(indexName, documentType).setSource(json));
 				}
 				BulkResponse bulkResponse = bulkRequest.get();
 				if (bulkResponse.hasFailures()) {

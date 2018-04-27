@@ -105,11 +105,11 @@ public class ElasticSearchUtilTest {
 	@Test
 	public void testBulkIndexWithAutoGenId() throws Exception {
 		String id = null;
-		List<String> jsonObjects = new ArrayList<String>();
+		List<Map<String, Object>> jsonObjects = new ArrayList<>();
 		for (int i = 1; i <= 30; i++) {
 			Map<String, Object> content = getContentTestRecord(null, i);
 			id = (String) content.get("name");
-			jsonObjects.add(mapper.writeValueAsString(content));
+			jsonObjects.add(content);
 		}
 		elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, jsonObjects);

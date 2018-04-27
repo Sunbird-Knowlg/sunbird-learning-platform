@@ -787,7 +787,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		objectTypes.add("Content");
 		filters.put("objectType", objectTypes);
 		List<String> status = new ArrayList<String>();
-		status.add("Live");
+		status.add("Draft");
 		filters.put("status",status);
 		List<String> contentType = new ArrayList<String>();
 		contentType.add("Story");

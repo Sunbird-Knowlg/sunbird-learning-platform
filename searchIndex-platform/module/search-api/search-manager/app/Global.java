@@ -30,6 +30,7 @@ public class Global extends GlobalSettings {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public void onStart(Application app) {
+		System.setProperty("es.set.netty.runtime.available.processors", "false");
 		SearchRequestRouterPool.init();
 		TelemetryGenerator.setComponent("search-service");
 	}
