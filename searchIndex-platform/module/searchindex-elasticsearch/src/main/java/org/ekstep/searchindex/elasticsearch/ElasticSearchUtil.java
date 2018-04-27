@@ -29,9 +29,6 @@ import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryAction;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
@@ -47,7 +44,10 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -274,11 +274,11 @@ public class ElasticSearchUtil {
 		TelemetryManager.log("Deleted " + response.getId() + " to index " + response.getIndex());
 	}
 
-	public void deleteDocumentsByQuery(String query, String indexName, String indexType) throws IOException {
-		DeleteByQueryResponse response = new DeleteByQueryRequestBuilder(client, DeleteByQueryAction.INSTANCE)
-				.setIndices(indexName).setTypes(indexType).setSource(query).execute().actionGet();
+	public void deleteDocumentsByQuery(QueryBuilder query, String indexName, String indexType) throws IOException {
+		BulkByScrollResponse response = DeleteByQueryAction.INSTANCE.newRequestBuilder(client).source(indexName)
+				.filter(query).get();
 
-		TelemetryManager.log("Deleted Documents by Query" + response.getIndices());
+		TelemetryManager.log("Deleted Documents by Query" + response.getDeleted());
 	}
 
 	public void deleteIndex(String indexName) throws InterruptedException, ExecutionException {

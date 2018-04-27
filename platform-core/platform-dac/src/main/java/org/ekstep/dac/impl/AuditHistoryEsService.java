@@ -22,6 +22,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -207,7 +208,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	public Response deleteEsData(Request request) {
 		TelemetryManager.log("getting request to delete audit history records from ES", request.getRequest());
 		String timeStamp = (String) request.get(CommonDACParams.time_stamp.name());
-		String query = "{\"query\": {\"range\" : {\"createdOn\" : {\"lte\" :\"" +timeStamp+ "\"}}}}";
+		RangeQueryBuilder query = new RangeQueryBuilder("createdOn").lte(timeStamp);
+		// String query = "{\"query\": {\"range\" : {\"createdOn\" : {\"lte\" :\""
+		// +timeStamp+ "\"}}}}";
 		try {
 			TelemetryManager.log("Sending query to delete the data from ES: " + query);
 			dao.delete(query);

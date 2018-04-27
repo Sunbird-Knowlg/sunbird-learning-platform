@@ -83,11 +83,6 @@
 			<artifactId>transport</artifactId>
 			<version>6.2.3</version>
 		</dependency>
-		<dependency>
-			<groupId>org.elasticsearch.plugin</groupId>
-			<artifactId>delete-by-query</artifactId>
-			<version>2.3.4</version>
-		</dependency>
 	</dependencies>
 
 	<build>
