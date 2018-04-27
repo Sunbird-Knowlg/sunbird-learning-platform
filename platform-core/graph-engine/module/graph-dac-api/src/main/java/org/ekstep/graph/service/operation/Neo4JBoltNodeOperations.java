@@ -91,21 +91,21 @@ public class Neo4JBoltNodeOperations {
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					for (Record record : result.list()) {
-						org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 						try {
+							org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 							String versionKey = (String) neo4JNode.get(GraphDACParams.versionKey.name()).asString();
 							String identifier = (String) neo4JNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+							try {
+								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
+							} catch (Exception e) {
+								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
+										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
+							}
 						} catch (Exception e) {
 							//suppress exception happened when versionKey is null
-						}
-						try {
-							updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
-						} catch (Exception e) {
-							throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
-									DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 						}
 					}
 				}
@@ -160,20 +160,21 @@ public class Neo4JBoltNodeOperations {
 					StatementResult result = tx.run(statementTemplate, statementParameters);
 					tx.success();
 					for (Record record : result.list()) {
-						org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 						try {
+							org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 							String versionKey = (String) neo4JNode.get(GraphDACParams.versionKey.name()).asString();
 							String identifier = (String) neo4JNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+							try {
+								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
+							} catch (Exception e) {
+								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
+										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
+							}
 						} catch (Exception e) {
-						}
-						try {
-							updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
-						} catch (Exception e) {
-							throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
-									DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
+							//suppress exception happened when versionKey is null
 						}
 					}
 				} catch (org.neo4j.driver.v1.exceptions.ClientException e) {
@@ -188,8 +189,7 @@ public class Neo4JBoltNodeOperations {
 			if (!(e instanceof MiddlewareException)) {
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
-			}
-			else {
+			} else {
 				throw e;
 			}
 		}
@@ -250,21 +250,22 @@ public class Neo4JBoltNodeOperations {
 								DACErrorMessageConstants.NODE_NOT_FOUND + " | " + node.getIdentifier(),
 								node.getIdentifier());
 					for (Record record : result.list()) {
-						org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
 						try {
+							org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
+
 							String versionKey = (String) neo4JNode.get(GraphDACParams.versionKey.name()).asString();
 							String identifier = (String) neo4JNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+							try {
+								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
+							} catch (Exception e) {
+								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
+										DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
+							}
 						} catch (Exception e) {
 							//suppress exception happened when versionKey is null
-						}
-						try {
-							updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
-						} catch (Exception e) {
-							throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
-									DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
 						}
 					}
 				}
