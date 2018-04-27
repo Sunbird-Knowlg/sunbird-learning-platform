@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>image-tagging</artifactId>
-			<version>0.0.32</version>
+			<version>0.0.33</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 			<exclusions>
