@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.common.enums.CompositeSearchParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
@@ -22,6 +23,7 @@ public class SyncMessageGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 	public static Map<String, Map<String, String>> definitionMap = new HashMap<>();
 	private static ControllerUtil util = new ControllerUtil();
+	private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType, Map<String, String> errors)
 			throws Exception {
@@ -56,6 +58,10 @@ public class SyncMessageGenerator {
 						String propertyName = (String) propertyMap.getKey();
 						// new value of the property
 						Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv");
+						if (nestedFields.contains(propertyName)) {
+							propertyNewValue = mapper.readValue((String) propertyNewValue, new TypeReference<Object>() {
+							});
+						}
 						indexDocument.put(propertyName, propertyNewValue);
 					}
 				}
