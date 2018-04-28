@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import net.lingala.zip4j.core.ZipFile;
@@ -39,6 +40,8 @@ public class UpdateHierarchyTest extends BaseTest{
 	String jsonUpdateHierarchyTwoChild = "{\"request\":{\"data\":{\"nodesModified\":{\"unitId1\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\", \"name\":\"LP_FT_CourseUnit1_+rn+\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}},\"unitId2\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"name\":\"LP_FT_CourseUnit2_+rn+\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}}},"
 			+ "\"hierarchy\":{\"TextbookId\":{\"name\":\"LP_NFT_Collection_"+rn+"\",\"contentType\":\"TextBook\",\"children\":[\"unitId1\",\"unitId2\"],\"root\":true},\"unitId1\":{\"name\":\"LP_FT_CourseUnit1_"+rn+"\",\"contentType\":\"TextBookUnit\",\"children\":[\"contentId1\"],\"root\":false},\"unitId2\":{\"name\":\"LP_FT_CourseUnit2_"+rn+"\",\"contentType\":\"TextBookUnit\",\"children\":[\"contentId2\"],\"root\":false},\"contentId1\":{\"name\":\"LP_FT_Content1_"+rn+"\",\"root\":false},"
 			+ "\"contentId2\":{\"name\":\"LP_FT_Content2_"+rn+"\",\"root\":false}}}}}";
+	String jsonUpdateHierarchyOneChild = "{\"request\":{\"data\":{\"nodesModified\":{\"unitId1\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"name\":\"LP_FT_CourseUnit1_"+rn+"\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}}},\"hierarchy\":{\"TextbookId\":{\"name\":\"LP_NFT_Collection_"+rn+"\",\"contentType\":\"TextBook\",\"children\":[\"unitId1\"],\"root\":true},\"unitId1\":{\"name\":\"LP_FT_CourseUnit1_"+rn+"\","
+			+ "\"contentType\":\"TextBookUnit\",\"children\":[\"contentId1\"],\"root\":false},\"contentId1\":{\"name\":\"LP_FT_Content1_"+rn+"\",\"root\":false}}}}}";
 	String jsonCreateValidTextBookUnit = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Unit" + rn+ "\", \"mediaType\": \"content\",\"visibility\": \"Parent\",\"name\": \"LP_NFT_Unit_"+ rn+ "\",\"contentType\": \"TextBookUnit\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
 	String jsonCreateValidTextBook = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_TBook" + rn+ "\", \"mediaType\": \"content\",\"visibility\": \"Parent\",\"name\": \"LP_NFT_TBook_"+ rn+ "\",\"contentType\": \"TextBook\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
 	
@@ -221,7 +224,52 @@ public class UpdateHierarchyTest extends BaseTest{
 	log().all().
 	spec(get200ResponseSpec());
 	validateEcar(textBookId);
+	}
 	
+	@Test 
+	public void createAndUpdateHierarchyRepublishExpectSuccess200(){
+		// Create TextBook 
+		setURI();
+		Response Res3 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidTextBook).
+				when().
+				post("/content/v3/create").
+				then().
+				log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+		
+		JsonPath jPath3 = Res3.jsonPath();
+		String textBookId = jPath3.get("result.node_id");
+		
+		// Update Hierarchy
+		setURI();
+		jsonUpdateHierarchyOneChild = jsonUpdateHierarchyOneChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("contentId1", contentId1);
+		System.out.println(jsonUpdateHierarchyOneChild);
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonUpdateHierarchyTwoChild).
+		with().
+		contentType(JSON).
+		when().
+		patch("/content/v3/hierarchy/update/").
+		then().
+		log().all().
+		spec(get200ResponseSpec());
+		
+		//Publish the textbook
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/"+textBookId).
+		then().
+		log().all().
+		spec(get200ResponseSpec());
+		validateEcar(textBookId);
 	}
 	
 	// Validate ECAR
@@ -274,6 +322,24 @@ public class UpdateHierarchyTest extends BaseTest{
 	}
 	String downloadUrl = jPath1.get("result.content.downloadUrl");
 	String ecarName = "ecar_" + rn + "";
+	
+	// Read hierarchy and child node
+	setURI();
+	Response Res3 = 
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			when().
+			get("/content/v3/hierarchy/"+textBookId).
+			then().
+			log().all().
+			spec(get200ResponseSpec()).
+			extract().
+			response();
+	
+	JsonPath jPath2 = Res3.jsonPath();
+	ArrayList<String> childNodes = jPath2.get("result.content.childNodes");
+	System.out.println(childNodes.size());
+	
 	try{
 	FileUtils.copyURLToFile(new URL(downloadUrl), new File(downloadPath + "/" + ecarName + ".zip"));
 	String source = downloadPath + "/" + ecarName + ".zip";
@@ -292,16 +358,15 @@ public class UpdateHierarchyTest extends BaseTest{
 	JsonObject arc = obj.getAsJsonObject("archive");
 	JsonElement cnt = arc.get("count"); 
 	int count = cnt.getAsInt();
-	System.out.println(count);
 	JsonArray items = arc.getAsJsonArray("items");
 	int totalItems = items.size();
-	System.out.println(totalItems);
-	Iterator i = items.iterator();
-	System.out.println(i);
-	while (i.hasNext()) {
-		JsonObject item = (JsonObject) i.next();
-		System.out.println(item.toString()); 
-	}
+	Assert.assertTrue(count==totalItems);
+//	Iterator i = items.iterator();
+//	System.out.println(i);
+//	while (i.hasNext()) {
+//		JsonObject item = (JsonObject) i.next();
+//		System.out.println(item.toString()); 
+//	}
 	}
 	
 	catch(Exception e){}
