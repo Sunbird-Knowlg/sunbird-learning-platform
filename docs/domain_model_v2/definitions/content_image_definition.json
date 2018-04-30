@@ -1068,7 +1068,11 @@
 						"Timed worksheets",
 						"Teaching resources",
 						"E-resources for Professional Development",
-						"Micro practice videos"
+						"Micro practice videos",
+						"Study material",
+						"Test",
+						"Collection",
+						"Lesson Plan"
 					],
 					"indexed": true,
 					"draft": false
