@@ -1962,8 +1962,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if(!validateList(requestMap.get("createdFor"))) {
 			throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid CreatedFor value.");
 		}
-		if(!validateList(requestMap.get("organization"))) {
-			throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid Organization value.");
+		if(!validateList(requestMap.get("organisation"))) {
+			throw new ClientException("ERR_INVALID_ORGANISATION", "Please provide valid Organisation value.");
 		}
 		
 		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
