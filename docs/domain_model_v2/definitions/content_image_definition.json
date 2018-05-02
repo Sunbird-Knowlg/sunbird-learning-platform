@@ -983,7 +983,7 @@
 					"draft": false
 				},
 				{
-					"required": false,
+					"required": true,
 					"dataType": "Select",
 					"propertyName": "contentType",
 					"title": "Content Type",
