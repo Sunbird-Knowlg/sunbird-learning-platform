@@ -89,12 +89,12 @@ if {$check_error} {
 							set rejectReasons [java::cast ArrayList $rejectReasons]
 							set hasRejectReasons [isNotEmpty $rejectReasons]
 							if {$hasRejectReasons} {
-								$request put "rejectReasons" $rejectReasons
+								$image_metadata put "rejectReasons" $rejectReasons
 							}
 						}
 						set isRejectCommentNull [java::isnull $rejectComment]
 						if {$isRejectCommentNull == 0} {
-							$request put "rejectComment" $rejectComment
+							$image_metadata put "rejectComment" $rejectComment
 						}
 					}
 					$image_metadata put "publishChecklist" [java::null]
@@ -139,12 +139,12 @@ if {$check_error} {
 							set rejectReasons [java::cast ArrayList $rejectReasons]
 							set hasRejectReasons [isNotEmpty $rejectReasons]
 							if {$hasRejectReasons} {
-								$request put "rejectReasons" $rejectReasons
+								$image_metadata put "rejectReasons" $rejectReasons
 							}
 						}
 						set isRejectCommentNull [java::isnull $rejectComment]
 						if {$isRejectCommentNull == 0} {
-							$request put "rejectComment" $rejectComment
+							$image_metadata put "rejectComment" $rejectComment
 						}
 					}
 					$image_metadata put "publishChecklist" [java::null]

@@ -3,9 +3,18 @@
     "type": "SCRIPT",
     "parameters": [
         {
-          "name": "content_id",
-          "index": 0,
-          "routingParam": false
+            "name": "content_id",
+            "datatype": "",
+            "index": 0,
+            "routingParam": false,
+            "routingId": ""
+        },
+        {
+            "name": "content",
+            "datatype": "java.util.HashMap",
+            "index": 1,
+            "routingParam": false,
+            "routingId": null
         }
     ],
     "requestPath": {
