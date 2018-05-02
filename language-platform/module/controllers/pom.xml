@@ -70,9 +70,9 @@
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>neo4j-bolt-test</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-bolt</artifactId>
+			<version>3.3.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

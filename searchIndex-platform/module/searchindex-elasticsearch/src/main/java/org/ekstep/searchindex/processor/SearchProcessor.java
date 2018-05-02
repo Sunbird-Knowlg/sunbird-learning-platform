@@ -378,7 +378,7 @@ public class SearchProcessor {
 		if (null != softConstraints && !softConstraints.isEmpty()) {
 			boolQuery.should(getSoftConstraintQuery(softConstraints));
 			searchDTO.setSortBy(null);
-			relevanceSort = true;
+			// relevanceSort = true;
 		}
 		return boolQuery;
 	}

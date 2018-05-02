@@ -17,7 +17,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.kernel.configuration.BoltConnector;
 
 import com.datastax.driver.core.Session;
 
@@ -77,11 +77,11 @@ public class CommonTestSetup {
 	}
 
 	private static void setupEmbeddedNeo4J() throws Exception {
-		GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector("0");
+		BoltConnector bolt = new BoltConnector("0");
 		graphDb = new GraphDatabaseFactory()
 				.newEmbeddedDatabaseBuilder(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)))
 				.setConfig(bolt.type, TestParams.BOLT.name()).setConfig(bolt.enabled, BOLT_ENABLED)
-				.setConfig(bolt.address, NEO4J_SERVER_ADDRESS).newGraphDatabase();
+				.setConfig(bolt.listen_address, NEO4J_SERVER_ADDRESS).newGraphDatabase();
 		registerShutdownHook(graphDb);
 	}
 
