@@ -1916,6 +1916,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		copyNode.setGraphId(existingNode.getGraphId());
 
 		copyNode.getMetadata().putAll(requestMap);
+		copyNode.getMetadata().put("name", "Copy of " + (String)existingNode.getMetadata().get("name"));
 		copyNode.getMetadata().put("status", "Draft");
 		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
 		Map<String, Object> nullPropMap = new HashMap<>();
