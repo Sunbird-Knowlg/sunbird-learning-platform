@@ -539,6 +539,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					map.remove(prop);
 				}
 			}
+			
+			// TODO: remove this code after 31st May 2018.
+			resourceTypeAsList(map);
 
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
@@ -562,6 +565,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else {
 			return ERROR("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", "Mime Type cannot be empty",
 					ResponseCode.CLIENT_ERROR);
+		}
+	}
+	
+	private void resourceTypeAsList(Map<String, Object> map) {
+		Object resourceType = map.get("resourceType");
+		if (null != resourceType && resourceType instanceof String) {
+			map.put("resourceType", Arrays.asList(resourceType));
 		}
 	}
 
@@ -738,6 +748,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		if (checkError)
 			return createResponse;
+		
+		// TODO: remove this code after 31st May 2018.
+		resourceTypeAsList(map);
+		
 		TelemetryManager.log("Updating content node: " + contentId);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 		domainObj.setGraphId(TAXONOMY_ID);
