@@ -959,22 +959,6 @@
 					"description": "",
 					"category": "Pedagogy",
 					"displayProperty": "Editable",
-					"range": [
-						"KG",
-						"Class 1",
-						"Class 2",
-						"Class 3",
-						"Class 4",
-						"Class 5",
-						"Class 6",
-						"Class 7",
-						"Class 8",
-						"Class 9",
-						"Class 10",
-						"Class 11",
-						"Class 12",
-						"Other"
-					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
@@ -999,7 +983,7 @@
 					"draft": false
 				},
 				{
-					"required": false,
+					"required": true,
 					"dataType": "Select",
 					"propertyName": "contentType",
 					"title": "Content Type",
@@ -1034,7 +1018,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Text",
+					"dataType": "Multi-Select",
 					"propertyName": "resourceType",
 					"title": "Resource Type",
 					"description": "Resource Type",
@@ -1068,7 +1052,11 @@
 						"Timed worksheets",
 						"Teaching resources",
 						"E-resources for Professional Development",
-						"Micro practice videos"
+						"Micro practice videos",
+						"Study material",
+						"Test",
+						"Collection",
+						"Lesson Plan"
 					],
 					"indexed": true,
 					"draft": false

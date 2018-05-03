@@ -17,6 +17,9 @@ import org.ekstep.assessment.enums.AssessmentAPIParams;
 import org.ekstep.assessment.enums.AssessmentErrorCodes;
 import org.ekstep.assessment.store.AssessmentStore;
 import org.ekstep.assessment.util.AssessmentValidator;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -80,6 +83,10 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (null == skipValidation)
 			skipValidation = false;
 
+		String framework = (String) item.getMetadata().get(ContentAPIParams.framework.name());
+		if (StringUtils.isBlank(framework))
+			item.getMetadata().put("framework", getDefaultFramework());
+		
 		Object version = item.getMetadata().get(ContentAPIParams.version.name());
 		if (null == version)
 			item.getMetadata().put(ContentAPIParams.version.name(), 1);
@@ -751,5 +758,14 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		}
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
 		return node;
+	}
+	
+	private String getDefaultFramework() {
+		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
+		// TODO: check channel for default framework.
+		if (Platform.config.hasPath("platform.framework.default"))
+			return Platform.config.getString("platform.framework.default");
+		else
+			return "NCF";
 	}
 }

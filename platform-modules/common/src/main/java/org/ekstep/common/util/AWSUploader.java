@@ -2,6 +2,7 @@ package org.ekstep.common.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -86,7 +87,7 @@ public class AWSUploader {
 		TelemetryManager.log("AWS Upload '" + file.getName() + "' complete");
 		return new String[] { folderName + "/" + key, url.toURI().toString() };
 	}
-
+	
 	public static void deleteFile(String key) throws Exception {
 		AmazonS3 s3 = new AmazonS3Client();
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
@@ -145,14 +146,19 @@ public class AWSUploader {
 		return url;
 	}
 
-	public static boolean copyObjects(String sourceBucketName, String sourceKey, String destinationBucketName,
-			String destinationKey) {
-		boolean isCopied = true;
+	public static String[] copyObjects(String sourceFolderName, String sourceKey, String destinationFolderName,
+			String destinationKey) throws URISyntaxException {
+		String bucketName = getBucketName();
 		AmazonS3 s3client = new AmazonS3Client();
+		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
+		if (null != region)
+			s3client.setRegion(region);
 		try {
 			// Copying object
-			CopyObjectRequest copyObjRequest = new CopyObjectRequest(sourceBucketName, sourceKey, destinationBucketName,
-					destinationKey);
+			String sourceBucketName = bucketName + "/" + sourceFolderName;
+			String destinationBucketName = bucketName + "/" + destinationFolderName;
+			CopyObjectRequest copyObjRequest = new CopyObjectRequest(sourceBucketName, sourceKey, 
+					destinationBucketName, destinationKey);
 			TelemetryManager.log("[AWS UPLOADER UTILITY | Copy Objects] : Copying object.");
 			s3client.copyObject(copyObjRequest);
 			s3client.setObjectAcl(destinationBucketName, destinationKey, CannedAccessControlList.PublicRead);
@@ -169,7 +175,8 @@ public class AWSUploader {
 					+ "an internal error while trying to " + " communicate with S3, "
 					+ "such as not being able to access the network.");
 		}
-		return isCopied;
+		URL url = s3client.getUrl(bucketName, destinationFolderName + "/" + destinationKey);
+		return new String[] { destinationFolderName + "/" + destinationKey, url.toURI().toString() };
 	}
 
 	public static Map<String, String> copyObjectsByPrefix(String sourceBucketName, String destinationBucketName,

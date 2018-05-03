@@ -70,9 +70,17 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 
 	private static final String s3Content = "s3.content.folder";
 	private static final String s3Artifact = "s3.artifact.folder";
+	private static final String defaultBucketType = "public";
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
+	public static String getBucketName() {
+		return getBucketName(defaultBucketType);
+	}
+	public static String getBucketName(String type) {
+		return S3PropertyReader.getProperty("s3."+ type +".bucket");
+	}
+	
 	public boolean isArtifactUrlSet(Map<String, Object> contentMap) {
 		return false;
 	}
@@ -496,6 +504,30 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
 					"Error while uploading the File.", e);
+		}
+		return urlArray;
+	}
+	public String[] copyArtifact(String artifactUrl, String originIdentifier, String destinationIdentifier) {
+		String bucketName = getBucketName();
+		if(!artifactUrl.contains(bucketName)) {
+			return new String[] {artifactUrl};
+		}else {
+			return copyArtifactToAWS(artifactUrl, originIdentifier, destinationIdentifier);
+		}
+	}
+	
+	public String[] copyArtifactToAWS(String artifactUrl, String originIdentifier, String destinationIdentifier) {
+		String[] urlArray = new String[] {};
+		try {
+			String folder = S3PropertyReader.getProperty(s3Content);
+			String sourceFolderName = folder + "/" + Slug.makeSlug(originIdentifier, true) + "/" + S3PropertyReader.getProperty(s3Artifact);
+			String destinationFolderName = folder + "/" + Slug.makeSlug(destinationIdentifier, true) + "/" + S3PropertyReader.getProperty(s3Artifact);
+			String key = StringUtils.substringAfterLast(artifactUrl, "/");
+			
+			urlArray = AWSUploader.copyObjects(sourceFolderName, key, destinationFolderName, key);
+		} catch(Exception e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_COPY_ARTIFACT.name(),
+					"Error while copying artifact.", e);
 		}
 		return urlArray;
 	}

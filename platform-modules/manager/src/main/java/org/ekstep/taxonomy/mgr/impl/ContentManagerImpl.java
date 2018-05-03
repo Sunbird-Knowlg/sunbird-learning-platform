@@ -11,8 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -41,6 +42,7 @@ import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
+import org.ekstep.content.mimetype.mgr.impl.BaseMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
@@ -406,8 +408,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
-			if(!validatePublishChecklist(requestMap.get("publishChecklist"))) {
-				throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PUBLISH_CHECKLIST.name(), "Invalid Publish Checklist.");
+			if(!validateList(requestMap.get("publishChecklist"))) {
+				requestMap.put("publishChecklist", null);
 			}
 			publisher = (String) requestMap.get("lastPublishedBy");
 			node.getMetadata().putAll(requestMap);
@@ -1762,11 +1764,245 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		TelemetryManager.log("Returning Node Update Response.");
 		return response;
 	}
+
+	@Override
+	public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
+		Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);
+		
+
+		String mimeType = (String) existingNode.getMetadata().get("mimeType");
+		Map<String, String> idMap = new HashMap<>();
+		if (!StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.content-collection")) {
+			idMap = copyContentData(existingNode, requestMap);
+		} else {
+			idMap = copyCollectionContent(existingNode, requestMap, mode);
+		}
+
+		return OK("node_id", idMap);
+
+	}
 	
+	/**
+	 * @param existingNode
+	 * @param requestMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private Map<String, String> copyContentData(Node existingNode, Map<String, Object> requestMap) {
+		String newId = Identifier.getIdentifier(existingNode.getGraphId(), Identifier.getUniqueIdFromTimestamp());
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		Node copyNode = copyMetdata(existingNode, requestMap, newId);
+
+		Response response = createDataNode(copyNode);
+		if (checkError(response)) {
+			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+		}
+		// Copy the externalProperties in cassandra
+		List<String> externalPropsList = getExternalPropsList(definition);
+		Response bodyResponse = getContentProperties(existingNode.getIdentifier(), externalPropsList);
+		if (!checkError(bodyResponse)) {
+			Map<String, Object> extValues = (Map<String, Object>) bodyResponse.get(ContentStoreParams.values.name());
+			if (null != extValues && !extValues.isEmpty()) {
+				updateContentProperties(newId, extValues);
+			}
+		}
+
+		Map<String, String> idMap = new HashMap<>();
+		idMap.put(existingNode.getIdentifier(), newId);
+		return idMap;
+	}
+
+	/**
+	 * @param existingNode
+	 * @param requestMap
+	 * @return
+	 */
+	private Map<String, String> copyCollectionContent(Node existingNode, Map<String, Object> requestMap, String mode) {
+		// Copying Root Node
+		Map<String, String> idMap = copyContentData(existingNode, requestMap);
+		//Generating update hierarchy with copied parent content and calling update hierarchy.
+		copyhierarchy(existingNode, idMap, mode);
+		return idMap;
+	}
+
+	/**
+	 * @param existingNode
+	 * @param idMap
+	 * @param mode
+	 */
+	@SuppressWarnings("unchecked")
+	private void copyhierarchy(Node existingNode, Map<String, String> idMap, String mode) {
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		Map<String, Object> contentMap = getContentHierarchyRecursive(existingNode.getGraphId(), 
+				existingNode, definition, mode);
+
+		Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
+				(List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
+
+		Response response = updateHierarchy(updateRequest);
+		if (checkError(response)) {
+			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+		}
+	}
+
+	/**
+	 * @param contentMap
+	 * @param existingNode
+	 * @param idMap
+	 * @return
+	 */
+	private Map<String, Object> prepareUpdateHierarchyRequest(List<Map<String, Object>> children, Node existingNode,
+			Map<String, String> idMap) {
+		Map<String, Object> nodesModified = new HashMap<>();
+		Map<String, Object> hierarchy = new HashMap<>();
+
+		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+		Map<String, Object> nullPropMap = new HashMap<>();
+		nullPropList.forEach(i -> nullPropMap.put(i, null));
+		Map<String, Object> parentHierarchy = new HashMap<>();
+		parentHierarchy.put("children", new ArrayList<>());
+		parentHierarchy.put("root", true);
+		parentHierarchy.put("contentType", existingNode.getMetadata().get("contentType"));
+		hierarchy.put(idMap.get(existingNode.getIdentifier()), parentHierarchy);
+		populateHierarchy(children, nodesModified, hierarchy, idMap.get(existingNode.getIdentifier()), nullPropMap);
+
+		Map<String, Object> data = new HashMap<>();
+		data.put("nodesModified", nodesModified);
+		data.put("hierarchy", hierarchy);
+
+		return data;
+
+	}
+
+	/**
+	 * @param children
+	 * @param nodesModified
+	 * @param hierarchy
+	 * @param idMap
+	 */
+	private void populateHierarchy(List<Map<String, Object>> children, Map<String, Object> nodesModified,
+			Map<String, Object> hierarchy, String parentId, Map<String, Object> nullPropMap) {
+		if (null != children && !children.isEmpty()) {
+			for (Map<String, Object> child : children) {
+				String id = (String) child.get("identifier");
+				if (StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+					// NodesModified and hierarchy
+					id = UUID.randomUUID().toString();
+					Map<String, Object> metadata = new HashMap<>();
+					metadata.putAll(child);
+					metadata.putAll(nullPropMap);
+					metadata.put("children", new ArrayList<>());
+					metadata.remove("identifier");
+
+					// TBD: Populate artifactUrl
+
+					Map<String, Object> modifiedNode = new HashMap<>();
+					modifiedNode.put("metadata", metadata);
+					modifiedNode.put("root", false);
+					modifiedNode.put("isNew", true);
+					nodesModified.put(id, modifiedNode);
+				}
+				Map<String, Object> parentHierarchy = new HashMap<>();
+				parentHierarchy.put("children", new ArrayList<>());
+				parentHierarchy.put("root", false);
+				parentHierarchy.put("contentType", child.get("contentType"));
+				hierarchy.put(id, parentHierarchy);
+				((List) ((Map<String, Object>) hierarchy.get(parentId)).get("children")).add(id);
+
+				populateHierarchy((List<Map<String, Object>>) child.get("children"), nodesModified, hierarchy, id,
+						nullPropMap);
+			}
+		}
+
+	}
+
+	/**
+	 * @param existingNode
+	 * @param requestMap
+	 * @return
+	 */
+	private Node copyMetdata(Node existingNode, Map<String, Object> requestMap, String newId) {
+		Node copyNode = new Node(newId, existingNode.getNodeType(), existingNode.getObjectType());
+		Map<String, Object> metaData = new HashMap<>();
+		metaData.putAll(existingNode.getMetadata());
+				
+		copyNode.setMetadata(metaData);
+		copyNode.setGraphId(existingNode.getGraphId());
+
+		copyNode.getMetadata().putAll(requestMap);
+		copyNode.getMetadata().put("status", "Draft");
+		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+		Map<String, Object> nullPropMap = new HashMap<>();
+		nullPropList.forEach(i -> nullPropMap.put(i, null));
+		copyNode.getMetadata().putAll(nullPropMap);
+		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
+		
+		copyArtifact(existingNode, copyNode);
+		
+		return copyNode;
+	}
+
+	/**
+	 * @param string
+	 * @param copyNode
+	 * @return
+	 */
+	private void copyArtifact(Node existingNode, Node copyNode) {
+		String artifacturl = (String) existingNode.getMetadata().get("artifactUrl");
+		if (StringUtils.isBlank(artifacturl)) {
+			return;
+		}
+
+		BaseMimeTypeManager baseMimeTypeManager = new BaseMimeTypeManager();
+		String[] urlArray = baseMimeTypeManager.copyArtifact(artifacturl, existingNode.getIdentifier(), copyNode.getIdentifier());
+		if(urlArray.length == 2) {
+			copyNode.getMetadata().put("s3Key", urlArray[0]);
+			copyNode.getMetadata().put("artifactUrl", urlArray[1]);
+		}else {
+			copyNode.getMetadata().put("artifactUrl", urlArray[0]);
+		}
+	}
+
+	/**
+	 * @param contentId
+	 * @param requestMap
+	 * @param mode
+	 */
+
+	private Node validateCopyContentRequest(String contentId, Map<String, Object> requestMap, String mode) {
+		if (null == requestMap || !(requestMap.containsKey("createdBy"))) {
+			throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
+		}
+		if(!validateList(requestMap.get("createdFor"))) {
+			throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid CreatedFor value.");
+		}
+		if (!validateList(requestMap.get("organization"))) {
+			throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid Organization value.");
+		}
+		
+		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+		List<String> notCoppiedContent = null;
+		if(Platform.config.hasPath("learning.content.type.not.copied.list")) {
+			notCoppiedContent = Platform.config.getStringList("learning.content.type.not.copied.list");
+		}
+		if(notCoppiedContent != null && notCoppiedContent.contains((String)node.getMetadata().get("contentType"))) {
+			throw new ClientException(ContentErrorCodes.CONTENTTYPE_ASSET_CAN_NOT_COPY.name(),
+					"ContentType " + (String)node.getMetadata().get("contentType") + " can not be coppied.");
+		}
+		
+		String status = (String) node.getMetadata().get("status");
+		List<String> invalidStatusList = Platform.config.getStringList("learning.content.copy.invalid_status_list");
+		if (invalidStatusList.contains(status))
+			throw new ClientException("ERR_INVALID_REQUEST",
+					"Cannot copy content in " + status.toLowerCase() + " status");
+		
+		return node;
+	}
+
 	/**
 	 * @param publishChecklistObj
 	 */
-	protected boolean validatePublishChecklist(Object publishChecklistObj) {
+	protected boolean validateList(Object publishChecklistObj) {
 		try {
 			List<String> publishChecklist = (List<String>) publishChecklistObj;
 			if(null == publishChecklist || publishChecklist.isEmpty()) {
