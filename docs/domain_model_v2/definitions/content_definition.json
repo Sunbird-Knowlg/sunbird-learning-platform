@@ -1018,7 +1018,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Text",
+					"dataType": "Multi-Select",
 					"propertyName": "resourceType",
 					"title": "Resource Type",
 					"description": "Resource Type",
