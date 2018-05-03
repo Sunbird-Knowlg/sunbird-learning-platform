@@ -40,6 +40,18 @@
 	          	"indexed": true
 			},
 			{
+	        	"propertyName": "translations",
+	          	"title": "Translations",
+	          	"description": "Translations for the term",
+	          	"category": "General",
+	          	"dataType": "json",
+	          	"required": false,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'object', 'order': 2}",
+	          	"indexed": true
+	        },
+			{
 				"propertyName": "index",
 	          	"title": "Index",
 	          	"description": "Index position of the term",

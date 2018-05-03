@@ -250,7 +250,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		System.out.println(jsonUpdateHierarchyOneChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body(jsonUpdateHierarchyTwoChild).
+		body(jsonUpdateHierarchyOneChild).
 		with().
 		contentType(JSON).
 		when().

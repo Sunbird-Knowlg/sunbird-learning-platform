@@ -41,8 +41,8 @@
         },
         {
             "propertyName": "translations",
-            "title": "translations",
-            "description": "translations for the category",
+            "title": "Translations",
+            "description": "Translations for the category",
             "category": "General",
             "dataType": "json",
             "required": false,
