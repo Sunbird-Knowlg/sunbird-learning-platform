@@ -90,6 +90,12 @@
 			<groupId>org.neo4j.procedure</groupId>
 			<artifactId>apoc</artifactId>
 			<version>3.3.0.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
@@ -109,6 +115,11 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-handler</artifactId>
+			<version>4.1.16.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
 			<version>4.1.16.Final</version>
 		</dependency>
 		<dependency>
