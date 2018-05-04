@@ -86,11 +86,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		String framework = (String) item.getMetadata().get(ContentAPIParams.framework.name());
 		if (StringUtils.isBlank(framework))
 			item.getMetadata().put("framework", getDefaultFramework());
-		
+
 		Object version = item.getMetadata().get(ContentAPIParams.version.name());
 		if (null == version)
 			item.getMetadata().put(ContentAPIParams.version.name(), 1);
-		
+
 		Response validateRes = new Response();
 		List<String> assessmentErrors = new ArrayList<String>();
 		body = (String) item.getMetadata().remove("body");
@@ -164,11 +164,21 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (null == item)
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
 					"AssessmentItem Object is blank");
-		
-		String framework = (String) item.getMetadata().get(ContentAPIParams.framework.name());
-		if (StringUtils.isBlank(framework))
-			item.getMetadata().put("framework", getDefaultFramework());
-		
+
+		Response getNodeResponse = getDataNode(taxonomyId, id);
+		if (checkError(getNodeResponse)) {
+			TelemetryManager.log("AssessmentItem not found: " + id);
+			return getNodeResponse;
+		}
+
+		if (StringUtils.isBlank((String) item.getMetadata().get("framework"))) {
+			Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+			if (StringUtils.isNotBlank((String) graphNode.getMetadata().get("framework")))
+				item.getMetadata().put("framework", (String) graphNode.getMetadata().get("framework"));
+			else
+				item.getMetadata().put("framework", getDefaultFramework());
+		}
+
 		assessmentBody = (String) item.getMetadata().get("body");
 		if (StringUtils.isNotBlank(assessmentBody))
 			item.getMetadata().put("body", null);
@@ -736,9 +746,10 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				}
 			}
 		} catch (Exception e) {
-			TelemetryManager
-					.error("error in replaceMediaItemsWithLowVariants while checking media for replacing with low variants, message= "
-							+ e.getMessage(), e);
+			TelemetryManager.error(
+					"error in replaceMediaItemsWithLowVariants while checking media for replacing with low variants, message= "
+							+ e.getMessage(),
+					e);
 			e.printStackTrace();
 		}
 	}
@@ -764,7 +775,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
 		return node;
 	}
-	
+
 	private String getDefaultFramework() {
 		String channel = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.name());
 		// TODO: check channel for default framework.
