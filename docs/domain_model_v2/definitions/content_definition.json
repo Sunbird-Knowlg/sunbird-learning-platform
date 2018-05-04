@@ -2319,7 +2319,7 @@
 					"renderingHints": "{ 'order': 26 }"
 				},
 				{
-					"relationName": "pre-requisite",
+					"relationName": "preRequisite",
 					"objectTypes": [
 						"Library"
 					],
