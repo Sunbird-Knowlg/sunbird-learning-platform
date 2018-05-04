@@ -2319,7 +2319,7 @@
 					"renderingHints": "{ 'order': 26 }"
 				},
 				{
-					"relationName": "pre-requisite",
+					"relationName": "preRequisite",
 					"objectTypes": [
 						"Library"
 					],
@@ -2447,7 +2447,7 @@
 					"board": 4
 				},
 				"versionCheckMode": "STRICT",
-				"allowupdate_status": true,
+				"allowupdate_status": false,
 				"fields": [
 					"identifier",
 					"name",
