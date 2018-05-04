@@ -164,6 +164,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (null == item)
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
 					"AssessmentItem Object is blank");
+		
+		String framework = (String) item.getMetadata().get(ContentAPIParams.framework.name());
+		if (StringUtils.isBlank(framework))
+			item.getMetadata().put("framework", getDefaultFramework());
+		
 		assessmentBody = (String) item.getMetadata().get("body");
 		if (StringUtils.isNotBlank(assessmentBody))
 			item.getMetadata().put("body", null);
