@@ -542,8 +542,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				}
 			}
 			
-			// TODO: remove this code after 31st May 2018.
-			resourceTypeAsList(map);
 
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
@@ -570,13 +568,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 	
-	private void resourceTypeAsList(Map<String, Object> map) {
-		Object resourceType = map.get("resourceType");
-		if (null != resourceType && resourceType instanceof String) {
-			map.put("resourceType", Arrays.asList(resourceType));
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String contentId, String mode, List<String> fields) {
@@ -751,8 +742,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (checkError)
 			return createResponse;
 		
-		// TODO: remove this code after 31st May 2018.
-		resourceTypeAsList(map);
 		
 		TelemetryManager.log("Updating content node: " + contentId);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
