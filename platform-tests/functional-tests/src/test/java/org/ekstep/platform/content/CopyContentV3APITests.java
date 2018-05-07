@@ -43,7 +43,7 @@ public class CopyContentV3APITests extends BaseTest{
 	String jsonUpdateHierarchyOneChild = "{\"request\":{\"data\":{\"nodesModified\":{\"unitId1\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"name\":\"LP_FT_CourseUnit1_"+rn+"\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}}},\"hierarchy\":{\"TextbookId\":{\"name\":\"LP_NFT_Collection_"+rn+"\",\"contentType\":\"TextBook\",\"children\":[\"unitId1\"],\"root\":true},\"unitId1\":{\"name\":\"LP_FT_CourseUnit1_"+rn+"\","
 			+ "\"contentType\":\"TextBookUnit\",\"children\":[\"contentId1\"],\"root\":false},\"contentId1\":{\"name\":\"LP_FT_Content1_"+rn+"\",\"root\":false}}}}}";
 	String jsonCreateValidTextBookUnit = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Unit" + rn+ "\", \"mediaType\": \"content\",\"visibility\": \"Parent\",\"name\": \"LP_NFT_Unit_"+ rn+ "\",\"contentType\": \"TextBookUnit\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
-	String jsonCreateValidTextBook = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_TBook" + rn+ "\", \"mediaType\": \"content\",\"visibility\": \"Parent\",\"name\": \"LP_NFT_TBook_"+ rn+ "\",\"contentType\": \"TextBook\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
+	String jsonCreateValidTextBook = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_TBook" + rn+ "\", \"mediaType\": \"content\",\"name\": \"LP_NFT_TBook_"+ rn+ "\",\"contentType\": \"TextBook\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
 	String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"version_key\",\"name\":\"updatedContentName\"}}}";
 	String jsonCopyContent = "{\"request\":{\"content\":{\"createdBy\":\"Test\",\"createdFor\":[\"Test\"],\"organization\":[\"Test\"]}}}";
 	
@@ -931,7 +931,7 @@ public class CopyContentV3APITests extends BaseTest{
 				when().
 				get("/content/v3/read/"+copyId).
 				then().
-				//log().all().
+				log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -943,7 +943,7 @@ public class CopyContentV3APITests extends BaseTest{
 		int nodesCount = childNodes.size();
 		//System.out.println(nodesCount);
 		String status = jPath1.get("result.content.status");
-		Assert.assertTrue(nodesCount==3);
+		Assert.assertTrue(nodesCount==2);
 		Assert.assertTrue(identifier!=textBookId);
 		Assert.assertTrue(status.equals("Draft"));
 	}
