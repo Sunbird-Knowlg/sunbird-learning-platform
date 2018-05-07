@@ -27,6 +27,7 @@ public class assesmentItemAPI extends BaseTest {
 
 	String jsonSearchValidAssessmentItem = "{\"request\":{\"metadata\":{\"filters\":[{\"property\":\"identifier\",\"operator\":\"=\",\"value\":\"ActualValue\"}]},\"sortOrder\":[{\"sortField\":\"code\",\"sortOrder\":\"ASC\"}],\"startPosition\":0,\"resultSize\":10}}";
 	String jsonSearchInvalidAssessmentItem = "{ \"request\": { \"metadata\": {\"filters\":[{\"property\" : \"type\", \"operator\": \"!=\", \"value\": \"mcr\"},{\"property\" : \"owner\", \"operator\": \"=\", \"value\": \"ajsdghj\"}]}}}";
+	String jsonCreateAssessmentItemMCQFramework = "{\"request\":{\"assessment_item\":{\"identifier\":\"LP_NFT_AS_FW_"+rn+"\",\"objectType\":\"AssessmentItem\",\"metadata\":{\"code\":\"LP_NFT\",\"name\":\"LP_NFT_AS_"+rn+"\",\"type\":\"mcq\",\"num_answers\":1,\"template\":\"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\":\"MEDIUM\",\"owner\":\"Test\",\"title\":\"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\":\"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\":{\"img\":{\"type\":\"image\",\"asset\":\"perimeter\"},\"img2\":{\"type\":\"image\",\"asset\":\"smallSquare\"},\"subtext\":\"(= 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\":[{\"value\":{\"type\":\"text\",\"asset\":\"12&10\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"14&7\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"16&8\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"12&7\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"},\"score\":1}],\"max_score\":1,\"partial_scoring\":false,\"feedback\":\"\"}}}}";
 
 
 
@@ -420,6 +421,52 @@ public class assesmentItemAPI extends BaseTest {
 		spec(get200ResponseSpec());
 	}
 
+	//Create valid AssessmentItem MCQ and validate default framework
+	@Test
+	public void createAssessmentItemMCQExpectFramework() {
+		setURI();
+		Response R =
+				given(). 
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateAssessmentItemMCQFramework).
+				with().
+				contentType(JSON).
+				when().
+				post("/assessment/v3/items/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP = R.jsonPath();
+		String nodeId = jP.get("result.node_id");
+
+		// Read and validate the assessment
+		setURI();
+		Response R1 =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		get("/assessment/v3/items/read/"+nodeId).
+		then().
+		spec(get200ResponseSpec()).
+		extract().response();
+		
+		JsonPath jP1 = R1.jsonPath();
+		String framework = jP1.get("result.assessment_item.framework");
+		Assert.assertTrue(framework.equals("NCF"));
+		
+		//Retiring the assessment
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		delete("/assessment/v3/items/retire/"+nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+	}
+	
 	// Delete Assessment with invalid id
 	@Ignore
 	public void deleteInvalidAssessmentExpect404() {
