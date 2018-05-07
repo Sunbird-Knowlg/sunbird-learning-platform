@@ -35,7 +35,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 	public void init() {
 		if (StringUtils.isBlank(categoryId))
 			createCategory();
-			System.out.println(categoryId);
+			//System.out.println(categoryId);
 	}
 
 	private void createCategory() {

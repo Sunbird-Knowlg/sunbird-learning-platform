@@ -576,6 +576,114 @@ public class ContentFlaggingTests extends BaseTest{
 		spec(get400ResponseSpec());
 	}
 	
+	// Reject accepted flag content
+	@Test
+	public void rejectFlaggedContentExpect4xx(){
+		String nodeId = createContent();
+		
+		// Upload zip file
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId);
+		//then().
+		//log().all().
+		//spec(get200ResponseSpec());
+
+		// Get body and validate
+		setURI();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP2 = R2.jsonPath();
+		String body = jP2.get("result.content.body");
+		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		if (isValidXML(body) || isValidJSON(body)) {
+
+			// Publish created content
+			setURI();
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+			when().
+			post("/content/v3/publish/" + nodeId).
+			then().
+			//log().all().
+			//spec(get200ResponseSpec()).
+			extract().response();
+			
+			// Get Versionkey
+			setURI();
+			try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);}
+			Response R4 = 
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/" + nodeId).
+					then().
+					//log().all().
+					//spec(get200ResponseSpec()).
+					extract().response();
+			
+			JsonPath jP4 = R4.jsonPath();
+			String version_key = jP4.get("result.content.versionKey");
+		
+		// Flag the content
+		setURI();
+		Response R5 =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"flagReasons\":[\"Copyright Violation\"],\"flaggedBy\":\"Vignesh\",\"versionKey\":"+version_key+"}}").
+		with().
+		contentType(JSON).
+		when().
+		post("/content/v3/flag/"+nodeId).
+		then().
+		//log().all().
+		//spec(get200ResponseSpec()).				
+		extract().response();
+		
+		JsonPath jP5 = R5.jsonPath();
+		String version_key2 = jP5.get("result.versionKey");
+		
+		// Accept Flag
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"versionKey\":"+version_key2+"}}").
+		with().
+		contentType(JSON).
+		when().
+		post("/content/v3/flag/accept/"+nodeId).
+		then().
+		//log().all().
+		//spec(get200ResponseSpec()).
+		extract().response();
+		
+		// Reject flag
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{}}").
+		with().
+		contentType(JSON).
+		when().
+		post("/content/v3/flag/reject/"+nodeId).
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
+		}
+	}
+	
 	// Review flagDraft content and check for flagReview state
 	@Test
 	public void reviewFlagDraftContentExpectSuccess200(){
