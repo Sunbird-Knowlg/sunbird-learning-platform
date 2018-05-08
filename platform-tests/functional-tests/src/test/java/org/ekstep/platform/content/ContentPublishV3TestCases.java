@@ -496,7 +496,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			JSONObject js = new JSONObject(jsonCreateValidContent);
 			ArrayList<String> resourceType = new ArrayList<String>();
 			resourceType.add("Story");
-			js.getJSONObject("request").getJSONObject("content").put("resourceType",resourceType.toString());
+			js.getJSONObject("request").getJSONObject("content").put("resourceType",resourceType);
 			jsonCreateValidContent = js.toString();
 			System.out.println(jsonCreateValidContent);
 			setURI();
