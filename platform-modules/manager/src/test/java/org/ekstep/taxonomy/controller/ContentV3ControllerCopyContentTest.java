@@ -310,7 +310,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	// @Test
 	public void copyContentTest_09() throws Exception {
 		String reqPath = basePath + "create";
 		String assetCreateReq = "{\"request\": {\"content\": {\"name\": \"Test Resource\",\"code\": \"test.asset\",\"contentType\":\"Asset\",\"mimeType\": \"image/jpeg\"}}}";
