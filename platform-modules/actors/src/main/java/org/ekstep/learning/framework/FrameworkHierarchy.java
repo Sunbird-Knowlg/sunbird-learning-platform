@@ -77,7 +77,7 @@ public class FrameworkHierarchy extends BaseManager {
 
 	private void pushFrameworkEvent(Node node) throws Exception {
 		Map<String, Object> frameworkDocument = new HashMap<>();
-		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false);
+		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
 		CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
 
 		frameworkDocument.put("fw_hierarchy", mapper.writeValueAsString(frameworkHierarchy));
@@ -92,7 +92,7 @@ public class FrameworkHierarchy extends BaseManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata) throws Exception {
+	private Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata, boolean includeRelations) throws Exception {
 		Map<String, Object> data = new HashMap<String, Object>();
 		Response responseNode = getDataNode(GRAPH_ID, id);
 		if (checkError(responseNode))
@@ -118,38 +118,45 @@ public class FrameworkHierarchy extends BaseManager {
 				if (index > 0)
 					data.put("index", index);
 			}
-			Map<String, String> inRelDefMap = new HashMap<>();
-			Map<String, String> outRelDefMap = new HashMap<>();
-			List<String> sortKeys = new ArrayList<String>();
-			ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
-			List<Relation> outRelations = node.getOutRelations();
-			if (null != outRelations && !outRelations.isEmpty()) {
-				for (Relation relation : outRelations) {
-					String type = relation.getRelationType();
-					String key = type + relation.getEndNodeObjectType();
-					String title = outRelDefMap.get(key);
-					List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
-					if (relData == null) {
-						relData = new ArrayList<Map<String, Object>>();
-						data.put(title, relData);
-						if ("hasSequenceMember".equalsIgnoreCase(type))
-							sortKeys.add(title);
+			if (includeRelations) {
+				Map<String, String> inRelDefMap = new HashMap<>();
+				Map<String, String> outRelDefMap = new HashMap<>();
+				List<String> sortKeys = new ArrayList<String>();
+				ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
+				List<Relation> outRelations = node.getOutRelations();
+				if (null != outRelations && !outRelations.isEmpty()) {
+					for (Relation relation : outRelations) {
+						String type = relation.getRelationType();
+						String key = type + relation.getEndNodeObjectType();
+						String title = outRelDefMap.get(key);
+						List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
+						if (relData == null) {
+							relData = new ArrayList<Map<String, Object>>();
+							data.put(title, relData);
+							if ("hasSequenceMember".equalsIgnoreCase(type))
+								sortKeys.add(title);
+						}
+						Map<String, Object> relMeta = relation.getMetadata();
+						int seqIndex = 0;
+						if (relMeta != null) {
+							Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
+							if (indexObj != null)
+								seqIndex = ((Long) indexObj).intValue();
+						}
+						boolean getChildren = true;
+						// TODO: This condition value should get from definition node.
+						if ("associations".equalsIgnoreCase(title)) {
+							getChildren = false;
+						}
+						Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true, getChildren);
+						if (!childData.isEmpty())
+							relData.add(childData);
 					}
-					Map<String, Object> relMeta = relation.getMetadata();
-					int seqIndex = 0;
-					if (relMeta != null) {
-						Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
-						if (indexObj != null)
-							seqIndex = ((Long) indexObj).intValue();
-					}
-					Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true);
-					if (!childData.isEmpty())
-						relData.add(childData);
 				}
-			}
-			for (String key : sortKeys) {
-				List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
-				getSorted(prop);
+				for (String key : sortKeys) {
+					List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
+					getSorted(prop);
+				}
 			}
 		}
 

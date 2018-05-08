@@ -178,7 +178,7 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 		return response;
 	}
-	
+
 	/*
 	 * 
 	 * Search Data Node based on criteria.
@@ -348,41 +348,6 @@ public class BaseFrameworkManager extends BaseManager {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
 		}
 	}
-	
-	/*public void setRelationsCopy(String parnetObjectType, String childObjectType, String scopeId, Map<String, Object> request) {
-		DefinitionDTO parentDefinition =  getDefinition(GRAPH_ID, parnetObjectType);
-		DefinitionDTO childDefinition = getDefinition(GRAPH_ID, childObjectType);
-		if(null != parentDefinition && null != childDefinition) {
-			List<RelationDefinition> parentOutRelations = parentDefinition.getOutRelations();
-			List<RelationDefinition> childInRelations = childDefinition.getInRelations();
-			if(null != parentOutRelations && !parentOutRelations.isEmpty() && 
-					null != childInRelations && !childInRelations.isEmpty()) {
-				for(RelationDefinition parentOutRelation : parentOutRelations) {
-					for(RelationDefinition childInRelation : childInRelations) {
-						if(StringUtils.equalsIgnoreCase(childInRelation.getRelationName(), parentOutRelation.getRelationName()) &&
-								childInRelation.getObjectTypes().contains(parnetObjectType) &&
-								parentOutRelation.getObjectTypes().contains(childObjectType)) {
-							List<Map<String, Object>> relationList = new ArrayList<Map<String, Object>>();
-							Map<String, Object> relationMap = new HashMap<String, Object>();
-							relationMap.put("identifier", scopeId);
-							relationList.add(relationMap);
-							
-							Response responseNode = getDataNode(GRAPH_ID, scopeId);
-							Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
-							if(StringUtils.equalsIgnoreCase(dataNode.getObjectType(), parnetObjectType))
-								request.put(childInRelation.getTitle(), relationList);
-							else if (StringUtils.equalsIgnoreCase(dataNode.getObjectType(), childObjectType))
-								request.put(parentOutRelation.getTitle(), relationList);
-							
-							return;
-						}
-					}
-					
-				}
-			}
-		}
-		
-	}*/
 
 	/**
 	 * This is the method to get the full hierarchy of a tree. It assumes that
@@ -395,13 +360,15 @@ public class BaseFrameworkManager extends BaseManager {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	protected Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata) throws Exception {
+	protected Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata, boolean includeRelations)
+			throws Exception {
 		Map<String, Object> data = new HashMap<String, Object>();
 		Response responseNode = getDataNode(GRAPH_ID, id);
-	    if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id, ResponseCode.RESOURCE_NOT_FOUND);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id,
+					ResponseCode.RESOURCE_NOT_FOUND);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		
+
 		Map<String, Object> metadata = node.getMetadata();
 		String status = (String) metadata.get("status");
 		if (StringUtils.equalsIgnoreCase("Live", status)) {
@@ -420,38 +387,47 @@ public class BaseFrameworkManager extends BaseManager {
 				if (index > 0)
 					data.put("index", index);
 			}
-			Map<String, String> inRelDefMap = new HashMap<>();
-			Map<String, String> outRelDefMap = new HashMap<>();
-			List<String> sortKeys = new ArrayList<String>();
-			ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
-			List<Relation> outRelations = node.getOutRelations();
-			if (null != outRelations && !outRelations.isEmpty()) {
-				for (Relation relation : outRelations) {
-					String type = relation.getRelationType();
-					String key = type + relation.getEndNodeObjectType();
-					String title = outRelDefMap.get(key);
-					List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
-					if (relData == null) {
-						relData = new ArrayList<Map<String, Object>>();
-						data.put(title, relData);
-						if ("hasSequenceMember".equalsIgnoreCase(type))
-							sortKeys.add(title);
+			if (includeRelations) {
+				Map<String, String> inRelDefMap = new HashMap<>();
+				Map<String, String> outRelDefMap = new HashMap<>();
+				List<String> sortKeys = new ArrayList<String>();
+				ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
+				List<Relation> outRelations = node.getOutRelations();
+				if (null != outRelations && !outRelations.isEmpty()) {
+					for (Relation relation : outRelations) {
+						String type = relation.getRelationType();
+						String key = type + relation.getEndNodeObjectType();
+						String title = outRelDefMap.get(key);
+						List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
+						if (relData == null) {
+							relData = new ArrayList<Map<String, Object>>();
+							data.put(title, relData);
+							if ("hasSequenceMember".equalsIgnoreCase(type))
+								sortKeys.add(title);
+						}
+						Map<String, Object> relMeta = relation.getMetadata();
+						int seqIndex = 0;
+						if (relMeta != null) {
+							Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
+							if (indexObj != null)
+								seqIndex = ((Long) indexObj).intValue();
+						}
+
+						boolean getChildren = true;
+						// TODO: This condition value should get from definition node.
+						if ("associations".equalsIgnoreCase(title)) {
+							getChildren = false;
+						}
+						Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true,
+								getChildren);
+						if (!childData.isEmpty())
+							relData.add(childData);
 					}
-					Map<String, Object> relMeta = relation.getMetadata();
-					int seqIndex = 0;
-					if (relMeta != null) {
-						Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
-						if (indexObj != null)
-							seqIndex = ((Long) indexObj).intValue();
-					}
-					Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true);
-					if (!childData.isEmpty())
-						relData.add(childData);
 				}
-			}
-			for (String key : sortKeys) {
-				List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
-				getSorted(prop);
+				for (String key : sortKeys) {
+					List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
+					getSorted(prop);
+				}
 			}
 		}
 
@@ -486,9 +462,10 @@ public class BaseFrameworkManager extends BaseManager {
 	private void makeLearningRequest(Request request) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
-			// TODO: Since we dont have actor implementation here, sending noSender as AcoterRef to tell call. Need to improve this
+			// TODO: Since we dont have actor implementation here, sending noSender as
+			// AcoterRef to tell call. Need to improve this
 			router.tell(request, ActorRef.noSender());
-			
+
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
