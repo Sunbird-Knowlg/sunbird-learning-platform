@@ -1959,11 +1959,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 
 	private Node validateCopyContentRequest(String contentId, Map<String, Object> requestMap, String mode) {
-		if (null == requestMap || !(requestMap.containsKey("createdBy"))) {
+		if (null == requestMap) 
 			throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
-		}
+		
+		if(StringUtils.isBlank((String)requestMap.get("createdBy")))
+			throw new ClientException("ERR_INVALID_CREATEDBY", "Please provide valid createdBy value");
+		
 		if(!validateList(requestMap.get("createdFor"))) {
-			throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid CreatedFor value.");
+			throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid createdFor value.");
 		}
 		if (!validateList(requestMap.get("organization"))) {
 			throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid Organization value.");
