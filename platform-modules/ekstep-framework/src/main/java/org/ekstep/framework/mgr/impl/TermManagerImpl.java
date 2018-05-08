@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -77,13 +76,6 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 				codeError += 1;
 			}
 		}
-		if (StringUtils.isNoneBlank(id)) {
-			if (Platform.config.hasPath("framework.es.sync")) {
-				if (Platform.config.getBoolean("framework.es.sync")) {
-					generateFrameworkHierarchy(id);
-				}
-			}
-		}
 		return createResponse(codeError, serverError, identifiers, requestList.size());
 	}
 
@@ -141,13 +133,6 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		}
 		request.put("category", category);
 		Response response = update(termId, TERM_OBJECT_TYPE, request);
-		if(response.getResponseCode() == ResponseCode.OK) {
-			if (Platform.config.hasPath("framework.es.sync")) {
-				if (Platform.config.getBoolean("framework.es.sync")) {
-					generateFrameworkHierarchy(termId);
-				}
-			}
-		}
 		return response;
 		
 	}
@@ -180,13 +165,6 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
 			Response response = retire(termId, TERM_OBJECT_TYPE);
-			if(response.getResponseCode() == ResponseCode.OK) {
-				if (Platform.config.hasPath("framework.es.sync")) {
-					if (Platform.config.getBoolean("framework.es.sync")) {
-						generateFrameworkHierarchy(termId);
-					}
-				}
-			}
 			return response;
 		} else {
 			throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");

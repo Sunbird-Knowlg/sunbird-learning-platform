@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
@@ -31,11 +31,13 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
-import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.framework.FrameworkHierarchyOperations;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
+
+import akka.actor.ActorRef;
 
 /**
  * @author pradyumna
@@ -45,9 +47,6 @@ public class BaseFrameworkManager extends BaseManager {
 
 	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
 			: "domain";
-
-	private ObjectMapper mapper = new ObjectMapper();
-	private ElasticSearchUtil esUtil = new ElasticSearchUtil();
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
@@ -476,49 +475,24 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 	protected void generateFrameworkHierarchy(String objectId) throws Exception {
-		Response responseNode = getDataNode(GRAPH_ID, objectId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + objectId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
-			pushFrameworkEvent(node);
-		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "CategoryInstance")) {
-			List<Relation> inRelations = node.getInRelations();
-			if (null != inRelations && !inRelations.isEmpty()) {
-				for (Relation rel : inRelations) {
-					if (StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Framework")
-							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
-						generateFrameworkHierarchy(rel.getStartNodeId());
-					}
-				}
-			}
-		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Term")) {
-			List<Relation> inRelations = node.getInRelations();
-			if (null != inRelations && !inRelations.isEmpty()) {
-				for (Relation rel : inRelations) {
-					if ((StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance") || StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Term"))
-							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
-						generateFrameworkHierarchy(rel.getStartNodeId());
-					}
-				}
-			}
-		}
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name());
+		request.setOperation(FrameworkHierarchyOperations.generateFrameworkHierarchy.name());
+		request.put("identifier", objectId);
+		makeLearningRequest(request);
+
 	}
 
-	protected void pushFrameworkEvent(Node node) throws Exception {
-		Map<String, Object> frameworkDocument = new HashMap<>();
-		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false);
-		CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
-
-		frameworkDocument.put("fw_hierarchy", mapper.writeValueAsString(frameworkHierarchy));
-		frameworkDocument.put("graph_id", GRAPH_ID);
-		frameworkDocument.put("node_id", (int) node.getId());
-		frameworkDocument.put("identifier", node.getIdentifier());
-		frameworkDocument.put("objectType", node.getObjectType());
-		frameworkDocument.put("nodeType", node.getNodeType());
-		esUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, node.getIdentifier(),
-				mapper.writeValueAsString(frameworkDocument));
+	private void makeLearningRequest(Request request) {
+		ActorRef router = LearningRequestRouterPool.getRequestRouter();
+		try {
+			// TODO: Since we dont have actor implementation here, sending noSender as AcoterRef to tell call. Need to improve this
+			router.tell(request, ActorRef.noSender());
+			
+		} catch (Exception e) {
+			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
+		}
 	}
 
 }

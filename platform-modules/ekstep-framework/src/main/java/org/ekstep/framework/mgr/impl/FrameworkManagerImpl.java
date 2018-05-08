@@ -70,14 +70,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		if (validateObject(channelId)) {
 			Response response = create(request, FRAMEWORK_OBJECT_TYPE);
-			if (response.getResponseCode() == ResponseCode.OK) {
-				if (Platform.config.hasPath("framework.es.sync")) {
-					if (Platform.config.getBoolean("framework.es.sync")) {
-						generateFrameworkHierarchy(code);
-					}
-				}
-				
-			}
 			return response;
 		} else {
 			return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
@@ -194,12 +186,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		}
 		
 		Response response = update(frameworkId, FRAMEWORK_OBJECT_TYPE, map);
-		if (response.getResponseCode() == ResponseCode.OK)
-			if (Platform.config.hasPath("framework.es.sync")) {
-				if (Platform.config.getBoolean("framework.es.sync")) {
-					generateFrameworkHierarchy(frameworkId);
-				}
-			}
 		return response;
 
 	}
@@ -272,13 +258,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	    		String sluggifiedFrameworkId = Slug.makeSlug(frameworkId);
 	    		String sluggifiedCode = Slug.makeSlug(code);
 	    		Response response = copyHierarchy(frameworkId, code, sluggifiedFrameworkId, sluggifiedCode, request);
-	    		if (response.getResponseCode() == ResponseCode.OK) {
-	    			if (Platform.config.hasPath("framework.es.sync")) {
-					if (Platform.config.getBoolean("framework.es.sync")) {
-						generateFrameworkHierarchy(code);
-					}
-				}
-			}
 	    		return response;
 	    }else {
 	    		return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
@@ -356,4 +335,25 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	    return response;
 	  }
 	  
+	@Override
+	public Response publishFramework(String frameworkId, String channelId) throws Exception {
+		if (!validateObject(channelId)) {
+			return ERROR("ERR_INVALID_CHANNEL_ID", "Invalid Channel Id. Channel doesn't exist.",
+					ResponseCode.CLIENT_ERROR);
+		}
+		if (StringUtils.isNotBlank(frameworkId) && validateObject(frameworkId)) {
+			generateFrameworkHierarchy(frameworkId);
+			Response response = OK();
+			response.put(FrameworkEnum.publishStatus.name(),
+					"Publish Operation for Content Id '" + frameworkId + "' Started Successfully!");
+
+			return response;
+		} else {
+			return ERROR("ERR_INVALID_FRAMEOWRK_ID", "Invalid Framework Id. Framework doesn't exist.",
+					ResponseCode.CLIENT_ERROR);
+		}
+
+
+	}
+
 }
