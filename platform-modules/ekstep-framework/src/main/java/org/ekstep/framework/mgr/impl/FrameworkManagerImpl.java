@@ -104,20 +104,23 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				List<Object> searchResult = searchFramework(frameworkId);
 				if (null != searchResult && !searchResult.isEmpty()) {
 					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
-					Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"), Map.class);
-					if (null != hierarchy && !hierarchy.isEmpty()) {
-						List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy.get("categories");
-						if (categories != null) {
-							if (returnCategories != null && !returnCategories.isEmpty()) {
-								responseMap.put("categories",
-										categories.stream().filter(p -> returnCategories.contains(p.get("code")))
-												.collect(Collectors.toList()));
-							} else {
-								responseMap.put("categories", categories);
+					if (null != framework.get("fw_hierarchy")) {
+						Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
+								Map.class);
+						if (null != hierarchy && !hierarchy.isEmpty()) {
+							List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
+									.get("categories");
+							if (categories != null) {
+								if (returnCategories != null && !returnCategories.isEmpty()) {
+									responseMap.put("categories",
+											categories.stream().filter(p -> returnCategories.contains(p.get("code")))
+													.collect(Collectors.toList()));
+								} else {
+									responseMap.put("categories", categories);
+								}
 							}
 						}
 					}
-					
 				}
 			}
 		}
