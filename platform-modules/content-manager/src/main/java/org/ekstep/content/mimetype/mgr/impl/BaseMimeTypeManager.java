@@ -507,31 +507,15 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		}
 		return urlArray;
 	}
-	public String[] copyArtifact(String artifactUrl, String originIdentifier, String destinationIdentifier) {
+	public boolean isS3Url(String url) {
 		String bucketName = getBucketName();
-		if(!artifactUrl.contains(bucketName)) {
-			return new String[] {artifactUrl};
+		if(url.contains(bucketName)) {
+			return true;
 		}else {
-			return copyArtifactToAWS(artifactUrl, originIdentifier, destinationIdentifier);
+			return false;
 		}
 	}
 	
-	public String[] copyArtifactToAWS(String artifactUrl, String originIdentifier, String destinationIdentifier) {
-		String[] urlArray = new String[] {};
-		try {
-			String folder = S3PropertyReader.getProperty(s3Content);
-			String sourceFolderName = folder + "/" + Slug.makeSlug(originIdentifier, true) + "/" + S3PropertyReader.getProperty(s3Artifact);
-			String destinationFolderName = folder + "/" + Slug.makeSlug(destinationIdentifier, true) + "/" + S3PropertyReader.getProperty(s3Artifact);
-			String key = StringUtils.substringAfterLast(artifactUrl, "/");
-			
-			urlArray = AWSUploader.copyObjects(sourceFolderName, key, destinationFolderName, key);
-		} catch(Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_COPY_ARTIFACT.name(),
-					"Error while copying artifact.", e);
-		}
-		return urlArray;
-	}
-
 	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile, boolean slugFile) {
 		String[] urlArray = uploadArtifactToAWS(uploadedFile, contentId);
 		node.getMetadata().put("s3Key", urlArray[0]);

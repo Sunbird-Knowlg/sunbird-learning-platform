@@ -1,6 +1,8 @@
 package org.ekstep.taxonomy.mgr.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1776,29 +1778,55 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @param requestMap
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	private Map<String, String> copyContentData(Node existingNode, Map<String, Object> requestMap) {
-		String newId = Identifier.getIdentifier(existingNode.getGraphId(), Identifier.getUniqueIdFromTimestamp());
-		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-		Node copyNode = copyMetdata(existingNode, requestMap, newId);
-
+		
+		Node copyNode = copyMetdata(existingNode, requestMap);
 		Response response = createDataNode(copyNode);
 		if (checkError(response)) {
 			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
 		}
+		uploadArtifactUrl(existingNode, copyNode);
+		uploadExternalProperties(existingNode, copyNode);
+
+		Map<String, String> idMap = new HashMap<>();
+		idMap.put(existingNode.getIdentifier(), copyNode.getIdentifier());
+		return idMap;
+	}
+	
+	private void uploadExternalProperties(Node existingNode, Node copyNode) {
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		// Copy the externalProperties in cassandra
 		List<String> externalPropsList = getExternalPropsList(definition);
 		Response bodyResponse = getContentProperties(existingNode.getIdentifier(), externalPropsList);
 		if (!checkError(bodyResponse)) {
 			Map<String, Object> extValues = (Map<String, Object>) bodyResponse.get(ContentStoreParams.values.name());
 			if (null != extValues && !extValues.isEmpty()) {
-				updateContentProperties(newId, extValues);
+				updateContentProperties(copyNode.getIdentifier(), extValues);
 			}
 		}
-
-		Map<String, String> idMap = new HashMap<>();
-		idMap.put(existingNode.getIdentifier(), newId);
-		return idMap;
+	}
+	
+	private void uploadArtifactUrl(Node existingNode, Node copyNode) {
+		String artifactUrl = (String)existingNode.getMetadata().get("artifactUrl");
+		if(StringUtils.isNotBlank(artifactUrl)) {
+			Response response = null;
+			String mimeType = (String)copyNode.getMetadata().get("mimeType");
+			String contentType = (String) copyNode.getMetadata().get("contentType");
+			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
+			BaseMimeTypeManager baseMimeTypeManager = new BaseMimeTypeManager();
+			
+			if(baseMimeTypeManager.isS3Url(artifactUrl)) {
+				File file = copyURLToFile(artifactUrl);
+				response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
+				
+			}else {
+				response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, artifactUrl);
+			}
+			
+			if(null == response || checkError(response)) {
+				throw new ClientException("ARTIFACT_NOT_COPIED", "ArtifactUrl not coppied.");
+			}
+		}
 	}
 
 	/**
@@ -1910,7 +1938,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @param requestMap
 	 * @return
 	 */
-	private Node copyMetdata(Node existingNode, Map<String, Object> requestMap, String newId) {
+	private Node copyMetdata(Node existingNode, Map<String, Object> requestMap) {
+		String newId = Identifier.getIdentifier(existingNode.getGraphId(), Identifier.getUniqueIdFromTimestamp());
 		Node copyNode = new Node(newId, existingNode.getNodeType(), existingNode.getObjectType());
 		Map<String, Object> metaData = new HashMap<>();
 		metaData.putAll(existingNode.getMetadata());
@@ -1926,30 +1955,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		copyNode.getMetadata().putAll(nullPropMap);
 		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
 		
-		copyArtifact(existingNode, copyNode);
+		List<Relation> existingNodeOutRelations = existingNode.getOutRelations();
+        List<Relation> copiedNodeOutRelations = new ArrayList<>();
+        if(null != existingNodeOutRelations && !existingNodeOutRelations.isEmpty()) {
+            for(Relation rel : existingNodeOutRelations) {
+                if(!Arrays.asList("Content", "ContentImage").contains(rel.getEndNodeObjectType())) {
+                    copiedNodeOutRelations.add(new Relation(newId, rel.getRelationType(), rel.getEndNodeId()));
+                }
+            }
+        }
+        copyNode.setOutRelations(copiedNodeOutRelations);
 		
 		return copyNode;
-	}
-
-	/**
-	 * @param string
-	 * @param copyNode
-	 * @return
-	 */
-	private void copyArtifact(Node existingNode, Node copyNode) {
-		String artifacturl = (String) existingNode.getMetadata().get("artifactUrl");
-		if (StringUtils.isBlank(artifacturl)) {
-			return;
-		}
-
-		BaseMimeTypeManager baseMimeTypeManager = new BaseMimeTypeManager();
-		String[] urlArray = baseMimeTypeManager.copyArtifact(artifacturl, existingNode.getIdentifier(), copyNode.getIdentifier());
-		if(urlArray.length == 2) {
-			copyNode.getMetadata().put("s3Key", urlArray[0]);
-			copyNode.getMetadata().put("artifactUrl", urlArray[1]);
-		}else {
-			copyNode.getMetadata().put("artifactUrl", urlArray[0]);
-		}
 	}
 
 	/**
@@ -2005,5 +2022,22 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return false;
 		}
 		return true;
+	}
+	protected File copyURLToFile(String fileUrl) {
+		try {
+			String fileName = getFieNameFromURL(fileUrl);
+			File file = new File(fileName);
+			FileUtils.copyURLToFile(new URL(fileUrl), file);
+			return file;
+		} catch (IOException e) {
+			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "fileUrl is invalid.");
+		}
+	}
+	
+	protected String getFieNameFromURL(String fileUrl) {
+		String fileName = FilenameUtils.getBaseName(fileUrl)+"_"+ System.currentTimeMillis();
+		if (!FilenameUtils.getExtension(fileUrl).isEmpty()) 
+			fileName += "." + FilenameUtils.getExtension(fileUrl);
+		return fileName;
 	}
 }
