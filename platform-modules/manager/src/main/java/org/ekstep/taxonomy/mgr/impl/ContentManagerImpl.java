@@ -1813,25 +1813,30 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Response response = null;
 			String mimeType = (String)copyNode.getMetadata().get("mimeType");
 			String contentType = (String) copyNode.getMetadata().get("contentType");
-			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
-			BaseMimeTypeManager baseMimeTypeManager = new BaseMimeTypeManager();
 			
-			if(baseMimeTypeManager.isS3Url(artifactUrl)) {
-				File file = copyURLToFile(artifactUrl);
-				if(StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.h5p-archive")) {
-					H5PMimeTypeMgrImpl h5pManager = new H5PMimeTypeMgrImpl();
-					response = h5pManager.upload(copyNode.getIdentifier(), copyNode, true, file);
+			if (!(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", mimeType)
+					|| StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType))) {
+				IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
+				BaseMimeTypeManager baseMimeTypeManager = new BaseMimeTypeManager();
+
+				if (baseMimeTypeManager.isS3Url(artifactUrl)) {
+					File file = copyURLToFile(artifactUrl);
+					if (StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.h5p-archive")) {
+						H5PMimeTypeMgrImpl h5pManager = new H5PMimeTypeMgrImpl();
+						response = h5pManager.upload(copyNode.getIdentifier(), copyNode, true, file);
+					} else {
+						response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
+					}
+
 				}else {
-					response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
+					response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, artifactUrl);
 				}
 				
-			}else {
-				response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, artifactUrl);
+				if (null == response || checkError(response)) {
+					throw new ClientException("ARTIFACT_NOT_COPIED", "ArtifactUrl not coppied.");
+				}
 			}
 			
-			if(null == response || checkError(response)) {
-				throw new ClientException("ARTIFACT_NOT_COPIED", "ArtifactUrl not coppied.");
-			}
 		}
 	}
 
