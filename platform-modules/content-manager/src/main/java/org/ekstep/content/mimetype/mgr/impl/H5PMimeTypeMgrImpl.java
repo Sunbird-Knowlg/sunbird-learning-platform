@@ -45,6 +45,13 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 		}
 		return response;
 	}
+	
+	public Response upload(String contentId, Node node,boolean isZip, File uploadFile) {
+		Response response = null;
+		if(isZip)
+			response = uploadH5PContent(contentId, node, uploadFile);
+		return response;
+	}
 
 	@Override
 	public Response upload(String contentId, Node node, String fileUrl) {

@@ -45,6 +45,7 @@ import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.BaseMimeTypeManager;
+import org.ekstep.content.mimetype.mgr.impl.H5PMimeTypeMgrImpl;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
@@ -1817,7 +1818,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			
 			if(baseMimeTypeManager.isS3Url(artifactUrl)) {
 				File file = copyURLToFile(artifactUrl);
-				response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
+				if(StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.h5p-archive")) {
+					H5PMimeTypeMgrImpl h5pManager = new H5PMimeTypeMgrImpl();
+					response = h5pManager.upload(copyNode.getIdentifier(), copyNode, true, file);
+				}else {
+					response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
+				}
 				
 			}else {
 				response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, artifactUrl);
