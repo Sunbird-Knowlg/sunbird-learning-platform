@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -28,6 +29,9 @@ import org.springframework.stereotype.Component;
 public class TermManagerImpl extends BaseFrameworkManager implements ITermManager {
 
 	private static final String TERM_OBJECT_TYPE = "Term";
+	private static final int TERM_CREATION_LIMIT = Platform.config.hasPath("framework.max_term_creation_limit")
+			? Platform.config.getInt("framework.max_term_creation_limit")
+			: 200;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -35,6 +39,10 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		List<Map<String, Object>> requestList = getRequestData(req);
 		if (null == req.get(TermEnum.term.name()) || null == requestList || requestList.isEmpty())
 			throw new ClientException("ERR_INVALID_TERM_OBJECT", "Invalid Request");
+
+		if (TERM_CREATION_LIMIT < requestList.size())
+			throw new ClientException("ERR_INVALID_TERM_REQUEST",
+					"No. of request exceeded max limit of " + TERM_CREATION_LIMIT);
 
 		String categoryId = category;
 		if (null != scopeId) {
@@ -66,10 +74,14 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 					setRelations(categoryId, request);
 				request.put("category", category);
 				Response resp = create(request, TERM_OBJECT_TYPE);
-				if (resp.getResponseCode() == ResponseCode.OK) {
+				if (!checkError(resp)) {
 					identifiers.add((String) resp.getResult().get("node_id"));
 				} else {
-					serverError += 1;
+					if ((StringUtils.equalsIgnoreCase("CONSTRAINT_VALIDATION_FAILED", resp.getParams().getErr()))) {
+						codeError += 1;
+					} else {
+						serverError += 1;
+					}
 				}
 
 			} else {

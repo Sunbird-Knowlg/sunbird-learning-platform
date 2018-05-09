@@ -2,7 +2,9 @@ swagger: '2.0'
 info:
   version: '3.0'
   title: Framework API
-  description: A Framework can be defined by combining Concept Map and Terms for a Domain. A channel should be able to create multiple frameworks.
+  description: >-
+    A Framework can be defined by combining Concept Map and Terms for a Domain.
+    A channel should be able to create multiple frameworks.
   license:
     name: EkStep License
     url: 'http:www.EkStep.in'
@@ -22,7 +24,9 @@ paths:
   /create:
     post:
       summary: Creates a Framework
-      description: 'This API creates an framework for partner, based on the request body for a given channel'
+      description: >-
+        This API creates an framework for partner, based on the request body for
+        a given channel
       tags:
         - Framework
       operationId: ekstep.learning.framework.create
@@ -36,18 +40,26 @@ paths:
           schema:
             $ref: '#/definitions/FrameworkCreateResponse'
         '400':
-          description: 'Error While creating Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
+          description: >-
+            Error While creating Framework! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: 'Error While Creating Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
+          description: >-
+            Error While Creating Framework! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   '/read/{frameworkId}':
     get:
       summary: Gets an Framework
-      description: 'This API is used to fetch an Framework from the _EkStep Platform_.This endpoint returns the entire Framework Object with default fields. '
+      description: >-
+        This API is used to fetch an Framework from the _EkStep Platform_.This
+        endpoint returns the entire Framework Object with default fields. 
       tags:
         - Framework
       operationId: ekstep.learning.Framework.read
@@ -65,18 +77,27 @@ paths:
           schema:
             $ref: '#/definitions/FrameworkGetResponse'
         '400':
-          description: 'Error While fetching the Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While fetching the Framework! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'.
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: 'Error While fetching the Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While fetching the Framework! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   '/update/{frameworkId}':
     patch:
       summary: Updates the given Framework
-      description: This API is used to update an Framework based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation
+      description: >-
+        This API is used to update an Framework based on the request body
+        provided from the _EkStep Platform_. This endpoint return node_Id on
+        updation
       tags:
         - Framework
       operationId: ekstep.learning.framework.update
@@ -94,18 +115,26 @@ paths:
           schema:
             $ref: '#/definitions/FrameworkUpdateResponse'
         '400':
-          description: 'Error While Updating the Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
+          description: >-
+            Error While Updating the Framework! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: 'Error While Updating the Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
+          description: >-
+            Error While Updating the Framework! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   '/copy/{frameworkId}':
     post:
       summary: Copy a Framework
-      description: 'This API copy an framework for partner, based on the request body for a given channel'
+      description: >-
+        This API copy an framework for partner, based on the request body for a
+        given channel
       tags:
         - Framework
       operationId: ekstep.learning.framework.copy
@@ -123,18 +152,26 @@ paths:
           schema:
             $ref: '#/definitions/FrameworkCopyResponse'
         '400':
-          description: 'Error While copying Framework! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
+          description: >-
+            Error While copying Framework! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: 'Error While copying Framework! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
+          description: >-
+            Error While copying Framework! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
   /list:
     post:
       summary: Lists an Framework
-      description: This API is used to list and retrieve all framework from the framework repository based on the given list creteria in the request body
+      description: >-
+        This API is used to list and retrieve all framework from the framework
+        repository based on the given list creteria in the request body
       tags:
         - Framework
       operationId: ekstep.learning.framework.list
@@ -148,11 +185,17 @@ paths:
           schema:
             $ref: '#/definitions/FrameworkListResponse'
         '400':
-          description: 'Error While fetching all Framework lists! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'''
+          description: >-
+            Error While fetching all Framework lists! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: 'Error While fetching all Framework lists! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'''
+          description: >-
+            Error While fetching all Framework lists! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
@@ -160,7 +203,10 @@ paths:
     delete:
       tags:
         - Framework
-      summary: This API is used to delete (Retire) the framework from the _EkStep Platform_. It consumes the framework Identifier as 'frameworkId' on which the delete (Retire) operation has to be performed.
+      summary: >-
+        This API is used to delete (Retire) the framework from the _EkStep
+        Platform_. It consumes the framework Identifier as 'frameworkId' on
+        which the delete (Retire) operation has to be performed.
       operationId: ekstep.learning.framework.retire
       produces:
         - application/json
@@ -175,7 +221,10 @@ paths:
           schema:
             $ref: '#/definitions/FrameworkDeleteResponse'
         '400':
-          description: 'Error While framework Retire! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While framework Retire! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '404':
@@ -183,7 +232,45 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
-          description: 'Error While framework Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While framework Retire! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/publish/{frameworkId}':
+    post:
+      summary: Publishes the given Framework
+      description: >-
+        This API is used to publish a Framework. This endpoint returns the publish status
+      tags:
+        - Framework
+      operationId: ekstep.learning.framework.publish
+      produces:
+        - application/json
+      parameters:
+        - name: frameworkId
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Framework Published Successfully
+          schema:
+            $ref: '#/definitions/FrameworkPublishResponse'
+        '400':
+          description: >-
+            Error While Publishing the Framework! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Publishing the Framework! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
@@ -262,12 +349,25 @@ definitions:
     allOf:
       - $ref: '#/definitions/ResultWithFrameworkResponse'
       - $ref: '#/definitions/ResponseHeader'
+  FrameworkPublishResponse:
+    title: Update Framework Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithPublishStatus'
+      - $ref: '#/definitions/ResponseHeader'
   ResultWithFrameworkResponse:
     title: Get Framework Response
     type: object
     allOf:
       - $ref: '#/definitions/Framework'
       - $ref: '#/definitions/ResponseHeader'
+  ResultWithPublishStatus:
+    title: Publish Status Response
+    type: object
+    properties:
+      publishStatus:
+        type: string
+        description: Publish Operation for framework Id <FrameworkId> Started Successfully!
   Framework:
     title: Framework Metadata
     type: object
