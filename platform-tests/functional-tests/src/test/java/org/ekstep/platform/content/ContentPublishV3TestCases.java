@@ -426,6 +426,95 @@ public class ContentPublishV3TestCases extends BaseTest {
 		Assert.assertTrue(identifiers.contains(node1) && identifiers.contains(node2));
 	}
 
+	// Create content without contentType
+	@Test
+	public void createContentWithoutContentTypeExpect4xx(){
+		JSONObject js = new JSONObject(jsonCreateValidContent);
+		js.getJSONObject("request").getJSONObject("content").remove("contentType");
+		jsonCreateValidContent = js.toString();
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateValidContent).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
+	}
+	
+	// Create content with content type and resource type
+	@Test
+	public void createContentwithContentTypeResourceTypeExpectSuccess200(){
+		JSONObject js = new JSONObject(jsonCreateValidContent);
+		js.getJSONObject("request").getJSONObject("content").put("resourceType","Story");
+		jsonCreateValidContent = js.toString();
+		setURI();
+		Response R =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateValidContent).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/create").
+		then().
+		//log().all().
+		spec(get200ResponseSpec()).
+		extract().response();
+		
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Get content and validate
+		setURI();
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when()
+				.get("/content/v3/read/" + nodeId).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.content.identifier");
+		String versionKey = jP1.get("result.content.versionKey");
+		String resourceType = jP1.get("result.content.resourceType");
+		Assert.assertTrue(versionKey != null);
+		Assert.assertTrue(resourceType.equals("Story"));
+		Assert.assertEquals(nodeId, identifier);
+	}
+	
+	// Create content with resource type as list
+	@Test
+	public void createContentWithResourceTypeAsListExpect4xxx(){
+			JSONObject js = new JSONObject(jsonCreateValidContent);
+			ArrayList<String> resourceType = new ArrayList<String>();
+			resourceType.add("Story");
+			js.getJSONObject("request").getJSONObject("content").put("resourceType",resourceType);
+			jsonCreateValidContent = js.toString();
+			System.out.println(jsonCreateValidContent);
+			setURI();
+			Response R =
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body(jsonCreateValidContent).
+			with().
+			contentType(JSON).
+			when().
+			post("content/v3/create").
+			then().
+			//log().all().
+			spec(get400ResponseSpec()).
+			extract().response();
+
+	}
+	
 	// Create Invalid content
 	@Test
 	public void createInvalidContentExpects400() {
@@ -1814,7 +1903,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" +nodeId+"?mode=edit").
 				then().
-				log().all().
+				//log().all().
 				//spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1830,7 +1919,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/reject/"+nodeId).
 		then().
-		log().all(). 
+		//log().all(). 
 		spec(get200ResponseSpec());
 		
 		// Get content and validate
@@ -1838,7 +1927,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		Response R3 = given().
 				spec(getRequestSpecification(contentType, userId, APIToken)).
 				when().
-				get("/content/v3/read/" + nodeId).
+				get("/content/v3/read/" + nodeId+".img").
 				then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -1847,7 +1936,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP3 = R3.jsonPath();
 		String statusUpdated = jP3.get("result.content.status");
 		//System.out.println(status);
-		Assert.assertEquals(statusUpdated, "Draft");
+		Assert.assertEquals(statusUpdated, "FlagDraft");
 		}
 	}
 	
@@ -2140,6 +2229,58 @@ public class ContentPublishV3TestCases extends BaseTest {
 			Assert.assertTrue(accessURL(nodeId));
 		}
 	}
+	
+	// Publish content with assessment item and validate the count
+	@Test
+	public void publishContentWithAssessmentItemExpectSuccess200(){
+		setURI();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+
+		// Get body and validate
+		setURI();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		JsonPath jP2 = R2.jsonPath();
+		String body = jP2.get("result.content.body");
+		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		if (isValidXML(body) || isValidJSON(body)) {
+			Assert.assertTrue(accessURL(nodeId));
+		}
+	}
 
 	// Create content
 	@Test
@@ -2163,14 +2304,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.multiPart(new File(path + "/jpegImage.jpeg")).when().post("/content/v3/upload/" + nodeId).then().
 				//log().all().
 				spec(get200ResponseSpecUpload());
-
-		// Publish the created asset
-		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
 	}
 
 	/*
@@ -6434,8 +6567,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			 	spec(get200ResponseSpec());
 		}
 		
-		//  Search request with filters
-		
+		//  Search request with filters		
 		@Test
 		public void filteredSearchExpectSuccess200() {
 			setURI();
@@ -6464,7 +6596,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					post("/content/v3/create").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -6628,6 +6760,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String contentTypeActual = jP1.get("result.content.contentType");
 			String mediaTypeActual = jP1.get("result.content.mediaType");
 			String descriptionActual = jP1.get("result.content.description");
+			if(jP1.get("result.content").toString().contains("totalQuestions")){
+				String totalQuestions = jP1.get("result.content.totalQuestions");
 			// Float pkgVersionActual = jP1.get("result.content.pkgVersion");
 			//System.out.println(pkgVersionActual);
 			Float size = jP1.get("result.content.size");
@@ -6743,6 +6877,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 						Assert.assertEquals(mediaTypeActual, mediaType);
 						String description = getStringValue(item, "description");
 						Assert.assertEquals(descriptionActual, description);
+						if(getStringValue(item,"totalQuestions")!=null){
+							String totalQues = getStringValue(item,"totalQuestions");
+							Assert.assertEquals(totalQuestions, totalQues);
+						}
 						String pkgVersion = getStringValue(item, "pkgVersion");
 						// Assert.assertNotSame(pkgVersionActual, pkgVersion);
 						Assert.assertTrue(artifactUrl.endsWith(".zip") || artifactUrl.endsWith(".apk")
@@ -6757,7 +6895,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 				return false;
 				// x.printStackTrace();
 			}
-		} catch (Exception e) {
+			}
+		}
+		catch (Exception e) {
 			return false;
 			// e.printStackTrace();
 		}
