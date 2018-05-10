@@ -45,7 +45,7 @@ public class UpdateHierarchyTest extends BaseTest{
 	String jsonUpdateHierarchyOneUnit = "{\"request\":{\"data\":{\"nodesModified\":{\"unitId1\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"name\":\"LP_FT_CourseUnit1_"+rn+"\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}},\"unitId2\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"name\":\"LP_FT_CourseUnit2_"+rn+"\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}}},\"hierarchy\":{\"TextbookId\":{\"name\":\"LP_NFT_Collection_"+rn+"\",\"contentType\":\"TextBook\",\"children\":[\"unitId1\",\"unitId2\"],\"root\":true},\"unitId1\":{\"name\":\"LP_FT_CourseUnit1_"+rn+"\",\"contentType\":\"TextBookUnit\",\"children\":[\"contentId1\"],\"root\":false},\"unitId2\":{\"name\":\"LP_FT_CourseUnit2_"+rn+"\",\"contentType\":\"TextBookUnit\",\"children\":[],\"root\":false},\"contentId1\":{\"name\":\"LP_FT_Content1_"+rn+"\",\"root\":false}}}}}";
 	String jsonCreateValidTextBookUnit = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Unit" + rn+ "\", \"mediaType\": \"content\",\"visibility\": \"Parent\",\"name\": \"LP_NFT_Unit_"+ rn+ "\",\"contentType\": \"TextBookUnit\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
 	
-	String jsonCreateValidTextBook = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_TBook" + rn+ "\", \"mediaType\": \"content\",\"visibility\": \"Parent\",\"name\": \"LP_NFT_TBook_"+ rn+ "\",\"contentType\": \"TextBook\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
+	String jsonCreateValidTextBook = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_TBook" + rn+ "\", \"mediaType\": \"content\",\"name\": \"LP_NFT_TBook_"+ rn+ "\",\"contentType\": \"TextBook\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"tags\":[\"LP_functionalTest\"]}}}";
 	String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"version_key\",\"name\":\"UpdateTextBookName - "+rn+"\"}}}";
 
 	
@@ -96,7 +96,7 @@ public class UpdateHierarchyTest extends BaseTest{
 					when().
 					post("content/v3/create").
 					then().
-					log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 
@@ -112,7 +112,7 @@ public class UpdateHierarchyTest extends BaseTest{
 			when().
 			post("/content/v3/upload/" + nodeId).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 
 			// Publish the content
@@ -123,7 +123,7 @@ public class UpdateHierarchyTest extends BaseTest{
 			when().
 			post("/content/v3/publish/"+nodeId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 						
 			if(i==1)
@@ -139,7 +139,7 @@ public class UpdateHierarchyTest extends BaseTest{
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -149,7 +149,7 @@ public class UpdateHierarchyTest extends BaseTest{
 			String versionKey = jPath1.get("result.content.versionKey");
 			Assert.assertTrue(versionKey != null);
 			Assert.assertEquals(nodeId, identifier);
-			System.out.println(nodeId);
+			// System.out.println(nodeId);
 
 		}
 	}
@@ -169,7 +169,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				post("/content/v3/create").
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 		
@@ -196,7 +196,7 @@ public class UpdateHierarchyTest extends BaseTest{
 			when().
 			post("/content/v3/create").
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 	
@@ -205,9 +205,9 @@ public class UpdateHierarchyTest extends BaseTest{
 	
 	// Update Hierarchy
 	setURI();
-	System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
+	// System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
 	jsonUpdateHierarchyTwoChild = jsonUpdateHierarchyTwoChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("unitId2", unitId2).replaceAll("contentId1", contentId1).replaceAll("contentId2", contentId2);
-	System.out.println(jsonUpdateHierarchyTwoChild);
+	// System.out.println(jsonUpdateHierarchyTwoChild);
 	given().
 	spec(getRequestSpecification(contentType, userId, APIToken)).
 	body(jsonUpdateHierarchyTwoChild).
@@ -216,7 +216,7 @@ public class UpdateHierarchyTest extends BaseTest{
 	when().
 	patch("/content/v3/hierarchy/update/").
 	then().
-	log().all().
+	// log().all().
 	spec(get200ResponseSpec());
 	
 	//Publish the textbook
@@ -227,7 +227,7 @@ public class UpdateHierarchyTest extends BaseTest{
 	when().
 	post("/content/v3/publish/"+textBookId).
 	then().
-	log().all().
+	// log().all().
 	spec(get200ResponseSpec());
 	validateEcar(textBookId);
 	}
@@ -245,7 +245,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				post("/content/v3/create").
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 		
@@ -255,7 +255,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		// Update Hierarchy
 		setURI();
 		jsonUpdateHierarchyOneChild = jsonUpdateHierarchyOneChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("contentId1", contentId1);
-		System.out.println(jsonUpdateHierarchyOneChild);
+		// System.out.println(jsonUpdateHierarchyOneChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateHierarchyOneChild).
@@ -264,7 +264,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish the textbook
@@ -275,7 +275,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		validateEcar(textBookId);
 	}
@@ -293,7 +293,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				post("/content/v3/create").
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 		
@@ -302,9 +302,9 @@ public class UpdateHierarchyTest extends BaseTest{
 		
 		// Update Hierarchy
 		setURI();
-		System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
+		// System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
 		jsonUpdateHierarchyTwoChild = jsonUpdateHierarchyTwoChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("unitId2", unitId2).replaceAll("contentId1", contentId1).replaceAll("contentId2", contentId2);
-		System.out.println(jsonUpdateHierarchyTwoChild);
+		// System.out.println(jsonUpdateHierarchyTwoChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateHierarchyTwoChild).
@@ -313,7 +313,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish the textbook
@@ -324,7 +324,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		validateEcar(textBookId);
 		
@@ -336,7 +336,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when()
 				.get("/content/v3/read/" + textBookId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -345,7 +345,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		
 		// Update metadata
 		jsonUpdateMetadata = jsonUpdateMetadata.replace("version_key", versionKey);
-		//System.out.println(jsonUpdateMetadata);
+		//// System.out.println(jsonUpdateMetadata);
 		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();};
 		setURI();
 		given().
@@ -356,7 +356,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/update/" +textBookId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec()).
 		extract().response();
 		
@@ -368,7 +368,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		validateEcar(textBookId);
 	}
@@ -387,7 +387,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				post("/content/v3/create").
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 		
@@ -397,7 +397,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		// Update Hierarchy
 		setURI();
 		jsonUpdateHierarchyOneChild = jsonUpdateHierarchyOneChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("contentId1", contentId1);
-		System.out.println(jsonUpdateHierarchyOneChild);
+		// System.out.println(jsonUpdateHierarchyOneChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateHierarchyOneChild).
@@ -406,7 +406,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish the textbook
@@ -417,22 +417,22 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Update hierarchy with new leafNode
+		String jsonUpdateHierarchyOneChildUpdated = jsonUpdateHierarchyOneChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll(contentId1, contentId2);
+		// System.out.println(jsonUpdateHierarchyOneChildUpdated);
 		setURI();
-		jsonUpdateHierarchyOneChild = jsonUpdateHierarchyOneChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("contentId1", contentId2);
-		System.out.println(jsonUpdateHierarchyOneChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body(jsonUpdateHierarchyOneChild).
+		body(jsonUpdateHierarchyOneChildUpdated).
 		with().
 		contentType(JSON).
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish the textbook
@@ -443,7 +443,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Get and validate the children
@@ -454,13 +454,14 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				get("/content/v3/read/"+textBookId).
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
 		
 		JsonPath jPath1 = Res2.jsonPath();
 		ArrayList<String> newChild = jPath1.get("result.content.childNodes");
+		// System.out.println(newChild);
 		Assert.assertTrue(newChild.contains(contentId2));
 		validateEcar(textBookId);
 	}
@@ -479,7 +480,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				post("/content/v3/create").
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 		
@@ -489,7 +490,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		// Update Hierarchy
 		setURI();
 		jsonUpdateHierarchyOneChild = jsonUpdateHierarchyOneChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("contentId1", contentId1);
-		System.out.println(jsonUpdateHierarchyOneChild);
+		// System.out.println(jsonUpdateHierarchyOneChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateHierarchyOneChild).
@@ -498,7 +499,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish the textbook
@@ -509,14 +510,14 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Update Hierarchy
 		setURI();
-		System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
+		// System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
 		jsonUpdateHierarchyTwoChild = jsonUpdateHierarchyTwoChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("unitId2", unitId2).replaceAll("contentId1", contentId1).replaceAll("contentId2", contentId2);
-		System.out.println(jsonUpdateHierarchyTwoChild);
+		// System.out.println(jsonUpdateHierarchyTwoChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateHierarchyTwoChild).
@@ -525,7 +526,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish the textbook
@@ -536,7 +537,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		validateEcar(textBookId);
 	}
@@ -557,7 +558,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				//spec(get200ResponseSpec()).
 				extract().response();
 
@@ -573,7 +574,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		//spec(get200ResponseSpec()).
 		extract().response();
 		
@@ -586,7 +587,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				post("/content/v3/create").
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 		
@@ -595,9 +596,9 @@ public class UpdateHierarchyTest extends BaseTest{
 		
 		// Update Hierarchy
 		setURI();
-		System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
+		// System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
 		jsonUpdateHierarchyTwoChild = jsonUpdateHierarchyTwoChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("unitId2", unitId2).replaceAll("contentId1", contentId1).replaceAll("contentId2", nodeId);
-		System.out.println(jsonUpdateHierarchyTwoChild);
+		// System.out.println(jsonUpdateHierarchyTwoChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateHierarchyTwoChild).
@@ -606,7 +607,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish the textbook
@@ -617,7 +618,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		validateEcar(textBookId);
 	}
@@ -636,7 +637,7 @@ public class UpdateHierarchyTest extends BaseTest{
 				when().
 				post("/content/v3/create").
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 		
@@ -646,7 +647,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		// Update Hierarchy
 		setURI();
 		jsonUpdateHierarchyOneChild = jsonUpdateHierarchyOneChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("contentId1", contentId1);
-		System.out.println(jsonUpdateHierarchyOneChild);
+		// System.out.println(jsonUpdateHierarchyOneChild);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateHierarchyOneChild).
@@ -655,7 +656,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish the textbook
@@ -666,14 +667,14 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		validateEcar(textBookId);
 		
 		// Update with new unit
 		setURI();
 		jsonUpdateHierarchyOneUnit = jsonUpdateHierarchyOneUnit.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("unitId2", unitId2).replaceAll("contentId1", contentId1);
-		System.out.println(jsonUpdateHierarchyOneUnit);
+		// System.out.println(jsonUpdateHierarchyOneUnit);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateHierarchyOneUnit).
@@ -682,7 +683,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		patch("/content/v3/hierarchy/update/").
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		//Publish textbook
@@ -693,7 +694,7 @@ public class UpdateHierarchyTest extends BaseTest{
 		when().
 		post("/content/v3/publish/"+textBookId).
 		then().
-		log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		validateEcar(textBookId);
 	}
@@ -709,7 +710,7 @@ public class UpdateHierarchyTest extends BaseTest{
 			when().
 			get("/content/v3/read/"+textBookId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec()).
 			extract().
 			response();
@@ -721,7 +722,7 @@ public class UpdateHierarchyTest extends BaseTest{
 	if (statusActual.equals(PROCESSING) || statusActual.equals(PENDING)) {
 		for (int i = 1000; i <= 30000; i = i + 1000) {
 			try {Thread.sleep(i);} catch (InterruptedException e) {
-				//System.out.println(e);
+				//// System.out.println(e);
 			}
 			setURI();
 			Response R3 = 
@@ -730,7 +731,7 @@ public class UpdateHierarchyTest extends BaseTest{
 					when().
 					get("/content/v3/read/"+textBookId).
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -738,7 +739,7 @@ public class UpdateHierarchyTest extends BaseTest{
 			// Validate the response
 			JsonPath jp3 = R3.jsonPath();
 			String statusUpdated = jp3.get("result.content.status");
-			System.out.println(statusUpdated);
+			// System.out.println(statusUpdated);
 			if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 				i = i + 1000;
 			}
@@ -758,14 +759,15 @@ public class UpdateHierarchyTest extends BaseTest{
 			when().
 			get("/content/v3/read/"+textBookId).
 			then().
-			log().all().
+			// log().all().
 			spec(get200ResponseSpec()).
 			extract().
 			response();
 	
 	JsonPath jPath2 = Res3.jsonPath();
 	ArrayList<String> childNodes = jPath2.get("result.content.childNodes");
-	System.out.println(childNodes.size());
+	int childNodeSize = childNodes.size();
+	 //System.out.println(childNodeSize);
 	
 	try{
 	FileUtils.copyURLToFile(new URL(downloadUrl), new File(downloadPath + "/" + ecarName + ".zip"));
@@ -775,8 +777,9 @@ public class UpdateHierarchyTest extends BaseTest{
 	ZipFile zip = new ZipFile(source);
 	zip.extractAll(Dest);
 	File manifest = new File(Dest + "/manifest.json");
-	if(manifest.exists())
-		System.out.println("Manifest Exists");
+	if(manifest.exists()){
+		// System.out.println("Manifest Exists");
+		}
 	JsonParser parser = new JsonParser();
 	
 	JsonElement jsonElement = parser.parse(new FileReader(manifest));
@@ -788,11 +791,13 @@ public class UpdateHierarchyTest extends BaseTest{
 	JsonArray items = arc.getAsJsonArray("items");
 	int totalItems = items.size();
 	Assert.assertTrue(count==totalItems);
+	//System.out.println(count);
+	Assert.assertTrue(childNodeSize==(count-1));
 //	Iterator i = items.iterator();
-//	System.out.println(i);
+//	// System.out.println(i);
 //	while (i.hasNext()) {
 //		JsonObject item = (JsonObject) i.next();
-//		System.out.println(item.toString()); 
+//		// System.out.println(item.toString()); 
 //	}
 	}
 	
