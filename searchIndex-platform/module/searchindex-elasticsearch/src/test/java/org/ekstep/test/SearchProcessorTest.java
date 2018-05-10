@@ -342,7 +342,7 @@ public class SearchProcessorTest {
 		property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
 		properties.add(property);
 		property = new HashMap<String, Object>();
-		property.put(CompositeSearchParams.values.name(), "value32");
+		property.put(CompositeSearchParams.values.name(), "Value32");
 		property.put(CompositeSearchParams.propertyName.name(), "name");
 		property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
 		properties.add(property);

@@ -45,6 +45,42 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 		}
 		return response;
 	}
+	
+	public Response upload(String contentId, Node node,boolean isZip, File uploadFile) {
+		Response response = null;
+		if(isZip) {
+			String extractionBasePath = getBasePath(contentId);
+			try {
+				//response = uploadH5PContent(contentId, node, uploadFile);
+				
+				UnzipUtility unzipUtility = new UnzipUtility();
+				unzipUtility.unzip(uploadFile.getAbsolutePath(), extractionBasePath);
+				String[] urlArray = uploadArtifactToAWS(uploadFile, contentId);
+				node.getMetadata().put("s3Key", urlArray[IDX_S3_KEY]);
+				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
+				ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+				contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, extractionBasePath, ExtractionType.snapshot, false);
+				response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
+			}catch (IOException e) {
+				TelemetryManager.error("Error! While unzipping the content package file.", e);
+			} catch (ClientException e) {
+				throw e;
+			} catch (ServerException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
+						ContentErrorMessageConstants.FILE_UPLOAD_ERROR
+								+ " | [Something Went Wrong While Uploading the 'H5P' Content.]");
+			} finally {
+				try {
+					FileUtils.deleteDirectory(new File(extractionBasePath));
+				} catch (Exception e) {
+					TelemetryManager.error("Unable to delete H5P library directory.", e);
+				}
+			}
+		}
+		return response;
+	}
 
 	@Override
 	public Response upload(String contentId, Node node, String fileUrl) {

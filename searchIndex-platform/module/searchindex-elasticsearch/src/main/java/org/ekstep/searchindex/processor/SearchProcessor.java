@@ -672,11 +672,11 @@ public class SearchProcessor {
 			if (match) {
 				queryBuilder.should(QueryBuilders
 						.regexpQuery(propertyName,
-								".*" + stringValue + ".*"));
+								".*" + stringValue.toLowerCase() + ".*"));
 			} else {
 				queryBuilder.mustNot(QueryBuilders
 						.regexpQuery(propertyName,
-								".*" + stringValue + ".*"));
+								".*" + stringValue.toLowerCase() + ".*"));
 			}
 		}
 		return queryBuilder;
@@ -691,8 +691,8 @@ public class SearchProcessor {
 		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 		for (Object value : values) {
 			String stringValue = String.valueOf(value);
-			queryBuilder.should(QueryBuilders.wildcardQuery(propertyName,
-					"*" + stringValue.toLowerCase()));
+			queryBuilder.should(QueryBuilders.regexpQuery(propertyName,
+					".*" + stringValue.toLowerCase()));
 		}
 		return queryBuilder;
 	}

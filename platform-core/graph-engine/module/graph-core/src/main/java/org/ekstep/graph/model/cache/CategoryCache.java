@@ -61,7 +61,7 @@ public class CategoryCache {
 					Object termName = term.get("name");
 					if (StringUtils.isNotBlank((String) termName)) {
 						returnTerms.add(termName);
-						List<Object> childTerms = getTerms(category, "children");
+						List<Object> childTerms = getTerms(term, "children");
 						if (!childTerms.isEmpty())
 							returnTerms.addAll(childTerms);
 					}
