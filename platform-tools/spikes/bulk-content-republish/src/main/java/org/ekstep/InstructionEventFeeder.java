@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.kafka.KafkaClient;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -24,6 +25,9 @@ public class InstructionEventFeeder {
 		Map<String,Object> context = new HashMap<String,Object>();
 		Map<String,Object> object = new HashMap<String,Object>();
 		Map<String,Object> edata = new HashMap<String,Object>();
+		
+		if(node.getMetadata().get(GraphDACParams.status.name()).toString().equalsIgnoreCase("Unlisted"))
+			publishType="Unlisted";
 		
 		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), node.getIdentifier(), publishType);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);

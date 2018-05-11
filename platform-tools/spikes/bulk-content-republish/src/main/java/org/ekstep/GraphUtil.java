@@ -20,7 +20,12 @@ public class GraphUtil extends ControllerUtil{
 	public List<Node> getLiveContentNodes(int startPosition, int batchSize) {
 		SearchCriteria sc = new SearchCriteria();
 		sc.setObjectType("Content");
-		sc.addMetadata(MetadataCriterion.create(Arrays.asList(new Filter(GraphDACParams.status.name(), SearchConditions.OP_EQUAL, "Live"))));
+		Filter statusFilter = new Filter(GraphDACParams.status.name(), SearchConditions.OP_IN, Arrays.asList("Live","Unlisted"));
+		Filter contentTypeFilter = new Filter("resourceType", SearchConditions.OP_IN, Arrays.asList("Lesson Plan","Book","Worksheet","Collection","Study material","Course"));
+		//Filter contentTypeFilter = new Filter("contentType", SearchConditions.OP_IN, Arrays.asList("Resource","Collection","TextBook","Course","LessonPlan"));
+		//Filter contentTypeFilter = new Filter("contentType", SearchConditions.OP_IN, Arrays.asList("Asset","ContentTemplate","ItemTemplate","Template","Plugin","TextBookUnit","LessonPlanUnit"));
+		MetadataCriterion mc = MetadataCriterion.create(Arrays.asList(statusFilter, contentTypeFilter));
+		sc.addMetadata(mc);
 		sc.setResultSize(batchSize);
 		sc.setStartPosition(startPosition);
 		Request req = getRequest("domain", GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
