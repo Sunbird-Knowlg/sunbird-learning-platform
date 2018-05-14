@@ -445,7 +445,7 @@ public class BasePipeline extends BaseManager {
 				metadata.putAll(node.getMetadata());
 				metadata.put(ContentWorkflowPipelineParams.identifier.name(), node.getIdentifier());
 				metadata.put(ContentWorkflowPipelineParams.objectType.name(), node.getObjectType());
-				metadata.put(ContentWorkflowPipelineParams.subject.name(), node.getGraphId());
+				//metadata.put(ContentWorkflowPipelineParams.subject.name(), node.getGraphId());
 				metadata.remove(ContentWorkflowPipelineParams.body.name());
 				metadata.remove(ContentWorkflowPipelineParams.editorState.name());
 				if (null != node.getTags() && !node.getTags().isEmpty())

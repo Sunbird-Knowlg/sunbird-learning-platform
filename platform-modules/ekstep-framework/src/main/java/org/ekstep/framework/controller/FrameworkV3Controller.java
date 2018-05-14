@@ -170,4 +170,26 @@ public class FrameworkV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+
+	/**
+	 * 
+	 * @param frameworkId
+	 * @param channelId
+	 * @return
+	 */
+	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> publish(@PathVariable(value = "id") String frameworkId,
+			@RequestHeader(value = "X-Channel-Id") String channelId) {
+		String apiId = "ekstep.learning.framework.publish";
+		try {
+			Response response = frameworkManager.publishFramework(frameworkId, channelId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager
+					.error("Exception Occured while publishing framework (Publish Framework API): " + e.getMessage(),
+							e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 }

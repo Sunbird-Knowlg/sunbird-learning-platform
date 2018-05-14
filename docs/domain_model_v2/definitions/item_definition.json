@@ -402,6 +402,19 @@
             "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
             "indexed": true,
             "draft": false
+        },
+        {
+            "required": false,
+            "dataType": "Term",
+            "propertyName": "medium",
+            "title": "Medium",
+            "description": "Medium of instruction",
+            "category": "Pedagogy",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 15 }",
+            "indexed": true,
+            "draft": false
         }, {
             "propertyName": "source",
             "title": "Source",

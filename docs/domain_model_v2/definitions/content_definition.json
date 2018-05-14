@@ -1018,7 +1018,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Multi-Select",
+					"dataType": "Select",
 					"propertyName": "resourceType",
 					"title": "Resource Type",
 					"description": "Resource Type",
@@ -1030,8 +1030,6 @@
 						"Story",
 						"Worksheet",
 						"Game",
-						"Course",
-						"Book",
 						"Diagnostic",
 						"Puzzle",
 						"Benchmark assessment",
@@ -1054,8 +1052,16 @@
 						"E-resources for Professional Development",
 						"Micro practice videos",
 						"Study material",
+						"Teach",
+						"Practice",
+						"Learn",
 						"Test",
+						"Play",
+						"Read",
+						"Experiment",
+						"Book",
 						"Collection",
+						"Course",
 						"Lesson Plan"
 					],
 					"defaultValue": "",
@@ -2319,7 +2325,7 @@
 					"renderingHints": "{ 'order': 26 }"
 				},
 				{
-					"relationName": "pre-requisite",
+					"relationName": "preRequisite",
 					"objectTypes": [
 						"Library"
 					],
@@ -2447,7 +2453,7 @@
 					"board": 4
 				},
 				"versionCheckMode": "STRICT",
-				"allowupdate_status": true,
+				"allowupdate_status": false,
 				"fields": [
 					"identifier",
 					"name",

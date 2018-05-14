@@ -13,9 +13,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.CompositeSearchErrorCodes;
 import org.ekstep.common.exception.ClientException;
@@ -36,12 +39,19 @@ import org.springframework.stereotype.Component;
 public class Neo4jESSyncManager implements ISyncManager {
 
 	private ControllerUtil util = new ControllerUtil();
-	private final static int batchSize = 1000;
+	private static int batchSize = 500;
 	private ObjectMapper mapper = new ObjectMapper();
 
 	@Autowired
 	private ElasticSearchConnector esConnector;
 
+	@PostConstruct
+	private void init() throws Exception {
+		int batch = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size")
+				: 500;
+		batchSize = batch;
+	}
+	
 	public void syncByIds(String graphId, String[] ids) throws Exception {
 		List<String> identifiers = new ArrayList<>(Arrays.asList(ids));
 		syncNode(graphId, identifiers, null);
@@ -104,7 +114,14 @@ public class Neo4jESSyncManager implements ISyncManager {
 				int start = 0;
 				boolean found = true;
 				while (found) {
-					List<Node> nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
+					List<Node> nodes = null;
+					try {
+						nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
+					}catch(ResourceNotFoundException e) {
+						System.out.println("error while fetching neo4j records for objectType="+objectType+", start="+start+",batchSize="+batchSize);
+						start += batchSize;
+						continue;
+					}
 					if (null != nodes && !nodes.isEmpty()) {
 						System.out.println(batchSize + " -- " + def.getObjectType() + " objects are getting synced");
 						start += batchSize;

@@ -174,11 +174,11 @@ public class CommonTestSetup {
 		System.out.println("Embedded Kafka Shutdown Successfully!");
 	}
 
-	public void createTopicWithPartition(String topicName, int partition) {
+	public static void createTopicWithPartition(String topicName, int partition) {
 		kafkaServer.createTopic(topicName, partition);
 	}
 
-	public void createTopic(String topicName) {
+	public static void createTopic(String topicName) {
 		kafkaServer.createTopic(topicName);
 	}
 }
