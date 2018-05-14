@@ -33,8 +33,8 @@ public class FrameworkTermsV3APITests extends BaseTest {
 	public void init() {
 		if ((StringUtils.isBlank(frameworkId)) && (StringUtils.isBlank(categoryId)))
 			createCategory();
-			System.out.println(frameworkId);
-			System.out.println(categoryId);
+			//System.out.println(frameworkId);
+			//System.out.println(categoryId);
 	}
 
 	private void createCategory() {
