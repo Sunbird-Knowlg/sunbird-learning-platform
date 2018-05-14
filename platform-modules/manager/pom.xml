@@ -94,6 +94,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>unit-tests</artifactId>
+			<type>test-jar</type>
 			<version>1.0-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>

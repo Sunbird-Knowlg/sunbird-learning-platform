@@ -45,5 +45,12 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.10</version>
 		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>unit-tests</artifactId>
+			<type>test-jar</type>
+			<version>1.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

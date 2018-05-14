@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ekstep.cassandra.CassandraTestSetup;
+import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.junit.Assert;
@@ -16,9 +17,17 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 
 public class ContentStoreTest extends CassandraTestSetup {
+	static final String keyspace = Platform.config.hasPath("content.keyspace.name")
+			? Platform.config.getString("content.keyspace.name")
+			: "content_store";
+	static final String table = Platform.config.hasPath("content.keyspace.table")
+			? Platform.config.getString("content.keyspace.table")
+			: "content_data";
 
-	private static String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS content_store WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}";
-	private static String createTable = "CREATE TABLE IF NOT EXISTS content_store.content_data (content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob,screenshots blob, PRIMARY KEY (content_id));";
+	private static String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS " + keyspace
+			+ " WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}";
+	private static String createTable = "CREATE TABLE IF NOT EXISTS " + keyspace + "." + table
+			+ " (content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob,screenshots blob, PRIMARY KEY (content_id));";
 
 	ContentStore contentStore = new ContentStore();
 
@@ -33,7 +42,7 @@ public class ContentStoreTest extends CassandraTestSetup {
 		String body = "test_content_body";
 		contentStore.updateContentBody(identifier, body);
 		ResultSet resultSet = getSession().execute(
-				"SELECT content_id, blobAsText(body) as body FROM content_store.content_data WHERE content_id='"
+				"SELECT content_id, blobAsText(body) as body FROM " + keyspace + "." + table + " WHERE content_id='"
 						+ identifier + "';");
 		List<Row> rows = resultSet.all();
 		int count = rows.size();
@@ -70,7 +79,7 @@ public class ContentStoreTest extends CassandraTestSetup {
 		map.put("body", body);
 		contentStore.updateContentProperties(identifier, map);
 		ResultSet resultSet = getSession().execute(
-				"SELECT content_id, blobAsText(body) as body FROM content_store.content_data WHERE content_id='"
+				"SELECT content_id, blobAsText(body) as body FROM " + keyspace + "." + table + " WHERE content_id='"
 						+ identifier + "';");
 		List<Row> rows = resultSet.all();
 		int count = rows.size();
