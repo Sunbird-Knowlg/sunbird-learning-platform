@@ -48,7 +48,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	
 	private void loadFrameworkCategoryCache(String id) {
 		try {
-			Map<String, Object> hierarchy = getHierarchy(id, 0, false);
+			Map<String, Object> hierarchy = getHierarchy(id, 0, false, true);
 			CategoryCache.setFramework(id, hierarchy);
 			TelemetryManager.info("Loaded framework to category cache with framework id: "+ id);
 		} catch (Exception e) {
