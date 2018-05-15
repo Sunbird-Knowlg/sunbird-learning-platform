@@ -130,7 +130,7 @@ public class VocabularyTermTest extends WithApplication {
 	}
 
 	@Test
-	public void testSuggest() {
+	public void testzSuggest() {
 		String json = "{\"request\":{\"text\" : \"add\", \"limit\":3}}";
 		try {
 			JsonNode data = mapper.readTree(json);
@@ -147,7 +147,7 @@ public class VocabularyTermTest extends WithApplication {
 	}
 
 	@Test
-	public void testSuggest1() {
+	public void testzSuggest1() {
 		String json = "{\"request\":{\"text\" : \"add\", \"categories\":[\"keywords\"], \"language\":\"en\", \"limit\":3}}";
 		try {
 			JsonNode data = mapper.readTree(json);
@@ -244,7 +244,7 @@ public class VocabularyTermTest extends WithApplication {
 	}
 
 	@Test
-	public void testSuggest3() {
+	public void testzSuggest3() {
 		String json = "{\"request\":{\"text\" : \"ಕಳೆ\", \"categories\":[\"keywords\"],\"language\":\"ka\"}}";
 		try {
 			JsonNode data = mapper.readTree(json);
