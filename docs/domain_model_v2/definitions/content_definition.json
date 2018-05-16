@@ -1031,7 +1031,6 @@
 						"Lesson Plan",
 						"Course"
 					],
-					"defaultValue": "",
 					"indexed": true,
 					"draft": false
 				},
