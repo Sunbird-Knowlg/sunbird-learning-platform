@@ -872,24 +872,34 @@ definitions:
         description: ''
       contentType:
         type: string
-        description: ''
+        description: 'contentType of the content'
         example:
-          - Story
-          - Worksheet
-          - Game
-          - Simulation
-          - Puzzle
-          - Diagnostic
+          - Resource
           - Collection
-          - Asset
-          - Template
-          - Plugin
-          - ContentTemplate
-          - ItemTemplate
           - TextBook
-          - TextBookUnit
+          - LessonPlan
           - Course
+          - Template
+          - Asset
+          - Plugin
+          - LessonPlanUnit
           - CourseUnit
+          - TextBookUnit
+      resourceType:
+        type: string
+        description: 'resourceType of the content'
+        example:
+          - Read
+          - Learn
+          - Teach
+          - Play
+          - Test
+          - Practice
+          - Experiment
+          - Collection
+          - Book
+          - Lesson Plan
+          - Course
       category:
         type: string
         description: ''
@@ -1173,6 +1183,9 @@ definitions:
         type: string
         description: ''
       contentType:
+        type: string
+        description: ''
+      resourceType:
         type: string
         description: ''
       visibility:
