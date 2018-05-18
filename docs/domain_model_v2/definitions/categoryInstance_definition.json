@@ -44,7 +44,7 @@
             "title": "Translations",
             "description": "Translations for the category",
             "category": "General",
-            "dataType": "json",
+            "dataType": "JSON",
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "",

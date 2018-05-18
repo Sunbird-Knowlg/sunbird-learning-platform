@@ -29,6 +29,9 @@ import org.springframework.stereotype.Component;
 public class TermManagerImpl extends BaseFrameworkManager implements ITermManager {
 
 	private static final String TERM_OBJECT_TYPE = "Term";
+	private static final int TERM_CREATION_LIMIT = Platform.config.hasPath("framework.max_term_creation_limit")
+			? Platform.config.getInt("framework.max_term_creation_limit")
+			: 200;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -36,6 +39,10 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		List<Map<String, Object>> requestList = getRequestData(req);
 		if (null == req.get(TermEnum.term.name()) || null == requestList || requestList.isEmpty())
 			throw new ClientException("ERR_INVALID_TERM_OBJECT", "Invalid Request");
+
+		if (TERM_CREATION_LIMIT < requestList.size())
+			throw new ClientException("ERR_INVALID_TERM_REQUEST",
+					"No. of request exceeded max limit of " + TERM_CREATION_LIMIT);
 
 		String categoryId = category;
 		if (null != scopeId) {
@@ -67,21 +74,18 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 					setRelations(categoryId, request);
 				request.put("category", category);
 				Response resp = create(request, TERM_OBJECT_TYPE);
-				if (resp.getResponseCode() == ResponseCode.OK) {
+				if (!checkError(resp)) {
 					identifiers.add((String) resp.getResult().get("node_id"));
 				} else {
-					serverError += 1;
+					if ((StringUtils.equalsIgnoreCase("CONSTRAINT_VALIDATION_FAILED", resp.getParams().getErr()))) {
+						codeError += 1;
+					} else {
+						serverError += 1;
+					}
 				}
 
 			} else {
 				codeError += 1;
-			}
-		}
-		if (StringUtils.isNoneBlank(id)) {
-			if (Platform.config.hasPath("framework.es.sync")) {
-				if (Platform.config.getBoolean("framework.es.sync")) {
-					generateFrameworkHierarchy(id);
-				}
 			}
 		}
 		return createResponse(codeError, serverError, identifiers, requestList.size());
@@ -141,13 +145,6 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		}
 		request.put("category", category);
 		Response response = update(termId, TERM_OBJECT_TYPE, request);
-		if(response.getResponseCode() == ResponseCode.OK) {
-			if (Platform.config.hasPath("framework.es.sync")) {
-				if (Platform.config.getBoolean("framework.es.sync")) {
-					generateFrameworkHierarchy(termId);
-				}
-			}
-		}
 		return response;
 		
 	}
@@ -180,13 +177,6 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		termId = generateIdentifier(categoryId, termId);
 		if (validateScopeNode(termId, categoryId)) {
 			Response response = retire(termId, TERM_OBJECT_TYPE);
-			if(response.getResponseCode() == ResponseCode.OK) {
-				if (Platform.config.hasPath("framework.es.sync")) {
-					if (Platform.config.getBoolean("framework.es.sync")) {
-						generateFrameworkHierarchy(termId);
-					}
-				}
-			}
 			return response;
 		} else {
 			throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");

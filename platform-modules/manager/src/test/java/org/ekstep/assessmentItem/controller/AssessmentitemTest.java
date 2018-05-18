@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.test.common.CommonTestSetup;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -318,7 +317,7 @@ public class AssessmentitemTest extends CommonTestSetup {
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(contentString));
-			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+			Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -353,7 +352,7 @@ public class AssessmentitemTest extends CommonTestSetup {
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(contentString));
-			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+			Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -394,7 +393,7 @@ public class AssessmentitemTest extends CommonTestSetup {
 	// Delete an assessmentItem with valid assesssmentitem id
 	// expect 200 ok response
 	@Test
-	public void deleteAssessmentItem() {
+	public void zdeleteAssessmentItem() {
 		String node_id = "LP_UT_test_01";
 		String path = "/v1/assessmentitem/" + node_id;
 		try {

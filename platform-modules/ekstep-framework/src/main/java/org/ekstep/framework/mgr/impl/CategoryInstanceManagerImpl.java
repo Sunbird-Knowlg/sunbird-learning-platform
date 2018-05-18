@@ -3,11 +3,9 @@ package org.ekstep.framework.mgr.impl;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-
 import org.ekstep.framework.enums.CategoryEnum;
 import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -43,13 +41,6 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 			request.put(CategoryEnum.identifier.name(), id);
 		setRelations(identifier, request);
 		Response response = create(request, CATEGORY_INSTANCE_OBJECT_TYPE);
-		if(response.getResponseCode() == ResponseCode.OK) {
-			if (Platform.config.hasPath("framework.es.sync")) {
-				if (Platform.config.getBoolean("framework.es.sync")) {
-					generateFrameworkHierarchy(id);
-				}
-			}
-		}
 		return response;
 	}
 
@@ -73,13 +64,6 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
 			Response response = update(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
-			if(response.getResponseCode() == ResponseCode.OK) {
-				if (Platform.config.hasPath("framework.es.sync")) {
-					if (Platform.config.getBoolean("framework.es.sync")) {
-						generateFrameworkHierarchy(categoryInstanceId);
-					}
-				}
-			}
 			return response;
 		} else {
 			throw new ClientException(
@@ -101,13 +85,6 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
 		if (validateScopeNode(categoryInstanceId, identifier)) {
 			Response response = retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
-			if(response.getResponseCode() == ResponseCode.OK) {
-				if (Platform.config.hasPath("framework.es.sync")) {
-					if (Platform.config.getBoolean("framework.es.sync")) {
-						generateFrameworkHierarchy(categoryInstanceId);
-					}
-				}
-			}
 			return response;
 		} else {
 			throw new ClientException(

@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
@@ -31,11 +31,13 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
-import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.framework.FrameworkHierarchyOperations;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
+
+import akka.actor.ActorRef;
 
 /**
  * @author pradyumna
@@ -45,9 +47,6 @@ public class BaseFrameworkManager extends BaseManager {
 
 	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
 			: "domain";
-
-	private ObjectMapper mapper = new ObjectMapper();
-	private ElasticSearchUtil esUtil = new ElasticSearchUtil();
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
@@ -179,7 +178,7 @@ public class BaseFrameworkManager extends BaseManager {
 		}
 		return response;
 	}
-	
+
 	/*
 	 * 
 	 * Search Data Node based on criteria.
@@ -349,41 +348,6 @@ public class BaseFrameworkManager extends BaseManager {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
 		}
 	}
-	
-	/*public void setRelationsCopy(String parnetObjectType, String childObjectType, String scopeId, Map<String, Object> request) {
-		DefinitionDTO parentDefinition =  getDefinition(GRAPH_ID, parnetObjectType);
-		DefinitionDTO childDefinition = getDefinition(GRAPH_ID, childObjectType);
-		if(null != parentDefinition && null != childDefinition) {
-			List<RelationDefinition> parentOutRelations = parentDefinition.getOutRelations();
-			List<RelationDefinition> childInRelations = childDefinition.getInRelations();
-			if(null != parentOutRelations && !parentOutRelations.isEmpty() && 
-					null != childInRelations && !childInRelations.isEmpty()) {
-				for(RelationDefinition parentOutRelation : parentOutRelations) {
-					for(RelationDefinition childInRelation : childInRelations) {
-						if(StringUtils.equalsIgnoreCase(childInRelation.getRelationName(), parentOutRelation.getRelationName()) &&
-								childInRelation.getObjectTypes().contains(parnetObjectType) &&
-								parentOutRelation.getObjectTypes().contains(childObjectType)) {
-							List<Map<String, Object>> relationList = new ArrayList<Map<String, Object>>();
-							Map<String, Object> relationMap = new HashMap<String, Object>();
-							relationMap.put("identifier", scopeId);
-							relationList.add(relationMap);
-							
-							Response responseNode = getDataNode(GRAPH_ID, scopeId);
-							Node dataNode = (Node) responseNode.get(GraphDACParams.node.name());
-							if(StringUtils.equalsIgnoreCase(dataNode.getObjectType(), parnetObjectType))
-								request.put(childInRelation.getTitle(), relationList);
-							else if (StringUtils.equalsIgnoreCase(dataNode.getObjectType(), childObjectType))
-								request.put(parentOutRelation.getTitle(), relationList);
-							
-							return;
-						}
-					}
-					
-				}
-			}
-		}
-		
-	}*/
 
 	/**
 	 * This is the method to get the full hierarchy of a tree. It assumes that
@@ -396,13 +360,15 @@ public class BaseFrameworkManager extends BaseManager {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	protected Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata) throws Exception {
+	protected Map<String, Object> getHierarchy(String id, int index, boolean includeMetadata, boolean includeRelations)
+			throws Exception {
 		Map<String, Object> data = new HashMap<String, Object>();
 		Response responseNode = getDataNode(GRAPH_ID, id);
-	    if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id, ResponseCode.RESOURCE_NOT_FOUND);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id,
+					ResponseCode.RESOURCE_NOT_FOUND);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		
+
 		Map<String, Object> metadata = node.getMetadata();
 		String status = (String) metadata.get("status");
 		if (StringUtils.equalsIgnoreCase("Live", status)) {
@@ -421,38 +387,47 @@ public class BaseFrameworkManager extends BaseManager {
 				if (index > 0)
 					data.put("index", index);
 			}
-			Map<String, String> inRelDefMap = new HashMap<>();
-			Map<String, String> outRelDefMap = new HashMap<>();
-			List<String> sortKeys = new ArrayList<String>();
-			ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
-			List<Relation> outRelations = node.getOutRelations();
-			if (null != outRelations && !outRelations.isEmpty()) {
-				for (Relation relation : outRelations) {
-					String type = relation.getRelationType();
-					String key = type + relation.getEndNodeObjectType();
-					String title = outRelDefMap.get(key);
-					List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
-					if (relData == null) {
-						relData = new ArrayList<Map<String, Object>>();
-						data.put(title, relData);
-						if ("hasSequenceMember".equalsIgnoreCase(type))
-							sortKeys.add(title);
+			if (includeRelations) {
+				Map<String, String> inRelDefMap = new HashMap<>();
+				Map<String, String> outRelDefMap = new HashMap<>();
+				List<String> sortKeys = new ArrayList<String>();
+				ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
+				List<Relation> outRelations = node.getOutRelations();
+				if (null != outRelations && !outRelations.isEmpty()) {
+					for (Relation relation : outRelations) {
+						String type = relation.getRelationType();
+						String key = type + relation.getEndNodeObjectType();
+						String title = outRelDefMap.get(key);
+						List<Map<String, Object>> relData = (List<Map<String, Object>>) data.get(title);
+						if (relData == null) {
+							relData = new ArrayList<Map<String, Object>>();
+							data.put(title, relData);
+							if ("hasSequenceMember".equalsIgnoreCase(type))
+								sortKeys.add(title);
+						}
+						Map<String, Object> relMeta = relation.getMetadata();
+						int seqIndex = 0;
+						if (relMeta != null) {
+							Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
+							if (indexObj != null)
+								seqIndex = ((Long) indexObj).intValue();
+						}
+
+						boolean getChildren = true;
+						// TODO: This condition value should get from definition node.
+						if ("associations".equalsIgnoreCase(title)) {
+							getChildren = false;
+						}
+						Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true,
+								getChildren);
+						if (!childData.isEmpty())
+							relData.add(childData);
 					}
-					Map<String, Object> relMeta = relation.getMetadata();
-					int seqIndex = 0;
-					if (relMeta != null) {
-						Object indexObj = relMeta.get("IL_SEQUENCE_INDEX");
-						if (indexObj != null)
-							seqIndex = ((Long) indexObj).intValue();
-					}
-					Map<String, Object> childData = getHierarchy(relation.getEndNodeId(), seqIndex, true);
-					if (!childData.isEmpty())
-						relData.add(childData);
 				}
-			}
-			for (String key : sortKeys) {
-				List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
-				getSorted(prop);
+				for (String key : sortKeys) {
+					List<Map<String, Object>> prop = (List<Map<String, Object>>) data.get(key);
+					getSorted(prop);
+				}
 			}
 		}
 
@@ -476,49 +451,25 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 	protected void generateFrameworkHierarchy(String objectId) throws Exception {
-		Response responseNode = getDataNode(GRAPH_ID, objectId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + objectId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
-			pushFrameworkEvent(node);
-		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "CategoryInstance")) {
-			List<Relation> inRelations = node.getInRelations();
-			if (null != inRelations && !inRelations.isEmpty()) {
-				for (Relation rel : inRelations) {
-					if (StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Framework")
-							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
-						generateFrameworkHierarchy(rel.getStartNodeId());
-					}
-				}
-			}
-		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Term")) {
-			List<Relation> inRelations = node.getInRelations();
-			if (null != inRelations && !inRelations.isEmpty()) {
-				for (Relation rel : inRelations) {
-					if ((StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance") || StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Term"))
-							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
-						generateFrameworkHierarchy(rel.getStartNodeId());
-					}
-				}
-			}
-		}
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name());
+		request.setOperation(FrameworkHierarchyOperations.generateFrameworkHierarchy.name());
+		request.put("identifier", objectId);
+		makeLearningRequest(request);
+
 	}
 
-	protected void pushFrameworkEvent(Node node) throws Exception {
-		Map<String, Object> frameworkDocument = new HashMap<>();
-		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false);
-		CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
+	private void makeLearningRequest(Request request) {
+		ActorRef router = LearningRequestRouterPool.getRequestRouter();
+		try {
+			// TODO: Since we dont have actor implementation here, sending noSender as
+			// AcoterRef to tell call. Need to improve this
+			router.tell(request, ActorRef.noSender());
 
-		frameworkDocument.put("fw_hierarchy", mapper.writeValueAsString(frameworkHierarchy));
-		frameworkDocument.put("graph_id", GRAPH_ID);
-		frameworkDocument.put("node_id", (int) node.getId());
-		frameworkDocument.put("identifier", node.getIdentifier());
-		frameworkDocument.put("objectType", node.getObjectType());
-		frameworkDocument.put("nodeType", node.getNodeType());
-		esUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, node.getIdentifier(),
-				mapper.writeValueAsString(frameworkDocument));
+		} catch (Exception e) {
+			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
+		}
 	}
 
 }
