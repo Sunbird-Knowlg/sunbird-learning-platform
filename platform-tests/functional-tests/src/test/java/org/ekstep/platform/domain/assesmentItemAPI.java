@@ -5,6 +5,7 @@ import static com.jayway.restassured.http.ContentType.JSON;
 
 import java.util.ArrayList;
 
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class assesmentItemAPI extends BaseTest {
 
 	String jsonCreateAssessmentItemMCQ = "{\"request\":{\"assessment_item\":{\"identifier\":\"LP_NFT_AS_"+rn+"\",\"objectType\":\"AssessmentItem\",\"metadata\":{\"code\":\"LP_NFT\",\"name\":\"LP_NFT_AS_"+rn+"\",\"type\":\"mcq\",\"num_answers\":1,\"template\":\"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\":\"MEDIUM\",\"owner\":\"Test\",\"title\":\"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\":\"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\":{\"img\":{\"type\":\"image\",\"asset\":\"perimeter\"},\"img2\":{\"type\":\"image\",\"asset\":\"smallSquare\"},\"subtext\":\"(= 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\":[{\"value\":{\"type\":\"text\",\"asset\":\"12&10\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"14&7\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"16&8\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"12&7\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"},\"score\":1}],\"max_score\":1,\"partial_scoring\":false,\"feedback\":\"\"}}}}";
 	String jsonCreateInvalidAssessmentItemMCQ = "{\"request\":{\"assessment_item\":{\"identifier\":\"LP_NFT_AS_"+rn+"\",\"objectType\":\"AssessmentItem\",\"metadata\":{\"code\":\"LP_NFT\",\"name\":\"LP_NFT_AS_"+rn+"\",\"type\":\"mcq\",\"num_answers\":1,\"template\":\"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\":\"MEDIUM\",\"owner\":\"Test\",\"title\":\"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\":\"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\":{\"img\":{\"type\":\"image\",\"asset\":\"perimeter\"},\"img2\":{\"type\":\"image\",\"asset\":\"smallSquare\"},\"subtext\":\"(= 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\":[{\"value\":{\"type\":\"text\",\"asset\":\"12&10\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"14&7\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"16&8\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"}},{\"value\":{\"type\":\"text\",\"asset\":\"12&7\",\"font\":\"Verdana\",\"color\":\"white\",\"fontsize\":\"240\"},\"score\":1}],\"max_score\":1,\"partial_scoring\":false,\"feedback\":\"\"}, \"outRelations\": [{\"endNodeId\": \"gcyrdrt\",\"relationType\": \"associatedTo\"}]}}}";
-	String jsonCreateAssessmentItemFTB = "{\"request\":{\"assessment_item\":{\"identifier\":\"LP_NFT_AS_"+rn+"\",\"objectType\":\"AssessmentItem\",\"metadata\":{\"name\":\"LP_NFT_AS_"+rn+"\",\"template\":\"ftb_template_1\",\"template_id\":\"ftb_template_1\",\"type\":\"ftb\",\"num_answers\":1,\"model\":{},\"answer\":{\"ans1\":{\"value\":5,\"score\":1}},\"code\":\"aq1_set_1_2\",\"qlevel\":\"MEDIUM\",\"owner\":\"EkStep\",\"used_for\":\"worksheet\",\"max_score\":1,\"partial_scoring\":true}}}}";
+	String jsonCreateAssessmentItemFTB = "{\"request\":{\"assessment_item\":{\"identifier\":\"LP_NFT_AS_"+rn+"\",\"objectType\":\"AssessmentItem\",\"metadata\":{\"name\":\"LP_NFT_AS_"+rn+"\",\"framework\":\"Test\",\"template\":\"ftb_template_1\",\"template_id\":\"ftb_template_1\",\"type\":\"ftb\",\"num_answers\":1,\"model\":{},\"answer\":{\"ans1\":{\"value\":5,\"score\":1}},\"code\":\"aq1_set_1_2\",\"qlevel\":\"MEDIUM\",\"owner\":\"EkStep\",\"used_for\":\"worksheet\",\"max_score\":1,\"partial_scoring\":true}}}}";
 	String jsonCreateInvalidAssessmentItemFTB = "{\"request\":{\"assessment_item\":{\"identifier\":\"LP_NFT_AS_"+rn+"\",\"objectType\":\"AssessmentItem\",\"metadata\":{\"name\":\"LP_NFT_AS_"+rn+"\",\"template\":\"ftb_template_1\",\"template_id\":\"ftb_template_1\",\"type\":\"ftb\",\"num_answers\":1,\"model\":{},\"answer\":{\"ans1\":{\"value\":5,\"score\":1}},\"code\":\"aq1_set_1_2\",\"qlevel\":\"MEDIUM\",\"owner\":\"EkStep\",\"used_for\":\"worksheet\",\"max_score\":1,\"partial_scoring\":true}, \"outRelations\": [{\"endNodeId\": \"gcyrdrt\",\"relationType\": \"associatedTo\"}]}}}";
 	String jsonCreateAssessmentItemMTF = "{\"request\":{\"assessment_item\":{\"objectType\":\"AssessmentItem\",\"identifier\":\"LP_NFT_AS_"+rn+"\",\"metadata\":{\"code\":\"LP_NFT\",\"name\":\"LP_NFT_AS_"+rn+"\",\"type\":\"mtf\",\"template_id\":\"mtf_template_3\",\"lhs_options\":[{\"value\":{\"type\":\"image\",\"asset\":\"grey\"},\"index\":0}],\"rhs_options\":[{\"value\":{\"type\":\"text\",\"asset\":\">\"}},{\"value\":{\"type\":\"text\",\"asset\":\"=\"}},{\"value\":{\"type\":\"mixed\",\"text\":\"<\",\"image\":\"image1\",\"audio\":\"audio1\"},\"answer\":0}],\"max_score\":6,\"partial_scoring\":true}}}}";
 	String jsonCreateInvalidAssessmentItemMTF = "{\"request\":{\"assessment_item\":{\"objectType\":\"AssessmentItem\",\"identifier\":\"LP_NFT_AS_"+rn+"\",\"metadata\":{\"code\":\"LP_NFT\",\"name\":\"LP_NFT_AS_"+rn+"\",\"type\":\"mtf\",\"template_id\":\"mtf_template_3\",\"lhs_options\":[{\"value\":{\"type\":\"image\",\"asset\":\"grey\"},\"index\":0}],\"rhs_options\":[{\"value\":{\"type\":\"text\",\"asset\":\">\"}},{\"value\":{\"type\":\"text\",\"asset\":\"=\"}},{\"value\":{\"type\":\"mixed\",\"text\":\"<\",\"image\":\"image1\",\"audio\":\"audio1\"},\"answer\":0}],\"max_score\":6,\"partial_scoring\":true}, \"outRelations\": [{\"endNodeId\": \"gcyrdrt\",\"relationType\": \"associatedTo\"}]}}}";
@@ -64,6 +65,8 @@ public class assesmentItemAPI extends BaseTest {
 		
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.assessment_item.identifier");
+		String framework = jP1.get("result.assessment_item.framework");
+		Assert.assertTrue(framework.equals("NCF"));
 		Assert.assertTrue(identifier.equals(nodeId));
 	}
 
@@ -116,9 +119,263 @@ public class assesmentItemAPI extends BaseTest {
 		
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.assessment_item.identifier");
+		String framework = jP1.get("result.assessment_item.framework");
+		Assert.assertTrue(framework.equals("Test"));
 		Assert.assertTrue(identifier.equals(nodeId));
 	}
 
+	// Create assessment item without framework with proper grade level(With respect to NCF)
+	@Test
+	public void createAssessmentItemWithValidGradeLevelExpectSuccess200(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("gradelevel", "Class 1");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		Response R =
+				given(). 
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateAssessmentItemMCQ).
+				with().
+				contentType(JSON).
+				when().
+				post("/assessment/v3/items/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP = R.jsonPath();
+		String nodeId = jP.get("result.node_id");
+
+		// Read and validate the assessment
+		setURI();
+		Response R1 =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		get("/assessment/v3/items/read/"+nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec()).
+		extract().response();
+		
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.assessment_item.identifier");
+		String gradeLevel = jP1.get("result.assessment_item.gradeLevel");
+		String framework = jP1.get("result.assessment_item.framework");
+		Assert.assertTrue(framework.equals("NCF"));
+		Assert.assertTrue(gradeLevel.equals("Class 1"));
+		Assert.assertTrue(identifier.equals(nodeId));
+	}
+	
+	// Create assessment item without framework with invalid grade level(With respect to NCF)
+	@Test
+	public void createValidAssessmentItemWithInvalidGradeLevelExpect4xx(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("gradelevel", "Grade 1");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		given(). 
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateAssessmentItemMCQ).
+		with().
+		contentType(JSON).
+		when().
+		post("/assessment/v3/items/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
+	}
+	
+	// Create assessment item without framework with proper board (With respect to NCF)
+	@Test
+	public void createAssessmentItemWithValidBoardExpectSuccess200(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("board", "NCERT");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		Response R =
+				given(). 
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateAssessmentItemMCQ).
+				with().
+				contentType(JSON).
+				when().
+				post("/assessment/v3/items/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP = R.jsonPath();
+		String nodeId = jP.get("result.node_id");
+
+		// Read and validate the assessment
+		setURI();
+		Response R1 =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		get("/assessment/v3/items/read/"+nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec()).
+		extract().response();
+		
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.assessment_item.identifier");
+		String framework = jP1.get("result.assessment_item.framework");
+		String board = jP1.get("result.assessment_item.board");
+		Assert.assertTrue(framework.equals("NCF"));
+		Assert.assertTrue(board.equals("NCERT"));
+		Assert.assertTrue(identifier.equals(nodeId));
+	}
+	
+	// Create assessment item without framework with invalid grade level(With respect to NCF)
+	@Test
+	public void createValidAssessmentItemWithInvalidBoardExpect4xx(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("board", "TestBoard01");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		given(). 
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateAssessmentItemMCQ).
+		with().
+		contentType(JSON).
+		when().
+		post("/assessment/v3/items/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
+	}
+	
+	// Create assessment item without framework with proper subject (With respect to NCF)
+	@Test
+	public void createAssessmentItemWithValidSubjectExpectSuccess200(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("subject", "English");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		Response R =
+				given(). 
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateAssessmentItemMCQ).
+				with().
+				contentType(JSON).
+				when().
+				post("/assessment/v3/items/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP = R.jsonPath();
+		String nodeId = jP.get("result.node_id");
+
+		// Read and validate the assessment
+		setURI();
+		Response R1 =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		get("/assessment/v3/items/read/"+nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec()).
+		extract().response();
+		
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.assessment_item.identifier");
+		String framework = jP1.get("result.assessment_item.framework");
+		String subject = jP1.get("result.assessment_item.subject");
+		Assert.assertTrue(framework.equals("NCF"));
+		Assert.assertTrue(subject.equals("English"));
+		Assert.assertTrue(identifier.equals(nodeId));
+	}
+	
+	// Create assessment item without framework with invalid grade level(With respect to NCF)
+	@Test
+	public void createValidAssessmentItemWithInvalidSubjectExpect4xx(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("subject", "English");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		given(). 
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateAssessmentItemMCQ).
+		with().
+		contentType(JSON).
+		when().
+		post("/assessment/v3/items/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
+	}
+	
+	// Create assessment item without framework with proper subject (With respect to NCF)
+	@Test
+	public void createAssessmentItemWithValidMediumExpectSuccess200(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("medium", "English");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		Response R =
+				given(). 
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateAssessmentItemMCQ).
+				with().
+				contentType(JSON).
+				when().
+				post("/assessment/v3/items/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP = R.jsonPath();
+		String nodeId = jP.get("result.node_id");
+
+		// Read and validate the assessment
+		setURI();
+		Response R1 =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		get("/assessment/v3/items/read/"+nodeId).
+		then().
+		log().all().
+		spec(get200ResponseSpec()).
+		extract().response();
+		
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.assessment_item.identifier");
+		String framework = jP1.get("result.assessment_item.framework");
+		String medium = jP1.get("result.assessment_item.medium");
+		Assert.assertTrue(framework.equals("NCF"));
+		Assert.assertTrue(medium.equals("English"));
+		Assert.assertTrue(identifier.equals(nodeId));
+	}
+	
+	// Create assessment item without framework with invalid grade level(With respect to NCF)
+	@Test
+	public void createValidAssessmentItemWithInvalidMediumExpect4xx(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("medium", "English");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		given(). 
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateAssessmentItemMCQ).
+		with().
+		contentType(JSON).
+		when().
+		post("/assessment/v3/items/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
+	}
+	
 	// Create invalid Assessment Item
 	@Test
 	public void createInvalidAssessmentItemFTBExpect400() {
