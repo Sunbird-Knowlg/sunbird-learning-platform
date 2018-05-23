@@ -1,7 +1,7 @@
 {
 	"definitionNodes": [
 		{
-			"objectType": "Content",
+			"objectType": "ContentImage",
 			"properties": [
 				{
 					"propertyName": "name",
@@ -2283,7 +2283,8 @@
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content"
+						"Content",
+						"ContentImage"
 					],
 					"title": "children",
 					"description": "Child content items (in sorted order) in case of collections like Textbooks",
