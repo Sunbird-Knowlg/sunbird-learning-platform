@@ -52,7 +52,7 @@
                 "Retired"
             ],
             "required": false,
-			"indexed": true,
+			      "indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Live",
             "renderingHints": "{'inputType': 'select', 'order': 3}"
@@ -67,7 +67,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": "NCF",
           "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
         },
         {

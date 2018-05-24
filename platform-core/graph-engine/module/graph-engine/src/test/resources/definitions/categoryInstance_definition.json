@@ -41,10 +41,10 @@
         },
         {
             "propertyName": "translations",
-            "title": "translations",
-            "description": "translations for the category",
+            "title": "Translations",
+            "description": "Translations for the category",
             "category": "General",
-            "dataType": "json",
+            "dataType": "JSON",
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "",
@@ -178,7 +178,14 @@
         "metadata":
         {
             "ttl": 11,
-            "limit": 50
+            "limit": 50,
+            "fields": [
+                "identifier",
+                "name",
+                "code",
+                "description",
+                "status"
+            ]
         }
     }]
 }

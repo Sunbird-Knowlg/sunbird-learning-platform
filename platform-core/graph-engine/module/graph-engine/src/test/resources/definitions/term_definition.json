@@ -28,6 +28,30 @@
 	          	"indexed": true
 			},
 			{
+				"propertyName": "category",
+	          	"title": "Category",
+	          	"description": "Category of the Term",
+	          	"category": "General",
+	          	"dataType": "Text",
+	          	"required": true,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'text', 'order': 2}",
+	          	"indexed": true
+			},
+			{
+	        	"propertyName": "translations",
+	          	"title": "Translations",
+	          	"description": "Translations for the term",
+	          	"category": "General",
+	          	"dataType": "JSON",
+	          	"required": false,
+	          	"displayProperty": "Editable",
+	          	"defaultValue": "",
+	          	"renderingHints": "{'inputType': 'object', 'order': 2}",
+	          	"indexed": true
+	        },
+			{
 				"propertyName": "index",
 	          	"title": "Index",
 	          	"description": "Index position of the term",
@@ -139,7 +163,7 @@
 				"objectTypes": [
 					"CategoryInstance"
 				],
-				"title": "categoryinstances",
+				"title": "categories",
 				"description": "CategoryInstance using the term",
 				"required": false,
 				"renderingHints": "{ 'order': 8}"
@@ -163,6 +187,16 @@
 				"description": "Parent terms (in sorted order)",
 				"required": false,
 				"renderingHints": "{ 'order': 10}"
+			},
+			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"Term"
+				],
+				"title": "associationswith",
+				"description": "Terms from which the current term is associated",
+				"required": false,
+				"renderingHints": "{ 'order': 11}"
 			}
 			],
 			"outRelations":[
@@ -174,7 +208,7 @@
 				"title": "children",
 				"description": "Child terms (in sorted order)",
 				"required": false,
-				"renderingHints": "{ 'order': 11}"
+				"renderingHints": "{ 'order': 12}"
 			},
 			{
 				"relationName": "associatedTo",
@@ -184,7 +218,7 @@
 				"title": "associations",
 				"description": "Terms associated with the current term",
 				"required": false,
-				"renderingHints": "{ 'order': 12}"
+				"renderingHints": "{ 'order': 13}"
 			}	
 			],
 			"systemTags": [],
@@ -196,11 +230,8 @@
 					"name",
 					"code",
 					"description",
-					"status",
-					"author",
-					"createdBy",
-					"lastUpdatedOn",
-					"createdOn"
+					"category",
+					"status"
 				]
 			}
 		}
