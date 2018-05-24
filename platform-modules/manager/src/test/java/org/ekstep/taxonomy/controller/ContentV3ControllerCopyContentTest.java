@@ -102,7 +102,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 
 	public static void createDocumentContent() throws Exception {
 		for (int i = 1; i <= 2; i++) {
-			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"testcontent\",\"mimeType\":\"application/pdf\"}";
+			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"testcontent\",\"mimeType\":\"application/pdf\"}";
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
@@ -183,7 +183,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 		Assert.assertEquals("ERR_INVALID_CREATEDBY", errorCode);
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
-	
+
 	/*
 	 * Copy Content with Invalid createdFor Value
 	 * 
@@ -195,13 +195,13 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\testUser\",\"createdFor\": [],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
-		System.out.println("Response::"+actions.andReturn().getResponse().getContentAsString());
+		System.out.println("Response::" + actions.andReturn().getResponse().getContentAsString());
 		Response resp = getResponse(actions);
 		String errorCode = resp.getParams().getErr();
 		Assert.assertEquals("ERR_INVALID_CREATEDFOR", errorCode);
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
-	
+
 	/*
 	 * Copy Content with Invalid Organization Value
 	 * 

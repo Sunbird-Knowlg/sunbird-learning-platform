@@ -88,7 +88,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 
 	private void createContent() throws Exception {
 		ContentManagerImpl contentManager = new ContentManagerImpl();
-		String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
+		String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
 		Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 				new TypeReference<Map<String, Object>>() {
 				});
