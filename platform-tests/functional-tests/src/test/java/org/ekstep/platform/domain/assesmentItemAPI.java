@@ -187,6 +187,71 @@ public class assesmentItemAPI extends BaseTest {
 		spec(get400ResponseSpec());
 	}
 	
+	// Create assessment item without framework with proper topics(With respect to NCF)
+	@Ignore
+	@Test
+	public void createAssessmentItemWithValidTopicsExpectSuccess200(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("topics", "");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		Response R =
+				given(). 
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateAssessmentItemMCQ).
+				with().
+				contentType(JSON).
+				when().
+				post("/assessment/v3/items/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP = R.jsonPath();
+		String nodeId = jP.get("result.node_id");
+
+		// Read and validate the assessment
+		setURI();
+		Response R1 =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		get("/assessment/v3/items/read/"+nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec()).
+		extract().response();
+		
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.assessment_item.identifier");
+		String topics = jP1.get("result.assessment_item.topics");
+		String framework = jP1.get("result.assessment_item.framework");
+		Assert.assertTrue(framework.equals("NCF"));
+		Assert.assertTrue(topics.equals(""));
+		Assert.assertTrue(identifier.equals(nodeId));
+	}
+	
+	// Create assessment item without framework with invalid topics(With respect to NCF)
+	@Ignore
+	@Test
+	public void createValidAssessmentItemWithInvalidTopicExpect4xx(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateAssessmentItemMCQ);
+		js.getJSONObject("request").getJSONObject("assessment_item").getJSONObject("metadata").put("topics", "");
+		String jsonCreateAssessmentItemMCQ = js.toString();
+		given(). 
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateAssessmentItemMCQ).
+		with().
+		contentType(JSON).
+		when().
+		post("/assessment/v3/items/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
+	}
+	
 	// Create assessment item without framework with proper board (With respect to NCF)
 	@Test
 	public void createAssessmentItemWithValidBoardExpectSuccess200(){
