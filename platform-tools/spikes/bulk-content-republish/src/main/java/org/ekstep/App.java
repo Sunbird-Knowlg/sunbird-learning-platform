@@ -136,7 +136,7 @@ public class App {
 								feeder.push(node, "Public");
 								writer.write(node.getIdentifier());
 								writer.write(",");
-								Double d = (Double)node.getMetadata().get("pkgVersion");
+								Double d = getDoubleValue(node.getMetadata().get("pkgVersion"));
 								String a = String.valueOf(d.intValue());
 								writer.write(a);
 								writer.write("\r\n");
@@ -225,5 +225,20 @@ public class App {
 			throw new FileNotFoundException();
 		}
 		return file;
+	}
+	
+	private static Double getDoubleValue(Object obj) {
+		Number n = getNumericValue(obj);
+		if (null == n)
+			return 0.0;
+		return n.doubleValue();
+	}
+	
+	private static Number getNumericValue(Object obj) {
+		try {
+			return (Number) obj;
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 }
