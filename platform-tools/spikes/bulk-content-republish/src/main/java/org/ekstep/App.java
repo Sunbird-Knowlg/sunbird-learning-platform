@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,18 +40,8 @@ public class App {
 		}
 		
 		if(StringUtils.equalsIgnoreCase(args[0], "republish")) {
-			String[] val = new String[2];
-			if(args.length==1) {
-				val[0]="0";val[1]="0";
-				rePublish(val);
-			}else if(args.length==2) {
-				val[0]=args[1];val[1]="0";
-				rePublish(val);
-			}else{
-				val[0]=args[1];val[1]=args[2];
-				rePublish(val);
-			}
-			
+			String inputArr[] = Arrays.copyOfRange(args, 1, args.length);
+			rePublish(inputArr);
 		}else if(StringUtils.equalsIgnoreCase(args[0], "validate")) {
 			validate();
 		}
