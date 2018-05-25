@@ -963,8 +963,19 @@
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
-				},
-				{
+				},{
+					"required": false,
+					"dataType": "TermList",
+					"propertyName": "topics",
+					"title": "Topics",
+					"description": "",
+					"category": "Pedagogy",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},{
 					"required": false,
 					"dataType": "Select",
 					"propertyName": "interactivityLevel",
