@@ -49,7 +49,6 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String basePath = "/v3/assessment/assessmentitems";
-	private boolean isFrExist = false;
 	private static String assessmentId = "";
 	private static ObjectMapper mapper = new ObjectMapper();
 
@@ -58,11 +57,8 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 
 	@BeforeClass
 	public static void setup() throws Exception {
-		loadDefinition("definitions/concept_definition.json", "definitions/content_definition.json",
-				"definitions/dimension_definition.json", "definitions/item_definition.json",
-				"definitions/itemset_definition.json", "definitions/category_definition.json",
-				"definitions/categoryInstance_definition.json", "definitions/channel_definition.json",
-				"definitions/framework_definition.json", "definitions/term_definition.json");
+		loadDefinition("definitions/concept_definition.json", "definitions/dimension_definition.json",
+				"definitions/item_definition.json", "definitions/itemset_definition.json");
 		executeScript(cassandraScript_1, cassandraScript_2);
 		createFramework();
 	}
@@ -361,7 +357,6 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
-		System.out.println("Response : " + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		path = basePath + "/read/LP_UTEST_10";
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
