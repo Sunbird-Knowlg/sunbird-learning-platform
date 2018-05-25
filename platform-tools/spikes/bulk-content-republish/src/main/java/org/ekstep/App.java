@@ -191,6 +191,9 @@ public class App {
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
+		}finally {
+			file.delete();
+			ActorBootstrap.getActorSystem().shutdown();
 		}
 	}
 	
