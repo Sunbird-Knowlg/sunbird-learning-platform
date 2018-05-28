@@ -126,7 +126,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 						System.out.println(batchSize + " -- " + def.getObjectType() + " objects are getting synced");
 						start += batchSize;
 						errors = new HashMap<>();
-						Map<String, String> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
+						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
 						if (!errors.isEmpty())
 							System.out
 									.println("Error! while forming ES document data from nodes, below nodes are ignored"
@@ -178,7 +178,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 				throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND", "Objects not found ");
 
 			errors = new HashMap<>();
-			Map<String, String> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
+			Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
 			if (!errors.isEmpty())
 				System.out
 						.println("Error! while forming ES document data from nodes, below nodes are ignored" + errors);

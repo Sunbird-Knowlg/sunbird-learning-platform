@@ -2,6 +2,8 @@ package org.ekstep.jobs.samza.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.apache.commons.io.FileUtils;
 import org.ekstep.common.Platform;
@@ -11,10 +13,10 @@ import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.util.ControllerUtil;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,14 +34,14 @@ abstract public class BaseTest {
 	private static GraphDatabaseService graphDb;
 	protected static String graphId = "domain";
 
+	private static String hostAddress = "localhost";
+	private static int port = 9300;
 	private static File tempDir = null;
-	private static Settings settings = null;
-	protected static Node server = null;
+	protected static TransportClient client = null;
 	static String clusterName = null;
-	protected static Client client = null;
 	
 	@BeforeClass
-	public static void before(){
+	public static void before() throws UnknownHostException {
 		GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector( "0" );
         System.out.println("Starting neo4j in embedded mode");
        
@@ -57,14 +59,11 @@ abstract public class BaseTest {
 		}
 		
 		tempDir = new File(System.getProperty("user.dir") + "/tmp");
-		settings = Settings.builder()
-				.put("path.home", tempDir.getAbsolutePath())
-				.put("transport.tcp.port","9500")
-				.build();
-		server = NodeBuilder.nodeBuilder().settings(settings).build();
-		clusterName = server.settings().get("cluster.name");
-		server.start();
-		client = server.client();
+		Settings settings = Settings.builder().put("client.transport.sniff", true)
+				.put("client.transport.ignore_cluster_name", true).build();
+		client = new PreBuiltTransportClient(settings);
+		client.addTransportAddress(new TransportAddress(InetAddress.getByName(hostAddress), port));
+		clusterName = client.settings().get("cluster.name");
 	}
 	
 	@AfterClass
@@ -72,7 +71,7 @@ abstract public class BaseTest {
 		System.out.println("deleting Graph...!!");
 		graphDb.shutdown();
 		deleteGraph(graphId);
-		server.close();
+		client.close();
 		FileUtil.deleteDir(tempDir);
 	}
 	

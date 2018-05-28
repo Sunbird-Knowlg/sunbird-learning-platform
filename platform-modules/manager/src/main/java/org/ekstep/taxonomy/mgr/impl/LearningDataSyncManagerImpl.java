@@ -8,6 +8,8 @@ import org.ekstep.common.mgr.CompositeIndexSyncManager;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.ICompositeSearchManager;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
 /**
@@ -38,8 +40,9 @@ public class LearningDataSyncManagerImpl extends CompositeIndexSyncManager imple
 
 	private void deleteIndexData(String graphId, String objectType) throws Exception {
 		if (StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(graphId)) {
-			String query = "{\"query\": { \"bool\" : { \"must\" : [{\"match\": { \"objectType.raw\": \"" + objectType
-					+ "\"}}, {\"match\": { \"graph_id.raw\": \"" + graphId + "\"}}]}}}";
+			BoolQueryBuilder query = QueryBuilders.boolQuery();
+			query.must(QueryBuilders.matchQuery("objectType.raw", objectType));
+			query.must(QueryBuilders.matchQuery("graph_id.raw", graphId));
 			util.deleteDocumentsByQuery(query, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
 		}

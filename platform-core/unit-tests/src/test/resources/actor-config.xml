@@ -1,8 +1,10 @@
 <actor-config>
-	<init system="SearchActorSystem">
+	<init system="TestActorSystem">
 		<init-routers>
 			<init-router name="RequestRouter" count="4"
 				class="org.ekstep.graph.engine.router.RequestRouter"></init-router>
+			<init-router name="TclExecutor" count="8"
+				class="org.ekstep.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
 		</init-routers>
 	</init>
 	<graph-managers>
