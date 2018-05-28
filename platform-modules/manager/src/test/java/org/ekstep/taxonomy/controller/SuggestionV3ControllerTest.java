@@ -99,7 +99,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	private void createSuggestion() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + contentId
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		suggestionId = (String) jsonToObject(actions).get("suggestion_id");
@@ -113,7 +113,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_01() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + contentId
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		suggestionId = (String) jsonToObject(actions).get("suggestion_id");
@@ -128,7 +128,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_02() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + "ABC"
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -142,7 +142,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_03() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + ""
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -156,7 +156,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_04() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + "ABC"
-				+ "\",\"objectType\":\"\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
+				+ "\",\"objectType\":\"\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -170,7 +170,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_05() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + "ABC"
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"\",\"params\":{}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -184,7 +184,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_06() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + "ABC"
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"\",\"command\":\"update\",\"params\":{}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
