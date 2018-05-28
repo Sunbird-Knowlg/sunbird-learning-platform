@@ -89,8 +89,10 @@ public class App {
 
 	private static void process() {
 		try{
-			String path = "publishedContent.csv";
-			FileWriter writer = new FileWriter(path, true);
+			String path = "/data/republished/publishedContent.csv";
+			File file = new File(path);
+			file.getParentFile().mkdirs();
+			FileWriter writer = new FileWriter(file, true);
 			boolean found = true;
 			List<String> processed_ids = new ArrayList<String>();
 			int start = sc.getStartPosition();
@@ -192,7 +194,7 @@ public class App {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}finally {
-			file.delete();
+			//file.delete();
 			ActorBootstrap.getActorSystem().shutdown();
 		}
 	}
@@ -210,7 +212,8 @@ public class App {
 		}
 		
 		for(Node node : nodes) {
-			int republishedContentPkgVer = ((Double)node.getMetadata().get("pkgVersion")).intValue();
+			Double d = getDoubleValue(node.getMetadata().get("pkgVersion"));
+			int republishedContentPkgVer = d.intValue();
 			int beforeRepublishedContentPkgVer = map.get(node.getIdentifier());
 			if(!(beforeRepublishedContentPkgVer<republishedContentPkgVer)) {
 				notPublishedContent.add(node.getIdentifier());
@@ -220,7 +223,7 @@ public class App {
 	}
 	
 	private static File getFile() throws FileNotFoundException {
-		String path = "publishedContent.csv";
+		String path = "/data/republished/publishedContent.csv";
 		File file = new File(path);
 		
 		if(!file.exists()) {
