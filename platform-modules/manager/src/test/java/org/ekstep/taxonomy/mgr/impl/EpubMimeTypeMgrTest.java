@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 
 	ContentManagerImpl mgr = new ContentManagerImpl();
-	String createEpubContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
+	String createEpubContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Class 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
 	String requestForReview = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}";
 	private String PROCESSING = "Processing";
 	private String PENDING = "Pending";

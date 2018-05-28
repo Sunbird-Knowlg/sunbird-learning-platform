@@ -88,7 +88,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 
 	private void createContent() throws Exception {
 		ContentManagerImpl contentManager = new ContentManagerImpl();
-		String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
+		String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Class 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
 		Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -99,7 +99,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	private void createSuggestion() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + contentId
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Grade 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		suggestionId = (String) jsonToObject(actions).get("suggestion_id");
@@ -113,7 +113,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_01() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + contentId
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Grade 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		suggestionId = (String) jsonToObject(actions).get("suggestion_id");
@@ -128,7 +128,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_02() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + "ABC"
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Grade 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -142,7 +142,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_03() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + ""
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Grade 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -156,7 +156,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_04() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + "ABC"
-				+ "\",\"objectType\":\"\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Grade 7\"]}}}}";
+				+ "\",\"objectType\":\"\",\"suggestedBy\":\"User001\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -170,7 +170,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_05() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + "ABC"
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"\",\"params\":{\"gradeLevel\":[\"Grade 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"User001\",\"command\":\"\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -184,7 +184,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	public void testSuggestions_06() throws Exception {
 		String path = basePath + "/create";
 		String createReq = "{\"request\": {\"content\":{\"objectId\":\"" + "ABC"
-				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Grade 7\"]}}}}";
+				+ "\",\"objectType\":\"content\",\"suggestedBy\":\"\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Class 7\"]}}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(createReq));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());

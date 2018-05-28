@@ -180,7 +180,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	public static void createDocumentContent() throws Exception {
 		for (int i = 1; i <= 2; i++) {
 			ContentManagerImpl contentManager = new ContentManagerImpl();
-			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
+			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Class 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
