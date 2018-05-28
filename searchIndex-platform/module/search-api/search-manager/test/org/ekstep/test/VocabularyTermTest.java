@@ -62,7 +62,7 @@ public class VocabularyTermTest extends WithApplication {
 		Constants.VOCABULARY_TERM_INDEX = VOCABULARY_TERM_INDEX;
 		System.out.println("creating index: " + VOCABULARY_TERM_INDEX);
 		String settings = "{\"analysis\":{\"analyzer\":{\"vt_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"vt_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"edge_ngram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
-		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"string\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"string\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}";
+		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}";
 		elasticSearchUtil.addIndex(VOCABULARY_TERM_INDEX, VOCABULARY_TERM_INDEX_TYPE, settings, mappings);
 	}
 
@@ -130,7 +130,7 @@ public class VocabularyTermTest extends WithApplication {
 	}
 
 	@Test
-	public void testSuggest() {
+	public void testzSuggest() {
 		String json = "{\"request\":{\"text\" : \"add\", \"limit\":3}}";
 		try {
 			JsonNode data = mapper.readTree(json);
@@ -147,7 +147,7 @@ public class VocabularyTermTest extends WithApplication {
 	}
 
 	@Test
-	public void testSuggest1() {
+	public void testzSuggest1() {
 		String json = "{\"request\":{\"text\" : \"add\", \"categories\":[\"keywords\"], \"language\":\"en\", \"limit\":3}}";
 		try {
 			JsonNode data = mapper.readTree(json);
@@ -244,7 +244,7 @@ public class VocabularyTermTest extends WithApplication {
 	}
 
 	@Test
-	public void testSuggest3() {
+	public void testzSuggest3() {
 		String json = "{\"request\":{\"text\" : \"ಕಳೆ\", \"categories\":[\"keywords\"],\"language\":\"ka\"}}";
 		try {
 			JsonNode data = mapper.readTree(json);

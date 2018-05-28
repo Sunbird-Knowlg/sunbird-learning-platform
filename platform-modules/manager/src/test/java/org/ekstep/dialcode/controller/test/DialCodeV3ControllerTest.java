@@ -43,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
+@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -53,7 +54,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	private WebApplicationContext context;
 
 	@Autowired
-	private DialCodeManagerImpl dialCodeMgr;
+	private static DialCodeManagerImpl dialCodeMgr;
 
 	MockMvc mockMvc;
 	private ResultActions actions;
@@ -79,6 +80,10 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	@BeforeClass
 	public static void setup() throws Exception {
 		executeScript(cassandraScript_1, cassandraScript_2, cassandraScript_3, cassandraScript_4, cassandraScript_5);
+		if (StringUtils.isBlank(publisherId))
+			createPublisher();
+		if (StringUtils.isBlank(dialCode))
+			generateDIALCode();
 		createDialCodeIndex();
 
 	}
@@ -97,7 +102,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 			generateDIALCode();
 	}
 
-	private void generateDIALCode() throws Exception {
+	private static void generateDIALCode() throws Exception {
 		String dialCodeGenReq = "{\"count\":1,\"publisher\": \"mock_pub01\",\"batchCode\":\"test_math_std1\"}";
 		String channelId = "channelTest";
 		Map<String, Object> requestMap = mapper.readValue(dialCodeGenReq, new TypeReference<Map<String, Object>>() {
@@ -110,7 +115,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 		}
 	}
 
-	private void createPublisher() throws Exception {
+	private static void createPublisher() throws Exception {
 		String createPublisherReq = "{\"identifier\":\"mock_pub01\",\"name\": \"Mock Publisher 1\"}";
 		String channelId = "channelTest";
 		Map<String, Object> requestMap = mapper.readValue(createPublisherReq, new TypeReference<Map<String, Object>>() {
@@ -708,7 +713,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	private static void createDialCodeIndex() throws IOException {
 		CompositeSearchConstants.DIAL_CODE_INDEX = DIALCODE_INDEX;
 		String settings = "{\"analysis\": {       \"analyzer\": {         \"dc_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"dc_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
-		String mappings = "{\"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"dc_index_analyzer\",            \"search_analyzer\": \"dc_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"dc_index_analyzer\",        \"search_analyzer\": \"dc_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }";
+		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"dc_index_analyzer\",\"search_analyzer\":\"dc_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"dc_index_analyzer\",\"search_analyzer\":\"dc_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
 		elasticSearchUtil.addIndex(CompositeSearchConstants.DIAL_CODE_INDEX,
 				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings);
 

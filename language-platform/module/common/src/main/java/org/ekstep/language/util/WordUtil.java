@@ -301,9 +301,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		String wordInfoIndexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + language;
 
 		ObjectMapper mapper = new ObjectMapper();
-		ArrayList<String> citiationIndexes = new ArrayList<String>();
-		Map<String, String> wordIndexesWithId = new HashMap<String, String>();
-		Map<String, String> wordIndexInfoWithId = new HashMap<String, String>();
+		ArrayList<Map<String, Object>> citiationIndexes = new ArrayList<>();
+		Map<String, Object> wordIndexesWithId = new HashMap<String, Object>();
+		Map<String, Object> wordIndexInfoWithId = new HashMap<String, Object>();
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 		createCitationIndex(citationIndexName, Constants.CITATION_INDEX_TYPE, elasticSearchUtil);
@@ -359,8 +359,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						}
 					}
 				}
-				String citationJson = mapper.writeValueAsString(citation);
-				citiationIndexes.add(citationJson);
+				Map<String, Object> citationMap = mapper.convertValue(citation, Map.class);
+				citiationIndexes.add(citationMap);
 			}
 			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(citationIndexName, Constants.CITATION_INDEX_TYPE,
 					citiationIndexes);
