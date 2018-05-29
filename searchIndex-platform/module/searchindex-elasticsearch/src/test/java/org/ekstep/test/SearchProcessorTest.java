@@ -14,13 +14,10 @@ import java.util.Set;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.searchindex.dto.SearchDTO;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,33 +26,15 @@ import org.junit.Test;
  * @author pradyumna
  *
  */
-public class SearchProcessorTest {
-	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-	private static ObjectMapper mapper = new ObjectMapper();
+public class SearchProcessorTest extends BaseSearchTest {
 	private static SearchProcessor searchprocessor = new SearchProcessor();
 
 	@BeforeClass
 	public static void beforeTest() throws Exception {
 		createCompositeSearchIndex();
-		Thread.sleep(3000);
-	}
-
-	@AfterClass
-	public static void afterTest() throws Exception {
-		System.out.println("deleting index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
-		elasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
-	}
-
-	private static void createCompositeSearchIndex() throws Exception {
-		CompositeSearchConstants.COMPOSITE_SEARCH_INDEX = "testindex";
-		System.out.println("creating index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
-		String settings = "{\"analysis\": {       \"analyzer\": {         \"cs_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"cs_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
-		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":\"true\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":\"true\",\"analyzer\":\"keylower\"}}}}}";
-		elasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
-		elasticSearchUtil.setResultLimit(10000);
-		elasticSearchUtil.setOffset(0);
 		insertTestRecords();
+		Thread.sleep(3000);
+
 	}
 
 	private static void insertTestRecords() throws Exception {
@@ -72,12 +51,6 @@ public class SearchProcessorTest {
 		content = getContentTestRecord("do_10000032", 32);
 		content.put("name", "check ends with value32");
 		addToIndex("do_10000032", content);
-	}
-
-	private static void addToIndex(String uniqueId, Map<String, Object> doc) throws Exception {
-		String jsonIndexDocument = mapper.writeValueAsString(doc);
-		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 
 	private static Map<String, Object> getContentTestRecord(String id, int index) {
