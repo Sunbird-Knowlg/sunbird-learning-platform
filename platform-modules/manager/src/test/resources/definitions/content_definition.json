@@ -966,8 +966,8 @@
 				},{
 					"required": false,
 					"dataType": "TermList",
-					"propertyName": "topics",
-					"title": "Topics",
+					"propertyName": "topic",
+					"title": "Topic",
 					"description": "",
 					"category": "Pedagogy",
 					"displayProperty": "Editable",

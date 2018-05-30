@@ -77,13 +77,13 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	/*
 	 * Framework Name: NCFTEST
 	 * 
-	 * Framework Category: medium, subject, board, gradeLevel, topics
+	 * Framework Category: medium, subject, board, gradeLevel, topic
 	 * 
 	 * Framework Term: english, math, cbse, class-1, addition
 	 *
 	 */
 	public static void createFramework() throws Exception {
-		String fwHierarchy = "{\"categories\":[{\"identifier\":\"ncftest_medium\",\"code\":\"medium\",\"terms\":[{\"identifier\":\"ncftest_medium_english\",\"code\":\"english\",\"name\":\"english\",\"description\":\"English Medium\",\"index\":1,\"category\":\"medium\",\"status\":\"Live\"}],\"name\":\"medium\",\"description\":\"Medium for NCFTEST\",\"index\":1,\"status\":\"Live\"},{\"identifier\":\"ncftest_subject\",\"code\":\"subject\",\"terms\":[{\"identifier\":\"ncftest_subject_math\",\"code\":\"math\",\"name\":\"math\",\"description\":\"Mathematics\",\"index\":1,\"category\":\"subject\",\"status\":\"Live\"}],\"name\":\"subject\",\"description\":\"Subject for NCFTEST\",\"index\":2,\"status\":\"Live\"},{\"identifier\":\"ncftest_board\",\"code\":\"board\",\"terms\":[{\"identifier\":\"ncftest_board_cbse\",\"code\":\"cbse\",\"name\":\"cbse\",\"description\":\"CBSE Board\",\"index\":1,\"category\":\"board\",\"status\":\"Live\"}],\"name\":\"board\",\"description\":\"Board for NCFTEST\",\"index\":3,\"status\":\"Live\"},{\"identifier\":\"ncftest_topics\",\"code\":\"topics\",\"terms\":[{\"identifier\":\"ncftest_topics_addition\",\"code\":\"addition\",\"name\":\"addition\",\"description\":\"Addition\",\"index\":1,\"category\":\"topics\",\"status\":\"Live\"}],\"name\":\"topics\",\"description\":\"Topics for NCFTEST\",\"index\":4,\"status\":\"Live\"},{\"identifier\":\"ncftest_gradelevel\",\"code\":\"gradeLevel\",\"terms\":[{\"identifier\":\"ncftest_gradelevel_class-1\",\"code\":\"class 1\",\"name\":\"class 1\",\"description\":\"Class 1\",\"index\":1,\"category\":\"gradeLevel\",\"status\":\"Live\"}],\"name\":\"gradeLevel\",\"description\":\"Grade Level for NCFTEST\",\"index\":5,\"status\":\"Live\"}]}";
+		String fwHierarchy = "{\"categories\":[{\"identifier\":\"ncftest_medium\",\"code\":\"medium\",\"terms\":[{\"identifier\":\"ncftest_medium_english\",\"code\":\"english\",\"name\":\"english\",\"description\":\"English Medium\",\"index\":1,\"category\":\"medium\",\"status\":\"Live\"}],\"name\":\"medium\",\"description\":\"Medium for NCFTEST\",\"index\":1,\"status\":\"Live\"},{\"identifier\":\"ncftest_subject\",\"code\":\"subject\",\"terms\":[{\"identifier\":\"ncftest_subject_math\",\"code\":\"math\",\"name\":\"math\",\"description\":\"Mathematics\",\"index\":1,\"category\":\"subject\",\"status\":\"Live\"}],\"name\":\"subject\",\"description\":\"Subject for NCFTEST\",\"index\":2,\"status\":\"Live\"},{\"identifier\":\"ncftest_board\",\"code\":\"board\",\"terms\":[{\"identifier\":\"ncftest_board_cbse\",\"code\":\"cbse\",\"name\":\"cbse\",\"description\":\"CBSE Board\",\"index\":1,\"category\":\"board\",\"status\":\"Live\"}],\"name\":\"board\",\"description\":\"Board for NCFTEST\",\"index\":3,\"status\":\"Live\"},{\"identifier\":\"ncftest_topic\",\"code\":\"topic\",\"terms\":[{\"identifier\":\"ncftest_topic_addition\",\"code\":\"addition\",\"name\":\"addition\",\"description\":\"Addition\",\"index\":1,\"category\":\"topic\",\"status\":\"Live\"}],\"name\":\"topic\",\"description\":\"Topics for NCFTEST\",\"index\":4,\"status\":\"Live\"},{\"identifier\":\"ncftest_gradelevel\",\"code\":\"gradeLevel\",\"terms\":[{\"identifier\":\"ncftest_gradelevel_class-1\",\"code\":\"class 1\",\"name\":\"class 1\",\"description\":\"Class 1\",\"index\":1,\"category\":\"gradeLevel\",\"status\":\"Live\"}],\"name\":\"gradeLevel\",\"description\":\"Grade Level for NCFTEST\",\"index\":5,\"status\":\"Live\"}]}";
 		Map<String, Object> frameworkHierarchy = mapper.readValue(fwHierarchy,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -103,6 +103,7 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	 * Create Assessment Item without Framework Expected: Item should be created
 	 * with NCF Framework
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testItem_01() throws Exception {
 		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"LP_UTEST_02\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"body\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
@@ -135,6 +136,7 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
+		@SuppressWarnings("unchecked")
 		String frId = (String) ((Map<String, Object>) resp.getResult().get("assessment_item")).get("framework");
 		assertEquals("NCFTEST", frId);
 	}
@@ -155,6 +157,7 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
+		@SuppressWarnings("unchecked")
 		String medium = (String) ((Map<String, Object>) resp.getResult().get("assessment_item")).get("medium");
 		assertEquals("english", medium);
 	}
@@ -190,6 +193,7 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
+		@SuppressWarnings("unchecked")
 		String medium = (String) ((Map<String, Object>) resp.getResult().get("assessment_item")).get("medium");
 		assertEquals("english", medium);
 	}
@@ -225,6 +229,7 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
+		@SuppressWarnings("unchecked")
 		String subject = (String) ((Map<String, Object>) resp.getResult().get("assessment_item")).get("subject");
 		assertEquals("math", subject);
 	}
@@ -386,6 +391,7 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	 * Update AssessmentItem with valid data for gradeLevel (gradeLevel=class
 	 * 1). Expected: 200 - OK. Record Should be updated with given data.
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testItem_17() throws Exception {
 		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"" + assessmentId
@@ -420,12 +426,12 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	}
 
 	/*
-	 * Create AssessmentItem with valid data for topics (topics=addition).
+	 * Create AssessmentItem with valid data for topic (topic=addition).
 	 * Expected: 200 - OK. Record Should be created with given data.
 	 */
 	@Test
 	public void testItem_19() throws Exception {
-		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"LP_UTEST_12\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"framework\":\"NCFTEST\",\"topics\":[\"addition\"],\"body\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
+		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"LP_UTEST_12\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"framework\":\"NCFTEST\",\"topic\":[\"addition\"],\"body\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
@@ -435,19 +441,19 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
-		List<String> topics = (List<String>) ((Map<String, Object>) resp.getResult().get("assessment_item"))
-				.get("topics");
-		assertEquals("addition", (String) topics.get(0));
+		List<String> topic = (List<String>) ((Map<String, Object>) resp.getResult().get("assessment_item"))
+				.get("topic");
+		assertEquals("addition", (String) topic.get(0));
 	}
 
 	/*
-	 * Create AssessmentItem with Invalid data for topics (topics=subtraction).
+	 * Create AssessmentItem with Invalid data for topic (topic=subtraction).
 	 * Expected: 400 - CLIENT_ERROR. Record Should not be created with given
 	 * data.
 	 */
 	@Test
 	public void testItem_20() throws Exception {
-		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"LP_UTEST_13\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"framework\":\"NCFTEST\",\"topics\":[\"subtraction\"],\"body\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
+		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"LP_UTEST_13\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"framework\":\"NCFTEST\",\"topic\":[\"subtraction\"],\"body\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
@@ -455,13 +461,13 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	}
 
 	/*
-	 * Update AssessmentItem with valid data for topics (topics=addition).
+	 * Update AssessmentItem with valid data for topic (topic=addition).
 	 * Expected: 200 - OK. Record Should be updated with given data.
 	 */
 	@Test
 	public void testItem_21() throws Exception {
 		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"" + assessmentId
-				+ "\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"framework\":\"NCFTEST\",\"topics\":[\"addition\"],\"body\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
+				+ "\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"framework\":\"NCFTEST\",\"topic\":[\"addition\"],\"body\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
 		String path = basePath + "/update/" + assessmentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
@@ -471,20 +477,20 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
-		List<String> topics = (List<String>) ((Map<String, Object>) resp.getResult().get("assessment_item"))
-				.get("topics");
-		assertEquals("addition", (String) topics.get(0));
+		List<String> topic = (List<String>) ((Map<String, Object>) resp.getResult().get("assessment_item"))
+				.get("topic");
+		assertEquals("addition", (String) topic.get(0));
 	}
 
 	/*
-	 * Update AssessmentItem with Invalid data for topics (topics=subtraction).
+	 * Update AssessmentItem with Invalid data for topic (topic=subtraction).
 	 * Expected: 400 - CLIENT_ERROR. Record Should not be updated with given
 	 * data.
 	 */
 	@Test
 	public void testItem_22() throws Exception {
 		String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"" + assessmentId
-				+ "\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"framework\":\"NCFTEST\"\"topics\":[\"subtraction\"],\"icse\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
+				+ "\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"framework\":\"NCFTEST\"\"topic\":[\"subtraction\"],\"icse\":\"Test Data for body........save it in cassandra\", \"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
 		String path = basePath + "/update/" + assessmentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
