@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,13 +18,10 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.model.Filter;
-import org.ekstep.graph.dac.model.MetadataCriterion;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.ActorBootstrap;
 
-import javassist.expr.Instanceof;
 
 public class App {
 
@@ -89,9 +87,7 @@ public class App {
 
 	private static void process() {
 		try{
-			String path = "/data/republished/publishedContent.csv";
-			File file = new File(path);
-			file.getParentFile().mkdirs();
+			File file = getFile(true);
 			FileWriter writer = new FileWriter(file, true);
 			boolean found = true;
 			List<String> processed_ids = new ArrayList<String>();
@@ -136,12 +132,7 @@ public class App {
 							if (imgNode == null) {
 								processed_ids.add(node.getIdentifier());
 								feeder.push(node, "Public");
-								writer.write(node.getIdentifier());
-								writer.write(",");
-								Double d = getDoubleValue(node.getMetadata().get("pkgVersion"));
-								String a = String.valueOf(d.intValue());
-								writer.write(a);
-								writer.write("\r\n");
+								writeToFile(writer, node);
 							}
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -164,27 +155,22 @@ public class App {
 	
 	
 	private static void validate() throws Exception{
-		File file = getFile();
+		File file = getFile(false);
 		List<String> notPublishedContent = new ArrayList<String>();
 		
 		try {
 			
-			BufferedReader br = new BufferedReader(new FileReader(file));
-			String line;
-			int count = 0;
-			Map<String, Integer> map = new HashMap<String, Integer>();
-			while ((line = br.readLine()) != null) {
-				String[] arr = line.split(",");
-				map.put(arr[0], Integer.parseInt(arr[1]));
-				count++;
-				if(count%50==0) {
-					addUnpublishedContent(map, notPublishedContent);
-				}
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+			int batchSize = 50;
+			boolean moreLines = true;
+			while (moreLines) {
+				  Map<String, Integer> batch = readBatch(bufferedReader, batchSize);
+				  addUnpublishedContent(batch, notPublishedContent);
+				  if (batch.size() < batchSize) {
+				    moreLines = false;
+				  }
 			}
-			if(!map.isEmpty()) {
-				addUnpublishedContent(map, notPublishedContent);
-			}
-			br.close();
+			bufferedReader.close();
 			if(notPublishedContent.isEmpty()) {
 				System.out.println("****************** All contents got published ******************");
 			}else {
@@ -197,6 +183,20 @@ public class App {
 			//file.delete();
 			ActorBootstrap.getActorSystem().shutdown();
 		}
+	}
+	
+	private static Map<String, Integer> readBatch(BufferedReader reader, int batchSize) throws IOException {
+		Map<String, Integer> resultMap = new HashMap<String, Integer>();   
+		for (int i = 0; i < batchSize; i++) {
+			String line = reader.readLine();
+			if (line != null) {
+				String[] arr = line.split(",");
+				resultMap.put(arr[0], Integer.parseInt(arr[1]));
+			} else {
+				return resultMap;
+			}
+		}
+		return resultMap;
 	}
 	
 	private static void addUnpublishedContent(Map<String, Integer> map, List<String> notPublishedContent) {
@@ -219,16 +219,19 @@ public class App {
 				notPublishedContent.add(node.getIdentifier());
 			}
 		}
-		map.clear();
+		//map.clear();
 	}
 	
-	private static File getFile() throws FileNotFoundException {
-		String path = "/data/republished/publishedContent.csv";
+	private static File getFile(boolean fileToCreate) throws IOException {
+		String path = Platform.config.getString("validation.filePath");
 		File file = new File(path);
 		
-		if(!file.exists()) {
+		if(!file.exists() && !fileToCreate) {
 			System.out.println("File: "+ file.getName() + " not exists.");
 			throw new FileNotFoundException();
+		}
+		if(!file.exists() && fileToCreate) {
+			file.getParentFile().mkdirs();
 		}
 		return file;
 	}
@@ -246,5 +249,13 @@ public class App {
 		} catch (Exception e) {
 			return 0;
 		}
+	}
+	private static void writeToFile(FileWriter writer, Node node) throws IOException {
+		writer.write(node.getIdentifier());
+		writer.write(",");
+		Double d = getDoubleValue(node.getMetadata().get("pkgVersion"));
+		String a = String.valueOf(d.intValue());
+		writer.write(a);
+		writer.write("\r\n");
 	}
 }
