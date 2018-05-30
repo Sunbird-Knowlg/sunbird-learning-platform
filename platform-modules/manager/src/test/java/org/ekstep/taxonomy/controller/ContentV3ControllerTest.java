@@ -121,13 +121,13 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	/*
 	 * Framework Name: NCFTEST
 	 * 
-	 * Framework Category: medium, subject, board, gradeLevel, topics
+	 * Framework Category: medium, subject, board, gradeLevel, topic
 	 * 
 	 * Framework Term: english, math, cbse, class 1, addition
 	 *
 	 */
 	public static void createFramework() throws Exception {
-		String fwHierarchy = "{\"categories\":[{\"identifier\":\"ncftest_medium\",\"code\":\"medium\",\"terms\":[{\"identifier\":\"ncftest_medium_english\",\"code\":\"english\",\"name\":\"english\",\"description\":\"English Medium\",\"index\":1,\"category\":\"medium\",\"status\":\"Live\"}],\"name\":\"medium\",\"description\":\"Medium for NCFTEST\",\"index\":1,\"status\":\"Live\"},{\"identifier\":\"ncftest_subject\",\"code\":\"subject\",\"terms\":[{\"identifier\":\"ncftest_subject_math\",\"code\":\"math\",\"name\":\"math\",\"description\":\"Mathematics\",\"index\":1,\"category\":\"subject\",\"status\":\"Live\"}],\"name\":\"subject\",\"description\":\"Subject for NCFTEST\",\"index\":2,\"status\":\"Live\"},{\"identifier\":\"ncftest_board\",\"code\":\"board\",\"terms\":[{\"identifier\":\"ncftest_board_cbse\",\"code\":\"cbse\",\"name\":\"cbse\",\"description\":\"CBSE Board\",\"index\":1,\"category\":\"board\",\"status\":\"Live\"}],\"name\":\"board\",\"description\":\"Board for NCFTEST\",\"index\":3,\"status\":\"Live\"},{\"identifier\":\"ncftest_topics\",\"code\":\"topics\",\"terms\":[{\"identifier\":\"ncftest_topics_addition\",\"code\":\"addition\",\"name\":\"addition\",\"description\":\"Addition\",\"index\":1,\"category\":\"topics\",\"status\":\"Live\"}],\"name\":\"topics\",\"description\":\"Topics for NCFTEST\",\"index\":4,\"status\":\"Live\"},{\"identifier\":\"ncftest_gradelevel\",\"code\":\"gradeLevel\",\"terms\":[{\"identifier\":\"ncftest_gradelevel_class-1\",\"code\":\"class 1\",\"name\":\"class 1\",\"description\":\"Class 1\",\"index\":1,\"category\":\"gradeLevel\",\"status\":\"Live\"}],\"name\":\"gradeLevel\",\"description\":\"Grade Level for NCFTEST\",\"index\":5,\"status\":\"Live\"}]}";
+		String fwHierarchy = "{\"categories\":[{\"identifier\":\"ncftest_medium\",\"code\":\"medium\",\"terms\":[{\"identifier\":\"ncftest_medium_english\",\"code\":\"english\",\"name\":\"english\",\"description\":\"English Medium\",\"index\":1,\"category\":\"medium\",\"status\":\"Live\"}],\"name\":\"medium\",\"description\":\"Medium for NCFTEST\",\"index\":1,\"status\":\"Live\"},{\"identifier\":\"ncftest_subject\",\"code\":\"subject\",\"terms\":[{\"identifier\":\"ncftest_subject_math\",\"code\":\"math\",\"name\":\"math\",\"description\":\"Mathematics\",\"index\":1,\"category\":\"subject\",\"status\":\"Live\"}],\"name\":\"subject\",\"description\":\"Subject for NCFTEST\",\"index\":2,\"status\":\"Live\"},{\"identifier\":\"ncftest_board\",\"code\":\"board\",\"terms\":[{\"identifier\":\"ncftest_board_cbse\",\"code\":\"cbse\",\"name\":\"cbse\",\"description\":\"CBSE Board\",\"index\":1,\"category\":\"board\",\"status\":\"Live\"}],\"name\":\"board\",\"description\":\"Board for NCFTEST\",\"index\":3,\"status\":\"Live\"},{\"identifier\":\"ncftest_topic\",\"code\":\"topic\",\"terms\":[{\"identifier\":\"ncftest_topic_addition\",\"code\":\"addition\",\"name\":\"addition\",\"description\":\"Addition\",\"index\":1,\"category\":\"topic\",\"status\":\"Live\"}],\"name\":\"topic\",\"description\":\"Topics for NCFTEST\",\"index\":4,\"status\":\"Live\"},{\"identifier\":\"ncftest_gradelevel\",\"code\":\"gradeLevel\",\"terms\":[{\"identifier\":\"ncftest_gradelevel_class-1\",\"code\":\"class 1\",\"name\":\"class 1\",\"description\":\"Class 1\",\"index\":1,\"category\":\"gradeLevel\",\"status\":\"Live\"}],\"name\":\"gradeLevel\",\"description\":\"Grade Level for NCFTEST\",\"index\":5,\"status\":\"Live\"}]}";
 		Map<String, Object> frameworkHierarchy = mapper.readValue(fwHierarchy,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -1082,13 +1082,13 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	}
 
 	/*
-	 * Create Content with valid data for topics (topics=addition). Expected:
-	 * 200 - OK. Record Should be created with given data.
+	 * Create Content with valid data for topic (topic=addition). Expected: 200
+	 * - OK. Record Should be created with given data.
 	 * 
 	 */
 	@Test
 	public void testFrameworkLinking_19() throws Exception {
-		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_11\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"topics\":[\"addition\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_11\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"topic\":[\"addition\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
@@ -1098,18 +1098,18 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
-		List<String> topics = (List<String>) ((Map<String, Object>) resp.getResult().get("content")).get("topics");
-		assertEquals("addition", (String) topics.get(0));
+		List<String> topic = (List<String>) ((Map<String, Object>) resp.getResult().get("content")).get("topic");
+		assertEquals("addition", (String) topic.get(0));
 	}
 
 	/*
-	 * Create Content with Invalid data for topics (topics=multiplication).
+	 * Create Content with Invalid data for topic (topic=multiplication).
 	 * Expected: 400 - OK. Record Should not be created with given data.
 	 * 
 	 */
 	@Test
 	public void testFrameworkLinking_20() throws Exception {
-		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_12\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"topics\":[\"multiplication\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_12\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"topic\":[\"multiplication\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
@@ -1117,13 +1117,13 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	}
 
 	/*
-	 * Update Content with valid data for topics (topics=addition). Expected:
-	 * 200 - OK. Record Should be created with given data.
+	 * Update Content with valid data for topic (topic=addition). Expected: 200
+	 * - OK. Record Should be created with given data.
 	 * 
 	 */
 	@Test
 	public void testFrameworkLinking_21() throws Exception {
-		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"topics\":[\"addition\"],\"versionKey\":\""
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"topic\":[\"addition\"],\"versionKey\":\""
 				+ passKey + "\"}}}";
 		String path = basePath + "/update/" + frContentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
@@ -1134,19 +1134,19 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
-		List<String> topics = (List<String>) ((Map<String, Object>) resp.getResult().get("content")).get("topics");
-		assertEquals("addition", (String) topics.get(0));
+		List<String> topic = (List<String>) ((Map<String, Object>) resp.getResult().get("content")).get("topic");
+		assertEquals("addition", (String) topic.get(0));
 	}
 
 	/*
-	 * Update Content with Invalid data for topics (topics=multiplication).
+	 * Update Content with Invalid data for topic (topic=multiplication).
 	 * Expected: 400 - OK. Record Should not be updated with given data.
 	 * 
 	 */
 	@Test
 	public void testFrameworkLinking_22() throws Exception {
 		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"versionKey\":\"" + passKey
-				+ "\"\"topics\":[\"multiplication\"]}}}";
+				+ "\"\"topic\":[\"multiplication\"]}}}";
 		String path = basePath + "/update/" + frContentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
