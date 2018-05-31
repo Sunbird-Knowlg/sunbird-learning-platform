@@ -1250,7 +1250,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(createContentReq));
-		System.out.println("Response:" + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 		Response resp = getResponse(actions);
 		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
