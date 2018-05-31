@@ -31,11 +31,9 @@ public class CompositeSearchServiceTest extends BaseTest {
 	private MessageCollector collector;
 	private ObjectMapper mapper = new ObjectMapper();
 	static String clusterName = null;
-	static Client client = null;
 
 	@Test
 	public void testMessageWithProperties() throws Exception {
-	    client = server.client();
 		Map<String,Object>	messageData = mapper.readValue(validMessage, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
@@ -55,7 +53,6 @@ public class CompositeSearchServiceTest extends BaseTest {
 	
 	@Test
 	public void testMessageWithAddedRelations() throws Exception {
-		client = server.client();
 		Map<String,Object>	messageData = mapper.readValue(messageWithAddedRelations, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
@@ -75,7 +72,6 @@ public class CompositeSearchServiceTest extends BaseTest {
 	
 	@Test
 	public void testMessageWithRemovedRelations() throws Exception {
-		client = server.client();
 		Map<String,Object>	messageData = mapper.readValue(messageWithRemovedRelations, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
@@ -99,7 +95,7 @@ public class CompositeSearchServiceTest extends BaseTest {
 				.setQuery(QueryBuilders.termQuery("_id", identifier)).execute().actionGet();
 		SearchHits hits = response.getHits();
 		for (SearchHit hit : hits.getHits()) {
-			Map<String, Object> fields = hit.getSource();
+			Map<String, Object> fields = hit.getSourceAsMap();
 			return fields;
 		}
 		return null;

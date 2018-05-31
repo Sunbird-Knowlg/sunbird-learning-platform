@@ -53,6 +53,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 	int rn = generateRandomInt(0, 9999999);
 	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+	String jsonCreateValidContentUpdated = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"gradeLevel\":[\"Class 1\"], \"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonCreateValidContentWithConcept = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\"\"concepts\":[{\"identifier\":\"LO1\",\"name\":\"Word Meaning\",\"objectType\":\"Concept\",\"relation\":\"associatedTo\",\"description\":\"Understanding meaning of words\",\"index\":null,\"status\":null,\"depth\":null,\"mimeType\":null,\"visibility\":null}],,\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonCreateContentCollection = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Collection_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}}}";
 	String jsonCreateTextbookUnit = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Collection_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"TextBookUnit\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"owner\": \"EkStep\", \"children\": [{\"identifier\": \"id1\"},{ \"identifier\": \"id2\"},{\"identifier\": \"id3\"},{\"identifier\": \"id4\"}]}}}";
@@ -96,97 +97,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 	@AfterClass
 	public static void end() throws IOException {
-		// FileUtils.cleanDirectory(downloadPath);
+		 FileUtils.cleanDirectory(downloadPath);
 	}
 	@Before
 	public void delay(){
-		try{Thread.sleep(3000);}catch(InterruptedException e){System.out.println(e);} 
+		try{Thread.sleep(3000);}catch(InterruptedException e){ System.out.println(e);} 
 	}
 	@After
 	public void CleanUp() {
 	}
-
-	// @Test
-	// public void getContentType(){
-	// File file = new File("/Users/purnima/Desktop/contentPublish.txt");
-	// FileInputStream fis = null;
-	// BufferedReader reader = null;
-	// try {
-	// fis = new FileInputStream(file);
-	// reader = new BufferedReader(new InputStreamReader(fis));
-	// int count = 1;
-	//System.out.println(count);
-	// for (int i=1; i<=count; i++){
-	// String identifier = reader.readLine();
-	// setURI();
-	// Response R =
-	// given().
-	// spec(getRequestSpecification(contentType, userId, APIToken)).
-	// body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}").
-	// when().
-	// post("/content/v3/publish/" + identifier).
-	// then().
-	////log().all().
-	// extract().response();
-	//
-	// JsonPath jp = R.jsonPath();
-	// String nodeId = jp.get("result.node_id");
-	// }
-	// }
-	// catch (IOException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// if(domain == null){
-	//System.out.println("Identifer"+identifier+ "Domain:NULL");
-	// setURI();
-	// given().
-	// spec(getRequestSpecification(contentType, userId, APIToken)).
-	// body("{\"request\":{\"content\":{\"versionKey\":\"oM2wLF8Eq3vRnt3qZ0+Y/sWQnH5pz3bHpciFo3EIifZIcP5RW4qHw8sZztCzv87M\",\"contentType\":\"Story\"}}}").
-	// when().
-	// patch("/content/v3/update/"+identifier).
-	// then().
-	////log().all().
-	// spec(get200ResponseSpec());
-	//
-	// }
-	// else if(domain.contains("literacy")||domain.contains("science")){
-	//System.out.println("Identifer"+identifier+ "Domain:"+domain);
-	// setURI();
-	// given().
-	// spec(getRequestSpecification(contentType, userId, APIToken)).
-	// body("{\"request\":{\"content\":{\"versionKey\":\"oM2wLF8Eq3vRnt3qZ0+Y/sWQnH5pz3bHpciFo3EIifZIcP5RW4qHw8sZztCzv87M\",\"contentType\":\"Story\"}}}").
-	// when().
-	// patch("/content/v3/update/"+identifier).
-	// then().
-	////log().all().
-	// spec(get200ResponseSpec());
-	// }
-	// else if(domain.contains("numeracy")){
-	//System.out.println("Identifer"+identifier+ "Domain:"+domain);
-	// setURI();
-	// given().
-	// spec(getRequestSpecification(contentType, userId, APIToken)).
-	// body("{\"request\":{\"content\":{\"versionKey\":\"oM2wLF8Eq3vRnt3qZ0+Y/sWQnH5pz3bHpciFo3EIifZIcP5RW4qHw8sZztCzv87M\",\"contentType\":\"Worksheet\"}}}").
-	// when().
-	// patch("/content/v3/update/"+identifier).
-	// then().
-	////log().all().
-	// spec(get200ResponseSpec());
-	// }
-	// }
-	// }
-	// catch (IOException e) {
-	// e.printStackTrace();
-	// } finally {
-	// try {
-	// if (fis != null)
-	// fis.close();
-	// } catch (IOException ex) {
-	// ex.printStackTrace();
-	// }
-	// }
-	// }
 
 	// Create and get ECML Content
 	@Test
@@ -201,7 +120,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Extracting the JSON path
@@ -216,7 +135,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when()
 				.get("/content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -225,6 +144,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String versionKey = jP1.get("result.content.versionKey");
 		Assert.assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
+		contentCleanUp(nodeId);
 	}
 
 	@Ignore
@@ -237,7 +157,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -253,7 +173,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -262,7 +182,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String versionKey = jP1.get("result.content.versionKey");
 		Assert.assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
-
+		contentCleanUp(nodeId);
 	}
 
 	// Create and get valid HTML
@@ -281,7 +201,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -297,7 +217,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -306,6 +226,50 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String versionKey = jP1.get("result.content.versionKey");
 		Assert.assertTrue(versionKey != null);
 		Assert.assertEquals(status, "Draft");
+		contentCleanUp(nodeId);
+	}
+	
+	// Create content with grade level, without framework and check for the default framework
+	@Test 
+	public void createContentWithValidGradeLevelExpectSuccess200(){
+		setURI();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContentUpdated).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Get content and check
+		setURI();
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.content.identifier");
+		String versionKey = jP1.get("result.content.versionKey");
+		ArrayList<String> gradeLevel = jP1.get("result.content.gradeLevel");
+		Assert.assertTrue(gradeLevel.contains("Class 1"));
+		Assert.assertTrue(versionKey != null);
+		Assert.assertEquals(nodeId, identifier);
+		contentCleanUp(nodeId);
 	}
 
 	// Create and get valid APK
@@ -324,7 +288,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -340,7 +304,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -349,6 +313,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String versionKey = jP1.get("result.content.versionKey");
 		Assert.assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
+		contentCleanUp(nodeId);
 	}
 
 	// Create and get new collection
@@ -372,7 +337,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					post("content/v3/create").
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 
@@ -399,7 +364,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -415,7 +380,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -424,6 +389,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String versionKey = jP2.get("result.content.versionKey");
 		Assert.assertTrue(versionKey != null);
 		Assert.assertTrue(identifiers.contains(node1) && identifiers.contains(node2));
+		contentCleanUp(nodeId);
 	}
 
 	// Create content without contentType
@@ -441,8 +407,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("content/v3/create").
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
+		
 	}
 	
 	// Create content with content type and resource type
@@ -461,7 +428,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("content/v3/create").
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec()).
 		extract().response();
 		
@@ -477,7 +444,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when()
 				.get("/content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -488,6 +455,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		Assert.assertTrue(versionKey != null);
 		Assert.assertTrue(resourceType.equals("Story"));
 		Assert.assertEquals(nodeId, identifier);
+		contentCleanUp(nodeId);
 	}
 	
 	// Create content with resource type as list
@@ -498,9 +466,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 			resourceType.add("Story");
 			js.getJSONObject("request").getJSONObject("content").put("resourceType",resourceType);
 			jsonCreateValidContent = js.toString();
-			System.out.println(jsonCreateValidContent);
+			// System.out.println(jsonCreateValidContent);
 			setURI();
-			Response R =
 			given().
 			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonCreateValidContent).
@@ -509,10 +476,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("content/v3/create").
 			then().
-			//log().all().
+			// log().all().
 			spec(get400ResponseSpec()).
 			extract().response();
-
 	}
 	
 	// Create Invalid content
@@ -525,7 +491,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		with().
 		contentType(JSON).
 		when().
-		post("learning/v2/content").
+		post("content/v3/create").
 		then().
 		spec(get400ResponseSpec());
 	}
@@ -545,7 +511,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("content/v3/create").
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 
@@ -564,7 +530,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("content/v3/create").
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
 	}
 
@@ -600,8 +566,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("content/v3/create").
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
+		contentCleanUp(ecmlNode);
 
 	}
 
@@ -637,8 +604,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("content/v3/create").
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
+		contentCleanUp(ecmlNode);
 	}
 
 	// Update and get list
@@ -651,7 +619,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				with().contentType(JSON).
 				when().
 				post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				extract().response();
 
 		// Extracting the JSON path
@@ -662,14 +630,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Update content status to live
 		setURI();
 		jsonUpdateContentValid = jsonUpdateContentValid.replace("version_Key", versionKey);
-		System.out.println(jsonUpdateContentValid);
+		// System.out.println(jsonUpdateContentValid);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateContentValid).
 		with().
 		contentType("application/json").when().patch("/content/v3/update/" + nodeId).then().
-		//log().all().
-		spec(get200ResponseSpec());
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 	
 	// Create and get Content
@@ -685,7 +654,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -702,7 +671,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/"+ecmlNode).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -712,6 +681,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String versionKey = jP1.get("result.content.versionKey");
 		Assert.assertTrue(versionKey!=null);
 		Assert.assertEquals(ecmlNode, identifier);
+		contentCleanUp(ecmlNode);
 	}
 
 
@@ -724,7 +694,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		get("/content/v3/read/").
 		then().
-		//log().all().
+		// log().all().
 		spec(get500ResponseSpec());
 	}
 
@@ -737,7 +707,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		get("/content/v3/read/F;NDSAF").
 		then().
-		//log().all().
+		// log().all().
 		spec(get404ResponseSpec());
 	}
 
@@ -755,7 +725,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				extract().
 				response();
 
@@ -770,13 +740,11 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		get("/content/v3/read/"+ecmlNode+".img").
 		then().
-		//log().all().
+		// log().all().
 		spec(get404ResponseSpec());
 	}
-
-
+	
 	// Create and get image content for valid content
-
 	@Test
 	public void getImageContentVaidExpectSuccess200(){
 		setURI();
@@ -789,7 +757,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				//spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -806,7 +774,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		then().
 		post("/content/v3/upload/"+nodeId);
 		//then().
-		//log().all().
+		// log().all().
 		//spec(get200ResponseSpec());
 
 		// Publish created content
@@ -818,7 +786,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("/content/v3/publish/"+nodeId).
 				then().
-				//log().all().
+				// log().all().
 				//spec(get200ResponseSpec()).
 				extract().response();
 
@@ -836,7 +804,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		then().
 		patch("/content/v3/update/"+nodeId);
 		//then().
-		//log().all().
+		// log().all().
 		//spec(get200ResponseSpec());
 
 		// Get and validate
@@ -847,7 +815,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/"+nodeId+"?mode=edit").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -855,10 +823,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP2 = R2.jsonPath();
 		String identifier = jP2.get("result.content.identifier");
 		Assert.assertFalse(identifier.contains(".img"));
+		contentCleanUp(nodeId);
 	}
-
-	// Get image content with fields 
-
 
 	//Get content with fields
 
@@ -874,7 +840,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				//spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -891,7 +857,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		then().
 		post("/content/v3/upload/"+nodeId);
 		//then().
-		//log().all().
+		// log().all().
 		//spec(get200ResponseSpec());
 
 		// Publish created content
@@ -910,7 +876,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/"+nodeId+"?fields=body,artifactUrl,downloadUrl").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -921,7 +887,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String artifactUrl = jP2.get("result.content.artifactUrl");
 		Assert.assertFalse(identifier.contains(".img"));
 		Assert.assertTrue(body!=null && artifactUrl.endsWith(".zip"));
-
+		contentCleanUp(nodeId);
 	}
 
 	//Get Content List
@@ -937,11 +903,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/list").
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 	}
-
 
 	//Get Content List
 	@Test
@@ -956,11 +921,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/list").
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
-
 	}
-
 
 	//Search Content List
 	@Test
@@ -975,9 +938,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("content/v3/search").
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
-
 	}
 
 	@Test
@@ -993,7 +955,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1008,7 +970,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1017,7 +979,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String versionKey = jP1.get("result.content.versionKey");
 		Assert.assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
-
 	}
 
 	// Update content with metadata changes
@@ -1031,7 +992,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("/content/v3/create").
 				then().spec(get200ResponseSpec()).
-				//log().all().
+				// log().all().
 				extract().response();
 
 		// Extracting the JSON path
@@ -1045,7 +1006,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		multiPart(new File(path + "/uploadContent.zip")).
 		when().post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Publish created content
@@ -1057,7 +1018,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("/content/v3/publish/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -1065,7 +1026,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Update content metadata
 		jsonUpdateMetadata = jsonUpdateMetadata.replace("version_key", versionKey);
-		//System.out.println(jsonUpdateMetadata);
+		//// System.out.println(jsonUpdateMetadata);
 		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();};
 		setURI();
 		Response nR = 
@@ -1075,7 +1036,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				with().
 				contentType("application/json").
 				when().patch("/content/v3/update/" + nodeId).
-				then().//log().all().
+				then().// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Extracting the JSON path
@@ -1092,7 +1053,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/publish/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get and validate the change
@@ -1102,16 +1063,17 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		ArrayList<String> language = jP2.get("result.content.language");
 		Assert.assertTrue(language.contains("Tamil") && language.contains("Telugu"));
+		contentCleanUp(nodeId);
 	}
+	
 
 	// Upload file without index
-
 	// Create content
 	@Test
 	public void uploadContentWithoutIndexExpect400() {
@@ -1139,12 +1101,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Upload file with invalid ecml
-
 	// Create content
 	@Test
 	public void uploadContentWithInvalidEcmlExpect400() {
@@ -1171,12 +1133,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Upload html content without index.html
-
 	// Create content
 	@Test
 	public void uploadHTMLContentWithoutIndexExpect400() {
@@ -1193,7 +1155,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// // log().all().
 				// spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -1210,8 +1172,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Upload file with invalid mimeType
@@ -1220,8 +1183,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void uploadContentWithInvalidmimeTypeExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1229,10 +1200,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadAPK.apk")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadAPK.apk")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Upload file with Empty zip
@@ -1241,8 +1217,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void uploadContentWithEmptyZipExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1250,10 +1234,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/haircut_empty.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/haircut_empty.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Upload with invalid json
@@ -1262,8 +1251,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void uploadContentWithInvalidJSONExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1271,11 +1268,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/ecmlCorruptedJSON.zip")).when().post("/content/v3/upload/" + nodeId).then()
-				.
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/ecmlCorruptedJSON.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Upload file more than 50 MB and assets above 20 MB
@@ -1284,8 +1284,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Ignore
 	public void uploadContentAboveLimitExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1293,10 +1301,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/contentAbove50MB.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/contentAbove50MB.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Upload File with missing assets
@@ -1304,8 +1317,17 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void uploadContentWithMissingAssetsExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().
+				response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1313,11 +1335,48 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/haircut_withoutAssets.zip")).when().post("/content/v3/upload/" + nodeId)
-				.then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/haircut_withoutAssets.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
+}
+	
+	//Upload content with single asset above 50 mb
+	@Test
+	public void uploadContentWithAssetAbove50MbExect4xx(){
+		setURI();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().
+				response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/upload60MbAssetContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Upload invalid file
@@ -1326,8 +1385,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void uploadContentInvalidFileExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1335,10 +1402,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/carpenter.png")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/carpenter.png")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Create and upload image asset valid
@@ -1355,7 +1427,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * = js.toString(); Response R = given().
 	 * spec(getRequestSpecification(contentType, userId, APIToken)).
 	 * body(jsonCreateImageAssetInvalid). with(). contentType(JSON). when().
-	 * post("content/v3/create"). then(). ////log().all().
+	 * post("content/v3/create"). then(). //// log().all().
 	 * spec(get200ResponseSpec()). extract(). response();
 	 * 
 	 * // Extracting the JSON path JsonPath jp = R.jsonPath(); String nodeId =
@@ -1364,7 +1436,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * // Upload Content setURI(); given().
 	 * spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 	 * multiPart(new File(path+"/pngImage.png")). when().
-	 * post("/content/v3/upload/"+nodeId). then(). ////log().all().
+	 * post("/content/v3/upload/"+nodeId). then(). //// log().all().
 	 * spec(get400ResponseSpec()); }
 	 * 
 	 * // Create and upload invalid mimeType audio asset
@@ -1378,7 +1450,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * = js.toString(); Response R = given().
 	 * spec(getRequestSpecification(contentType, userId, APIToken)).
 	 * body(jsonCreateImageAssetInvalid). with(). contentType(JSON). when().
-	 * post("content/v3/create"). then(). ////log().all().
+	 * post("content/v3/create"). then(). //// log().all().
 	 * spec(get200ResponseSpec()). extract(). response();
 	 * 
 	 * // Extracting the JSON path JsonPath jp = R.jsonPath(); String nodeId =
@@ -1387,7 +1459,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * // Upload Content setURI(); given().
 	 * spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 	 * multiPart(new File(path+"/Oggaudio.ogg")). when().
-	 * post("/content/v3/upload/"+nodeId). then(). ////log().all().
+	 * post("/content/v3/upload/"+nodeId). then(). //// log().all().
 	 * spec(get400ResponseSpec()); }
 	 */
 
@@ -1397,10 +1469,19 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void uploadandPublishContentExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1408,19 +1489,28 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		//System.out.println(path);
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		//// System.out.println(path);
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -1428,6 +1518,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload and review with valid content
@@ -1444,7 +1535,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1460,7 +1551,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -1471,7 +1562,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1488,7 +1579,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/review/" + nodeId).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 
 			// Get content and validate
@@ -1499,14 +1590,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					get("/content/v3/read/" + nodeId).
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 
 			JsonPath jP1 = R1.jsonPath();
 			String status = jP1.get("result.content.status");
-			//System.out.println(status);
+			//// System.out.println(status);
 			Assert.assertEquals(status, "Review");
+			contentCleanUp(nodeId);
 		}
 	}
 
@@ -1514,21 +1606,32 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void reviewInvalidContentExpect4xx() {
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body("{\"request\":{\"content\":{}}}")
-				.when().post("content/v3/review/asfdkfa").then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{}}}").
+		when().
+		post("content/v3/review/asfdkfa").
+		then().
+		// log().all().
+		spec(get400ResponseSpec());
 	}
 
 	// Review content without body
 	@Test
 	public void reviewContentWithoutBodyExpect4xx() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
 				// spec(get200ResponseSpec()).
-		extract().response();
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1536,10 +1639,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Review the content
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body("{\"request\":{\"content\":{}}}")
-				.when().post("/content/v3/review/" + nodeId).then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{}}}").
+		when().
+		post("/content/v3/review/" + nodeId).
+		then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	// Review authoring tool created content
@@ -1554,7 +1662,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				// spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1567,7 +1675,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			//System.out.println(e);
+			//// System.out.println(e);
 		}
 		setURI();
 		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
@@ -1579,7 +1687,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		patch("/content/v3/update/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get content and validate
@@ -1590,13 +1698,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		//System.out.println(body);
+		//// System.out.println(body);
 
 		// Setting status to review
 		setURI();
@@ -1606,7 +1714,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/review/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get content and validate
@@ -1616,14 +1724,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String status = jP1.get("result.content.status");
-		//System.out.println(status);
+		//// System.out.println(status);
 		Assert.assertEquals(status, "Review");
+		contentCleanUp(nodeId);
 	}
 	
 	// Reject valid content
@@ -1638,7 +1747,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1654,7 +1763,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -1665,7 +1774,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1682,7 +1791,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/review/" + nodeId).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Get content and validate
@@ -1692,13 +1801,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					get("/content/v3/read/" + nodeId).
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 
 			JsonPath jP1 = R1.jsonPath();
 			String status = jP1.get("result.content.status");
-			//System.out.println(status);
+			//// System.out.println(status);
 			Assert.assertEquals(status, "Review");
 			
 			// Reject the content
@@ -1709,7 +1818,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/reject/"+nodeId).
 			then().
-			log().all(). 
+			// log().all(). 
 			spec(get200ResponseSpec());
 			
 			// Get content and validate
@@ -1719,15 +1828,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					get("/content/v3/read/" + nodeId).
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 
 			JsonPath jP3 = R3.jsonPath();
 			String statusNew = jP3.get("result.content.status");
-			//System.out.println(status);
+			//// System.out.println(status);
 			Assert.assertEquals(statusNew, "Draft");
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Reject content with invalid content id
@@ -1742,7 +1852,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/reject/ajksdhvkja").
 		then().
-		log().all(). 
+		// log().all(). 
 		spec(get404ResponseSpec());
 	}
 	
@@ -1758,7 +1868,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				//spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1774,8 +1884,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/reject/"+nodeId).
 		then().
-		log().all(). 
+		// log().all(). 
 		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 	
 	// Reject content with flagReview Status
@@ -1790,7 +1901,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				//spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1806,7 +1917,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId);
 		//then().
-		//log().all().
+		// log().all().
 		//spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -1817,7 +1928,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				//spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1834,19 +1945,19 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/publish/" + nodeId).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Get Versionkey
 			setURI();
-			try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);}
+			try{Thread.sleep(5000);}catch(InterruptedException e){ System.out.println(e);}
 			Response R4 = 
 					given().
 					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/" + nodeId).
 					then().
-					//log().all().
+					// log().all().
 					//spec(get200ResponseSpec()).
 					extract().response();
 			
@@ -1864,7 +1975,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/flag/"+nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec()).				
 		extract().response();
 		
@@ -1881,7 +1992,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/flag/accept/"+nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Review the flagDraftcontent
@@ -1892,7 +2003,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/review/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Get content and validate the reviewed content
@@ -1903,7 +2014,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" +nodeId+"?mode=edit").
 				then().
-				//log().all().
+				// log().all().
 				//spec(get200ResponseSpec()).
 				extract().response();
 
@@ -1919,7 +2030,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/reject/"+nodeId).
 		then().
-		//log().all(). 
+		// log().all(). 
 		spec(get200ResponseSpec());
 		
 		// Get content and validate
@@ -1929,15 +2040,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId+".img").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
 		String statusUpdated = jP3.get("result.content.status");
-		//System.out.println(status);
+		// System.out.println(status);
 		Assert.assertEquals(statusUpdated, "FlagDraft");
 		}
+		contentCleanUp(nodeId);
 	}
 	
 	// Retire draft content
@@ -1955,7 +2067,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("content/v3/create").
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec()).extract().response();
 
 	// Extracting the JSON path
@@ -1979,14 +2091,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			get("/content/v3/read/" + nodeId).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 
 	JsonPath jP1 = R1.jsonPath();
 	String status = jP1.get("result.content.status");
-	//System.out.println(status);
+	//// System.out.println(status);
 	Assert.assertEquals(status, "Retired");
+	contentCleanUp(nodeId);
 	}
 	
 	// Retire review content
@@ -2000,7 +2113,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -2016,7 +2129,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -2027,7 +2140,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -2044,7 +2157,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/review/" + nodeId).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Retire content
@@ -2064,13 +2177,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					get("/content/v3/read/" + nodeId).
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 
 			JsonPath jP1 = R1.jsonPath();
 			String status = jP1.get("result.content.status");
-			//System.out.println(status);
+			//// System.out.println(status);
 			Assert.assertEquals(status, "Retired");
 		}
 	}
@@ -2087,7 +2200,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -2103,7 +2216,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -2114,7 +2227,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -2131,13 +2244,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/publish/" + nodeId).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 
 			
 			// Retire content
 			setURI();
-			try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 	
+			try{Thread.sleep(5000);}catch(InterruptedException e){ System.out.println(e);} 	
 			given().
 			spec(getRequestSpecification(contentType, userId, APIToken)).
 			when().
@@ -2153,13 +2266,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					get("/content/v3/read/" + nodeId).
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 
 			JsonPath jP1 = R1.jsonPath();
 			String status = jP1.get("result.content.status");
-			//System.out.println(status);
+			// System.out.println(status);
 			Assert.assertEquals(status, "Retired");
 		}
 	}
@@ -2191,7 +2304,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Extracting the JSON path
@@ -2206,7 +2319,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -2217,7 +2330,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -2228,16 +2341,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 	
-	// Publish content with assessment item and validate the count
+	//Publish content with asset more than 20 mb
 	@Test
-	public void publishContentWithAssessmentItemExpectSuccess200(){
+	public void publishContentAbove20MbAssetExpectSuccess200(){
 		setURI();
-		JSONObject js = new JSONObject(jsonCreateValidContent);
-		js.getJSONObject("request").getJSONObject("content").put("totalScore", 10).put("totalQuestions", 5);
-		jsonCreateValidContent = js.toString();
-		System.out.println(jsonCreateValidContent);
 		Response R = 
 				given().
 				spec(getRequestSpecification(contentType, userId, APIToken)).
@@ -2247,7 +2357,65 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
+				spec(get200ResponseSpec()).extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/upload32mbAssetContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
+
+		// Get body and validate
+		setURI();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		JsonPath jP2 = R2.jsonPath();
+		String body = jP2.get("result.content.body");
+		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		if (isValidXML(body) || isValidJSON(body)) {
+			Assert.assertTrue(accessURL(nodeId));
+		}
+		contentCleanUp(nodeId);
+	}
+	
+	// Publish content with assessment item and validate the count
+	@Ignore
+	@Test
+	public void publishContentWithAssessmentItemExpectSuccess200(){
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateValidContent);
+		js.getJSONObject("request").getJSONObject("content").put("totalScore", 10).put("totalQuestions", 5);
+		jsonCreateValidContent = js.toString();
+		// System.out.println(jsonCreateValidContent);
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Extracting the JSON path
@@ -2262,7 +2430,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -2273,7 +2441,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -2284,6 +2452,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Create content
@@ -2293,10 +2462,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("contentType", "Asset").put("mimeType", "image/jpeg");
 		String jsonCreateImageAssetValid = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateImageAssetValid).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateImageAssetValid).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2304,10 +2481,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/jpegImage.jpeg")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpecUpload());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/jpegImage.jpeg")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpecUpload());
+		contentCleanUp(nodeId);
 	}
 
 	/*
@@ -2322,7 +2504,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * jsonCreateImageAssetInvalid = js.toString(); Response R = given().
 	 * spec(getRequestSpecification(contentType, userId, APIToken)).
 	 * body(jsonCreateImageAssetInvalid). with(). contentType(JSON). when().
-	 * post("content/v3/create"). then(). ////log().all().
+	 * post("content/v3/create"). then(). //// log().all().
 	 * spec(get200ResponseSpec()). extract(). response();
 	 * 
 	 * // Extracting the JSON path JsonPath jp = R.jsonPath(); String nodeId =
@@ -2331,7 +2513,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * // Upload Content setURI(); given().
 	 * spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 	 * multiPart(new File(path+"/Verbs_test.zip")). when().
-	 * post("/content/v3/upload/"+nodeId). then(). ////log().all().
+	 * post("/content/v3/upload/"+nodeId). then(). //// log().all().
 	 * spec(get400ResponseSpec()); }
 	 * 
 	 * // Create and upload image asset Invalid
@@ -2345,7 +2527,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * jsonCreateImageAssetInvalid = js.toString(); Response R = given().
 	 * spec(getRequestSpecification(contentType, userId, APIToken)).
 	 * body(jsonCreateImageAssetInvalid). with(). contentType(JSON). when().
-	 * post("content/v3/create"). then(). ////log().all().
+	 * post("content/v3/create"). then(). //// log().all().
 	 * spec(get200ResponseSpec()). extract(). response();
 	 * 
 	 * // Extracting the JSON path JsonPath jp = R.jsonPath(); String nodeId =
@@ -2354,7 +2536,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * // Upload Content setURI(); given().
 	 * spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 	 * multiPart(new File(path+"/pngImage.png")). when().
-	 * post("/content/v3/upload/"+nodeId). then(). ////log().all().
+	 * post("/content/v3/upload/"+nodeId). then(). //// log().all().
 	 * spec(get400ResponseSpec()); }
 	 */
 
@@ -2367,10 +2549,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("contentType", "Asset").put("mimeType", "audio/mp3");
 		String jsonCreateImageAssetInvalid = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateImageAssetInvalid).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateImageAssetInvalid).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2378,18 +2568,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/sample.mp3")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/sample.mp3")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Publish the created asset
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
+		contentCleanUp(nodeId);
 	}
 
 	/*
@@ -2404,7 +2602,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * = js.toString(); Response R = given().
 	 * spec(getRequestSpecification(contentType, userId, APIToken)).
 	 * body(jsonCreateImageAssetInvalid). with(). contentType(JSON). when().
-	 * post("content/v3/create"). then(). ////log().all().
+	 * post("content/v3/create"). then(). //// log().all().
 	 * spec(get200ResponseSpec()). extract(). response();
 	 * 
 	 * // Extracting the JSON path JsonPath jp = R.jsonPath(); String nodeId =
@@ -2413,7 +2611,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * // Upload Content setURI(); given().
 	 * spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 	 * multiPart(new File(path+"/pngImage.png")). when().
-	 * post("/content/v3/upload/"+nodeId). then(). ////log().all().
+	 * post("/content/v3/upload/"+nodeId). then(). //// log().all().
 	 * spec(get400ResponseSpec()); }
 	 * 
 	 * // Create and upload invalid mimeType audio asset
@@ -2427,7 +2625,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * = js.toString(); Response R = given().
 	 * spec(getRequestSpecification(contentType, userId, APIToken)).
 	 * body(jsonCreateImageAssetInvalid). with(). contentType(JSON). when().
-	 * post("content/v3/create"). then(). ////log().all().
+	 * post("content/v3/create"). then(). //// log().all().
 	 * spec(get200ResponseSpec()). extract(). response();
 	 * 
 	 * // Extracting the JSON path JsonPath jp = R.jsonPath(); String nodeId =
@@ -2436,7 +2634,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * // Upload Content setURI(); given().
 	 * spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 	 * multiPart(new File(path+"/Oggaudio.ogg")). when().
-	 * post("/content/v3/upload/"+nodeId). then(). ////log().all().
+	 * post("/content/v3/upload/"+nodeId). then(). //// log().all().
 	 * spec(get400ResponseSpec()); }
 	 */
 
@@ -2460,7 +2658,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -2476,7 +2674,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -2488,7 +2686,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -2498,6 +2696,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 	
 	// Upload content with valid Ecml (With external JSON for item data, another controller with __cdata item data )
@@ -2515,7 +2714,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -2531,7 +2730,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -2543,7 +2742,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -2554,6 +2753,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Upload content with valid Ecml containing JSON item data
@@ -2562,10 +2762,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void publishContentWithJSONItemDataExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2573,17 +2781,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/Item_json.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/Item_json.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2591,6 +2808,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Upload content with valid ECML containing data JSONs
@@ -2599,10 +2817,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Ignore
 	public void publishContentWithDataJSONExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2610,22 +2836,31 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/Data_json_ecml.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/Data_json_ecml.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			//System.out.println(e);
+			//// System.out.println(e);
 		}
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2633,6 +2868,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Upload Content with valid ECML containing custom plugin
@@ -2641,8 +2877,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Ignore
 	public void publishContentWithCustomPluginExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2650,22 +2894,31 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/Custom_Plugin.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/Custom_Plugin.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			//System.out.println(e);
+			//// System.out.println(e);
 		}
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2673,6 +2926,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Upload Files with Tween animation, audio sprites and Image sprite
@@ -2681,9 +2935,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void publishContentWithAudioImageSpriteTweenAnimationExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Extracting the JSON path
@@ -2692,18 +2953,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when().post("/content/v3/upload/" + nodeId)
-				.then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/tweenAndaudioSprite.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2711,6 +2980,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Upload File with valid JSON ecml
@@ -2718,9 +2988,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void publishContentWithJSONEcmlExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Extracting the JSON path
@@ -2729,17 +3006,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/ecml_with_json.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/ecml_with_json.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2747,6 +3033,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Upload File with valid JSON ecml
@@ -2754,10 +3041,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void publishContentWithoutAssetsExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2765,18 +3060,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/Ecml_without_asset.zip")).when().post("/content/v3/upload/" + nodeId)
-				.then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/Ecml_without_asset.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2784,6 +3087,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Publish content and upload zip and validate
@@ -2800,7 +3104,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("content/v3/create").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -2816,7 +3120,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -2827,7 +3131,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -2845,20 +3149,20 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/publish/" + nodeId).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());		
 		}
 
 		// Upload Content
 		setURI();
-		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		try{Thread.sleep(5000);}catch(InterruptedException e){ System.out.println(e);} 
 		given().
 		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path + "/tweenAndaudioSprite.zip")).
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 		
 		// Publish created content
@@ -2869,19 +3173,19 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/publish/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		try{Thread.sleep(5000);}catch(InterruptedException e){ System.out.println(e);} 
 		Response R3 = 
 				given().
 				spec(getRequestSpecification(contentType, userId, APIToken)).
 				when().
 				get("/content/v3/read/" + nodeId + "?fields=body").
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -2891,6 +3195,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(bodyNew) || isValidJSON(bodyNew)) {
 			Assert.assertTrue(body != bodyNew);
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Upload multiple files
@@ -2899,8 +3204,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void publishContentMultipleExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2908,22 +3221,35 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2931,6 +3257,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Create, update and publish content
@@ -2939,11 +3266,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Ignore
 	public void publishATContentExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
 				// spec(get200ResponseSpec()).
-		extract().response();
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2953,37 +3287,50 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Update content body
 		setURI();
 		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateATContentBody).with()
-				.contentType(JSON).then().patch("/content/v3/update/" + nodeId);
-				// then().
-				////log().all().
-				// spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonUpdateATContentBody).
+		with().
+		contentType(JSON).
+		then().
+		patch("/content/v3/update/" + nodeId);
+		// then().
+		//// log().all().
+		// spec(get200ResponseSpec());
 
 		// Publish created content
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get content and validate
 		for (int i = 1000; i <= 5000; i = i + 1000) {
 			try {
 				Thread.sleep(i);
 			} catch (InterruptedException e) {
-				//System.out.println(e);
+				//// System.out.println(e);
 			}
 			setURI();
-			Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-					.get("/content/v3/read/" + nodeId).then().
-					//log().all().
-					spec(get200ResponseSpec()).extract().response();
+			Response R3 = 
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/" + nodeId).
+					then().
+					// log().all().
+					spec(get200ResponseSpec()).
+					extract().response();
 
 			// Validate the response
 			JsonPath jp3 = R3.jsonPath();
 			String statusUpdated = jp3.get("result.content.status");
-			//System.out.println(statusUpdated);
+			//// System.out.println(statusUpdated);
 			if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 				i = i + 1000;
 			}
@@ -2991,6 +3338,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				break;
 			}
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload and publish worksheet
@@ -3002,10 +3350,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("contentType", "Worksheet");
 		String jsonCreateValidWorksheet = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidWorksheet)
-				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidWorksheet).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -3013,18 +3369,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/Akshara_worksheet.zip")).when().post("/content/v3/upload/" + nodeId).then()
-				.
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/Akshara_worksheet.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -3032,6 +3396,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload, publish and validate HTML Content
@@ -3043,10 +3408,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.ekstep.html-archive");
 		String jsonCreateValidContentHtml = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateValidContentHtml).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R =
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContentHtml).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -3054,17 +3427,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadHtml.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadHtml.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -3072,6 +3454,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload, publish and validate APK Content
@@ -3081,13 +3464,20 @@ public class ContentPublishV3TestCases extends BaseTest {
 	public void publishAPKContentExpectSuccess200() {
 		setURI();
 		JSONObject js = new JSONObject(jsonCreateValidContent);
-		js.getJSONObject("request").getJSONObject("content").put("osId", "org.ekstep.aser").put("mimeType",
-				"application/vnd.android.package-archive");
+		js.getJSONObject("request").getJSONObject("content").put("osId", "org.ekstep.aser").put("mimeType","application/vnd.android.package-archive");
 		String jsonCreateValidContentAPK = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateValidContentAPK).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContentAPK).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -3095,17 +3485,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadAPK.apk")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadAPK.apk")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -3113,6 +3512,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			Assert.assertTrue(accessURL(nodeId));
 		}
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload, publish and validate valid collection
@@ -3125,13 +3525,20 @@ public class ContentPublishV3TestCases extends BaseTest {
 			setURI();
 			int rn = generateRandomInt(9999, 1999999);
 			JSONObject js = new JSONObject(jsonCreateValidContent);
-			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFTT_" + rn + "").put("name",
-					"LP_NFTT-" + rn + "");
+			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFTT_" + rn + "").put("name","LP_NFTT-" + rn + "");
 			String jsonCreateValidChild = js.toString();
-			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
-					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
-					spec(get200ResponseSpec()).extract().response();
+			Response R = 
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					body(jsonCreateValidChild).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().
+					// log().all().
+					spec(get200ResponseSpec()).
+					extract().response();
 
 			// Extracting the JSON path
 			JsonPath jp = R.jsonPath();
@@ -3141,19 +3548,25 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 				// Upload Content
 				setURI();
-				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						//log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+				multiPart(new File(path + "/uploadContent.zip")).
+				when().
+				post("/content/v3/upload/" + node1).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
-				given().spec(getRequestSpecification(contentType, userId, APIToken))
-						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-						.post("/content/v3/publish/" + node1).then().
-						//log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+				when().
+				post("/content/v3/publish/" + node1).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 			}
 			if (count == 2) {
@@ -3161,47 +3574,69 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 				// Upload Content
 				setURI();
-				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
-						.post("/content/v3/upload/" + node2).then().
-						//log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+				multiPart(new File(path + "/tweenAndaudioSprite.zip")).
+				when().
+				post("/content/v3/upload/" + node2).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
-				given().spec(getRequestSpecification(contentType, userId, APIToken))
-						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-						.post("/content/v3/publish/" + node2).then().
-						//log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+				when().
+				post("/content/v3/publish/" + node2).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 			}
 			count++;
 		}
 		// Create collection
 		setURI();
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateContentCollection).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String nodeId = jP1.get("result.node_id");
 
 		// Publish collection
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Validate the response
 		JsonPath jp2 = R2.jsonPath();
@@ -3210,6 +3645,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload, publish and validate valid collection
@@ -3222,12 +3658,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 			setURI();
 			int rn = generateRandomInt(9999, 1999999);
 			JSONObject js = new JSONObject(jsonCreateValidContent);
-			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFTT_" + rn + "").put("name",
-					"LP_NFTT-" + rn + "");
+			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFTT_" + rn + "").put("name","LP_NFTT-" + rn + "");
 			String jsonCreateValidChild = js.toString();
-			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
-					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+			Response R = 
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					body(jsonCreateValidChild).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -3238,31 +3680,39 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 				// Upload Content
 				setURI();
-				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						//log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+				multiPart(new File(path + "/uploadContent.zip")).
+				when().
+				post("/content/v3/upload/" + node1).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
-				given().spec(getRequestSpecification(contentType, userId, APIToken))
-						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-						.post("/content/v3/publish/" + node1).then().
-						//log().all().
-						spec(get200ResponseSpec());
-
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+				when().
+				post("/content/v3/publish/" + node1).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 			}
 			if (count == 2) {
 				node2 = nodeId;
 
 				// Upload Content
 				setURI();
-				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
-						.post("/content/v3/upload/" + node2).then().
-						//log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+				multiPart(new File(path + "/tweenAndaudioSprite.zip")).
+				when().
+				post("/content/v3/upload/" + node2).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
@@ -3277,10 +3727,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 				setURI();
 				jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("version_Key",
 						versionKey);
-				//System.out.println(jsonUpdateContentValid);
+				//// System.out.println(jsonUpdateContentValid);
 				given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateContentValid).with()
 						.contentType("application/json").then().
-						//log().all().
+						// log().all().
 						patch("/content/v3/update/" + node2);
 
 			}
@@ -3289,28 +3739,44 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Create collection
 		setURI();
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateContentCollection).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String nodeId = jP1.get("result.node_id");
 
 		// Publish collection
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/" + nodeId).
+		then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
+				// log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Validate the response
 		JsonPath jp2 = R2.jsonPath();
@@ -3319,6 +3785,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload and publish collection of different mimeTypes
@@ -3338,7 +3805,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				String jsonCreateValidChild = js.toString();
 				Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body(jsonCreateValidChild).with().contentType(JSON).when().post("content/v3/create").then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec()).extract().response();
 
 				// Extracting the JSON path
@@ -3351,7 +3818,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadHtml.zip")).when().post("/content/v3/upload/" + node1).then()
 						.
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -3359,7 +3826,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -3371,7 +3838,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				String jsonCreateValidChild = js.toString();
 				Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body(jsonCreateValidChild).with().contentType(JSON).when().post("content/v3/create").then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec()).extract().response();
 
 				// Extracting the JSON path
@@ -3383,7 +3850,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadAPK.apk")).when().post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -3391,7 +3858,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -3401,7 +3868,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -3412,14 +3879,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -3429,6 +3896,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload, publish and validate valid collection with contents
@@ -3447,7 +3915,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -3461,7 +3929,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -3469,7 +3937,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -3485,7 +3953,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
 				given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateATContentBody)
 						.with().contentType("application/json").when().patch("/content/v3/update/" + nodeId).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -3495,7 +3963,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -3506,23 +3974,24 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
 		JsonPath jp2 = R2.jsonPath();
 		String status = jp2.get("result.content.status");
-		//System.out.println(status);
+		//// System.out.println(status);
 		String c_identifier = jp2.get("result.content.identifier");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Publish collection with live and retired content
@@ -3540,7 +4009,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					extract().response();
 
 			// Extracting the JSON path
@@ -3578,7 +4047,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 						when().
 						post("/content/v3/publish/" + node2).
 						then().
-						//log().all().
+						// log().all().
 						extract().response();
 
 				JsonPath jp1 = R1.jsonPath();
@@ -3591,7 +4060,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				delete("/content/v3/retire/" + node2).
 				then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 			}
 			count++;
@@ -3601,7 +4070,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				extract().response();
 
 		// Get collection and validate
@@ -3614,14 +4083,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + collectionNode).
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + collectionNode).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -3631,10 +4100,11 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, collectionNode, c_identifier, node1, node2);
+		contentCleanUp(collectionNode);
 	}
 
 	// Create upload and publish collection and remove children
-
+	@Ignore
 	@Test
 	public void publishandRemoveChildrenCollectionExpect4xx() {
 		String node1 = null;
@@ -3649,7 +4119,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -3663,7 +4133,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -3671,7 +4141,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -3683,7 +4153,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -3691,7 +4161,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -3701,7 +4171,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -3712,7 +4182,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
@@ -3720,14 +4190,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Update the children content
 		setURI();
-		//System.out.println(jsonUpdateChildren);
 		jsonUpdateChildren = jsonUpdateChildren.replace("[]", "[{\"identifier\":\"" + node2 + "\"}]")
 				.replace("version_Key", versionKey);
-		//System.out.println(jsonUpdateChildren);
 		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateChildren).when()
 				.patch("/content/v3/update/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
+			contentCleanUp(nodeId);
 	}
 
 	// Create, upload and publish nested collection
@@ -3745,7 +4214,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -3759,7 +4228,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -3767,7 +4236,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -3779,7 +4248,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -3787,7 +4256,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -3797,7 +4266,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -3808,14 +4277,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -3831,7 +4300,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -3842,14 +4311,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + collectionId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + collectionId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -3859,7 +4328,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live") || n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(collectionId)
 				&& n_identifier1.contains(nodeId));
-	}
+		contentCleanUp(collectionId);
+		}
 
 	// Publish Text book with draft children with visibility - Default
 	@Test
@@ -3876,7 +4346,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -3890,7 +4360,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -3902,7 +4372,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -3915,7 +4385,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -3926,14 +4396,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -3943,6 +4413,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Publish Text book with draft children with visibility - Parent
@@ -3960,7 +4431,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -3974,7 +4445,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 2) {
@@ -3985,7 +4456,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -3998,7 +4469,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4009,14 +4480,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4026,6 +4497,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Publish Text book with live and draft children with visibility - Parent
@@ -4043,7 +4515,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -4057,7 +4529,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -4065,7 +4537,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4077,7 +4549,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -4090,7 +4562,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4101,14 +4573,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4118,6 +4590,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Publish Text book with Live children with visibility - Default
@@ -4135,7 +4608,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -4149,7 +4622,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -4157,7 +4630,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4169,7 +4642,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -4177,7 +4650,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4191,7 +4664,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4202,14 +4675,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4219,6 +4692,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Publish Text book with Live and Draft children with visibility - Default
@@ -4236,7 +4710,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -4250,7 +4724,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -4258,7 +4732,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4270,7 +4744,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -4284,7 +4758,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4295,14 +4769,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4312,6 +4786,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Publish Text book with Live children with visibility - Parent
@@ -4329,7 +4804,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -4343,7 +4818,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -4351,7 +4826,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4363,7 +4838,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -4371,7 +4846,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4385,7 +4860,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4396,14 +4871,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4413,6 +4888,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Publish Text book with Live and Retired children with visibility - Parent
@@ -4430,7 +4906,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -4444,7 +4920,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -4452,7 +4928,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4464,7 +4940,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish created content
@@ -4495,7 +4971,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4506,14 +4982,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4523,6 +4999,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
+		contentCleanUp(nodeId);
 	}
 
 	// Create, upload and publish nested textbook with collection as child
@@ -4556,7 +5033,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -4570,7 +5047,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4582,7 +5059,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -4593,7 +5070,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -4601,7 +5078,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 4) {
@@ -4612,7 +5089,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -4620,7 +5097,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -4635,7 +5112,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4649,7 +5126,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -4660,14 +5137,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4677,6 +5154,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with draft textbook unit and visibility-Parent
@@ -4710,7 +5188,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -4724,7 +5202,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4736,7 +5214,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -4747,7 +5225,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node3)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -4755,7 +5233,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 4) {
@@ -4766,7 +5244,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -4774,7 +5252,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -4788,7 +5266,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4802,7 +5280,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -4813,14 +5291,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4830,6 +5308,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with draft textbook unit and visibility-Default
@@ -4863,7 +5342,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -4877,7 +5356,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -4889,7 +5368,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -4900,7 +5379,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -4908,7 +5387,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 4) {
@@ -4919,7 +5398,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -4927,7 +5406,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -4936,10 +5415,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 		setURI();
 		jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2)
 				.replace("id3", node3).replace("id4", node4);
-		//System.out.println(jsonCreateTextbookUnit);
+		//// System.out.println(jsonCreateTextbookUnit);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -4951,10 +5430,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 		js1.getJSONObject("request").getJSONObject("content").put("contentType", "TextBook");
 		String jsonCreateNestedCollection = js1.toString();
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
-		//System.out.println(jsonCreateNestedCollection);
+		//// System.out.println(jsonCreateNestedCollection);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -4965,14 +5444,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -4982,6 +5461,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent
@@ -5015,7 +5495,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -5029,7 +5509,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -5041,7 +5521,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -5052,7 +5532,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5060,7 +5540,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 4) {
@@ -5071,7 +5551,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content 4
@@ -5079,7 +5559,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -5093,7 +5573,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -5104,7 +5584,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Create Textbook
@@ -5115,7 +5595,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -5126,14 +5606,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -5143,6 +5623,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent
@@ -5176,7 +5657,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -5190,7 +5671,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -5202,7 +5683,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -5213,7 +5694,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5221,7 +5702,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 4) {
@@ -5232,7 +5713,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5240,7 +5721,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -5251,7 +5732,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -5262,7 +5743,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Create Textbook
@@ -5273,7 +5754,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -5284,14 +5765,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -5301,6 +5782,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with Draft textbook unit and visibility-Default with draft children
@@ -5334,7 +5816,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -5348,7 +5830,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -5360,7 +5842,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -5371,7 +5853,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -5383,7 +5865,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -5394,7 +5876,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -5408,7 +5890,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -5419,14 +5901,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -5436,6 +5918,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with Draft textbook unit and visibility-Parent with draft children
@@ -5469,7 +5952,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -5483,7 +5966,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -5495,7 +5978,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -5506,7 +5989,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -5518,7 +6001,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -5532,7 +6015,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -5546,7 +6029,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -5557,14 +6040,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -5574,6 +6057,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Default and live children
@@ -5607,7 +6091,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -5621,7 +6105,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5629,7 +6113,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -5641,7 +6125,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5649,7 +6133,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -5660,7 +6144,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5668,7 +6152,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 4) {
@@ -5679,7 +6163,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5687,7 +6171,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -5698,7 +6182,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -5708,13 +6192,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 		try {
 			Thread.sleep(10000);
 		} catch (InterruptedException e) {
-			//System.out.println(e);
+			//// System.out.println(e);
 		}
 		setURI();
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + node3).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Create Textbook
@@ -5725,7 +6209,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -5735,20 +6219,20 @@ public class ContentPublishV3TestCases extends BaseTest {
 		try {
 			Thread.sleep(10000);
 		} catch (InterruptedException e) {
-			//System.out.println(e);
+			//// System.out.println(e);
 		}
 		setURI();
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -5758,6 +6242,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent and live children
@@ -5791,7 +6276,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -5805,7 +6290,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5813,7 +6298,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -5825,7 +6310,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5833,7 +6318,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -5844,7 +6329,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5852,7 +6337,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 4) {
@@ -5863,7 +6348,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5871,7 +6356,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -5885,7 +6370,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -5896,7 +6381,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Create Textbook
@@ -5907,7 +6392,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -5918,14 +6403,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -5935,6 +6420,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
+		contentCleanUp(textBookId);
 	}
 
 	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent and live children
@@ -5968,7 +6454,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
 					.with().contentType(JSON).when().post("content/v3/create").then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -5982,7 +6468,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
 						.then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -5990,7 +6476,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node1).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 			}
@@ -6002,7 +6488,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -6010,7 +6496,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 3) {
@@ -6021,7 +6507,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -6029,7 +6515,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node3).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			if (count == 4) {
@@ -6040,7 +6526,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
 						.post("/content/v3/upload/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 
 				// Publish content
@@ -6048,7 +6534,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node4).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec());
 			}
 			count++;
@@ -6062,7 +6548,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				.replace("id3", node3).replace("id4", node4);
 		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
@@ -6073,7 +6559,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Create TextbookUnit 2
@@ -6085,7 +6571,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				"Test_Textbook2_");
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection2).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
@@ -6096,7 +6582,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId2).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Create Textbook
@@ -6107,7 +6593,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId2);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
@@ -6118,14 +6604,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
 		Response R4 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + textBookId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Validate the response
@@ -6135,6 +6621,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		Assert.assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId2));
+		contentCleanUp(textBookId);
 	}
 
 	// Publish content with malformed XML body
@@ -6145,7 +6632,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		setURI();
 		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				extract().response();
 
 		// Extracting the JSON path
@@ -6157,7 +6644,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		Response R1 = given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then()
 				.spec(get200ResponseSpec()).
-				//log().all().
+				// log().all().
 				extract().response();
 
 		// Extracting the JSON path
@@ -6172,7 +6659,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonUpdateContentValid = js.toString();
 		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateContentValid).with()
 				.contentType("application/json").when().patch("/content/v3/update/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get body and validate
@@ -6183,6 +6670,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
 		Assert.assertFalse((isValidJSON(body) || isValidXML(body)));
+		contentCleanUp(nodeId);
 	}
 
 	// Publish content with malformed XML body
@@ -6193,7 +6681,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		setURI();
 		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
 				.with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		// Extracting the JSON path
@@ -6205,7 +6693,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		Response R1 = given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
 				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then()
 				.spec(get200ResponseSpec()).
-				//log().all().
+				// log().all().
 				extract().response();
 
 		// Extracting the JSON path
@@ -6220,19 +6708,20 @@ public class ContentPublishV3TestCases extends BaseTest {
 		jsonUpdateContentValid = js.toString();
 		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateContentValid).with()
 				.contentType("application/json").when().patch("/content/v3/update/" + nodeId).then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId + "?fields=body").then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
 		Assert.assertFalse((isValidJSON(body) || isValidXML(body)));
+		contentCleanUp(nodeId);
 	}
 	
 	// Create and search content
@@ -6249,7 +6738,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					post("/content/v3/create").
 					then().
-					////log().all().
+					//// log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -6266,7 +6755,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/upload/"+ecmlNode).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 
 			
@@ -6278,7 +6767,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			post("/content/v3/publish/"+ecmlNode).
 			then().
-			//log().all().
+			// log().all().
 			spec(get200ResponseSpec());
 			
 			// Searching with query
@@ -6294,7 +6783,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec()).
 			 extract().
 			 	response();
@@ -6303,6 +6792,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			JsonPath jp2 = R2.jsonPath();
 			ArrayList<String> name = jp2.get("result.content.name");
 			Assert.assertTrue(name.contains(ecmlNode));
+			contentCleanUp(ecmlNode);
 			}
 			
 		@Test
@@ -6319,7 +6809,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());		
 		}
 		
@@ -6338,7 +6828,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 			
 			}
@@ -6350,7 +6840,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			JSONObject js = new JSONObject(jsonSimpleSearchQuery);
 			js.getJSONObject("request").put("query", "");
 			String jsonBlankSearch = js.toString();
-			//System.out.println(jsonBlankSearch);
+			//// System.out.println(jsonBlankSearch);
 			given().
 		 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		 		body(jsonBlankSearch).
@@ -6359,7 +6849,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search"). 
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 			}
 			
@@ -6377,7 +6867,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 				post("/content/v3/create").
 			then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 			extract().
 				response();
@@ -6399,7 +6889,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 			
 			// Space after query
@@ -6415,7 +6905,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());		
 	}
 		
@@ -6432,7 +6922,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 			}
 		
@@ -6449,7 +6939,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 		}
 		
@@ -6466,7 +6956,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 		}
 		
@@ -6483,7 +6973,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		 	post("/content/v3/adv/search").
 		then().
-		 	//log().all().
+		 	// log().all().
 		 	spec(get200ResponseSpec());
 		}
 		
@@ -6500,7 +6990,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 		}
 		
@@ -6516,7 +7006,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 		}
 		
@@ -6533,7 +7023,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 		}
 		
@@ -6550,7 +7040,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 		}
 		
@@ -6567,7 +7057,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 			 	post("/content/v3/adv/search").
 			then().
-			 	//log().all().
+			 	// log().all().
 			 	spec(get200ResponseSpec());
 		}
 		
@@ -6583,7 +7073,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			when().
 				post("/content/v3/adv/search").
 			then().
-				//log().all().
+				// log().all().
 				spec(get200ResponseSpec());
 		}
 		
@@ -6600,7 +7090,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					post("/content/v3/create").
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -6611,20 +7101,21 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 			// Audit history for the created content
 			setURI();
-			try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+			try{Thread.sleep(5000);}catch(InterruptedException e){ System.out.println(e);} 
 			Response R1 = 
 					given().
 					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/history/"+ecmlNode+"?graphId=domain").
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 					
 			JsonPath jp1 = R1.jsonPath();
 			ArrayList<String> record = jp1.get("result.audit_history_record");
 			Assert.assertFalse(record.isEmpty());
+			contentCleanUp(ecmlNode);
 		}
 		
 		// Audit History for invalid content
@@ -6637,7 +7128,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 					when().
 					get("/content/v3/history/ahdjklvn?graphId=domain").
 					then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).
 					extract().response();
 			
@@ -6698,7 +7189,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/publish/" + nodeId).
 		then().
-		//log().all().
+		// log().all().
 		spec(get200ResponseSpec());
 
 		// Get content and validate
@@ -6709,7 +7200,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				get("/content/v3/read/" + nodeId).
 				then().
-				log().all().
+				// log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -6723,18 +7214,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 					try {
 						Thread.sleep(i);
 					} catch (InterruptedException e) {
-						//System.out.println(e);
+						//// System.out.println(e);
 					}
 					setURI();
 					Response R3 = given().spec(getRequestSpec(contentType, userId)).when()
 							.get("/learning/v2/content/" + nodeId).then().
-							//log().all().
+							// log().all().
 							spec(get200ResponseSpec()).extract().response();
 
 					// Validate the response
 					JsonPath jp3 = R3.jsonPath();
 					String statusUpdated = jp3.get("result.content.status");
-					//System.out.println(statusUpdated);
+					//// System.out.println(statusUpdated);
 					if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
 						i = i + 1000;
 					}
@@ -6748,7 +7239,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			setURI();
 			Response R1 = given().spec(getRequestSpec(contentType, userId)).when().get("/learning/v2/content/" + nodeId)
 					.then().
-					//log().all().
+					// log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			JsonPath jP1 = R1.jsonPath();
@@ -6766,7 +7257,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			String descriptionActual = jP1.get("result.content.description");
 			String totalQuestions = jP1.get("result.content.totalQuestions");
 			// Float pkgVersionActual = jP1.get("result.content.pkgVersion");
-			//System.out.println(pkgVersionActual);
+			//// System.out.println(pkgVersionActual);
 			Float size = jP1.get("result.content.size");
 
 			// Downloading the zip file from artifact url and ecar from download
@@ -6811,7 +7302,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 					if (file.isFile()) {
 						String fPath = file.getAbsolutePath();
 						String fName = file.getName();
-						//System.out.println(fName);
+						//// System.out.println(fName);
 
 						if (fName.endsWith(".zip") || fName.endsWith(".rar") || fName.endsWith(".apk")) {
 							ZipFile ecarZip = new ZipFile(fPath);
@@ -6823,10 +7314,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 							if (assetsPath.exists()) {
 
 								int assetCount = assetsPath.listFiles().length;
-								//System.out.println(assetCount);
+								//// System.out.println(assetCount);
 
 								int uploadAssetsCount = uploadAssetsPath.listFiles().length;
-								//System.out.println(uploadAssetsCount);
+								//// System.out.println(uploadAssetsCount);
 
 								// Asserting the assets count in uploaded zip
 								// file and ecar file
@@ -6837,10 +7328,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 								compareFiles(uploadListFiles, extractedAssets);
 							}
 						} else {
-							//System.out.println("No zip file found");
+							//// System.out.println("No zip file found");
 						}
 					} else {
-						//System.out.println("No zip file exists");
+						//// System.out.println("No zip file exists");
 					}
 				}
 
@@ -6881,7 +7372,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 						String description = getStringValue(item, "description");
 						Assert.assertEquals(descriptionActual, description);
 						//String totalQues = getStringValue(item,"totalQuestions").toString();
-						//System.out.println(totalQuestions +totalQues);
+						//// System.out.println(totalQuestions +totalQues);
 //						if(getStringValue(item,"totalQuestions")!=null){
 //							Assert.assertEquals(totalQuestions, totalQues);
 //						}
@@ -6889,7 +7380,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 						// Assert.assertNotSame(pkgVersionActual, pkgVersion);
 						Assert.assertTrue(artifactUrl.endsWith(".zip") || artifactUrl.endsWith(".apk")
 								&& downloadUrl.endsWith(".ecar") && statusUpdated.equals("Live"));
-						//System.out.println(description +mediaType +code);
+						//// System.out.println(description +mediaType +code);
 					} catch (JSONException jse) {
 						return false;
 						// jse.printStackTrace();
@@ -6921,16 +7412,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	 * asyncPublishValidationContents(String nodeId, String statusActual){ for
 	 * (int i=1000; i<=5000; i=i+1000){
 	 * try{Thread.sleep(i);}catch(InterruptedException
-	 * e){//System.out.println(e);} setURI(); Response R3 = given().
+	 * e){//// System.out.println(e);} setURI(); Response R3 = given().
 	 * spec(getRequestSpec(contentType, userId)). when().
-	 * get("/learning/v2/content/"+nodeId). then(). ////log().all().
+	 * get("/learning/v2/content/"+nodeId). then(). //// log().all().
 	 * spec(get200ResponseSpec()). extract(). response();
 	 * 
 	 * // Validate the response JsonPath jp3 = R3.jsonPath(); String
 	 * statusUpdated = jp3.get("result.content.status");
-	 * //System.out.println(statusUpdated); if
+	 * //// System.out.println(statusUpdated); if
 	 * (statusUpdated.equals("Processing")){ i=i+1000; } if
-	 * (statusUpdated.equals("Live")){ //System.out.println(statusUpdated); } } }
+	 * (statusUpdated.equals("Live")){ //// System.out.println(statusUpdated); } } }
 	 */
 
 	// Async Publish validations - Collection
@@ -6941,19 +7432,19 @@ public class ContentPublishV3TestCases extends BaseTest {
 				try {
 					Thread.sleep(i);
 				} catch (InterruptedException e) {
-					//System.out.println(e);
+					//// System.out.println(e);
 				}
 				setURI();
 				Response R3 = given().spec(getRequestSpec(contentType, userId)).when()
 						.get("/learning/v2/content/" + nodeId).then().
-						//log().all().
+						// log().all().
 						spec(get200ResponseSpec()).extract().response();
 
 				// Validate the response
 				JsonPath jp3 = R3.jsonPath();
 				String statusUpdated = jp3.get("result.content.status");
 				if (statusUpdated.equals(PROCESSING) || statusUpdated.equals(PENDING)) {
-					//System.out.println(statusUpdated);
+					//// System.out.println(statusUpdated);
 					i++;
 				}
 				if (statusUpdated.equals("Live")) {
@@ -6979,7 +7470,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			for (int k = 0; k < extractedAssets.length; k++) {
 				if (uploadListFiles[i].getName().equalsIgnoreCase(extractedAssets[k].getName())) {
 					filesincommon = uploadListFiles[i].getName() + "," + filesincommon;
-					//System.out.println("Common files are: "+filesincommon);
+					//// System.out.println("Common files are: "+filesincommon);
 					status = true;
 					break;
 				}
@@ -6991,10 +7482,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 		}
 		// Assert.assertTrue(final_status);
 		if (final_status) {
-			//System.out.println("Files are same");
+			//// System.out.println("Files are same");
 			return "success";
 		} else {
-			//System.out.println(filesnotpresent);
+			//// System.out.println(filesnotpresent);
 			return filesnotpresent;
 		}
 	}

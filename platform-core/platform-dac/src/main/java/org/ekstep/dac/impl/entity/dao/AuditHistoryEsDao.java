@@ -15,6 +15,7 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,9 +84,10 @@ public class AuditHistoryEsDao {
 		}
 	}
 
-	public void delete(String query) throws IOException {
+	public void delete(QueryBuilder query) throws IOException {
 		TelemetryManager.log("deleting Audit History Index : " + AuditHistoryConstants.AUDIT_HISTORY_INDEX);
-		es.deleteDocumentsByQuery(query.toString(), AuditHistoryConstants.AUDIT_HISTORY_INDEX, AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE);
+		es.deleteDocumentsByQuery(query, AuditHistoryConstants.AUDIT_HISTORY_INDEX,
+				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE);
 		TelemetryManager.log("Documents deleted from Audit History Index");
 	}
 	

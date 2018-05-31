@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.common.enums.CompositeSearchParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
@@ -22,10 +23,11 @@ public class SyncMessageGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 	public static Map<String, Map<String, String>> definitionMap = new HashMap<>();
 	private static ControllerUtil util = new ControllerUtil();
+	private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
 
-	public static Map<String, String> getMessages(List<Node> nodes, String objectType, Map<String, String> errors)
+	public static Map<String, Object> getMessages(List<Node> nodes, String objectType, Map<String, String> errors)
 			throws Exception {
-		Map<String, String> messages = new HashMap<>();
+		Map<String, Object> messages = new HashMap<>();
 
 		if (StringUtils.isBlank(objectType))
 			loadDefinitionsOf(nodes);
@@ -35,7 +37,7 @@ public class SyncMessageGenerator {
 				Map<String, String> relationMap = definitionMap.get(node.getObjectType());
 				if (relationMap != null) {
 					Map<String, Object> nodeMap = getMessage(node);
-					String message = getJSONMessage(nodeMap, relationMap);
+					Map<String, Object>  message = getJSONMessage(nodeMap, relationMap);
 					messages.put(node.getIdentifier(), message);
 				}
 			} catch (Exception e) {
@@ -45,7 +47,7 @@ public class SyncMessageGenerator {
 		return messages;
 	}
 
-	public static String getJSONMessage(Map<String, Object> message, Map<String, String> relationMap) throws Exception {
+	public static Map<String, Object> getJSONMessage(Map<String, Object> message, Map<String, String> relationMap) throws Exception {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
@@ -56,6 +58,10 @@ public class SyncMessageGenerator {
 						String propertyName = (String) propertyMap.getKey();
 						// new value of the property
 						Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv");
+						if (nestedFields.contains(propertyName)) {
+							propertyNewValue = mapper.readValue((String) propertyNewValue, new TypeReference<Object>() {
+							});
+						}
 						indexDocument.put(propertyName, propertyNewValue);
 					}
 				}
@@ -84,7 +90,7 @@ public class SyncMessageGenerator {
 		indexDocument.put("objectType", (String) message.get("objectType"));
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
 
-		return mapper.writeValueAsString(indexDocument);
+		return indexDocument;
 	}
 
 	public static Map<String, Object> getMessage(Node node) {

@@ -306,6 +306,78 @@ public class CopyContentV3APITests extends BaseTest{
 		Assert.assertTrue(status.equals("Draft"));		
 	}
 	
+	// Copy content and validate snapshot
+	@Test
+	public void copyContentWithSnapshotExpectSuccess200(){
+		createContent();
+		setURI();
+		Response Res1 =
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCopyContent).
+				with().
+				contentType(JSON).
+				when().
+				post("/content/v3/copy/" +contentId1).
+				then().
+				spec(get200ResponseSpec()).
+				extract().response();
+		
+		JsonPath jPath = Res1.jsonPath();
+		String copyId = jPath.get("result.node_id."+contentId1+"");
+		
+		// Get Content and validate
+		setURI();
+		Response Res2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/"+copyId).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+		
+		JsonPath jPath1 = Res2.jsonPath();
+		String identifier = jPath1.get("result.content.identifier");
+	//	String artifactUrl = jPath1.get("result.content.artifactUrl");
+		String status = jPath1.get("result.content.status");
+		Assert.assertTrue(identifier!=contentId1);
+		Assert.assertTrue(status.equals("Draft"));
+		
+		// Publish copied content
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/"+copyId).
+		then().
+		//log().all().
+		//spec(get200ResponseSpec()).
+		extract().response();
+		
+		// Get Content and validate
+		try {Thread.sleep(5000);} catch (InterruptedException e) {e.printStackTrace();}
+		setURI();
+		Response Res3 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/"+copyId).
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().
+				response();
+		
+		JsonPath jPath2 = Res3.jsonPath();
+		String previewUrl = jPath2.get("result.content.previewUrl");
+		String statusUpdated = jPath2.get("result.content.status");
+		Assert.assertTrue((previewUrl.endsWith("latest")) && statusUpdated.equals("Live"));		 
+	}
+	
 	// Copy draft content
 	@Test
 	public void copyDraftContentExpect4xx(){
