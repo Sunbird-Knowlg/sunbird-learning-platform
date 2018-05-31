@@ -1152,4 +1152,108 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 				.header("X-Channel-Id", "in.ekstep").content(request));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
+
+	/*
+	 * Create Content without contentType. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithoutContentType() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"code\": \"unit.test\",\"mimeType\": \"application/pdf\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content with wrong contentType (e.g: pdf). Expected : 400 -
+	 * CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithInvalidContentType() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"code\": \"unit.test\",\"mimeType\": \"application/pdf\",\"contentType\":\"pdf\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content without Name. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithoutName() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"code\": \"unit.test\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content without Code. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithoutCode() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content without MimeType. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithoutMimeType() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"code\": \"unit.test\",\"contentType\":\"Resource\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content with Invalid MimeType. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithInvalidMimeType() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"code\": \"unit.test\",\"mimeType\": \"pdf\",\"contentType\":\"Resource\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		System.out.println("Response:" + actions.andReturn().getResponse().getContentAsString());
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
 }
