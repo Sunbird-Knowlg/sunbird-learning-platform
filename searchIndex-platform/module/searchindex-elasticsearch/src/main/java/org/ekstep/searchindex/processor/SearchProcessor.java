@@ -389,7 +389,6 @@ public class SearchProcessor {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private QueryBuilder prepareFilteredSearchQuery(SearchDTO searchDTO) {
-		// FunctionScoreQueryBuilder queryBuilder = QueryBuilders.functionScoreQuery();
 		List<FilterFunctionBuilder> filterFunctionBuilder = new ArrayList<>();
 
 		Map<String, Float> weightages = (Map<String, Float>) searchDTO.getAdditionalProperty("weightagesMap");
@@ -415,8 +414,6 @@ public class SearchProcessor {
 				filterFunctionBuilder
 						.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(getAllFieldsPropertyQuery(values),
 								ScoreFunctionBuilders.weightFactorFunction(weightages.get("default_weightage"))));
-				// queryBuilder.add(getAllFieldsPropertyQuery(values),
-				// ScoreFunctionBuilders.weightFactorFunction(weightages.get("default_weightage")));
 				continue;
 			}
 

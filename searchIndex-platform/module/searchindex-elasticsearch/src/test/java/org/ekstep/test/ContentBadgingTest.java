@@ -13,13 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.searchindex.dto.SearchDTO;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -27,40 +24,15 @@ import org.junit.Test;
  * @author pradyumna
  *
  */
-public class ContentBadgingTest {
+public class ContentBadgingTest extends BaseSearchTest {
 
-	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-	private static ObjectMapper mapper = new ObjectMapper();
 	private static SearchProcessor searchprocessor = new SearchProcessor();
 
 	@BeforeClass
 	public static void beforeTest() throws Exception {
 		createCompositeSearchIndex();
-		Thread.sleep(3000);
-	}
-
-	@AfterClass
-	public static void afterTest() throws Exception {
-		System.out.println("deleting index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
-		elasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
-	}
-
-	private static void createCompositeSearchIndex() throws Exception {
-		CompositeSearchConstants.COMPOSITE_SEARCH_INDEX = "testbadge";
-		System.out.println("creating index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
-		String settings = "{\"analysis\":{\"analyzer\":{\"cs_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"cs_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
-		String mappings = "{\"dynamic_templates\":[{\"nested\":{\"match_mapping_type\":\"object\",\"mapping\":{\"type\":\"nested\",\"fields\":{\"type\":\"nested\"}}}},{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\",\"fielddata\":true}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
-		elasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
-		elasticSearchUtil.setResultLimit(10000);
-		elasticSearchUtil.setOffset(0);
 		insertDoc();
-	}
-
-	private static void addToIndex(String uniqueId, Map<String, Object> doc) throws Exception {
-		String jsonIndexDocument = mapper.writeValueAsString(doc);
-		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
+		Thread.sleep(3000);
 	}
 
 	/**
@@ -105,12 +77,13 @@ public class ContentBadgingTest {
 		return map;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testSearch() throws Exception {
 
 		SearchDTO searchDTO = new SearchDTO();
 
-		List<Map> properties = new ArrayList<Map>();
+		List<Map> properties = new ArrayList<>();
 		Map<String, Object> property = new HashMap<String, Object>();
 		property.put(CompositeSearchParams.values.name(), Arrays.asList("Content"));
 		property.put(CompositeSearchParams.propertyName.name(), "objectType");
