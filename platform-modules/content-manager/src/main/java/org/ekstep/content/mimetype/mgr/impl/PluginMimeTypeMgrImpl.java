@@ -53,6 +53,8 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 					String manifest = FileUtils.readFileToString(jsonFile);
 					String version = getVersion(contentId, manifest);
 					node.getMetadata().put(ContentAPIParams.semanticVersion.name(), version);
+					Object targets = getTargets(contentId, manifest);
+					node.getMetadata().put(ContentAPIParams.targets.name(), targets);
 				}
 			} catch (IOException e) {
 				throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_READ.name(),
@@ -104,6 +106,25 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 					ContentErrorMessageConstants.INVALID_PLUGIN_VER_ERROR);
 		else
 			return StringUtils.deleteWhitespace(version);
+		
+	}
+	
+	private Object getTargets(String pluginId, String manifest) {
+		String id = null;
+		Object targets = null;
+		try {
+			Gson gson = new Gson();
+			JsonObject root = gson.fromJson(manifest, JsonObject.class);
+			id = root.get("id").getAsString();
+			targets = root.get("targets").getAsJsonArray();
+		} catch (Exception e) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
+					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
+		}
+		if (!StringUtils.equals(pluginId, id))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
+					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);
+		return targets;
 		
 	}
 
