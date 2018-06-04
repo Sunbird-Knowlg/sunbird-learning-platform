@@ -74,7 +74,6 @@ public class SearchProcessor {
 					groupByFinalList, transformer));
 		}
 		response.put("count", (int) searchResult.getHits().getTotalHits());
-		System.out.println(query);
 		return response;
 	}
 
