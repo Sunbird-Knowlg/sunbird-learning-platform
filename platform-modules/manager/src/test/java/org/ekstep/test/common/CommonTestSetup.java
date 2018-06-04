@@ -1,9 +1,11 @@
 package org.ekstep.test.common;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.common.Platform;
@@ -18,8 +20,10 @@ import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.configuration.BoltConnector;
+import org.springframework.test.web.servlet.ResultActions;
 
 import com.datastax.driver.core.Session;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import akka.actor.ActorRef;
 import akka.util.Timeout;
@@ -34,6 +38,7 @@ public class CommonTestSetup {
 
 	static ClassLoader classLoader = CommonTestSetup.class.getClassLoader();
 	static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
+	private static ObjectMapper mapper = new ObjectMapper();
 	private static KafkaUnit kafkaServer = null;
 	private static TaxonomyManagerImpl taxonomyMgr = new TaxonomyManagerImpl();
 	private static GraphDatabaseService graphDb = null;
@@ -180,5 +185,24 @@ public class CommonTestSetup {
 
 	public static void createTopic(String topicName) {
 		kafkaServer.createTopic(topicName);
+	}
+
+	/**
+	 * @param actions
+	 * @return
+	 */
+	public static Response getResponse(ResultActions actions) {
+		String content = null;
+		Response resp = null;
+		try {
+			content = actions.andReturn().getResponse().getContentAsString();
+			if (StringUtils.isNotBlank(content))
+				resp = mapper.readValue(content, Response.class);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resp;
 	}
 }

@@ -101,8 +101,7 @@ public class ChannelV3Controller extends BaseController {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> list(@RequestBody Map<String, Object> map,
-			@RequestHeader(value = "user-id") String userId) {
+	public ResponseEntity<Response> list(@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.channel.list";
 		try {
 			Request request = getRequest(map);

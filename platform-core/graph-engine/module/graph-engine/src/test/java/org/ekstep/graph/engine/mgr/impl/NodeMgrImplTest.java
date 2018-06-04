@@ -55,8 +55,8 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
-	static String createNodeData = "{\"code\":\"dc1\",\n" + "   		\"mimeType\":\"application/pdf\",\n"
-			+ "   		\"name\":\"TestdataNodeCreate\"}";
+	static String createNodeData = "{\"code\":\"dc1\",\"contentType\":\"Resource\",\n"
+			+ "   		\"mimeType\":\"application/pdf\",\n" + "   		\"name\":\"TestdataNodeCreate\"}";
 
 	static String updateNodeData = "{\"name\":\"TestdataNodeUpdate\"}";
 
@@ -147,7 +147,7 @@ public class NodeMgrImplTest extends GraphEngineTestSetup {
 	}
 
 	/*
-	 *testCreateNodeWithValidations 
+	 * testCreateNodeWithValidations
 	 */
 	@Test
 	public void testB() {

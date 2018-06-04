@@ -6,14 +6,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.TestParams;
+import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -71,7 +72,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	private static String[] validDialCode = { "ABC123", "BCD123", "CDE123", "DEF123", "EFG123" };
-	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"code\": \"test_code\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 	private static String script_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
 	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
 
@@ -79,6 +80,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private static String contentId2 = "";
 	private static String versionKey = "";
 	private static String versionKey2 = "";
+	private static String frContentId = "";
+	private static String passKey = Platform.config.getString("graph.passport.key.base");
 
 	private static String DIALCODE_INDEX = "testdialcode";
 	private static String DIALCODE_INDEX_TYPE = "dc";
@@ -96,6 +99,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 				"definitions/dimension_definition.json", "definitions/domain_definition.json");
 		executeScript(script_1, script_2);
 		LearningRequestRouterPool.init();
+		createFramework();
 		createDocumentContent();
 		createCollectionContent();
 		createDialCodeIndex();
@@ -105,12 +109,38 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Before
 	public void init() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
-
+		if (StringUtils.isBlank(frContentId))
+			createContentWithFramework();
 	}
 
 	@AfterClass
 	public static void clean() throws Exception {
 		elasticSearchUtil.deleteIndex(DIALCODE_INDEX);
+	}
+
+	/*
+	 * Framework Name: NCFTEST
+	 * 
+	 * Framework Category: medium, subject, board, gradeLevel, topic
+	 * 
+	 * Framework Term: english, math, cbse, class 1, addition
+	 *
+	 */
+	public static void createFramework() throws Exception {
+		String fwHierarchy = "{\"categories\":[{\"identifier\":\"ncftest_medium\",\"code\":\"medium\",\"terms\":[{\"identifier\":\"ncftest_medium_english\",\"code\":\"english\",\"name\":\"english\",\"description\":\"English Medium\",\"index\":1,\"category\":\"medium\",\"status\":\"Live\"}],\"name\":\"medium\",\"description\":\"Medium for NCFTEST\",\"index\":1,\"status\":\"Live\"},{\"identifier\":\"ncftest_subject\",\"code\":\"subject\",\"terms\":[{\"identifier\":\"ncftest_subject_math\",\"code\":\"math\",\"name\":\"math\",\"description\":\"Mathematics\",\"index\":1,\"category\":\"subject\",\"status\":\"Live\"}],\"name\":\"subject\",\"description\":\"Subject for NCFTEST\",\"index\":2,\"status\":\"Live\"},{\"identifier\":\"ncftest_board\",\"code\":\"board\",\"terms\":[{\"identifier\":\"ncftest_board_cbse\",\"code\":\"cbse\",\"name\":\"cbse\",\"description\":\"CBSE Board\",\"index\":1,\"category\":\"board\",\"status\":\"Live\"}],\"name\":\"board\",\"description\":\"Board for NCFTEST\",\"index\":3,\"status\":\"Live\"},{\"identifier\":\"ncftest_topic\",\"code\":\"topic\",\"terms\":[{\"identifier\":\"ncftest_topic_addition\",\"code\":\"addition\",\"name\":\"addition\",\"description\":\"Addition\",\"index\":1,\"category\":\"topic\",\"status\":\"Live\"}],\"name\":\"topic\",\"description\":\"Topics for NCFTEST\",\"index\":4,\"status\":\"Live\"},{\"identifier\":\"ncftest_gradelevel\",\"code\":\"gradeLevel\",\"terms\":[{\"identifier\":\"ncftest_gradelevel_class-1\",\"code\":\"class 1\",\"name\":\"class 1\",\"description\":\"Class 1\",\"index\":1,\"category\":\"gradeLevel\",\"status\":\"Live\"}],\"name\":\"gradeLevel\",\"description\":\"Grade Level for NCFTEST\",\"index\":5,\"status\":\"Live\"}]}";
+		Map<String, Object> frameworkHierarchy = mapper.readValue(fwHierarchy,
+				new TypeReference<Map<String, Object>>() {
+				});
+		CategoryCache.setFramework("NCFTEST", frameworkHierarchy);
+	}
+
+	private void createContentWithFramework() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_00\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		if (200 == actions.andReturn().getResponse().getStatus())
+			frContentId = "LP_UTEST_00";
 	}
 
 	private static void createDialCodeIndex() throws IOException {
@@ -150,7 +180,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	public static void createDocumentContent() throws Exception {
 		for (int i = 1; i <= 2; i++) {
 			ContentManagerImpl contentManager = new ContentManagerImpl();
-			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
+			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
@@ -719,23 +749,510 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		assertEquals(null, dialcodeList);
 	}
 
-	/**
-	 * @param actions
-	 * @return
+	/*
+	 * Create a Content without Framework Expected: Content should be created
+	 * with NCF Framework
+	 * 
 	 */
-	public static Response getResponse(ResultActions actions) {
-		String content = null;
-		Response resp = null;
-		try {
-			content = actions.andReturn().getResponse().getContentAsString();
-			if (StringUtils.isNotBlank(content))
-				resp = mapper.readValue(content, Response.class);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return resp;
+	@Test
+	public void testFrameworkLinking_01() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_01\",\"name\": \"Unit Test Content\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/LP_UTEST_01";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		String frId = (String) ((Map<String, Object>) resp.getResult().get("content")).get("framework");
+		assertEquals("NCF", frId);
 	}
 
+	/*
+	 * Create a Content with Framework (NCFTEST). Expected: Content should be
+	 * created with given Framework
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_02() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_02\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/LP_UTEST_02";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		String frId = (String) ((Map<String, Object>) resp.getResult().get("content")).get("framework");
+		assertEquals("NCFTEST", frId);
+	}
+
+	/*
+	 * Create Content with valid data for medium (medium=english). Expected: 200
+	 * - OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_03() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_03\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"medium\":\"english\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/LP_UTEST_03";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		String medium = (String) ((Map<String, Object>) resp.getResult().get("content")).get("medium");
+		assertEquals("english", medium);
+	}
+
+	/*
+	 * Create Content with Invalid data for medium (medium=hindi). Expected: 400
+	 * - OK. Record Should not be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_04() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_04\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"medium\":\"hindi\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Update Content with valid data for medium (medium=english). Expected: 200
+	 * - OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_05() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"medium\":\"english\",\"versionKey\":\""
+				+ passKey + "\"}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		String medium = (String) ((Map<String, Object>) resp.getResult().get("content")).get("medium");
+		assertEquals("english", medium);
+	}
+
+	/*
+	 * Update Content with Invalid data for medium (medium=hindi). Expected: 400
+	 * - OK. Record Should not be updated with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_06() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"versionKey\":\"" + passKey
+				+ "\"\"medium\":\"hindi\"}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Create Content with valid data for board (board=cbse). Expected: 200 -
+	 * OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_07() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_05\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"board\":\"cbse\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/LP_UTEST_05";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		String board = (String) ((Map<String, Object>) resp.getResult().get("content")).get("board");
+		assertEquals("cbse", board);
+	}
+
+	/*
+	 * Create Content with Invalid data for board (board=ncert). Expected: 400 -
+	 * OK. Record Should not be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_08() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_06\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"board\":\"ncert\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Update Content with valid data for board (board=cbse). Expected: 200 -
+	 * OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_09() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"board\":\"cbse\",\"versionKey\":\""
+				+ passKey + "\"}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		String board = (String) ((Map<String, Object>) resp.getResult().get("content")).get("board");
+		assertEquals("cbse", board);
+	}
+
+	/*
+	 * Update Content with Invalid data for board (board=ncert). Expected: 400 -
+	 * OK. Record Should not be updated with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_10() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"versionKey\":\"" + passKey
+				+ "\"\"board\":\"ncert\"}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Create Content with valid data for subject (subject=math). Expected: 200
+	 * - OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_11() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_07\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"subject\":\"math\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/LP_UTEST_07";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		String subject = (String) ((Map<String, Object>) resp.getResult().get("content")).get("subject");
+		assertEquals("math", subject);
+	}
+
+	/*
+	 * Create Content with Invalid data for subject (subject=science). Expected:
+	 * 400 - OK. Record Should not be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_12() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_08\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"subject\":\"science\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Update Content with valid data for subject (subject=math). Expected: 200
+	 * - OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_13() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"subject\":\"math\",\"versionKey\":\""
+				+ passKey + "\"}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		String subject = (String) ((Map<String, Object>) resp.getResult().get("content")).get("subject");
+		assertEquals("math", subject);
+	}
+
+	/*
+	 * Update Content with Invalid data for subject (subject=science). Expected:
+	 * 400 - OK. Record Should not be updated with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_14() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"versionKey\":\"" + passKey
+				+ "\"\"subject\":\"science\"}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Create Content with valid data for gradeLevel (gradeLevel=class 1).
+	 * Expected: 200 - OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_15() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_09\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"gradeLevel\":[\"class 1\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/LP_UTEST_09";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		List<String> gradeLevel = (List<String>) ((Map<String, Object>) resp.getResult().get("content"))
+				.get("gradeLevel");
+		assertEquals("class 1", (String) gradeLevel.get(0));
+	}
+
+	/*
+	 * Create Content with Invalid data for gradeLevel (gradeLevel=grade 1).
+	 * Expected: 400 - OK. Record Should not be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_16() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_10\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"gradeLevel\":[\"grade 1\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Update Content with valid data for gradeLevel (gradeLevel=class 1).
+	 * Expected: 200 - OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_17() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"gradeLevel\":[\"class 1\"],\"versionKey\":\""
+				+ passKey + "\"}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		List<String> gradeLevel = (List<String>) ((Map<String, Object>) resp.getResult().get("content"))
+				.get("gradeLevel");
+		assertEquals("class 1", (String) gradeLevel.get(0));
+	}
+
+	/*
+	 * Update Content with Invalid data for gradeLevel (gradeLevel=grade 1).
+	 * Expected: 400 - OK. Record Should not be updated with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_18() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"versionKey\":\"" + passKey
+				+ "\"\"gradeLevel\":[\"grade 1\"]}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Create Content with valid data for topic (topic=addition). Expected: 200
+	 * - OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_19() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_11\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"topic\":[\"addition\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/LP_UTEST_11";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		List<String> topic = (List<String>) ((Map<String, Object>) resp.getResult().get("content")).get("topic");
+		assertEquals("addition", (String) topic.get(0));
+	}
+
+	/*
+	 * Create Content with Invalid data for topic (topic=multiplication).
+	 * Expected: 400 - OK. Record Should not be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_20() throws Exception {
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_12\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"topic\":[\"multiplication\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Update Content with valid data for topic (topic=addition). Expected: 200
+	 * - OK. Record Should be created with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_21() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"topic\":[\"addition\"],\"versionKey\":\""
+				+ passKey + "\"}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		path = basePath + "/read/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		List<String> topic = (List<String>) ((Map<String, Object>) resp.getResult().get("content")).get("topic");
+		assertEquals("addition", (String) topic.get(0));
+	}
+
+	/*
+	 * Update Content with Invalid data for topic (topic=multiplication).
+	 * Expected: 400 - OK. Record Should not be updated with given data.
+	 * 
+	 */
+	@Test
+	public void testFrameworkLinking_22() throws Exception {
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"versionKey\":\"" + passKey
+				+ "\"\"topic\":[\"multiplication\"]}}}";
+		String path = basePath + "/update/" + frContentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "in.ekstep").content(request));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	/*
+	 * Create Content without contentType. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithoutContentType() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"code\": \"unit.test\",\"mimeType\": \"application/pdf\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content with wrong contentType (e.g: pdf). Expected : 400 -
+	 * CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithInvalidContentType() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"code\": \"unit.test\",\"mimeType\": \"application/pdf\",\"contentType\":\"pdf\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content without Name. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithoutName() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"code\": \"unit.test\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content without Code. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithoutCode() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content without MimeType. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithoutMimeType() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"code\": \"unit.test\",\"contentType\":\"Resource\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
+
+	/*
+	 * Create Content with Invalid MimeType. Expected : 400 - CLIENT_ERROR
+	 * 
+	 */
+
+	@Test
+	public void createContentWithInvalidMimeType() throws Exception {
+		String createContentReq = "{\"request\": {\"content\": {\"name\": \"Unit Test\",\"code\": \"unit.test\",\"mimeType\": \"pdf\",\"contentType\":\"Resource\"}}}";
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response resp = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
+	}
 }

@@ -197,19 +197,6 @@
 					"draft": false
 				},
 				{
-					"required": false,
-					"dataType": "JSON",
-					"propertyName": "targets",
-					"title": "List of Target",
-					"description": "",
-					"category": "General",
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "{ 'inputType': 'textarea', 'order': 9 }",
-					"indexed": true,
-					"draft": false
-				},
-				{
 					"required": true,
 					"dataType": "Select",
 					"propertyName": "mimeType",
@@ -976,8 +963,7 @@
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
-				},
-				{
+				},{
 					"required": false,
 					"dataType": "TermList",
 					"propertyName": "topic",

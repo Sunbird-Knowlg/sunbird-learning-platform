@@ -125,6 +125,19 @@
 				},
 				{
 					"required": false,
+					"dataType": "JSON",
+					"propertyName": "config",
+					"title": "Configuration for Renderers",
+					"description": "",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
 					"dataType": "Select",
 					"propertyName": "visibility",
 					"title": "Visibility",
@@ -171,6 +184,19 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "badgeAssertions",
+					"title": "List of Badges",
+					"description": "",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"required": true,
 					"dataType": "Select",
 					"propertyName": "mimeType",
@@ -188,7 +214,6 @@
 						"application/vnd.ekstep.h5p-archive",
 						"application/epub",
 						"text/x-url",
-						"video/youtube",
 						"video/x-youtube",
 						"application/octet-stream",
 						"application/msword",
@@ -222,52 +247,37 @@
 					"draft": false
 				},
 				{
-					"required": false,
+					"required": true,
 					"dataType": "Select",
-					"propertyName": "artifactMimeType",
-					"title": "Artifact Mime Type",
+					"propertyName": "contentEncoding",
+					"title": "Content-Encoding",
 					"description": "",
 					"category": "Technical",
 					"displayProperty": "Editable",
 					"range": [
-						"application/vnd.ekstep.ecml-archive+zip",
-						"application/vnd.ekstep.html-archive+zip",
-						"application/vnd.android.package-archive+zip",
-						"application/vnd.ekstep.content-archive+zip",
-						"application/vnd.ekstep.content-collection+zip",
-						"application/vnd.ekstep.plugin-archive+zip",
-						"application/vnd.ekstep.h5p-archive+zip",
-						"application/epub",
-						"text/x-url",
-						"video/youtube",
-						"video/x-youtube",
-						"application/octet-stream",
-						"application/msword",
-						"application/pdf",
-						"image/jpeg",
-						"image/jpg",
-						"image/png",
-						"image/tiff",
-						"image/bmp",
-						"image/gif",
-						"image/svg+xml",
-						"video/avi",
-						"video/mpeg",
-						"video/quicktime",
-						"video/3gpp",
-						"video/mpeg",
-						"video/mp4",
-						"video/ogg",
-						"video/webm",
-						"audio/mp3",
-						"audio/mp4",
-						"audio/mpeg",
-						"audio/ogg",
-						"audio/webm",
-						"audio/x-wav"
+						"gzip",
+						"identity"
 					],
-					"defaultValue": "application/vnd.ekstep.ecml-archive+zip",
-					"renderingHints": "{ 'inputType': 'select',  'order': 9 }",
+					"defaultValue": "gzip",
+					"renderingHints": "{ 'inputType': 'text',  'order': 5 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": true,
+					"dataType": "Select",
+					"propertyName": "contentDisposition",
+					"title": "Content-Disposition",
+					"description": "",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"range": [
+						"inline",
+						"online",
+						"attachment"
+					],
+					"defaultValue": "inline",
+					"renderingHints": "{ 'inputType': 'text',  'order': 5 }",
 					"indexed": true,
 					"draft": false
 				},
@@ -338,12 +348,12 @@
 				},
 				{
 					"required": false,
-					"dataType": "List",
+					"dataType": "external",
 					"propertyName": "screenshots",
 					"title": "Screenshots",
 					"description": "",
-					"category": "General",
-					"displayProperty": "Editable",
+					"category": "Authoring",
+					"displayProperty": "Hidden",
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'table', 'order': 7 }",
 					"indexed": true,
@@ -605,7 +615,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Text",
+					"dataType": "Term",
 					"propertyName": "board",
 					"title": "Curriculum (Board)",
 					"description": "Education Board (Like MP Board, NCERT, etc)",
@@ -618,7 +628,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Text",
+					"dataType": "Term",
 					"propertyName": "subject",
 					"title": "Subject",
 					"description": "Subject of the Content to use to teach",
@@ -631,7 +641,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Text",
+					"dataType": "Term",
 					"propertyName": "medium",
 					"title": "Medium",
 					"description": "Medium of instruction",
@@ -827,6 +837,7 @@
 						"Free Art License",
 						"Open Audio License",
 						"Open Game License",
+						"Standard YouTube License",
 						"Other"
 					],
 					"category": "Ownership",
@@ -942,28 +953,24 @@
 				},
 				{
 					"required": false,
-					"dataType": "Multi-Select",
+					"dataType": "TermList",
 					"propertyName": "gradeLevel",
 					"title": "Grade Level",
 					"description": "",
 					"category": "Pedagogy",
 					"displayProperty": "Editable",
-					"range": [
-						"Kindergarten",
-						"Grade 1",
-						"Grade 2",
-						"Grade 3",
-						"Grade 4",
-						"Grade 5",
-						"Grade 6",
-						"Grade 7",
-						"Grade 8",
-						"Grade 9",
-						"Grade 10",
-						"Grade 11",
-						"Grade 12",
-						"Other"
-					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},{
+					"required": false,
+					"dataType": "TermList",
+					"propertyName": "topic",
+					"title": "Topic",
+					"description": "",
+					"category": "Pedagogy",
+					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
@@ -988,7 +995,7 @@
 					"draft": false
 				},
 				{
-					"required": false,
+					"required": true,
 					"dataType": "Select",
 					"propertyName": "contentType",
 					"title": "Content Type",
@@ -996,25 +1003,46 @@
 					"category": "General",
 					"displayProperty": "Editable",
 					"range": [
-						"Story",
-						"Worksheet",
-						"Game",
-						"Simulation",
-						"Puzzle",
-						"Diagnostic",
+						"Resource",
 						"Collection",
-						"Asset",
-						"Template",
-						"Plugin",
-						"ContentTemplate",
-						"ItemTemplate",
 						"TextBook",
-						"TextBookUnit",
+						"LessonPlan",
 						"Course",
-						"CourseUnit"
+						"Template",
+						"Asset",
+						"Plugin",
+						"LessonPlanUnit",
+						"CourseUnit",
+						"TextBookUnit"
 					],
-					"defaultValue": "Story",
+					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Select",
+					"propertyName": "resourceType",
+					"title": "Resource Type",
+					"description": "Resource Type",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'table', 'order': 6 }",
+					"range":[
+						"Read",
+						"Learn",
+						"Teach",
+						"Play",
+						"Test",
+						"Practice",
+						"Experiment",
+						"Collection",
+						"Book",
+						"Lesson Plan",
+						"Course"
+					],
 					"indexed": true,
 					"draft": false
 				},
@@ -1398,12 +1426,7 @@
 					"title": "Domain",
 					"description": "",
 					"category": "General",
-					"dataType": "Multi-Select",
-					"range": [
-						"numeracy",
-						"literacy",
-						"science"
-					],
+					"dataType": "List",
 					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
@@ -1422,6 +1445,7 @@
 						"Redraft",
 						"Flagged",
 						"Live",
+						"Unlisted",
 						"Retired",
 						"Mock",
 						"Processing",
@@ -1434,6 +1458,19 @@
 					"defaultValue": "Draft",
 					"renderingHints": "{'inputType': 'select', 'order': 9}",
 					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "dialcodes",
+					"title": "Dial Codes for Content",
+					"description": "Array of DialCodes Linked to Content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
 				},
 				{
 					"propertyName": "optStatus",
@@ -2101,6 +2138,96 @@
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{}"
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "pragma",
+					"title": "Pragma",
+					"description": "Content pragma",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"external",
+						"ads"
+					],
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
+					"indexed": true
+				},
+				{
+					"propertyName": "publishChecklist",
+					"title": "Publish Checklist",
+					"description": "Publish checklist.",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text',  'order': 15}",
+					"indexed": true
+				},
+				{
+					"propertyName": "publishComment",
+					"title": "Publish Comment",
+					"description": "Publish Comments.",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 16}",
+					"indexed": true
+				},
+				{
+					"propertyName": "rejectReasons",
+					"title": "Reject Reasons",
+					"description": "Reject reasons.",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text',  'order': 17}",
+					"indexed": true
+				},
+				{
+					"propertyName": "rejectComment",
+					"title": "Reject Comment",
+					"description": "Reject Comments.",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 18}",
+					"indexed": true
+         },
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "totalQuestions",
+					"title": "Total Questions",
+					"description": "",
+					"category": "General",
+					"displayProperty": "General",
+					"defaultValue": "",
+					"renderingHints": "{ 'order': 20 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "totalScore",
+					"title": "Total Score",
+					"description": "",
+					"category": "General",
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{ 'order': 20 }",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
@@ -2176,7 +2303,7 @@
 					"renderingHints": "{ 'order': 26 }"
 				},
 				{
-					"relationName": "pre-requisite",
+					"relationName": "preRequisite",
 					"objectTypes": [
 						"Library"
 					],
@@ -2304,6 +2431,7 @@
 					"board": 4
 				},
 				"versionCheckMode": "STRICT",
+				"allowupdate_status": false,
 				"fields": [
 					"identifier",
 					"name",
@@ -2370,7 +2498,9 @@
 					"flags",
 					"author",
 					"createdBy",
-					"artifactMimeType"
+					"contentEncoding",
+					"contentDisposition",
+					"config"
 				]
 			}
 		}

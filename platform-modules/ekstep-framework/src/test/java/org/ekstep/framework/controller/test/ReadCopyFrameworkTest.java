@@ -34,7 +34,6 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 /**
  * @author pradyumna
  *
@@ -53,7 +52,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 	private ResultActions actions;
 	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static final String COMPOSITE_SEARCH_INDEX = "testcompositesearch";
+	private static final String COMPOSITE_SEARCH_INDEX = "testfrcompositesearch";
 	private static final String COMPOSITE_SEARCH_INDEX_TYPE = "cs";
 	private static final String basePath = "/v3/framework";
 	private static String frameworkId;
@@ -99,9 +98,8 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 	 */
 	private static void populateTestDoc() throws Exception {
 		createChannel();
-		Map<String, Object> requestMap = mapper.readValue(createFrameworkReq,
-				new TypeReference<Map<String, Object>>() {
-				});
+		Map<String, Object> requestMap = mapper.readValue(createFrameworkReq, new TypeReference<Map<String, Object>>() {
+		});
 		requestMap.put("channel", channelId);
 		Response resp = frameworkManager.createFramework(requestMap, channelId);
 		frameworkId = (String) resp.getResult().get("node_id");
@@ -116,6 +114,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 		elasticSearchUtil.addDocumentWithId(COMPOSITE_SEARCH_INDEX, COMPOSITE_SEARCH_INDEX_TYPE, "test_term",
 				mapper.writeValueAsString(indexDoc));
 	}
+
 	private static void createChannel() {
 		try {
 			Map<String, Object> requestMap = mapper.readValue(createChannelReq,
