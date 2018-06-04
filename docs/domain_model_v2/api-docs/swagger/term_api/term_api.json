@@ -994,7 +994,7 @@
                     "type": "string",
                     "description": "Index of the term"
                 },
-                "translation": {
+                "translations": {
                     "type": "object",
                     "description": "Json object for multilanguage values"
                 },
