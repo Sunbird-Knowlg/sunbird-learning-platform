@@ -39,6 +39,9 @@ public class AuditEventGenerator implements ISamzaService {
 	private SystemStream systemStream = null;
 	private static List<String> systemPropsList = null;
 	private ControllerUtil util = new ControllerUtil();
+	private static final String IMAGE_SUFFIX = ".img";
+	private static final String OBJECT_TYPE_IMAGE_SUFFIX = "Image";
+
 	static {
 		systemPropsList = Stream.of(SystemProperties.values()).map(SystemProperties::name).collect(Collectors.toList());
 		systemPropsList.addAll(Arrays.asList("SYS_INTERNAL_LAST_UPDATED_ON", "lastUpdatedOn", "versionKey"));
@@ -152,6 +155,8 @@ public class AuditEventGenerator implements ISamzaService {
 				.collect(Collectors.toList());
 		List<Map<String, Object>> cdata = getCData(addedRelations, removedRelations, propertyMap);
 		Map<String, String> context = getContext(channelId, env);
+		objectId = (null != objectId) ? objectId.replaceAll(IMAGE_SUFFIX, "") : objectId;
+		objectType = (null != objectType) ? objectType.replaceAll(OBJECT_TYPE_IMAGE_SUFFIX, "") : objectType;
 		context.put("objectId", objectId);
 		context.put(GraphDACParams.objectType.name(), objectType);
 		if (StringUtils.isNotBlank(pkgVersion))
