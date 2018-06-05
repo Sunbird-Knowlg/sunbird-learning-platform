@@ -69,6 +69,9 @@ public class SearchBaseController extends Controller {
 						e.printStackTrace();
 					}
 				}
+			} else {
+				request.setId(getAPIId(apiId));
+				request.setVer(getAPIVersion(path));
 			}
 		} else {
 			request.setId(apiId);
