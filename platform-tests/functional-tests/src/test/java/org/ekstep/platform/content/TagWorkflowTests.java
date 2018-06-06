@@ -7,16 +7,17 @@ import java.io.File;
 import java.net.URL;
 
 import org.ekstep.platform.domain.BaseTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-
+@Ignore
 public class TagWorkflowTests extends BaseTest{
 
 	int rn = generateRandomInt(0, 9999999);
 	
-	String jsonCreateValidContent = "{\"request\":{\"content\":{\"mediaType\":\"content\",\"identifier\":\"LP_FT_"+rn+"\",\"visibility\":\"Default\",\"name\":\"test\",\"language\":[\"English\"],\"tags\":[\"akshara\"],\"contentType\":\"Story\",\"code\":\"test\",\"osId\":\"org.ekstep.quiz.app\",\"pkgVersion\":1,\"mimeType\":\"video/youtube\",\"artifactUrl\":\"https://www.youtube.com/watch?v=s10ARdfQUOY\"}}}";
+	String jsonCreateValidContent = "{\"request\":{\"content\":{\"mediaType\":\"content\",\"identifier\":\"LP_FT_"+rn+"\",\"visibility\":\"Default\",\"name\":\"test\",\"language\":[\"English\"],\"tags\":[\"akshara\"],\"contentType\":\"Resource\",\"code\":\"test\",\"osId\":\"org.ekstep.quiz.app\",\"pkgVersion\":1,\"mimeType\":\"video/youtube\",\"artifactUrl\":\"https://www.youtube.com/watch?v=s10ARdfQUOY\"}}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT_\"}}";
 	
 	static ClassLoader classLoader = MimeTypeMgrTests.class.getClassLoader();

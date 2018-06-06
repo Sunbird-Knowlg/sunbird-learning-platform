@@ -2,6 +2,7 @@ package org.ekstep.platform.content;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
+import static org.hamcrest.Matchers.greaterThan;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,13 +10,12 @@ import java.util.ArrayList;
 import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.ResponseSpecification;
-
-import static org.hamcrest.Matchers.*;
 
 
 public class CompositeSearchV3TestCases extends BaseTest {
@@ -44,6 +44,7 @@ public class CompositeSearchV3TestCases extends BaseTest {
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 
 	// Create and search content
+	@Ignore
 	@Test
 	public void createAndSearchExpectSuccess200() throws InterruptedException{
 		//contentCleanUp();
@@ -363,7 +364,7 @@ public class CompositeSearchV3TestCases extends BaseTest {
 	}
 	
 	// Search with sort by descending
-	
+	@Ignore
 	@Test
 	public void searchWithSortDescExpectSuccess200(){
 		setURI();

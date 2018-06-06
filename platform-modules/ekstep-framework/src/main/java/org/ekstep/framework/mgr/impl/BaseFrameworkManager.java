@@ -111,6 +111,7 @@ public class BaseFrameworkManager extends BaseManager {
 				nodeList.add(responseMap);
 			}
 			Response resp = new Response();
+			resp.setParams(getSucessStatus());
 			resp.put("count", nodeList.size());
 			resp.put(responseObject, nodeList);
 			if (checkError(resp))

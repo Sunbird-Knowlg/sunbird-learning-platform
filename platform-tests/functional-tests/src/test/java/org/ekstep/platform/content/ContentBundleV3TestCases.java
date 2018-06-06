@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
@@ -22,6 +21,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -117,7 +117,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
-		System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
 	}
 
@@ -175,7 +174,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
-		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
 		// contentCleanUp(nodeId);
 	}
@@ -214,7 +212,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
 				.post("content/v3/publish/" + node1).then().
@@ -235,7 +232,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
 				.post("content/v3/publish/" + node2).then().
@@ -267,7 +263,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
-		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
 		//// contentCleanUp(nodeId);
 	}
@@ -439,7 +434,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
 				body(jsonContentWithPublisherId).
@@ -454,12 +448,10 @@ public class ContentBundleV3TestCases extends BaseTest {
 			if (count == 2) {
 				node2 = nodeId;
 				versionKey = jp.get("result.versionKey");
-				System.out.println(versionKey);
 				// Update content body
 				try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 				setURI();
 				jsonUpdateATContentBody = jsonUpdateATContentBody.replace("null", versionKey);
-				System.out.println(jsonUpdateATContentBody);
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
 				body(jsonUpdateATContentBody).
@@ -501,7 +493,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
-		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
 		// contentCleanUp(node1);
 
@@ -595,7 +586,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
 				body(jsonContentWithPublisherId).
@@ -623,7 +613,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
 				body(jsonContentWithPublisherId).
@@ -686,7 +675,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
 				.post("content/v3/publish/" + node1).then().
@@ -718,7 +706,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
-		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
 		// contentCleanUp(node1);
 	}
@@ -758,7 +745,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
 				.post("content/v3/publish/" + node1);
@@ -864,7 +850,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
 				body(jsonContentWithPublisherId).
@@ -954,7 +939,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
-		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
 		// contentCleanUp(nodeId);
 	}
@@ -1002,7 +986,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
 				.post("content/v3/publish/" + node1);
@@ -1111,7 +1094,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
 				.post("content/v3/publish/" + node1).then().
@@ -1132,7 +1114,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
 				.post("content/v3/publish/" + node2).then().
@@ -1155,7 +1136,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		// Publish created content
 		setURI();
-		System.out.println(jsonContentWithPublisherId);
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonContentWithPublisherId)
 		.with().contentType(JSON).when().post("content/v3/publish/" + nodeId1).then().
 		// log().all().
@@ -1174,7 +1154,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		// Publish created content
 		setURI();
-		System.out.println(jsonContentWithPublisherId);
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonContentWithPublisherId)
 		.with().contentType(JSON).when().post("content/v3/publish/" + nodeId).then().
 		// log().all().
@@ -1191,7 +1170,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
-		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
 		// contentCleanUp(nodeId);
 	}
@@ -1232,7 +1210,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Validating the folders having zip file or not
 				for (File file : listofFiles) {
-					// System.out.println(file.getName());
 					if (file.isFile() && file.getName().endsWith("json")) {
 						// Reading the manifest
 						File manifest = new File(file.getPath());
@@ -1242,7 +1219,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 						JsonObject obj = jsonElement.getAsJsonObject();
 						JsonElement manifestVersionElement = obj.get("ver");
 						Double manifestVersion = manifestVersionElement.getAsDouble();
-						// System.out.println(manifestVersion);
 						// Assert.assertTrue(manifestVersion.equals(manifestVesionActual));
 
 						// Validating expiry and items

@@ -10,8 +10,7 @@ import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.ekstep.platform.domain.BaseTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
@@ -131,7 +130,7 @@ public class ChannelWorkflowTests extends BaseTest {
 				extract().
 				response();
 	}
-	
+	@Ignore
 	@Test
 	public void getChannelWithInValidChannel(){
 		contentCleanUp();
@@ -146,7 +145,7 @@ public class ChannelWorkflowTests extends BaseTest {
 				extract().
 				response();
 	}
-	
+	@Ignore
 	@Test
 	public void updateChannelWithValid(){
 		contentCleanUp();
@@ -189,7 +188,7 @@ public class ChannelWorkflowTests extends BaseTest {
 		System.out.println(description);
 	}
 
-	
+	@Ignore
 	@Test
 	public void updateChannelWithInvalidChannelId(){
 		contentCleanUp();
@@ -225,7 +224,7 @@ public class ChannelWorkflowTests extends BaseTest {
 				.extract().
 				response();
 	}
-	
+	@Ignore
 	@Test
 	public void listChannelWithValidRequest(){
 		contentCleanUp();
@@ -250,7 +249,7 @@ public class ChannelWorkflowTests extends BaseTest {
 				String description = jp1.getString("result.node.metadata.description");
 				System.out.println(description);
 	}
-	
+	@Ignore
 	@Test
 	public void listChannelWithInvalidRequest(){
 		contentCleanUp();

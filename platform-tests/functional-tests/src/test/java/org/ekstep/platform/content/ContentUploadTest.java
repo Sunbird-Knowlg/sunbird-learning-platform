@@ -9,26 +9,26 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import org.apache.commons.io.FileUtils;
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-
+@Ignore
 public class ContentUploadTest extends BaseTest{
 
 	private String PROCESSING = "Processing";
 	private String PENDING = "Pending";
-
-	String jsonCreateValidContent = "{\"request\":{\"content\":{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test\",\"name\":\"Test_3\",\"language\":[\"English\"],\"contentType\":\"Plugin\",\"code\":\"LP_NFT_PLUGIN_TEST_7\",\"tags\":[\"Content\"],\"mimeType\":\"application/vnd.ekstep.plugin-archive\"}}}";
+	int rn = generateRandomInt(0, 999999);
+	String jsonCreateValidContent = "{\"request\":{\"content\":{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test\",\"name\":\"Test_3\",\"language\":[\"English\"],\"contentType\":\"Plugin\",\"code\":\"LP_NFT_PLUGIN_TEST_"+rn+"\",\"tags\":[\"Content\"],\"mimeType\":\"application/vnd.ekstep.plugin-archive\"}}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"org.ektep.test.plugin.ft\"}}";
 	String uploadedFile = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/org.ektep.test.plugin.ft/artifact/archive_1508928130106.zip";
 	
-	static ClassLoader classLoader = ChannelWorkflowTests.class.getClassLoader();
+	static ClassLoader classLoader = ContentUploadTest.class.getClassLoader();
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 	static URL url = classLoader.getResource("DownloadedFiles");
 	static File downloadPath;
@@ -40,7 +40,7 @@ public class ContentUploadTest extends BaseTest{
 
 	@AfterClass
 	public static void end() throws IOException {
-		FileUtils.cleanDirectory(downloadPath);
+		//FileUtils.cleanDirectory(downloadPath);
 	}
 
 	public String createContent(){

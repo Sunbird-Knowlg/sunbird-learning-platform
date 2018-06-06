@@ -5,6 +5,7 @@ import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.hasItems;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -55,7 +56,7 @@ public class ConceptAPITests extends BaseTest {
 	}
 	
 	// Get list literacy concepts
-	
+		@Ignore
 		@Test
 		public void getLiteracyConceptsExpectSuccess200()
 		{
@@ -71,7 +72,7 @@ public class ConceptAPITests extends BaseTest {
 		}
 	
 		// Get list science concepts
-		
+		@Ignore
 		@Test
 		public void getScienceConceptsExpectSuccess200()
 		{

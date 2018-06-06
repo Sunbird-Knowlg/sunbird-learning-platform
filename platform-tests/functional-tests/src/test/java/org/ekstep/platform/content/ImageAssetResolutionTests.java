@@ -8,11 +8,12 @@ import java.io.File;
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-
+@Ignore
 public class ImageAssetResolutionTests extends BaseTest {
 
 
