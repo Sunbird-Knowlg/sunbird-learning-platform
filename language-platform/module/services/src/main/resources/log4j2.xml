@@ -4,6 +4,9 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
+		<Async name="ConsoleAsync">
+			<AppenderRef ref="Console" />
+		</Async>
 		<RollingFile name="DefaultLogAppender" fileName="/data/logs/language_service_mw.log"
 			filePattern="/data/logs/language_service_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
@@ -21,6 +24,9 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingFile>
+		<Async name="DefaultLogAppenderAsync">
+			<AppenderRef ref="DefaultLogAppender" />
+		</Async>
 		<RollingFile name="PerfLogAppender" fileName="/data/logs/language-perf_mw.log"
 			filePattern="/data/logs/language-perf_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
@@ -38,6 +44,9 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingFile>
+		<Async name="PerfLogAppenderAsync">
+			<AppenderRef ref="PerfLogAppender" />
+		</Async>
 		<RollingRandomAccessFile name="GraphEventAppender"
 			fileName="/data/logs/language_graph_event_mw.log" filePattern="/data/logs/language_graph_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
@@ -55,7 +64,9 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
-
+		<Async name="GraphEventAppenderAsync">
+			<AppenderRef ref="GraphEventAppender" />
+		</Async>
 		<RollingRandomAccessFile name="TelemetryEventAppender"
 			fileName="/data/logs/language_telemetry_event_mw.log"
 			filePattern="/data/logs/language_telemetry_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
@@ -74,19 +85,22 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
+		<Async name="TelemetryEventAppenderAsync">
+			<AppenderRef ref="TelemetryEventAppender" />
+		</Async>
 	</Appenders>
 	<Loggers>
 		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
-			<AppenderRef ref="TelemetryEventAppender" />
+			<AppenderRef ref="TelemetryEventAppenderAsync" />
 		</Logger>
 		<Logger name="GraphEventLogger" level="INFO" additivity="false">
-			<AppenderRef ref="GraphEventAppender" />
+			<AppenderRef ref="GraphEventAppenderAsync" />
 		</Logger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
-			<AppenderRef ref="PerfLogAppender" />
+			<AppenderRef ref="PerfLogAppenderAsync" />
 		</Logger>
 		<Logger name="DefaultPlatformLogger" level="INFO" additivity="false">
-			<AppenderRef ref="DefaultLogAppender" />
+			<AppenderRef ref="DefaultLogAppenderAsync" />
 		</Logger>
 	</Loggers>
 </Configuration>
