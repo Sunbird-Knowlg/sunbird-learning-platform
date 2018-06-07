@@ -38,7 +38,6 @@ public class FrameworkHierarchy extends BaseManager {
 			: "domain";
 
 	private ObjectMapper mapper = new ObjectMapper();
-	private ElasticSearchUtil esUtil = new ElasticSearchUtil();
 
 	/**
 	 * @param id
@@ -86,9 +85,9 @@ public class FrameworkHierarchy extends BaseManager {
 		frameworkDocument.put("identifier", node.getIdentifier());
 		frameworkDocument.put("objectType", node.getObjectType());
 		frameworkDocument.put("nodeType", node.getNodeType());
-		esUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+		ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, node.getIdentifier(),
-				mapper.writeValueAsString(frameworkDocument));
+				mapper.writeValueAsString(frameworkDocument), "default");
 	}
 
 	@SuppressWarnings("unchecked")

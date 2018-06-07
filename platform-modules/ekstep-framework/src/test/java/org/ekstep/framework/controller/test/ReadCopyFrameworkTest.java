@@ -6,6 +6,7 @@ package org.ekstep.framework.controller.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
@@ -65,6 +66,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 
 	@BeforeClass
 	public static void beforeTest() throws Exception {
+		ElasticSearchUtil.registerESClient("default", Platform.config.getString("search.es_conn_info"));
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json",
 				"definitions/categoryInstance_definition.json");
 
@@ -73,7 +75,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 	@After
 	public void after() throws Exception {
 		System.out.println("deleting index: " + COMPOSITE_SEARCH_INDEX);
-		elasticSearchUtil.deleteIndex(COMPOSITE_SEARCH_INDEX);
+		ElasticSearchUtil.deleteIndex(COMPOSITE_SEARCH_INDEX, "default");
 	}
 
 	@Before
@@ -88,7 +90,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 		System.out.println("creating index: " + COMPOSITE_SEARCH_INDEX);
 		String settings = "{\"analysis\":{\"analyzer\":{\"cs_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"cs_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"edge_ngram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
 		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
-		elasticSearchUtil.addIndex(COMPOSITE_SEARCH_INDEX, COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
+		ElasticSearchUtil.addIndex(COMPOSITE_SEARCH_INDEX, COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings, "default");
 		populateTestDoc();
 	}
 
@@ -111,8 +113,8 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 		indexDoc.put("identifier", "test_term");
 		indexDoc.put("objectType", "Framework");
 		indexDoc.put("nodeType", "DATA_NODE");
-		elasticSearchUtil.addDocumentWithId(COMPOSITE_SEARCH_INDEX, COMPOSITE_SEARCH_INDEX_TYPE, "test_term",
-				mapper.writeValueAsString(indexDoc));
+		ElasticSearchUtil.addDocumentWithId(COMPOSITE_SEARCH_INDEX, COMPOSITE_SEARCH_INDEX_TYPE, "test_term",
+				mapper.writeValueAsString(indexDoc), "default");
 	}
 
 	private static void createChannel() {

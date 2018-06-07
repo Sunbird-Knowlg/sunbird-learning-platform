@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.CassandraTestSetup;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.dialcode.mgr.impl.DialCodeManagerImpl;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -90,7 +91,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 
 	@AfterClass
 	public static void finish() throws IOException, InterruptedException, ExecutionException {
-		elasticSearchUtil.deleteIndex(DIALCODE_INDEX);
+		ElasticSearchUtil.deleteIndex(DIALCODE_INDEX, "default");
 	}
 
 	@Before
@@ -712,10 +713,11 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 
 	private static void createDialCodeIndex() throws IOException {
 		CompositeSearchConstants.DIAL_CODE_INDEX = DIALCODE_INDEX;
+		ElasticSearchUtil.registerESClient("default", Platform.config.getString("dialcode.es_conn_info"));
 		String settings = "{\"analysis\": {       \"analyzer\": {         \"dc_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"dc_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
 		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"dc_index_analyzer\",\"search_analyzer\":\"dc_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"dc_index_analyzer\",\"search_analyzer\":\"dc_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
-		elasticSearchUtil.addIndex(CompositeSearchConstants.DIAL_CODE_INDEX,
-				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings);
+		ElasticSearchUtil.addIndex(CompositeSearchConstants.DIAL_CODE_INDEX,
+				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings, "default");
 
 		populateData();
 	}
@@ -737,8 +739,8 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 		indexDocument.put("userId", "ANONYMOUS");
 		indexDocument.put("objectType", "DialCode");
 
-		elasticSearchUtil.addDocumentWithId(DIALCODE_INDEX, CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, dialCode,
-				mapper.writeValueAsString(indexDocument));
+		ElasticSearchUtil.addDocumentWithId(DIALCODE_INDEX, CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, dialCode,
+				mapper.writeValueAsString(indexDocument), "default");
 	}
 
 }
