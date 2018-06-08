@@ -7,12 +7,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.slugs.Slug;
@@ -449,6 +452,24 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		return fileName;
 	}
+	
+	private void removeExtraProperties(Node imgNode) {
+		Response originalResponse = getDataNode(TAXONOMY_ID, imgNode.getIdentifier());
+		if (checkError(originalResponse))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Error! While Fetching the Content for Operation | [Content Id: " + imgNode.getIdentifier() + "]");
+		Node originalNode = (Node)originalResponse.get(GraphDACParams.node.name());
+		
+		Set<String> originalNodeMetaDataSet = originalNode.getMetadata().keySet();
+		Set<String> imgNodeMetaDataSet = imgNode.getMetadata().keySet();
+		Set<String> extraMetadata = originalNodeMetaDataSet.stream().filter(element -> !imgNodeMetaDataSet.contains(element)).collect(Collectors.toSet());
+		
+		if(!extraMetadata.isEmpty()) {
+			for(String prop : extraMetadata) {
+				imgNode.getMetadata().put(prop, null);
+			}
+		}
+	}
 
 	private Response migrateContentImageObjectData(String contentId, Node contentImage) {
 		Response response = new Response();
@@ -465,7 +486,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			
 			String publishType = (String) contentImage.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
-			TelemetryManager.info("In migrateContentImageObjectData ******* publishType: " + publishType + " ***");
 			if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
 				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
 			} else {
@@ -475,8 +495,12 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (null != dbNode) {
 				contentImage.setInRelations(dbNode.getInRelations());
 				contentImage.setOutRelations(dbNode.getOutRelations());
+				if(null == contentImage.getInRelations()) 
+					contentImage.setInRelations(new ArrayList<>());
+				if(null == contentImage.getOutRelations())
+					contentImage.setOutRelations(new ArrayList<>());
+				removeExtraProperties(contentImage);
 			}
-				
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
 			String imageBody = getContentBody(contentImageId);
 			if (StringUtils.isNotBlank(imageBody)) {
