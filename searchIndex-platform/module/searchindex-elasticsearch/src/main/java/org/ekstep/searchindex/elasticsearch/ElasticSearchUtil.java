@@ -73,53 +73,17 @@ public class ElasticSearchUtil {
 
 	public static Map<String, TransportClient> esClient = new HashMap<String, TransportClient>();
 
-	private Map<String, Integer> hostPort = new HashMap<String, Integer>();
 	public static int defaultResultLimit = 10000;
 	public int defaultResultOffset = 0;
 	private static int BATCH_SIZE = (Platform.config.hasPath("search.batch.size"))
 			? Platform.config.getInt("search.batch.size")
 			: 1000;
-	public int resultLimit = defaultResultLimit;
-	public int offset = defaultResultOffset;
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public static void registerESClient(String type, String connectionInfo) {
 		if (StringUtils.isBlank(type))
 			type = "default";
 		createClient(type, connectionInfo);
-	}
-
-	public void setResultLimit(int resultLimit) {
-		this.resultLimit = resultLimit;
-	}
-
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
-
-	private void initialize() {
-		setHostPort(Platform.config.getString("search.es_conn_info"));
-		if (Platform.config.hasPath("search.batch.size"))
-			BATCH_SIZE = Platform.config.getInt("search.batch.size");
-	}
-
-	/**
-	 * @param string
-	 */
-	private void setHostPort(String connectionInfo) {
-		for (String info : connectionInfo.split(",")) {
-			hostPort.put(info.split(":")[0], Integer.valueOf(info.split(":")[1]));
-		}
-	}
-
-	/**
-	 * @param host
-	 * @param port
-	 */
-	private void initialize(String connectionInfo) {
-		setHostPort(connectionInfo);
-		if (Platform.config.hasPath("search.batch.size"))
-			BATCH_SIZE = Platform.config.getInt("search.batch.size");
 	}
 
 	/**
@@ -150,15 +114,6 @@ public class ElasticSearchUtil {
 		if (StringUtils.isBlank(type))
 			type = "default";
 		return esClient.get(type);
-	}
-
-	private String getClientKey() {
-		StringBuilder key = new StringBuilder();
-		for (Map.Entry<String, Integer> entry : hostPort.entrySet()) {
-			key.append(entry.getKey().replace(".", ""));
-			key.append(entry.getValue());
-		}
-		return key.toString();
 	}
 
 	public void finalize() {
