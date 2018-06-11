@@ -348,7 +348,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			generateFrameworkHierarchy(frameworkId);
 			Response response = OK();
 			response.put(FrameworkEnum.publishStatus.name(),
-					"Publish Operation for Content Id '" + frameworkId + "' Started Successfully!");
+					"Publish Operation for Framework Id '" + frameworkId + "' Started Successfully!");
 
 			return response;
 		} else {

@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class LanguageDataSyncManagerImpl extends CompositeIndexSyncManager implements ICompositeSearchManager {
 	
-	private static final String ES_TYPE = "default";
-
 	@Override
 	public Response sync(String graphId, String objectType, Integer start, Integer total, boolean delete) throws Exception {
 		if (delete)
@@ -30,7 +28,7 @@ public class LanguageDataSyncManagerImpl extends CompositeIndexSyncManager imple
 			query.must(QueryBuilders.matchQuery("objectType.raw", objectType));
 			query.must(QueryBuilders.matchQuery("graph_id.raw", graphId));
 			ElasticSearchUtil.deleteDocumentsByQuery(query, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, ES_TYPE);
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
 		}
 	}
 	
