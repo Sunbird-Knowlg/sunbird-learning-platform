@@ -189,7 +189,7 @@ public class SearchProcessor {
 	}
 
 	public void destroy() {
-		ElasticSearchUtil.cleanESClient();
+		// ElasticSearchUtil.cleanESClient();
 	}
 
 	/**
