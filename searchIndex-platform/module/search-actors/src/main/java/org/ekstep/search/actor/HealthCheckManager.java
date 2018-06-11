@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -18,11 +19,12 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import akka.actor.ActorRef;
 
 public class HealthCheckManager extends SearchBaseActor {
-
-	ElasticSearchUtil es = new ElasticSearchUtil();
+	
+	private String type = "default";
 
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
+		ElasticSearchUtil.registerESClient(type, Platform.config.getString("search.es_conn_info"));
 		String operation = request.getOperation();
 		if (StringUtils.equalsIgnoreCase(SearchOperations.HEALTH.name(), operation)) {
 			Response response = checkIndexExists();
@@ -44,7 +46,7 @@ public class HealthCheckManager extends SearchBaseActor {
 		Response response = new Response();
 		boolean index = false;
 		try {
-			index = es.isIndexExists(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
+			index = ElasticSearchUtil.isIndexExists(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, type);
 			if (index == true) {
 				checks.add(getResponseData(response, true, "", ""));
 			} else {

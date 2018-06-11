@@ -41,6 +41,7 @@ public class ResponseFilter implements Filter {
 		String channelId = httpRequest.getHeader("X-Channel-Id");
 		String appId = httpRequest.getHeader("X-App-Id");
 		String path = httpRequest.getRequestURI();
+		String deviceId=httpRequest.getHeader("X-Device-ID");
 
 		if (StringUtils.isNotBlank(consumerId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
@@ -51,6 +52,9 @@ public class ResponseFilter implements Filter {
 
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
+		
+		if (StringUtils.isNotBlank(deviceId))
+			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.DEVICE_ID.name(), deviceId);
 
 		if (!isMultipart && !path.contains("/health")) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);

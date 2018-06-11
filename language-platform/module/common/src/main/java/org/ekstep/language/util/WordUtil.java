@@ -98,6 +98,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	/** The synset relations. */
 	private static List<String> synsetRelations = null;
 
+	private static final String ES_TYPE = "default";
+
 	/** The Constant special. */
 	// inside regex all special character mentioned!, by default inside string
 	// black slash and double quote should be escaped using black slash, in
@@ -240,8 +242,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		searchCriteria.put(textKeyWord, getList(mapper, word, null));
 
 		// perform a text search on ES
-		List<Object> wordIndexes = util.textSearch(WordIndexBean.class, searchCriteria, indexName,
-				Constants.WORD_INDEX_TYPE);
+		List<Object> wordIndexes = ElasticSearchUtil.textSearch(WordIndexBean.class, searchCriteria, indexName,
+				Constants.WORD_INDEX_TYPE, ES_TYPE, 100);
 		Map<String, Object> wordIdsMap = new HashMap<String, Object>();
 
 		// form a map of word Ids to word
@@ -362,17 +364,18 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				Map<String, Object> citationMap = mapper.convertValue(citation, Map.class);
 				citiationIndexes.add(citationMap);
 			}
-			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(citationIndexName, Constants.CITATION_INDEX_TYPE,
-					citiationIndexes);
-			elasticSearchUtil.bulkIndexWithIndexId(wordIndexName, Constants.WORD_INDEX_TYPE, wordIndexesWithId);
+			ElasticSearchUtil.bulkIndexWithAutoGenerateIndexId(citationIndexName, Constants.CITATION_INDEX_TYPE,
+					citiationIndexes, ES_TYPE);
+			ElasticSearchUtil.bulkIndexWithIndexId(wordIndexName, Constants.WORD_INDEX_TYPE, wordIndexesWithId,
+					ES_TYPE);
 		}
 		if (wordInfoList != null) {
 			for (WordInfoBean wordInfo : wordInfoList) {
 				String wordInfoJson = mapper.writeValueAsString(wordInfo);
 				wordIndexInfoWithId.put(wordInfo.getWord(), wordInfoJson);
 			}
-			elasticSearchUtil.bulkIndexWithIndexId(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE,
-					wordIndexInfoWithId);
+			ElasticSearchUtil.bulkIndexWithIndexId(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE,
+					wordIndexInfoWithId, ES_TYPE);
 		}
 	}
 
@@ -413,7 +416,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
 				.endObject();
 
-		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
+		ElasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString(), ES_TYPE);
 	}
 
 	/**
@@ -449,7 +452,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().endObject().endObject()
 				.endObject();
 
-		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
+		ElasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString(), ES_TYPE);
 	}
 
 	/**
@@ -490,7 +493,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
 				.endObject();
 
-		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
+		ElasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString(), ES_TYPE);
 	}
 
 	/**
@@ -510,13 +513,12 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 */
 	@SuppressWarnings({ "unchecked" })
 	public String getRootWordsFromIndex(String word, String languageId) throws Exception {
-		ElasticSearchUtil util = new ElasticSearchUtil();
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, getList(mapper, word, null));
-		List<Object> wordIndexes = util.textSearch(WordIndexBean.class, searchCriteria, indexName,
-				Constants.WORD_INDEX_TYPE);
+		List<Object> wordIndexes = ElasticSearchUtil.textSearch(WordIndexBean.class, searchCriteria, indexName,
+				Constants.WORD_INDEX_TYPE, ES_TYPE, 100);
 		Map<String, Object> rootWordsMap = new HashMap<String, Object>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;

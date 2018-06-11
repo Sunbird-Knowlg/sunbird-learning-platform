@@ -30,7 +30,6 @@ import org.junit.Test;
  */
 public class ElasticSearchUtilTest extends BaseSearchTest {
 
-	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
 
 
@@ -39,8 +38,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		Map<String, Object> content = getContentTestRecord();
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
-		String doc = elasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, "default");
 		assertTrue(StringUtils.contains(doc, id));
 	}
 
@@ -48,8 +47,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 	public void testAddDocumentWithOutId() throws Exception {
 		Map<String, Object> content = getContentTestRecord();
 		content.remove("identifier");
-		elasticSearchUtil.addDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content));
+		ElasticSearchUtil.addDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content), "default");
 	}
 
 	@Test
@@ -62,11 +61,11 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 			ids.add(id);
 			jsonObjects.put(id, content);
 		}
-		elasticSearchUtil.bulkIndexWithIndexId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, jsonObjects);
-		List<String> resultDocs = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+		ElasticSearchUtil.bulkIndexWithIndexId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, jsonObjects, "default");
+		List<String> resultDocs = ElasticSearchUtil.getMultiDocumentAsStringByIdList(
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
-				ids);
+				ids, "default");
 
 		assertNotNull(resultDocs);
 		assertEquals(30, resultDocs.size());
@@ -81,8 +80,8 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 			id = (String) content.get("name");
 			jsonObjects.add(content);
 		}
-		elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, jsonObjects);
+		ElasticSearchUtil.bulkIndexWithAutoGenerateIndexId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, jsonObjects, "default");
 	}
 
 	@Test
@@ -91,10 +90,11 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
 		content.put("name", "Content_" + System.currentTimeMillis() + "_name");
-		elasticSearchUtil.updateDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content), id);
-		String doc = elasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+		ElasticSearchUtil.updateDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, mapper.writeValueAsString(content), id,
+				"default");
+		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, "default");
 		assertTrue(StringUtils.contains(doc, id));
 	}
 
@@ -103,10 +103,10 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		Map<String, Object> content = getContentTestRecord();
 		String id = (String) content.get("identifier");
 		addToIndex(id, content);
-		elasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
-		String doc = elasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+		ElasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, "default");
+		String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, "default");
 		assertFalse(StringUtils.contains(doc, id));
 	}
 
@@ -119,8 +119,9 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		Map<String, Object> criteria = new HashMap<String, Object>();
 		criteria.put("identifier", new ArrayList<>(Arrays.asList(id)));
 
-		List<Map> result = elasticSearchUtil.textSearchReturningId(criteria,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		List<Map> result = ElasticSearchUtil.textSearchReturningId(criteria,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
+				"default");
 
 		assertNotNull(result);
 		System.out.println("Search with ID: Size : " + result.size());

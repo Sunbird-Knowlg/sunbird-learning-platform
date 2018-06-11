@@ -120,7 +120,8 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			JsonObject root = gson.fromJson(manifest, JsonObject.class);
 			id = root.get("id").getAsString();
 			targets = root.get("targets");
-			targetsList = gson.fromJson(targets.toString(), new TypeToken<List<Object>>(){}.getType());
+			if(null != targets)
+				targetsList = gson.fromJson(targets.toString(), new TypeToken<List<Object>>(){}.getType());
 		} catch (Exception e) {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
 					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);

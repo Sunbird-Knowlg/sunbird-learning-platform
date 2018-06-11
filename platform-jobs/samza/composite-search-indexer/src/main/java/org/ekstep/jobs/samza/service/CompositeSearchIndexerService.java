@@ -6,6 +6,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -35,14 +36,14 @@ public class CompositeSearchIndexerService implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
-		esUtil = new ElasticSearchUtil();
+		ElasticSearchUtil.registerESClient("default", Platform.config.getString("search.es_conn_info"));
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
-		csIndexer = new CompositeSearchIndexer(esUtil);
+		csIndexer = new CompositeSearchIndexer();
 		csIndexer.createCompositeSearchIndex();
 		LOGGER.info(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + " created");
-		dcIndexer = new DialCodeIndexer(esUtil);
+		dcIndexer = new DialCodeIndexer();
 		dcIndexer.createDialCodeIndex();
 		LOGGER.info(CompositeSearchConstants.DIAL_CODE_INDEX + " created");
 	}

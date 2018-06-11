@@ -67,16 +67,16 @@ public class LanguageIndexesActorTest extends BaseLanguageTest {
 		// createDefinitionsStatic(TEST_LOAD_LANGUAGE);
 
 		util = new ElasticSearchUtil();
-		util.deleteIndex("citation_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_info_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("citation_index_" + TEST_LANGUAGE, "default");
+		ElasticSearchUtil.deleteIndex("word_index_" + TEST_LANGUAGE, "default");
+		ElasticSearchUtil.deleteIndex("word_info_index_" + TEST_LANGUAGE, "default");
 		// util.deleteIndex("citation_index_" + TEST_LOAD_LANGUAGE);
 		// util.deleteIndex("word_index_" + TEST_LOAD_LANGUAGE);
 		// util.deleteIndex("word_info_index_" + TEST_LOAD_LANGUAGE);
 		boolean response = loadCitations();
 		Thread.sleep(5000);
-		util.deleteIndex("citation_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("citation_index_" + TEST_LANGUAGE, "default");
+		ElasticSearchUtil.deleteIndex("word_index_" + TEST_LANGUAGE, "default");
 		addCitationIndex();
 		addWordIndex();
 		Thread.sleep(5000);
@@ -98,9 +98,9 @@ public class LanguageIndexesActorTest extends BaseLanguageTest {
 
 	@AfterClass
 	public static void close() throws IOException, InterruptedException, ExecutionException {
-		util.deleteIndex("citation_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_info_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("citation_index_" + TEST_LANGUAGE, "default");
+		ElasticSearchUtil.deleteIndex("word_index_" + TEST_LANGUAGE, "default");
+		ElasticSearchUtil.deleteIndex("word_info_index_" + TEST_LANGUAGE, "default");
 
 		// util.deleteIndex("citation_index_" + TEST_LOAD_LANGUAGE);
 		// util.deleteIndex("word_index_" + TEST_LOAD_LANGUAGE);

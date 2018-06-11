@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -50,6 +51,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	private DetectLanguage detectlanguage = null;
 
 	private static final int DEFAULT_LIMIT = 50;
+	private static final String ES_TYPE = "default";
 
 	/**
 	 * @throws IOException
@@ -57,7 +59,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 */
 	public VocabularyTermManager() {
 		processor = new SearchProcessor();
-		esUtil = new ElasticSearchUtil();
+		ElasticSearchUtil.registerESClient(ES_TYPE, Platform.config.getString("search.es_conn_info"));
 		detectlanguage = new DetectLanguage();
 		createIndex();
 
@@ -65,7 +67,8 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 
 	private void createIndex() {
 		try {
-			esUtil.addIndex(Constants.VOCABULARY_TERM_INDEX, Constants.VOCABULARY_TERM_INDEX_TYPE, SETTING, MAPPING);
+			ElasticSearchUtil.addIndex(Constants.VOCABULARY_TERM_INDEX, Constants.VOCABULARY_TERM_INDEX_TYPE, SETTING,
+					MAPPING, ES_TYPE);
 		} catch (IOException e) {
 			TelemetryManager
 					.error("VocabularyTermManager : Error while adding index to elasticsearch : " + e.getMessage(), e);
@@ -242,8 +245,8 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 * @throws IOException
 	 */
 	private void addDocument(String id, String jsonIndexDocument) throws IOException {
-		esUtil.addDocumentWithId(Constants.VOCABULARY_TERM_INDEX, Constants.VOCABULARY_TERM_INDEX_TYPE, id,
-				jsonIndexDocument);
+		ElasticSearchUtil.addDocumentWithId(Constants.VOCABULARY_TERM_INDEX, Constants.VOCABULARY_TERM_INDEX_TYPE, id,
+				jsonIndexDocument, ES_TYPE);
 	}
 
 	/**
