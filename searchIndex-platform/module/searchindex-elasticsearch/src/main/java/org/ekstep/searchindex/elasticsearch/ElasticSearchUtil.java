@@ -71,7 +71,7 @@ public class ElasticSearchUtil {
 		registerShutdownHook();
 	}
 
-	public static Map<String, TransportClient> esClient = new HashMap<String, TransportClient>();
+	private static Map<String, TransportClient> esClient = new HashMap<String, TransportClient>();
 
 	public static int defaultResultLimit = 10000;
 	public int defaultResultOffset = 0;
