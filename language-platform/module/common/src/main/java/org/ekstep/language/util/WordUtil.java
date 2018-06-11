@@ -33,6 +33,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Property;
@@ -97,6 +98,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	/** The synset relations. */
 	private static List<String> synsetRelations = null;
+
 
 	/** The Constant special. */
 	// inside regex all special character mentioned!, by default inside string
@@ -233,15 +235,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 */
 	@SuppressWarnings("unchecked")
 	public String getWordIdentifierFromIndex(String languageId, String word) throws Exception {
-		ElasticSearchUtil util = new ElasticSearchUtil();
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, getList(mapper, word, null));
 
 		// perform a text search on ES
-		List<Object> wordIndexes = util.textSearch(WordIndexBean.class, searchCriteria, indexName,
-				Constants.WORD_INDEX_TYPE);
+		List<Object> wordIndexes = ElasticSearchUtil.textSearch(WordIndexBean.class, searchCriteria, indexName,
+				Constants.WORD_INDEX_TYPE, 100);
 		Map<String, Object> wordIdsMap = new HashMap<String, Object>();
 
 		// form a map of word Ids to word
@@ -304,11 +305,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		ArrayList<Map<String, Object>> citiationIndexes = new ArrayList<>();
 		Map<String, Object> wordIndexesWithId = new HashMap<String, Object>();
 		Map<String, Object> wordIndexInfoWithId = new HashMap<String, Object>();
-		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
-		createCitationIndex(citationIndexName, Constants.CITATION_INDEX_TYPE, elasticSearchUtil);
-		createWordIndex(wordIndexName, Constants.WORD_INDEX_TYPE, elasticSearchUtil);
-		createWordInfoIndex(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE, elasticSearchUtil);
+		createCitationIndex(citationIndexName, Constants.CITATION_INDEX_TYPE);
+		createWordIndex(wordIndexName, Constants.WORD_INDEX_TYPE);
+		createWordInfoIndex(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE);
 		if (citationsList != null) {
 			for (CitationBean citation : citationsList) {
 				if (citation.getDate() == null || citation.getDate().isEmpty()) {
@@ -362,16 +362,16 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				Map<String, Object> citationMap = mapper.convertValue(citation, Map.class);
 				citiationIndexes.add(citationMap);
 			}
-			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(citationIndexName, Constants.CITATION_INDEX_TYPE,
+			ElasticSearchUtil.bulkIndexWithAutoGenerateIndexId(citationIndexName, Constants.CITATION_INDEX_TYPE,
 					citiationIndexes);
-			elasticSearchUtil.bulkIndexWithIndexId(wordIndexName, Constants.WORD_INDEX_TYPE, wordIndexesWithId);
+			ElasticSearchUtil.bulkIndexWithIndexId(wordIndexName, Constants.WORD_INDEX_TYPE, wordIndexesWithId);
 		}
 		if (wordInfoList != null) {
 			for (WordInfoBean wordInfo : wordInfoList) {
 				String wordInfoJson = mapper.writeValueAsString(wordInfo);
 				wordIndexInfoWithId.put(wordInfo.getWord(), wordInfoJson);
 			}
-			elasticSearchUtil.bulkIndexWithIndexId(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE,
+			ElasticSearchUtil.bulkIndexWithIndexId(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE,
 					wordIndexInfoWithId);
 		}
 	}
@@ -391,8 +391,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @return void
 	 */
 	// TODO: Use ElasticSearchUtil's generic index creator
-	private void createWordInfoIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
+	private void createWordInfoIndex(String indexName, String indexType)
 			throws IOException {
+		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 		JSONBuilder settingBuilder = new JSONStringer();
 		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
 				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
@@ -413,7 +414,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
 				.endObject();
 
-		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
+		ElasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
 	/**
@@ -431,8 +432,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @return void
 	 */
 	// TODO: Use ElasticSearchUtil's generic index creator
-	public void createWordIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
+	public void createWordIndex(String indexName, String indexType)
 			throws IOException {
+		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 		JSONBuilder settingBuilder = new JSONStringer();
 		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
 				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
@@ -449,7 +451,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().endObject().endObject()
 				.endObject();
 
-		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
+		ElasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
 	/**
@@ -467,8 +469,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @return void
 	 */
 	// TODO: Use ElasticSearchUtil's generic index creator
-	public void createCitationIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
+	public void createCitationIndex(String indexName, String indexType)
 			throws IOException {
+		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 		JSONBuilder settingBuilder = new JSONStringer();
 		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
 				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
@@ -490,7 +493,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
 				.endObject();
 
-		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
+		ElasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
 	/**
@@ -510,13 +513,12 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 */
 	@SuppressWarnings({ "unchecked" })
 	public String getRootWordsFromIndex(String word, String languageId) throws Exception {
-		ElasticSearchUtil util = new ElasticSearchUtil();
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, getList(mapper, word, null));
-		List<Object> wordIndexes = util.textSearch(WordIndexBean.class, searchCriteria, indexName,
-				Constants.WORD_INDEX_TYPE);
+		List<Object> wordIndexes = ElasticSearchUtil.textSearch(WordIndexBean.class, searchCriteria, indexName,
+				Constants.WORD_INDEX_TYPE, 100);
 		Map<String, Object> rootWordsMap = new HashMap<String, Object>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;

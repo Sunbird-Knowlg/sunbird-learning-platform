@@ -47,7 +47,6 @@ public class LanguageIndexesActorTest extends BaseLanguageTest {
 	// TaxonomyManagerImpl();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
-	static ElasticSearchUtil util;
 
 	// private static String TEST_LANGUAGE = "test";
 	// private static String TEST_LOAD_LANGUAGE = "testload";
@@ -66,17 +65,16 @@ public class LanguageIndexesActorTest extends BaseLanguageTest {
 		// createDefinitionsStatic(TEST_LANGUAGE);
 		// createDefinitionsStatic(TEST_LOAD_LANGUAGE);
 
-		util = new ElasticSearchUtil();
-		util.deleteIndex("citation_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_info_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("citation_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("word_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("word_info_index_" + TEST_LANGUAGE);
 		// util.deleteIndex("citation_index_" + TEST_LOAD_LANGUAGE);
 		// util.deleteIndex("word_index_" + TEST_LOAD_LANGUAGE);
 		// util.deleteIndex("word_info_index_" + TEST_LOAD_LANGUAGE);
 		boolean response = loadCitations();
 		Thread.sleep(5000);
-		util.deleteIndex("citation_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("citation_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("word_index_" + TEST_LANGUAGE);
 		addCitationIndex();
 		addWordIndex();
 		Thread.sleep(5000);
@@ -98,9 +96,9 @@ public class LanguageIndexesActorTest extends BaseLanguageTest {
 
 	@AfterClass
 	public static void close() throws IOException, InterruptedException, ExecutionException {
-		util.deleteIndex("citation_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_index_" + TEST_LANGUAGE);
-		util.deleteIndex("word_info_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("citation_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("word_index_" + TEST_LANGUAGE);
+		ElasticSearchUtil.deleteIndex("word_info_index_" + TEST_LANGUAGE);
 
 		// util.deleteIndex("citation_index_" + TEST_LOAD_LANGUAGE);
 		// util.deleteIndex("word_index_" + TEST_LOAD_LANGUAGE);

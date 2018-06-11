@@ -30,19 +30,19 @@ public class AuditHistoryEsDao {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The ElasticSearchUtil */
-	private ElasticSearchUtil es = null;
 
 	/** The SearchProcessor */
 	private SearchProcessor processor = null;
 
 	private String connectionInfo = "localhost:9300";
 
+
 	@PostConstruct
 	public void init() {
 		connectionInfo = Platform.config.hasPath("audit.es_conn_info") ? Platform.config.getString("audit.es_conn_info")
 				: connectionInfo;
-		es = new ElasticSearchUtil(connectionInfo);
-		processor = new SearchProcessor(connectionInfo);
+		ElasticSearchUtil.initialiseESClient(AuditHistoryConstants.AUDIT_HISTORY_INDEX, connectionInfo);
+		processor = new SearchProcessor(AuditHistoryConstants.AUDIT_HISTORY_INDEX);
 	}
 	
 	public void save(Map<String, Object> entity_map) throws IOException {
@@ -67,8 +67,8 @@ public class AuditHistoryEsDao {
 		String settings = "{\"analysis\": {       \"analyzer\": {         \"ah_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"ah_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
 		String mappings = "{\"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"ah_index_analyzer\",            \"search_analyzer\": \"ah_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"ah_index_analyzer\",        \"search_analyzer\": \"ah_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }";
 		TelemetryManager.log("Creating Audit History Index : " + AuditHistoryConstants.AUDIT_HISTORY_INDEX);
-		es.addIndex(AuditHistoryConstants.AUDIT_HISTORY_INDEX, AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE,
-				settings, mappings);
+		ElasticSearchUtil.addIndex(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
+				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, settings, mappings);
 	}
 
 	public void addDocument(Map<String, Object> request) throws IOException {
@@ -79,14 +79,15 @@ public class AuditHistoryEsDao {
 			TelemetryManager.log("converting request map tp string : " + document);
 		}
 		if(StringUtils.isNotBlank(document)){
-			es.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX, AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);
+			ElasticSearchUtil.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
+					AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);
 			TelemetryManager.log("Adding document to Audit History Index : " + document);
 		}
 	}
 
 	public void delete(QueryBuilder query) throws IOException {
 		TelemetryManager.log("deleting Audit History Index : " + AuditHistoryConstants.AUDIT_HISTORY_INDEX);
-		es.deleteDocumentsByQuery(query, AuditHistoryConstants.AUDIT_HISTORY_INDEX,
+		ElasticSearchUtil.deleteDocumentsByQuery(query, AuditHistoryConstants.AUDIT_HISTORY_INDEX,
 				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE);
 		TelemetryManager.log("Documents deleted from Audit History Index");
 	}
@@ -94,6 +95,6 @@ public class AuditHistoryEsDao {
 	@PreDestroy
 	public void shutdown(){
 		TelemetryManager.info("shuting down elastic search instance.");
-		es.finalize();
+		ElasticSearchUtil.cleanESClient();
 	}
 }

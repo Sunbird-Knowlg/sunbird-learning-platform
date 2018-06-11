@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -37,40 +38,42 @@ import org.elasticsearch.search.sort.SortOrder;
 
 public class SearchProcessor {
 
-	private ElasticSearchUtil elasticSearchUtil = null;
 	private ObjectMapper mapper = new ObjectMapper();
 	private static final String ASC_ORDER = "asc";
 	private static final String AND = "AND";
 	private boolean relevanceSort = false;
+	private String indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 
 	public SearchProcessor() {
-		elasticSearchUtil = new ElasticSearchUtil();
+		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				Platform.config.getString("search.es_conn_info"));
 	}
-
-	public SearchProcessor(String connectionInfo) {
-		elasticSearchUtil = new ElasticSearchUtil(connectionInfo);
+	
+	public SearchProcessor(String indexName) {
+		this.indexName = indexName;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
+	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults)
+			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> response = new HashMap<String, Object>();
 
 		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, true);
-		SearchResponse searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
+		SearchResponse searchResult = ElasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		if (includeResults) {
 			if (searchDTO.isFuzzySearch()) {
-				List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
+				List<Map> results = ElasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
 				response.put("results", results);
 			} else {
-				List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
+				List<Object> results = ElasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
 				response.put("results", results);
 			}
 		}
 		Aggregations aggregations = searchResult.getAggregations();
 		if (null != aggregations) {
 			AggregationsResultTransformer transformer = new AggregationsResultTransformer();
-			response.put("facets", (List<Map<String, Object>>) elasticSearchUtil.getCountFromAggregation(aggregations,
+			response.put("facets", (List<Map<String, Object>>) ElasticSearchUtil.getCountFromAggregation(aggregations,
 					groupByFinalList, transformer));
 		}
 		response.put("count", (int) searchResult.getHits().getTotalHits());
@@ -80,7 +83,8 @@ public class SearchProcessor {
 	public Map<String, Object> processCount(SearchDTO searchDTO) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
 		SearchRequestBuilder searchRequestBuilder = processSearchQuery(searchDTO, null, false);
-		int countResult = elasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+		searchRequestBuilder.setFrom(searchDTO.getOffset()).setSize(0);
+		int countResult = ElasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				searchRequestBuilder);
 		response.put("count", countResult);
 
@@ -101,7 +105,7 @@ public class SearchProcessor {
 		Map<String, Object> translations = new HashMap<String, Object>();
 		Map<String, Object> synsets = new HashMap<String, Object>();
 		if (synsetIds != null && synsetIds.size() > 0) {
-			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+			List<String> resultList = ElasticSearchUtil.getMultiDocumentAsStringByIdList(
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
 			for (String synsetDoc : resultList) {
@@ -117,7 +121,7 @@ public class SearchProcessor {
 					if (words != null) {
 						List<String> wordIdList = (List<String>) words;
 						if (wordIdList != null && wordIdList.size() > 0) {
-							List<String> wordResultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+							List<String> wordResultList = ElasticSearchUtil.getMultiDocumentAsStringByIdList(
 									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, wordIdList);
 							for (String wordDoc : wordResultList) {
@@ -164,7 +168,7 @@ public class SearchProcessor {
 		Map<String, Object> synsetDocList = new HashMap<String, Object>();
 		List<String> identifierList = new ArrayList<String>();
 		if (synsetIds != null && synsetIds.size() > 0) {
-			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+			List<String> resultList = ElasticSearchUtil.getMultiDocumentAsStringByIdList(
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
 			for (String synsetDoc : resultList) {
@@ -185,20 +189,20 @@ public class SearchProcessor {
 	}
 
 	public void destroy() {
-		if (null != elasticSearchUtil)
-			elasticSearchUtil.finalize();
+		ElasticSearchUtil.cleanESClient();
 	}
 
 	/**
 	 * @param searchDTO
 	 * @param groupByFinalList
+	 * @param type
 	 * @param b
 	 * @return
 	 */
 	private SearchRequestBuilder processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList,
 			boolean sortBy) {
 
-		SearchRequestBuilder searchRequestBuilder = elasticSearchUtil.getSearchRequestBuilder();
+		SearchRequestBuilder searchRequestBuilder = ElasticSearchUtil.getSearchRequestBuilder(indexName);
 		List<String> fields = searchDTO.getFields();
 		if (null != fields && !fields.isEmpty()) {
 			fields.add(GraphDACParams.objectType.name());
@@ -214,8 +218,8 @@ public class SearchProcessor {
 			}
 		}
 
-		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
-		elasticSearchUtil.setOffset(searchDTO.getOffset());
+		searchRequestBuilder.setSize(searchDTO.getLimit());
+		searchRequestBuilder.setFrom(searchDTO.getOffset());
 		QueryBuilder query = null;
 
 		if (searchDTO.isFuzzySearch()) {
@@ -258,13 +262,13 @@ public class SearchProcessor {
 				String groupByParent = (String) groupByMap.get("groupByParent");
 				termBuilder = AggregationBuilders.terms(groupByParent)
 						.field(groupByParent + CompositeSearchConstants.RAW_FIELD_EXTENSION)
-						.size(elasticSearchUtil.defaultResultLimit);
+						.size(ElasticSearchUtil.defaultResultLimit);
 				List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
 				if (groupByChildList != null && !groupByChildList.isEmpty()) {
 					for (String childGroupBy : groupByChildList) {
 						termBuilder.subAggregation(AggregationBuilders.terms(childGroupBy)
 								.field(childGroupBy + CompositeSearchConstants.RAW_FIELD_EXTENSION)
-								.size(elasticSearchUtil.defaultResultLimit));
+								.size(ElasticSearchUtil.defaultResultLimit));
 					}
 				}
 				searchRequestBuilder.addAggregation(termBuilder);
@@ -417,7 +421,7 @@ public class SearchProcessor {
 			weightages = new HashMap<String, Float>();
 			weightages.put("default_weightage", 1.0f);
 		}
-		List<String> querySearchFeilds = elasticSearchUtil.getQuerySearchFields();
+		List<String> querySearchFeilds = ElasticSearchUtil.getQuerySearchFields();
 		List<Map> properties = searchDTO.getProperties();
 		for (Map<String, Object> property : properties) {
 			String opertation = (String) property.get("operation");
@@ -553,7 +557,7 @@ public class SearchProcessor {
 	 * @return
 	 */
 	private QueryBuilder getAllFieldsPropertyQuery(List<Object> values) {
-		List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
+		List<String> queryFields = ElasticSearchUtil.getQuerySearchFields();
 		Map<String, Float> queryFieldsMap = new HashMap<>();
 		for (String field : queryFields) {
 			if (field.contains("^"))
@@ -782,10 +786,10 @@ public class SearchProcessor {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		List<Object> response = new ArrayList<Object>();
 		if (searchDTO.getLimit() == 0)
-			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
+			searchDTO.setLimit(ElasticSearchUtil.defaultResultLimit);
 		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
-		SearchResponse searchResult = elasticSearchUtil.search(index, query);
+		SearchResponse searchResult = ElasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);
 		SearchHits resultMap = searchResult.getHits();
 		SearchHit[] result = resultMap.getHits();
@@ -800,10 +804,10 @@ public class SearchProcessor {
 			boolean sort) throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		if (searchDTO.getLimit() == 0)
-			searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
+			searchDTO.setLimit(ElasticSearchUtil.defaultResultLimit);
 		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
-		SearchResponse searchResult = elasticSearchUtil.search(index, query);
+		SearchResponse searchResult = ElasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);
 		return searchResult;
 	}

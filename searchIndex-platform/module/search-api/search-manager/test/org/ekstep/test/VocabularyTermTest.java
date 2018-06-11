@@ -16,6 +16,7 @@ import static play.test.Helpers.route;
 
 import java.io.IOException;
 
+import org.ekstep.common.Platform;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.junit.AfterClass;
@@ -40,7 +41,6 @@ import play.test.WithApplication;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class VocabularyTermTest extends WithApplication {
 
-	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final String VOCABULARY_TERM_INDEX = "testvocabularyterm";
 	private static final String VOCABULARY_TERM_INDEX_TYPE = "vt";
@@ -55,15 +55,16 @@ public class VocabularyTermTest extends WithApplication {
 	@AfterClass
 	public static void afterTest() throws Exception {
 		System.out.println("deleting index: " + VOCABULARY_TERM_INDEX);
-		elasticSearchUtil.deleteIndex(VOCABULARY_TERM_INDEX);
+		ElasticSearchUtil.deleteIndex(VOCABULARY_TERM_INDEX);
 	}
 
 	private static void createTestIndex() throws Exception {
 		Constants.VOCABULARY_TERM_INDEX = VOCABULARY_TERM_INDEX;
+		ElasticSearchUtil.initialiseESClient(VOCABULARY_TERM_INDEX, Platform.config.getString("search.es_conn_info"));
 		System.out.println("creating index: " + VOCABULARY_TERM_INDEX);
 		String settings = "{\"analysis\":{\"analyzer\":{\"vt_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"vt_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"edge_ngram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
 		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}";
-		elasticSearchUtil.addIndex(VOCABULARY_TERM_INDEX, VOCABULARY_TERM_INDEX_TYPE, settings, mappings);
+		ElasticSearchUtil.addIndex(VOCABULARY_TERM_INDEX, VOCABULARY_TERM_INDEX_TYPE, settings, mappings);
 	}
 
 	@Test
