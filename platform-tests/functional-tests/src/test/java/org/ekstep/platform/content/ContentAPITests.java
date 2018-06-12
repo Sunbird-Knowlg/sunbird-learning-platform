@@ -23,15 +23,6 @@ import com.jayway.restassured.specification.RequestSpecification;
 
 public class ContentAPITests extends BaseTest {
 
-	public RequestSpecification getRequestSpecification(String content_type, String user_id, String APIToken) {
-		RequestSpecBuilder builderreq = new RequestSpecBuilder();
-		builderreq.addHeader("Content-Type", content_type);
-		builderreq.addHeader("user-id", user_id);
-		builderreq.addHeader("Authorization", APIToken);
-		RequestSpecification requestSpec = builderreq.build();
-		return requestSpec;
-	}
-
 	int rn = generateRandomInt(0, 999999);
 
 	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn
@@ -78,7 +69,7 @@ public class ContentAPITests extends BaseTest {
 			+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"owner\": \"EkStep\",\"body\":{\"theme\":{\"manifest\":{\"media\":[{\"id\":\"barber_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\",\"type\":\"image\"},{\"id\":\"tailor_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\",\"type\":\"image\"},{\"id\":\"carpenter_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\",\"type\":\"image\"}]}}}}}}";
 	String invalidContentId = "TestQa_" + rn + "";
 
-	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
+	static ClassLoader classLoader = ContentAPITests.class.getClassLoader();
 	static URL url = classLoader.getResource("DownloadedFiles");
 	static File downloadPath;
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
@@ -92,9 +83,23 @@ public class ContentAPITests extends BaseTest {
 	public static void end() throws IOException {
 		FileUtils.cleanDirectory(downloadPath);
 	}
-
-	//jsonAsMap.put("firstName", "John");
-	//jsonAsMap.put("lastName", "Doe");
+	
+	public RequestSpecification getRequestSpecification(String content_type, String user_id, String APIToken) {
+		RequestSpecBuilder builderreq = new RequestSpecBuilder();
+		builderreq.addHeader("Content-Type", content_type);
+		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeader("Authorization", APIToken);
+		RequestSpecification requestSpec = builderreq.build();
+		return requestSpec;
+	}
+	
+	public void delay(){
+		try {
+			Thread.sleep(3000);
+		} catch (Exception e) {
+			
+		}
+	}
 
 	// Create and get Content
 	@Test
@@ -164,59 +169,56 @@ public class ContentAPITests extends BaseTest {
 	}
 
 	// Create and get image content for valid content
-	@Ignore
 	@Test
 	public void getImageContentVaidExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
+		Response R1 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonCreateValidContent).with().contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				//spec(get200ResponseSpec()).
 				extract().response();
 
 		// Extracting the JSON path
-		JsonPath jp = R.jsonPath();
-		String nodeId = jp.get("result.node_id");
+		JsonPath jP1 = R1.jsonPath();
+		String nodeId = jP1.get("result.node_id");
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
+				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
 				.multiPart(new File(path + "/uploadContent.zip")).then().post("/content/v3/upload/" + nodeId);
-		//then().
-		//log().all().
-		//spec(get200ResponseSpec());
 
 		// Publish created content
 		setURI();
-		Response Rp2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-				.post("/content/v3/publish/" + nodeId).then().
+				.post("/content/v3/publish/" + nodeId);
+		
+		delay();
+		
+		// Get Content
+		setURI();
+		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
+				.get("/content/v3/read/" + nodeId).then().
 				//log().all().
-				//spec(get200ResponseSpec()).
 				extract().response();
-
-		JsonPath j2 = Rp2.jsonPath();
-		String versionKey = j2.get("result.versionKey");
+		JsonPath jP2 = R2.jsonPath();
+		String versionKey = jP2.get("result.content.versionKey");
 
 		// Update Content
 		setURI();
 		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateATContentBody).with()
 				.contentType("application/json").then().patch("/content/v3/update/" + nodeId);
-		//then().
-		//log().all().
-		//spec(get200ResponseSpec());
 
 		// Get and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
+		Response R3 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId + "?mode=edit").then().
-				//log().all().
 				spec(get200ResponseSpec()).extract().response();
 
-		JsonPath jP2 = R2.jsonPath();
-		String identifier = jP2.get("result.content.identifier");
-		Assert.assertFalse(identifier.contains(".img"));
+		JsonPath jP3 = R3.jsonPath();
+		String identifier = jP3.get("result.content.identifier");
+		String status=jP3.get("result.content.status");
+		Assert.assertEquals(nodeId, identifier);
+		Assert.assertEquals("Draft", status);
 	}
 
 	// Get image content with fields 
@@ -363,8 +365,8 @@ public class ContentAPITests extends BaseTest {
 	@Test
 	public void searchContentListEmptySearchExpect200() {
 		setURI();
-		given().spec(getRequestSpec(contentType, validuserId)).body(jsonGetContentListEmptySearch).with()
-				.contentType("application/json").when().post("content/search").then().log().all()
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonGetContentListEmptySearch).with()
+				.contentType("application/json").when().post("content/v3/search").then().log().all()
 				.spec(get200ResponseSpec());
 
 	}

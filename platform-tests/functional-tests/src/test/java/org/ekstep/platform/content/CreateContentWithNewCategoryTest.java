@@ -94,7 +94,7 @@ public class CreateContentWithNewCategoryTest extends BaseTest {
 					when().
 					post("/learning/v2/content").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();

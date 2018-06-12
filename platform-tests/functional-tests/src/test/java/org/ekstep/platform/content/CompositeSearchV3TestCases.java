@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.greaterThan;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONObject;
@@ -23,7 +24,7 @@ public class CompositeSearchV3TestCases extends BaseTest {
 	int rn = generateRandomInt(2000, 2500000);
 
 	String jsonSimpleSearchQuery = "{\"request\": {\"filters\":{},\"query\": \"add\",\"limit\": 10}}";
-	String jsonFilteredCompositeSearch = "{\"request\": {\"filters\": {\"objectType\": [\"content\", \"concept\"], \"identifier\":[\"identifierNew\"]},\"limit\": 10}}"; 
+	String jsonFilteredCompositeSearch = "{\"request\": {\"filters\": {\"objectType\": [\"Content\", \"Concept\"], \"identifier\":[\"identifierNew\"]},\"limit\": 10}}"; 
 	String jsonSearchWithFilter = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]}}}";
 	String jsonSearchQueryAndFilter = "{\"request\":{\"query\":\"lion\",\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]}}}";
 	String jsonSearchLogicalReq = "{\"request\":{\"filters\":{\"objectType\":[\"Word\"],\"graph_id\":[\"hi\"],\"orthographic_complexity\":{\"<=\":2,\">\":0.5},\"syllableCount\":{\">\":2,\"<=\":5}}}}";
@@ -33,47 +34,47 @@ public class CompositeSearchV3TestCases extends BaseTest {
 	String jsonSearchWithSortByAsc = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]},\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"],\"sort_by\":{\"name\":\"asc\"}}}";
 	String jsonSearchWithSortByDsc = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]},\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"],\"sort_by\":{\"name\":\"desc\"}}}";
 	
-	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String invalidContentId = "TestQa_"+rn+"";
 	String jsonCreateValidWord = "{\"request\":{\"words\":[{\"lemma\":\"देख_ी_"+rn+"\",\"sampleUsages\":[\"महिला एक बाघ को देखीै\"],\"pronunciations\":[\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/language_assets/dekhi.mp3\"],\"pictures\":[\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/language_assets/seeing.png\"],\"phonologic_complexity\":13.25,\"orthographic_complexity\":0.7}]}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_NFT_\"}}";
 	
 	String reqBodyWithSoftConstraints = "{\"request\":{\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"],\"mode\":\"soft\",\"query\":\"hindi\",\"limit\":100,\"filters\":{\"gradeLevel\":[\"Grade 1\"],\"medium\":[\"English\"],\"status\":[\"Live\"],\"objectType\":[\"Content\"],\"contentType\":[\"Story\",\"Worksheet\",\"Collection\",\"Game\",\"TextBook\"],\"ageGroup\":[\"<5\",\"5-6\"],\"board\":[\"NCERT\"],\"compatibilityLevel\":{\"max\":3,\"min\":1}}}}";
 	
-	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
+	static ClassLoader classLoader = CompositeSearchV3TestCases.class.getClassLoader();
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
-
+	
 	// Create and search content
-	@Ignore
 	@Test
-	public void createAndSearchExpectSuccess200() throws InterruptedException{
-		//contentCleanUp();
+	public void createAndSearchExpectSuccess200() {
+		
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		setURI();
 		Response R =
 				given().
 				spec(getRequestSpecification(contentType, userId, APIToken)).
-				body(jsonCreateValidContent).
+				body(createValidContent).
 				with().
 				contentType(JSON).
 				when().
 				post("/content/v3/create").
 				then().
-				////log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
-		String ecmlNode = jp.get("result.node_id");	
+		String nodeId = jp.get("result.node_id");	
 		
 		// Upload Content
 		setURI();
 		given().
 		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
-		multiPart(new File(path+"/uploadContent.zip")).
+		multiPart(new File(path+"/pdf.pdf")).
 		when().
-		post("/content/v3/upload/"+ecmlNode).
+		post("/content/v3/upload/"+nodeId).
 		then().
 		//log().all().
 		spec(get200ResponseSpec());
@@ -85,33 +86,36 @@ public class CompositeSearchV3TestCases extends BaseTest {
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 		when().
-		post("/content/v3/publish/"+ecmlNode).
+		post("/content/v3/publish/"+nodeId).
 		then().
 		//log().all().
 		spec(get200ResponseSpec());
 		
 		// Searching with query
-		try{Thread.sleep(10000);}catch(InterruptedException e){System.out.println(e);} 
+		delay(5000); 
 		setURI();
-		String jsonSimpleQuery = jsonFilteredCompositeSearch.replace("identifierNew", ecmlNode);
+		String  queryCompositeSearch = "{\"request\": {\"filters\": {\"objectType\": [\"Content\"], \"identifier\":[\""+nodeId+"\"]},\"limit\": 10}}";
+		
 		Response R2 =
-		given().
+			given().
 	 		spec(getRequestSpecification(contentType, userId, APIToken)).
-	 		body(jsonSimpleQuery).
-		with().
+	 		body(queryCompositeSearch).
+	 		with().
 		 	contentType(JSON).
-		when().
+		 	when().
 		 	post("/composite/v3/search").
-		then().
+		 	then().
 		 	//log().all().
 		 	spec(get200ResponseSpec()).
-		 extract().
+		 	extract().
 		 	response();
 		
 		// Extracting the JSON path and validate the result
 		JsonPath jp2 = R2.jsonPath();
-		ArrayList<String> name = jp2.get("result.content.name");
-		Assert.assertTrue(name.contains(ecmlNode));
+		ArrayList<Map<String,Object>> data = jp2.get("result.content");
+		Map<String,Object> map=data.get(0);
+		String name=(String) map.get("name");
+		Assert.assertTrue(name.contains(nodeId));
 		}
 		
 	@Test
