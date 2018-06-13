@@ -3,6 +3,7 @@
  */
 package org.ekstep.platform.runner;
 
+import org.ekstep.platform.content.AssesmentItemAPITest;
 import org.ekstep.platform.content.ChannelWorkflowTests;
 import org.ekstep.platform.content.CollectionTestCases;
 import org.ekstep.platform.content.CompositeSearchSoftConstraintTests;
@@ -23,6 +24,7 @@ import org.ekstep.platform.content.CreateContentWithNewCategoryTest;
 import org.ekstep.platform.content.EnrichmentConsumerTests;
 import org.ekstep.platform.content.H5PContentWorkflowTest;
 import org.ekstep.platform.content.ImageAssetResolutionTests;
+import org.ekstep.platform.content.ItemSetAPITests;
 import org.ekstep.platform.content.MimeTypeMgrTests;
 import org.ekstep.platform.content.ObjectChannelIdAppIdConsumerIdTest;
 import org.ekstep.platform.content.TagWorkflowTests;
@@ -38,7 +40,7 @@ import org.junit.runners.Suite;
  *
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ChannelWorkflowTests.class,  CollectionTestCases.class,  CompositeSearchSoftConstraintTests.class, CompositeSearchTests.class, CompositeSearchV3TestCases.class, ContentAPITests.class, ContentBundleFunctionalTestCases.class, ContentBundleV3TestCases.class, ContentFlaggingTests.class, ContentPublishV3Test.class, ContentPublishV3TestCases.class, ContentPublishWorkflowTests.class, ContentRejectV3Test.class, ContentSuggestionTests.class, ContentUploadTest.class, CopyContentV3APITests.class, CreateContentWithNewCategoryTest.class, EnrichmentConsumerTests.class, H5PContentWorkflowTest.class, hierarchyAPITests.class, ImageAssetResolutionTests.class, MimeTypeMgrTests.class, ObjectChannelIdAppIdConsumerIdTest.class, TagWorkflowTests.class, UnlistedPublishTestCases.class, UpdateHierarchyTest.class, YoutubeLicenseValidationTest.class})
+@Suite.SuiteClasses({ChannelWorkflowTests.class,  CollectionTestCases.class,  CompositeSearchSoftConstraintTests.class, CompositeSearchTests.class, CompositeSearchV3TestCases.class, ContentAPITests.class, ContentBundleFunctionalTestCases.class, ContentBundleV3TestCases.class, ContentFlaggingTests.class, ContentPublishV3Test.class, ContentPublishV3TestCases.class, ContentPublishWorkflowTests.class, ContentRejectV3Test.class, ContentSuggestionTests.class, ContentUploadTest.class, CopyContentV3APITests.class, CreateContentWithNewCategoryTest.class, EnrichmentConsumerTests.class, H5PContentWorkflowTest.class, hierarchyAPITests.class, ImageAssetResolutionTests.class, MimeTypeMgrTests.class, ObjectChannelIdAppIdConsumerIdTest.class, TagWorkflowTests.class, UnlistedPublishTestCases.class, UpdateHierarchyTest.class, YoutubeLicenseValidationTest.class, AssesmentItemAPITest.class, ItemSetAPITests.class})
 public class ContentRunner {
 
 }
