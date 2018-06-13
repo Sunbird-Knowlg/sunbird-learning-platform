@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-
+//@Ignore
 public class CopyContentV3APITests extends BaseTest{
 
 

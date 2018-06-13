@@ -173,7 +173,7 @@ public class ContentAPITests extends BaseTest {
 	public void getImageContentVaidExpectSuccess200() {
 		setURI();
 		Response R1 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body(jsonCreateValidContent).with().contentType(JSON).when().post("content/v3/create").then().
+				.body(jsonCreateValidContent).with().contentType(JSON).when().post("content/v3/create").then().log().all().
 				extract().response();
 
 		// Extracting the JSON path
@@ -197,7 +197,7 @@ public class ContentAPITests extends BaseTest {
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
 				.get("/content/v3/read/" + nodeId).then().
-				//log().all().
+				log().all().
 				extract().response();
 		JsonPath jP2 = R2.jsonPath();
 		String versionKey = jP2.get("result.content.versionKey");
