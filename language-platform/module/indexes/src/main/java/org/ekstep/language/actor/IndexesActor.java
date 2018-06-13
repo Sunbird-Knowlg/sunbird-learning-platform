@@ -53,8 +53,6 @@ public class IndexesActor extends LanguageBaseActor {
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 
-	private static final String ES_TYPE = "default";
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -209,12 +207,12 @@ public class IndexesActor extends LanguageBaseActor {
 		String wordInfoIndexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + languageId;
 
 		try {
-			if (ElasticSearchUtil.isIndexExists(citationIndexName, ES_TYPE))
-				ElasticSearchUtil.deleteIndex(citationIndexName, ES_TYPE);
-			if (ElasticSearchUtil.isIndexExists(wordIndexName, ES_TYPE))
-				ElasticSearchUtil.deleteIndex(wordIndexName, ES_TYPE);
-			if (ElasticSearchUtil.isIndexExists(wordInfoIndexName, ES_TYPE))
-				ElasticSearchUtil.deleteIndex(wordInfoIndexName, ES_TYPE);
+			if (ElasticSearchUtil.isIndexExists(citationIndexName))
+				ElasticSearchUtil.deleteIndex(citationIndexName);
+			if (ElasticSearchUtil.isIndexExists(wordIndexName))
+				ElasticSearchUtil.deleteIndex(wordIndexName);
+			if (ElasticSearchUtil.isIndexExists(wordInfoIndexName))
+				ElasticSearchUtil.deleteIndex(wordInfoIndexName);
 		} catch (Exception e) {
 			TelemetryManager.error("IndexesActor, dropIndex | Exception: " + e.getMessage(), e);
 		}
@@ -266,7 +264,7 @@ public class IndexesActor extends LanguageBaseActor {
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, rootWords);
 		List<Object> wordIndexes = ElasticSearchUtil.textSearch(WordIndexBean.class, searchCriteria, indexName,
-				Constants.WORD_INDEX_TYPE, ES_TYPE, limit);
+				Constants.WORD_INDEX_TYPE, limit);
 		Map<String, ArrayList<String>> variantsMap = new HashMap<String, ArrayList<String>>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
@@ -297,7 +295,7 @@ public class IndexesActor extends LanguageBaseActor {
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		List<Object> words = ElasticSearchUtil.wildCardSearch(WordIndexBean.class, textKeyWord, wordWildCard, indexName,
-				Constants.WORD_INDEX_TYPE, ES_TYPE, limit);
+				Constants.WORD_INDEX_TYPE, limit);
 		OK(LanguageParams.words.name(), words, getSender());
 	}
 
@@ -343,7 +341,6 @@ public class IndexesActor extends LanguageBaseActor {
 	 * @throws Exception
 	 */
 	private void getWordMetrics(String languageId) throws Exception {
-		ElasticSearchUtil util = new ElasticSearchUtil();
 		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + languageId;
 		String distinctKey = "rootWord";
 
@@ -369,7 +366,7 @@ public class IndexesActor extends LanguageBaseActor {
 		groupByList.add(grade);
 
 		Map<String, Object> wordMetrics = (Map<String, Object>) ElasticSearchUtil.getDistinctCountOfSearch(null,
-				citationIndexName, Constants.CITATION_INDEX_TYPE, groupByList, ES_TYPE);
+				citationIndexName, Constants.CITATION_INDEX_TYPE, groupByList);
 		OK(LanguageParams.word_metrics.name(), wordMetrics, getSender());
 
 	}
@@ -391,7 +388,6 @@ public class IndexesActor extends LanguageBaseActor {
 	private void addWordIndex(List<Map<String, String>> words, String languageId)
 			throws JsonGenerationException, JsonMappingException, Exception {
 		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
-		ElasticSearchUtil util = new ElasticSearchUtil();
 		WordUtil wordUtil = new WordUtil();
 		Map<String, Object> wordIndexes = new HashMap<String, Object>();
 		for (Map<String, String> wordMap : words) {
@@ -404,7 +400,7 @@ public class IndexesActor extends LanguageBaseActor {
 			wordIndexes.put(word, wordUtil.getWordIndex(word, rootWord, id, new ObjectMapper()));
 		}
 
-		ElasticSearchUtil.bulkIndexWithIndexId(wordIndexName, Constants.WORD_INDEX_TYPE, wordIndexes, ES_TYPE);
+		ElasticSearchUtil.bulkIndexWithIndexId(wordIndexName, Constants.WORD_INDEX_TYPE, wordIndexes);
 		OK(getSender());
 	}
 
@@ -445,7 +441,7 @@ public class IndexesActor extends LanguageBaseActor {
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, words);
 		List<Object> wordIndexes = ElasticSearchUtil.textSearch(WordIndexBean.class, searchCriteria, indexName,
-				Constants.WORD_INDEX_TYPE, ES_TYPE, limit);
+				Constants.WORD_INDEX_TYPE, limit);
 		Map<String, Object> rootWordsMap = new HashMap<String, Object>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
@@ -475,7 +471,7 @@ public class IndexesActor extends LanguageBaseActor {
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, words);
 		List<Object> wordInfoIndexes = ElasticSearchUtil.textSearch(WordInfoBean.class, searchCriteria, indexName,
-				Constants.WORD_INFO_INDEX_TYPE, ES_TYPE, limit);
+				Constants.WORD_INFO_INDEX_TYPE, limit);
 		Map<String, ArrayList<Map<String, Object>>> rootWordsMap = new HashMap<String, ArrayList<Map<String, Object>>>();
 		for (Object wordIndexTemp : wordInfoIndexes) {
 			Map<String, Object> wordInfo = mapper.convertValue(wordIndexTemp, Map.class);
@@ -510,7 +506,7 @@ public class IndexesActor extends LanguageBaseActor {
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, words);
 		List<Object> wordInfoIndexes = ElasticSearchUtil.textSearch(WordInfoBean.class, searchCriteria, indexName,
-				Constants.WORD_INFO_INDEX_TYPE, ES_TYPE, limit);
+				Constants.WORD_INFO_INDEX_TYPE, limit);
 		Map<String, Object> wordsMap = new HashMap<String, Object>();
 		for (Object wordIndexTemp : wordInfoIndexes) {
 			Map<String, Object> infoMap = mapper.convertValue(wordIndexTemp, Map.class);
@@ -539,7 +535,7 @@ public class IndexesActor extends LanguageBaseActor {
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, words);
 		List<Object> wordIndexes = ElasticSearchUtil.textSearch(WordIndexBean.class, searchCriteria, indexName,
-				Constants.WORD_INDEX_TYPE, ES_TYPE, limit);
+				Constants.WORD_INDEX_TYPE, limit);
 		Map<String, Object> wordIdsMap = new HashMap<String, Object>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
@@ -574,9 +570,9 @@ public class IndexesActor extends LanguageBaseActor {
 		searchCriteria.put(textKeyWord, words);
 		// ************
 		Map<String, Object> countMap = ElasticSearchUtil.getCountOfSearch(null, searchCriteria, citationIndexName,
-				Constants.CITATION_INDEX_TYPE, groupByFinalList, ES_TYPE, limit);
+				Constants.CITATION_INDEX_TYPE, groupByFinalList, limit);
 		List<Object> wordIndexes = ElasticSearchUtil.textSearch(WordIndexBean.class, searchCriteria, wordIndexName,
-				Constants.WORD_INDEX_TYPE, ES_TYPE, limit);
+				Constants.WORD_INDEX_TYPE, limit);
 		Map<String, Object> wordIdsMap = new HashMap<String, Object>();
 		Map<String, Object> citiationCountsByWord = (Map<String, Object>) countMap.get("word");
 		for (Object wordIndexTemp : wordIndexes) {
@@ -607,13 +603,12 @@ public class IndexesActor extends LanguageBaseActor {
 	private void getCitationsCount(List<String> words, String languageId, List<Map<String, Object>> groupByList)
 			throws Exception {
 
-		ElasticSearchUtil util = new ElasticSearchUtil();
 		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, words);
 		Map<String, Object> wordMap = (Map<String, Object>) ElasticSearchUtil.getCountOfSearch(CitationBean.class, searchCriteria,
-						citationIndexName, Constants.CITATION_INDEX_TYPE, groupByList, ES_TYPE, 0)
+						citationIndexName, Constants.CITATION_INDEX_TYPE, groupByList, 0)
 				.get(LanguageParams.word.name());
 		OK(LanguageParams.citation_count.name(), wordMap, getSender());
 	}
@@ -671,7 +666,7 @@ public class IndexesActor extends LanguageBaseActor {
 		searchCriteria.put("word", words);
 		searchCriteria.put("rootWord", words);
 		List<Object> citations = ElasticSearchUtil.textFiltersSearch(CitationBean.class, searchCriteria, textFiltersMap,
-				indexName, Constants.CITATION_INDEX_TYPE, ES_TYPE, limit);
+				indexName, Constants.CITATION_INDEX_TYPE, limit);
 		Map<String, ArrayList<CitationBean>> citationsList = new HashMap<String, ArrayList<CitationBean>>();
 		for (Object citationObj : citations) {
 			CitationBean citationBean = (CitationBean) citationObj;

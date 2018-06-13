@@ -32,11 +32,7 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 public class AuditHistoryIndexerService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerService.class);
-
 	private ObjectMapper mapper = new ObjectMapper();
-
-	private static final String ES_TYPE = "audit";
-
 	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	
 	/** The constructor */
@@ -47,12 +43,13 @@ public class AuditHistoryIndexerService implements ISamzaService {
 
 	public void initialize(Config config) throws Exception {
 		JSONUtils.loadProperties(config);
-		ElasticSearchUtil.registerESClient(ES_TYPE, Platform.config.getString("search.es_conn_info"));
+		ElasticSearchUtil.initialiseESClient(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
+				Platform.config.getString("search.es_conn_info"));
 		// Create index if not found
 		String settings = "{\"max_ngram_diff\":\"29\",\"analysis\":{\"analyzer\":{\"ah_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"ah_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":30,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
 		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"ah_index_analyzer\",\"search_analyzer\":\"ah_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":true,\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"ah_index_analyzer\",\"search_analyzer\":\"ah_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":true,\"analyzer\":\"keylower\"}}}}}";
 		ElasticSearchUtil.addIndex(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
-				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, settings, mappings, ES_TYPE);
+				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, settings, mappings);
 		LOGGER.info(AuditHistoryConstants.AUDIT_HISTORY_INDEX + " created");
 	}
 
@@ -72,7 +69,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				String document = mapper.writeValueAsString(entity_map);
 				LOGGER.debug("Saving the record into ES");
 				ElasticSearchUtil.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
-						AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document, ES_TYPE);
+						AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
 				LOGGER.error("Error while processing message", message, ex);

@@ -87,7 +87,7 @@ public class FrameworkHierarchy extends BaseManager {
 		frameworkDocument.put("nodeType", node.getNodeType());
 		ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, node.getIdentifier(),
-				mapper.writeValueAsString(frameworkDocument), "default");
+				mapper.writeValueAsString(frameworkDocument));
 	}
 
 	@SuppressWarnings("unchecked")

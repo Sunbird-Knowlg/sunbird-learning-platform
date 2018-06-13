@@ -36,14 +36,13 @@ public class AuditHistoryEsDao {
 
 	private String connectionInfo = "localhost:9300";
 
-	private String type = "audit";
 
 	@PostConstruct
 	public void init() {
 		connectionInfo = Platform.config.hasPath("audit.es_conn_info") ? Platform.config.getString("audit.es_conn_info")
 				: connectionInfo;
-		ElasticSearchUtil.registerESClient(type, connectionInfo);
-		processor = new SearchProcessor(type);
+		ElasticSearchUtil.initialiseESClient(AuditHistoryConstants.AUDIT_HISTORY_INDEX, connectionInfo);
+		processor = new SearchProcessor(AuditHistoryConstants.AUDIT_HISTORY_INDEX);
 	}
 	
 	public void save(Map<String, Object> entity_map) throws IOException {
@@ -69,7 +68,7 @@ public class AuditHistoryEsDao {
 		String mappings = "{\"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"ah_index_analyzer\",            \"search_analyzer\": \"ah_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"ah_index_analyzer\",        \"search_analyzer\": \"ah_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }";
 		TelemetryManager.log("Creating Audit History Index : " + AuditHistoryConstants.AUDIT_HISTORY_INDEX);
 		ElasticSearchUtil.addIndex(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
-				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, settings, mappings, type);
+				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, settings, mappings);
 	}
 
 	public void addDocument(Map<String, Object> request) throws IOException {
@@ -81,7 +80,7 @@ public class AuditHistoryEsDao {
 		}
 		if(StringUtils.isNotBlank(document)){
 			ElasticSearchUtil.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
-					AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document, type);
+					AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);
 			TelemetryManager.log("Adding document to Audit History Index : " + document);
 		}
 	}
@@ -89,7 +88,7 @@ public class AuditHistoryEsDao {
 	public void delete(QueryBuilder query) throws IOException {
 		TelemetryManager.log("deleting Audit History Index : " + AuditHistoryConstants.AUDIT_HISTORY_INDEX);
 		ElasticSearchUtil.deleteDocumentsByQuery(query, AuditHistoryConstants.AUDIT_HISTORY_INDEX,
-				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, type);
+				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE);
 		TelemetryManager.log("Documents deleted from Audit History Index");
 	}
 	

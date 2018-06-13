@@ -20,11 +20,10 @@ import akka.actor.ActorRef;
 
 public class HealthCheckManager extends SearchBaseActor {
 	
-	private String type = "default";
-
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
-		ElasticSearchUtil.registerESClient(type, Platform.config.getString("search.es_conn_info"));
+		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				Platform.config.getString("search.es_conn_info"));
 		String operation = request.getOperation();
 		if (StringUtils.equalsIgnoreCase(SearchOperations.HEALTH.name(), operation)) {
 			Response response = checkIndexExists();
@@ -46,7 +45,7 @@ public class HealthCheckManager extends SearchBaseActor {
 		Response response = new Response();
 		boolean index = false;
 		try {
-			index = ElasticSearchUtil.isIndexExists(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, type);
+			index = ElasticSearchUtil.isIndexExists(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 			if (index == true) {
 				checks.add(getResponseData(response, true, "", ""));
 			} else {

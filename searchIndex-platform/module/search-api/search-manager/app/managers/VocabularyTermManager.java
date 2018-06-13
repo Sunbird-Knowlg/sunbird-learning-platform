@@ -45,21 +45,20 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 
 	private static final String SETTING = "{\"analysis\":{\"analyzer\":{\"vt_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"vt_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"edge_ngram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
 	private static final String MAPPING = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"string\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"vt_index_analyzer\",\"search_analyzer\":\"vt_search_analyzer\"}}}";
-	private ElasticSearchUtil esUtil = null;
 	private SearchProcessor processor = null;
 
 	private DetectLanguage detectlanguage = null;
 
 	private static final int DEFAULT_LIMIT = 50;
-	private static final String ES_TYPE = "default";
 
 	/**
 	 * @throws IOException
 	 * 
 	 */
 	public VocabularyTermManager() {
-		processor = new SearchProcessor();
-		ElasticSearchUtil.registerESClient(ES_TYPE, Platform.config.getString("search.es_conn_info"));
+		processor = new SearchProcessor(Constants.VOCABULARY_TERM_INDEX);
+		ElasticSearchUtil.initialiseESClient(Constants.VOCABULARY_TERM_INDEX,
+				Platform.config.getString("search.es_conn_info"));
 		detectlanguage = new DetectLanguage();
 		createIndex();
 
@@ -68,7 +67,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	private void createIndex() {
 		try {
 			ElasticSearchUtil.addIndex(Constants.VOCABULARY_TERM_INDEX, Constants.VOCABULARY_TERM_INDEX_TYPE, SETTING,
-					MAPPING, ES_TYPE);
+					MAPPING);
 		} catch (IOException e) {
 			TelemetryManager
 					.error("VocabularyTermManager : Error while adding index to elasticsearch : " + e.getMessage(), e);
@@ -246,7 +245,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 */
 	private void addDocument(String id, String jsonIndexDocument) throws IOException {
 		ElasticSearchUtil.addDocumentWithId(Constants.VOCABULARY_TERM_INDEX, Constants.VOCABULARY_TERM_INDEX_TYPE, id,
-				jsonIndexDocument, ES_TYPE);
+				jsonIndexDocument);
 	}
 
 	/**

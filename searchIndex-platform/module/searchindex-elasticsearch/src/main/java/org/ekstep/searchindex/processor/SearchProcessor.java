@@ -42,14 +42,15 @@ public class SearchProcessor {
 	private static final String ASC_ORDER = "asc";
 	private static final String AND = "AND";
 	private boolean relevanceSort = false;
-	private String type = "default";
+	private String indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 
 	public SearchProcessor() {
-		ElasticSearchUtil.registerESClient(type, Platform.config.getString("search.es_conn_info"));
+		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				Platform.config.getString("search.es_conn_info"));
 	}
-
-	public SearchProcessor(String type) {
-		this.type = type;
+	
+	public SearchProcessor(String indexName) {
+		this.indexName = indexName;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -106,7 +107,7 @@ public class SearchProcessor {
 		if (synsetIds != null && synsetIds.size() > 0) {
 			List<String> resultList = ElasticSearchUtil.getMultiDocumentAsStringByIdList(
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds, type);
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
 			for (String synsetDoc : resultList) {
 				Map<String, Object> wordTranslationList = new HashMap<String, Object>();
 				Map<String, Object> indexDocument = new HashMap<String, Object>();
@@ -122,7 +123,7 @@ public class SearchProcessor {
 						if (wordIdList != null && wordIdList.size() > 0) {
 							List<String> wordResultList = ElasticSearchUtil.getMultiDocumentAsStringByIdList(
 									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, wordIdList, type);
+									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, wordIdList);
 							for (String wordDoc : wordResultList) {
 								List<Map> synsetWordLangList = new ArrayList<Map>();
 								Map<String, Object> indexWordDocument = new HashMap<String, Object>();
@@ -169,7 +170,7 @@ public class SearchProcessor {
 		if (synsetIds != null && synsetIds.size() > 0) {
 			List<String> resultList = ElasticSearchUtil.getMultiDocumentAsStringByIdList(
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds, type);
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
 			for (String synsetDoc : resultList) {
 				Map<String, Object> indexDocument = new HashMap<String, Object>();
 				if (synsetDoc != null && !synsetDoc.isEmpty()) {
@@ -201,7 +202,7 @@ public class SearchProcessor {
 	private SearchRequestBuilder processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList,
 			boolean sortBy) {
 
-		SearchRequestBuilder searchRequestBuilder = ElasticSearchUtil.getSearchRequestBuilder(type);
+		SearchRequestBuilder searchRequestBuilder = ElasticSearchUtil.getSearchRequestBuilder(indexName);
 		List<String> fields = searchDTO.getFields();
 		if (null != fields && !fields.isEmpty()) {
 			fields.add(GraphDACParams.objectType.name());

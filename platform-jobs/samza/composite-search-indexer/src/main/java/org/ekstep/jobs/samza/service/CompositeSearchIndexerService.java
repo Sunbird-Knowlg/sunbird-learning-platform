@@ -6,7 +6,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -16,15 +15,12 @@ import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerService.class);
-
-	private ElasticSearchUtil esUtil = null;
 
 	private CompositeSearchIndexer csIndexer = null;
 
@@ -36,7 +32,6 @@ public class CompositeSearchIndexerService implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
-		ElasticSearchUtil.registerESClient("default", Platform.config.getString("search.es_conn_info"));
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));

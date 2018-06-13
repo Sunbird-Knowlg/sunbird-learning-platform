@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -17,17 +18,22 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
  * @author pradyumna
  *
  */
-public class DialCodeIndexer {
+public class DialCodeIndexer extends AbstractESIndexer {
 
 	private JobLogger LOGGER = new JobLogger(DialCodeIndexer.class);
 	private ObjectMapper mapper = new ObjectMapper();
-	private static final String ES_TYPE = "default";
+
+	@Override
+	protected void init() {
+		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.DIAL_CODE_INDEX,
+				Platform.config.getString("search.es_conn_info"));
+	}
 
 	public void createDialCodeIndex() throws IOException {
 		String settings = "{\"max_ngram_diff\":\"29\",\"analysis\":{\"analyzer\":{\"dc_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"dc_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":30,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
 		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"dc_index_analyzer\",\"search_analyzer\":\"dc_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":true,\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"dc_index_analyzer\",\"search_analyzer\":\"dc_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":true,\"analyzer\":\"keylower\"}}}}}";
 		ElasticSearchUtil.addIndex(CompositeSearchConstants.DIAL_CODE_INDEX,
-				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings, ES_TYPE);
+				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, settings, mappings);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -37,7 +43,7 @@ public class DialCodeIndexer {
 		String uniqueId = (String) message.get("nodeUniqueId");
 		if (updateRequest) {
 			String documentJson = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.DIAL_CODE_INDEX,
-					CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, uniqueId, ES_TYPE);
+					CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, uniqueId);
 			if (documentJson != null && !documentJson.isEmpty()) {
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 				});
@@ -70,7 +76,7 @@ public class DialCodeIndexer {
 
 	private void upsertDocument(String uniqueId, String jsonIndexDocument) throws Exception {
 		ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.DIAL_CODE_INDEX,
-				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, uniqueId, jsonIndexDocument, ES_TYPE);
+				CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 
 	public void upsertDocument(String uniqueId, Map<String, Object> message) throws Exception {
@@ -91,7 +97,7 @@ public class DialCodeIndexer {
 		}
 		case CompositeSearchConstants.OPERATION_DELETE: {
 			ElasticSearchUtil.deleteDocument(CompositeSearchConstants.DIAL_CODE_INDEX,
-					CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, uniqueId, ES_TYPE);
+					CompositeSearchConstants.DIAL_CODE_INDEX_TYPE, uniqueId);
 			break;
 		}
 		}
