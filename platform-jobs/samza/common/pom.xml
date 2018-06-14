@@ -6,12 +6,6 @@
 		<artifactId>samza</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<samza.version>0.12.0</samza.version>
-		<scala.version>2.11</scala.version>
-		<hadoop.version>2.6.2</hadoop.version>
-	</properties>
 	<artifactId>samza-common</artifactId>
 	<dependencies>
 		<dependency>
@@ -48,7 +42,7 @@
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka_${scala.version}</artifactId>
-			<version>0.10.0.1</version>
+			<version>0.10.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
