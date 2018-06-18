@@ -32,6 +32,9 @@ import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
+import akka.dispatch.OnSuccess;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
 
 public class SearchManager extends SearchBaseActor {
 
@@ -43,14 +46,18 @@ public class SearchManager extends SearchBaseActor {
 		try {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
 				SearchDTO searchDTO = getSearchDTO(request);
-				Map<String, Object> lstResult = processor.processSearch(searchDTO, true);
-				String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
-				if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
-					Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
-					OK(result, parent);
-				} else {
-					OK(lstResult, parent);
-				}
+				Future<Map<String, Object>> searchResult = processor.processSearch(searchDTO, true);
+				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
+					public void onSuccess(Map<String, Object> lstResult) {
+						String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
+						if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
+							Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
+							OK(result, parent);
+						} else {
+							OK(lstResult, parent);
+						}
+					}
+				}, ExecutionContext.Implicits$.MODULE$.global());
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
@@ -62,8 +69,12 @@ public class SearchManager extends SearchBaseActor {
 				}
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
-				Map<String, Object> lstResult = processor.processSearch(getSearchDTO(request), false);
-				OK(getCompositeSearchResponse(lstResult), parent);
+				Future<Map<String, Object>> searchResult = processor.processSearch(getSearchDTO(request), false);
+				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
+					public void onSuccess(Map<String, Object> lstResult) {
+						OK(getCompositeSearchResponse(lstResult), parent);
+					}
+				}, ExecutionContext.Implicits$.MODULE$.global());
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(),
 					operation)) {
@@ -644,9 +655,14 @@ public class SearchManager extends SearchBaseActor {
 						getCollectionFields(getList(parentRequest.get(CompositeSearchParams.fields.name()))));
 				request.put(CompositeSearchParams.filters.name(), filters);
 				SearchDTO searchDTO = getSearchDTO(request);
-				Map<String, Object> collectionResult = processor.processSearch(searchDTO, true);
-				collectionResult = prepareCollectionResult(collectionResult, contentIds);
-				lstResult.putAll(collectionResult);
+				Future<Map<String, Object>> searchResult = processor.processSearch(searchDTO, true);
+				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
+					public void onSuccess(Map<String, Object> collectionResult) {
+						collectionResult = prepareCollectionResult(collectionResult, contentIds);
+						lstResult.putAll(collectionResult);
+					}
+				}, ExecutionContext.Implicits$.MODULE$.global());
+
 				return lstResult;
 			} catch (Exception e) {
 				TelemetryManager.error("Error while fetching the collection for the contents : ", e);
