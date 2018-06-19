@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
 import org.ekstep.framework.test.common.TestParams;
@@ -22,6 +23,8 @@ import org.junit.runners.MethodSorters;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import scala.concurrent.Await;
 
 /**
  * Unit Test Cases for Framework API.
@@ -140,7 +143,8 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 
 		exception.expect(ResourceNotFoundException.class);
 		String frameworkId = "test1234"; // Invalid framework id
-		Response response = frameworkManager.readFramework(frameworkId, Arrays.asList());
+		Response response = Await.result(frameworkManager.readFramework(frameworkId, Arrays.asList()),
+				RequestRouterPool.WAIT_TIMEOUT.duration());
 		String responseCode = (String) response.getResponseCode().toString();
 		int resCode = response.getResponseCode().code();
 		assertTrue(responseCode.equals("ERR_DATA_NOT_FOUND"));

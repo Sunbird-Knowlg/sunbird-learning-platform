@@ -33,7 +33,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.dispatch.OnSuccess;
-import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 
 public class SearchManager extends SearchBaseActor {
@@ -57,7 +56,7 @@ public class SearchManager extends SearchBaseActor {
 							OK(lstResult, parent);
 						}
 					}
-				}, ExecutionContext.Implicits$.MODULE$.global());
+				}, getContext().dispatcher());
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
@@ -74,7 +73,7 @@ public class SearchManager extends SearchBaseActor {
 					public void onSuccess(Map<String, Object> lstResult) {
 						OK(getCompositeSearchResponse(lstResult), parent);
 					}
-				}, ExecutionContext.Implicits$.MODULE$.global());
+				}, getContext().dispatcher());
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(),
 					operation)) {
@@ -661,7 +660,7 @@ public class SearchManager extends SearchBaseActor {
 						collectionResult = prepareCollectionResult(collectionResult, contentIds);
 						lstResult.putAll(collectionResult);
 					}
-				}, ExecutionContext.Implicits$.MODULE$.global());
+				}, getContext().dispatcher());
 
 				return lstResult;
 			} catch (Exception e) {

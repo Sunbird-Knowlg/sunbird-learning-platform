@@ -3,6 +3,7 @@ package org.ekstep.jobs.samza.test;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,11 +15,12 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.jobs.samza.service.CompositeSearchIndexerService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Test;
 
 public class CompositeSearchServiceTest extends BaseTest {
@@ -37,8 +39,7 @@ public class CompositeSearchServiceTest extends BaseTest {
 		Map<String,Object>	messageData = mapper.readValue(validMessage, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
-		props.put("elastic-search-host", "http://localhost");
-		props.put("elastic-search-port", "9200");
+		props.put("search.es_conn_info", "localhost:9200");
 		props.put("platform-api-url", "http://localhost:8080/learning-service");
 		props.put("ekstepPlatformApiUserId", "ilimi");
 		Config config = new MapConfig(props);
@@ -46,7 +47,7 @@ public class CompositeSearchServiceTest extends BaseTest {
 		JobMetrics metrics = mock(JobMetrics.class);
 		service.processMessage(messageData, metrics, collector);
 		Thread.sleep(2000);
-		Map<String,Object> map = findById("org.ekstep.jul03.story.test01", client);
+		Map<String, Object> map = findById("org.ekstep.jul03.story.test01");
 		assertEquals(true, null!=map);
 		assertEquals("literacy", map.get("subject"));
 	}
@@ -56,8 +57,7 @@ public class CompositeSearchServiceTest extends BaseTest {
 		Map<String,Object>	messageData = mapper.readValue(messageWithAddedRelations, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
-		props.put("elastic-search-host", "http://localhost");
-		props.put("elastic-search-port", "9200");
+		props.put("search.es_conn_info", "localhost:9200");
 		props.put("platform-api-url", "http://localhost:8080/learning-service");
 		props.put("ekstepPlatformApiUserId", "ilimi");
 		Config config = new MapConfig(props);
@@ -65,7 +65,7 @@ public class CompositeSearchServiceTest extends BaseTest {
 		JobMetrics metrics = mock(JobMetrics.class);
 		service.processMessage(messageData, metrics, collector);
 		Thread.sleep(2000);
-		Map<String,Object> map = findById("do_112276071067320320114", client);
+		Map<String, Object> map = findById("do_112276071067320320114");
 		assertEquals(true, null!=map);
 		assertEquals(true, map.containsKey("collections"));
 	}
@@ -75,8 +75,7 @@ public class CompositeSearchServiceTest extends BaseTest {
 		Map<String,Object>	messageData = mapper.readValue(messageWithRemovedRelations, new TypeReference<Map<String, Object>>() {
 		});
 	  	Map<String,String> props = new HashMap<String,String>();
-		props.put("elastic-search-host", "http://localhost");
-		props.put("elastic-search-port", "9200");
+		props.put("search.es_conn_info", "localhost:9200");
 		props.put("platform-api-url", "http://localhost:8080/learning-service");
 		props.put("ekstepPlatformApiUserId", "ilimi");
 		Config config = new MapConfig(props);
@@ -84,15 +83,14 @@ public class CompositeSearchServiceTest extends BaseTest {
 		JobMetrics metrics = mock(JobMetrics.class);
 		service.processMessage(messageData, metrics, collector);
 		Thread.sleep(2000);
-		Map<String,Object> map = findById("do_1123032073439723521148", client);
+		Map<String, Object> map = findById("do_1123032073439723521148");
 		assertEquals(true, null!=map);
 		assertEquals(false, map.containsKey("collections"));
 	}
 	
-	public Map<String, Object> findById(String identifier, Client client) {
-		SearchResponse response = client.prepareSearch(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX)
-				.setTypes(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE)
-				.setQuery(QueryBuilders.termQuery("_id", identifier)).execute().actionGet();
+	public Map<String, Object> findById(String identifier) throws IOException {
+		SearchResponse response = client.search(new SearchRequest(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX)
+				.source(new SearchSourceBuilder().query(QueryBuilders.termQuery("_id", identifier))));
 		SearchHits hits = response.getHits();
 		for (SearchHit hit : hits.getHits()) {
 			Map<String, Object> fields = hit.getSourceAsMap();

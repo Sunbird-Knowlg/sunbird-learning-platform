@@ -46,7 +46,6 @@ public class SearchProcessor {
 	private static final String ASC_ORDER = "asc";
 	private static final String AND = "AND";
 	private boolean relevanceSort = false;
-	private String indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 
 	public SearchProcessor() {
 		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -54,7 +53,6 @@ public class SearchProcessor {
 	}
 	
 	public SearchProcessor(String indexName) {
-		this.indexName = indexName;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
