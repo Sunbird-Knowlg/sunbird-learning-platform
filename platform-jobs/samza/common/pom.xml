@@ -29,20 +29,15 @@
 			<artifactId>samza-yarn_${scala.version}</artifactId>
 			<version>${samza.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.samza</groupId>
-			<artifactId>samza-kafka_${scala.version}</artifactId>
-			<version>${samza.version}</version>
+		<dependency> 
+			<groupId>org.apache.samza</groupId> 
+			<artifactId>samza-kafka_${scala.version}</artifactId> 
+			<version>${samza.version}</version> 
 		</dependency>
 		<dependency>
 			<groupId>org.apache.samza</groupId>
 			<artifactId>samza-log4j</artifactId>
 			<version>${samza.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_${scala.version}</artifactId>
-			<version>0.10.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
@@ -72,9 +67,9 @@
 			<version>${samza.version}</version>
 		</dependency>
 		<dependency>
-		    <groupId>com.typesafe</groupId>
-		    <artifactId>config</artifactId>
-		    <version>1.3.1</version>
+			<groupId>com.typesafe</groupId>
+			<artifactId>config</artifactId>
+			<version>1.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
