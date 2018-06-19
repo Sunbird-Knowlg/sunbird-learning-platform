@@ -13,11 +13,9 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.enums.ChannelEnum;
 import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 
@@ -30,30 +28,6 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	@PostConstruct
 	public void init() {
 		processor = new SearchProcessor();
-		
-		try {
-			List<Object> frameworks = getAllFrameworkList();
-			if (null != frameworks && !frameworks.isEmpty()) {
-				TelemetryManager.info("Total " + frameworks.size() + " frameworks fetched.");
-				for (Object entry : frameworks) {
-					Map<String, Object> framework = (Map<String, Object>) entry;
-					String id = (String) framework.get("identifier");
-					loadFrameworkCategoryCache(id);
-				}
-			}
-		} catch (Exception e) {
-			TelemetryManager.error("Error while fetching all frameworks for category cache.", e);
-		}
-	}
-	
-	private void loadFrameworkCategoryCache(String id) {
-		try {
-			Map<String, Object> hierarchy = getHierarchy(id, 0, false, true);
-			CategoryCache.setFramework(id, hierarchy);
-			TelemetryManager.info("Loaded framework to category cache with framework id: "+ id);
-		} catch (Exception e) {
-			TelemetryManager.error("Loading framework to category cache failed for framework id: "+ id, e);
-		}
 	}
 	
 	@Override
@@ -101,7 +75,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	public Response retireChannel(String channelId) {
 		return retire(channelId, CHANNEL_OBJECT_TYPE);
 	}
-	
+
 	private List<Object> getAllFrameworkList() throws Exception {
 		List<Object> searchResult = new ArrayList<Object>();
 		SearchDTO searchDto = new SearchDTO();

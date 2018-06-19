@@ -15,15 +15,12 @@ import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerService.class);
-
-	private ElasticSearchUtil esUtil = null;
 
 	private CompositeSearchIndexer csIndexer = null;
 
@@ -35,14 +32,13 @@ public class CompositeSearchIndexerService implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
-		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
-		csIndexer = new CompositeSearchIndexer(esUtil);
+		csIndexer = new CompositeSearchIndexer();
 		csIndexer.createCompositeSearchIndex();
 		LOGGER.info(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + " created");
-		dcIndexer = new DialCodeIndexer(esUtil);
+		dcIndexer = new DialCodeIndexer();
 		dcIndexer.createDialCodeIndex();
 		LOGGER.info(CompositeSearchConstants.DIAL_CODE_INDEX + " created");
 	}

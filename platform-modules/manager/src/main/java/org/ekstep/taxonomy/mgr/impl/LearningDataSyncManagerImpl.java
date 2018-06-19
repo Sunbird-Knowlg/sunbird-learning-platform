@@ -22,8 +22,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class LearningDataSyncManagerImpl extends CompositeIndexSyncManager implements ICompositeSearchManager {
 
-	private ElasticSearchUtil util = new ElasticSearchUtil();
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -43,7 +41,7 @@ public class LearningDataSyncManagerImpl extends CompositeIndexSyncManager imple
 			BoolQueryBuilder query = QueryBuilders.boolQuery();
 			query.must(QueryBuilders.matchQuery("objectType.raw", objectType));
 			query.must(QueryBuilders.matchQuery("graph_id.raw", graphId));
-			util.deleteDocumentsByQuery(query, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+			ElasticSearchUtil.deleteDocumentsByQuery(query, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
 		}
 	}
@@ -61,7 +59,6 @@ public class LearningDataSyncManagerImpl extends CompositeIndexSyncManager imple
 
 	@PreDestroy
 	public void shutdown() {
-		if (null != util)
-			util.finalize();
+		ElasticSearchUtil.cleanESClient();
 	}
 }
