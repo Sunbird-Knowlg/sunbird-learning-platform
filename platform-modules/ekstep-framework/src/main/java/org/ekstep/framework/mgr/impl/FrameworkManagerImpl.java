@@ -1,6 +1,5 @@
 package org.ekstep.framework.mgr.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +17,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
@@ -30,10 +30,7 @@ import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
 
-import akka.dispatch.ExecutionContexts;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import scala.concurrent.Future;
+import scala.concurrent.Await;
 
 /**
  * The Class <code>FrameworkManagerImpl</code> is the implementation of
@@ -48,12 +45,11 @@ import scala.concurrent.Future;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
-	private SearchProcessor processor = null;
+	private SearchProcessor processor = new SearchProcessor();
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@PostConstruct
 	public void init() {
-		processor = new SearchProcessor();
 	}
 
 	/*
@@ -102,63 +98,50 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	// TODO : Delete this method and uncomment above method
 	@SuppressWarnings("unchecked")
 	@Override
-	public Future<Response> readFramework(String frameworkId, List<String> returnCategories) throws Exception {
+	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
+		Response response = new Response();
 		if (Platform.config.hasPath("framework.es.sync")) {
 			if (Platform.config.getBoolean("framework.es.sync")) {
-				Future<List<Object>> searchResults = searchFramework(frameworkId);
-				return searchResults.map(new Mapper<List<Object>, Response>() {
-					public Response apply(List<Object> searchResult) {
-						Map<String, Object> responseMap = new HashMap<String, Object>();
-						Response response = new Response();
-						if (null != searchResult && !searchResult.isEmpty()) {
-							Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
-							responseMap = framework;
-							if (null != framework.get("fw_hierarchy")) {
-								Map<String, Object> hierarchy;
-								try {
-									hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"), Map.class);
-									if (null != hierarchy && !hierarchy.isEmpty()) {
-										List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
-												.get("categories");
-										if (categories != null) {
-											if (returnCategories != null && !returnCategories.isEmpty()) {
-												responseMap.put("categories",
-														categories.stream()
-																.filter(p -> returnCategories.contains(p.get("code")))
-																.collect(Collectors.toList()));
-											} else {
-												responseMap.put("categories", categories);
-											}
-										}
-									}
-									responseMap.remove("fw_hierarchy");
-									response.put(FrameworkEnum.framework.name(), responseMap);
-									response.setParams(getSucessStatus());
-								} catch (IOException e) {
-									e.printStackTrace();
+				Map<String, Object> responseMap = new HashMap<>();
+				List<Object> searchResult = searchFramework(frameworkId);
+				if (null != searchResult && !searchResult.isEmpty()) {
+					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
+					if (null != framework.get("fw_hierarchy")) {
+						Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
+								Map.class);
+						responseMap = framework;
+						if (null != hierarchy && !hierarchy.isEmpty()) {
+							List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
+									.get("categories");
+							if (categories != null) {
+								if (returnCategories != null && !returnCategories.isEmpty()) {
+									responseMap.put("categories",
+											categories.stream().filter(p -> returnCategories.contains(p.get("code")))
+													.collect(Collectors.toList()));
+								} else {
+									responseMap.put("categories", categories);
 								}
 							}
-							return response;
-						}
-						else {
-							throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND",
-									"Data not found with id : " + frameworkId);
 						}
 					}
-				}, ExecutionContexts.global());
-			}
-			else {
-				Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
-				return Futures.successful(response);
+				} else {
+					throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND",
+							"Data not found with id : " + frameworkId);
+				}
+				responseMap.remove("fw_hierarchy");
+				response.put(FrameworkEnum.framework.name(), responseMap);
+				response.setParams(getSucessStatus());
+			} else {
+				response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 			}
 		} else {
-			Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
-			return Futures.successful(response);
+			response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		}
+		return response;
 	}
 
 
-	private Future<List<Object>> searchFramework(String frameworkId) throws Exception {
+	private List<Object> searchFramework(String frameworkId) throws Exception {
 		SearchDTO searchDto = new SearchDTO();
 		searchDto.setFuzzySearch(false);
 
@@ -167,8 +150,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		searchDto.setFields(getFields());
 		searchDto.setLimit(1);
 
-		Future<List<Object>> searchResult = processor.processSearchQuery(searchDto, false,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false);
+		List<Object> searchResult = Await.result(
+				processor.processSearchQuery(searchDto, false, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false),
+				RequestRouterPool.WAIT_TIMEOUT.duration());
 
 		return searchResult;
 	}

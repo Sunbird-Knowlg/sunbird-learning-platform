@@ -7,7 +7,6 @@ import java.util.Map;
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 /**
  * Controller Class for Framework API in LP
@@ -73,8 +69,7 @@ public class FrameworkV3Controller extends BaseController {
 		String apiId = "ekstep.learning.framework.read";
 		try {
 			List<String> returnCategories = (categories == null) ? Arrays.asList() : Arrays.asList(categories);
-			Future<Response> respFuture = frameworkManager.readFramework(frameworkId, returnCategories);
-			Response response = Await.result(respFuture, RequestRouterPool.WAIT_TIMEOUT.duration());
+			Response response = frameworkManager.readFramework(frameworkId, returnCategories);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error(

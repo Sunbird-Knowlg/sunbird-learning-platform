@@ -6,8 +6,6 @@ import java.util.Map;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
 
-import scala.concurrent.Future;
-
 /**
  * The Interface IFrameworkManager is the Contract for the operations that can be
  * perform on Framework Node in the Graph. Including all Low (CRUD) Level and
@@ -22,7 +20,7 @@ public interface IFrameworkManager {
 
 	Response createFramework(Map<String, Object> map, String channelId) throws Exception;
 	
-	Future<Response> readFramework(String frameworkId, List<String> categories) throws Exception;
+	Response readFramework(String frameworkId, List<String> categories) throws Exception;
 	
 	Response updateFramework(String frameworkId,String channelId, Map<String, Object> map) throws Exception;
 	
