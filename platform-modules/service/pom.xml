@@ -8,7 +8,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>learning-service</artifactId>
-    <packaging>war</packaging>
+	<packaging>war</packaging>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -77,6 +77,11 @@
 			<version>1.0-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.17</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -88,8 +93,8 @@
 					<version>2.2</version>
 					<configuration>
 						<port>9090</port>
-          				<uriEncoding>utf-8</uriEncoding>
-        			</configuration>
+						<uriEncoding>utf-8</uriEncoding>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
