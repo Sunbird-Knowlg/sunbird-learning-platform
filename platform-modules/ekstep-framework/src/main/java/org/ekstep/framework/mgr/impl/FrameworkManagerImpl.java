@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
@@ -115,6 +116,8 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 									responseMap.put("categories",
 											categories.stream().filter(p -> returnCategories.contains(p.get("code")))
 													.collect(Collectors.toList()));
+									removeAssociations(responseMap, returnCategories);
+
 								} else {
 									responseMap.put("categories", categories);
 								}
@@ -127,6 +130,35 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		return response;
 	}
 
+
+	/**
+	 * @param responseMap
+	 * @param returnCategories
+	 */
+	@SuppressWarnings("unchecked")
+	private void removeAssociations(Map<String, Object> responseMap, List<String> returnCategories) {
+		((List<Map<String, Object>>) responseMap.get("categories")).forEach(category -> {
+			removeTermAssociations((List<Map<String, Object>>) category.get("terms"), returnCategories);
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	private void removeTermAssociations(List<Map<String, Object>> terms, List<String> returnCategories) {
+		if (!CollectionUtils.isEmpty(terms)) {
+			terms.forEach(term -> {
+				if (!CollectionUtils.isEmpty((List<Map<String, Object>>) term.get("associations"))) {
+					term.put("associations",
+							((List<Map<String, Object>>) term.get("associations")).stream().filter(s -> s != null)
+									.filter(p -> returnCategories.contains(p.get("category")))
+									.collect(Collectors.toList()));
+					if (CollectionUtils.isEmpty((List<Map<String, Object>>) term.get("associations")))
+						term.remove("associations");
+
+					removeTermAssociations((List<Map<String, Object>>) term.get("children"), returnCategories);
+				}
+			});
+		}
+	}
 
 	private List<Object> searchFramework(String frameworkId) throws Exception {
 		List<Object> searchResult = new ArrayList<Object>();
@@ -150,6 +182,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		return fields;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private List<Map> setSearchProperties(String frameworkId) {
 		List<Map> properties = new ArrayList<Map>();
 		Map<String, Object> property = new HashMap<>();
@@ -268,7 +301,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	    }
 	  }
 	  
-	  protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId, String clonedFrameworkId, Map<String, Object> requestMap) throws Exception{
+	@SuppressWarnings("unchecked")
+	protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId,
+			String clonedFrameworkId, Map<String, Object> requestMap) throws Exception {
 	    Response responseNode = getDataNode(GRAPH_ID, existingObjectId);
 	    if (checkError(responseNode)) {
 	    		throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + existingObjectId, ResponseCode.RESOURCE_NOT_FOUND);
