@@ -73,11 +73,12 @@ public class ResponseFilter implements Filter {
 
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			if (supportsGzip(httpRequest)) {
-				httpResponse.setHeader("Content-Encoding", "gzip");
+				httpResponse.setContentType("application/json");
+				httpResponse.setCharacterEncoding("gzip");
 				GzipCompressorOutputStream outputStream = new GzipCompressorOutputStream(
 						httpResponse.getOutputStream());
 				outputStream.write(responseWrapper.getData());
-				chain.doFilter(httpRequest, response);
+				chain.doFilter(httpRequest, httpResponse);
 				outputStream.close();
 			} else {
 				response.getOutputStream().write(responseWrapper.getData());
