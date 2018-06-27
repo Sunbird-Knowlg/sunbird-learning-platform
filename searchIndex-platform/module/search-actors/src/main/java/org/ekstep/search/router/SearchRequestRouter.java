@@ -25,7 +25,7 @@ import akka.actor.UntypedActor;
 import akka.dispatch.OnFailure;
 import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
-import akka.routing.SmallestMailboxPool;
+import akka.routing.FromConfig;
 import scala.concurrent.Future;
 
 public class SearchRequestRouter extends UntypedActor{
@@ -59,15 +59,11 @@ public class SearchRequestRouter extends UntypedActor{
 
 	private void initActorPool() {
 		ActorSystem system = RequestRouterPool.getActorSystem();
-        int poolSize = 5;
-        Props SearchProps = Props.create(SearchManager.class);
-        ActorRef searchMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(SearchProps));
+        ActorRef searchMgr = system.actorOf(FromConfig.getInstance().props(Props.create(SearchManager.class)), SearchManager.class.getSimpleName());
         SearchActorPool.addActorRefToPool(SearchActorNames.SEARCH_MANAGER.name(), searchMgr);
-        
-        Props healthCheckProps = Props.create(HealthCheckManager.class);
-        ActorRef healthCheckMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(healthCheckProps));
-        SearchActorPool.addActorRefToPool(SearchActorNames.HEALTH_CHECK_MANAGER.name(), healthCheckMgr);
 
+        ActorRef healthCheckMgr = system.actorOf(FromConfig.getInstance().props(Props.create(HealthCheckManager.class)), HealthCheckManager.class.getSimpleName());
+        SearchActorPool.addActorRefToPool(SearchActorNames.HEALTH_CHECK_MANAGER.name(), healthCheckMgr);
 	}
 	
 	private ActorRef getActorFromPool(Request request) {
