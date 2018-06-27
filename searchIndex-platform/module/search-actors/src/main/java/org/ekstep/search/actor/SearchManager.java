@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import akka.dispatch.OnFailure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
@@ -57,6 +58,12 @@ public class SearchManager extends SearchBaseActor {
 						}
 					}
 				}, getContext().dispatcher());
+				searchResult.onFailure(new OnFailure() {
+					@Override
+					public void onFailure(Throwable failure) throws Throwable {
+						throw failure;
+					}
+				}, getContext().dispatcher());
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
@@ -72,6 +79,12 @@ public class SearchManager extends SearchBaseActor {
 				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
 					public void onSuccess(Map<String, Object> lstResult) {
 						OK(getCompositeSearchResponse(lstResult), parent);
+					}
+				}, getContext().dispatcher());
+				searchResult.onFailure(new OnFailure() {
+					@Override
+					public void onFailure(Throwable failure) throws Throwable {
+						throw failure;
 					}
 				}, getContext().dispatcher());
 
@@ -661,7 +674,12 @@ public class SearchManager extends SearchBaseActor {
 						lstResult.putAll(collectionResult);
 					}
 				}, getContext().dispatcher());
-
+				searchResult.onFailure(new OnFailure() {
+					@Override
+					public void onFailure(Throwable failure) throws Throwable {
+						throw failure;
+					}
+				}, getContext().dispatcher());
 				return lstResult;
 			} catch (Exception e) {
 				TelemetryManager.error("Error while fetching the collection for the contents : ", e);
@@ -675,7 +693,7 @@ public class SearchManager extends SearchBaseActor {
 
 	/**
 	 * @param fieldlist
-	 * @param object
+	 * @return
 	 * @return
 	 */
 	private Object getCollectionFields(List<String> fieldlist) {

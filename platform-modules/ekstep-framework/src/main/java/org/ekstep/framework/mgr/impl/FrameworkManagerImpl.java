@@ -45,11 +45,12 @@ import scala.concurrent.Await;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
-	private SearchProcessor processor = new SearchProcessor();
+	private SearchProcessor processor = null;
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@PostConstruct
 	public void init() {
+		processor = new SearchProcessor();
 	}
 
 	/*
