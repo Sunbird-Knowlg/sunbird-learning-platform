@@ -981,6 +981,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 			contentMap.put("children", childList);
 		}
+		// TODO: Not the best Solution, need to optimize
+		contentMap.remove("collections");
+		contentMap.remove("usedByContent");
+		contentMap.remove("item_sets");
+		contentMap.remove("methods");
+		contentMap.remove("libraries");
 		return contentMap;
 	}
 
