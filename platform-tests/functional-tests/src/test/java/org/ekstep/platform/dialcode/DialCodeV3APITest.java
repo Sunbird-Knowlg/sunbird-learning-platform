@@ -13,8 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
@@ -23,6 +25,7 @@ import com.jayway.restassured.response.Response;
  * @author gauraw
  *
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DialCodeV3APITest extends BaseTest {
 
 	int rn = generateRandomInt(0, 999999);
