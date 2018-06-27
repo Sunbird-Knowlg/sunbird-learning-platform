@@ -63,7 +63,6 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	private int defaultOffset = 0;
 	private String connectionInfo = "localhost:9300";
 	private SearchProcessor processor = null;
-	private ElasticSearchUtil esUtil = null;
 
 	@PostConstruct
 	public void init() {
@@ -72,8 +71,9 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		connectionInfo = Platform.config.hasPath("dialcode.es_conn_info")
 				? Platform.config.getString("dialcode.es_conn_info")
 				: connectionInfo;
-		processor = new SearchProcessor(connectionInfo);
-		esUtil = new ElasticSearchUtil(connectionInfo);
+		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.DIAL_CODE_INDEX, connectionInfo);
+		processor = new SearchProcessor(CompositeSearchConstants.DIAL_CODE_INDEX);
+
 	}
 
 	/*
@@ -471,7 +471,7 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		searchDto.setSortBy(sortBy);
 		SearchResponse searchResponse = processor.processSearchQueryWithSearchResult(searchDto, false,
 				CompositeSearchConstants.DIAL_CODE_INDEX, true);
-		searchResult = esUtil.getDocumentsFromHits(searchResponse.getHits());
+		searchResult = ElasticSearchUtil.getDocumentsFromHits(searchResponse.getHits());
 		dialCodeSearch.put(DialCodeEnum.count.name(), (int) searchResponse.getHits().getTotalHits());
 		dialCodeSearch.put(DialCodeEnum.dialcodes.name(), searchResult);
 		writeTelemetrySearchLog(channelId, map, dialCodeSearch);

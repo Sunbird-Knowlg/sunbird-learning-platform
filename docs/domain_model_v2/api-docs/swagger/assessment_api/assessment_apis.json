@@ -1401,6 +1401,14 @@
           "type": "string",
           "description": "subject of assessmentItem"
         },
+        "medium": {
+          "type": "string",
+          "description": "medium of assessmentItem"
+        },
+        "board": {
+          "type": "string",
+          "description": "board of assessmentItem"
+        },
         "SET_OBJECT_TYPE_KEY": {
           "type": "string",
           "description": "set object type"
@@ -1468,6 +1476,21 @@
         "subject": {
           "type": "string",
           "description": "subject of assessmentItem"
+        },
+        "medium": {
+          "type": "string",
+          "description": "medium of assessmentItem"
+        },
+        "board": {
+          "type": "string",
+          "description": "board of assessmentItem"
+        },
+        "gradeLevel": {
+          "type": "array",
+          "description": "gradeLevel",
+          "items": {
+            "type": "string"
+          }
         },
         "qlevel": {
           "type": "string",
@@ -1615,13 +1638,6 @@
         "max_time": {
           "type": "number",
           "description": "max_time"
-        },
-        "gradeLevel": {
-          "type": "array",
-          "description": "gradeLevel",
-          "items": {
-            "type": "string"
-          }
         },
         "source": {
           "type": "string",

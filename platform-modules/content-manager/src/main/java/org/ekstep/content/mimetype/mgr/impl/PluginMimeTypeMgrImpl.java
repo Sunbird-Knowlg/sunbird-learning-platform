@@ -3,6 +3,7 @@ package org.ekstep.content.mimetype.mgr.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -26,6 +27,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * The Class PluginMimeTypeMgrImpl.
@@ -53,6 +55,8 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 					String manifest = FileUtils.readFileToString(jsonFile);
 					String version = getVersion(contentId, manifest);
 					node.getMetadata().put(ContentAPIParams.semanticVersion.name(), version);
+					List<Object> targets = getTargets(contentId, manifest);
+					node.getMetadata().put(ContentAPIParams.targets.name(), targets);
 				}
 			} catch (IOException e) {
 				throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_READ.name(),
@@ -104,6 +108,28 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 					ContentErrorMessageConstants.INVALID_PLUGIN_VER_ERROR);
 		else
 			return StringUtils.deleteWhitespace(version);
+		
+	}
+	
+	private List<Object> getTargets(String pluginId, String manifest) {
+		String id = null;
+		Object targets = null;
+		List<Object> targetsList = null;
+		try {
+			Gson gson = new Gson();
+			JsonObject root = gson.fromJson(manifest, JsonObject.class);
+			id = root.get("id").getAsString();
+			targets = root.get("targets");
+			if(null != targets)
+				targetsList = gson.fromJson(targets.toString(), new TypeToken<List<Object>>(){}.getType());
+		} catch (Exception e) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
+					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
+		}
+		if (!StringUtils.equals(pluginId, id))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
+					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);
+		return targetsList;
 		
 	}
 

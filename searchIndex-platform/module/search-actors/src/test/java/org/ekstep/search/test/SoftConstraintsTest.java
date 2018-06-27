@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
@@ -26,7 +27,6 @@ import org.junit.Test;
 @Ignore
 public class SoftConstraintsTest extends BaseSearchActorsTest {
 	
-	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String COMPOSITE_SEARCH_INDEX = "testcompositeindex";
 	
@@ -40,22 +40,23 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 	@AfterClass
 	public static void afterTest() throws Exception {
 		System.out.println("deleting index: " + COMPOSITE_SEARCH_INDEX);
-		elasticSearchUtil.deleteIndex(COMPOSITE_SEARCH_INDEX);
+		ElasticSearchUtil.deleteIndex(COMPOSITE_SEARCH_INDEX);
 	}
 	
 	private static void createCompositeSearchIndex() throws Exception {
 		COMPOSITE_SEARCH_INDEX = "testcompositeindex";
+		ElasticSearchUtil.initialiseESClient(COMPOSITE_SEARCH_INDEX, Platform.config.getString("search.es_conn_info"));
 		System.out.println("creating index: " + COMPOSITE_SEARCH_INDEX);
 		String settings = "{ \"settings\": {   \"index\": {     \"index\": \""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX+"\",     \"type\": \""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE+"\",     \"analysis\": {       \"analyzer\": {         \"cs_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"cs_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
 		String mappings = "{ \""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE+"\" : {    \"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"cs_index_analyzer\",            \"search_analyzer\": \"cs_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"cs_index_analyzer\",        \"search_analyzer\": \"cs_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }}";
-		elasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+		ElasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
 		insertTestRecords();
 	}
 	
 	private static void addToIndex(String uniqueId, Map<String, Object> doc) throws Exception {
 		String jsonIndexDocument = mapper.writeValueAsString(doc);
-		elasticSearchUtil.addDocumentWithId(COMPOSITE_SEARCH_INDEX,
+		ElasticSearchUtil.addDocumentWithId(COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 	

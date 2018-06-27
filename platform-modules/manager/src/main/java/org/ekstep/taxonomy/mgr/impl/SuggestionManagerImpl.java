@@ -10,7 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
@@ -49,17 +52,20 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	
 	/** The ControllerUtil */
 	private ControllerUtil util = new ControllerUtil();
-	
-
-	/** The ElasticSearchUtil */
-	private static ElasticSearchUtil es = new ElasticSearchUtil();
 
 	/** The Object Mapper */
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	/** The SearchProcessor */
-	private SearchProcessor processor = new SearchProcessor();
+	private SearchProcessor processor = null;
 
+	@PostConstruct
+	public void init() {
+		ElasticSearchUtil.initialiseESClient(SuggestionConstants.SUGGESTION_INDEX,
+				Platform.config.getString("search.es_conn_info"));
+		processor = new SearchProcessor(SuggestionConstants.SUGGESTION_INDEX);
+
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -134,7 +140,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		Response response = new Response();
 		try {
 			
-			String suggestionResponse = es.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
+			String suggestionResponse = ElasticSearchUtil.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
 					SuggestionConstants.SUGGESTION_INDEX_TYPE, suggestion_id);
 			TelemetryManager.log("Result of suggestion using Id: " + suggestionResponse);
 			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
@@ -149,8 +155,8 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.APPROVE_STATUS);
 			String requestString = mapper.writeValueAsString(requestMap);
 			TelemetryManager.log("request for suggestion approval: " + requestString);
-			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
-					requestString, suggestion_id);
+			ElasticSearchUtil.updateDocument(SuggestionConstants.SUGGESTION_INDEX,
+					SuggestionConstants.SUGGESTION_INDEX_TYPE, requestString, suggestion_id);
 			response.setParams(getSucessStatus());
 			response.put(SuggestionCodeConstants.suggestion_id.name(), suggestion_id);
 			response.put(SuggestionCodeConstants.message.name(),
@@ -188,7 +194,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	public Response rejectSuggestion(String suggestion_id, Map<String, Object> map) {
 		Response response = new Response();
 		try {
-			String suggestionResponse = es.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
+			String suggestionResponse = ElasticSearchUtil.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
 					SuggestionConstants.SUGGESTION_INDEX_TYPE, suggestion_id);
 			TelemetryManager.log("Result of suggestion using Id: " + suggestionResponse);
 			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
@@ -199,8 +205,8 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			
 			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.REJECT_STATUS);
 			String results = mapper.writeValueAsString(requestMap);
-			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE, results,
-					suggestion_id);
+			ElasticSearchUtil.updateDocument(SuggestionConstants.SUGGESTION_INDEX,
+					SuggestionConstants.SUGGESTION_INDEX_TYPE, results, suggestion_id);
 			response.setParams(getSucessStatus());
 			response.put("suggestion_id", suggestion_id);
 			response.put("message", "suggestion rejected successfully");
@@ -306,8 +312,8 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		String settings = "{\"analysis\": {       \"analyzer\": {         \"sg_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"sg_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   }";
 		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"sg_index_analyzer\",\"search_analyzer\":\"sg_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"sg_index_analyzer\",\"search_analyzer\":\"sg_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
 		TelemetryManager.log("Creating Suggestion Index : " + SuggestionConstants.SUGGESTION_INDEX);
-		es.addIndex(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE, settings,
-				mappings);
+		ElasticSearchUtil.addIndex(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
+				settings, mappings);
 	}
 
 	/**
@@ -333,8 +339,8 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 				TelemetryManager.log("converting request map to string : " + document);
 			}
 			if (StringUtils.isNotBlank(document)) {
-				es.addDocumentWithId(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
-						suggestionId, document);
+				ElasticSearchUtil.addDocumentWithId(SuggestionConstants.SUGGESTION_INDEX,
+						SuggestionConstants.SUGGESTION_INDEX_TYPE, suggestionId, document);
 				TelemetryManager.log("Adding document to Suggetion Index : " + document);
 			}
 		}

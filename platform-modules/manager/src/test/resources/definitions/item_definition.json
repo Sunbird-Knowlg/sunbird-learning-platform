@@ -23,19 +23,8 @@
             "defaultValue": "",
             "renderingHints": "{'inputType': 'text', 'order': 2}",
             "indexed": true
-        }, {
-			"required": false,
-			"dataType": "external",
-			"propertyName": "body",
-			"title": "Body",
-			"description": "",
-			"category": "Authoring",
-			"displayProperty": "Hidden",
-			"defaultValue": "",
-			"renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
-			"indexed": false,
-			"draft": false
-		},{
+        }, 
+        {
             "propertyName": "language",
             "title": "Language",
             "description": "",
@@ -145,6 +134,18 @@
             "indexed": true,
             "draft": false
         }, {
+			"required": false,
+			"dataType": "external",
+			"propertyName": "body",
+			"title": "Body",
+			"description": "",
+			"category": "Authoring",
+			"displayProperty": "Hidden",
+			"defaultValue": "",
+			"renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+			"indexed": false,
+			"draft": false
+		},{
             "required": false,
             "dataType": "Text",
             "propertyName": "question",
@@ -391,30 +392,62 @@
             "draft": false
         }, {
             "required": false,
-            "dataType": "Multi-Select",
+            "dataType": "TermList",
             "propertyName": "gradeLevel",
             "title": "Grade Level",
             "description": "",
             "category": "Pedagogy",
             "displayProperty": "Editable",
-            "range": [
-            "Kindergarten", 
-            "Grade 1", 
-            "Grade 2",
-             "Grade 3", 
-             "Grade 4",
-             "Grade 5", 
-             "Grade 6",
-             "Grade 7",
-             "Grade 8",
-             "Grade 9",
-             "Grade 10",
-             "Grade 11",
-             "Grade 12", 
-             "Other"
-             ],
-            "defaultValue": "Grade 1",
+            "defaultValue": "",
             "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+            "indexed": true,
+            "draft": false
+        }, {
+            "required": false,
+            "dataType": "TermList",
+            "propertyName": "topic",
+            "title": "Topic",
+            "description": "",
+            "category": "Pedagogy",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 15 }",
+            "indexed": true,
+            "draft": false
+        },{
+            "required": false,
+            "dataType": "Term",
+            "propertyName": "board",
+            "title": "Curriculum (Board)",
+            "description": "Education Board (Like MP Board, NCERT, etc)",
+            "category": "Pedagogy",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 29 }",
+            "indexed": true,
+            "draft": false
+      }, {
+            "required": false,
+            "dataType": "Term",
+            "propertyName": "subject",
+            "title": "Subject",
+            "description": "Subject of the Content to use to teach",
+            "category": "Pedagogy",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 29 }",
+            "indexed": true,
+            "draft": false
+      }, {
+            "required": false,
+            "dataType": "Term",
+            "propertyName": "medium",
+            "title": "Medium",
+            "description": "Medium of instruction",
+            "category": "Pedagogy",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 29 }",
             "indexed": true,
             "draft": false
         }, {
@@ -547,9 +580,9 @@
             "dataType": "Number",
             "required": false,
             "displayProperty": "Readonly",
-            "defaultValue": 1,
+            "defaultValue": "",
             "renderingHints": "{'order': 23}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "versionDate",
             "title": "Version Date",
@@ -581,7 +614,7 @@
             "displayProperty": "Editable",
             "range": ["UNIT", "SET", "DYNAMIC"],
             "required": true,
-            "defaultValue": "",
+            "defaultValue": "UNIT",
             "renderingHints": "{'order': 27}",
             "indexed": true
         }, {
@@ -593,10 +626,10 @@
             "displayProperty": "Editable",
             "range": ["MCQ", "FTB", "MTF"],
             "required": true,
-            "defaultValue": "",
+            "defaultValue": "MCQ",
             "renderingHints": "{'order': 28}",
             "indexed": true
-        }],
+	}],
         "inRelations": [],
         "outRelations": [{
             "relationName": "associatedTo",

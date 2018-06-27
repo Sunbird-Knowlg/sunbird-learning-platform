@@ -1264,22 +1264,34 @@
                     "type": "string",
                     "description": "",
                     "example": [
-                          "Story",
-                          "Worksheet",
-                          "Game",
-                          "Simulation",
-                          "Puzzle",
-                          "Diagnostic",
-                          "Collection",
-                          "Asset",
-                          "Template",
-                          "Plugin",
-                          "ContentTemplate",
-                          "ItemTemplate",
-                          "TextBook",
-                          "TextBookUnit",
-                          "Course",
-                          "CourseUnit"
+                      "Resource",
+                      "Collection",
+                      "TextBook",
+                      "LessonPlan",
+                      "Course",
+                      "Template",
+                      "Asset",
+                      "Plugin",
+                      "LessonPlanUnit",
+                      "CourseUnit",
+                      "TextBookUnit"
+                   ]
+                },
+                "resourceType": {
+                    "type": "string",
+                    "description": "",
+                    "example": [
+                      "Read",
+                      "Learn",
+                      "Teach",
+                      "Play",
+                      "Test",
+                      "Practice",
+                      "Experiment",
+                      "Collection",
+                      "Book",
+                      "Lesson Plan",
+                      "Course"
                    ]
                 },
                 "category":{
@@ -1636,6 +1648,10 @@
                     "description": ""
                 },
                 "contentType": {
+                    "type": "string",
+                    "description": ""
+                },
+                "resourceType": {
                     "type": "string",
                     "description": ""
                 },

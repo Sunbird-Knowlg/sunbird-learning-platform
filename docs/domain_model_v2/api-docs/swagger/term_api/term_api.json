@@ -992,7 +992,11 @@
                 },
                 "index": {
                     "type": "string",
-                    "description": "Index of the Category instance"
+                    "description": "Index of the term"
+                },
+                "translations": {
+                    "type": "object",
+                    "description": "Json object for multilanguage values"
                 },
                 "categories": {
                     "type": "array",

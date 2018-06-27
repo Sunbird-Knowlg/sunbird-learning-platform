@@ -6,6 +6,7 @@ package org.ekstep.test;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -18,7 +19,6 @@ import org.junit.BeforeClass;
  */
 public class BaseSearchTest {
 
-	protected static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	protected static ObjectMapper mapper = new ObjectMapper();
 	protected static SearchProcessor searchprocessor = new SearchProcessor();
 
@@ -31,23 +31,23 @@ public class BaseSearchTest {
 	@AfterClass
 	public static void afterTest() throws Exception {
 		System.out.println("deleting index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
-		elasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
+		ElasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 	}
 
 	protected static void createCompositeSearchIndex() throws Exception {
 		CompositeSearchConstants.COMPOSITE_SEARCH_INDEX = "testbadge";
+		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				Platform.config.getString("search.es_conn_info"));
 		System.out.println("creating index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 		String settings = "{\"analysis\":{\"analyzer\":{\"cs_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"cs_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
 		String mappings = "{\"dynamic_templates\":[{\"nested\":{\"match_mapping_type\":\"object\",\"mapping\":{\"type\":\"nested\",\"fields\":{\"type\":\"nested\"}}}},{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\",\"fielddata\":true}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
-		elasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+		ElasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
-		elasticSearchUtil.setResultLimit(10000);
-		elasticSearchUtil.setOffset(0);
 	}
 
 	protected static void addToIndex(String uniqueId, Map<String, Object> doc) throws Exception {
 		String jsonIndexDocument = mapper.writeValueAsString(doc);
-		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+		ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 

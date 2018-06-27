@@ -4,6 +4,9 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
+		<Async name="ConsoleAsync">
+			<AppenderRef ref="Console" />
+		</Async>
 		<RollingFile name="DefaultLogAppender" fileName="/data/logs/search_service_mw.log"
 			filePattern="/data/logs/search_service_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
@@ -21,6 +24,9 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingFile>
+		<Async name="DefaultLogAppenderAsync">
+			<AppenderRef ref="DefaultLogAppender" />
+		</Async>
 		<RollingFile name="PerfLogAppender" fileName="/data/logs/search_perf_mw.log"
 			filePattern="/data/logs/search_perf_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
@@ -38,6 +44,9 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingFile>
+		<Async name="PerfLogAppenderAsync">
+			<AppenderRef ref="PerfLogAppender" />
+		</Async>
 		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/search_telemetry_event_mw.log"
 			filePattern="/data/logs/search_telemetry_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
@@ -55,6 +64,9 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
+		<Async name="TelemetryEventAppenderAsync">
+			<AppenderRef ref="TelemetryEventAppender" />
+		</Async>
 	</Appenders>
 	<Loggers>
 		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">

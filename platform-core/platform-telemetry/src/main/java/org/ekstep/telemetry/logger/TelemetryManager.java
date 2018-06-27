@@ -158,6 +158,9 @@ public class TelemetryManager {
 	public static void search(String query, Object filters, Object sort, String correlationId, int size, Object topN,
 			String type) {
 		Map<String, String> context = getContext();
+		String did = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.DEVICE_ID.name());
+		if(StringUtils.isNotBlank(did))
+			context.put("did", did);
 		String event = TelemetryGenerator.search(context, query, filters, sort, correlationId, size, topN, type);
 		telemetryHandler.send(event, Level.INFO, true);
 	}

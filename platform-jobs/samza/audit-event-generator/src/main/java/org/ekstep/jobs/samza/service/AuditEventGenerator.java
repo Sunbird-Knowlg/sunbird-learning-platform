@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -39,6 +40,10 @@ public class AuditEventGenerator implements ISamzaService {
 	private SystemStream systemStream = null;
 	private static List<String> systemPropsList = null;
 	private ControllerUtil util = new ControllerUtil();
+	private static final String IMAGE_SUFFIX = ".img";
+	private static final String OBJECT_TYPE_IMAGE_SUFFIX = "Image";
+	private static final String SKIP_AUDIT = "{\"object\": {\"type\":null}}";
+
 	static {
 		systemPropsList = Stream.of(SystemProperties.values()).map(SystemProperties::name).collect(Collectors.toList());
 		systemPropsList.addAll(Arrays.asList("SYS_INTERNAL_LAST_UPDATED_ON", "lastUpdatedOn", "versionKey"));
@@ -112,7 +117,7 @@ public class AuditEventGenerator implements ISamzaService {
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getAuditMessage(Map<String, Object> message) throws Exception {
-		Map<String, Object> auditMap = null;
+		Map<String, Object> auditMap = new HashMap<>();
 		String objectId = (String) message.get(GraphDACParams.nodeUniqueId.name());
 		String objectType = (String) message.get(GraphDACParams.objectType.name());
 		String env = (null != objectType) ? objectType.toLowerCase().replace("image", "") : "system";
@@ -152,15 +157,23 @@ public class AuditEventGenerator implements ISamzaService {
 				.collect(Collectors.toList());
 		List<Map<String, Object>> cdata = getCData(addedRelations, removedRelations, propertyMap);
 		Map<String, String> context = getContext(channelId, env);
+		objectId = (null != objectId) ? objectId.replaceAll(IMAGE_SUFFIX, "") : objectId;
+		objectType = (null != objectType) ? objectType.replaceAll(OBJECT_TYPE_IMAGE_SUFFIX, "") : objectType;
 		context.put("objectId", objectId);
 		context.put(GraphDACParams.objectType.name(), objectType);
 		if (StringUtils.isNotBlank(pkgVersion))
 			context.put("pkgVersion", pkgVersion);
-		String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus, cdata);
-		LOGGER.debug("Audit Message : " + auditMessage);
-		auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
-		});
-
+		if (!CollectionUtils.isEmpty(propsExceptSystemProps)) {
+			String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus,
+					cdata);
+			LOGGER.debug("Audit Message : " + auditMessage);
+			auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
+			});
+		} else {
+			LOGGER.debug("Skipping Audit log as props is null or empty");
+			auditMap = mapper.readValue(SKIP_AUDIT, new TypeReference<Map<String, Object>>() {
+			});
+		}
 		return auditMap;
 	}
 
@@ -222,9 +235,11 @@ public class AuditEventGenerator implements ISamzaService {
 			for (Map<String, Object> relation : relations) {
 				String key = (String) relation.get("rel") + (String) relation.get("type");
 				if (StringUtils.equalsIgnoreCase((String) relation.get("dir"), "IN")) {
-					props.add(inRelations.get(key + "in"));
+					if (null != inRelations.get(key + "in"))
+						props.add(inRelations.get(key + "in"));
 				} else {
-					props.add(outRelations.get(key + "out"));
+					if (null != outRelations.get(key + "out"))
+						props.add(outRelations.get(key + "out"));
 				}
 			}
 		}
@@ -266,5 +281,4 @@ public class AuditEventGenerator implements ISamzaService {
 			}
 		}
 	}
-
 }
