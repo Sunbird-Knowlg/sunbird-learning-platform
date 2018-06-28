@@ -17,7 +17,6 @@ import static play.test.Helpers.route;
 import java.io.IOException;
 
 import org.ekstep.common.Platform;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.junit.AfterClass;
@@ -57,7 +56,6 @@ public class VocabularyTermTest extends WithApplication {
 	public static void afterTest() throws Exception {
 		System.out.println("deleting index: " + VOCABULARY_TERM_INDEX);
 		ElasticSearchUtil.deleteIndex(VOCABULARY_TERM_INDEX);
-		RequestRouterPool.getActorSystem().shutdown();
 	}
 
 	private static void createTestIndex() throws Exception {

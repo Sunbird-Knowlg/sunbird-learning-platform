@@ -10,7 +10,6 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -33,7 +32,6 @@ public class BaseSearchControllerTest extends WithApplication {
 	public static void afterTest() throws Exception {
 		System.out.println("deleting index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 		ElasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
-		RequestRouterPool.getActorSystem().shutdown();
 	}
 	
 	private static void createCompositeSearchIndex() throws Exception {
