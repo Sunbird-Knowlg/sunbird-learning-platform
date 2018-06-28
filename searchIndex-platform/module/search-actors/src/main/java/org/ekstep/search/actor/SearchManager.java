@@ -50,7 +50,7 @@ public class SearchManager extends SearchBaseActor {
 				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
 					public void onSuccess(Map<String, Object> lstResult) {
 						String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
-						if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
+						if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("x", mode)) {
 							Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
 							OK(result, parent);
 						} else {
@@ -61,7 +61,8 @@ public class SearchManager extends SearchBaseActor {
 				searchResult.onFailure(new OnFailure() {
 					@Override
 					public void onFailure(Throwable failure) throws Throwable {
-						throw failure;
+						TelemetryManager.error("Error in SearchManager actor: " + failure.getMessage(), failure);
+						handleException(failure, getSender());
 					}
 				}, getContext().dispatcher());
 
@@ -84,7 +85,8 @@ public class SearchManager extends SearchBaseActor {
 				searchResult.onFailure(new OnFailure() {
 					@Override
 					public void onFailure(Throwable failure) throws Throwable {
-						throw failure;
+						TelemetryManager.error("Error in SearchManager actor: " + failure.getMessage(), failure);
+						handleException(failure, getSender());
 					}
 				}, getContext().dispatcher());
 
@@ -672,12 +674,6 @@ public class SearchManager extends SearchBaseActor {
 					public void onSuccess(Map<String, Object> collectionResult) {
 						collectionResult = prepareCollectionResult(collectionResult, contentIds);
 						lstResult.putAll(collectionResult);
-					}
-				}, getContext().dispatcher());
-				searchResult.onFailure(new OnFailure() {
-					@Override
-					public void onFailure(Throwable failure) throws Throwable {
-						throw failure;
 					}
 				}, getContext().dispatcher());
 				return lstResult;
