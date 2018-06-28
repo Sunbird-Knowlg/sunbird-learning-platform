@@ -12,7 +12,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
@@ -70,19 +69,7 @@ public class ResponseFilter implements Filter {
 			chain.doFilter(requestWrapper, responseWrapper);
 
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
-
-			HttpServletResponse httpResponse = (HttpServletResponse) response;
-			if (supportsGzip(httpRequest)) {
-				httpResponse.setContentType("application/json");
-				httpResponse.setCharacterEncoding("gzip");
-				GzipCompressorOutputStream outputStream = new GzipCompressorOutputStream(
-						httpResponse.getOutputStream());
-				outputStream.write(responseWrapper.getData());
-				chain.doFilter(httpRequest, httpResponse);
-				outputStream.close();
-			} else {
-				response.getOutputStream().write(responseWrapper.getData());
-			}
+			response.getOutputStream().write(responseWrapper.getData());
 		} else {
 			TelemetryManager.log("Path: " + httpRequest.getServletPath() +" | Remote Address: " + request.getRemoteAddr());
 			chain.doFilter(httpRequest, response);
@@ -115,8 +102,4 @@ public class ResponseFilter implements Filter {
 		return uid.toString();
 	}
 
-	private boolean supportsGzip(ServletRequest request) {
-		String acceptEncoding = ((HttpServletRequest) request).getHeader("Accept-Encoding");
-		return acceptEncoding != null && acceptEncoding.contains("gzip");
-	}
 }
