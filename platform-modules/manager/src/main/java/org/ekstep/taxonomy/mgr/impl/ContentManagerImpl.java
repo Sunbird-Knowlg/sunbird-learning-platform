@@ -220,7 +220,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				setMimeTypeForUpload(mimeType, node);
 				updateMimeType = true;
 			}
-
+			if (StringUtils.equals("video/x-youtube", mimeType))
+				checkYoutubeLicense(fileUrl, node);
 			TelemetryManager.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
@@ -472,9 +473,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 
 		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
-		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
-		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
-			checkYoutubeLicense(artifactUrl, node);
 		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 
 		String contentType = (String) node.getMetadata().get("contentType");
