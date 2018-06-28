@@ -1386,6 +1386,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null != node) {
 				Map<String, Object> map = (Map<String, Object>) entry.getValue();
 				List<String> children = (List<String>) map.get("children");
+				children = children.stream().distinct().collect(Collectors.toList());
 				if (null != children) {
 					List<Relation> outRelations = node.getOutRelations();
 					if (null == outRelations)
