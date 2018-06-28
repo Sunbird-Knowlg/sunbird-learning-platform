@@ -100,7 +100,8 @@ public class BundleFinalizer extends BaseFinalizer {
 				.get(ContentWorkflowPipelineParams.bundleMap.name());
 		List<Map<String, Object>> contents = (List<Map<String, Object>>)(parameterMap.get(ContentWorkflowPipelineParams.Contents.name()));
 		List<String> childrenIds = (List<String>)(parameterMap.get(ContentWorkflowPipelineParams.children.name()));
-		String bundleFileName = (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
+		String bundleFileName = basePath + File.separator
+				+ (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
 		String manifestVersion = (String) parameterMap.get(ContentWorkflowPipelineParams.manifestVersion.name());
 		if (null == bundleMap || bundleMap.isEmpty())
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -234,7 +235,7 @@ public class BundleFinalizer extends BaseFinalizer {
 
 		try {
 			TelemetryManager.log("Deleting the temporary folder: " + basePath);
-			delete(new File(basePath));
+			delete(new File(basePath).getParentFile());
 		} catch (Exception e) {
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
 		}
