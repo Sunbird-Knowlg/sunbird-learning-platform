@@ -30,7 +30,7 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn
 				+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"
 				+ rn
-				+ "\",\"language\":[\"English\"],\"contentType\": \"Reource\",\"code\": \"Test_QA\",\"mimeType\": \"video/x-youtube\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+				+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"video/x-youtube\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		Response res = 
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
@@ -45,7 +45,6 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 				response();
 		JsonPath jp = res.jsonPath();
 		String identifier = jp.get("result.node_id");
-		System.out.println("Content Created");
 		
 		//Upload Youtube Video to the Content
 		setURI();
@@ -55,7 +54,8 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 		when().
 		//post("v3/content/upload/" + identifier).
 		post("/content/v3/upload/" + identifier).
-		then().log().all().
+		then().
+		//log().all().
 		spec(get200ResponseSpec());
 		
 		// Get content and validate
@@ -65,7 +65,7 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 				when().
 				get("/content/v3/read/" + identifier).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
@@ -122,7 +122,7 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 				when().
 				get("/content/v3/read/" + identifier).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
