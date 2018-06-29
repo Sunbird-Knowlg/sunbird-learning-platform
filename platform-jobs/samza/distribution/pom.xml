@@ -12,7 +12,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
-			<version>0.0.53</version>
+			<version>0.0.54</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.52</version>
+			<version>0.0.53</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
