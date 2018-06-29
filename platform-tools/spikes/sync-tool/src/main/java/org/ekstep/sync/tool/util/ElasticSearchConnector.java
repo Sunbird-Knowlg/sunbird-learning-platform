@@ -30,7 +30,6 @@ public class ElasticSearchConnector {
 
 	@PreDestroy
 	public void shutdown() {
-		ElasticSearchUtil.cleanESClient();
 	}
 	
 	public void createIndexIfNotExist() throws IOException {

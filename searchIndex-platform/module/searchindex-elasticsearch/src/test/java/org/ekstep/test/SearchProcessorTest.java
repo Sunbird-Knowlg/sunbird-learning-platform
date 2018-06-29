@@ -22,6 +22,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import akka.dispatch.OnSuccess;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+
 /**
  * @author pradyumna
  *
@@ -126,18 +130,22 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
-		boolean found = false;
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String desc = (String) content.get("description");
-			if (null != desc && desc.contains("हिन्दी"))
-				found = true;
-		}
-		Assert.assertTrue(found);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+				boolean found = false;
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String desc = (String) content.get("description");
+					if (null != desc && desc.contains("हिन्दी"))
+						found = true;
+				}
+				Assert.assertTrue(found);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -163,19 +171,22 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() > 0);
-		boolean found = false;
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String desc = (String) content.get("name");
-			if (null != desc && !StringUtils.equalsIgnoreCase("31 check name match", desc))
-				found = true;
-		}
-		Assert.assertTrue(found);
-
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() > 0);
+				boolean found = false;
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String desc = (String) content.get("name");
+					if (null != desc && !StringUtils.equalsIgnoreCase("31 check name match", desc))
+						found = true;
+				}
+				Assert.assertTrue(found);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -201,18 +212,22 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() > 0);
-		boolean found = true;
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String desc = (String) content.get("name");
-			if (null != desc && StringUtils.equalsIgnoreCase("31 check name match", desc))
-				found = false;
-		}
-		Assert.assertTrue(found);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() > 0);
+				boolean found = true;
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String desc = (String) content.get("name");
+					if (null != desc && StringUtils.equalsIgnoreCase("31 check name match", desc))
+						found = false;
+				}
+				Assert.assertTrue(found);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -236,18 +251,22 @@ public class SearchProcessorTest extends BaseSearchTest {
 		List<String> fields = new ArrayList<String>();
 		fields.add("description");
 		searchObj.setFields(fields);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() > 0);
-		boolean found = false;
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String desc = (String) content.get("description");
-			if (null != desc && desc.contains("हिन्दी"))
-				found = true;
-		}
-		Assert.assertTrue(found);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() > 0);
+				boolean found = false;
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String desc = (String) content.get("description");
+					if (null != desc && desc.contains("हिन्दी"))
+						found = true;
+				}
+				Assert.assertTrue(found);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -271,10 +290,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() == 2);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() == 2);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -295,13 +318,17 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() == 1);
-		Map<String, Object> content = (Map<String, Object>) results.get(0);
-		String identifier = (String) content.get("identifier");
-		Assert.assertEquals("do_10000031", identifier);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() == 1);
+				Map<String, Object> content = (Map<String, Object>) results.get(0);
+				String identifier = (String) content.get("identifier");
+				Assert.assertEquals("do_10000031", identifier);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -322,13 +349,17 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() == 1);
-		Map<String, Object> content = (Map<String, Object>) results.get(0);
-		String identifier = (String) content.get("identifier");
-		Assert.assertEquals("do_10000032", identifier);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() == 1);
+				Map<String, Object> content = (Map<String, Object>) results.get(0);
+				String identifier = (String) content.get("identifier");
+				Assert.assertEquals("do_10000032", identifier);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -349,16 +380,20 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			Integer identifier = (Integer) content.get("size");
-			if (null != identifier)
-				Assert.assertTrue(identifier < 1000432);
-		}
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					Integer identifier = (Integer) content.get("size");
+					if (null != identifier)
+						Assert.assertTrue(identifier < 1000432);
+				}
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -386,16 +421,20 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			Integer identifier = (Integer) content.get("size");
-			if (null != identifier)
-				Assert.assertTrue(identifier == 1000432);
-		}
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					Integer identifier = (Integer) content.get("size");
+					if (null != identifier)
+						Assert.assertTrue(identifier == 1000432);
+				}
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -416,16 +455,20 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			Integer identifier = (Integer) content.get("size");
-			if (null != identifier)
-				Assert.assertTrue(identifier > 564738);
-		}
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					Integer identifier = (Integer) content.get("size");
+					if (null != identifier)
+						Assert.assertTrue(identifier > 564738);
+				}
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -446,15 +489,19 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String identifier = (String) content.get("name");
-			Assert.assertTrue(identifier.contains("check"));
-		}
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String identifier = (String) content.get("name");
+					Assert.assertTrue(identifier.contains("check"));
+				}
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -475,15 +522,19 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setProperties(properties);
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String objectType = (String) content.get("objectType");
-			Assert.assertNotNull(objectType);
-		}
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String objectType = (String) content.get("objectType");
+					Assert.assertNotNull(objectType);
+				}
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -509,11 +560,15 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setSoftConstraints(softConstraints);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchObj.setLimit(100);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertEquals("31 check name match", results.get(0).get("name"));
-		Assert.assertEquals("check ends with value32", results.get(1).get("name"));
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertEquals("31 check name match", results.get(0).get("name"));
+				Assert.assertEquals("check ends with value32", results.get(1).get("name"));
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -533,15 +588,18 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setFacets(exists);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchObj.setLimit(100);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Object> list = (List<Object>) response.get("facets");
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 1);
-		Map<String, Object> facet = (Map<String, Object>) list.get(0);
-		Assert.assertEquals("size", facet.get("name").toString());
-		List<Object> values = (List<Object>) facet.get("values");
-		Assert.assertEquals(2, values.size());
-
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Object> list = (List<Object>) response.get("facets");
+				Assert.assertNotNull(list);
+				Assert.assertTrue(list.size() > 1);
+				Map<String, Object> facet = (Map<String, Object>) list.get(0);
+				Assert.assertEquals("size", facet.get("name").toString());
+				List<Object> values = (List<Object>) facet.get("values");
+				Assert.assertEquals(2, values.size());
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -586,18 +644,22 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		searchObj.setFuzzySearch(true);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
-		boolean found = false;
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String desc = (String) content.get("description");
-			if (null != desc && desc.contains("हिन्दी"))
-				found = true;
-		}
-		Assert.assertTrue(found);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+				boolean found = false;
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String desc = (String) content.get("description");
+					if (null != desc && desc.contains("हिन्दी"))
+						found = true;
+				}
+				Assert.assertTrue(found);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -624,19 +686,22 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() > 0);
-		boolean found = false;
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String desc = (String) content.get("name");
-			if (null != desc && !StringUtils.equalsIgnoreCase("31 check name match", desc))
-				found = true;
-		}
-		Assert.assertTrue(found);
-
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() > 0);
+				boolean found = false;
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String desc = (String) content.get("name");
+					if (null != desc && !StringUtils.equalsIgnoreCase("31 check name match", desc))
+						found = true;
+				}
+				Assert.assertTrue(found);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -663,10 +728,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() > 0);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() > 0);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -691,18 +760,23 @@ public class SearchProcessorTest extends BaseSearchTest {
 		fields.add("description");
 		searchObj.setFields(fields);
 		searchObj.setFuzzySearch(true);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() > 0);
-		boolean found = false;
-		for (Object obj : results) {
-			Map<String, Object> content = (Map<String, Object>) obj;
-			String desc = (String) content.get("description");
-			if (null != desc && desc.contains("हिन्दी"))
-				found = true;
-		}
-		Assert.assertTrue(found);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() > 0);
+				boolean found = false;
+				for (Object obj : results) {
+					Map<String, Object> content = (Map<String, Object>) obj;
+					String desc = (String) content.get("description");
+					if (null != desc && desc.contains("हिन्दी"))
+						found = true;
+				}
+				Assert.assertTrue(found);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
+
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -727,10 +801,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 2);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 2);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -752,10 +830,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -777,10 +859,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -802,10 +888,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -834,10 +924,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -859,10 +953,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -884,10 +982,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -909,10 +1011,14 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-		Assert.assertTrue(results.size() >= 1);
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+				Assert.assertTrue(results.size() >= 1);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -937,9 +1043,12 @@ public class SearchProcessorTest extends BaseSearchTest {
 		searchObj.setSoftConstraints(softConstraints);
 		searchObj.setLimit(100);
 		searchObj.setFuzzySearch(true);
-		Map<String, Object> response = searchprocessor.processSearch(searchObj, true);
-		List<Map> results = (List<Map>) response.get("results");
-		Assert.assertNotNull(results);
-
+		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
+		res.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> response) {
+				List<Map> results = (List<Map>) response.get("results");
+				Assert.assertNotNull(results);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 }

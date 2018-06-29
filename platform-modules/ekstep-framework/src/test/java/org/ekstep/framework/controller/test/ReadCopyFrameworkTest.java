@@ -65,8 +65,6 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 
 	@BeforeClass
 	public static void beforeTest() throws Exception {
-		ElasticSearchUtil.initialiseESClient(COMPOSITE_SEARCH_INDEX,
-				Platform.config.getString("search.es_conn_info"));
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json",
 				"definitions/categoryInstance_definition.json");
 
@@ -81,12 +79,14 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 	@Before
 	public void init() throws Exception {
 		createTestIndex();
-		Thread.sleep(300);
+		Thread.sleep(3000);
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 
 	private static void createTestIndex() throws Exception {
 		CompositeSearchConstants.COMPOSITE_SEARCH_INDEX = COMPOSITE_SEARCH_INDEX;
+		ElasticSearchUtil.initialiseESClient(COMPOSITE_SEARCH_INDEX,
+				Platform.config.getString("search.es_conn_info"));
 		System.out.println("creating index: " + COMPOSITE_SEARCH_INDEX);
 		String settings = "{\"analysis\":{\"analyzer\":{\"cs_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"cs_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"edge_ngram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
 		String mappings = "{\"dynamic_templates\":[{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
@@ -107,7 +107,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 		frameworkId = (String) resp.getResult().get("node_id");
 		Map<String, Object> indexDoc = new HashMap<String, Object>();
 		indexDoc.put("fw_hierarchy",
-				"{\"framework\":{\"owner\":\"in.ekstep\",\"identifier\":\"test_term\",\"code\":\"Test_Term\",\"consumerId\":\"a6654129-b58d-4dd8-9cf2-f8f3c2f458bc\",\"channel\":\"in.ekstep\",\"description\":\"test multi term\",\"type\":\"K-12\",\"createdOn\":\"2018-01-20T07:29:05.485+0000\",\"versionKey\":\"1516433345485\",\"channels\":[],\"appId\":\"ekstep_portal\",\"name\":\"Test_Multi_Term\",\"lastUpdatedOn\":\"2018-01-20T07:29:05.485+0000\",\"categories\":[{\"identifier\":\"test_term_medium\",\"code\":\"medium\",\"terms\":[{\"identifier\":\"test_term_medium_kannada\",\"code\":\"kannada\",\"name\":\"Kannada\",\"description\":\"Term for Kannada\",\"index\":1,\"category\":\"test_term_medium\",\"status\":\"Live\"},{\"identifier\":\"test_term_medium_english\",\"code\":\"English\",\"name\":\"English\",\"description\":\"Term for English\",\"index\":2,\"category\":\"test_term_medium\",\"status\":\"Live\"},{\"identifier\":\"test_term_medium_hindi\",\"code\":\"Hindi\",\"name\":\"Hindi\",\"description\":\"Term for Hindi\",\"index\":3,\"category\":\"test_term_medium\",\"status\":\"Live\"},{\"identifier\":\"test_term_medium_urdu\",\"code\":\"Urdu\",\"name\":\"Urdu\",\"description\":\"Term for Urdu\",\"index\":4,\"category\":\"test_term_medium\",\"status\":\"Live\"},{\"identifier\":\"test_term_medium_french\",\"code\":\"French\",\"name\":\"French\",\"description\":\"Term for French\",\"index\":5,\"category\":\"test_term_medium\",\"status\":\"Live\"}],\"name\":\"Medium\",\"description\":\"Description of Medium.\",\"index\":1,\"status\":\"Live\"}],\"status\":\"Live\"}}");
+				"{\"categories\":[{\"identifier\":\"test_term_medium\",\"code\":\"medium\",\"terms\":[{\"identifier\":\"test_term_medium_kannada\",\"code\":\"kannada\",\"name\":\"Kannada\",\"description\":\"Term for Kannada\",\"index\":1,\"category\":\"test_term_medium\",\"status\":\"Live\"},{\"identifier\":\"test_term_medium_english\",\"code\":\"English\",\"name\":\"English\",\"description\":\"Term for English\",\"index\":2,\"category\":\"test_term_medium\",\"status\":\"Live\"},{\"identifier\":\"test_term_medium_hindi\",\"code\":\"Hindi\",\"name\":\"Hindi\",\"description\":\"Term for Hindi\",\"index\":3,\"category\":\"test_term_medium\",\"status\":\"Live\"},{\"identifier\":\"test_term_medium_urdu\",\"code\":\"Urdu\",\"name\":\"Urdu\",\"description\":\"Term for Urdu\",\"index\":4,\"category\":\"test_term_medium\",\"status\":\"Live\"},{\"identifier\":\"test_term_medium_french\",\"code\":\"French\",\"name\":\"French\",\"description\":\"Term for French\",\"index\":5,\"category\":\"test_term_medium\",\"status\":\"Live\"}],\"name\":\"Medium\",\"description\":\"Description of Medium.\",\"index\":1,\"status\":\"Live\"}],\"status\":\"Live\"}");
 		indexDoc.put("graph_id", "domain");
 		indexDoc.put("node_id", 12345);
 		indexDoc.put("identifier", "test_term");
@@ -136,6 +136,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 		String path = basePath + "/read/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertTrue(actions.andReturn().getResponse().getContentAsString().contains("test_term_medium_english"));
 	}
 
 }

@@ -138,12 +138,19 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			int limit = getLimit(request.get(VocabularyTermParam.limit.name()),
 					VocabularyTermParam.ERR_INVALID_REQUEST.name());
 			map.remove(VocabularyTermParam.limit.name());
-			SearchResponse searchResult = searchLemma(map, limit);
-			List<Map> terms = getResultData(searchResult);
-			Response response = OK();
-			response.put(VocabularyTermParam.count.name(), terms.size());
-			response.put(VocabularyTermParam.terms.name(), terms);
-			return successResponse(response);
+			F.Promise<SearchResponse> searchResponsePromise = F.Promise.wrap(searchLemma(map, limit));
+			return searchResponsePromise.map(new F.Function<SearchResponse, Result>() {
+				@Override
+				public Result apply(SearchResponse searchResult) throws Throwable {
+					List<Map> terms = getResultData(searchResult);
+					Response response = OK();
+					response.put(VocabularyTermParam.count.name(), terms.size());
+					response.put(VocabularyTermParam.terms.name(), terms);
+					String result = mapper.writeValueAsString(response);
+					return ok(result).as("application/json");
+				}
+			});
+
 		} catch (Exception e) {
 			TelemetryManager.error("VocabularyTermManager : suggest() : Exception : " + e.getMessage(), e);
 			if (e instanceof ClientException) {
@@ -170,7 +177,7 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 	 * @return
 	 * @throws Exception
 	 */
-	private SearchResponse searchLemma(Map<String, Object> map, int limit) throws Exception {
+	private scala.concurrent.Future<SearchResponse> searchLemma(Map<String, Object> map, int limit) throws Exception {
 		SearchDTO searchDto = new SearchDTO();
 		searchDto.setFuzzySearch(false);
 		searchDto.setProperties(setSearchProperties(map));
@@ -359,7 +366,6 @@ public class VocabularyTermManager extends BasePlaySearchManager {
 			term.put(VocabularyTermParam.lemma.name(), result.getSourceAsMap().get(VocabularyTermParam.lemma.name()));
 			terms.add(term);
 		}
-
 		return terms;
 	}
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import akka.dispatch.OnFailure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
@@ -20,6 +21,7 @@ import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.Modes;
@@ -32,6 +34,9 @@ import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
+import akka.dispatch.OnSuccess;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 public class SearchManager extends SearchBaseActor {
 
@@ -43,14 +48,25 @@ public class SearchManager extends SearchBaseActor {
 		try {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
 				SearchDTO searchDTO = getSearchDTO(request);
-				Map<String, Object> lstResult = processor.processSearch(searchDTO, true);
-				String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
-				if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
-					Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
-					OK(result, parent);
-				} else {
-					OK(lstResult, parent);
-				}
+				Future<Map<String, Object>> searchResult = processor.processSearch(searchDTO, true);
+				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
+					public void onSuccess(Map<String, Object> lstResult) {
+						String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
+						if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("x", mode)) {
+							Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
+							OK(result, parent);
+						} else {
+							OK(lstResult, parent);
+						}
+					}
+				}, getContext().dispatcher());
+				searchResult.onFailure(new OnFailure() {
+					@Override
+					public void onFailure(Throwable failure) throws Throwable {
+						TelemetryManager.error("Error in SearchManager actor: " + failure.getMessage(), failure);
+						handleException(failure, getSender());
+					}
+				}, getContext().dispatcher());
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
@@ -62,8 +78,19 @@ public class SearchManager extends SearchBaseActor {
 				}
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
-				Map<String, Object> lstResult = processor.processSearch(getSearchDTO(request), false);
-				OK(getCompositeSearchResponse(lstResult), parent);
+				Future<Map<String, Object>> searchResult = processor.processSearch(getSearchDTO(request), false);
+				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
+					public void onSuccess(Map<String, Object> lstResult) {
+						OK(getCompositeSearchResponse(lstResult), parent);
+					}
+				}, getContext().dispatcher());
+				searchResult.onFailure(new OnFailure() {
+					@Override
+					public void onFailure(Throwable failure) throws Throwable {
+						TelemetryManager.error("Error in SearchManager actor: " + failure.getMessage(), failure);
+						handleException(failure, getSender());
+					}
+				}, getContext().dispatcher());
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(),
 					operation)) {
@@ -644,7 +671,8 @@ public class SearchManager extends SearchBaseActor {
 						getCollectionFields(getList(parentRequest.get(CompositeSearchParams.fields.name()))));
 				request.put(CompositeSearchParams.filters.name(), filters);
 				SearchDTO searchDTO = getSearchDTO(request);
-				Map<String, Object> collectionResult = processor.processSearch(searchDTO, true);
+				Map<String, Object> collectionResult = Await.result(processor.processSearch(searchDTO, true),
+						RequestRouterPool.WAIT_TIMEOUT.duration());
 				collectionResult = prepareCollectionResult(collectionResult, contentIds);
 				lstResult.putAll(collectionResult);
 				return lstResult;
@@ -660,7 +688,7 @@ public class SearchManager extends SearchBaseActor {
 
 	/**
 	 * @param fieldlist
-	 * @param object
+	 * @return
 	 * @return
 	 */
 	private Object getCollectionFields(List<String> fieldlist) {
