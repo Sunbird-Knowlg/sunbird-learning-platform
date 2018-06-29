@@ -1601,6 +1601,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				node.getMetadata().put("license", "Standard YouTube License");
 			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
+			else
+				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(),
+						"Unsupported Youtube License!");
 		}
 	}
 
