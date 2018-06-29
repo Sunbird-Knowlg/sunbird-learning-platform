@@ -21,6 +21,7 @@ import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.Modes;
@@ -34,6 +35,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 import akka.dispatch.OnSuccess;
+import scala.concurrent.Await;
 import scala.concurrent.Future;
 
 public class SearchManager extends SearchBaseActor {
@@ -669,13 +671,10 @@ public class SearchManager extends SearchBaseActor {
 						getCollectionFields(getList(parentRequest.get(CompositeSearchParams.fields.name()))));
 				request.put(CompositeSearchParams.filters.name(), filters);
 				SearchDTO searchDTO = getSearchDTO(request);
-				Future<Map<String, Object>> searchResult = processor.processSearch(searchDTO, true);
-				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
-					public void onSuccess(Map<String, Object> collectionResult) {
-						collectionResult = prepareCollectionResult(collectionResult, contentIds);
-						lstResult.putAll(collectionResult);
-					}
-				}, getContext().dispatcher());
+				Map<String, Object> collectionResult = Await.result(processor.processSearch(searchDTO, true),
+						RequestRouterPool.WAIT_TIMEOUT.duration());
+				collectionResult = prepareCollectionResult(collectionResult, contentIds);
+				lstResult.putAll(collectionResult);
 				return lstResult;
 			} catch (Exception e) {
 				TelemetryManager.error("Error while fetching the collection for the contents : ", e);
