@@ -13,6 +13,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
@@ -90,10 +91,12 @@ public class YouTubeDataAPIV3Service {
 		} catch (GoogleJsonResponseException ex) {
 			Map<String, Object> error = ex.getDetails().getErrors().get(0);
 			String reason = (String) error.get("reason");
-			if (errorCodes.contains(reason))
+			if (errorCodes.contains(reason)) {
 				limitExceeded = true;
+				TelemetryManager
+						.log("Youtube API Limit Exceeded. Reason is: " + reason + " | Error Details : " + ex);
+			}
 		} catch (Exception e) {
-			System.out.println("Error");
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}
