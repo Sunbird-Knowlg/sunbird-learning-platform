@@ -1599,7 +1599,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
 				node.getMetadata().put("license", "Standard YouTube License");
-			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
+			else if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
 			else
 				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(),
