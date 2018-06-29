@@ -220,7 +220,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				setMimeTypeForUpload(mimeType, node);
 				updateMimeType = true;
 			}
-
+			if (StringUtils.equals("video/x-youtube", mimeType))
+				checkYoutubeLicense(fileUrl, node);
 			TelemetryManager.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
@@ -473,7 +474,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
-		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
+		String license = (String) node.getMetadata().get("license");
+		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl && StringUtils.isBlank(license))
 			checkYoutubeLicense(artifactUrl, node);
 		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 
@@ -1388,6 +1390,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null != node) {
 				Map<String, Object> map = (Map<String, Object>) entry.getValue();
 				List<String> children = (List<String>) map.get("children");
+				children = children.stream().distinct().collect(Collectors.toList());
 				if (null != children) {
 					List<Relation> outRelations = node.getOutRelations();
 					if (null == outRelations)
@@ -1598,6 +1601,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				node.getMetadata().put("license", "Standard YouTube License");
 			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
+			else
+				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(),
+						"Unsupported Youtube License!");
 		}
 	}
 
