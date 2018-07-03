@@ -17,16 +17,14 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
-import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.Modes;
 import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -527,7 +525,7 @@ public class SearchManager extends SearchBaseActor {
 					if (StringUtils.equalsIgnoreCase(CompositeSearchParams.Content.name(), objectType))
 						isContentSearch = true;
 				}
-				if (StringUtils.equals(GraphDACParams.status.name(), entry.getKey()))
+				if (StringUtils.equals("status", entry.getKey()))
 					statusFilter = true;
 				if (StringUtils.equals(CompositeSearchParams.compatibilityLevel.name(), entry.getKey()))
 					compatibilityFilter = true;
@@ -545,7 +543,7 @@ public class SearchManager extends SearchBaseActor {
 		if (!statusFilter && !traversal) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-			property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.status.name());
+			property.put(CompositeSearchParams.propertyName.name(), "status");
 			property.put(CompositeSearchParams.values.name(), Arrays.asList(new String[] { "Live" }));
 			properties.add(property);
 		}
@@ -564,10 +562,10 @@ public class SearchManager extends SearchBaseActor {
 					for (Object obj : lstResult) {
 						if (obj instanceof Map) {
 							Map<String, Object> map = (Map<String, Object>) obj;
-							String objectType = (String) map.get(GraphDACParams.objectType.name());
+							String objectType = (String) map.get("objectType");
 							if (objectType.endsWith("Image")) {
 								objectType = objectType.replace("Image", "");
-								map.replace(GraphDACParams.objectType.name(), objectType);
+								map.replace("objectType", objectType);
 							}
 							if (StringUtils.isNotBlank(objectType)) {
 								String key = getResultParamKey(objectType);
@@ -597,7 +595,6 @@ public class SearchManager extends SearchBaseActor {
 		return respResult;
 	}
 
-	@CoverageIgnore
 	private String getResultParamKey(String objectType) {
 		if (StringUtils.isNotBlank(objectType)) {
 			if (StringUtils.equalsIgnoreCase("Domain", objectType))
@@ -672,7 +669,7 @@ public class SearchManager extends SearchBaseActor {
 				request.put(CompositeSearchParams.filters.name(), filters);
 				SearchDTO searchDTO = getSearchDTO(request);
 				Map<String, Object> collectionResult = Await.result(processor.processSearch(searchDTO, true),
-						RequestRouterPool.WAIT_TIMEOUT.duration());
+						SearchRequestRouterPool.WAIT_TIMEOUT.duration());
 				collectionResult = prepareCollectionResult(collectionResult, contentIds);
 				lstResult.putAll(collectionResult);
 				return lstResult;

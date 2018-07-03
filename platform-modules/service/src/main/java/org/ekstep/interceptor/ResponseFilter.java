@@ -17,10 +17,10 @@ import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
-import org.ekstep.common.util.TelemetryAccessEventUtil;
 import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.ekstep.common.util.AccessEventGenerator;;
 
 public class ResponseFilter implements Filter {
 
@@ -68,7 +68,7 @@ public class ResponseFilter implements Filter {
 
 			chain.doFilter(requestWrapper, responseWrapper);
 
-			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
+			AccessEventGenerator.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
 			TelemetryManager.log("Path: " + httpRequest.getServletPath() +" | Remote Address: " + request.getRemoteAddr());

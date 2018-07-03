@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.util.TelemetryAccessEventUtil;
+import org.ekstep.telemetry.util.TelemetryAccessEventUtil;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.telemetry.TelemetryGenerator;
 

@@ -23,7 +23,6 @@ import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -46,9 +45,9 @@ public class BasePlaySearchManager extends Results {
 		Promise<Result> res = null;
 		try {
 			long startTime = System.currentTimeMillis();
-			request.getContext().put(GraphHeaderParams.start_time.name(), startTime);
-			perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-					+ request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName()
+			request.getContext().put("start_time", startTime);
+			perfLogger.info(request.getContext().get("scenario_name") + ","
+					+ request.getContext().get("request_id") + "," + request.getManagerName()
 					+ "," + request.getOperation() + ",STARTTIME," + startTime);
 			res = Promise.wrap(ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT))
 					.map(new Function<Object, Result>() {
@@ -80,7 +79,7 @@ public class BasePlaySearchManager extends Results {
 				@Override
 				public void invoke(Result result) throws Throwable {
 					long endTime = System.currentTimeMillis();
-					long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
+					long exeTime = endTime - (Long) request.getContext().get("start_time");
 					perfLogger.info(request.getManagerName() + "," + request.getOperation() + ",ENDTIME," + endTime);
 					perfLogger.info(request.getManagerName() + "," + request.getOperation() + "," + result.status()
 							+ "," + exeTime);

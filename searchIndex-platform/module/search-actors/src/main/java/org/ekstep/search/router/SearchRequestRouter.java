@@ -10,7 +10,6 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.search.actor.DefinitionSyncScheduler;
@@ -58,7 +57,7 @@ public class SearchRequestRouter extends UntypedActor{
 	}
 
 	private void initActorPool() {
-		ActorSystem system = RequestRouterPool.getActorSystem();
+		ActorSystem system = SearchRequestRouterPool.getActorSystem();
         ActorRef searchMgr = system.actorOf(FromConfig.getInstance().props(Props.create(SearchManager.class)), SearchManager.class.getSimpleName());
         SearchActorPool.addActorRefToPool(SearchActorNames.SEARCH_MANAGER.name(), searchMgr);
 
