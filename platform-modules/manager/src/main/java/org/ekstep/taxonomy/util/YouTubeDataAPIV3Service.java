@@ -108,8 +108,7 @@ public class YouTubeDataAPIV3Service {
 
 	private static String getIdFromUrl(String url) {
 		String videoLink = getVideoLink(url);
-		String[] videoIdRegex = { "\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)",
-				"^([A-Za-z0-9\\-]*)" };
+		List<String> videoIdRegex = Platform.config.getStringList("youtube.license.regex.pattern");
 		for (String regex : videoIdRegex) {
 			Pattern compiledPattern = Pattern.compile(regex);
 			Matcher matcher = compiledPattern.matcher(videoLink);
