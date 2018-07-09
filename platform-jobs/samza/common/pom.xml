@@ -35,17 +35,6 @@
 			<version>${samza.version}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_${scala.version}</artifactId>
-            <version>${kafka.version}</version>
-            <exclusions>
-				<exclusion>
-					<groupId>org.apache.kafka</groupId>
-  					<artifactId>kafka-clients</artifactId>
-				</exclusion>
-			</exclusions>
-        </dependency>
-		<dependency>
 			<groupId>org.apache.samza</groupId>
 			<artifactId>samza-log4j</artifactId>
 			<version>${samza.version}</version>
