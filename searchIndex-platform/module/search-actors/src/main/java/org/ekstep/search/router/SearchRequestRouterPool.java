@@ -4,8 +4,8 @@ package org.ekstep.search.router;
 
 import java.util.concurrent.TimeUnit;
 
+import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 
 import akka.actor.ActorRef;
@@ -17,6 +17,7 @@ import scala.concurrent.duration.Duration;
 
 public class SearchRequestRouterPool {
     
+	private static final String DEFAULT_SYSTEM_NAME = "SearchActorSystem";
 	private static ActorSystem system;
     private static ActorRef actor;
     private static int count = 5;
@@ -25,7 +26,7 @@ public class SearchRequestRouterPool {
     public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
     
     public static void init() {
-    	ActorSystem system = RequestRouterPool.getActorSystem();
+    		system = ActorSystem.create(DEFAULT_SYSTEM_NAME, Platform.config.getConfig(DEFAULT_SYSTEM_NAME));
         Props actorProps = Props.create(SearchRequestRouter.class);
         actor = system.actorOf(new SmallestMailboxPool(count).props(actorProps));
         actor.tell("init", system.deadLetters());
@@ -47,5 +48,9 @@ public class SearchRequestRouterPool {
     
     public static void destroy() {
     	actor = null;
+    }
+    
+    public static ActorSystem getActorSystem() {
+    		return system;
     }
 }

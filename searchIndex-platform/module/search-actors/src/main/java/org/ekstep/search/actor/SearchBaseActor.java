@@ -3,7 +3,6 @@ package org.ekstep.search.actor;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -13,7 +12,6 @@ import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 
@@ -22,7 +20,6 @@ import akka.actor.UntypedActor;
 
 public abstract class SearchBaseActor extends UntypedActor {
     
-    @CoverageIgnore
     @Override
     public void onReceive(Object message) throws Exception {
         if (message instanceof Request) {
@@ -44,7 +41,6 @@ public abstract class SearchBaseActor extends UntypedActor {
         parent.tell(response, getSelf());
     }
 
-    @CoverageIgnore
     public void OK(Map<String, Object> responseObjects, ActorRef parent) {
         Response response = new Response();
         if (null != responseObjects && responseObjects.size() > 0) {
@@ -56,7 +52,6 @@ public abstract class SearchBaseActor extends UntypedActor {
         parent.tell(response, getSelf());
     }
 
-    @CoverageIgnore
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo, ActorRef parent) {
         TelemetryManager.log("ErrorCode: "+ errorCode + " :: Error message: " + errorMessage);
         Response response = new Response();
@@ -66,7 +61,6 @@ public abstract class SearchBaseActor extends UntypedActor {
         parent.tell(response, getSelf());
     }
 
-    @CoverageIgnore
     public void handleException(Throwable e, ActorRef parent) {
         Response response = new Response();
         ResponseParams params = new ResponseParams();
@@ -75,7 +69,7 @@ public abstract class SearchBaseActor extends UntypedActor {
             MiddlewareException mwException = (MiddlewareException) e;
             params.setErr(mwException.getErrCode());
         } else {
-            params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
+            params.setErr("ERR_SYSTEM_EXCEPTION");
         }
         TelemetryManager.log("Exception occured in class :"+ e.getClass().getName() + " message: " + e.getMessage());
         params.setErrmsg(setErrMessage(e));
@@ -92,7 +86,6 @@ public abstract class SearchBaseActor extends UntypedActor {
         return params;
     }
 
-    @CoverageIgnore
     private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
         ResponseParams params = new ResponseParams();
         params.setErr(errorCode);
@@ -101,7 +94,6 @@ public abstract class SearchBaseActor extends UntypedActor {
         return params;
     }
 
-    @CoverageIgnore
     private void setResponseCode(Response res, Throwable e) {
         if (e instanceof ClientException) {
             res.setResponseCode(ResponseCode.CLIENT_ERROR);

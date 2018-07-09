@@ -10,7 +10,6 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
-import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
@@ -213,8 +212,8 @@ public class SearchProcessor {
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		List<String> fields = searchDTO.getFields();
 		if (null != fields && !fields.isEmpty()) {
-			fields.add(GraphDACParams.objectType.name());
-			fields.add(GraphDACParams.identifier.name());
+			fields.add("objectType");
+			fields.add("identifier");
 			searchSourceBuilder.fetchSource(fields.toArray(new String[fields.size()]), null);
 		}
 
