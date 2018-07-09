@@ -52,7 +52,7 @@ public class SearchManager extends SearchBaseActor {
 				searchResult.onSuccess(new OnSuccess<Map<String, Object>>() {
 					public void onSuccess(Map<String, Object> lstResult) {
 						String mode = (String) request.getRequest().get(CompositeSearchParams.mode.name());
-						if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("x", mode)) {
+						if (StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection", mode)) {
 							Map<String, Object> result = getCollectionsResult(lstResult, processor, request);
 							OK(result, parent);
 						} else {

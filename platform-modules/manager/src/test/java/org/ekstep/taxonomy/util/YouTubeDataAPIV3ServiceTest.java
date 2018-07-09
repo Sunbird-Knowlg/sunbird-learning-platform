@@ -183,9 +183,14 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 		String mimeType = "video/x-youtube";
 		String fileUrl = "https://goo.gl/bVBJNK";
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
-		/*String errMsg = (String) response.getParams().getErrmsg();
-		String resCode = (String) response.getResponseCode().toString();
-		assertEquals("CLIENT_ERROR", resCode);
-		assertEquals("Please Provide Valid YouTube URL!", errMsg);*/
+		
+	}
+	
+	// check license of valid youtube url.
+	@Test
+	public void testYouTubeService_11() throws Exception {
+		String artifactUrl = "https://youtu.be/WM4ys_PnrUY";
+		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		assertEquals("youtube", result);
 	}
 }
