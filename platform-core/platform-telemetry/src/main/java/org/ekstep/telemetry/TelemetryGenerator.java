@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TelemetryGenerator {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static String environment = Platform.config.getString("telemetry_env");
+	private static String environment = Platform.config.hasPath("telemetry_env") ? Platform.config.getString("telemetry_env") : "local";
 	private static Producer producer = new Producer(environment + ".ekstep.learning.platform", "1.0");
 
 	public static void setComponent(String component) {
