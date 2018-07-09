@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import com.datastax.driver.core.Row;
 
 /**
- * @author mahesh
+ * @author gauraw
  *
  */
 @Component

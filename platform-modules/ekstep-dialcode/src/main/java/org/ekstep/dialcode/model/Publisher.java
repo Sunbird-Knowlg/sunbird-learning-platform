@@ -6,7 +6,7 @@ package org.ekstep.dialcode.model;
 import java.io.Serializable;
 
 /**
- * @author amitpriyadarshi
+ * @author gauraw
  *
  */
 public class Publisher implements Serializable{
