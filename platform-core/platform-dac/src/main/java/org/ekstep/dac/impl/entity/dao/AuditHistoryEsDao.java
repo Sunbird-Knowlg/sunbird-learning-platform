@@ -10,6 +10,7 @@ import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.dac.enums.AuditHistoryConstants;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -19,6 +20,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import scala.concurrent.Await;
 
 @Component("auditHistoryEsDao")
 public class AuditHistoryEsDao {
@@ -54,7 +56,7 @@ public class AuditHistoryEsDao {
 		List<Object>  result= new ArrayList<Object>();
 			try {
 				TelemetryManager.log("sending search request to search processor" + search);
-				result = (List<Object>) processor.processSearchQuery(search, false, AuditHistoryConstants.AUDIT_HISTORY_INDEX);
+				result = Await.result(processor.processSearchQuery(search, false, AuditHistoryConstants.AUDIT_HISTORY_INDEX), RequestRouterPool.WAIT_TIMEOUT.duration());
 				TelemetryManager.log("result from search processor: " + result);
 			} catch (Exception e) {
 				TelemetryManager.error("error while processing the search request: "+ e.getMessage(), e);

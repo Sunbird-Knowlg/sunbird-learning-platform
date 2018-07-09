@@ -18,6 +18,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import scala.concurrent.Await;
 
 /**
  * The Class SuggestionManager provides implementations of the various
@@ -519,8 +521,8 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		List<Object> result = new ArrayList<Object>();
 		try {
 			TelemetryManager.log("sending search request to search processor" + search);
-			result = (List<Object>) processor.processSearchQuery(search, false,
-					SuggestionConstants.SUGGESTION_INDEX);
+			result = Await.result(processor.processSearchQuery(search, false,
+					SuggestionConstants.SUGGESTION_INDEX), RequestRouterPool.WAIT_TIMEOUT.duration());
 			TelemetryManager.log("result from search processor" + result);
 		} catch (Exception e) {
 			TelemetryManager.error("error while processing the search request: "+ e.getMessage(), e);
