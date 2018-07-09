@@ -1,5 +1,0 @@
-{
-    "name": "execute_commands_concurrently",
-    "type": "COMMAND",
-    "cmdClass": "org.ekstep.orchestrator.interpreter.command.ExecuteConcurrentCommands"
-}

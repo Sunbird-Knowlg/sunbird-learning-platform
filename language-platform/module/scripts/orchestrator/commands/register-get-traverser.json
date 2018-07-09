@@ -1,5 +1,0 @@
-{
-    "name": "get_traverser",
-    "type": "COMMAND",
-    "cmdClass": "org.ekstep.orchestrator.interpreter.command.GetTraverser"
-}

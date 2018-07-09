@@ -1,5 +1,0 @@
-{
-    "name": "convert_jsonstring_to_map",
-    "type": "COMMAND",
-    "cmdClass": "org.ekstep.orchestrator.interpreter.command.convertJSONStringToMap"
-}
