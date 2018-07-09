@@ -55,11 +55,6 @@
             <version>4.2</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-    		<groupId>com.moparisthebest</groupId>
-    		<artifactId>junidecode</artifactId>
-    		<version>0.1.1</version>
-		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>graph-engine</artifactId>

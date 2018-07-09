@@ -1,13 +1,13 @@
 package org.ekstep.taxonomy.mgr.impl;
 import java.io.File;
 
+import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
-import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.dac.enums.GraphDACParams;

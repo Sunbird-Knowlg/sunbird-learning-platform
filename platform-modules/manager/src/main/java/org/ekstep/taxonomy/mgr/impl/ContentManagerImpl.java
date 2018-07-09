@@ -23,6 +23,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.Slug;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.NodeDTO;
@@ -37,7 +38,6 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
@@ -220,7 +220,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				setMimeTypeForUpload(mimeType, node);
 				updateMimeType = true;
 			}
-
+			if (StringUtils.equals("video/x-youtube", mimeType))
+				checkYoutubeLicense(fileUrl, node);
 			TelemetryManager.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
@@ -473,7 +474,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
-		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
+		String license = (String) node.getMetadata().get("license");
+		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl && StringUtils.isBlank(license))
 			checkYoutubeLicense(artifactUrl, node);
 		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 
@@ -981,6 +983,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 			contentMap.put("children", childList);
 		}
+		// TODO: Not the best Solution, need to optimize
+		contentMap.remove("collections");
+		contentMap.remove("usedByContent");
+		contentMap.remove("item_sets");
+		contentMap.remove("methods");
+		contentMap.remove("libraries");
 		return contentMap;
 	}
 
@@ -1382,6 +1390,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null != node) {
 				Map<String, Object> map = (Map<String, Object>) entry.getValue();
 				List<String> children = (List<String>) map.get("children");
+				children = children.stream().distinct().collect(Collectors.toList());
 				if (null != children) {
 					List<Relation> outRelations = node.getOutRelations();
 					if (null == outRelations)
@@ -1590,8 +1599,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
 				node.getMetadata().put("license", "Standard YouTube License");
-			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
+			else if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
+			else {
+				TelemetryManager.log("Got Unsupported Youtube License Type : " + licenseType + " | [Content ID: "
+						+ node.getIdentifier() + "]");
+				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(),
+						"Unsupported Youtube License!");
+			}
 		}
 	}
 

@@ -36,9 +36,12 @@ import static com.jayway.restassured.http.ContentType.JSON;
 public class UpdateHierarchyTest extends BaseTest{
 
 	int rn = generateRandomInt(0, 9999999);
-	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonUpdateHierarchyTwoChild = "{\"request\":{\"data\":{\"nodesModified\":{\"unitId1\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\", \"name\":\"LP_FT_CourseUnit1_+rn+\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}},\"unitId2\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"name\":\"LP_FT_CourseUnit2_+rn+\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}}},"
 			+ "\"hierarchy\":{\"TextbookId\":{\"name\":\"LP_NFT_Collection_"+rn+"\",\"contentType\":\"TextBook\",\"children\":[\"unitId1\",\"unitId2\"],\"root\":true},\"unitId1\":{\"name\":\"LP_FT_CourseUnit1_"+rn+"\",\"contentType\":\"TextBookUnit\",\"children\":[\"contentId1\"],\"root\":false},\"unitId2\":{\"name\":\"LP_FT_CourseUnit2_"+rn+"\",\"contentType\":\"TextBookUnit\",\"children\":[\"contentId2\"],\"root\":false},\"contentId1\":{\"name\":\"LP_FT_Content1_"+rn+"\",\"root\":false},"
+			+ "\"contentId2\":{\"name\":\"LP_FT_Content2_"+rn+"\",\"root\":false}}}}}";
+	String jsonUpdateHierarchyWithDuplicateChild = "{\"request\":{\"data\":{\"nodesModified\":{\"unitId1\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\", \"name\":\"LP_FT_CourseUnit1_+rn+\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}},\"unitId2\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"name\":\"LP_FT_CourseUnit2_+rn+\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}}},"
+			+ "\"hierarchy\":{\"TextbookId\":{\"name\":\"LP_NFT_Collection_"+rn+"\",\"contentType\":\"TextBook\",\"children\":[\"unitId1\",\"unitId2\", \"unitId1\", \"unitId2\", \"unitId1\", \"unitId2\"],\"root\":true},\"unitId1\":{\"name\":\"LP_FT_CourseUnit1_"+rn+"\",\"contentType\":\"TextBookUnit\",\"children\":[\"contentId1\"],\"root\":false},\"unitId2\":{\"name\":\"LP_FT_CourseUnit2_"+rn+"\",\"contentType\":\"TextBookUnit\",\"children\":[\"contentId2\"],\"root\":false},\"contentId1\":{\"name\":\"LP_FT_Content1_"+rn+"\",\"root\":false},"
 			+ "\"contentId2\":{\"name\":\"LP_FT_Content2_"+rn+"\",\"root\":false}}}}}";
 	String jsonUpdateHierarchyOneChild = "{\"request\":{\"data\":{\"nodesModified\":{\"unitId1\":{\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"name\":\"LP_FT_CourseUnit1_"+rn+"\",\"contentType\":\"TextBookUnit\",\"code\":\"Test_QA\"}}},\"hierarchy\":{\"TextbookId\":{\"name\":\"LP_NFT_Collection_"+rn+"\",\"contentType\":\"TextBook\",\"children\":[\"unitId1\"],\"root\":true},\"unitId1\":{\"name\":\"LP_FT_CourseUnit1_"+rn+"\","
 			+ "\"contentType\":\"TextBookUnit\",\"children\":[\"contentId1\"],\"root\":false},\"contentId1\":{\"name\":\"LP_FT_Content1_"+rn+"\",\"root\":false}}}}}";
@@ -211,6 +214,55 @@ public class UpdateHierarchyTest extends BaseTest{
 	given().
 	spec(getRequestSpecification(contentType, userId, APIToken)).
 	body(jsonUpdateHierarchyTwoChild).
+	with().
+	contentType(JSON).
+	when().
+	patch("/content/v3/hierarchy/update/").
+	then().
+	// log().all().
+	spec(get200ResponseSpec());
+	
+	//Publish the textbook
+	setURI();
+	given().
+	spec(getRequestSpecification(contentType, userId, APIToken)).
+	body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+	when().
+	post("/content/v3/publish/"+textBookId).
+	then().
+	// log().all().
+	spec(get200ResponseSpec());
+	validateEcar(textBookId);
+	}
+	
+	@Test
+	public void updateHierarchyWithDuplicateChildrenExpectSuccess200(){		
+	createContent();
+	createTextBookUnit();
+	// Create TextBook 
+	setURI();
+	Response Res3 = 
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body(jsonCreateValidTextBook).
+			when().
+			post("/content/v3/create").
+			then().
+			// log().all().
+			spec(get200ResponseSpec()).
+			extract().response();
+	
+	JsonPath jPath3 = Res3.jsonPath();
+	String textBookId = jPath3.get("result.node_id");
+	
+	// Update Hierarchy
+	setURI();
+	// System.out.println(contentId1 +contentId2+ unitId1 +unitId2);
+	jsonUpdateHierarchyWithDuplicateChild = jsonUpdateHierarchyWithDuplicateChild.replaceAll("TextbookId", textBookId).replaceAll("unitId1", unitId1).replaceAll("unitId2", unitId2).replaceAll("contentId1", contentId1).replaceAll("contentId2", contentId2);
+	// System.out.println(jsonUpdateHierarchyTwoChild);
+	given().
+	spec(getRequestSpecification(contentType, userId, APIToken)).
+	body(jsonUpdateHierarchyWithDuplicateChild).
 	with().
 	contentType(JSON).
 	when().

@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.slugs.Slug;
+import org.ekstep.common.Slug;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.amazonaws.AmazonClientException;

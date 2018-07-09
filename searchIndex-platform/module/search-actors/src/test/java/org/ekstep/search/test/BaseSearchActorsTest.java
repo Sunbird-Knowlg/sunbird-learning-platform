@@ -53,21 +53,21 @@ public class BaseSearchActorsTest {
 		ElasticSearchUtil.deleteIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 	}
 	
-	protected Response jsonToObject(ResultActions actions) {
-		String content = null;
-		Response resp = null;
-		try {
-			content = actions.andReturn().getResponse().getContentAsString();
-			ObjectMapper objectMapper = new ObjectMapper();
-			if (StringUtils.isNotBlank(content))
-				resp = objectMapper.readValue(content, Response.class);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return resp;
-	}
+//	protected Response jsonToObject(ResultActions actions) {
+//		String content = null;
+//		Response resp = null;
+//		try {
+//			content = actions.andReturn().getResponse().getContentAsString();
+//			ObjectMapper objectMapper = new ObjectMapper();
+//			if (StringUtils.isNotBlank(content))
+//				resp = objectMapper.readValue(content, Response.class);
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return resp;
+//	}
 	
 	protected Request getSearchRequest() {
         Request request = new Request();

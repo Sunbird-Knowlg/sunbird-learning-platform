@@ -1,8 +1,10 @@
 package org.ekstep.taxonomy.util;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +13,9 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
@@ -41,6 +45,13 @@ public class YouTubeDataAPIV3Service {
 	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
 
 	private static final String ERR_MSG = "Please Provide Valid YouTube URL!";
+	private static final String SERVICE_ERROR = "Unable to Check License. Please Try Again After Sometime!";
+
+	private static final List<String> errorCodes = Arrays.asList("dailyLimitExceeded402", "limitExceeded",
+			"dailyLimitExceeded", "quotaExceeded", "userRateLimitExceeded", "quotaExceeded402", "keyExpired",
+			"keyInvalid");
+
+	private static boolean limitExceeded = false;
 
 	private static YouTube youtube = null;
 
@@ -77,20 +88,30 @@ public class YouTubeDataAPIV3Service {
 					licenceType = singleVideo.getStatus().getLicense().toString();
 				}
 			}
+		} catch (GoogleJsonResponseException ex) {
+			Map<String, Object> error = ex.getDetails().getErrors().get(0);
+			String reason = (String) error.get("reason");
+			if (errorCodes.contains(reason)) {
+				limitExceeded = true;
+				TelemetryManager
+						.log("Youtube API Limit Exceeded. Reason is: " + reason + " | Error Details : " + ex);
+			}
 		} catch (Exception e) {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}
-		if (StringUtils.isBlank(licenceType))
+		if (StringUtils.isBlank(licenceType) && !limitExceeded)
 			throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), ERR_MSG);
+
+		if (StringUtils.isBlank(licenceType) && limitExceeded)
+			throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), SERVICE_ERROR);
 
 		return licenceType;
 	}
 
 	private static String getIdFromUrl(String url) {
 		String videoLink = getVideoLink(url);
-		String[] videoIdRegex = { "\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)",
-				"^([A-Za-z0-9\\-]*)" };
+		List<String> videoIdRegex = Platform.config.getStringList("youtube.license.regex.pattern");
 		for (String regex : videoIdRegex) {
 			Pattern compiledPattern = Pattern.compile(regex);
 			Matcher matcher = compiledPattern.matcher(videoLink);

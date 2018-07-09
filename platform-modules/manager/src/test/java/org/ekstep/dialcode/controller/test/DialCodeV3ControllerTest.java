@@ -44,7 +44,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author gauraw
  *
  */
-@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -55,7 +54,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	private WebApplicationContext context;
 
 	@Autowired
-	private static DialCodeManagerImpl dialCodeMgr;
+	private DialCodeManagerImpl dialCodeMgr;
 
 	MockMvc mockMvc;
 	private ResultActions actions;
@@ -80,12 +79,6 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	@BeforeClass
 	public static void setup() throws Exception {
 		executeScript(cassandraScript_1, cassandraScript_2, cassandraScript_3, cassandraScript_4, cassandraScript_5);
-		if (StringUtils.isBlank(publisherId))
-			createPublisher();
-		if (StringUtils.isBlank(dialCode))
-			generateDIALCode();
-		createDialCodeIndex();
-
 	}
 
 	@AfterClass
@@ -100,9 +93,10 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 			createPublisher();
 		if (StringUtils.isBlank(dialCode))
 			generateDIALCode();
+		createDialCodeIndex();
 	}
 
-	private static void generateDIALCode() throws Exception {
+	private void generateDIALCode() throws Exception {
 		String dialCodeGenReq = "{\"count\":1,\"publisher\": \"mock_pub01\",\"batchCode\":\"test_math_std1\"}";
 		String channelId = "channelTest";
 		Map<String, Object> requestMap = mapper.readValue(dialCodeGenReq, new TypeReference<Map<String, Object>>() {
@@ -115,7 +109,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 		}
 	}
 
-	private static void createPublisher() throws Exception {
+	private void createPublisher() throws Exception {
 		String createPublisherReq = "{\"identifier\":\"mock_pub01\",\"name\": \"Mock Publisher 1\"}";
 		String channelId = "channelTest";
 		Map<String, Object> requestMap = mapper.readValue(createPublisherReq, new TypeReference<Map<String, Object>>() {

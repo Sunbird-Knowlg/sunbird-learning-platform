@@ -2,10 +2,10 @@ package org.ekstep.jobs.samza.test;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpHost;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -13,10 +13,8 @@ import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.util.ControllerUtil;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -35,10 +33,9 @@ abstract public class BaseTest {
 	protected static String graphId = "domain";
 
 	private static String hostAddress = "localhost";
-	private static int port = 9300;
+	private static int port = 9200;
 	private static File tempDir = null;
-	protected static TransportClient client = null;
-	static String clusterName = null;
+	protected static RestHighLevelClient client = null;
 	
 	@BeforeClass
 	public static void before() throws UnknownHostException {
@@ -59,11 +56,7 @@ abstract public class BaseTest {
 		}
 		
 		tempDir = new File(System.getProperty("user.dir") + "/tmp");
-		Settings settings = Settings.builder().put("client.transport.sniff", true)
-				.put("client.transport.ignore_cluster_name", true).build();
-		client = new PreBuiltTransportClient(settings);
-		client.addTransportAddress(new TransportAddress(InetAddress.getByName(hostAddress), port));
-		clusterName = client.settings().get("cluster.name");
+		client = new RestHighLevelClient(RestClient.builder(new HttpHost(hostAddress, port)));
 	}
 	
 	@AfterClass

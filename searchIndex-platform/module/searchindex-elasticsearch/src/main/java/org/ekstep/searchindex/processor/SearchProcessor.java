@@ -10,13 +10,11 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
-import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery.ScoreMode;
@@ -34,7 +32,12 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+
+import akka.dispatch.Mapper;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
 
 public class SearchProcessor {
 
@@ -42,7 +45,6 @@ public class SearchProcessor {
 	private static final String ASC_ORDER = "asc";
 	private static final String AND = "AND";
 	private boolean relevanceSort = false;
-	private String indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 
 	public SearchProcessor() {
 		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -50,42 +52,47 @@ public class SearchProcessor {
 	}
 	
 	public SearchProcessor(String indexName) {
-		this.indexName = indexName;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults)
+	public Future<Map<String, Object>> processSearch(SearchDTO searchDTO, boolean includeResults)
 			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> response = new HashMap<String, Object>();
+		SearchSourceBuilder query = processSearchQuery(searchDTO, groupByFinalList, true);
+		Future<SearchResponse> searchResponse = ElasticSearchUtil.search(
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				query);
 
-		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, true);
-		SearchResponse searchResult = ElasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-		if (includeResults) {
-			if (searchDTO.isFuzzySearch()) {
-				List<Map> results = ElasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
-				response.put("results", results);
-			} else {
-				List<Object> results = ElasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
-				response.put("results", results);
+		return searchResponse.map(new Mapper<SearchResponse, Map<String, Object>>() {
+			public Map<String, Object> apply(SearchResponse searchResult) {
+				Map<String, Object> resp = new HashMap<>();
+				if (includeResults) {
+					if (searchDTO.isFuzzySearch()) {
+						List<Map> results = ElasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
+						resp.put("results", results);
+					} else {
+						List<Object> results = ElasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
+						resp.put("results", results);
+					}
+				}
+				Aggregations aggregations = searchResult.getAggregations();
+				if (null != aggregations) {
+					AggregationsResultTransformer transformer = new AggregationsResultTransformer();
+					resp.put("facets", (List<Map<String, Object>>) ElasticSearchUtil
+							.getCountFromAggregation(aggregations, groupByFinalList, transformer));
+				}
+				resp.put("count", (int) searchResult.getHits().getTotalHits());
+				return resp;
 			}
-		}
-		Aggregations aggregations = searchResult.getAggregations();
-		if (null != aggregations) {
-			AggregationsResultTransformer transformer = new AggregationsResultTransformer();
-			response.put("facets", (List<Map<String, Object>>) ElasticSearchUtil.getCountFromAggregation(aggregations,
-					groupByFinalList, transformer));
-		}
-		response.put("count", (int) searchResult.getHits().getTotalHits());
-		return response;
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 	public Map<String, Object> processCount(SearchDTO searchDTO) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
-		SearchRequestBuilder searchRequestBuilder = processSearchQuery(searchDTO, null, false);
-		searchRequestBuilder.setFrom(searchDTO.getOffset()).setSize(0);
+		SearchSourceBuilder searchSourceBuilder = processSearchQuery(searchDTO, null, false);
+		searchSourceBuilder.from(searchDTO.getOffset()).size(0);
 		int countResult = ElasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				searchRequestBuilder);
+				searchSourceBuilder);
 		response.put("count", countResult);
 
 		return response;
@@ -199,15 +206,15 @@ public class SearchProcessor {
 	 * @param b
 	 * @return
 	 */
-	private SearchRequestBuilder processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList,
+	private SearchSourceBuilder processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList,
 			boolean sortBy) {
 
-		SearchRequestBuilder searchRequestBuilder = ElasticSearchUtil.getSearchRequestBuilder(indexName);
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		List<String> fields = searchDTO.getFields();
 		if (null != fields && !fields.isEmpty()) {
-			fields.add(GraphDACParams.objectType.name());
-			fields.add(GraphDACParams.identifier.name());
-			searchRequestBuilder.setFetchSource(fields.toArray(new String[fields.size()]), null);
+			fields.add("objectType");
+			fields.add("identifier");
+			searchSourceBuilder.fetchSource(fields.toArray(new String[fields.size()]), null);
 		}
 
 		if (searchDTO.getFacets() != null && groupByFinalList != null) {
@@ -218,8 +225,8 @@ public class SearchProcessor {
 			}
 		}
 
-		searchRequestBuilder.setSize(searchDTO.getLimit());
-		searchRequestBuilder.setFrom(searchDTO.getOffset());
+		searchSourceBuilder.size(searchDTO.getLimit());
+		searchSourceBuilder.from(searchDTO.getOffset());
 		QueryBuilder query = null;
 
 		if (searchDTO.isFuzzySearch()) {
@@ -229,7 +236,7 @@ public class SearchProcessor {
 			query = prepareSearchQuery(searchDTO);
 		}
 
-		searchRequestBuilder.setQuery(query);
+		searchSourceBuilder.query(query);
 
 		if (sortBy && !relevanceSort
 				&& (null == searchDTO.getSoftConstraints() || searchDTO.getSoftConstraints().isEmpty())) {
@@ -240,12 +247,12 @@ public class SearchProcessor {
 				sorting.put("lastUpdatedOn", "desc");
 			}
 			for (String key : sorting.keySet())
-				searchRequestBuilder.addSort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
+				searchSourceBuilder.sort(key + CompositeSearchConstants.RAW_FIELD_EXTENSION,
 						getSortOrder(sorting.get(key)));
 		}
-		setAggregations(groupByFinalList, searchRequestBuilder);
-		searchRequestBuilder.setTrackScores(true);
-		return searchRequestBuilder;
+		setAggregations(groupByFinalList, searchSourceBuilder);
+		searchSourceBuilder.trackScores(true);
+		return searchSourceBuilder;
 	}
 
 	/**
@@ -255,7 +262,7 @@ public class SearchProcessor {
 	 */
 	@SuppressWarnings("unchecked")
 	private void setAggregations(List<Map<String, Object>> groupByList,
-			SearchRequestBuilder searchRequestBuilder) {
+			SearchSourceBuilder searchSourceBuilder) {
 		TermsAggregationBuilder termBuilder = null;
 		if (groupByList != null && !groupByList.isEmpty()) {
 			for (Map<String, Object> groupByMap : groupByList) {
@@ -271,7 +278,7 @@ public class SearchProcessor {
 								.size(ElasticSearchUtil.defaultResultLimit));
 					}
 				}
-				searchRequestBuilder.addAggregation(termBuilder);
+				searchSourceBuilder.aggregation(termBuilder);
 			}
 		}
 	}
@@ -777,37 +784,46 @@ public class SearchProcessor {
 		return value.equalsIgnoreCase(ASC_ORDER) ? SortOrder.ASC : SortOrder.DESC;
 	}
 
-	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index) throws Exception {
+	public Future<List<Object>> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index)
+			throws Exception {
 		return processSearchQuery(searchDTO, includeResults, index, true);
 	}
 
-	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index, boolean sort)
+	public Future<List<Object>> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index,
+			boolean sort)
 			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
-		List<Object> response = new ArrayList<Object>();
 		if (searchDTO.getLimit() == 0)
 			searchDTO.setLimit(ElasticSearchUtil.defaultResultLimit);
-		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
+		SearchSourceBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
-		SearchResponse searchResult = ElasticSearchUtil.search(index, query);
-		TelemetryManager.log("search result from elastic search" + searchResult);
-		SearchHits resultMap = searchResult.getHits();
-		SearchHit[] result = resultMap.getHits();
-		for (SearchHit hit : result) {
-			response.add(hit.getSourceAsMap());
-		}
-		TelemetryManager.log("search response size: " + response.size());
-		return response;
+		Future<SearchResponse> searchResponse = ElasticSearchUtil.search(index, query);
+		
+		return searchResponse.map(new Mapper<SearchResponse, List<Object>>() {
+			public List<Object> apply(SearchResponse searchResult) {
+				List<Object> response = new ArrayList<Object>();
+				TelemetryManager.log("search result from elastic search" + searchResult);
+				SearchHits resultMap = searchResult.getHits();
+				SearchHit[] result = resultMap.getHits();
+				for (SearchHit hit : result) {
+					response.add(hit.getSourceAsMap());
+				}
+				TelemetryManager.log("search response size: " + response.size());
+				return response;
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
+		
 	}
 
-	public SearchResponse processSearchQueryWithSearchResult(SearchDTO searchDTO, boolean includeResults, String index,
+	public Future<SearchResponse> processSearchQueryWithSearchResult(SearchDTO searchDTO, boolean includeResults,
+			String index,
 			boolean sort) throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		if (searchDTO.getLimit() == 0)
 			searchDTO.setLimit(ElasticSearchUtil.defaultResultLimit);
-		SearchRequestBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
+		SearchSourceBuilder query = processSearchQuery(searchDTO, groupByFinalList, sort);
 		TelemetryManager.log(" search query: " + query);
-		SearchResponse searchResult = ElasticSearchUtil.search(index, query);
+		Future<SearchResponse> searchResult = ElasticSearchUtil.search(index, query);
 		TelemetryManager.log("search result from elastic search" + searchResult);
 		return searchResult;
 	}

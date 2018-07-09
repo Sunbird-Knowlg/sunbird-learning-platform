@@ -5,26 +5,25 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.HttpHost;
 import org.apache.samza.config.Config;
 import org.apache.samza.config.MapConfig;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.dac.enums.AuditHistoryConstants;
 import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,26 +40,16 @@ public class AuditHistoryIndexerServiceTest {
 	
 	private AuditHistoryIndexerService service = new AuditHistoryIndexerService();
 	private static String hostAddress = "localhost";
-	private static int port = 9300;
+	private static int port = 9200;
 	private static File tempDir = null;
-	private static Settings settings = null;
-	protected static TransportClient client = null;
+	protected static RestHighLevelClient client = null;
 	private MessageCollector collector;
 	private ObjectMapper mapper = new ObjectMapper();
-	static String clusterName = null;
 
 	@BeforeClass
 	public static void beforeClass() throws UnknownHostException {
 		tempDir = new File(System.getProperty("user.dir") + "/tmp");
-		settings = Settings.builder()
-				.put("path.home", tempDir.getAbsolutePath())
-				.put("transport.tcp.port","9500")
-				.build();
-		Settings settings = Settings.builder().put("client.transport.sniff", true)
-				.put("client.transport.ignore_cluster_name", true).build();
-		client = new PreBuiltTransportClient(settings);
-		client.addTransportAddress(new TransportAddress(InetAddress.getByName(hostAddress), port));
-		clusterName = client.settings().get("cluster.name");
+		client = new RestHighLevelClient(RestClient.builder(new HttpHost(hostAddress, port)));
 	}
 	
 	@AfterClass
@@ -72,8 +61,7 @@ public class AuditHistoryIndexerServiceTest {
 	@Test
 	public void getAuditHistoryRecordWithValidMessage() throws Exception{
 	    Map<String,String> props = new HashMap<String,String>();
-		props.put("elastic-search-host", "http://localhost");
-		props.put("elastic-search-port", "9200");
+		props.put("search.es_conn_info", "localhost:9200");
 		
 		Config config = new MapConfig(props);
 		service.initialize(config);
@@ -83,7 +71,7 @@ public class AuditHistoryIndexerServiceTest {
 		service.processMessage(messageData, metrics, collector);
 		Thread.sleep(2000);
 		
-		Map<String,Object> map = findById("domain", client);
+		Map<String, Object> map = findById("domain");
 		assertEquals(true, map.containsKey("summary"));
 		assertEquals(true, map.containsKey("logRecord"));
 		assertEquals("org.ekstep.jul03.story.test01", (String)map.get("objectId"));
@@ -92,8 +80,7 @@ public class AuditHistoryIndexerServiceTest {
 	@Test
 	public void getAuditHistoryRecordWithInValidMessage() throws Exception{
 	    Map<String,String> props = new HashMap<String,String>();
-		props.put("elastic-search-host", "http://localhost");
-		props.put("elastic-search-port", "9200");
+		props.put("search.es_conn_info", "localhost:9200");
 		
 		Config config = new MapConfig(props);
 		service.initialize(config);
@@ -103,14 +90,13 @@ public class AuditHistoryIndexerServiceTest {
 		service.processMessage(messageData, metrics, collector);
 		Thread.sleep(2000);
 		
-		Map<String,Object> map = findById("ka", client);
+		Map<String, Object> map = findById("ka");
 		assertEquals(null, (String)map.get("objectId"));
 	}
 	
-	public Map<String, Object> findById(String graphId, Client client) {
-		SearchResponse response = client.prepareSearch(AuditHistoryConstants.AUDIT_HISTORY_INDEX)
-				.setTypes(AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE)
-				.setQuery(QueryBuilders.termQuery("graphId", graphId)).execute().actionGet();
+	public Map<String, Object> findById(String graphId) throws IOException {
+		SearchResponse response = client.search(new SearchRequest(AuditHistoryConstants.AUDIT_HISTORY_INDEX)
+				.source(new SearchSourceBuilder().query(QueryBuilders.termQuery("graphId", graphId))));
 		SearchHits hits = response.getHits();
 		for (SearchHit hit : hits.getHits()) {
 			Map<String, Object> fields = hit.getSourceAsMap();

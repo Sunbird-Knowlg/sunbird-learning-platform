@@ -46,7 +46,7 @@ public class AuditEventGeneratorTask implements StreamTask, InitableTask, Window
 			auditEventGenerator.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
 			metrics.incErrorCounter();
-			LOGGER.error("Message processing Error", outgoingMap, e);
+			LOGGER.error("Message processing Error", e);
 		}
 	}
 

@@ -2441,6 +2441,7 @@
 				},
 				"softConstraints": {
 					"medium": 15,
+					"subject": 15,
 					"ageGroup": 1,
 					"gradeLevel": 7,
 					"board": 4

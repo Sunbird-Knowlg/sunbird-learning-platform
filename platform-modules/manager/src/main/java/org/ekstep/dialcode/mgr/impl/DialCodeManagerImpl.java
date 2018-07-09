@@ -18,6 +18,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.dialcode.common.DialCodeErrorCodes;
 import org.ekstep.dialcode.common.DialCodeErrorMessage;
 import org.ekstep.dialcode.enums.DialCodeEnum;
@@ -38,6 +39,9 @@ import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.Row;
 import com.google.gson.Gson;
+
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 /**
  * The Class <code>DialCodeManagerImpl</code> is the implementation of
@@ -469,8 +473,9 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put("dialcode_index", "asc");
 		searchDto.setSortBy(sortBy);
-		SearchResponse searchResponse = processor.processSearchQueryWithSearchResult(searchDto, false,
+		Future<SearchResponse> searchResp = processor.processSearchQueryWithSearchResult(searchDto, false,
 				CompositeSearchConstants.DIAL_CODE_INDEX, true);
+		SearchResponse searchResponse = Await.result(searchResp, RequestRouterPool.WAIT_TIMEOUT.duration());
 		searchResult = ElasticSearchUtil.getDocumentsFromHits(searchResponse.getHits());
 		dialCodeSearch.put(DialCodeEnum.count.name(), (int) searchResponse.getHits().getTotalHits());
 		dialCodeSearch.put(DialCodeEnum.dialcodes.name(), searchResult);

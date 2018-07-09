@@ -1,4 +1,4 @@
-package org.ekstep.common.slugs;
+package org.ekstep.common;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 import net.sf.junidecode.Junidecode;
 
@@ -36,7 +35,7 @@ public class Slug {
                 return newFile;
             }
         } catch (Exception e) {
-            TelemetryManager.error("Error creating slug of the file: " + f + " Error message: " + e.getMessage());
+            e.printStackTrace();
         }
         return f;
     }
