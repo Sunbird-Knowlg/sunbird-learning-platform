@@ -142,7 +142,7 @@ public class AuditEventGenerator implements ISamzaService {
 		String pkgVersion = "";
 		Map<String, Object> pkgVerMap = (Map<String, Object>) propertyMap.get("pkgVersion");
 		if (null != pkgVerMap)
-			pkgVersion = (String) pkgVerMap.get("nv");
+			pkgVersion = String.valueOf(pkgVerMap.get("nv"));
 
 		String prevStatus = "";
 		String currStatus = "";
