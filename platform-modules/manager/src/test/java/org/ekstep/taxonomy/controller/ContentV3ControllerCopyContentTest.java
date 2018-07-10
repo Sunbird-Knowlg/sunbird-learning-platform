@@ -85,7 +85,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 
 	@AfterClass
 	public static void clean() {
-		tearKafkaServer();
+		//tearKafkaServer();
 	}
 
 	@Before
