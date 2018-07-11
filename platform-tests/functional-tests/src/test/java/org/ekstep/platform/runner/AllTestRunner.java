@@ -47,11 +47,6 @@ import org.ekstep.platform.domain.DomainAPITests;
 import org.ekstep.platform.domain.DomainV3APITests;
 import org.ekstep.platform.domain.MethodAPITests;
 import org.ekstep.platform.domain.MethodV3APITests;
-import org.ekstep.platform.language.DictionaryAPITests;
-import org.ekstep.platform.language.LessonComplexityTestCases;
-import org.ekstep.platform.language.LinkWordsTestCases;
-import org.ekstep.platform.language.ToolsAPITests;
-import org.ekstep.platform.language.WordPatchUpdateTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -65,7 +60,6 @@ import org.junit.runners.Suite;
 	DialCodeV3APITest.class, 
 	FrameworkAPITest.class, ChannelV3APITest.class, CategoryV3APITests.class, CategoryTermsV3APITests.class, FrameworkCategoryInstanceV3APITests.class, FrameworkTermsV3APITests.class, ChannelCategoryInstanceV3APITests.class, ChannelTermsV3APITests.class,
 	ConceptAPITests.class, ConceptAPIV3Tests.class, DataExportImportTestCases.class, DimensionAPITests.class, DimensionAPIV3Tests.class, DomainAPITests.class, DomainV3APITests.class, MethodAPITests.class, MethodV3APITests.class,
-	DictionaryAPITests.class, LessonComplexityTestCases.class, LinkWordsTestCases.class, ToolsAPITests.class, WordPatchUpdateTest.class
 	})
 public class AllTestRunner {
 
