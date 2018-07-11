@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.dac.enums.AuditHistoryConstants;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -20,7 +20,10 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import akka.util.Timeout;
 import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
 
 @Component("auditHistoryEsDao")
 public class AuditHistoryEsDao {
@@ -36,7 +39,8 @@ public class AuditHistoryEsDao {
 	/** The SearchProcessor */
 	private SearchProcessor processor = null;
 
-	private String connectionInfo = "localhost:9300";
+	private String connectionInfo = "localhost:9200";
+	private static final Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
 
 
 	@PostConstruct
@@ -56,7 +60,7 @@ public class AuditHistoryEsDao {
 		List<Object>  result= new ArrayList<Object>();
 			try {
 				TelemetryManager.log("sending search request to search processor" + search);
-				result = Await.result(processor.processSearchQuery(search, false, AuditHistoryConstants.AUDIT_HISTORY_INDEX), RequestRouterPool.WAIT_TIMEOUT.duration());
+				result = Await.result(processor.processSearchQuery(search, false, AuditHistoryConstants.AUDIT_HISTORY_INDEX), WAIT_TIMEOUT.duration());
 				TelemetryManager.log("result from search processor: " + result);
 			} catch (Exception e) {
 				TelemetryManager.error("error while processing the search request: "+ e.getMessage(), e);
