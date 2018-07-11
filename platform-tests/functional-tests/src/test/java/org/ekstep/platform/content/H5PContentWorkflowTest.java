@@ -14,6 +14,7 @@ import org.ekstep.platform.domain.BaseTest;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.builder.RequestSpecBuilder;
@@ -33,7 +34,7 @@ public class H5PContentWorkflowTest extends BaseTest {
 		return requestSpec;
 	}
 	
-	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_H5PContentWorkflowTest\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_H5PContentWorkflowTest\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.h5p-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_H5PContentWorkflowTest\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_H5PContentWorkflowTest\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.h5p-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT_H5PContentWorkflowTest\"}}";
 	String publishMessage = "Publish Operation for Content Id ‘LP_FT_H5PContentWorkflowTest’ Started Successfully!";
 
@@ -60,6 +61,7 @@ public class H5PContentWorkflowTest extends BaseTest {
 				.post("learning/v1/exec/content_qe_deleteContentBySearchStringInField");
 	}
 
+	@Ignore
 	@Test
 	public void createUploadAndPublishH5PContentExpectSuccess200() {
 		// Pre-Created Content Cleanup

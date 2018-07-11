@@ -1,17 +1,17 @@
 package org.ekstep.framework;
 
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.hasItems;
 
 import org.ekstep.platform.domain.BaseTest;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.http.ContentType.JSON;
-
+import org.junit.Ignore;
 import org.junit.Test;
 import org.testng.Assert;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-
+@Ignore
 public class ChannelTermsV3APITests extends BaseTest{
 
 	String categoryId;

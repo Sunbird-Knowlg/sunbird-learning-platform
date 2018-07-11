@@ -1,10 +1,12 @@
-package org.ekstep.platform.framework;
+package org.ekstep.framework;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.hasItems;
+
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
@@ -215,6 +217,7 @@ public class FrameworkAPITest extends BaseTest{
 	}
 	
 	// Update valid framework
+	@Ignore
 	@Test
 	public void updateValidFrameworkExpectSuccess200(){
 		setURI();
@@ -267,6 +270,7 @@ public class FrameworkAPITest extends BaseTest{
 	}
 	
 	// Update invalid framework
+	@Ignore
 	@Test
 	public void updateInvalidFrameworkExpect4xx(){
 		setURI();
@@ -283,6 +287,7 @@ public class FrameworkAPITest extends BaseTest{
 	}
 	
 	// Update framework code
+	@Ignore
 	@Test
 	public void updateFrameworkCodeExpect4xx(){
 		setURI();
@@ -458,6 +463,7 @@ public class FrameworkAPITest extends BaseTest{
 	}
 	
 	// Retire valid framework
+	@Ignore
 	@Test
 	public void retireValidFrameworkExpectSuccess200(){
 		setURI();
@@ -508,6 +514,7 @@ public class FrameworkAPITest extends BaseTest{
 	}
 	
 	// Retire invalid framework
+	@Ignore
 	@Test
 	public void retireInvalidFrameworkExpect4xx(){
 		setURI();
@@ -534,6 +541,7 @@ public class FrameworkAPITest extends BaseTest{
 	}
 	
 	// Retire retired framework
+	@Ignore
 	@Test
 	public void retireRetiredFrameworkExpectSuccess200(){
 		setURI();

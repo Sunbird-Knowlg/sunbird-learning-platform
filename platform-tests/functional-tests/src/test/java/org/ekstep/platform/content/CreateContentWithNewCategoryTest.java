@@ -19,8 +19,8 @@ import com.jayway.restassured.response.Response;
 
 public class CreateContentWithNewCategoryTest extends BaseTest {
 
-	String jsonCreateContentWithCategory = "{ \"request\": { \"content\": { \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"testContent\", \"category\":[ \"library\" ], \"language\": [ \"Hindi\" ], \"contentType\": \"Story\", \"code\": \"org.ekstep.plugin\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1 } } } ";
-	String jsonCreateContentWithNewGrade = "{ \"request\": { \"content\": { \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"testContent\", \"gradeLevel\":[ \"Grade 12\" ], \"language\": [ \"Hindi\" ], \"contentType\": \"Story\", \"code\": \"org.ekstep.plugin\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1 } } } ";
+	String jsonCreateContentWithCategory = "{ \"request\": { \"content\": { \"mediaType\": \"content\",\"mimeType\":\"application/pdf\", \"visibility\": \"Default\", \"name\": \"testContent\", \"category\":[ \"library\" ], \"language\": [ \"Hindi\" ], \"contentType\": \"Resource\", \"code\": \"org.ekstep.plugin\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1 } } } ";
+	String jsonCreateContentWithNewGrade = "{ \"request\": { \"content\": { \"mediaType\": \"content\",\"mimeType\":\"application/pdf\", \"visibility\": \"Default\", \"name\": \"testContent\", \"gradeLevel\":[ \"Class 2\" ], \"language\": [ \"Hindi\" ], \"contentType\": \"Resource\", \"code\": \"org.ekstep.plugin\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1 } } } ";
 	String nodeId = null;
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT\"}}";
 
@@ -66,7 +66,7 @@ public class CreateContentWithNewCategoryTest extends BaseTest {
 					when().
 					post("/learning/v2/content").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -94,7 +94,7 @@ public class CreateContentWithNewCategoryTest extends BaseTest {
 					when().
 					post("/learning/v2/content").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();

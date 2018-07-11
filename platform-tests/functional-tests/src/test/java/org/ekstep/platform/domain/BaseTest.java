@@ -37,6 +37,12 @@ public class BaseTest
 	public void parser(){
 		RestAssured.registerParser("text/csv", null);
 	}
+	
+	public void delay(long time){
+		try {
+			Thread.sleep(time);
+		} catch (Exception e) {}
+	}
 	/**
 	 * sets baseURI and basePath
 	 */
@@ -241,7 +247,7 @@ public class BaseTest
 	{
 		builderres.expectStatusCode(207);
 		builderres.expectBody("params.size()", is(5));
-		builderres.expectBody("params.status", equalTo("failed"));
+		builderres.expectBody("params.status", equalTo("partial successful"));
 		builderres.expectBody("responseCode", equalTo("PARTIAL_SUCCESS"));
 		ResponseSpecification responseSpec = builderres.build();
 		return responseSpec;

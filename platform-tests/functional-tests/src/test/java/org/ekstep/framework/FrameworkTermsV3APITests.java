@@ -4,10 +4,12 @@ package org.ekstep.framework;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.hasItems;
+
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.testng.Assert;
 
@@ -48,7 +50,6 @@ public class FrameworkTermsV3APITests extends BaseTest {
 				when().
 				post("/framework/v3/category/master/create").
 				then().
-				// log().all().
 				extract().response();
 		
 		JsonPath jp1 = R.jsonPath();
@@ -64,8 +65,6 @@ public class FrameworkTermsV3APITests extends BaseTest {
 				when().
 				post("/framework/v3/create").
 				then().
-				// log().all().
-				spec(get200ResponseSpec()).
 				extract().
 				response();
 		
@@ -81,7 +80,6 @@ public class FrameworkTermsV3APITests extends BaseTest {
 		contentType(JSON).
 		then().
 		post("/framework/v3/category/create?framework="+frameworkId);
-		// log().all();
 	}
 
 	// Create and validate valid framework term
@@ -782,6 +780,7 @@ public class FrameworkTermsV3APITests extends BaseTest {
 	}
 	
 	// Retire framework term with blank category and framework and blank framework term
+	@Ignore
 	@Test
 	public void retireBlankFrameworkTermWithBlankCategoryFrameworkExpect5xx(){
 		setURI();

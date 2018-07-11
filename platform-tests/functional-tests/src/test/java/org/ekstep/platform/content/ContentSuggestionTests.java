@@ -40,7 +40,7 @@ public class ContentSuggestionTests extends BaseTest {
 	int rn = generateRandomInt(0, 9999999);
 	String nodeId;
 	
-	String jsonCreateContentRequest = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+	String jsonCreateContentRequest = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT\"}}";
 	
 	String jsonCreateSuggestionRequest = "{\"request\":{\"content\":{\"objectId\":\"nodeId\",\"objectType\":\"content\",\"suggestedBy\":\"340\",\"command\":\"update\",\"params\":{\"gradeLevel\":[\"Grade 6\",\"Grade 8\"],\"ageGroup\":[\"5-6\"],\"language\":[\"Bengali\",\"English\",\"Hindi\",\"Tamil\",\"Telugu\"]}}}}";
@@ -49,7 +49,7 @@ public class ContentSuggestionTests extends BaseTest {
 	String jsonCreateSuggestionWithoutObjectId = "{ \"request\": {\"content\":{\"objectType\":\"content\", \"suggestedBy\":\"rashmi\", \"command\":\"update\", \"params\":{\"gradeLevel\":[\"kindergarten\"], \"code\":\"org.ekstep.test\", \"concepts\": [ { \"identifier\": \"LO46\", \"name\": \"Comprehension Of Stories\", \"objectType\": \"Concept\", \"relation\": \"associatedTo\", \"description\": \"Comprehension Of Stories\", \"index\": null } ] } } } } ";
 	String jsonCreateSuggestionWithoutObjectType = "{ \"request\": {\"content\":{\"objectId\":\"nodeId\", \"suggestedBy\":\"rashmi\", \"command\":\"update\", \"params\":{\"gradeLevel\":[\"kindergarten\"], \"code\":\"org.ekstep.test\", \"concepts\": [ { \"identifier\": \"LO46\", \"name\": \"Comprehension Of Stories\", \"objectType\": \"Concept\", \"relation\": \"associatedTo\", \"description\": \"Comprehension Of Stories\", \"index\": null } ] } } } } ";
 	String jsonCreateSuggestionWithoutParams = "{ \"request\": {\"content\":{\"objectId\":\"nodeId\", \"objectType\":\"content\", \"suggestedBy\":\"rashmi\", \"command\":\"update\"} } } } ";
-	String jsonCreateSuggestionWithNonExistingObjectId = "{ \"request\": { \"content\": {\"identifier\": \"LP_FT_Test\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"testContent\", \"language\": [ \"Hindi\"],\"contentType\": \"Story\", \"code\": \"org.ekstep.plugin\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1 } } } ";
+	String jsonCreateSuggestionWithNonExistingObjectId = "{ \"request\": { \"content\": {\"identifier\": \"LP_FT_Test\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"testContent\", \"language\": [ \"Hindi\"],\"contentType\": \"Resource\", \"code\": \"org.ekstep.plugin\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1 } } } ";
 	
 	String jsonRejectSuggestionWithValidRequest = "{ \"request\":{ \"content\":{ \"status\":\"reject\", \"comments\":[\"suggestion not applicable\"] } } } ";
 	String jsonRejectSuggestionWithoutStatus = "{ \"request\":{ \"content\":{\"comments\":[\"suggestion not applicable\"] } } } ";
@@ -142,7 +142,7 @@ public class ContentSuggestionTests extends BaseTest {
 				//spec(get200ResponseSpec());
 			}
 		}
-	
+	@Ignore
 	@Test
 	public void createSuggestions(){
 		createContent();
@@ -366,7 +366,7 @@ public class ContentSuggestionTests extends BaseTest {
 				Assert.assertEquals(message, expectedErrMsg);
 				Assert.assertEquals(err, expectedErr);
 	}
-	
+	@Ignore
 	@Test
 	public void readSuggestionByContentId(){
 		createSuggestions();
@@ -520,7 +520,7 @@ public class ContentSuggestionTests extends BaseTest {
 				extract().
 				response();
 	}
-	
+	@Ignore
 	@Test
 	public void approveSuggestionWithValidRequest(){
 		createSuggestions();
@@ -615,7 +615,7 @@ public class ContentSuggestionTests extends BaseTest {
 				extract().
 				response();
 	}
-	
+	@Ignore
 	@Test
 	public void listSuggestionWithValidRequest(){
 		setURI();

@@ -1,36 +1,15 @@
 package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.http.ContentType.JSON;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Iterator;
 
-import org.apache.commons.io.FileUtils;
 import org.ekstep.platform.content.ContentPublishWorkflowTests;
-import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.parsing.Parser;
-import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.RequestSpecification;
-
+@Ignore
 public class DataExportImportTestCases extends BaseTest{
 	
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();

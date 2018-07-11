@@ -37,7 +37,7 @@ public class ContentPublishV3Test extends BaseTest{
 	public void publishContentExpect200_01(){
 		//Create Content
 		int rn = generateRandomInt(0, 999999);
-		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		setURI();
 		Response res = 
 				given().
@@ -145,7 +145,7 @@ public class ContentPublishV3Test extends BaseTest{
 		contentType(JSON).
 		when().
 		post("content/v3/publish/"+identifier).
-		then().log().all().
+		then().//log().all().
 		spec(get400ResponseSpec());
 
 	}

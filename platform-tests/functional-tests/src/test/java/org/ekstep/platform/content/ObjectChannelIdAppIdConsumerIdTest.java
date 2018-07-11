@@ -5,13 +5,14 @@ import static com.jayway.restassured.http.ContentType.JSON;
 
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
-
+@Ignore
 public class ObjectChannelIdAppIdConsumerIdTest extends BaseTest {
 	
 	public RequestSpecification getRequestSpecWithHeaderExceptChannelId(String content_type,String user_id)
@@ -33,7 +34,7 @@ public class ObjectChannelIdAppIdConsumerIdTest extends BaseTest {
 	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn
 			+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"
 			+ rn
-			+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT_\"}}";
 
 	// Content clean up
