@@ -1,6 +1,5 @@
 package org.ekstep.platform.content;
 
-import org.ekstep.platform.domain.BaseTest;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,6 +19,7 @@ import org.ekstep.platform.domain.BaseTest;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -35,7 +34,7 @@ public class ContentFlaggingTests extends BaseTest{
 
 	int rn = generateRandomInt(0, 9999999);
 
-	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"org.ektep.test.plugin.ft\"}}";
+	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"org.ektep.test.plugin.ft\"}}";
 	String uploadedFile = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/org.ektep.test.plugin.ft/artifact/archive_1508928130106.zip";
 	
 	static ClassLoader classLoader = ChannelWorkflowTests.class.getClassLoader();
@@ -172,6 +171,7 @@ public class ContentFlaggingTests extends BaseTest{
 	}
 	
 	// Flag live content
+	@Ignore
 	@Test
 	public void flagLiveContentExpectSuccess200() {
 		String nodeId = createContent();
@@ -261,6 +261,7 @@ public class ContentFlaggingTests extends BaseTest{
 	}
 	
 	// Accept flag with valid flagged content
+	@Ignore
 	@Test
 	public void acceptFlagValidContentExpectSuccess200(){
 		String nodeId = createContent();
@@ -419,6 +420,7 @@ public class ContentFlaggingTests extends BaseTest{
 	}
 	
 	// Reject Flag valid content
+	@Ignore
 	@Test
 	public void rejectFlagValidContentExpectSuccess200(){
 		String nodeId = createContent();
@@ -685,6 +687,7 @@ public class ContentFlaggingTests extends BaseTest{
 	}
 	
 	// Review flagDraft content and check for flagReview state
+	@Ignore
 	@Test
 	public void reviewFlagDraftContentExpectSuccess200(){
 		String nodeId = createContent();
@@ -837,6 +840,7 @@ public class ContentFlaggingTests extends BaseTest{
 	}
 
 	// Publish flagReview Content and validate the status
+	@Ignore
 	@Test
 	public void publishFlagReviewContent(){
 		String nodeId = createContent();

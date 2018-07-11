@@ -3,14 +3,13 @@
  */
 package org.ekstep.framework;
 
-import org.ekstep.platform.domain.BaseTest;
-import org.json.JSONObject;
-
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.hasItems;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.platform.domain.BaseTest;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.testng.Assert;
@@ -145,10 +144,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		with().
 		contentType(JSON).
 		when().
-		post("/framework/v3/category/term/create?category="+categoryId+"").
-		then().
-		// log().all().
-		spec(get200ResponseSpec());
+		post("/framework/v3/category/term/create?category="+categoryId+"");
 		
 		// Create with existing id
 		setURI();
@@ -258,7 +254,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/term/create?category="+categoryId+"").
 		then().
-		// log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 		
 		setURI();
@@ -270,7 +266,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		when().
 		post("/framework/v3/category/term/search?category="+categoryId+"").
 		then().
-		// log().all().
+		//log().all().
 		spec(get200ResponseSpec()).
 		body("result.terms.status", hasItems("Live"));
 	}

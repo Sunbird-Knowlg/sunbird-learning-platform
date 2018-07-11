@@ -1,9 +1,10 @@
-	package org.ekstep.platform.domain;
+	package org.ekstep.platform.content;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.is;
 
+import org.ekstep.platform.domain.BaseTest;
 import org.junit.Ignore;
 import org.junit.Test;
 

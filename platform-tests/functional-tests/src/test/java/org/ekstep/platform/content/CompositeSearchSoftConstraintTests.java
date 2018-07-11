@@ -8,11 +8,12 @@ import java.util.Map;
 
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-
+@Ignore
 public class CompositeSearchSoftConstraintTests extends BaseTest {
 
 	String jsonValidRequest = "{\"request\":{\"mode\":\"soft\",\"softConstraints\":{\"gradeLevel\":3,\"ageGroup\":3},\"filters\":{\"objectType\":[\"Content\"],\"contentType\":[\"Story\",\"Worksheet\",\"Collection\",\"Game\"],\"gradeLevel\":\"Grade 1\",\"ageGroup\":\"5-6\",\"status\":[\"Live\"]}}}";

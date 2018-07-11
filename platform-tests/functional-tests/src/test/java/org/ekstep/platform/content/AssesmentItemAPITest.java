@@ -1,4 +1,4 @@
-package org.ekstep.platform.domain;
+package org.ekstep.platform.content;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;

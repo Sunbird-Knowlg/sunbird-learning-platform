@@ -1,27 +1,23 @@
 package org.ekstep.platform.content;
 
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.JSON;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
-
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,8 +25,7 @@ import com.google.gson.JsonParser;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.http.ContentType.JSON;
+import net.lingala.zip4j.core.ZipFile;
 
 
 public class UpdateHierarchyTest extends BaseTest{
@@ -426,6 +421,7 @@ public class UpdateHierarchyTest extends BaseTest{
 	}
 	
 	// Update leaf node with new children
+	@Ignore
 	@Test
 	public void updateLeafNodeExpectSuccess200(){
 		createContent();
