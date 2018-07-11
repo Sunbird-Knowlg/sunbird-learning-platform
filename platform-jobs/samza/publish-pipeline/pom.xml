@@ -19,6 +19,12 @@
 			<artifactId>content-manager</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.kafka</groupId>
+					<artifactId>kafka-clients</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
