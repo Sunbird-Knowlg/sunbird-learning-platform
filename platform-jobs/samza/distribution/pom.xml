@@ -45,13 +45,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>word-enrichment</artifactId>
-			<version>0.0.36</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
 			<version>0.0.110</version>
 			<type>tar.gz</type>
