@@ -162,14 +162,7 @@ public class App {
 			
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 			int batchSize = 50;
-			boolean moreLines = true;
-			while (moreLines) {
-				  Map<String, Integer> batch = readBatch(bufferedReader, batchSize);
-				  addUnpublishedContent(batch, notPublishedContent);
-				  if (batch.size() < batchSize) {
-				    moreLines = false;
-				  }
-			}
+			readBatch(bufferedReader, batchSize, notPublishedContent);
 			bufferedReader.close();
 			if(notPublishedContent.isEmpty()) {
 				System.out.println("****************** All contents got published ******************");
@@ -185,18 +178,23 @@ public class App {
 		}
 	}
 	
-	private static Map<String, Integer> readBatch(BufferedReader reader, int batchSize) throws IOException {
+	private static void readBatch(BufferedReader reader, int batchSize, List<String> notPublishedContent) throws IOException {
 		Map<String, Integer> resultMap = new HashMap<String, Integer>();   
-		for (int i = 0; i < batchSize; i++) {
-			String line = reader.readLine();
-			if (line != null) {
-				String[] arr = line.split(",");
-				resultMap.put(arr[0], Integer.parseInt(arr[1]));
-			} else {
-				return resultMap;
+		
+		boolean moreLines = true;
+		while(moreLines) {
+			for (int i = 0; i < batchSize; i++) {
+				String line = reader.readLine();
+				if (line != null) {
+					String[] arr = line.split(",");
+					resultMap.put(arr[0], Integer.parseInt(arr[1]));
+				} else {
+					moreLines = false;
+				}
 			}
+			addUnpublishedContent(resultMap, notPublishedContent);
+			resultMap = new HashMap<String, Integer>();
 		}
-		return resultMap;
 	}
 	
 	private static void addUnpublishedContent(Map<String, Integer> map, List<String> notPublishedContent) {
