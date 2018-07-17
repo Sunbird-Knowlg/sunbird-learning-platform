@@ -491,10 +491,19 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@Override
 	public Response getHierarchy(String contentId, String mode) {
 		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
-
+		boolean fetchAll = true;
+		String nodeStatus = (String) node.getMetadata().get("status");
+		if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+					"Content not found with id: " + contentId);
+		}else if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
+			fetchAll = false;
+		}
+		
+		
 		TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-		Map<String, Object> map = getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode);
+		Map<String, Object> map = getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, fetchAll);
 		Map<String, Object> dataMap = contentCleanUp(map);
 		Response response = new Response();
 		response.put("content", dataMap);
@@ -957,7 +966,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
-			String mode) {
+			String mode, boolean fetchAll) {
+		
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 
@@ -976,10 +986,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
 			for (NodeDTO dto : children) {
 				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
-				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode);
-				childMap.put("index", dto.getIndex());
-				Map<String, Object> childData = contentCleanUp(childMap);
-				childList.add(childData);
+				String nodeStatus = (String)childNode.getMetadata().get("status");
+				if((!StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) && 
+						(fetchAll || (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted")))) {
+					Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode, fetchAll);
+					childMap.put("index", dto.getIndex());
+					Map<String, Object> childData = contentCleanUp(childMap);
+					childList.add(childData);
+				}
+				
 			}
 			contentMap.put("children", childList);
 		}
@@ -1874,7 +1889,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private void copyhierarchy(Node existingNode, Map<String, String> idMap, String mode) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		Map<String, Object> contentMap = getContentHierarchyRecursive(existingNode.getGraphId(), 
-				existingNode, definition, mode);
+				existingNode, definition, mode, true);
 
 		Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
 				(List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
