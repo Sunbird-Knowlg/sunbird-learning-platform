@@ -527,7 +527,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * RESOURCE_NOT_FOUND
 	 * 
 	 */
-
+	@Ignore
 	@Test
 	public void testDialCodeLink_09() throws Exception {
 		String path = basePath + "/dialcode/link";

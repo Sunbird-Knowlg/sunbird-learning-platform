@@ -39,6 +39,7 @@ import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentMetadata;
@@ -49,10 +50,6 @@ import org.ekstep.content.mimetype.mgr.impl.H5PMimeTypeMgrImpl;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
-import org.ekstep.dialcode.common.DialCodeErrorCodes;
-import org.ekstep.dialcode.common.DialCodeErrorMessage;
-import org.ekstep.dialcode.enums.DialCodeEnum;
-import org.ekstep.dialcode.mgr.IDialCodeManager;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
@@ -77,11 +74,11 @@ import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
+import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
@@ -104,9 +101,6 @@ import scala.concurrent.Future;
  */
 @Component
 public class ContentManagerImpl extends BaseContentManager implements IContentManager {
-
-	@Autowired
-	private IDialCodeManager dialCodeMgr;
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -132,6 +126,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			"Diagnostic", "ContentTemplate", "ItemTemplate");
 	private List<String> finalStatus = Arrays.asList("Flagged", "Live", "Unlisted");
 	private List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
+
+	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
+	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.search.uri")
+			? Platform.config.getString("dialcode.search.uri") : "v3/dialcode/search";
 
 	/*
 	 * (non-Javadoc)
@@ -412,12 +410,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
-			if(!validateList(requestMap.get("publishChecklist"))) {
+			if (!validateList(requestMap.get("publishChecklist"))) {
 				requestMap.put("publishChecklist", null);
 			}
 			publisher = (String) requestMap.get("lastPublishedBy");
 			node.getMetadata().putAll(requestMap);
-			
+
 			node.getMetadata().put("rejectReasons", null);
 			node.getMetadata().put("rejectComment", null);
 		}
@@ -546,7 +544,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					map.remove(prop);
 				}
 			}
-			
 
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
@@ -572,7 +569,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					ResponseCode.CLIENT_ERROR);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String contentId, String mode, List<String> fields) {
@@ -746,8 +743,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		if (checkError)
 			return createResponse;
-		
-		
+
 		TelemetryManager.log("Updating content node: " + contentId);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 		domainObj.setGraphId(TAXONOMY_ID);
@@ -1544,7 +1540,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 			return resp;
 		} catch (Exception e) {
-			return ERROR(DialCodeErrorCodes.ERR_DIALCODE_LINK, DialCodeErrorMessage.ERR_DIALCODE_LINK,
+			return ERROR(DialCodeEnum.ERR_DIALCODE_LINK.name(), DialCodeEnum.ERR_DIALCODE_LINK.name(),
 					ResponseCode.SERVER_ERROR, e.getMessage(), null);
 		}
 	}
@@ -1561,9 +1557,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			List<String> dialcodes = new ArrayList<String>(dialcodesList);
 			List<String> invalidDialCodeList = new ArrayList<String>(dialcodes);
 			Integer dialcodeCount = dialcodes.size();
+
 			Map<String, Object> requestMap = new HashMap<String, Object>();
-			requestMap.put(ContentAPIParams.identifier.name(), dialcodes);
-			Response searchResponse = dialCodeMgr.searchDialCode(channelId, requestMap);
+			Map<String, Object> searchMap = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put(ContentAPIParams.identifier.name(), dialcodes);
+			searchMap.put("search", data);
+			requestMap.put("request", searchMap);
+
+			Map<String, String> headerParam = new HashMap<String, String>();
+			headerParam.put("X-Channel-Id", channelId);
+
+			Response searchResponse = HttpRestUtil.makePostRequest(DIALCODE_SEARCH_URI, requestMap, headerParam);
 			if (searchResponse.getResponseCode() == ResponseCode.OK) {
 				Map<String, Object> result = searchResponse.getResult();
 				Integer count = (Integer) result.get(DialCodeEnum.count.name());
@@ -1574,7 +1579,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						String identifier = (String) map.get(ContentAPIParams.identifier.name());
 						invalidDialCodeList.remove(identifier);
 					}
-					throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+					throw new ResourceNotFoundException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
 							"DIAL Code not found with id(s):" + invalidDialCodeList);
 				}
 			} else {
@@ -1694,7 +1699,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else if (!invalidContentList.isEmpty() && updateSuccessList.size() == 0) {
 			resp = new Response();
 			resp.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
-			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+			resp.setParams(getErrorStatus(DialCodeEnum.ERR_DIALCODE_LINK.name(),
 					"Content not found with id(s):" + invalidContentList));
 		} else {
 			resp = new Response();
@@ -1705,7 +1710,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (!updateFailedList.isEmpty())
 				messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailedList));
 
-			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", messages)));
+			resp.setParams(getErrorStatus(DialCodeEnum.ERR_DIALCODE_LINK.name(), String.join(",", messages)));
 		}
 
 		return resp;
@@ -1717,14 +1722,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	private void validateDialCodeLinkRequest(String channelId, List<Map<String, Object>> reqList) throws Exception {
 		if (null == reqList || 0 == reqList.size())
-			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
-					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
+			throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK_REQUEST.name(), ERR_DIALCODE_LINK_REQUEST);
 
 		Set<String> dialCodeList = new HashSet<String>();
 		for (Map<String, Object> map : reqList) {
 			if (null == map)
-				throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
-						DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
+				throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK_REQUEST.name(), ERR_DIALCODE_LINK_REQUEST);
 			Object dialObj = map.get(DialCodeEnum.dialcode.name());
 			Object contentObj = map.get("identifier");
 			List<String> dialcodes = getList(dialObj);
@@ -1733,7 +1736,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (!dialcodes.isEmpty())
 				dialCodeList.addAll(dialcodes);
 		}
-		validateDialCodes(channelId, dialCodeList);
+		Boolean isValReq = Platform.config.hasPath("content.link.enable.dialcode.validation")
+				? Platform.config.getBoolean("content.link.enable.dialcode.validation") : false;
+		if (true == isValReq)
+			validateDialCodes(channelId, dialCodeList);
 	}
 
 	/**
@@ -1742,7 +1748,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	private void validateReqStructure(List<String> dialcodes, List<String> contents) {
 		if (null == dialcodes || null == contents || contents.isEmpty())
-			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+			throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK_REQUEST.name(),
 					"Pelase provide required properties in request.");
 
 		int maxLimit = 10;
@@ -1750,7 +1756,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			maxLimit = Platform.config.getInt("dialcode.link.content.max");
 
 		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
+			throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK_REQUEST.name(),
 					"Max limit for link content to dialcode in a request is " + maxLimit);
 	}
 
@@ -1775,7 +1781,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@Override
 	public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
 		Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);
-		
 
 		String mimeType = (String) existingNode.getMetadata().get("mimeType");
 		Map<String, String> idMap = new HashMap<>();
@@ -1788,14 +1793,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return OK("node_id", idMap);
 
 	}
-	
+
 	/**
 	 * @param existingNode
 	 * @param requestMap
 	 * @return
 	 */
 	private Map<String, String> copyContentData(Node existingNode, Map<String, Object> requestMap) {
-		
+
 		Node copyNode = copyMetdata(existingNode, requestMap);
 		Response response = createDataNode(copyNode);
 		if (checkError(response)) {
@@ -1808,7 +1813,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		idMap.put(existingNode.getIdentifier(), copyNode.getIdentifier());
 		return idMap;
 	}
-	
+
 	private void uploadExternalProperties(Node existingNode, Node copyNode) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		// Copy the externalProperties in cassandra
@@ -1821,14 +1826,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 		}
 	}
-	
+
 	private void uploadArtifactUrl(Node existingNode, Node copyNode) {
-		String artifactUrl = (String)existingNode.getMetadata().get("artifactUrl");
-		if(StringUtils.isNotBlank(artifactUrl)) {
+		String artifactUrl = (String) existingNode.getMetadata().get("artifactUrl");
+		if (StringUtils.isNotBlank(artifactUrl)) {
 			Response response = null;
-			String mimeType = (String)copyNode.getMetadata().get("mimeType");
+			String mimeType = (String) copyNode.getMetadata().get("mimeType");
 			String contentType = (String) copyNode.getMetadata().get("contentType");
-			
+
 			if (!(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", mimeType)
 					|| StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType))) {
 				IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
@@ -1843,15 +1848,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
 					}
 
-				}else {
+				} else {
 					response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, artifactUrl);
 				}
-				
+
 				if (null == response || checkError(response)) {
 					throw new ClientException("ARTIFACT_NOT_COPIED", "ArtifactUrl not coppied.");
 				}
 			}
-			
+
 		}
 	}
 
@@ -1863,7 +1868,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private Map<String, String> copyCollectionContent(Node existingNode, Map<String, Object> requestMap, String mode) {
 		// Copying Root Node
 		Map<String, String> idMap = copyContentData(existingNode, requestMap);
-		//Generating update hierarchy with copied parent content and calling update hierarchy.
+		// Generating update hierarchy with copied parent content and calling
+		// update hierarchy.
 		copyhierarchy(existingNode, idMap, mode);
 		return idMap;
 	}
@@ -1876,8 +1882,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	private void copyhierarchy(Node existingNode, Map<String, String> idMap, String mode) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-		Map<String, Object> contentMap = getContentHierarchyRecursive(existingNode.getGraphId(), 
-				existingNode, definition, mode);
+		Map<String, Object> contentMap = getContentHierarchyRecursive(existingNode.getGraphId(), existingNode,
+				definition, mode);
 
 		Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
 				(List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
@@ -1969,7 +1975,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Node copyNode = new Node(newId, existingNode.getNodeType(), existingNode.getObjectType());
 		Map<String, Object> metaData = new HashMap<>();
 		metaData.putAll(existingNode.getMetadata());
-				
+
 		copyNode.setMetadata(metaData);
 		copyNode.setGraphId(existingNode.getGraphId());
 
@@ -1980,18 +1986,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		nullPropList.forEach(i -> nullPropMap.put(i, null));
 		copyNode.getMetadata().putAll(nullPropMap);
 		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
-		
+
 		List<Relation> existingNodeOutRelations = existingNode.getOutRelations();
-        List<Relation> copiedNodeOutRelations = new ArrayList<>();
-        if(null != existingNodeOutRelations && !existingNodeOutRelations.isEmpty()) {
-            for(Relation rel : existingNodeOutRelations) {
-                if(!Arrays.asList("Content", "ContentImage").contains(rel.getEndNodeObjectType())) {
-                    copiedNodeOutRelations.add(new Relation(newId, rel.getRelationType(), rel.getEndNodeId()));
-                }
-            }
-        }
-        copyNode.setOutRelations(copiedNodeOutRelations);
-		
+		List<Relation> copiedNodeOutRelations = new ArrayList<>();
+		if (null != existingNodeOutRelations && !existingNodeOutRelations.isEmpty()) {
+			for (Relation rel : existingNodeOutRelations) {
+				if (!Arrays.asList("Content", "ContentImage").contains(rel.getEndNodeObjectType())) {
+					copiedNodeOutRelations.add(new Relation(newId, rel.getRelationType(), rel.getEndNodeId()));
+				}
+			}
+		}
+		copyNode.setOutRelations(copiedNodeOutRelations);
+
 		return copyNode;
 	}
 
@@ -2002,35 +2008,35 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 
 	private Node validateCopyContentRequest(String contentId, Map<String, Object> requestMap, String mode) {
-		if (null == requestMap) 
+		if (null == requestMap)
 			throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
-		
-		if(StringUtils.isBlank((String)requestMap.get("createdBy")))
+
+		if (StringUtils.isBlank((String) requestMap.get("createdBy")))
 			throw new ClientException("ERR_INVALID_CREATEDBY", "Please provide valid createdBy value");
-		
-		if(!validateList(requestMap.get("createdFor"))) {
+
+		if (!validateList(requestMap.get("createdFor"))) {
 			throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid createdFor value.");
 		}
 		if (!validateList(requestMap.get("organization"))) {
 			throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid Organization value.");
 		}
-		
+
 		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
 		List<String> notCoppiedContent = null;
-		if(Platform.config.hasPath("learning.content.type.not.copied.list")) {
+		if (Platform.config.hasPath("learning.content.type.not.copied.list")) {
 			notCoppiedContent = Platform.config.getStringList("learning.content.type.not.copied.list");
 		}
-		if(notCoppiedContent != null && notCoppiedContent.contains((String)node.getMetadata().get("contentType"))) {
+		if (notCoppiedContent != null && notCoppiedContent.contains((String) node.getMetadata().get("contentType"))) {
 			throw new ClientException(ContentErrorCodes.CONTENTTYPE_ASSET_CAN_NOT_COPY.name(),
-					"ContentType " + (String)node.getMetadata().get("contentType") + " can not be coppied.");
+					"ContentType " + (String) node.getMetadata().get("contentType") + " can not be coppied.");
 		}
-		
+
 		String status = (String) node.getMetadata().get("status");
 		List<String> invalidStatusList = Platform.config.getStringList("learning.content.copy.invalid_status_list");
 		if (invalidStatusList.contains(status))
 			throw new ClientException("ERR_INVALID_REQUEST",
 					"Cannot copy content in " + status.toLowerCase() + " status");
-		
+
 		return node;
 	}
 
@@ -2040,15 +2046,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	protected boolean validateList(Object publishChecklistObj) {
 		try {
 			List<String> publishChecklist = (List<String>) publishChecklistObj;
-			if(null == publishChecklist || publishChecklist.isEmpty()) {
+			if (null == publishChecklist || publishChecklist.isEmpty()) {
 				return false;
 			}
-			
+
 		} catch (Exception e) {
 			return false;
 		}
 		return true;
 	}
+
 	protected File copyURLToFile(String fileUrl) {
 		try {
 			String fileName = getFieNameFromURL(fileUrl);
@@ -2059,10 +2066,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "fileUrl is invalid.");
 		}
 	}
-	
+
 	protected String getFieNameFromURL(String fileUrl) {
-		String fileName = FilenameUtils.getBaseName(fileUrl)+"_"+ System.currentTimeMillis();
-		if (!FilenameUtils.getExtension(fileUrl).isEmpty()) 
+		String fileName = FilenameUtils.getBaseName(fileUrl) + "_" + System.currentTimeMillis();
+		if (!FilenameUtils.getExtension(fileUrl).isEmpty())
 			fileName += "." + FilenameUtils.getExtension(fileUrl);
 		return fileName;
 	}
