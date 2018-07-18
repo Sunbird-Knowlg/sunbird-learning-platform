@@ -11,7 +11,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/create"
+        "url": "/content/v3/create"
     },
     "body": "",
     "apiId": "ekstep.learning.content.create",

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
-@RequestMapping("/v3/channel")
+@RequestMapping("/channel/v3")
 public class ChannelV3Controller extends BaseController {
 
 	@Autowired

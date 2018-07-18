@@ -16,7 +16,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/reject/*",
+        "url": "/content/v3/reject/*",
         "pathParams": [
           "content_id"
         ]

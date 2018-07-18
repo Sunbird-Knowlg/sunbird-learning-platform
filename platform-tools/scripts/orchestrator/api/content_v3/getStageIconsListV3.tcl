@@ -7,7 +7,7 @@ set externalProps [java::new ArrayList]
 $externalProps add "stageIcons"
 set env_String [java::cast String $server_env]
 set env_text [$env_String toString]
-set env_text "${env_text}/v3/content/${content_id}"
+set env_text "${env_text}/content/v3/${content_id}"
 set is_env_null [java::isnull $server_env]
 if { $is_env_null == 1} {
 	set result_map [java::new HashMap]

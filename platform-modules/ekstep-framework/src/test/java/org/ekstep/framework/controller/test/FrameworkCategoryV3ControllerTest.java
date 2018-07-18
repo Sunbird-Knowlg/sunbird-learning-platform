@@ -43,7 +43,7 @@ public class FrameworkCategoryV3ControllerTest extends BaseCategoryInstanceMgrTe
 	private WebApplicationContext context;
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_category_path = "/v3/framework/category";
+	private final String base_category_path = "/framework/v3/category";
 	static int rn = generateRandomNumber(0, 9999);
 	static String node_id = "";
 
