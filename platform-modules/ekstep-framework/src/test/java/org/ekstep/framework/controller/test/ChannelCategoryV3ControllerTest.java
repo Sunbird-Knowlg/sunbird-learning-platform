@@ -44,7 +44,7 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 	private WebApplicationContext context;
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_category_path = "/v3/channel/category";
+	private final String base_category_path = "/channel/v3/category";
 	static int rn = generateRandomNumber(0, 9999);
 	static String node_id = "";
 	

@@ -61,7 +61,7 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_category_path = "/v3/framework/term";
+	private final String base_category_path = "/framework/v3/term";
 	private static String categoryId = null, frameworkId = null, masterCategoryId=null, masterTermId=null;
 	static String termId = null;
 	static ObjectMapper mapper = new ObjectMapper();
