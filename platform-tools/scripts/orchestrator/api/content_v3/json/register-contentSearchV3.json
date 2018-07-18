@@ -59,7 +59,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/adv/search"
+        "url": "/content/v3/adv/search"
     },
     "body": "",
     "apiId":"ekstep.learning.content.adv.search",

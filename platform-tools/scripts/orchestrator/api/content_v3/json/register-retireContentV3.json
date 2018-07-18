@@ -10,7 +10,7 @@
     ],
     "requestPath": {
         "type": "DELETE",
-        "url": "/v3/content/retire/*",
+        "url": "/content/v3/retire/*",
         "pathParams": [
           "contentId"
         ]
