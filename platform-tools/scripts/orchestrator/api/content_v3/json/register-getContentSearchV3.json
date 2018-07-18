@@ -23,7 +23,7 @@
     ],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/content/readContent/*",
+        "url": "/content/v3/readContent/*",
         "pathParams": [
           "content_id"
         ],

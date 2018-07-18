@@ -54,7 +54,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final String COMPOSITE_SEARCH_INDEX = "testfrcompositesearch";
 	private static final String COMPOSITE_SEARCH_INDEX_TYPE = "cs";
-	private static final String basePath = "/v3/framework";
+	private static final String basePath = "/framework/v3";
 	private static String frameworkId;
 	private static String channelId;
 	private static ChannelManagerImpl channelManager = new ChannelManagerImpl();

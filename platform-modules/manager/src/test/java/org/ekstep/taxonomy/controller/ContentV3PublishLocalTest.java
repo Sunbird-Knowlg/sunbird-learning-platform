@@ -50,7 +50,7 @@ public class ContentV3PublishLocalTest extends CommonTestSetup{
 
 	MockMvc mockMvc;
 
-	private static final String basePath = "/v3/content";
+	private static final String basePath = "/content/v3";
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	private static String contentId = ""; 

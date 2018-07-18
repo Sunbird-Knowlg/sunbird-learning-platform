@@ -88,7 +88,7 @@ public class ResponseFilter implements Filter {
 		if (path.contains("/domain")) {
 			return "domain";
 		} else {
-			return path.split("/")[3];
+			return path.split("/")[2];
 		}
 	}
 

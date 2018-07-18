@@ -48,7 +48,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	MockMvc mockMvc;
 
 	private ResultActions actions;
-	private static final String basePath = "/v3/framework";
+	private static final String basePath = "/framework/v3";
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String frameworkId;
 	private static String frameworkIdforCopyAPI;

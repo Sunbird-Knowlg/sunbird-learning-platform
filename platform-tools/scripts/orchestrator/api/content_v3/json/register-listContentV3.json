@@ -11,7 +11,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/list"
+        "url": "/content/v3/list"
     },
     "body": "",
     "apiId": "ekstep.learning.content.list"
