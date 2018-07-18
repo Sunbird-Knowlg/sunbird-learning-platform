@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author pradyumna
- *
+ * Actions to handle master category terms.
  */
 @Controller
-@RequestMapping("/v3/category/term")
+@RequestMapping("/framework/v3/category/term")
 public class TermCategoryV3Controller extends BaseController {
 
 	@Autowired

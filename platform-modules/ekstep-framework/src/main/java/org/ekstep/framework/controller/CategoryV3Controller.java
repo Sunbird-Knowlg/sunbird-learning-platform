@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
-@RequestMapping("/v3/category")
+@RequestMapping("framework/v3/category/master")
 public class CategoryV3Controller extends BaseController {
 
 @Autowired
