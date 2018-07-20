@@ -454,9 +454,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		//Read Image Content
 		path = basePath + "/read/" + nodeId + "?mode=edit";
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
-		System.out.println("6");
-		System.out.println("Result_testDialCodeLink_01:" + actions.andReturn().getResponse().getContentAsString());
-
 		Response response = getResponse(actions);
 		List<String> dialcodes = (List<String>) (List<String>) ((Map<String, Object>) response.getResult()
 				.get("content")).get("dialcodes");
