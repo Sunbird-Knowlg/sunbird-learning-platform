@@ -39,7 +39,7 @@ public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 	private WebApplicationContext context;
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_channel_path = "/v3/channel";
+	private final String base_channel_path = "/channel/v3";
 	static int rn = generateRandomNumber(0, 9999);
 	static String node_id = "";
 	static String framework_id = "";
@@ -69,7 +69,7 @@ public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 	}
 	
 	public void createFramework() throws Exception {
-		String path = "/v3/framework/create";
+		String path = "/framework/v3/create";
 		String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\",\"channels\":[{\"identifier\": \""
 				+ node_id + "\"}]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)

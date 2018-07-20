@@ -29,7 +29,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/flag/*",
+        "url": "/content/v3/flag/*",
         "pathParams": [
           "content_id"
         ]

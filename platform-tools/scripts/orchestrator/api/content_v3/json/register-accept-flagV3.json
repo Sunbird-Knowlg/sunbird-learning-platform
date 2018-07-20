@@ -10,7 +10,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/flag/accept/*",
+        "url": "/content/v3/flag/accept/*",
         "pathParams": [
           "content_id"
         ]

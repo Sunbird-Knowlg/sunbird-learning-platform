@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.testng.Assert;
 
@@ -21,6 +22,7 @@ import com.jayway.restassured.response.Response;
  * @author Vignesh
  *
  */
+@Ignore
 public class ChannelCategoryInstanceV3APITests extends BaseTest{
 	public String channelId = "Test";
 	int rn = generateRandomInt(0, 999999);

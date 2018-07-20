@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
-@RequestMapping("/v3/framework/term")
+@RequestMapping("/framework/v3/term")
 public class TermFrameworkV3Controller extends BaseController {
 
 	@Autowired

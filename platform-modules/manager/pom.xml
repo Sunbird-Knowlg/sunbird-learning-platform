@@ -243,7 +243,6 @@
 		    <version>4.5.2</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<pluginManagement>
 			<plugins>

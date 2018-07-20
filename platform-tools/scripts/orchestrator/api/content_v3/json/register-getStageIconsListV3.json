@@ -16,7 +16,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/stageIcons/list/*",
+        "url": "/content/v3/stageIcons/list/*",
         "pathParams": [
           "content_id"
         ]

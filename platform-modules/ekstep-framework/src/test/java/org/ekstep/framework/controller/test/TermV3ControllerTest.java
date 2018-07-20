@@ -47,7 +47,7 @@ public class TermV3ControllerTest extends GraphEngineTestSetup {
 
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_category_path = "/v3/category/term";
+	private final String base_category_path = "/framework/v3/category/term";
 	private static String categoryId = null;
 	static String termId = null;
 	static ObjectMapper mapper = new ObjectMapper();

@@ -39,7 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Azhar
  */
 @Controller
-@RequestMapping("/v3/content")
+@RequestMapping("/content/v3")
 public class ContentV3Controller extends BaseController {
 
 	@Autowired
