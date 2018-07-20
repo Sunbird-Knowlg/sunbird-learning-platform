@@ -306,7 +306,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * Publish Content
 	 * 
 	 */
-	@Ignore
 	@Test
 	public void testContentV3Controller_06() throws Exception {
 		String path = basePath + "/publish/" + contentId;
@@ -320,7 +319,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * Unlisted Publish Content
 	 * 
 	 */
-	@Ignore
 	@Test
 	public void testContentV3Controller_07() throws Exception {
 		String path = basePath + "/upload/" + contentId2;

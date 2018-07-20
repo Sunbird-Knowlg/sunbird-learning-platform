@@ -1,9 +1,16 @@
 package org.ekstep.kafka;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.LongSerializer;
@@ -12,10 +19,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.telemetry.logger.TelemetryManager;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 public class KafkaClient {
 
@@ -65,8 +68,15 @@ public class KafkaClient {
 		}
 	}
 	public static boolean validate(String topic) throws Exception{
-		Consumer<Long, String> consumer = getConsumer();
-	    Map<String, List<PartitionInfo>> topics = consumer.listTopics();
-	    return topics.keySet().contains(topic);
+		boolean isTopicCheckReq = Platform.config.hasPath("kafka.topic.check.enable")
+				? Platform.config.getBoolean("kafka.topic.check.enable") : true;
+		if (isTopicCheckReq) {
+			Consumer<Long, String> consumer = getConsumer();
+			Map<String, List<PartitionInfo>> topics = consumer.listTopics();
+			return topics.keySet().contains(topic);
+		} else {
+			return true;
+		}
+
 	}
 }
