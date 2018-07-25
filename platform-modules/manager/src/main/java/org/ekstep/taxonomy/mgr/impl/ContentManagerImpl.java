@@ -13,9 +13,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -80,9 +83,14 @@ import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
+import org.sunbird.cloud.storage.BaseStorageService;
+import org.sunbird.cloud.storage.factory.StorageConfig;
+import org.sunbird.cloud.storage.factory.StorageServiceFactory;
+
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
+import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
@@ -130,6 +138,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
 	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.search.uri")
 			? Platform.config.getString("dialcode.search.uri") : "v3/dialcode/search";
+			
+	private BaseStorageService storageService;
+	
+	@PostConstruct
+	public void init() {
+		storageService = StorageServiceFactory.getStorageService(new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret")));
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -385,7 +400,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (checkError(contentResp))
 			return contentResp;
 		Response response = new Response();
-		String preSignedURL = AWSUploader.preSignedURL(contentId, fileName);
+		String objectKey = S3PropertyReader.getProperty("s3.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
+		String preSignedURL = storageService.getSignedURL(Platform.config.getString("azure_storage_container"), objectKey, Option.apply(600));
 		response.put(ContentAPIParams.content_id.name(), contentId);
 		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
 		response.put(ContentAPIParams.url_expiry.name(), S3PropertyReader.getProperty("s3.upload.url.expiry"));

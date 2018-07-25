@@ -28,6 +28,7 @@
 		<module>graph-engine</module>
 		<module>platform-dac</module>
 		<module>platform-telemetry</module>
+		<module>libs/cloud-storage-sdk</module>
 	</modules>
 
 	<dependencies>
