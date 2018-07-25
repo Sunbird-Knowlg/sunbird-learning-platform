@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -143,7 +142,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	
 	@PostConstruct
 	public void init() {
-		storageService = StorageServiceFactory.getStorageService(new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret")));
+		String storageKey = Platform.config.getString("azure_storage_key");
+		String storageSecret = Platform.config.getString("azure_storage_secret");
+		storageService = StorageServiceFactory.getStorageService(new StorageConfig("azure", storageKey, storageSecret));
 	}
 
 	/*
@@ -401,7 +402,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return contentResp;
 		Response response = new Response();
 		String objectKey = S3PropertyReader.getProperty("s3.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
-		String preSignedURL = storageService.getSignedURL(Platform.config.getString("azure_storage_container"), objectKey, Option.apply(600));
+		String containerName = Platform.config.getString("azure_storage_container");
+		String preSignedURL = storageService.getSignedURL(containerName, objectKey, Option.apply(600));
 		response.put(ContentAPIParams.content_id.name(), contentId);
 		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
 		response.put(ContentAPIParams.url_expiry.name(), S3PropertyReader.getProperty("s3.upload.url.expiry"));
