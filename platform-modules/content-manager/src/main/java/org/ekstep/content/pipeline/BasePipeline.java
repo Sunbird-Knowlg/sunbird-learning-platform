@@ -51,6 +51,7 @@ import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -242,7 +243,8 @@ public class BasePipeline extends BaseManager {
 		try {
 			if (StringUtils.isBlank(folder))
 				folder = DEF_AWS_FOLDER_NAME;
-			urlArray = AWSUploader.uploadFile(folder, uploadFile);
+			//urlArray = AWSUploader.uploadFile(folder, uploadFile);
+			urlArray = CloudStore.uploadFile(folder, uploadFile, true);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR, e);
@@ -287,8 +289,8 @@ public class BasePipeline extends BaseManager {
 		Double bytes = null;
 		if (StringUtils.isNotBlank(key)) {
 			try {
-				return AWSUploader.getObjectSize(key);
-			} catch (IOException e) {
+				return CloudStore.getObjectSize(key);//AWSUploader.getObjectSize(key);
+			} catch (Exception e) {
 				TelemetryManager.warn("Error! While getting the file size from AWS"+ key);
 			}
 		}

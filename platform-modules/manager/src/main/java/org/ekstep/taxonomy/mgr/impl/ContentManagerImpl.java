@@ -75,6 +75,7 @@ import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
@@ -82,9 +83,6 @@ import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
-import org.sunbird.cloud.storage.BaseStorageService;
-import org.sunbird.cloud.storage.factory.StorageConfig;
-import org.sunbird.cloud.storage.factory.StorageServiceFactory;
 
 
 import akka.actor.ActorRef;
@@ -138,14 +136,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.search.uri")
 			? Platform.config.getString("dialcode.search.uri") : "v3/dialcode/search";
 			
-	private BaseStorageService storageService;
+	/*private BaseStorageService storageService;
 	
 	@PostConstruct
 	public void init() {
 		String storageKey = Platform.config.getString("azure_storage_key");
 		String storageSecret = Platform.config.getString("azure_storage_secret");
 		storageService = StorageServiceFactory.getStorageService(new StorageConfig("azure", storageKey, storageSecret));
-	}
+	}*/
 
 	/*
 	 * (non-Javadoc)
@@ -377,7 +375,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String folder = getFolderName(downloadUrl);
 			TelemetryManager.log("Folder Name: " + folder + " | [Content Id: " + contentId + "]");
 
-			String[] arr = AWSUploader.uploadFile(folder, minEcar);
+			//String[] arr = AWSUploader.uploadFile(folder, minEcar);
+			String[] arr = CloudStore.uploadFile(folder, minEcar, true);
 			response.put("url", arr[1]);
 			TelemetryManager.log("URL: " + arr[1] + " | [Content Id: " + contentId + "]");
 
@@ -402,8 +401,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return contentResp;
 		Response response = new Response();
 		String objectKey = S3PropertyReader.getProperty("s3.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
-		String containerName = Platform.config.getString("azure_storage_container");
-		String preSignedURL = storageService.getSignedURL(containerName, objectKey, Option.apply(600), Option.apply("w"));
+		//String containerName = Platform.config.getString("azure_storage_container");
+		String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, Option.apply(600), Option.apply("w")); // storageService.getSignedURL(containerName, objectKey, Option.apply(600), Option.apply("w"));
 		response.put(ContentAPIParams.content_id.name(), contentId);
 		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
 		response.put(ContentAPIParams.url_expiry.name(), S3PropertyReader.getProperty("s3.upload.url.expiry"));

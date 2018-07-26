@@ -14,6 +14,7 @@ import org.ekstep.common.util.AWSUploader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFConversionUtility;
+import org.ekstep.learning.util.CloudStore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -45,7 +46,8 @@ public class LocalizeAssetProcessorTest {
 		String[] apiUrl = null;
 		for (final File fileEntry : assetFolder.listFiles()) {
 			try {
-				apiUrl = AWSUploader.uploadFile(assetFolder.getPath(), fileEntry);
+				//apiUrl = AWSUploader.uploadFile(assetFolder.getPath(), fileEntry);
+				apiUrl = CloudStore.uploadFile(assetFolder.getPath(), fileEntry, true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -55,6 +55,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.BaseLearningManager;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -325,8 +326,8 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		Double bytes = null;
 		if (StringUtils.isNotBlank(key)) {
 			try {
-				return AWSUploader.getObjectSize(key);
-			} catch (IOException e) {
+				return CloudStore.getObjectSize(key);//AWSUploader.getObjectSize(key);
+			} catch (Exception e) {
 				TelemetryManager.error("Error: While getting the file size from AWS: " + key, e);
 			}
 		}
@@ -500,7 +501,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		try {
 			String folder = S3PropertyReader.getProperty(s3Content);
 			folder = folder + "/" + Slug.makeSlug(identifier, true) + "/" + S3PropertyReader.getProperty(s3Artifact);
-			urlArray = AWSUploader.uploadFile(folder, uploadedFile);
+			urlArray = CloudStore.uploadFile(folder, uploadedFile, true);//AWSUploader.uploadFile(folder, uploadedFile);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
 					"Error while uploading the File.", e);

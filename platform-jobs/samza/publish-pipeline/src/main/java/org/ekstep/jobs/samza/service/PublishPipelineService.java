@@ -44,6 +44,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -559,7 +560,8 @@ public class PublishPipelineService implements ISamzaService {
 				FileUtils.writeStringToFile(file, data);
 				if (file.exists()) {
 					LOGGER.info("Upload File to S3 :" + file.getName());
-					String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(contentId), file);
+					//String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(contentId), file);
+					String[] uploadedFileUrl = CloudStore.uploadFile(getAWSPath(contentId), file, true);
 					if (null != uploadedFileUrl && uploadedFileUrl.length > 1) {
 						String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
 						LOGGER.info("Update S3 url to node" + url);
