@@ -75,14 +75,11 @@ private static BaseStorageService storageService = null;
 		Map<String, Object> map = scala.collection.JavaConversions.mapAsJavaMap(blob.metadata());
 		return (String)map.get("uri");
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+	public static void deleteFile(String key, boolean isDirectory) throws Exception {
+		String container = getContainerName();
+		storageService.deleteObject(container, key, Option.apply(isDirectory));
+	}
+
 }

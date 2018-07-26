@@ -277,7 +277,7 @@ public class ContentPackageExtractionUtil {
 		try {
 			TelemetryManager.log("Cleaning AWS Folder Path: " + AWSFolderPath);
 			if (StringUtils.isNoneBlank(AWSFolderPath))
-				AWSUploader.deleteFile(AWSFolderPath);
+				CloudStore.deleteFile(AWSFolderPath, true);
 		} catch (Exception ex) {
 			TelemetryManager.error("Error! While Cleanup of Half Extracted Folder from S3: " + ex.getMessage(), ex);
 		}

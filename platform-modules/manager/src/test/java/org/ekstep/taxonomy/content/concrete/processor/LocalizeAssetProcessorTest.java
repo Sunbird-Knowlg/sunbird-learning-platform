@@ -110,7 +110,7 @@ public class LocalizeAssetProcessorTest {
 		FileUtils.deleteDirectory(tmpFolder);
 		for (final File fileEntry : assetFolder.listFiles()) {
 			try {
-				AWSUploader.deleteFile(fileEntry.getName());
+				CloudStore.deleteFile(fileEntry.getName(), false);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

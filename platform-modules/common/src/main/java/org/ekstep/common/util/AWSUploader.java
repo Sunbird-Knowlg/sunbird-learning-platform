@@ -88,14 +88,14 @@ public class AWSUploader {
 		return new String[] { folderName + "/" + key, url.toURI().toString() };
 	}*/
 	
-	public static void deleteFile(String key) throws Exception {
+	/*public static void deleteFile(String key) throws Exception {
 		AmazonS3 s3 = new AmazonS3Client();
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
 			s3.setRegion(region);
 		String bucketName = getBucketName();
 		s3.deleteObject(new DeleteObjectRequest(bucketName, key));
-	}
+	}*/
 
 	/*public static double getObjectSize(String key) throws IOException {
 		AmazonS3 s3 = new AmazonS3Client();
