@@ -401,11 +401,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return contentResp;
 		Response response = new Response();
 		String objectKey = S3PropertyReader.getProperty("s3.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
-		//String containerName = Platform.config.getString("azure_storage_container");
-		String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, Option.apply(600), Option.apply("w")); // storageService.getSignedURL(containerName, objectKey, Option.apply(600), Option.apply("w"));
+		String expiry = S3PropertyReader.getProperty("s3.upload.url.expiry");
+		String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, Option.apply(Integer.parseInt(expiry)), Option.apply("w"));
 		response.put(ContentAPIParams.content_id.name(), contentId);
 		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
-		response.put(ContentAPIParams.url_expiry.name(), S3PropertyReader.getProperty("s3.upload.url.expiry"));
+		response.put(ContentAPIParams.url_expiry.name(), expiry);
 		return response;
 	}
 

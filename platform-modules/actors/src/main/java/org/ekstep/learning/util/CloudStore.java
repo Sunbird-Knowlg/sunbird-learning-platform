@@ -7,6 +7,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.util.S3PropertyReader;
 import org.sunbird.cloud.storage.BaseStorageService;
 import org.sunbird.cloud.storage.Model.Blob;
 import org.sunbird.cloud.storage.factory.StorageConfig;
@@ -18,20 +20,19 @@ import scala.collection.JavaConversions;
 public class CloudStore {
 
 private static BaseStorageService storageService = null;
+private static String cloudStoreType = Platform.config.getString("cloud_storage_type");
 	
 	static {
-		String cloudStoreType = Platform.config.getString("cloud_storage_type");
-		
-		if(StringUtils.equals(cloudStoreType, "azure")) {
+		if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
 			String storageKey = Platform.config.getString("azure_storage_key");
 			String storageSecret = Platform.config.getString("azure_storage_secret");
 			storageService = StorageServiceFactory.getStorageService(new StorageConfig("azure", storageKey, storageSecret));
-		}else if(StringUtils.equals(cloudStoreType, "s3")) {
+		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "s3")) {
 			String storageKey = Platform.config.getString("AWS_ACCESS_KEY_ID");
 			String storageSecret = Platform.config.getString("AWS_SECRET_ACCESS_KEY");
 			storageService = StorageServiceFactory.getStorageService(new StorageConfig("s3", storageKey, storageSecret));
 		}else {
-			//TODO: Add throw exception: throw new ServerErrorException(message, Status)
+			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
 		}
 	}
 	
@@ -40,7 +41,13 @@ private static BaseStorageService storageService = null;
 	}
 	
 	public static String getContainerName() {
-		return Platform.config.getString("azure_storage_container");
+		if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
+			return Platform.config.getString("azure_storage_container");
+		}else if(StringUtils.equalsIgnoreCase(cloudStoreType, "s3")) {
+			return S3PropertyReader.getProperty("s3.public.bucket");
+		}else {
+			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while getting container name");
+		}
 	}
 	
 	/*public static String[] uploadFile(String folderName, File file) throws Exception {
