@@ -29,6 +29,7 @@
 				<module>platform-modules</module>
 				<module>orchestrator</module>
 				<module>platform-tools/kernel-extension</module>
+				<module>platform-tools/spikes/sync-tool</module>
 			</modules>
 		</profile>
 		<profile>
