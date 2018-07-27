@@ -2,6 +2,7 @@ package org.ekstep.learning.util;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -336,6 +337,29 @@ public class ControllerUtil extends BaseLearningManager {
 			}
 		}
 		return nodeIds;
+	}
+	
+	public Map<String, Long> getCountByObjectType(String graphId) {
+		Map<String, Long> counts = new HashMap<String, Long>();
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;", graphId));
+		List<String> props = new ArrayList<String>();
+        props.add("objectType");
+        props.add("count");
+        request.put(GraphDACParams.property_keys.name(), props);
+        Response response = getResponse(request);
+        if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (null != list && !list.isEmpty()) {
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> properties = list.get(i);
+					counts.put((String) properties.get("objectType"), (Long) properties.get("count"));
+				}
+			}
+			
+        }
+		return counts;
 	}
 }
 
