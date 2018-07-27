@@ -20,7 +20,7 @@ public class CloudStore {
 private static BaseStorageService storageService = null;
 	
 	static {
-		String cloudStoreType = Platform.config.getString("cloud.store.type");
+		String cloudStoreType = Platform.config.getString("cloud_storage_type");
 		
 		if(StringUtils.equals(cloudStoreType, "azure")) {
 			String storageKey = Platform.config.getString("azure_storage_key");
