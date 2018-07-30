@@ -7,7 +7,7 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>publish-pipeline</artifactId>
-	<version>0.0.112</version>
+	<version>0.0.113</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.ekstep</groupId>
@@ -43,6 +43,21 @@
 		    <artifactId>mockito-all</artifactId>
 		    <version>1.10.19</version>
 		    <scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.7.8</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.7.8</version>
 		</dependency>
 	</dependencies>
 	<build>
