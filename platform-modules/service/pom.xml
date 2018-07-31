@@ -20,11 +20,6 @@
 			<version>4.5.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
@@ -54,7 +49,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>ekstep-dialcode</artifactId>
+			<artifactId>ekstep-framework</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 			<exclusions>
@@ -63,12 +58,7 @@
 					<artifactId>junit</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>ekstep-framework</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
+
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
@@ -82,14 +72,27 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>unit-tests</artifactId>
-			<type>test-jar</type>
-			<version>1.0-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>dialcode</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.ekstep</groupId>
+					<artifactId>ekstep-dialcode</artifactId>
+					<version>1.0-SNAPSHOT</version>
+					<type>jar</type>
+					<exclusions>
+						<exclusion>
+							<groupId>junit</groupId>
+							<artifactId>junit</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
 	<build>
 		<pluginManagement>
