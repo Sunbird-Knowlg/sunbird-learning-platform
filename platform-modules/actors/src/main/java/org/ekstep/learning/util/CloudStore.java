@@ -21,12 +21,14 @@ import scala.collection.JavaConversions;
 public class CloudStore {
 
 private static BaseStorageService storageService = null;
-private static String cloudStoreType = Platform.config.getString("cloud_storage_type");
+private static String cloudStoreType = AppConf.getStorageType();
 	
 	static {
 		try {
+			System.out.println("Selected cloud storage type:" + cloudStoreType);
 			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, AppConf.getStorageKey(cloudStoreType), AppConf.getStorageSecret(cloudStoreType)));
 		}catch(Exception e) {
+			e.printStackTrace();
 			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
 		}
 		
