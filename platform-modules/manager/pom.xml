@@ -56,6 +56,18 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.neo4j.procedure</groupId>
+			<artifactId>apoc</artifactId>
+			<version>3.3.0.1</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+    					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>

@@ -25,6 +25,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.shell.core.CommandResult;
 
@@ -32,7 +33,7 @@ import akka.pattern.Patterns;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-
+@Ignore
 public class SyncCommandTest extends SpringShellTest{
 
 	@BeforeClass

@@ -1,6 +1,6 @@
 package org.ekstep.common.util;
 
-import java.io.File;
+/*import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map;*/
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.Slug;
+//import org.apache.commons.lang3.BooleanUtils;
+//import org.apache.commons.lang3.StringUtils;
+//import org.ekstep.common.Slug;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import com.amazonaws.AmazonClientException;
+/*import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.HttpMethod;
-import com.amazonaws.regions.Region;
+import com.amazonaws.HttpMethod;*/
+//import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
+/*import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
@@ -29,7 +29,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.S3ObjectSummary;*/
 
 /**
  * arguments - operation: createStorage, uploadFiles - storageName: name of the
@@ -245,7 +245,7 @@ public class AWSUploader {
 		return url.toString();
 	}*/
 	
-	private static Region getS3Region(String name) {
+	/*private static Region getS3Region(String name) {
 		if (StringUtils.isNotBlank(name)) {
 			if (StringUtils.equalsIgnoreCase(Regions.AP_SOUTH_1.name(), name))
 				return Region.getRegion(Regions.AP_SOUTH_1);
@@ -261,7 +261,7 @@ public class AWSUploader {
 				return Region.getRegion(Regions.AP_SOUTHEAST_1);
 		} else
 			return Region.getRegion(Regions.AP_SOUTHEAST_1);
-	}
+	}*/
 	
 	/*public static String getURL(String bucket, String prefix) {
 		AmazonS3 s3client = new AmazonS3Client();

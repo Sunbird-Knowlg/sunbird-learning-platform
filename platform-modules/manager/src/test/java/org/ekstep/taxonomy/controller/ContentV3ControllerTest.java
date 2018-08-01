@@ -545,7 +545,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * 
 	 */
 
-	@Test
+	//@Test
 	public void testDialCodeLink_10() throws Exception {
 		String path = basePath + "/dialcode/link";
 		String dialCodeLinkReq = "{\"request\": {\"content\": [{\"identifier\": [\"" + contentId
