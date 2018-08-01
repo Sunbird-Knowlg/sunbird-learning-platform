@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -303,6 +304,8 @@ public class SearchProcessor {
 			} catch (Exception e) {
 				values = Arrays.asList(property.get("values"));
 			}
+			values = values.stream().filter(value -> (null != value)).collect(Collectors.toList());
+
 
 			String propertyName = (String) property.get("propertyName");
 			if (propertyName.equals("*")) {
@@ -439,6 +442,8 @@ public class SearchProcessor {
 			} catch (Exception e) {
 				values = Arrays.asList(property.get("values"));
 			}
+
+			values = values.stream().filter(value -> (null != value)).collect(Collectors.toList());
 			String propertyName = (String) property.get("propertyName");
 			if (propertyName.equals("*")) {
 				relevanceSort = true;
