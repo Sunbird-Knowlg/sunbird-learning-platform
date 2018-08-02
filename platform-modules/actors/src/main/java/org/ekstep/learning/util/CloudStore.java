@@ -21,18 +21,18 @@ import scala.collection.JavaConversions;
 public class CloudStore {
 
 private static BaseStorageService storageService = null;
-private static String cloudStoreType = AppConf.getStorageType();
+private static String cloudStoreType = Platform.config.getString("cloud_storage_type");
 	
 	static {
-		try {
-			System.out.println("Selected cloud storage type:" + cloudStoreType);
-			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, AppConf.getStorageKey(cloudStoreType), AppConf.getStorageSecret(cloudStoreType)));
-		}catch(Exception e) {
-			e.printStackTrace();
-			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
-		}
+//		try {
+//			System.out.println("Selected cloud storage type:" + cloudStoreType);
+//			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, AppConf.getStorageKey(cloudStoreType), AppConf.getStorageSecret(cloudStoreType)));
+//		}catch(Exception e) {
+//			e.printStackTrace();
+//			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
+//		}
 		
-		/*if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
+		if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
 			String storageKey = Platform.config.getString("azure_storage_key");
 			String storageSecret = Platform.config.getString("azure_storage_secret");
 			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
@@ -42,7 +42,7 @@ private static String cloudStoreType = AppConf.getStorageType();
 			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
 		}else {
 			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
-		}*/
+		}
 	}
 	
 	public static BaseStorageService getCloudStoreService() {
