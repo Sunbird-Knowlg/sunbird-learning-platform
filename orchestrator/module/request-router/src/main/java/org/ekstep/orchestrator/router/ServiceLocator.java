@@ -9,7 +9,6 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.graph.common.exception.GraphEngineErrorCodes;
-import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.orchestrator.dac.model.ActorPath;
 import org.ekstep.orchestrator.dac.model.RequestRouters;
@@ -28,8 +27,6 @@ public class ServiceLocator {
 	public static ActorRef getActorRef(ActorPath actorPath, String graphId) {
 		if (StringUtils.equalsIgnoreCase(RequestRouters.SEARCH_REQUEST_ROUTER.name(), actorPath.getRouter()))
 			return SearchRequestRouterPool.getRequestRouter();
-		else if (StringUtils.equalsIgnoreCase(RequestRouters.LANGUAGE_REQUEST_ROUTER.name(), actorPath.getRouter()))
- 			return LanguageRequestRouterPool.getRequestRouter();
 		else if (StringUtils.equalsIgnoreCase(RequestRouters.LEARNING_REQUEST_ROUTER.name(), actorPath.getRouter()))
 			return LearningRequestRouterPool.getRequestRouter();
 		
@@ -47,6 +44,6 @@ public class ServiceLocator {
 		if (Platform.config.hasPath("platform.services"))
 			return Platform.config.getStringList("platform.services");
 		else 
-			return Arrays.asList("learning", "language");
+			return Arrays.asList("learning");
 	}
 }
