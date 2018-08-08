@@ -28,7 +28,7 @@ public class TelemetryGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String environment = Platform.config.hasPath("telemetry_env")?Platform.config.getString("telemetry_env"):"dev";
 	private static String installationId=Platform.config.hasPath("installation.id")?Platform.config.getString("installation.id"):"ekstep";
-	private static Producer producer = new Producer(environment +installationId+ ".learning.platform", "1.0");
+	private static Producer producer = new Producer(environment + "." + installationId + ".learning.platform", "1.0");
 
 	public static void setComponent(String component) {
 		producer.setPid(component);
