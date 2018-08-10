@@ -11,6 +11,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -41,7 +42,8 @@ public class MediaController extends BaseController {
             String[] urlArray = new String[] {};
             try {
             	String folder = S3PropertyReader.getProperty(s3Media);
-                urlArray = AWSUploader.uploadFile(folder, uploadedFile);
+                //urlArray = AWSUploader.uploadFile(folder, uploadedFile);
+            	urlArray = CloudStore.uploadFile(folder, uploadedFile, true);
             } catch (Exception e) {
                 throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
                         "Error wihile uploading the File.", e);

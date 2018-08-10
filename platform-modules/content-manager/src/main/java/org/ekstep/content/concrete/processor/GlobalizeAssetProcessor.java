@@ -26,6 +26,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
@@ -166,7 +167,8 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 								if (StringUtils.isNotBlank(path))
 									folderName = folderName + "/" + path;
 								folderName = folderName + "/" + System.currentTimeMillis();
-								uploadedFileUrl = AWSUploader.uploadFile(folderName, uploadFile);
+								//uploadedFileUrl = AWSUploader.uploadFile(folderName, uploadFile);
+								uploadedFileUrl = CloudStore.uploadFile(folderName, uploadFile, true);
 								if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 									uploadMap.put(media.getId(),
 											uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);

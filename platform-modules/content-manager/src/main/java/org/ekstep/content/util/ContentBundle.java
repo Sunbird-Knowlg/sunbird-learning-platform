@@ -40,6 +40,7 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
@@ -197,7 +198,8 @@ public class ContentBundle {
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
 					String folderName = S3PropertyReader.getProperty(s3EcarFolder);
 					folderName = folderName + "/" + contentId;
-					String[] url = AWSUploader.uploadFile(folderName, contentBundle);
+					//String[] url = AWSUploader.uploadFile(folderName, contentBundle);
+					String[] url = CloudStore.uploadFile(folderName, contentBundle, true);
 					downloadedFiles.add(contentBundle);
 					return url;
 				} catch (Throwable e) {

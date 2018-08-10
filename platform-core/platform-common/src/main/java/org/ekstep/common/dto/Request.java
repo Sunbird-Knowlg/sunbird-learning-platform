@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * This contains data (value objects) to be passed to middleware command
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author rayulu
  * 
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Request implements Serializable {
 
     private static final long serialVersionUID = -2362783406031347676L;

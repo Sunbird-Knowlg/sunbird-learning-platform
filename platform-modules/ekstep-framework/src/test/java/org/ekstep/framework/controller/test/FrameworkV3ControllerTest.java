@@ -241,7 +241,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		String frameworkId = "ttttt1234"; // Invalid Framework Id
 		String path = basePath + "/read/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
-		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
 	// Framework Read API -- End

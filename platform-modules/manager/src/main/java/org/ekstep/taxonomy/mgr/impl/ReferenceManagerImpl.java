@@ -14,6 +14,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.taxonomy.mgr.IReferenceManager;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +37,8 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
         try {
         	String folder = S3PropertyReader.getProperty(s3Content) + "/"
 					+ Slug.makeSlug(referenceId, true) + "/" + S3PropertyReader.getProperty(s3Artifacts);
-            urlArray = AWSUploader.uploadFile(folder, uploadedFile);
+            //urlArray = AWSUploader.uploadFile(folder, uploadedFile);
+        		urlArray = CloudStore.uploadFile(folder, uploadedFile, true);
         } catch (Exception e) {
             throw new ServerException(TaxonomyErrorCodes.ERR_MEDIA_UPLOAD_FILE.name(),
                     "Error wihile uploading the File.", e);

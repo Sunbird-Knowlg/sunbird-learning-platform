@@ -125,8 +125,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				try {
 					assessmentStore.save(questionId, body);
 				} catch (Exception e) {
+					e.printStackTrace();
 					throw new ServerException(AssessmentErrorCodes.ERR_ASSESSMENT_SAVE_BODY.name(),
-							"Something Went Wrong While Processing Your Request");
+							"Something Went Wrong While Processing Your Request", e);
 				}
 			}
 			List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request

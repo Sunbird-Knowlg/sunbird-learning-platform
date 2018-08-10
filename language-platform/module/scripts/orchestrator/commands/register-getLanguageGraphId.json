@@ -1,5 +1,0 @@
-{
-    "name": "get_language_graph_id",
-    "type": "COMMAND",
-    "cmdClass": "org.ekstep.orchestrator.interpreter.command.GetLanguageGraphId"
-}

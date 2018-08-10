@@ -31,6 +31,7 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
@@ -121,7 +122,8 @@ public class ContentPackageExtractionUtil {
 				pool.execute(new Runnable() {
 					@Override
 					public void run() {
-						AWSUploader.copyObjectsByPrefix(s3Bucket, s3Bucket, sourcePrefix, destinationPrefix);
+						//AWSUploader.copyObjectsByPrefix(s3Bucket, s3Bucket, sourcePrefix, destinationPrefix);
+						CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
 					}
 				});
 			} catch (Exception e) {
@@ -275,7 +277,7 @@ public class ContentPackageExtractionUtil {
 		try {
 			TelemetryManager.log("Cleaning AWS Folder Path: " + AWSFolderPath);
 			if (StringUtils.isNoneBlank(AWSFolderPath))
-				AWSUploader.deleteFile(AWSFolderPath);
+				CloudStore.deleteFile(AWSFolderPath, true);
 		} catch (Exception ex) {
 			TelemetryManager.error("Error! While Cleanup of Half Extracted Folder from S3: " + ex.getMessage(), ex);
 		}
@@ -324,7 +326,8 @@ public class ContentPackageExtractionUtil {
 						if (StringUtils.isNotBlank(path))
 							folderName += File.separator + path;
 						TelemetryManager.log("Folder Name For Storage Space Extraction: " + folderName);
-						String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file, slugFile);
+						//String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file, slugFile);
+						String[] uploadedFileUrl = CloudStore.uploadFile(folderName, file, slugFile);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
 					}
@@ -455,6 +458,7 @@ public class ContentPackageExtractionUtil {
 		TelemetryManager.log("Current Storage Space Bucket Name: " + s3Bucket);
 
 		String path = getExtractionPath(contentId, node, extractionType);
-		return AWSUploader.getURL(s3Bucket, path);
+		//return AWSUploader.getURL(s3Bucket, path);
+		return CloudStore.getURL(s3Bucket, path);
 	}
 }

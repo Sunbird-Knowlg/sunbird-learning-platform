@@ -1,5 +1,0 @@
-{
-    "name": "get_text_from_unicode",
-    "type": "COMMAND",
-    "cmdClass": "org.ekstep.orchestrator.interpreter.command.GetTextFromUnicode"
-}

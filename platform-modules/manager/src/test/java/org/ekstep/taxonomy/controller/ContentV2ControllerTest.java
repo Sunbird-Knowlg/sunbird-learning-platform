@@ -12,6 +12,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -135,8 +136,9 @@ public class ContentV2ControllerTest {
 				TelemetryManager.log("Error! Upload File Package Cannot be 'null'.");
 			} else {
 				String folder = S3PropertyReader.getProperty(s3Content);
-            	folder = folder + "/" + identifier + "/" + S3PropertyReader.getProperty(s3Artifact);
-				String[] result = AWSUploader.uploadFile(folder, file);
+            		folder = folder + "/" + identifier + "/" + S3PropertyReader.getProperty(s3Artifact);
+				//String[] result = AWSUploader.uploadFile(folder, file);
+            		String[] result = CloudStore.uploadFile(folder, file, true);
 				if (null != result && result.length == 2)
 					url = result[1];
 			}

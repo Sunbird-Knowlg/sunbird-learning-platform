@@ -59,6 +59,7 @@ public class AssetsMimeTypeMap {
 		whiteListedMimeType.put("audio/vorbis", ContentWorkflowPipelineParams.OGG_Audio.name());
 		whiteListedMimeType.put("audio/webm", ContentWorkflowPipelineParams.WEBM_Audio.name());
 		whiteListedMimeType.put("audio/x-wav", ContentWorkflowPipelineParams.X_WAV_Audio.name());
+		whiteListedMimeType.put("application/x-font-ttf", ContentWorkflowPipelineParams.X_FONT_TTF.name());
 
 		blackListedMimeType.put("", "");
 	}

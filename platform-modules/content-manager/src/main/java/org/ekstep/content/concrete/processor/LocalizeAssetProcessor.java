@@ -48,7 +48,9 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  */
 public class LocalizeAssetProcessor extends AbstractProcessor {
 
-	/** The logger. */
+	private String pluginMediaBaseURL;
+	private String contentMediaBaseURL;
+
 
 	/**
 	 * Instantiates a new localize asset processor and sets the base path andS
@@ -70,6 +72,13 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
 		this.basePath = basePath;
 		this.contentId = contentId;
+
+		String env = S3PropertyReader.getProperty("s3.env");
+		this.pluginMediaBaseURL = S3PropertyReader.getProperty("s3.url." + env);
+		// TODO need to throw exception if this property not exist. Plan in release-1.10.0
+		this.contentMediaBaseURL = Platform.config.hasPath("content.media.base.url") ? Platform.config.getString("content.media.base.url") : this.pluginMediaBaseURL;
+
+		
 	}
 
 	/*
@@ -240,13 +249,15 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 
 	private String getDownloadUrl(String src) {
 		if (StringUtils.isNotBlank(src)) {
-			String env = S3PropertyReader.getProperty("s3.env");
-			String prefix = "";
-			TelemetryManager.log("Fetching s3 url from properties file fro environment:"+ env);
-			prefix = S3PropertyReader.getProperty("s3.url." + env);
-			TelemetryManager.log("Fetching envioronment URL from properties file: "+ prefix);
-			if (!src.startsWith("http"))
+			if (!src.startsWith("http")) {
+				String prefix = "";
+				if (src.contains("content-plugins/")) {
+					prefix = pluginMediaBaseURL;
+				} else {
+					prefix = this.contentMediaBaseURL;
+				}
 				src = prefix + src;
+			}
 		}
 		TelemetryManager.log("Returning src url: "+ src);
 		return src;

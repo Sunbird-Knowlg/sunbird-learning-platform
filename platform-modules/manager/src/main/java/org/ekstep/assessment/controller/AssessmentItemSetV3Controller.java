@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 
 @Controller
-@RequestMapping("/v3/assessment/itemsets")
+@RequestMapping("/assessment/v3/itemsets")
 public class AssessmentItemSetV3Controller extends BaseController {
 
     
