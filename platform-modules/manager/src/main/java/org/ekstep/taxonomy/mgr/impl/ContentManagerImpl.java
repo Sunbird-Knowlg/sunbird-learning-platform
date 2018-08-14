@@ -2103,4 +2103,68 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			fileName += "." + FilenameUtils.getExtension(fileUrl);
 		return fileName;
 	}
+
+	/**
+	 *
+	 * @param contentId
+	 * @return
+	 */
+    @Override
+    public Response retire(String contentId) {
+		if (StringUtils.isBlank(contentId)) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+					"Content Object Id is blank.");
+		} else {
+			Response responseNode = getDataNode(TAXONOMY_ID, contentId);
+			if (checkError(responseNode)) {
+				TelemetryManager.log("No content found for " + contentId);
+				return ERROR(null, "Content not found for content id: " + contentId, ResponseCode.SERVER_ERROR);
+			} else {
+				Node node = (Node) responseNode.get(GraphDACParams.node.name());
+				return retireRecursively(contentId, responseNode, node, null, false);
+			}
+		}
+	}
+
+	private Response retireRecursively(String contentId, Response response, Node node, String mode, boolean isChild) {
+		DefinitionDTO definition;
+		if(TaxonomyAPIParams.edit.name().equals(mode)) {
+			definition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
+		} else {
+			Response responseNode = getDataNode(TAXONOMY_ID, getImageId(contentId));
+			if(checkError(responseNode)) {
+				TelemetryManager.log("No image found for " + contentId);
+			} else {
+				retireRecursively(getImageId(contentId), responseNode, null, TaxonomyAPIParams.edit.name(), false);
+			}
+			definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		}
+		if(response == null) {
+			response= getDataNode(TAXONOMY_ID, contentId);
+			node = (Node) response.get(GraphDACParams.node.name());
+		}
+		if(node == null) {
+			node = (Node) response.get(GraphDACParams.node.name());
+		}
+		if("Textbook".equals(node.getMetadata().get("contentType")) || "Collection".equals(node.getMetadata().get("contentType"))) {
+			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+			List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
+			if (null != children && !children.isEmpty()) {
+				children.forEach(dto -> {
+					retireRecursively(dto.getIdentifier(), null, null,mode, true);
+				});
+			}
+		}
+		if(((isChild && "Parent".equals(node.getMetadata().get("visibility"))) || !isChild)
+				&& !"Retired".equals(node.getMetadata().get(TaxonomyAPIParams.status.name()))) {
+			node.getMetadata().put("status", "Retired");
+			response = updateDataNode(node);
+			if(checkError(response)) {
+
+			} else {
+				return response;
+			}
+		}
+		return response;
+	}
 }
