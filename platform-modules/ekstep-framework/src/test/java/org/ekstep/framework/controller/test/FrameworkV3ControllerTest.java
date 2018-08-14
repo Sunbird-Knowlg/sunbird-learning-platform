@@ -1,13 +1,20 @@
 package org.ekstep.framework.controller.test;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.mgr.impl.CategoryInstanceManagerImpl;
 import org.ekstep.framework.mgr.impl.CategoryManagerImpl;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
+import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -57,6 +64,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	private static FrameworkManagerImpl frameworkManager = new FrameworkManagerImpl();
 	private static CategoryInstanceManagerImpl categoryInstanceManager = new CategoryInstanceManagerImpl();
 	private static CategoryManagerImpl categoryManager = new CategoryManagerImpl();
+	private static String TEST_INDEX_NAME="testcompositesearch";
 
 	private static final String createFrameworkReq = "{\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"ka_ncert\"}";
 
@@ -66,7 +74,6 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 
 	private static final String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\"}}}";
 
-	// frameworks is used instead of framework
 	private static final String createFrameworkInvalidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"frameworks\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"org.ekstep.framework.create\"}}}";
 
 	private static String updateFrameworkValidJson = "{\"id\": \"ekstep.framework.update\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"versionKey\": \"1511787372693\",\"description\": \" framework description\",\"categories\": [{\"identifier\": \"do_11238579307347148811\",\"name\": \"cat3\"}]}}}";
@@ -81,6 +88,8 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	public static void setup() throws Exception {
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json",
 				"definitions/category_definition.json", "definitions/categoryInstance_definition.json");
+		LearningRequestRouterPool.init();
+		createCompositeSearchIndex();
 		createChannel();
 		createFramework();
 	}
@@ -88,6 +97,19 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	@Before
 	public void init() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
+	}
+	
+	@AfterClass
+	public static void finish() throws Exception {
+		ElasticSearchUtil.deleteIndex(TEST_INDEX_NAME);
+	}
+	
+	private void delay(long time) {
+		try {
+			Thread.sleep(time);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	private static void createFramework() {
@@ -139,6 +161,16 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		}
 	}
 	
+	private static void createCompositeSearchIndex() throws Exception {
+		CompositeSearchConstants.COMPOSITE_SEARCH_INDEX=TEST_INDEX_NAME;
+		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, Platform.config.getString("search.es_conn_info"));
+		System.out.println("creating index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
+		String settings = "{\"analysis\":{\"analyzer\":{\"cs_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"cs_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
+		String mappings = "{\"dynamic_templates\":[{\"nested\":{\"match_mapping_type\":\"object\",\"mapping\":{\"type\":\"nested\",\"fields\":{\"type\":\"nested\"}}}},{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\",\"fielddata\":true}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
+		ElasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
+	}
+	
 	//Framework Create API -- Start
 	
 	/*
@@ -154,9 +186,6 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA")
 				.content(createFrameworkValidJson));
-		Response resp = mapper.readValue(actions.andReturn().getResponse().getContentAsString(),
-				new TypeReference<Response>() {
-				});
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -206,11 +235,27 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * Then: 200 - OK, Framework details with given identifier returns.
 	 * 
 	 */
-	// @Test
-	public void mockTestFramework_04() throws Exception {
-		String path = basePath + "/read/" + frameworkId;
-		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void readFrameworkWithValidIdentifierExpect200() throws Exception {
+		//Publish Framework
+		String path = basePath + "/publish/" + frameworkId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", "channelKA").contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		delay(10000);
+		//Read Framework
+		path = basePath + "/read/" + frameworkId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
+		Response resp=getResponse(actions);
+		Map<String,Object> framework=(Map<String, Object>) resp.getResult().get("framework");
+		String name=(String) framework.get("name");
+		String code=(String) framework.get("code");
+		String desc=(String) framework.get("description");
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals("NCERT01", name);
+		Assert.assertEquals("ka_ncert", code);
+		Assert.assertEquals("NCERT framework of Karnatka", desc);
 	}
 
 	/*
@@ -693,5 +738,24 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	}
 
 		// Copy Framework API -- End
+	
+	/**
+	 * @param actions
+	 * @return
+	 */
+	private static Response getResponse(ResultActions actions) {
+		String content = null;
+		Response resp = null;
+		try {
+			content = actions.andReturn().getResponse().getContentAsString();
+			if (StringUtils.isNotBlank(content))
+				resp = mapper.readValue(content, Response.class);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resp;
+	}
 		
 }

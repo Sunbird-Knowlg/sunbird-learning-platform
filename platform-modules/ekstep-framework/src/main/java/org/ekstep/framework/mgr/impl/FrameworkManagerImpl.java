@@ -2,6 +2,7 @@
 package org.ekstep.framework.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -193,6 +194,10 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 	private List<String> getFields() {
 		List<String> fields = new ArrayList<String>();
+		DefinitionDTO definition = getDefinition(GRAPH_ID, FRAMEWORK_OBJECT_TYPE);
+		String[] fwMetadata = getFields(definition);
+		if (fwMetadata != null)
+			fields.addAll(Arrays.asList(fwMetadata));
 		fields.add("fw_hierarchy");
 		return fields;
 	}

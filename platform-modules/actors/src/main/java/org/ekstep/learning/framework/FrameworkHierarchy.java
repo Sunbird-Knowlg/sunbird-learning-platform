@@ -85,6 +85,12 @@ public class FrameworkHierarchy extends BaseManager {
 		frameworkDocument.put("identifier", node.getIdentifier());
 		frameworkDocument.put("objectType", node.getObjectType());
 		frameworkDocument.put("nodeType", node.getNodeType());
+		DefinitionDTO definition = getDefinition(GRAPH_ID, node.getObjectType());
+		String[] fields = getFields(definition);
+		for (String field : fields) {
+			if(null!=node.getMetadata().get(field))
+				frameworkDocument.put(field, node.getMetadata().get(field));
+		}
 		ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, node.getIdentifier(),
 				mapper.writeValueAsString(frameworkDocument));

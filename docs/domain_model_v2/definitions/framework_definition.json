@@ -149,7 +149,13 @@
       "systemTags": [],
       "metadata": {
         "ttl": 24,
-        "limit": 50
+        "limit": 50,
+        "fields":[
+          "name",
+          "code",
+          "description",
+          "type"        
+        ]
       }
     }
   ]
