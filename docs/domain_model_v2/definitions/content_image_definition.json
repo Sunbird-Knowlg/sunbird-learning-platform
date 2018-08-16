@@ -2242,6 +2242,23 @@
 					"renderingHints": "{ 'order': 20 }",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "ownershipType",
+					"title": "Ownership Type",
+					"description": "Ownership Type of the Content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"createdBy",
+						"createdFor"
+					],
+					"defaultValue": "createdBy",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 21 }",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
@@ -2514,9 +2531,11 @@
 					"flags",
 					"author",
 					"createdBy",
+					"createdFor",
 					"contentEncoding",
 					"contentDisposition",
-					"config"
+					"config",
+					"ownershipType"
 				]
 			}
 		}
