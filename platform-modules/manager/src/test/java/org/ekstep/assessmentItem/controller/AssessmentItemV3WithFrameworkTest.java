@@ -48,7 +48,7 @@ public class AssessmentItemV3WithFrameworkTest extends CommonTestSetup {
 	private WebApplicationContext context;
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String basePath = "/v3/assessment/assessmentitems";
+	private final String basePath = "/assessment/v3/items";
 	private static String assessmentId = "";
 	private static ObjectMapper mapper = new ObjectMapper();
 
