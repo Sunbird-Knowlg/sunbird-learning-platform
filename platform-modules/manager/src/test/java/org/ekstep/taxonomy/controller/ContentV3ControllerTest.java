@@ -197,7 +197,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	private static void uploadContent() {
 		String mimeType = "application/pdf";
-		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
+		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/test3.pdf";
 		ContentManagerImpl contentManager = new ContentManagerImpl();
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
@@ -369,7 +369,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testContentV3Controller_10() throws Exception {
 		String path = basePath + "/upload/" + contentId;
-		FileInputStream fis = new FileInputStream(getResourceFile("pdf.pdf"));
+		FileInputStream fis = new FileInputStream(getResourceFile("test3.pdf"));
 		MockMultipartFile multipartFile = new MockMultipartFile("file", fis);
 		Map<String, String> contentTypeParams = new HashMap<String, String>();
 		contentTypeParams.put("boundary", "265001916915724");
@@ -382,7 +382,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testContentV3Controller_11() throws Exception {
 		String path = basePath + "/upload/" + contentId;
-		FileInputStream fis = new FileInputStream(getResourceFile("pdf.pdf"));
+		FileInputStream fis = new FileInputStream(getResourceFile("test3.pdf"));
 		MockMultipartFile multipartFile = new MockMultipartFile("file", fis);
 		actions = mockMvc.perform(fileUpload(path).file(multipartFile));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
