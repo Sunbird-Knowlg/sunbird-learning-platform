@@ -66,7 +66,7 @@ public class DefaultMimeTypeMgrImpl extends BaseMimeTypeManager implements IMime
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
-			node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
+			node.getMetadata().put(ContentAPIParams.size.name(), getCloudStoredFileSize(urlArray[0]));
 			response = updateContentNode(contentId, node, urlArray[1]);
 		} catch (IOException e) {
 			throw new ServerException(ContentAPIParams.FILE_ERROR.name(),

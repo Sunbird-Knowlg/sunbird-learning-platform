@@ -3,21 +3,16 @@
  */
 package org.ekstep.cassandra.store;
 
-import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
+import com.datastax.driver.core.*;
+import com.datastax.driver.core.querybuilder.Clause;
+import com.datastax.driver.core.querybuilder.Delete;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
+import com.datastax.driver.core.querybuilder.Select.Where;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.connector.util.CassandraConnectorStoreParam;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.enums.CompositeSearchParams;
@@ -26,16 +21,10 @@ import org.ekstep.graph.common.DateUtils;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogAsyncGraphEvent;
 
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.querybuilder.Clause;
-import com.datastax.driver.core.querybuilder.Delete;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.datastax.driver.core.querybuilder.Select;
-import com.datastax.driver.core.querybuilder.Select.Where;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 
 /**
  * @author mahesh
@@ -48,6 +37,7 @@ public abstract class CassandraStore {
 	private boolean index = false;
 	private String objectType = null;
 	protected String nodeType = CassandraStoreParams.EXTERNAL.name();
+	private static final String DEFAULT_CHANNEL_ID = Platform.config.getString("content.default_channel_id");
 
 	protected void initialise(String keyspace, String table, String objectType) {
 		initialise(keyspace, table, objectType, false);
@@ -246,13 +236,6 @@ public abstract class CassandraStore {
 	/**
 	 * @desc This method is used to create prepared statement based on table
 	 *       name and column name provided in request
-	 * @param keyspaceName
-	 *            String (data base keyspace name)
-	 * @param tableName
-	 *            String
-	 * @param map
-	 *            is key value pair (key is column name and value is value of
-	 *            column)
 	 * @return String String
 	 */
 	private String getPreparedStatement(Set<String> keySet) {
@@ -405,7 +388,7 @@ public abstract class CassandraStore {
 				dataMap.put(CompositeSearchParams.audit.name(), false);
 				dataMap.put(CompositeSearchParams.ets.name(), System.currentTimeMillis());
 				dataMap.put(CompositeSearchParams.createdOn.name(), DateUtils.format(new Date()));
-				dataMap.put("channel", getChannel("in.ekstep"));
+				dataMap.put("channel", getChannel(DEFAULT_CHANNEL_ID));
 				message.add(dataMap);
 				LogAsyncGraphEvent.pushMessageToLogger(message);
 			}

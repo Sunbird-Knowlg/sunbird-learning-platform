@@ -42,21 +42,21 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;*/
  */
 public class AWSUploader {
 
-	private static final String s3Environment = "s3.env";
+	private static final String s3Environment = "cloud_storage.env";
 	private static final String s3Region = "s3.region";
 	private static final String s3 = "s3";
 	private static final String aws = "amazonaws.com";
 	private static final String dotOper = ".";
 	private static final String hyphen = "-";
 	private static final String forwardSlash = "/";
-	private static final String s3AssetFolder = "s3.asset.folder";
-	private static final String s3UploadURLExpiry = "s3.upload.url.expiry";
+	private static final String s3AssetFolder = "cloud_storage.asset.folder";
+	private static final String s3UploadURLExpiry = "cloud_storage.upload.url.ttl";
 	private static final String defaultBucketType = "public";
-	
+
 	public static String getBucketName(String type) {
 		return S3PropertyReader.getProperty("s3."+ type +".bucket");
 	}
-	
+
 	public static String getBucketName() {
 		return getBucketName(defaultBucketType);
 	}

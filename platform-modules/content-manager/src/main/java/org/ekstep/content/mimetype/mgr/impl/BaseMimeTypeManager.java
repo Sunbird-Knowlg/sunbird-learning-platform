@@ -1,24 +1,5 @@
 package org.ekstep.content.mimetype.mgr.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,7 +12,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
@@ -46,11 +26,7 @@ import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
-import org.ekstep.graph.dac.model.Filter;
-import org.ekstep.graph.dac.model.MetadataCriterion;
-import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.dac.model.Relation;
-import org.ekstep.graph.dac.model.SearchConditions;
+import org.ekstep.graph.dac.model.*;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
@@ -61,6 +37,19 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+
 public class BaseMimeTypeManager extends BaseLearningManager {
 
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -69,8 +58,8 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 	
 	protected static final int IDX_S3_URL = 1;
 
-	private static final String s3Content = "s3.content.folder";
-	private static final String s3Artifact = "s3.artifact.folder";
+	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
+	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 	private static final String defaultBucketType = "public";
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -79,7 +68,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		return getBucketName(defaultBucketType);
 	}
 	public static String getBucketName(String type) {
-		return S3PropertyReader.getProperty("s3."+ type +".bucket");
+		return CloudStore.getContainerName();
 	}
 	
 	public boolean isArtifactUrlSet(Map<String, Object> contentMap) {
@@ -200,7 +189,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 	/**
 	 * This return true if at least one member matches from the checkList.
 	 * @param file
-	 * @param checkList
+	 * @param checkFile
 	 * @return
 	 * @throws IOException
 	 */
@@ -315,18 +304,18 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		node.getMetadata().put("downloadUrl", urlArray[1]);
 		node.getMetadata().put("status", "Live");
 		node.getMetadata().put(ContentAPIParams.lastPublishedOn.name(), formatCurrentDate());
-		node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
+		node.getMetadata().put(ContentAPIParams.size.name(), getCloudStoredFileSize(urlArray[0]));
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
 		return updateContentNode(newNode.getIdentifier(), newNode, urlArray[1]);
 	}
 
-	protected Double getS3FileSize(String key) {
+	protected Double getCloudStoredFileSize(String key) {
 		Double bytes = null;
 		if (StringUtils.isNotBlank(key)) {
 			try {
-				return CloudStore.getObjectSize(key);//AWSUploader.getObjectSize(key);
+				return CloudStore.getObjectSize(key);
 			} catch (Exception e) {
 				TelemetryManager.error("Error: While getting the file size from AWS: " + key, e);
 			}
@@ -499,9 +488,9 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 	public String[] uploadArtifactToAWS(File uploadedFile, String identifier) {
 		String[] urlArray = new String[] {};
 		try {
-			String folder = S3PropertyReader.getProperty(s3Content);
-			folder = folder + "/" + Slug.makeSlug(identifier, true) + "/" + S3PropertyReader.getProperty(s3Artifact);
-			urlArray = CloudStore.uploadFile(folder, uploadedFile, true);//AWSUploader.uploadFile(folder, uploadedFile);
+			String folder = S3PropertyReader.getProperty(CONTENT_FOLDER);
+			folder = folder + "/" + Slug.makeSlug(identifier, true) + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
+			urlArray = CloudStore.uploadFile(folder, uploadedFile, true);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
 					"Error while uploading the File.", e);

@@ -73,8 +73,8 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		this.basePath = basePath;
 		this.contentId = contentId;
 
-		String env = S3PropertyReader.getProperty("s3.env");
-		this.pluginMediaBaseURL = S3PropertyReader.getProperty("s3.url." + env);
+		String env = S3PropertyReader.getProperty("cloud_storage.env");
+		this.pluginMediaBaseURL = S3PropertyReader.getProperty("plugin.media.base.url");
 		// TODO need to throw exception if this property not exist. Plan in release-1.10.0
 		this.contentMediaBaseURL = Platform.config.hasPath("content.media.base.url") ? Platform.config.getString("content.media.base.url") : this.pluginMediaBaseURL;
 

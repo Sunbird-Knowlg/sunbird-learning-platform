@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.exception.MiddlewareException;
@@ -28,6 +29,8 @@ public class TelemetryManager {
 	 * 
 	 */
 	private static TelemetryHandler telemetryHandler = new TelemetryLoggingHandler();
+
+	private static final String DEFAULT_CHANNEL_ID = Platform.config.getString("content.default_channel_id");
 
 	/**
 	 * To log api_access as a telemetry event.
@@ -184,7 +187,7 @@ public class TelemetryManager {
 		Map<String, String> context = new HashMap<String, String>();
 		context.put(TelemetryParams.ACTOR.name(),
 				getContextValue(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform"));
-		context.put(TelemetryParams.CHANNEL.name(), getContextValue(HeaderParam.CHANNEL_ID.name(), "in.ekstep"));
+		context.put(TelemetryParams.CHANNEL.name(), getContextValue(HeaderParam.CHANNEL_ID.name(), DEFAULT_CHANNEL_ID));
 		context.put(TelemetryParams.ENV.name(), getContextValue(TelemetryParams.ENV.name(), "system"));
 		return context;
 	}

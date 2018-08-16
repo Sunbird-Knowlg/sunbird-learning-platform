@@ -40,8 +40,6 @@ public class UploadFinalizer extends BaseFinalizer {
 	/** The ContentId. */
 	protected String contentId;
 
-	private static final String s3Artifact = "s3.artifact.folder";
-	
 	/**
 	 * Instantiates a new UploadFinalizer and sets the base
 	 * path and current content id for further processing.
@@ -103,7 +101,7 @@ public class UploadFinalizer extends BaseFinalizer {
 		TelemetryManager.log("Generated ECML String From ECRF: " + ecml);
 
 		// Upload Package
-		String folderName = S3PropertyReader.getProperty(s3Artifact);
+		String folderName = S3PropertyReader.getProperty(ARTEFACT_FOLDER);
 		String[] urlArray = uploadToAWS(file, getUploadFolderName(contentId, folderName));
 		TelemetryManager.log("Package Uploaded to S3.");
 		
