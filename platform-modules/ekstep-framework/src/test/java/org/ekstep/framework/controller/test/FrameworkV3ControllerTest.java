@@ -162,7 +162,6 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	private static void createCompositeSearchIndex() throws Exception {
 		CompositeSearchConstants.COMPOSITE_SEARCH_INDEX=TEST_INDEX_NAME;
 		ElasticSearchUtil.initialiseESClient(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, Platform.config.getString("search.es_conn_info"));
-		System.out.println("creating index: " + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 		String settings = "{\"analysis\":{\"analyzer\":{\"cs_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",\"mynGram\"]},\"cs_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"standard\",\"filter\":[\"standard\",\"lowercase\"]},\"keylower\":{\"tokenizer\":\"keyword\",\"filter\":\"lowercase\"}},\"filter\":{\"mynGram\":{\"type\":\"nGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"]}}}}";
 		String mappings = "{\"dynamic_templates\":[{\"nested\":{\"match_mapping_type\":\"object\",\"mapping\":{\"type\":\"nested\",\"fields\":{\"type\":\"nested\"}}}},{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\",\"fielddata\":true}}}}}],\"properties\":{\"all_fields\":{\"type\":\"text\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"analyzer\":\"keylower\"}}}}}";
 		ElasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -230,13 +229,19 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void readFrameworkWithValidIdentifierExpect200() throws Exception {
+		//Create Framework
+		String createFrameworkReq = "{\"request\":{\"framework\":{\"name\": \"TESTFR01\",\"description\": \"Test Framework\",\"code\": \"test_fr\"}}}";
+		String path = BASE_PATH + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA")
+				.content(createFrameworkReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		//Publish Framework
-		String path = BASE_PATH + "/publish/" + frameworkId;
+		path = BASE_PATH + "/publish/" + "test_fr";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", "channelKA").contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		delay(10000);
 		//Read Framework
-		path = BASE_PATH + "/read/" + frameworkId;
+		path = BASE_PATH + "/read/" + "test_fr";
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
 		Response resp=getResponse(actions);
 		Map<String,Object> framework=(Map<String, Object>) resp.getResult().get("framework");
@@ -244,9 +249,9 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		String code=(String) framework.get("code");
 		String desc=(String) framework.get("description");
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		Assert.assertEquals("NCERT01", name);
-		Assert.assertEquals("ka_ncert", code);
-		Assert.assertEquals("NCERT framework of Karnatka", desc);
+		Assert.assertEquals("TESTFR01", name);
+		Assert.assertEquals("test_fr", code);
+		Assert.assertEquals("Test Framework", desc);
 	}
 
 	/*
@@ -702,6 +707,37 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(copyFrameworkValidJson));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void createFrameworkWithTranslationsExpect200() throws Exception {
+		//Create Framework
+		String createFrameworkReq="{\"request\": {\"framework\": {\"name\": \"Test Framework\",\"description\": \"test framework\",\"code\": \"test.fr\",\"owner\": \"in.ekstep\",\"type\": \"K-12\",\"translations\":{\"hi\":\"टेस्ट फ़्रेम्वर्क\",\"ka\":\"ೂಾೇೂ ಿೀೋಸಾೈದೀಕ\"}}}}";
+		String path = BASE_PATH + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA")
+				.content(createFrameworkReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		//Publish Framework
+		path = BASE_PATH + "/publish/" + "test.fr";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", "channelKA").contentType(MediaType.APPLICATION_JSON));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		delay(10000);
+		//Read Framework
+		path = BASE_PATH + "/read/" + "test.fr";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
+		Response resp=getResponse(actions);
+		Map<String,Object> framework=(Map<String, Object>) resp.getResult().get("framework");
+		String name=(String) framework.get("name");
+		String code=(String) framework.get("code");
+		String desc=(String) framework.get("description");
+		Map<String,Object> translations=mapper.readValue((String)framework.get("translations"), Map.class);
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals("Test Framework", name);
+		Assert.assertEquals("test.fr", code);
+		Assert.assertEquals("test framework", desc);
+		Assert.assertEquals("टेस्ट फ़्रेम्वर्क", (String)translations.get("hi"));
+		Assert.assertEquals("ೂಾೇೂ ಿೀೋಸಾೈದೀಕ", (String)translations.get("ka"));
 	}
 	
 	/**
