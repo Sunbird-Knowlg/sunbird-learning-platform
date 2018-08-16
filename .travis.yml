@@ -13,6 +13,7 @@ before_install:
   - find ${TRAVIS_BUILD_DIR}/ -type f -name "log4j2.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/~\/logs/g'
   - find ${TRAVIS_BUILD_DIR}/ -type f -name "logback.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/~\/logs/g'
   - find ${TRAVIS_BUILD_DIR}/ -type f -name "application.conf" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
+  - find ${TRAVIS_BUILD_DIR}/ -type f -name "*.java" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
   - sleep 10
 script:
   - mvn clean install
