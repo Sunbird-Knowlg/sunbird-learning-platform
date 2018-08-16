@@ -60,7 +60,7 @@ public class ContentBundle {
 	protected static final String BUNDLE_PATH = "/tmp";
 
 	/** The s3 ecar folder */
-	private static final String s3EcarFolder = "s3.ecar.folder";
+	private static final String ECAR_FOLDER = "cloud_storage.ecar.folder";
 
 	/** The default youtube mimeType */
 	private static final String YOUTUBE_MIMETYPE = "video/youtube";
@@ -196,9 +196,8 @@ public class ContentBundle {
 					downloadedFiles.add(manifestFile);
 				try {
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
-					String folderName = S3PropertyReader.getProperty(s3EcarFolder);
+					String folderName = S3PropertyReader.getProperty(ECAR_FOLDER);
 					folderName = folderName + "/" + contentId;
-					//String[] url = AWSUploader.uploadFile(folderName, contentBundle);
 					String[] url = CloudStore.uploadFile(folderName, contentBundle, true);
 					downloadedFiles.add(contentBundle);
 					return url;

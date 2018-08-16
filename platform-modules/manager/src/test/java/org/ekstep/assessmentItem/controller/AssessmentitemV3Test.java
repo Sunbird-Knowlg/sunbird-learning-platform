@@ -46,7 +46,7 @@ public class AssessmentitemV3Test extends CommonTestSetup {
 	private WebApplicationContext context;
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_path = "/v3/assessment/assessmentitems";
+	private final String base_path = "/assessment/v3/items";
 
 	private static String cassandraScript_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
 	private static String cassandraScript_2 = "CREATE TABLE IF NOT EXISTS content_store_test.question_data_test (question_id text,last_updated_on timestamp,body blob,PRIMARY KEY (question_id));";

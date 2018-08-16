@@ -57,7 +57,7 @@ public class BaseFinalizer extends BasePipeline {
 	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
 
-	private static final String s3Artifact = "s3.artifact.folder";
+	protected static final String ARTEFACT_FOLDER = "cloud_storage.artifact.folder";
 
 	/**
 	 * Creates Thumbline.
@@ -93,7 +93,7 @@ public class BaseFinalizer extends BasePipeline {
 							// uploads thumbfile to s3 and set node metadata
 							if (thumbFile.exists()) {
 								TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
-								String folderName = S3PropertyReader.getProperty(s3Artifact);
+								String folderName = S3PropertyReader.getProperty(ARTEFACT_FOLDER);
 								String[] urlArray = uploadToAWS(thumbFile,
 										getUploadFolderName(node.getIdentifier(), folderName));
 								if (null != urlArray && urlArray.length >= 2) {
@@ -247,7 +247,7 @@ public class BaseFinalizer extends BasePipeline {
 
 			if (stageIcon.exists()) {
 				TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
-				String folderName = S3PropertyReader.getProperty(s3Artifact) + "/"
+				String folderName = S3PropertyReader.getProperty(ARTEFACT_FOLDER) + "/"
 						+ ContentWorkflowPipelineParams.screenshots.name();
 				String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
 				if (null != urlArray && urlArray.length >= 2) {

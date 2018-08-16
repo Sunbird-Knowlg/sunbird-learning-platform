@@ -400,8 +400,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (checkError(contentResp))
 			return contentResp;
 		Response response = new Response();
-		String objectKey = S3PropertyReader.getProperty("s3.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
-		String expiry = S3PropertyReader.getProperty("s3.upload.url.expiry");
+		String objectKey = S3PropertyReader.getProperty("cloud_storage.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
+		String expiry = S3PropertyReader.getProperty("cloud_storage.upload.url.ttl");
 		String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, Option.apply(Integer.parseInt(expiry)), Option.apply("w"));
 		response.put(ContentAPIParams.content_id.name(), contentId);
 		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);

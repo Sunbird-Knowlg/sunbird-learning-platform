@@ -1,17 +1,5 @@
 package org.ekstep.content.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -20,7 +8,6 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
@@ -33,6 +20,14 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * The Class ContentPackageExtractionUtil.
@@ -47,16 +42,11 @@ public class ContentPackageExtractionUtil {
 	/** The Constant DASH. */
 	private static final String DASH = "-";
 
-	private static final String S3_BUCKET = "s3.public.bucket";
-	
 	/** The Constant s3Content. */
-	private static final String S3_CONTENT = "s3.content.folder";
-
-	/** The Constant S3_ENVIRONMENT. */
-	private static final String S3_ENVIRONMENT = "s3.env";
+	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 
 	/** The Constant S3_CONTENT_PLUGIN_DIRECTORY. */
-	private static final String S3_CONTENT_PLUGIN_DIRECTORY = "content-plugins";
+	private static final String CONTENT_PLUGIN_DIRECTORY = "content-plugins";
 
 	/** The Constant TEMP_FILE_LOCATION. */
 	private static final String TEMP_FILE_LOCATION = "/data/contentBundle/";
@@ -64,8 +54,8 @@ public class ContentPackageExtractionUtil {
 	private static final String H5P_MIMETYPE = "application/vnd.ekstep.h5p-archive";
 
 	/** The extractable mime types. */
-	private static Map<String, String> extractableMimeTypes = new HashMap<String, String>();
-	private static Map<String, String> extractablePackageExtensions = new HashMap<String, String>();
+	private static Map<String, String> extractableMimeTypes = new HashMap<>();
+	private static Map<String, String> extractablePackageExtensions = new HashMap<>();
 
 	static {
 		extractableMimeTypes.put("application/vnd.ekstep.ecml-archive", "ECML Type Content");
@@ -98,14 +88,6 @@ public class ContentPackageExtractionUtil {
 				throw new ClientException(ContentErrorCodes.INVALID_SNAPSHOT.name(),
 						"Error! Snapshot Type Extraction doesn't Exists.");
 
-			// Fetching Environment Name
-			String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
-			TelemetryManager.log("Currently Working Environment: " + s3Environment);
-
-			// Fetching Bucket Name
-			String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET);
-			TelemetryManager.log("Current Storage Space Bucket Name: " + s3Bucket);
-			
 			// Fetching Source Prefix For Copy Objects in S3
 			String sourcePrefix = getExtractionPath(contentId, node, ExtractionType.snapshot);
 			TelemetryManager.log("Source Prefix: " + sourcePrefix);
@@ -122,7 +104,6 @@ public class ContentPackageExtractionUtil {
 				pool.execute(new Runnable() {
 					@Override
 					public void run() {
-						//AWSUploader.copyObjectsByPrefix(s3Bucket, s3Bucket, sourcePrefix, destinationPrefix);
 						CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
 					}
 				});
@@ -310,7 +291,7 @@ public class ContentPackageExtractionUtil {
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
 					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
 
-		List<String> lstUploadedFileUrls = new ArrayList<String>();
+		List<String> lstUploadedFileUrls = new ArrayList<>();
 		TelemetryManager.log("Starting the Fan-out for Upload.");
 		ExecutorService pool = Executors.newFixedThreadPool(10);
 		List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(files.size());
@@ -326,7 +307,6 @@ public class ContentPackageExtractionUtil {
 						if (StringUtils.isNotBlank(path))
 							folderName += File.separator + path;
 						TelemetryManager.log("Folder Name For Storage Space Extraction: " + folderName);
-						//String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file, slugFile);
 						String[] uploadedFileUrl = CloudStore.uploadFile(folderName, file, slugFile);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
@@ -359,8 +339,7 @@ public class ContentPackageExtractionUtil {
 	@SuppressWarnings("unused")
 	private String getExtractionPath(String contentId, Node node, ExtractionType extractionType) {
 		String path = "";
-		String contentFolder = S3PropertyReader.getProperty(S3_CONTENT);
-		String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
+		String contentFolder = S3PropertyReader.getProperty(CONTENT_FOLDER);
 
 		// Getting the Path Suffix
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
@@ -389,7 +368,7 @@ public class ContentPackageExtractionUtil {
 					+ pathSuffix;
 			break;
 		case "application/vnd.ekstep.plugin-archive":
-			path += S3_CONTENT_PLUGIN_DIRECTORY + File.separator + contentId + DASH + pathSuffix;
+			path += CONTENT_PLUGIN_DIRECTORY + File.separator + contentId + DASH + pathSuffix;
 			break;
 
 		default:
@@ -452,13 +431,7 @@ public class ContentPackageExtractionUtil {
 	}
 	
 	public String getS3URL(String contentId, Node node, ExtractionType extractionType) {
-
-		// Fetching Bucket Name
-		String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET);
-		TelemetryManager.log("Current Storage Space Bucket Name: " + s3Bucket);
-
 		String path = getExtractionPath(contentId, node, extractionType);
-		//return AWSUploader.getURL(s3Bucket, path);
-		return CloudStore.getURL(s3Bucket, path);
+		return CloudStore.getURL(path);
 	}
 }
