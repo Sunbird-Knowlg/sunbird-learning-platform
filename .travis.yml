@@ -13,4 +13,4 @@ before_install:
 before_script:
   - sleep 10
 script:
-- mvn clean install
+- sudo mvn clean install
