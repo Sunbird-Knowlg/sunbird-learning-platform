@@ -6,6 +6,7 @@ cache:
   - "$HOME/.m2"
 services:
   - redis-server
-before_script: "./.travis-dependencies.sh"
+before_install: 
+  - ./.travis-dependencies.sh
 script:
 - mvn clean install
