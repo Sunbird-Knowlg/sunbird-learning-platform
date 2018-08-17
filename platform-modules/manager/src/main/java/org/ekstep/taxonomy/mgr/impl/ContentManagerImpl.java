@@ -2146,21 +2146,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if(node == null) {
 			node = (Node) response.get(GraphDACParams.node.name());
 		}
-		if("Textbook".equals(node.getMetadata().get("contentType")) || "Collection".equals(node.getMetadata().get("contentType"))) {
+		if("TextBook".equals(node.getMetadata().get("contentType")) || "Collection".equals(node.getMetadata().get("contentType"))) {
 			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-			List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
-			if (null != children && !children.isEmpty()) {
-				children.forEach(dto -> {
-					retireRecursively(dto.getIdentifier(), null, null,mode, true);
-				});
-			}
+			Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
+				children.forEach(dto -> retireRecursively(dto.getIdentifier(), null, null, mode, true));
+			});
 		}
 		if(((isChild && "Parent".equals(node.getMetadata().get("visibility"))) || !isChild)
 				&& !"Retired".equals(node.getMetadata().get(TaxonomyAPIParams.status.name()))) {
 			node.getMetadata().put("status", "Retired");
 			response = updateDataNode(node);
 			if(checkError(response)) {
-
+                return ERROR(null, "Content node not updated for content id:" + contentId + "could not be updated with retire status", ResponseCode.SERVER_ERROR);
 			} else {
 				return response;
 			}

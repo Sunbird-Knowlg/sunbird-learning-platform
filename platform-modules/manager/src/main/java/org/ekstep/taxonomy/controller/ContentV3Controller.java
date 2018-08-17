@@ -440,6 +440,7 @@ public class ContentV3Controller extends BaseController {
 	}
 
 	@RequestMapping(value="/retire/{id:.+}", method = RequestMethod.DELETE)
+	@ResponseBody
 	public ResponseEntity<Response> retire(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.content.retire";
 		TelemetryManager.log("Retiring content | Content Id : " + contentId);
