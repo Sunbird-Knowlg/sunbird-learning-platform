@@ -40,8 +40,6 @@ import org.ekstep.learning.framework.FrameworkHierarchyOperations;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import akka.actor.ActorRef;
 
 /**
