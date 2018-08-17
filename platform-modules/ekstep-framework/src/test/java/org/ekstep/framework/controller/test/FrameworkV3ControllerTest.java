@@ -740,6 +740,49 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		Assert.assertEquals("ೂಾೇೂ ಿೀೋಸಾೈದೀಕ", (String)translations.get("ka"));
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void createFrameworkWithEmptyTranslationsExpect200() throws Exception {
+		//Create Framework
+		String createFrameworkReq="{\"request\": {\"framework\": {\"name\": \"Test Framework\",\"description\": \"test framework\",\"code\": \"test.fr.1\",\"owner\": \"in.ekstep\",\"type\": \"K-12\",\"translations\":{}}}}";
+		String path = BASE_PATH + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA")
+				.content(createFrameworkReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		//Publish Framework
+		path = BASE_PATH + "/publish/" + "test.fr.1";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", "channelKA").contentType(MediaType.APPLICATION_JSON));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		delay(10000);
+		//Read Framework
+		path = BASE_PATH + "/read/" + "test.fr.1";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
+		Response resp=getResponse(actions);
+		Map<String,Object> framework=(Map<String, Object>) resp.getResult().get("framework");
+		String name=(String) framework.get("name");
+		String code=(String) framework.get("code");
+		String desc=(String) framework.get("description");
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals("Test Framework", name);
+		Assert.assertEquals("test.fr.1", code);
+		Assert.assertEquals("test framework", desc);
+		Assert.assertNull(framework.get("translations"));
+	}
+	/*
+	 * Create Framework with Translation having invalid language code.
+	 * Expected: 400 - CLIENT_ERROR
+	 * */
+	@Test
+	public void createFrameworkWithTranslationsExpect400() throws Exception {
+		String createFrameworkReq="{\"request\": {\"framework\": {\"name\": \"Test Framework\",\"description\": \"test framework\",\"code\": \"test.fr.2\",\"owner\": \"in.ekstep\",\"type\": \"K-12\",\"translations\":{\"pq\":\"टेस्ट फ़्रेम्वर्क\",\"ka\":\"ೂಾೇೂ ಿೀೋಸಾೈದೀಕ\"}}}}";
+		String path = BASE_PATH + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA")
+				.content(createFrameworkReq));
+		Response resp=getResponse(actions);
+		Assert.assertEquals(400, resp.getResponseCode().code());
+		Assert.assertEquals("ERR_INVALID_LANGUAGE_CODE", resp.getParams().getErr());
+	}
+	
 	/**
 	 * @param actions
 	 * @return
