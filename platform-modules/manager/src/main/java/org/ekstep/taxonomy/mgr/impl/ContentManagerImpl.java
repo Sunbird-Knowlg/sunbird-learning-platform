@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -2133,7 +2134,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else {
 			Response responseNode = getDataNode(TAXONOMY_ID, getImageId(contentId));
 			if(checkError(responseNode)) {
-				TelemetryManager.log("No image found for " + contentId);
+				TelemetryManager.log("Content Image not found for contentId: " + contentId);
 			} else {
 				retireRecursively(getImageId(contentId), responseNode, null, TaxonomyAPIParams.edit.name(), false);
 			}
@@ -2145,19 +2146,17 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		if(node == null) {
 			node = (Node) response.get(GraphDACParams.node.name());
-		}
-		if("TextBook".equals(node.getMetadata().get("contentType")) || "Collection".equals(node.getMetadata().get("contentType"))) {
-			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-			Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
-				children.forEach(dto -> retireRecursively(dto.getIdentifier(), null, null, mode, true));
-			});
-		}
+        }
+        Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+        Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
+            children.forEach(dto -> retireRecursively(dto.getIdentifier(), null, null, mode, true));
+        });
 		if(((isChild && "Parent".equals(node.getMetadata().get("visibility"))) || !isChild)
 				&& !"Retired".equals(node.getMetadata().get(TaxonomyAPIParams.status.name()))) {
 			node.getMetadata().put("status", "Retired");
 			response = updateDataNode(node);
 			if(checkError(response)) {
-                return ERROR(null, "Content node not updated for content id:" + contentId + "could not be updated with retire status", ResponseCode.SERVER_ERROR);
+                return ERROR(null, "Content with content id:" + contentId + " not updated with retire status", ResponseCode.SERVER_ERROR);
 			} else {
 				return response;
 			}
