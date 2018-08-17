@@ -133,8 +133,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
 
 	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
-	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.search.uri")
-			? Platform.config.getString("dialcode.search.uri") : "v3/dialcode/search";
+	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
+			? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
 			
 	/*private BaseStorageService storageService;
 	
@@ -1766,9 +1766,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (!dialcodes.isEmpty())
 				dialCodeList.addAll(dialcodes);
 		}
-		Boolean isValReq = Platform.config.hasPath("content.link.enable.dialcode.validation")
-				? Platform.config.getBoolean("content.link.enable.dialcode.validation") : false;
-		if (true == isValReq)
+		Boolean isValReq = Platform.config.hasPath("learning.content.link_dialcode_validation")
+				? Platform.config.getBoolean("learning.content.link_dialcode_validation") : true;
+		if (isValReq)
 			validateDialCodes(channelId, dialCodeList);
 	}
 
