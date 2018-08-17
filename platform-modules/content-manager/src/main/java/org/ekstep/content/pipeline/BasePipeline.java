@@ -77,7 +77,7 @@ public class BasePipeline extends BaseManager {
 	/** The Constant DEF_AWS_FOLDER_NAME */
 	private static final String DEF_AWS_FOLDER_NAME = "content";
 
-	private static final String CONTEN_FOLDER = "s3.content.folder";;
+	private static final String CONTEN_FOLDER = "cloud_storage.content.folder";
 
 	/**
 	 * Updates the ContentNode.
