@@ -133,8 +133,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
 
 	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
-	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.search.uri")
-			? Platform.config.getString("dialcode.search.uri") : "v3/dialcode/search";
+	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
+			? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/dialcode/v3/search";
 			
 	/*private BaseStorageService storageService;
 	

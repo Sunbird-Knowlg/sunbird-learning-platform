@@ -20,27 +20,23 @@ import com.mashape.unirest.http.Unirest;
  */
 public class HttpRestUtil {
 
-	private static String EKSTEP_PLATFORM_API_BASE_URL = null;
-	private static String EKSTEP_PLATFORM_API_USERID = null;
+	private static final String EKSTEP_PLATFORM_API_USERID = "System";
+	private static final String DEFAULT_CONTENT_TYPE = "application/json";
 	private static String EKSTEP_API_AUTHORIZATION_KEY = null;
-	private static String DEFAULT_CONTENT_TYPE = "application/json";
 
 	private static Gson gsonObj = new Gson();
 	private static ObjectMapper objMapper = new ObjectMapper();
 
 	static {
-		EKSTEP_PLATFORM_API_BASE_URL = Platform.config.hasPath("ekstep.platform.api.base.url")
-				? Platform.config.getString("ekstep.platform.api.base.url") : "http://localhost:8080/learning-service/";
-		EKSTEP_PLATFORM_API_USERID = Platform.config.hasPath("ekstep.platform.api.user")
-				? Platform.config.getString("ekstep.platform.api.user") : "ekstep";
-		String key = Platform.config.hasPath("ekstep.platform.api.auth.key")
-				? Platform.config.getString("ekstep.platform.api.auth.key") : "";
+		String key = Platform.config.hasPath("dialcode.api.authorization")
+				? Platform.config.getString("dialcode.api.authorization")
+				: "";
 		EKSTEP_API_AUTHORIZATION_KEY = "Bearer " + key;
 		Unirest.setDefaultHeader("Content-Type", DEFAULT_CONTENT_TYPE);
 		Unirest.setDefaultHeader("Authorization", EKSTEP_API_AUTHORIZATION_KEY);
 		Unirest.setDefaultHeader("user-id", EKSTEP_PLATFORM_API_USERID);
 	}
-	
+
 	/**
 	 * @param uri
 	 * @param requestMap
@@ -62,7 +58,7 @@ public class HttpRestUtil {
 			throw new ServerException("ERR_INVALID_REQUEST_BODY", "Request Body is Manadatory");
 
 		try {
-			response = Unirest.post(EKSTEP_PLATFORM_API_BASE_URL + uri).headers(headerParam)
+			response = Unirest.post(uri).headers(headerParam)
 					.body(gsonObj.toJson(requestMap)).asString();
 		} catch (Exception e) {
 			throw new ServerException("ERR_CALL_API",
@@ -83,10 +79,9 @@ public class HttpRestUtil {
 			throws Exception {
 		if (null == headerParam)
 			throw new ServerException("ERR_INVALID_HEADER_PARAM", "Header Parameter is Mandatory.");
-		
-		String req = (null != queryParam) ? EKSTEP_PLATFORM_API_BASE_URL + urlWithIdentifier + queryParam
-				: EKSTEP_PLATFORM_API_BASE_URL + urlWithIdentifier;
-		
+
+		String req = (null != queryParam) ? urlWithIdentifier + queryParam : urlWithIdentifier;
+
 		HttpResponse<String> response = Unirest.get(req).headers(headerParam).asString();
 		return getResponse(response);
 	}
