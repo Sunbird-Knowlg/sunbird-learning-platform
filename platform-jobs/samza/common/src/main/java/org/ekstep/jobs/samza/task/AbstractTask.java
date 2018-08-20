@@ -179,7 +179,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		Map<String, String> context = new HashMap<String, String>();
 		context.put(TelemetryParams.ACTOR.name(), "org.ekstep.learning.platform");
 		context.put(TelemetryParams.ENV.name(), "content");
-		context.put(TelemetryParams.CHANNEL.name(), Platform.config.getString("content.default_channel_id"));
+		context.put(TelemetryParams.CHANNEL.name(), Platform.config.getString("channel.default"));
 		return TelemetryGenerator.log(context, "system", logLevel, message);
 	}
 

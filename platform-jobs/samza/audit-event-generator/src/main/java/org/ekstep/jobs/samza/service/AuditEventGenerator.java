@@ -128,7 +128,7 @@ public class AuditEventGenerator implements ISamzaService {
 		Map<String, String> outRelations = new HashMap<>();
 		getRelationDefinitionMaps(definitionNode, inRelations, outRelations);
 
-		String channelId = Platform.config.getString("content.default_channel_id");
+		String channelId = Platform.config.getString("channel.default");
 		String channel = (String) message.get(GraphDACParams.channel.name());
 		if (null != channel)
 			channelId = channel;
