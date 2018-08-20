@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -116,6 +117,14 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	public static void clean() throws Exception {
 		ElasticSearchUtil.deleteIndex(DIALCODE_INDEX);
 	}
+
+    public void delay(long millis){
+        try {
+            Thread.sleep(millis);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 	/*
 	 * Framework Name: NCFTEST
@@ -1255,4 +1264,187 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
 		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
 	}
+
+    private Map<String, Object> getContentMap(String createContent) {
+        try {
+            return mapper.readValue(createContent, new TypeReference<Map<String, Object>>() {});
+        } catch(Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private String createDocContent() throws Exception {
+	    String path = basePath + "/create";
+	    String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+        actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+                .header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(createDocumentContentRequestBody));
+        assertEquals(200, actions.andReturn().getResponse().getStatus());
+        return (String) getResponse(actions).getResult().get(TestParams.node_id.name());
+    }
+
+    private void retireContent(String contentId) throws Exception {
+        String path = basePath + "/retire/" + contentId;
+        actions = mockMvc.perform(MockMvcRequestBuilders.delete(path));
+        assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    private void validateRetiredContent(String contentId) throws Exception {
+        Response response = getContent(contentId);
+        assertEquals("Retired", ((Map<String, Object>) response.get("content")).get("status"));
+    }
+
+    private void uploadDocument(String contentId) throws Exception {
+        String uploadPath = basePath + "/upload/" + contentId;
+        File inputFile = getResourceFile("test1.pdf");
+        FileInputStream fileStream = new FileInputStream(inputFile);
+        MockMultipartFile testFile = new MockMultipartFile("file", "test1.pdf", "application/pdf", fileStream);
+        actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(uploadPath).file(testFile).header("user-id", "ilimi"));
+        assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    private void publish(String contentId) throws Exception {
+        String path = basePath + "/publish/" + contentId;
+        String publishReqBody = "{\"request\": {\"content\" : {\"lastPublishedBy\" : \"Ekstep\"}}}";
+        actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+                .header("X-Channel-Id", "channelTest").content(publishReqBody));
+        System.out.print("Response::::" + actions.andReturn().getResponse().getContentAsString());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    private Response getContent(String contentId) throws Exception {
+        String path = basePath + "/read/" + contentId;
+        actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA"));
+        return getResponse(actions);
+    }
+
+    private void update(String contentId) throws Exception {
+        String versionKey = (String) ((Map<String, Object>)getContent(contentId).getResult().get("content")).get("versionKey");
+        String updateReq = "{\"request\": {\"content\": {\"versionKey\": \"" + versionKey + "\",\"screenshots\": null,\"name\": \"Image Node\"}}}";
+        String path = basePath + "/update/" + contentId;
+        actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+                .header("user-id", "ilimi").content(updateReq));
+        assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    private void review(String contentId) throws Exception {
+        String path = basePath + "/review/" + contentId;
+        String publishReqBody = "{\"request\": {\"content\" : {}}}";
+        actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+                .header("X-Channel-Id", "channelTest").content(publishReqBody));
+        assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+	@Test
+	public void retireDocumentContent01() throws Exception {
+		String contentId = createDocContent();
+		retireContent(contentId);
+		validateRetiredContent(contentId);
+	}
+
+	@Ignore
+	@Test
+	public void retireDocumentContent02() throws Exception {
+		String contentId = createDocContent();
+		uploadDocument(contentId);
+		publish(contentId);
+		update(contentId);
+		retireContent(contentId);
+		validateRetiredContent(contentId);
+	}
+
+	@Test
+	public void retireDocumentContent03() throws Exception {
+		String contentId = createDocContent();
+		uploadDocument(contentId);
+		review(contentId);
+		retireContent(contentId);
+        validateRetiredContent(contentId);
+	}
+
+	private String createCollectionContent01() throws Exception {
+        String path = basePath + "/create";
+        String createCollectionContentRequestBody = "{\"request\": {\"content\": {\"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_Dev\",\"name\": \"TestBook1\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"testbook1\",\"tags\":[\"QA_Content\"],\"mimeType\": \"application/vnd.ekstep.content-collection\",\"children\":[]}}}";
+        actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+                .header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(createCollectionContentRequestBody));
+        assertEquals(200, actions.andReturn().getResponse().getStatus());
+        return (String) getResponse(actions).getResult().get(TestParams.node_id.name());
+    }
+
+    private void heirarchyUpdate(String collectionContentId) throws Exception {
+        String resourceContentId1 = createDocContent();
+        String resourceContentId2 = createDocContent();
+        String path = basePath + "/hierarchy/update";
+        String updateHeirarchyReq = "{\"request\":{\"data\":{\"nodesModified\":{\"TestBookUnit-0111\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-0211\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-0311\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_03\",\"description\":\"TTest_Collection_TextBookUnit_03\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b82dd3aca\"}},\"TestBookUnit-0411\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_04\",\"description\":\"TTest_Collection_TextBookUnit_04\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4912-9b2b-8390b82dd3aca\"}},\"TestBookUnit-0511\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_05\",\"description\":\"TTest_Collection_TextBookUnit_05\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4912-9b2b-8390b82dd3aca\"}}},\"hierarchy\":{\"" + collectionContentId + "\":{\"name\":\"TextBook1-CreatedforRetireTesting\",\"contentType\":\"Collection\",\"children\":[\"TestBookUnit-0111\",\"TestBookUnit-0211\",\"TestBookUnit-0311\",\"TestBookUnit-0411\",\"TestBookUnit-0511\",\"" + resourceContentId1 + "\"],\"root\":true},\"TestBookUnit-0111\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 + "\"],\"root\":false},\"TestBookUnit-0211\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0311\":{\"name\":\"Test_Collection_TextBookUnit_03\",\"contentType\":\"TextBookUnit\",\"children\":[\""+ resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0411\":{\"name\":\"Test_Collection_TextBookUnit_04\",\"contentType\":\"TextBookUnit\",\"children\":[\""+ resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0511\":{\"name\":\"Test_Collection_TextBookUnit_05\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 + "\"],\"root\":false},\"" + resourceContentId1 + "\":{\"name\":\"Test_Resource_Content\",\"contentType\":\"Story\",\"children\":[],\"root\":false}}}}}";
+        actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("X-Channel-Id", "channelTest")
+                .header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(updateHeirarchyReq));
+        assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    private void validateRetiredStatusRecursively(String contentId) throws Exception {
+        if(!StringUtils.endsWithIgnoreCase(contentId, ".img")) {
+            validateRetiredStatusRecursively(contentId + ".img");
+        }
+        Response response = getContent(contentId);
+        if(200 == response.getResponseCode().code()) {
+            Optional<Map<String, Object>> contentMap = Optional.ofNullable((Map<String, Object>) response.get("content"));
+            contentMap.ifPresent(content -> {
+                Optional.ofNullable(((List<Map<String, Object>>) content.get("children"))).ifPresent(children -> {
+                    if(!children.isEmpty()) {
+                        children.stream().forEach(child -> {
+                            try {
+                                validateRetiredStatusRecursively((String) child.get("identifier"));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                });
+                if ("Parent".equals(content.get("visibility"))) {
+                    assertEquals("Retired", content.get("status"));
+                }
+            });
+        } else {
+            return;
+        }
+    }
+
+	@Test
+	public void retireCollectionContent01() throws Exception {
+		String collectionContentId = createCollectionContent01();
+		heirarchyUpdate(collectionContentId);
+		retireContent(collectionContentId);
+        validateRetiredStatusRecursively(collectionContentId);
+	}
+
+	@Test
+	public void retireCollectionContent02() throws Exception {
+		String collectionContentId = createCollectionContent01();
+		heirarchyUpdate(collectionContentId);
+		review(collectionContentId);
+		retireContent(collectionContentId);
+        validateRetiredStatusRecursively(collectionContentId);
+	}
+
+    @Ignore
+    @Test
+    public void retireCollectionContent03() throws Exception {
+        String collectionContentId = createCollectionContent01();
+        publish(collectionContentId);
+        delay(3000);
+        update(collectionContentId);
+        retireContent(collectionContentId);
+        validateRetiredStatusRecursively(collectionContentId);
+    }
+
+    @Ignore
+    @Test
+    public void retireCollectionContent04() throws Exception {
+        String collectionContentId = createCollectionContent01();
+        heirarchyUpdate(collectionContentId);
+        publish(collectionContentId);
+        delay(3000);
+        update(collectionContentId);
+        retireContent(collectionContentId);
+        validateRetiredStatusRecursively(collectionContentId);
+    }
 }

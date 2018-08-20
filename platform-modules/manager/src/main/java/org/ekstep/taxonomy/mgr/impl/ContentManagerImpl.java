@@ -2105,8 +2105,54 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return fileName;
 	}
 
+    private Response retireNode(Node node) {
+        node.getMetadata().put("status", "Retired");
+        Response response = updateDataNode(node);
+        if(checkError(response)) {
+            return ERROR(null, "Content with content id:" + node.getIdentifier() + " not updated with retire status", ResponseCode.SERVER_ERROR);
+        } else {
+            return response;
+        }
+    }
+
+	private void retireChildrenRecursively(Node node) {
+		DefinitionDTO definition;
+		if(StringUtils.endsWithIgnoreCase(node.getIdentifier(), DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+			definition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
+		} else {
+			Response responseImageNode = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
+			if(checkError(responseImageNode)) {
+				TelemetryManager.log("Content Image not found for contentId: " + node.getIdentifier());
+			} else {
+				retireChildrenRecursively((Node) responseImageNode.get(GraphDACParams.node.name()));
+			}
+			definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		}
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+		Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
+			if(!children.isEmpty()) {
+				children.stream().forEach(dto -> {
+					Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
+					retireChildrenRecursively((Node) responseNode.get(GraphDACParams.node.name()));
+				});
+			}
+		});
+		if("Parent".equals(node.getMetadata().get("visibility")) && !"Retired".equals(node.getMetadata().get("status"))) {
+			retireNode(node);
+		}
+	}
+
+	private void retireImageNode(Node node) {
+		Response response = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
+		if (checkError(response)) {
+			TelemetryManager.log("Content Image not found for contentId: " + node.getIdentifier());
+		} else {
+			retireNode((Node) response.get(GraphDACParams.node.name()));
+		}
+	}
+
 	/**
-	 *
+	 * @author shubham
 	 * @param contentId
 	 * @return
 	 */
@@ -2116,51 +2162,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 					"Content Object Id is blank.");
 		} else {
-			Response responseNode = getDataNode(TAXONOMY_ID, contentId);
-			if (checkError(responseNode)) {
-				TelemetryManager.log("No content found for " + contentId);
-				return ERROR(null, "Content not found for content id: " + contentId, ResponseCode.SERVER_ERROR);
+			Response response = getDataNode(TAXONOMY_ID, contentId);
+			if (checkError(response)) {
+				TelemetryManager.log("Content not found for content id:" + contentId);
+				return ERROR(null, "Content not found for content id: " + contentId,
+						ResponseCode.SERVER_ERROR);
 			} else {
-				Node node = (Node) responseNode.get(GraphDACParams.node.name());
-				return retireRecursively(contentId, responseNode, node, null, false);
+				Node node = (Node) response.get(GraphDACParams.node.name());
+				String contentType = (String) (node.getMetadata()).get("contentType");
+				if(!"Resource".equals(contentType) && !"Template".equals(contentType)
+						&& !"Plugin".equals("contentType") && !"Asset".equals(contentType)) {
+					retireChildrenRecursively(node);
+				}
+				retireImageNode(node);
+				return retireNode(node);
 			}
 		}
-	}
-
-	private Response retireRecursively(String contentId, Response response, Node node, String mode, boolean isChild) {
-		DefinitionDTO definition;
-		if(TaxonomyAPIParams.edit.name().equals(mode)) {
-			definition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
-		} else {
-			Response responseNode = getDataNode(TAXONOMY_ID, getImageId(contentId));
-			if(checkError(responseNode)) {
-				TelemetryManager.log("Content Image not found for contentId: " + contentId);
-			} else {
-				retireRecursively(getImageId(contentId), responseNode, null, TaxonomyAPIParams.edit.name(), false);
-			}
-			definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-		}
-		if(response == null) {
-			response= getDataNode(TAXONOMY_ID, contentId);
-			node = (Node) response.get(GraphDACParams.node.name());
-		}
-		if(node == null) {
-			node = (Node) response.get(GraphDACParams.node.name());
-        }
-        Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-        Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
-            children.forEach(dto -> retireRecursively(dto.getIdentifier(), null, null, mode, true));
-        });
-		if(((isChild && "Parent".equals(node.getMetadata().get("visibility"))) || !isChild)
-				&& !"Retired".equals(node.getMetadata().get(TaxonomyAPIParams.status.name()))) {
-			node.getMetadata().put("status", "Retired");
-			response = updateDataNode(node);
-			if(checkError(response)) {
-                return ERROR(null, "Content with content id:" + contentId + " not updated with retire status", ResponseCode.SERVER_ERROR);
-			} else {
-				return response;
-			}
-		}
-		return response;
 	}
 }
