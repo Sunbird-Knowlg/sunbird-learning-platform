@@ -378,7 +378,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testContentV3Controller_10() throws Exception {
 		String path = basePath + "/upload/" + contentId;
-		FileInputStream fis = new FileInputStream(getResourceFile("test3.pdf"));
+		FileInputStream fis = new FileInputStream(getResourceFile("test2.pdf"));
 		MockMultipartFile multipartFile = new MockMultipartFile("file", fis);
 		Map<String, String> contentTypeParams = new HashMap<String, String>();
 		contentTypeParams.put("boundary", "265001916915724");
@@ -391,7 +391,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Test
 	public void testContentV3Controller_11() throws Exception {
 		String path = basePath + "/upload/" + contentId;
-		FileInputStream fis = new FileInputStream(getResourceFile("test3.pdf"));
+		FileInputStream fis = new FileInputStream(getResourceFile("test2.pdf"));
 		MockMultipartFile multipartFile = new MockMultipartFile("file", fis);
 		actions = mockMvc.perform(fileUpload(path).file(multipartFile));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -1265,15 +1265,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
 	}
 
-    private Map<String, Object> getContentMap(String createContent) {
-        try {
-            return mapper.readValue(createContent, new TypeReference<Map<String, Object>>() {});
-        } catch(Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private String createDocContent() throws Exception {
+    private String createResourceContent() throws Exception {
 	    String path = basePath + "/create";
 	    String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
         actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
@@ -1293,7 +1285,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         assertEquals("Retired", ((Map<String, Object>) response.get("content")).get("status"));
     }
 
-    private void uploadDocument(String contentId) throws Exception {
+    private void uploadResourceContent(String contentId) throws Exception {
         String uploadPath = basePath + "/upload/" + contentId;
         File inputFile = getResourceFile("test1.pdf");
         FileInputStream fileStream = new FileInputStream(inputFile);
@@ -1335,17 +1327,16 @@ public class ContentV3ControllerTest extends CommonTestSetup {
     }
 
 	@Test
-	public void retireDocumentContent01() throws Exception {
-		String contentId = createDocContent();
+	public void retireDraftedDocumentContent() throws Exception {
+		String contentId = createResourceContent();
 		retireContent(contentId);
 		validateRetiredContent(contentId);
 	}
 
-	@Ignore
 	@Test
-	public void retireDocumentContent02() throws Exception {
-		String contentId = createDocContent();
-		uploadDocument(contentId);
+	public void retirePublishedDocumentContent() throws Exception {
+		String contentId = createResourceContent();
+		uploadResourceContent(contentId);
 		publish(contentId);
 		update(contentId);
 		retireContent(contentId);
@@ -1353,15 +1344,15 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	}
 
 	@Test
-	public void retireDocumentContent03() throws Exception {
-		String contentId = createDocContent();
-		uploadDocument(contentId);
+	public void retireReviwedDocumentContent() throws Exception {
+		String contentId = createResourceContent();
+		uploadResourceContent(contentId);
 		review(contentId);
 		retireContent(contentId);
         validateRetiredContent(contentId);
 	}
 
-	private String createCollectionContent01() throws Exception {
+	private String createCollection() throws Exception {
         String path = basePath + "/create";
         String createCollectionContentRequestBody = "{\"request\": {\"content\": {\"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_Dev\",\"name\": \"TestBook1\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"testbook1\",\"tags\":[\"QA_Content\"],\"mimeType\": \"application/vnd.ekstep.content-collection\",\"children\":[]}}}";
         actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
@@ -1371,8 +1362,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
     }
 
     private void heirarchyUpdate(String collectionContentId) throws Exception {
-        String resourceContentId1 = createDocContent();
-        String resourceContentId2 = createDocContent();
+        String resourceContentId1 = createResourceContent();
+        String resourceContentId2 = createResourceContent();
         String path = basePath + "/hierarchy/update";
         String updateHeirarchyReq = "{\"request\":{\"data\":{\"nodesModified\":{\"TestBookUnit-0111\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-0211\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-0311\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_03\",\"description\":\"TTest_Collection_TextBookUnit_03\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b82dd3aca\"}},\"TestBookUnit-0411\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_04\",\"description\":\"TTest_Collection_TextBookUnit_04\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4912-9b2b-8390b82dd3aca\"}},\"TestBookUnit-0511\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_05\",\"description\":\"TTest_Collection_TextBookUnit_05\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4912-9b2b-8390b82dd3aca\"}}},\"hierarchy\":{\"" + collectionContentId + "\":{\"name\":\"TextBook1-CreatedforRetireTesting\",\"contentType\":\"Collection\",\"children\":[\"TestBookUnit-0111\",\"TestBookUnit-0211\",\"TestBookUnit-0311\",\"TestBookUnit-0411\",\"TestBookUnit-0511\",\"" + resourceContentId1 + "\"],\"root\":true},\"TestBookUnit-0111\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 + "\"],\"root\":false},\"TestBookUnit-0211\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0311\":{\"name\":\"Test_Collection_TextBookUnit_03\",\"contentType\":\"TextBookUnit\",\"children\":[\""+ resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0411\":{\"name\":\"Test_Collection_TextBookUnit_04\",\"contentType\":\"TextBookUnit\",\"children\":[\""+ resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0511\":{\"name\":\"Test_Collection_TextBookUnit_05\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 + "\"],\"root\":false},\"" + resourceContentId1 + "\":{\"name\":\"Test_Resource_Content\",\"contentType\":\"Story\",\"children\":[],\"root\":false}}}}}";
         actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("X-Channel-Id", "channelTest")
@@ -1410,7 +1401,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	@Test
 	public void retireCollectionContent01() throws Exception {
-		String collectionContentId = createCollectionContent01();
+		String collectionContentId = createCollection();
 		heirarchyUpdate(collectionContentId);
 		retireContent(collectionContentId);
         validateRetiredStatusRecursively(collectionContentId);
@@ -1418,17 +1409,17 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	@Test
 	public void retireCollectionContent02() throws Exception {
-		String collectionContentId = createCollectionContent01();
+		String collectionContentId = createCollection();
 		heirarchyUpdate(collectionContentId);
 		review(collectionContentId);
 		retireContent(collectionContentId);
         validateRetiredStatusRecursively(collectionContentId);
 	}
 
-    @Ignore
+    //@Ignore
     @Test
     public void retireCollectionContent03() throws Exception {
-        String collectionContentId = createCollectionContent01();
+        String collectionContentId = createCollection();
         publish(collectionContentId);
         delay(3000);
         update(collectionContentId);
@@ -1436,10 +1427,10 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         validateRetiredStatusRecursively(collectionContentId);
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void retireCollectionContent04() throws Exception {
-        String collectionContentId = createCollectionContent01();
+        String collectionContentId = createCollection();
         heirarchyUpdate(collectionContentId);
         publish(collectionContentId);
         delay(3000);

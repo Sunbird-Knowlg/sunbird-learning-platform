@@ -18,8 +18,6 @@ import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -41,7 +39,6 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
@@ -2105,27 +2102,39 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return fileName;
 	}
 
-    private Response retireNode(Node node) {
-        node.getMetadata().put("status", "Retired");
-        Response response = updateDataNode(node);
-        if(checkError(response)) {
-            return ERROR(null, "Content with content id:" + node.getIdentifier() + " not updated with retire status", ResponseCode.SERVER_ERROR);
-        } else {
-            return response;
-        }
-    }
-
+   /**
+	 * @param contentId
+	 * @return
+	 */
+    @Override
+	public Response retire(String contentId) throws Exception {
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+					"Content Object Id is blank.");
+		
+		Response response = getDataNode(TAXONOMY_ID, contentId);
+		
+		if (checkError(response))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+		
+			Node node = (Node) response.get(GraphDACParams.node.name());
+			String mimeType = (String) (node.getMetadata()).get("mimeType");
+			if (StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.content-collection")) 
+				retireChildrenRecursively(node);
+			
+			return retireContent(contentId);
+	}
+    
+    @SuppressWarnings("unchecked")
 	private void retireChildrenRecursively(Node node) {
 		DefinitionDTO definition;
 		if(StringUtils.endsWithIgnoreCase(node.getIdentifier(), DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
 			definition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
 		} else {
 			Response responseImageNode = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
-			if(checkError(responseImageNode)) {
-				TelemetryManager.log("Content Image not found for contentId: " + node.getIdentifier());
-			} else {
+			if(!checkError(responseImageNode))
 				retireChildrenRecursively((Node) responseImageNode.get(GraphDACParams.node.name()));
-			}
 			definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		}
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
@@ -2133,50 +2142,38 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if(!children.isEmpty()) {
 				children.stream().forEach(dto -> {
 					Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
-					retireChildrenRecursively((Node) responseNode.get(GraphDACParams.node.name()));
+					Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
+					if("Parent".equals(childNode.getMetadata().get("visibility")) && !StringUtils.equalsIgnoreCase("Retired", (String)childNode.getMetadata().get("status"))) {
+						retireChildrenRecursively(childNode);
+						retireNode(childNode);
+					}
 				});
 			}
 		});
-		if("Parent".equals(node.getMetadata().get("visibility")) && !"Retired".equals(node.getMetadata().get("status"))) {
-			retireNode(node);
-		}
 	}
 
-	private void retireImageNode(Node node) {
-		Response response = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
+	private Response retireContent(String identifier) {
+		Response response = getDataNode(TAXONOMY_ID, getImageId(identifier));
 		if (checkError(response)) {
-			TelemetryManager.log("Content Image not found for contentId: " + node.getIdentifier());
+			TelemetryManager.log("Content Image not found for contentId: " + identifier);
 		} else {
 			retireNode((Node) response.get(GraphDACParams.node.name()));
 		}
-	}
-
-	/**
-	 * @author shubham
-	 * @param contentId
-	 * @return
-	 */
-    @Override
-    public Response retire(String contentId) {
-		if (StringUtils.isBlank(contentId)) {
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
-					"Content Object Id is blank.");
+		response = getDataNode(TAXONOMY_ID, identifier);
+		if (checkError(response)) {
+			TelemetryManager.log("Content not found for contentId: " + identifier);
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Error! While Fetching the Content for Operation | [Content Id: " + identifier + "]");
 		} else {
-			Response response = getDataNode(TAXONOMY_ID, contentId);
-			if (checkError(response)) {
-				TelemetryManager.log("Content not found for content id:" + contentId);
-				return ERROR(null, "Content not found for content id: " + contentId,
-						ResponseCode.SERVER_ERROR);
-			} else {
-				Node node = (Node) response.get(GraphDACParams.node.name());
-				String contentType = (String) (node.getMetadata()).get("contentType");
-				if(!"Resource".equals(contentType) && !"Template".equals(contentType)
-						&& !"Plugin".equals("contentType") && !"Asset".equals(contentType)) {
-					retireChildrenRecursively(node);
-				}
-				retireImageNode(node);
-				return retireNode(node);
-			}
+			return retireNode((Node) response.get(GraphDACParams.node.name()));
 		}
 	}
+	
+	private Response retireNode(Node node) {
+        node.getMetadata().put("status", "Retired");
+        Response response = updateDataNode(node);
+        return response;
+    }
+    
+    
 }
