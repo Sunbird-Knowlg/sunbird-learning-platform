@@ -197,6 +197,19 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "targets",
+					"title": "List of Target",
+					"description": "",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 9 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"required": true,
 					"dataType": "Select",
 					"propertyName": "mimeType",
@@ -963,7 +976,8 @@
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
-				},{
+				},
+				{
 					"required": false,
 					"dataType": "TermList",
 					"propertyName": "topic",
@@ -975,7 +989,8 @@
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
-				},{
+				},
+				{
 					"required": false,
 					"dataType": "Select",
 					"propertyName": "interactivityLevel",
@@ -2227,6 +2242,23 @@
 					"renderingHints": "{ 'order': 20 }",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "ownershipType",
+					"title": "Ownership Type",
+					"description": "Ownership Type of the Content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"createdBy",
+						"createdFor"
+					],
+					"defaultValue": "createdBy",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 21 }",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
@@ -2426,6 +2458,7 @@
 				},
 				"softConstraints": {
 					"medium": 15,
+					"subject": 15,
 					"ageGroup": 1,
 					"gradeLevel": 7,
 					"board": 4
@@ -2498,9 +2531,11 @@
 					"flags",
 					"author",
 					"createdBy",
+					"createdFor",
 					"contentEncoding",
 					"contentDisposition",
-					"config"
+					"config",
+					"ownershipType"
 				]
 			}
 		}
