@@ -82,7 +82,7 @@ public class Global extends GlobalSettings {
 										channelId);
 							else
 								ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(),
-										Platform.config.getString("content.default_channel_id"));
+										Platform.config.getString("channel.default"));
 							TelemetryAccessEventUtil.writeTelemetryEventLog(data);
 							accessLogger.info(request.remoteAddress() + " " + request.host() + " " + request.method()
 									+ " " + request.uri() + " " + r.status() + " " + body.length);

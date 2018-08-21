@@ -37,7 +37,7 @@ public abstract class CassandraStore {
 	private boolean index = false;
 	private String objectType = null;
 	protected String nodeType = CassandraStoreParams.EXTERNAL.name();
-	private static final String DEFAULT_CHANNEL_ID = Platform.config.getString("content.default_channel_id");
+	private static final String DEFAULT_CHANNEL_ID = Platform.config.getString("channel.default");
 
 	protected void initialise(String keyspace, String table, String objectType) {
 		initialise(keyspace, table, objectType, false);

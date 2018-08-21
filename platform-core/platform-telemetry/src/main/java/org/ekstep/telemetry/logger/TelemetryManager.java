@@ -30,7 +30,7 @@ public class TelemetryManager {
 	 */
 	private static TelemetryHandler telemetryHandler = new TelemetryLoggingHandler();
 
-	private static final String DEFAULT_CHANNEL_ID = Platform.config.getString("content.default_channel_id");
+	private static final String DEFAULT_CHANNEL_ID = Platform.config.getString("channel.default");
 
 	/**
 	 * To log api_access as a telemetry event.
