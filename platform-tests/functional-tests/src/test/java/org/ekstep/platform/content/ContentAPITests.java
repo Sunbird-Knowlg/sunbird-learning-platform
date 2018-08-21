@@ -70,9 +70,9 @@ public class ContentAPITests extends BaseTest {
 			+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"owner\": \"EkStep\",\"body\":{\"theme\":{\"manifest\":{\"media\":[{\"id\":\"barber_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\",\"type\":\"image\"},{\"id\":\"tailor_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\",\"type\":\"image\"},{\"id\":\"carpenter_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\",\"type\":\"image\"}]}}}}}}";
 	String invalidContentId = "TestQa_" + rn + "";
 	
-	String jsonCcreateWithOwnershipType = "{\"request\":{\"content\":{\"identifier\":\"LP_FT_" + rn + "\",\"name\":\"LP_FT_" + rn + "\",\"code\":\"LP_FT_" + rn + "\",\"mimeType\":\"application/pdf\",\"contentType\":\"Resource\",\"ownershipType\":[\"createdFor\"]}}}";
+	private String jsonCcreateWithOwnershipType = "{\"request\":{\"content\":{\"identifier\":\"LP_FT_" + rn + "\",\"name\":\"LP_FT_" + rn + "\",\"code\":\"LP_FT_" + rn + "\",\"mimeType\":\"application/pdf\",\"contentType\":\"Resource\",\"ownershipType\":[\"createdFor\"]}}}";
 	
-	String jsonCcreateWithWrongOwnershipType = "{\"request\":{\"content\":{\"identifier\":\"LP_FT_" + rn + "\",\"name\":\"LP_FT_" + rn + "\",\"code\":\"LP_FT_" + rn + "\",\"mimeType\":\"application/pdf\",\"contentType\":\"Resource\",\"ownershipType\":[\"created\"]}}}";
+	private String jsonCcreateWithWrongOwnershipType = "{\"request\":{\"content\":{\"identifier\":\"LP_FT_" + rn + "\",\"name\":\"LP_FT_" + rn + "\",\"code\":\"LP_FT_" + rn + "\",\"mimeType\":\"application/pdf\",\"contentType\":\"Resource\",\"ownershipType\":[\"created\"]}}}";
 
 	static ClassLoader classLoader = ContentAPITests.class.getClassLoader();
 	static URL url = classLoader.getResource("DownloadedFiles");
@@ -466,10 +466,15 @@ public class ContentAPITests extends BaseTest {
 	@Test
 	public void createContentWithWrongOwnershipTypeExpectSuccess200() {
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCcreateWithWrongOwnershipType)
+		Response response = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCcreateWithWrongOwnershipType)
 				.with().contentType(JSON).when().post("content/v3/create").then().
 				//log().all().
-				spec(get400ResponseSpec());
+				spec(get400ResponseSpec()).extract().response();
+		JsonPath jp = response.jsonPath();
+		String responseCode = jp.get("responseCode");
+		String errorCode = jp.get("params.err");
+		Assert.assertEquals("CLIENT_ERROR", responseCode);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", errorCode);
 	}
 
 	//	//Create Content
