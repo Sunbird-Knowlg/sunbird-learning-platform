@@ -24,14 +24,7 @@ private static BaseStorageService storageService = null;
 private static String cloudStoreType = Platform.config.getString("cloud_storage_type");
 	
 	static {
-//		try {
-//			System.out.println("Selected cloud storage type:" + cloudStoreType);
-//			storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, AppConf.getStorageKey(cloudStoreType), AppConf.getStorageSecret(cloudStoreType)));
-//		}catch(Exception e) {
-//			e.printStackTrace();
-//			throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
-//		}
-		
+
 		if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
 			String storageKey = Platform.config.getString("azure_storage_key");
 			String storageSecret = Platform.config.getString("azure_storage_secret");
@@ -80,7 +73,7 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		storageService.copyObjects(container, sourcePrefix, container, destinationPrefix, Option.apply(true));
 	}
 	
-	public static String getURL(String bucket, String prefix) {
+	public static String getURL(String prefix) {
 		String container = getContainerName();
 		Blob blob =  (Blob)storageService.getObject(container, prefix, Option.apply(false));
 		Map<String, Object> map = scala.collection.JavaConversions.mapAsJavaMap(blob.metadata());

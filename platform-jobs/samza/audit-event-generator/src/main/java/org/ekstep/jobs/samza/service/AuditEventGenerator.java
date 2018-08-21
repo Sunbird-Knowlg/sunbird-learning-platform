@@ -14,6 +14,7 @@ import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.common.Platform;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -127,7 +128,7 @@ public class AuditEventGenerator implements ISamzaService {
 		Map<String, String> outRelations = new HashMap<>();
 		getRelationDefinitionMaps(definitionNode, inRelations, outRelations);
 
-		String channelId = "in.ekstep";
+		String channelId = Platform.config.getString("channel.default");
 		String channel = (String) message.get(GraphDACParams.channel.name());
 		if (null != channel)
 			channelId = channel;

@@ -144,7 +144,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	
 				node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
-				node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
+				node.getMetadata().put(ContentAPIParams.size.name(), getCloudStoredFileSize(urlArray[0]));
 	
 				TelemetryManager.log("Calling 'updateContentNode' for Node ID: " + contentId);
 				response = updateContentNode(contentId, node, urlArray[1]);

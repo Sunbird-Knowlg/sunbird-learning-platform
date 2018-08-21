@@ -134,8 +134,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
 
 	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
-	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.search.uri")
-			? Platform.config.getString("dialcode.search.uri") : "v3/dialcode/search";
+	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
+			? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
 			
 	/*private BaseStorageService storageService;
 	
@@ -401,8 +401,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (checkError(contentResp))
 			return contentResp;
 		Response response = new Response();
-		String objectKey = S3PropertyReader.getProperty("s3.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
-		String expiry = S3PropertyReader.getProperty("s3.upload.url.expiry");
+		String objectKey = S3PropertyReader.getProperty("cloud_storage.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
+		String expiry = S3PropertyReader.getProperty("cloud_storage.upload.url.ttl");
 		String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, Option.apply(Integer.parseInt(expiry)), Option.apply("w"));
 		response.put(ContentAPIParams.content_id.name(), contentId);
 		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
@@ -1767,9 +1767,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (!dialcodes.isEmpty())
 				dialCodeList.addAll(dialcodes);
 		}
-		Boolean isValReq = Platform.config.hasPath("content.link.enable.dialcode.validation")
-				? Platform.config.getBoolean("content.link.enable.dialcode.validation") : false;
-		if (true == isValReq)
+		Boolean isValReq = Platform.config.hasPath("learning.content.link_dialcode_validation")
+				? Platform.config.getBoolean("learning.content.link_dialcode_validation") : true;
+		if (isValReq)
 			validateDialCodes(channelId, dialCodeList);
 	}
 

@@ -20,8 +20,4 @@ public class S3PropertyReader {
 		return Platform.config.getString(key);
 	}
 	
-	public static String getProperty(String key, String env){
-		String property = key + "." + env;
-		return Platform.config.getString(property);
-	}
 }

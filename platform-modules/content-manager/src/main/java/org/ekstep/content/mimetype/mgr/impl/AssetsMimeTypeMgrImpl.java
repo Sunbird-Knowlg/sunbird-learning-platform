@@ -74,7 +74,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
-			node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
+			node.getMetadata().put(ContentAPIParams.size.name(), getCloudStoredFileSize(urlArray[0]));
 			if (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image")) {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
 				response = updateContentNode(contentId, node, urlArray[1]);
@@ -207,8 +207,8 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		pdata.put("id", pdataId); 
 		pdata.put("ver", pdataVersion);
 		context.put("pdata", pdata);
-		if (Platform.config.hasPath("s3.env")) {
-			String env = Platform.config.getString("s3.env");
+		if (Platform.config.hasPath("cloud_storage.env")) {
+			String env = Platform.config.getString("cloud_storage.env");
 			context.put("env", env);
 		}
 		

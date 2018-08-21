@@ -231,7 +231,8 @@
 					"code",
 					"description",
 					"category",
-					"status"
+					"status",
+					"translations"
 				]
 			}
 		}

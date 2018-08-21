@@ -27,7 +27,7 @@ public class MediaController extends BaseController {
     
     
     
-    private static final String s3Media = "s3.media.folder";
+    private static final String MEDIA_FOLDER = "cloud_storage.media.folder";
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody
@@ -41,12 +41,11 @@ public class MediaController extends BaseController {
             file.transferTo(uploadedFile);
             String[] urlArray = new String[] {};
             try {
-            	String folder = S3PropertyReader.getProperty(s3Media);
-                //urlArray = AWSUploader.uploadFile(folder, uploadedFile);
+            	String folder = S3PropertyReader.getProperty(MEDIA_FOLDER);
             	urlArray = CloudStore.uploadFile(folder, uploadedFile, true);
             } catch (Exception e) {
                 throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
-                        "Error wihile uploading the File.", e);
+                        "Error while uploading the File.", e);
             }
             String url = urlArray[1];
             Response response = new Response();

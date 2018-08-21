@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Response;
@@ -81,7 +82,7 @@ public class Global extends GlobalSettings {
 										channelId);
 							else
 								ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(),
-										"in.ekstep");
+										Platform.config.getString("channel.default"));
 							TelemetryAccessEventUtil.writeTelemetryEventLog(data);
 							accessLogger.info(request.remoteAddress() + " " + request.host() + " " + request.method()
 									+ " " + request.uri() + " " + r.status() + " " + body.length);

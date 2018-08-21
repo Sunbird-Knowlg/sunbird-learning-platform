@@ -59,8 +59,6 @@ public class PublishFinalizer extends BaseFinalizer {
 	/** The ContentId. */
 	protected String contentId;
 
-	private static final String s3Artifact = "s3.artifact.folder";
-	
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
@@ -91,7 +89,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	/**
 	 * finalize()
 	 *
-	 * @param Map
+	 * @param parameterMap
 	 *            the parameterMap
 	 * 
 	 *            checks if Node, ecrfType,ecmlType exists in the parameterMap
@@ -151,7 +149,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			File packageFile = new File(zipFileName);
 			if (packageFile.exists()) {
 				// Upload to S3
-				String folderName = S3PropertyReader.getProperty(s3Artifact);
+				String folderName = S3PropertyReader.getProperty(ARTEFACT_FOLDER);
 				String[] urlArray = uploadToAWS(packageFile, getUploadFolderName(contentId, folderName));
 				if (null != urlArray && urlArray.length >= 2)
 					artifactUrl = urlArray[IDX_S3_URL];
@@ -258,7 +256,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
-			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
+			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
 
 			TelemetryManager.log("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
@@ -294,7 +292,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		// Populate Fields and Update Node
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
 		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
-		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(s3Key));
+		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(s3Key));
 		
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
@@ -349,7 +347,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	/**
-	 * @param contentId2
+	 * @param identifier
 	 * @return
 	 */
 	private String preUpdateNode(String identifier) {
