@@ -42,7 +42,13 @@
 			</modules>
 		</profile>
 	</profiles>
-
+	<repositories>
+		<repository>
+			<id>cloud-storage-repo</id>
+			<name>sunbird cloud storage repo</name>
+			<url>https://oss.sonatype.org/content/repositories/orgsunbird-1007/</url>
+		</repository>
+	</repositories>
 	<dependencies>
 
 	</dependencies>
