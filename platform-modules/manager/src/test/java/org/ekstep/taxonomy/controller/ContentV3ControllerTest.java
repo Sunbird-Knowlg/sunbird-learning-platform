@@ -1,15 +1,8 @@
 package org.ekstep.taxonomy.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
@@ -20,13 +13,7 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +28,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 
 /**
  * Test Cases for ContentV3Controller
@@ -344,7 +337,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	@Test
 	public void testContentV3Controller_08() throws Exception {
-		String path = basePath + "/hierarchy/" + collectionContent3Id;
+		String path = basePath + "/hierarchy/" + collectionContent3Id + "?mode=edit";
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
@@ -386,6 +379,13 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		MockMultipartFile multipartFile = new MockMultipartFile("file", fis);
 		actions = mockMvc.perform(fileUpload(path).file(multipartFile));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testContentV3Controller_12() throws Exception {
+		String path = basePath + "/hierarchy/" + collectionContent3Id;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*
