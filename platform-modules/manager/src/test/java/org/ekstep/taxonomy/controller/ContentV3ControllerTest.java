@@ -1409,9 +1409,10 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	}
 
 	@Test
-	public void retireReviwedDocumentContent() throws Exception {
+	public void retireReviewedDocumentContent() throws Exception {
 		String contentId = createResourceContent();
 		uploadResourceContent(contentId);
+		delay(10000);
 		review(contentId);
 		retireContent(contentId);
         validateRetiredNode(contentId);
