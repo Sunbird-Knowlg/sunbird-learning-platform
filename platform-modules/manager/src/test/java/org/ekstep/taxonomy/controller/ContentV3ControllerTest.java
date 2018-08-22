@@ -1264,6 +1264,71 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
 		Assert.assertEquals("CLIENT_ERROR", resp.getResponseCode().toString());
 	}
+	
+	/*
+	 * Create Content without passing ownershipType Expected : 200
+	 * Content will be created with default ownershipType, i.e. 'createdBy'
+	 */
+
+	@Test
+	public void createContentWithoutOwnershipType() throws Exception{
+		String createContentReq = "{\"request\":{\"content\":{\"name\":\"ResourceContent\",\"code\":\"ResourceContent\",\"contentType\":\"Resource\",\"mimeType\":\"application/pdf\"}}}";
+		String createPath = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(createPath).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response createResponse = getResponse(actions);
+		String contentId = (String)createResponse.getResult().get("node_id");
+		
+		String readPath = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(readPath).contentType(MediaType.APPLICATION_JSON));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response readResponse = getResponse(actions);
+		List<String> ownershipType = (List<String>)((Map)readResponse.getResult().get("content")).get("ownershipType");
+		String[] expected = {"createdBy"};
+		Assert.assertArrayEquals(expected, ownershipType.toArray(new String[ownershipType.size()]));
+	}
+	
+	/*
+	 * Create Content with passing valid ownershipType Expected : 200
+	 * Content will be created with valid ownershipType
+	 */
+
+	@Test
+	public void createContentWithValidOwnershipType() throws Exception{
+		String createContentReq = "{\"request\":{\"content\":{\"name\":\"ResourceContent\",\"code\":\"ResourceContent\",\"contentType\":\"Resource\",\"mimeType\":\"application/pdf\",\"ownershipType\":[\"createdFor\"]}}}";
+		String createPath = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(createPath).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response createResponse = getResponse(actions);
+		String contentId = (String)createResponse.getResult().get("node_id");
+		
+		String readPath = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(readPath).contentType(MediaType.APPLICATION_JSON));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response readResponse = getResponse(actions);
+		List<String> ownershipType = (List<String>)((Map)readResponse.getResult().get("content")).get("ownershipType");
+		String[] expected = {"createdFor"};
+		Assert.assertArrayEquals(expected, ownershipType.toArray(new String[ownershipType.size()]));
+	}
+	
+	/*
+	 * Create Content with passing invalid ownershipType Expected : 400
+	 * Content will not be created with invalid ownershipType
+	 */
+
+	@Test
+	public void createContentWithInvalidOwnershipType() throws Exception{
+		String createContentReq = "{\"request\":{\"content\":{\"name\":\"ResourceContent\",\"code\":\"ResourceContent\",\"contentType\":\"Resource\",\"mimeType\":\"application/pdf\",\"ownershipType\":[\"created\"]}}}";
+		String createPath = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(createPath).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelKA").content(createContentReq));
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Response createResponse = getResponse(actions);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", createResponse.getParams().getErr());
+		Assert.assertEquals("CLIENT_ERROR", createResponse.getResponseCode().toString());
+	}
 
     private String createResourceContent() throws Exception {
 	    String path = basePath + "/create";
@@ -1400,7 +1465,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
     }
 
 	@Test
-	public void retireCollectionContent01() throws Exception {
+	public void retireDraftedCollectionContent() throws Exception {
 		String collectionContentId = createCollection();
 		heirarchyUpdate(collectionContentId);
 		retireContent(collectionContentId);
@@ -1408,7 +1473,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	}
 
 	@Test
-	public void retireCollectionContent02() throws Exception {
+	public void retireReviewedCollectionContent() throws Exception {
 		String collectionContentId = createCollection();
 		heirarchyUpdate(collectionContentId);
 		review(collectionContentId);
@@ -1416,9 +1481,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         validateRetiredStatusRecursively(collectionContentId);
 	}
 
-    //@Ignore
     @Test
-    public void retireCollectionContent03() throws Exception {
+    public void retirePublishedCollectionContentWithNoChildren() throws Exception {
         String collectionContentId = createCollection();
         publish(collectionContentId);
         delay(3000);
@@ -1427,9 +1491,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         validateRetiredStatusRecursively(collectionContentId);
     }
 
-    //@Ignore
     @Test
-    public void retireCollectionContent04() throws Exception {
+    public void retirePublishedCollectionContentWithChildren() throws Exception {
         String collectionContentId = createCollection();
         heirarchyUpdate(collectionContentId);
         publish(collectionContentId);

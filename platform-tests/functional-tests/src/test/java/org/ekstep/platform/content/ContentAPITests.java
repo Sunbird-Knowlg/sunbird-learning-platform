@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.ekstep.platform.domain.BaseTest;
@@ -68,6 +69,10 @@ public class ContentAPITests extends BaseTest {
 			+ rn
 			+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"owner\": \"EkStep\",\"body\":{\"theme\":{\"manifest\":{\"media\":[{\"id\":\"barber_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\",\"type\":\"image\"},{\"id\":\"tailor_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\",\"type\":\"image\"},{\"id\":\"carpenter_img\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\",\"type\":\"image\"}]}}}}}}";
 	String invalidContentId = "TestQa_" + rn + "";
+	
+	private String jsonCcreateWithOwnershipType = "{\"request\":{\"content\":{\"identifier\":\"LP_FT_" + rn + "\",\"name\":\"LP_FT_" + rn + "\",\"code\":\"LP_FT_" + rn + "\",\"mimeType\":\"application/pdf\",\"contentType\":\"Resource\",\"ownershipType\":[\"createdFor\"]}}}";
+	
+	private String jsonCcreateWithWrongOwnershipType = "{\"request\":{\"content\":{\"identifier\":\"LP_FT_" + rn + "\",\"name\":\"LP_FT_" + rn + "\",\"code\":\"LP_FT_" + rn + "\",\"mimeType\":\"application/pdf\",\"contentType\":\"Resource\",\"ownershipType\":[\"created\"]}}}";
 
 	static ClassLoader classLoader = ContentAPITests.class.getClassLoader();
 	static URL url = classLoader.getResource("DownloadedFiles");
@@ -396,6 +401,80 @@ public class ContentAPITests extends BaseTest {
 		Assert.assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
 
+	}
+	
+	@Test
+	public void createContentWithoutOwnershipTypeExpectSuccess200() {
+		setURI();
+		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
+				.with().contentType(JSON).when().post("content/v3/create").then().
+				//log().all().
+				spec(get200ResponseSpec()).extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Get content and validate
+		setURI();
+		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
+				.get("/content/v3/read/" + nodeId).then().
+				//log().all().
+				spec(get200ResponseSpec()).extract().response();
+
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.content.identifier");
+		String versionKey = jP1.get("result.content.versionKey");
+		List<String> ownershipType = (List<String>)jP1.get("result.content.ownershipType");
+		Assert.assertTrue(versionKey != null);
+		Assert.assertEquals(nodeId, identifier);
+		String[] expected = {"createdBy"};
+		Assert.assertArrayEquals(expected, ownershipType.toArray(new String[ownershipType.size()]));
+
+	}
+	
+	@Test
+	public void createContentWithOwnershipTypeExpectSuccess200() {
+		setURI();
+		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCcreateWithOwnershipType)
+				.with().contentType(JSON).when().post("content/v3/create").then().
+				//log().all().
+				spec(get200ResponseSpec()).extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Get content and validate
+		setURI();
+		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
+				.get("/content/v3/read/" + nodeId).then().
+				//log().all().
+				spec(get200ResponseSpec()).extract().response();
+
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.content.identifier");
+		String versionKey = jP1.get("result.content.versionKey");
+		List<String> ownershipType = (List<String>)jP1.get("result.content.ownershipType");
+		Assert.assertTrue(versionKey != null);
+		Assert.assertEquals(nodeId, identifier);
+		String[] expected = {"createdFor"};
+		Assert.assertArrayEquals(expected, ownershipType.toArray(new String[ownershipType.size()]));
+
+	}
+	
+	@Test
+	public void createContentWithWrongOwnershipTypeExpectSuccess200() {
+		setURI();
+		Response response = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCcreateWithWrongOwnershipType)
+				.with().contentType(JSON).when().post("content/v3/create").then().
+				//log().all().
+				spec(get400ResponseSpec()).extract().response();
+		JsonPath jp = response.jsonPath();
+		String responseCode = jp.get("responseCode");
+		String errorCode = jp.get("params.err");
+		Assert.assertEquals("CLIENT_ERROR", responseCode);
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", errorCode);
 	}
 
 	//	//Create Content
