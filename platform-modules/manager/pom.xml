@@ -251,7 +251,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
-    		<artifactId>sunbird-cloud-store-sdk</artifactId>
+    		<artifactId>cloud-store-sdk</artifactId>
     		<version>1.0</version>
 		</dependency>
 	</dependencies>

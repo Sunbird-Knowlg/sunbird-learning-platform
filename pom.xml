@@ -46,7 +46,7 @@
 		<repository>
 			<id>cloud-storage-repo</id>
 			<name>sunbird cloud storage repo</name>
-			<url>https://oss.sonatype.org/content/repositories/orgsunbird-1008</url>
+			<url>https://oss.sonatype.org/content/repositories/orgsunbird-1009</url>
 		</repository>
 	</repositories>
 	<dependencies>
