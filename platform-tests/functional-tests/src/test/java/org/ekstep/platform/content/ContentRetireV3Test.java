@@ -3,9 +3,7 @@ package org.ekstep.platform.content;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.platform.domain.BaseTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.jayway.restassured.RestAssured.baseURI;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,8 +21,8 @@ public class ContentRetireV3Test extends BaseTest {
     private static final String BASE_PATH = "content/v3";
     private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
-    static ClassLoader classLoader = ContentRetireV3Test.class.getClassLoader();
-    static File filePath = new File(classLoader.getResource("UploadFiles/").getFile());
+    private static ClassLoader classLoader = ContentRetireV3Test.class.getClassLoader();
+    private static File filePath = new File(classLoader.getResource("UploadFiles/").getFile());
 
     private final String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
     private final String publishRequestBody = "{\"request\": {\"content\": {\"publisher\": \"EkStep\",\"lastPublishedBy\": \"Ekstep\",\"publishChecklist\":[\"Good Content\",\"Very Good\"],\"publishComment\":\"Good Work\"}}}";
@@ -190,7 +187,6 @@ public class ContentRetireV3Test extends BaseTest {
     public void validateRetiredNode(String contentId) {
         given().
             spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-            body(createDocumentContentRequestBody).
         with().
             contentType(JSON).
         when().
@@ -230,7 +226,7 @@ public class ContentRetireV3Test extends BaseTest {
         validateRetiredStatusRecursively(contentId);
         validateRetiredNode(contentId);
     }
-    
+
     @Test
     public void retireFlaggedDocumentContent() {
         setURI();
