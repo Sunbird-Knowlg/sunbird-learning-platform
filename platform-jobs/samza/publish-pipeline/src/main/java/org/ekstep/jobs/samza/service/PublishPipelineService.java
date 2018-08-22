@@ -21,6 +21,7 @@ import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
@@ -30,6 +31,7 @@ import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
@@ -65,6 +67,8 @@ public class PublishPipelineService implements ISamzaService {
 	private static int MAXITERTIONCOUNT = 2;
 
 	private SystemStream systemStream = null;
+
+    private CollectionStore collectionStore = new CollectionStore();
 
 	protected int getMaxIterations() {
 		if (Platform.config.hasPath("max.iteration.count.samza.job"))
@@ -213,10 +217,17 @@ public class PublishPipelineService implements ISamzaService {
 			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 			publishedNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
 			processCollection(publishedNode);
+            publishHierarchy(publishedNode);
 			LOGGER.debug("Content Enrichment done for content: " + node.getIdentifier());
 		}
 		return published;
 	}
+
+    private void publishHierarchy(Node publishedNode) {
+        DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
+        Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
+        collectionStore.updateContentHierarchy(publishedNode.getIdentifier(), hierarchy);
+    }
 
 	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
 		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare(n1.getCompatibilityLevel(),

@@ -1,24 +1,7 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -28,7 +11,6 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
-import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -40,7 +22,6 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
@@ -54,16 +35,8 @@ import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
-import org.ekstep.graph.dac.enums.AuditProperties;
-import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.enums.RelationTypes;
-import org.ekstep.graph.dac.enums.SystemNodeTypes;
-import org.ekstep.graph.dac.enums.SystemProperties;
-import org.ekstep.graph.dac.model.Filter;
-import org.ekstep.graph.dac.model.MetadataCriterion;
-import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.dac.model.Relation;
-import org.ekstep.graph.dac.model.SearchConditions;
+import org.ekstep.graph.dac.enums.*;
+import org.ekstep.graph.dac.model.*;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
@@ -76,6 +49,7 @@ import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
@@ -83,13 +57,16 @@ import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
-
-
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * The Class <code>ContentManagerImpl</code> is the implementation of
@@ -135,7 +112,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
 	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
 			? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
-			
+
+	private ControllerUtil util = new ControllerUtil();
 	/*private BaseStorageService storageService;
 	
 	@PostConstruct
@@ -505,25 +483,42 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	@Override
 	public Response getHierarchy(String contentId, String mode) {
-		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+		if(StringUtils.equalsIgnoreCase("edit", mode)){
+			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
 
-		boolean fetchAll = true;
-		String nodeStatus = (String) node.getMetadata().get("status");
-		if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
-			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-					"Content not found with id: " + contentId);
-		}else if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
-			fetchAll = false;
+			boolean fetchAll = true;
+			String nodeStatus = (String) node.getMetadata().get("status");
+			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+						"Content not found with id: " + contentId);
+			}else if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
+				fetchAll = false;
+			}
+
+			TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
+			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
+			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, fetchAll);
+			Map<String, Object> dataMap = contentCleanUp(map);
+			Response response = new Response();
+			response.put("content", dataMap);
+			response.setParams(getSucessStatus());
+			return response;
+		} else{
+			Response collectionHierarchy = getCollectionHierarchy(contentId);
+			Response response = new Response();
+			if(!checkError(collectionHierarchy) && (null != collectionHierarchy.getResult().get("hierarchy"))){
+				response.put("content", collectionHierarchy.getResult().get("hierarchy"));
+				response.setParams(getSucessStatus());
+			} else {
+				response = ERROR("ERR_RESOURCE_NOT_FOUND", "Resource Not found", ResponseCode.RESOURCE_NOT_FOUND);
+			}
+			return response;
 		}
-		
-		TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
-		DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-		Map<String, Object> map = getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, fetchAll);
-		Map<String, Object> dataMap = contentCleanUp(map);
-		Response response = new Response();
-		response.put("content", dataMap);
-		response.setParams(getSucessStatus());
-		return response;
+
+
+
+
+
 	}
 
 	public Response create(Map<String, Object> map) throws Exception {
@@ -978,45 +973,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
-			String mode, boolean fetchAll) {
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
-		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
-
-		// Collections sort method is used to sort the child content list on the
-		// basis of index.
-		if (null != children && !children.isEmpty()) {
-			Collections.sort(children, new Comparator<NodeDTO>() {
-				@Override
-				public int compare(NodeDTO o1, NodeDTO o2) {
-					return o1.getIndex() - o2.getIndex();
-				}
-			});
-		}
-
-		if (null != children && !children.isEmpty()) {
-			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
-			for (NodeDTO dto : children) {
-				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
-				String nodeStatus = (String)childNode.getMetadata().get("status");
-				if((!StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) && 
-						(fetchAll || (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted")))) {
-					Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode, fetchAll);
-					childMap.put("index", dto.getIndex());
-					Map<String, Object> childData = contentCleanUp(childMap);
-					childList.add(childData);
-				}
-			}
-			contentMap.put("children", childList);
-		}
-		// TODO: Not the best Solution, need to optimize
-		contentMap.remove("collections");
-		contentMap.remove("usedByContent");
-		contentMap.remove("item_sets");
-		contentMap.remove("methods");
-		contentMap.remove("libraries");
-		return contentMap;
-	}
 
 	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
 		if (map.containsKey(TaxonomyAPIParams.identifier.name())) {
@@ -1061,16 +1017,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return null;
 	}
 
-	@SuppressWarnings("unused")
-	private String getContentBody(String contentId, String mode) {
-		String body = "";
-		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
-			body = getContentBody(getImageId(contentId));
-		if (StringUtils.isBlank(body))
-			body = getContentBody(contentId);
-		return body;
-	}
-
 	private String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -1097,6 +1043,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		request.setOperation(ContentStoreOperations.updateContentProperties.name());
 		request.put(ContentStoreParams.content_id.name(), contentId);
 		request.put(ContentStoreParams.properties.name(), properties);
+		Response response = makeLearningRequest(request);
+		return response;
+	}
+
+
+	private Response getCollectionHierarchy(String contentId) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getCollectionHierarchy.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
 		Response response = makeLearningRequest(request);
 		return response;
 	}
@@ -1912,7 +1868,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	private void copyhierarchy(Node existingNode, Map<String, String> idMap, String mode) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-		Map<String, Object> contentMap = getContentHierarchyRecursive(existingNode.getGraphId(), existingNode,
+		Map<String, Object> contentMap = util.getContentHierarchyRecursive(existingNode.getGraphId(), existingNode,
 				definition, mode, true);
 
 		Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
