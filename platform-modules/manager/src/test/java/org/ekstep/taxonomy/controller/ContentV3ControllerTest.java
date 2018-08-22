@@ -1345,7 +1345,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
 
-    private void validateRetiredContent(String contentId) throws Exception {
+    private void validateRetiredNode(String contentId) throws Exception {
         Response response = getContent(contentId);
         assertEquals("Retired", ((Map<String, Object>) response.get("content")).get("status"));
     }
@@ -1395,7 +1395,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	public void retireDraftedDocumentContent() throws Exception {
 		String contentId = createResourceContent();
 		retireContent(contentId);
-		validateRetiredContent(contentId);
+		validateRetiredNode(contentId);
 	}
 
 	@Test
@@ -1405,7 +1405,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		publish(contentId);
 		update(contentId);
 		retireContent(contentId);
-		validateRetiredContent(contentId);
+		validateRetiredNode(contentId);
 	}
 
 	@Test
@@ -1414,7 +1414,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		uploadResourceContent(contentId);
 		review(contentId);
 		retireContent(contentId);
-        validateRetiredContent(contentId);
+        validateRetiredNode(contentId);
 	}
 
 	private String createCollection() throws Exception {
@@ -1436,40 +1436,44 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
 
-    private void validateRetiredStatusRecursively(String contentId) throws Exception {
+    private void validateChildrenRetiredStatusRecursively(String contentId) throws Exception {
         if(!StringUtils.endsWithIgnoreCase(contentId, ".img")) {
-            validateRetiredStatusRecursively(contentId + ".img");
+			validateChildrenRetiredStatusRecursively(contentId + ".img");
         }
         Response response = getContent(contentId);
         if(200 == response.getResponseCode().code()) {
-            Optional<Map<String, Object>> contentMap = Optional.ofNullable((Map<String, Object>) response.get("content"));
-            contentMap.ifPresent(content -> {
-                Optional.ofNullable(((List<Map<String, Object>>) content.get("children"))).ifPresent(children -> {
-                    if(!children.isEmpty()) {
-                        children.stream().forEach(child -> {
-                            try {
-                                validateRetiredStatusRecursively((String) child.get("identifier"));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    }
-                });
-                if ("Parent".equals(content.get("visibility"))) {
-                    assertEquals("Retired", content.get("status"));
-                }
-            });
+            Map<String, Object> contentMap = (Map<String, Object>) response.get("content");
+			Optional.ofNullable(contentMap.get("children")).ifPresent( children -> {
+				List<Map<String, Object>> childrenList = (List<Map<String, Object>>) children;
+				if(!childrenList.isEmpty()) {
+					childrenList.forEach(child -> {
+						try {
+							if ("Parent".equals(child.get("visibility"))) {
+								validateChildrenRetiredStatusRecursively((String) child.get("identifier"));
+								assertEquals("Retired", child.get("status"));
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					});
+				}
+			});
         } else {
             return;
         }
     }
+
+	private void validateRetiredCollectionContent(String contentId) throws Exception {
+		validateChildrenRetiredStatusRecursively(contentId);
+		validateRetiredNode(contentId);
+	}
 
 	@Test
 	public void retireDraftedCollectionContent() throws Exception {
 		String collectionContentId = createCollection();
 		heirarchyUpdate(collectionContentId);
 		retireContent(collectionContentId);
-        validateRetiredStatusRecursively(collectionContentId);
+		validateRetiredCollectionContent(collectionContentId);
 	}
 
 	@Test
@@ -1478,7 +1482,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		heirarchyUpdate(collectionContentId);
 		review(collectionContentId);
 		retireContent(collectionContentId);
-        validateRetiredStatusRecursively(collectionContentId);
+		validateRetiredCollectionContent(collectionContentId);
 	}
 
     @Test
@@ -1488,7 +1492,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         delay(3000);
         update(collectionContentId);
         retireContent(collectionContentId);
-        validateRetiredStatusRecursively(collectionContentId);
+		validateRetiredCollectionContent(collectionContentId);
     }
 
     @Test
@@ -1499,6 +1503,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         delay(3000);
         update(collectionContentId);
         retireContent(collectionContentId);
-        validateRetiredStatusRecursively(collectionContentId);
+		validateRetiredCollectionContent(collectionContentId);
     }
 }

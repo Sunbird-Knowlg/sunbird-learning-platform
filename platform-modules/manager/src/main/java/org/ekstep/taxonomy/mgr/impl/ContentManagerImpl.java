@@ -2107,7 +2107,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return
 	 */
     @Override
-	public Response retire(String contentId) throws Exception {
+	public Response retire(String contentId) {
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 					"Content Object Id is blank.");
@@ -2143,9 +2143,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				children.stream().forEach(dto -> {
 					Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
 					Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
-					if("Parent".equals(childNode.getMetadata().get("visibility")) && !StringUtils.equalsIgnoreCase("Retired", (String)childNode.getMetadata().get("status"))) {
+					if("Parent".equals(childNode.getMetadata().get("visibility"))) {
 						retireChildrenRecursively(childNode);
-						retireNode(childNode);
+						if(!StringUtils.equalsIgnoreCase("Retired", (String)childNode.getMetadata().get("status")))
+							retireNode(childNode);
 					}
 				});
 			}
