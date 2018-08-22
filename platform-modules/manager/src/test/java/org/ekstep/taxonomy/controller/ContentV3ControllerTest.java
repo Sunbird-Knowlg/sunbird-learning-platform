@@ -1408,6 +1408,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		validateRetiredNode(contentId);
 	}
 
+	@Ignore
 	@Test
 	public void retireReviewedDocumentContent() throws Exception {
 		String contentId = createResourceContent();

@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ContentRetireV3Test extends BaseTest {
 
-    private static final String BASE_PATH = "content/v3";
+    private static final String BASE_PATH = "/content/v3";
     private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
     private static ClassLoader classLoader = ContentRetireV3Test.class.getClassLoader();
@@ -185,14 +185,16 @@ public class ContentRetireV3Test extends BaseTest {
     }
 
     public void validateRetiredNode(String contentId) {
-        given().
+        Response response = given().
             spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
         with().
             contentType(JSON).
         when().
             get(BASE_PATH + "/read/" + contentId).
         then().
-            body("result.content.status", equalTo("Retired"));
+            extract().
+            response();
+        assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 
     private void validateRetiredStatusRecursively(String contentId) {
