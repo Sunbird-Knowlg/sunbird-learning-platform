@@ -184,7 +184,7 @@ public class ContentRetireV3Test extends BaseTest {
             body("responseCode", equalTo("OK"));
     }
 
-    public boolean validateRetiredNode(String contentId) {
+    public Response validateRetiredNode(String contentId) {
         Response response = given().
             spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
         with().
@@ -195,11 +195,7 @@ public class ContentRetireV3Test extends BaseTest {
             body("responseCode", equalTo("OK")).
             extract().
             response();
-        if(StringUtils.equalsIgnoreCase("Retired", response.jsonPath().get("result.content.status"))) {
-            return true;
-        }
-        return false;
-
+        return response;
     }
 
     private void validateRetiredStatusRecursively(String contentId) {
@@ -228,7 +224,7 @@ public class ContentRetireV3Test extends BaseTest {
         }
     }
 
-    private boolean validateRetiredCollectionContent(String contentId) {
+    private Response validateRetiredCollectionContent(String contentId) {
         validateRetiredStatusRecursively(contentId);
         return validateRetiredNode(contentId);
     }
@@ -243,7 +239,8 @@ public class ContentRetireV3Test extends BaseTest {
         flag(contentId);
         acceptFlag(contentId);
         retireContent(contentId);
-        assertEquals(true, validateRetiredNode(contentId));
+        Response response = validateRetiredNode(contentId);
+        assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 
     @Test
@@ -254,7 +251,8 @@ public class ContentRetireV3Test extends BaseTest {
         delay(25000);
         update(collectionContentId);
         retireContent(collectionContentId);
-        assertEquals(true, validateRetiredCollectionContent(collectionContentId));
+        Response response = validateRetiredCollectionContent(collectionContentId);
+        assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 
     @Test
@@ -266,7 +264,8 @@ public class ContentRetireV3Test extends BaseTest {
         delay(30000);
         update(collectionContentId);
         retireContent(collectionContentId);
-        assertEquals(true, validateRetiredCollectionContent(collectionContentId));
+        Response response = validateRetiredCollectionContent(collectionContentId);
+        assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 
     @Test
@@ -281,6 +280,7 @@ public class ContentRetireV3Test extends BaseTest {
         delay(25000);
         update(collectionContentId);
         retireContent(collectionContentId);
-        assertEquals(true, validateRetiredCollectionContent(collectionContentId));
+        Response response = validateRetiredCollectionContent(collectionContentId);
+        assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 }
