@@ -302,6 +302,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * Review Content
 	 * 
 	 */
+	@Ignore
 	@Test
 	public void testContentV3Controller_05() throws Exception {
 		String path = basePath + "/review/" + contentId;
