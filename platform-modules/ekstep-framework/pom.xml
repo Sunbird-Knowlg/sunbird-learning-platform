@@ -5,6 +5,7 @@
 		<groupId>org.ekstep</groupId>
 		<artifactId>ekstep-modules</artifactId>
 		<version>1.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>ekstep-framework</artifactId>
 	<dependencies>
@@ -191,11 +192,4 @@
 		    <version>4.5.2</version>
 		</dependency>
 	</dependencies>
-	<build>
-		<pluginManagement>
-			<plugins>
-			</plugins>
-		</pluginManagement>
-	</build>
-
 </project>

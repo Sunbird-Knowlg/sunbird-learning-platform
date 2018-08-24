@@ -8,7 +8,7 @@ import cucumber.api.junit.Cucumber;
 		monochrome = false,
 		format = {"pretty", "html:target/cucumber",
                 "json:target_json/cucumber.json",
-                "junit:taget_junit/cucumber.xml"}
+                "junit:target_junit/cucumber.xml"}
 )
 public class RunCukesTest {
 	
