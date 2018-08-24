@@ -1452,7 +1452,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 						try {
 							if ("Parent".equals(child.get("visibility"))) {
 								validateChildrenRetiredStatusRecursively((String) child.get("identifier"));
-								assertEquals("Retired", child.get("status"));
 							}
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -1460,8 +1459,9 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 					});
 				}
 			});
-        } else {
-            return;
+			if ("Parent".equals(contentMap.get("visibility"))) {
+				assertEquals("Retired", contentMap.get("status"));
+			}
         }
     }
 
@@ -1500,6 +1500,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
     @Test
     public void retirePublishedCollectionContentWithChildren() throws Exception {
         String collectionContentId = createCollection();
+        System.out.println(collectionContentId);
         heirarchyUpdate(collectionContentId);
         publish(collectionContentId);
         delay(3000);

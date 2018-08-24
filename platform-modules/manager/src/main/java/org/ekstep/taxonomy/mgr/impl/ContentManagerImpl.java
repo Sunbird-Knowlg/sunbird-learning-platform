@@ -2122,7 +2122,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String mimeType = (String) (node.getMetadata()).get("mimeType");
 			if (StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.content-collection")) 
 				retireChildrenRecursively(node);
-			
 			return retireContent(contentId);
 	}
     
@@ -2137,20 +2136,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				retireChildrenRecursively((Node) responseImageNode.get(GraphDACParams.node.name()));
 			definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		}
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-		Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
-			if(!children.isEmpty()) {
-				children.stream().forEach(dto -> {
-					Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
-					Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
-					if("Parent".equals(childNode.getMetadata().get("visibility"))) {
-						retireChildrenRecursively(childNode);
-						if(!StringUtils.equalsIgnoreCase("Retired", (String)childNode.getMetadata().get("status")))
-							retireNode(childNode);
-					}
-				});
-			}
-		});
+		if(!StringUtils.equalsIgnoreCase("Retired", (String) node.getMetadata().get("status"))) {
+			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+			Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
+				if (!children.isEmpty()) {
+					children.stream().forEach(dto -> {
+						Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
+						Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
+						if ("Parent".equals(childNode.getMetadata().get("visibility")))
+							retireChildrenRecursively(childNode);
+					});
+				}
+			});
+			if ("Parent".equals(node.getMetadata().get("visibility")))
+				retireNode(node);
+		}
 	}
 
 	private Response retireContent(String identifier) {
