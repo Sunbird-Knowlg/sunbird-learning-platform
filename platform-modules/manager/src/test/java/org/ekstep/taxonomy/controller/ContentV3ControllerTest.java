@@ -206,7 +206,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	private static void uploadContent() {
 		String mimeType = "application/pdf";
-		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/test3.pdf";
+		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
 		ContentManagerImpl contentManager = new ContentManagerImpl();
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
