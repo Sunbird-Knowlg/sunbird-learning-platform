@@ -61,7 +61,8 @@ public class CollectionStore extends CassandraStore {
                 while (rs.iterator().hasNext()) {
                     Row row = rs.iterator().next();
                     String value = row.getString("hierarchy");
-                    return mapper.readValue(value, Map.class);
+                    Map<String, Object> hierarchy = mapper.readValue(value, Map.class);
+                    return hierarchy;
                 }
             }
         } catch (Exception e) {

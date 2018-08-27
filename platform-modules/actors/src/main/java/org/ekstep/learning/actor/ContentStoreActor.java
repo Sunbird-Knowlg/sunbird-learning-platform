@@ -23,8 +23,8 @@ import java.util.Map;
  */
 public class ContentStoreActor extends BaseGraphManager {
 
-	ContentStore contentStore = new ContentStore();
-	CollectionStore collectionStore = new CollectionStore();
+	private ContentStore contentStore = new ContentStore();
+	private CollectionStore collectionStore = new CollectionStore();
 
 	@SuppressWarnings("unchecked")
 	@Override
