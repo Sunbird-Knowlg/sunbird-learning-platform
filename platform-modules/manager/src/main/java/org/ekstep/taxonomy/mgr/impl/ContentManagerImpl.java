@@ -2147,6 +2147,24 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		populateIdsToRetire(node, identifiers, getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE), getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE));
 		Map<String, Object> params = new HashMap<>();
 		params.put("status", "Retired");
-		return updateDataNodes(params, new ArrayList<>(identifiers), TAXONOMY_ID);
+		if(identifiers.isEmpty()) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
+					"Content is already Retired.");
+		}
+		else {
+			response = updateDataNodes(params, new ArrayList<>(identifiers), TAXONOMY_ID);
+			Response responseNode = getDataNode(TAXONOMY_ID, contentId);
+			if(checkError(responseNode)) {
+				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+			} else {
+				node = (Node) responseNode.get("node");
+				response.put(ContentAPIParams.node_id.name(), node.getIdentifier());
+				response.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
+				response.getResult().remove("results");
+				return response;
+
+			}
+		}
 	}
 }
