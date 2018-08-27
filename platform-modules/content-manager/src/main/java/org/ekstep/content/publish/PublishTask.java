@@ -12,10 +12,8 @@ import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
-import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -29,8 +27,7 @@ public class PublishTask implements Runnable {
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 	private static final String COLLECTION_CONTENT_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private ControllerUtil util = new ControllerUtil();
-	private CollectionStore collectionStore = new CollectionStore();
-	
+
 	public PublishTask(String contentId, Map<String, Object> parameterMap) {
 		this.contentId = contentId;
 		this.parameterMap = parameterMap;
@@ -71,17 +68,10 @@ public class PublishTask implements Runnable {
 			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 			publishedNode.getMetadata().put("versionKey", versionKey);
 			processCollection(publishedNode);
-			publishHierarchy(publishedNode);
 			TelemetryManager.log("Content enrichment done for content: " + node.getIdentifier());
 		}
 	}
 
-	private void publishHierarchy(Node publishedNode) {
-		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
-		Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
-		collectionStore.updateContentHierarchy(publishedNode.getIdentifier(), hierarchy);
-	}
-	
 	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap) throws Exception {
 		List<String> children;
 		children = getChildren(node);

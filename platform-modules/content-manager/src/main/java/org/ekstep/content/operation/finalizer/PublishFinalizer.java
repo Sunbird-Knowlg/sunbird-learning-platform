@@ -1,15 +1,6 @@
 package org.ekstep.content.operation.finalizer;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.rits.cloning.Cloner;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -33,10 +24,16 @@ import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import com.rits.cloning.Cloner;
+import java.io.File;
+import java.net.URL;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The Class BundleFinalizer, extends BaseFinalizer which mainly holds common
@@ -62,6 +59,10 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+
+	private ControllerUtil util = new ControllerUtil();
+
+	private CollectionStore collectionStore = new CollectionStore();
 
 
 	/**
@@ -339,11 +340,27 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		getResponse(request);
 
-		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
+		if (StringUtils.equalsIgnoreCase(
+				((String) newNode.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),
+				COLLECTION_MIMETYPE)) {
+			Node publishedNode = util.getNode(TAXONOMY_ID, contentId);
+			publishHierarchy(publishedNode);
+		}
+
+		if(Platform.config.hasPath("invoke.publish_web_hook") && Platform.config.getBoolean("invoke.publish_web_hook")){
+			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
+		}
 		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		return response;
+	}
+
+
+	private void publishHierarchy(Node publishedNode) {
+		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
+		Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
+		collectionStore.updateContentHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
 	/**

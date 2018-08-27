@@ -8,6 +8,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.graph.model.cache.CategoryCache;
+import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -65,8 +66,11 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	private static String[] validDialCode = { "ABC123", "BCD123", "CDE123", "DEF123", "EFG123" };
 	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"code\": \"test_code\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
-	private static String script_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
-	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
+	private static final String SCRIPT_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
+	private static final String SCRIPT_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
+
+	private static final String SCRIPT_3 = "CREATE KEYSPACE IF NOT EXISTS hierarhcy_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
+	private static final String SCRIPT_4 = "CREATE TABLE IF NOT EXISTS hierarhcy_store_test.content_hierarhcy_test (identifier text, hierarchy text, PRIMARY KEY (identifier));";
 
 	private static String contentId = "";
 	private static String contentId2 = "";
@@ -89,7 +93,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	public static void setup() throws Exception {
 		loadDefinition("definitions/content_definition.json", "definitions/concept_definition.json",
 				"definitions/dimension_definition.json", "definitions/domain_definition.json");
-		executeScript(script_1, script_2);
+		executeScript(SCRIPT_1, SCRIPT_2, SCRIPT_3, SCRIPT_4);
 		LearningRequestRouterPool.init();
 		createFramework();
 		createDocumentContent();
@@ -386,6 +390,23 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		String path = basePath + "/hierarchy/" + collectionContent3Id;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testGetHeirarchyWithFailedResp() throws Exception {
+		String path = basePath + "/hierarchy/do_11257769111443865611";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+	}
+
+	@Test
+	public void testGetHeirarchyWithSuccessResp() throws Exception {
+		CollectionStore collectionStore = new CollectionStore();
+		String hierarchyData = "{\"code\":\"org.ekstep.jul18.story.test01\",\"keywords\":[\"QA_Content\"],\"channel\":\"in.ekstep\",\"downloadUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_11257769111443865611/course-testcourse_1535362933121_do_11257769111443865611_1.0.ecar\",\"description\":\"Text Book Test\",\"language\":[\"English\"],\"mimeType\":\"application/vnd.ekstep.content-collection\",\"variants\":{\"spine\":{\"ecarUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_11257769111443865611/course-testcourse_1535362933312_do_11257769111443865611_1.0_spine.ecar\",\"size\":1097.0}},\"idealScreenSize\":\"normal\",\"createdOn\":\"2018-08-27T15:08:04.840+0530\",\"children\":[{\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3acb\",\"downloadUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_11257769294298316813/testbook_collection1_1535362926857_do_11257769294298316813_1.0.ecar\",\"language\":[\"English\"],\"variants\":{\"spine\":{\"ecarUrl\":\"https://sunbirddev.blob.core.windows.net/sunbird-content-dev/ecar_files/do_11257769294298316813/testbook_collection1_1535362931580_do_11257769294298316813_1.0_spine.ecar\",\"size\":589.0}},\"mimeType\":\"application/vnd.ekstep.content-collection\",\"idealScreenSize\":\"normal\",\"createdOn\":\"2018-08-27T15:11:48.079+0530\",\"children\":[],\"usesContent\":[],\"contentDisposition\":\"inline\",\"contentEncoding\":\"gzip\",\"lastUpdatedOn\":\"2018-08-27T15:11:48.080+0530\",\"sYS_INTERNAL_LAST_UPDATED_ON\":\"2018-08-27T15:12:12.560+0530\",\"contentType\":\"CourseUnit\",\"identifier\":\"do_11257769294298316813\",\"audience\":[\"Learner\"],\"os\":[\"All\"],\"visibility\":\"Parent\",\"index\":1,\"mediaType\":\"content\",\"osId\":\"org.ekstep.launcher\",\"pkgVersion\":1.0,\"versionKey\":\"1535362908079\",\"idealScreenDensity\":\"hdpi\",\"s3Key\":\"ecar_files/do_11257769294298316813/testbook_collection1_1535362926857_do_11257769294298316813_1.0.ecar\",\"lastPublishedOn\":\"2018-08-27T15:12:06.771+0530\",\"size\":589.0,\"concepts\":[],\"compatibilityLevel\":4,\"name\":\"TestBook_Collection1\",\"status\":\"Live\"}],\"contentDisposition\":\"inline\",\"contentEncoding\":\"gzip\",\"lastUpdatedOn\":\"2018-08-27T15:08:04.840+0530\",\"sYS_INTERNAL_LAST_UPDATED_ON\":\"2018-08-27T15:12:13.668+0530\",\"contentType\":\"Course\",\"identifier\":\"do_11257769111443865611\",\"audience\":[\"Learner\"],\"os\":[\"All\"],\"visibility\":\"Default\",\"mediaType\":\"content\",\"osId\":\"org.ekstep.quiz.app\",\"pkgVersion\":1.0,\"versionKey\":\"1535362684840\",\"tags\":[\"QA_Content\"],\"idealScreenDensity\":\"hdpi\",\"s3Key\":\"ecar_files/do_11257769111443865611/course-testcourse_1535362933121_do_11257769111443865611_1.0.ecar\",\"framework\":\"NCF\",\"lastPublishedOn\":\"2018-08-27T15:12:13.076+0530\",\"size\":1098.0,\"compatibilityLevel\":4,\"name\":\"Course TestCourse\",\"status\":\"Live\"}";
+		collectionStore.updateContentHierarchy("do_11257769111443865611", mapper.readValue(hierarchyData, Map.class));
+		String path = basePath + "/hierarchy/do_11257769111443865611";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*
