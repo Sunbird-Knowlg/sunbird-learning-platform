@@ -64,7 +64,6 @@ public class ContentStoreActor extends BaseGraphManager {
 				OK(sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getCollectionHierarchy.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
-				Map<String, Object> map = (Map<String, Object>) request.get(ContentStoreParams.properties.name());
 				Map<String, Object> hierarchy = collectionStore.getCollectionHierarchy(contentId);
 				OK(ContentStoreParams.hierarchy.name(), hierarchy, sender());
 			} else {
