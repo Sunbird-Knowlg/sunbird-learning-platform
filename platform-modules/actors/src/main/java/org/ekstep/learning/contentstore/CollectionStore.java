@@ -13,9 +13,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import java.util.Map;
 
 public class CollectionStore extends CassandraStore {
-
-
-    private String updateHierarhyQuery;
     private static ObjectMapper mapper = new ObjectMapper();
 
     public CollectionStore() {
@@ -30,20 +27,19 @@ public class CollectionStore extends CassandraStore {
         initialise(keyspace, table, objectType, false);
         nodeType = CompositeSearchConstants.NODE_TYPE_DATA;
 
-        updateHierarhyQuery = "UPDATE " + getKeyspace() + "." + getTable() + " SET hierarchy = ? WHERE identifier = ?";
     }
 
 
     public void updateContentHierarchy(String contentId, Map<String, Object> hierarchy) {
         try {
+            String query = "UPDATE " + getKeyspace() + "." + getTable() + " SET hierarchy = ? WHERE identifier = ?";
             String hierarchyData = mapper.writeValueAsString(hierarchy);
             Session session = CassandraConnector.getSession();
-            PreparedStatement statement = session.prepare(updateHierarhyQuery);
+            PreparedStatement statement = session.prepare(query);
             BoundStatement boundStatement = new BoundStatement(statement);
             session.execute(boundStatement.bind(hierarchyData, contentId));
         } catch (JsonProcessingException e) {
             TelemetryManager.error("Error while updating collection hierarchy for ID" + contentId, e);
-
         }
 
     }
