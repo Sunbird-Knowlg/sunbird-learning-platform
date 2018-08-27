@@ -53,13 +53,10 @@ public class CollectionStore extends CassandraStore {
         BoundStatement bound = ps.bind(contentId);
         try {
             ResultSet rs = session.execute(bound);
-            if (null != rs) {
-                while (rs.iterator().hasNext()) {
+            if (null != rs && rs.iterator().hasNext()) {
                     Row row = rs.iterator().next();
                     String value = row.getString("hierarchy");
-                    Map<String, Object> hierarchy = mapper.readValue(value, Map.class);
-                    return hierarchy;
-                }
+                    return mapper.readValue(value, Map.class);
             }
         } catch (Exception e) {
             TelemetryManager.error("Error! Executing get collection hierarchy: " + e.getMessage(), e);
