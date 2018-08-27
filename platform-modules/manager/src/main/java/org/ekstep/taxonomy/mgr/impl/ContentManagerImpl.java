@@ -2103,15 +2103,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addAllIdentifiersToBeRetiredIntoSetRecursively(Node node, Set<String> identifiers) {
+	private void populateIdsToRetire(Node node, Set<String> identifiers, DefinitionDTO contentDef, DefinitionDTO contentImgDef) {
 		DefinitionDTO definition;
 		if(StringUtils.endsWithIgnoreCase(node.getIdentifier(), DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
-			definition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
+			definition = contentImgDef;
 		} else {
 			Response responseImageNode = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
 			if(!checkError(responseImageNode) && !identifiers.contains(node.getIdentifier()))
-				addAllIdentifiersToBeRetiredIntoSetRecursively((Node) responseImageNode.get(GraphDACParams.node.name()), identifiers);
-			definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+				populateIdsToRetire((Node) responseImageNode.get(GraphDACParams.node.name()), identifiers, contentDef, contentImgDef);
+			definition = contentDef;
 		}
 		if(!StringUtils.equalsIgnoreCase("Retired", (String) node.getMetadata().get("status")) && !identifiers.contains(node.getIdentifier())) {
 			identifiers.add(node.getIdentifier());
@@ -2122,20 +2122,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
 						Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
 						if ("Parent".equals(childNode.getMetadata().get("visibility")) && !identifiers.contains(childNode))
-							addAllIdentifiersToBeRetiredIntoSetRecursively(childNode, identifiers);
+							populateIdsToRetire(childNode, identifiers, contentDef, contentImgDef);
 					});
 				}
 			});
 		}
-	}
-
-	private void addContentIdentifiersToSet(String identifier, Set<String> identifiers) {
-		identifiers.add(identifier);
-		Response response = getDataNode(TAXONOMY_ID, getImageId(identifier));
-		if (checkError(response))
-			TelemetryManager.log("Content Image not found for contentId: " + identifier);
-		else
-			identifiers.add(getImageId(identifier));
 	}
 
     /**
@@ -2152,12 +2143,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 					"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
 		Node node = (Node) response.get(GraphDACParams.node.name());
-		String mimeType = (String) (node.getMetadata()).get("mimeType");
 		Set<String> identifiers = new HashSet<>();
-		if (StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.content-collection"))
-			addAllIdentifiersToBeRetiredIntoSetRecursively(node, identifiers);
-		else
-			addContentIdentifiersToSet(contentId, identifiers);
+		populateIdsToRetire(node, identifiers, getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE), getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE));
 		Map<String, Object> params = new HashMap<>();
 		params.put("status", "Retired");
 		return updateDataNodes(params, new ArrayList<>(identifiers), TAXONOMY_ID);
