@@ -95,7 +95,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	@BeforeClass
 	public static void setup() throws Exception {
-		loadDefinition("definitions/content_definition.json", "definitions/concept_definition.json",
+		loadDefinition("definitions/content_definition.json","definitions/content_image_definition.json", "definitions/concept_definition.json",
 				"definitions/dimension_definition.json", "definitions/domain_definition.json");
 		executeScript(script_1, script_2);
 		LearningRequestRouterPool.init();
@@ -1403,7 +1403,9 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	public void retirePublishedDocumentContent() throws Exception {
 		String contentId = createResourceContent();
 		uploadResourceContent(contentId);
+		delay(5000);
 		publish(contentId);
+		delay(25000);
 		update(contentId);
 		retireContent(contentId);
 		validateRetiredNode(contentId);
@@ -1414,7 +1416,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	public void retireReviewedDocumentContent() throws Exception {
 		String contentId = createResourceContent();
 		uploadResourceContent(contentId);
-		delay(10000);
+		delay(25000);
 		review(contentId);
 		retireContent(contentId);
         validateRetiredNode(contentId);
@@ -1501,7 +1503,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
     @Test
     public void retirePublishedCollectionContentWithChildren() throws Exception {
         String collectionContentId = createCollection();
-        System.out.println(collectionContentId);
         heirarchyUpdate(collectionContentId);
         publish(collectionContentId);
         delay(3000);

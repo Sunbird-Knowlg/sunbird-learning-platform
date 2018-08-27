@@ -159,20 +159,6 @@ public class ContentRetireV3Test extends BaseTest {
             body("responseCode", equalTo("OK"));
     }
 
-    private void acceptFlag(String contentId) {
-        String versionKey = getVersionKey(contentId);
-        String acceptFlagRequestBody = "{\"request\": {\"versionKey\":\"" + versionKey + "\"}}";
-        given().
-            spec(getRequestSpecification(contentType, userId, APIToken)).
-            body(acceptFlagRequestBody).
-        with().
-            contentType(JSON).
-        when().
-            post("/content/v3/flag/accept/" + contentId).
-        then().
-            body("responseCode", equalTo("OK"));
-    }
-
     private void retireContent(String contentId) {
         given().
             spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
@@ -237,7 +223,6 @@ public class ContentRetireV3Test extends BaseTest {
         publish(contentId);
         delay(25000);
         flag(contentId);
-        acceptFlag(contentId);
         retireContent(contentId);
         Response response = validateRetiredNode(contentId);
         assertEquals("Retired", response.jsonPath().get("result.content.status"));
@@ -261,7 +246,7 @@ public class ContentRetireV3Test extends BaseTest {
         String collectionContentId = createCollectionContent();
         hierarchyUpdate(collectionContentId);
         publish(collectionContentId);
-        delay(30000);
+        delay(25000);
         update(collectionContentId);
         retireContent(collectionContentId);
         Response response = validateRetiredCollectionContent(collectionContentId);
