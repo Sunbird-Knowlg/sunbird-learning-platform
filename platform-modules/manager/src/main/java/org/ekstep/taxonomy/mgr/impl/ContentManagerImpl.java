@@ -504,13 +504,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			response.setParams(getSucessStatus());
 			return response;
 		} else{
-			Response collectionHierarchy = getCollectionHierarchy(contentId);
+			Response hierarchyResponse = getCollectionHierarchy(contentId);
 			Response response = new Response();
-			if(!checkError(collectionHierarchy) && (null != collectionHierarchy.getResult().get("hierarchy"))){
-				response.put("content", collectionHierarchy.getResult().get("hierarchy"));
+			if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
+				response.put("content", hierarchyResponse.getResult().get("hierarchy"));
 				response.setParams(getSucessStatus());
 			} else {
-				response = ERROR("ERR_RESOURCE_NOT_FOUND", "Resource Not found", ResponseCode.RESOURCE_NOT_FOUND);
+				response = hierarchyResponse;
 			}
 			return response;
 		}

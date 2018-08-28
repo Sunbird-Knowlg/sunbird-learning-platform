@@ -32,7 +32,12 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -347,7 +352,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			publishHierarchy(publishedNode);
 		}
 
-		if(Platform.config.hasPath("invoke.publish_web_hook") && Platform.config.getBoolean("invoke.publish_web_hook")){
+		if(Platform.config.hasPath("content.publish.invoke_web_hook") && Platform.config.getBoolean("content.publish.invoke_web_hook")){
 			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
 		}
 		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");

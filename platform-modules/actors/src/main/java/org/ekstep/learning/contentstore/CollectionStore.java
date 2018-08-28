@@ -1,15 +1,22 @@
 package org.ekstep.learning.contentstore;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class CollectionStore extends CassandraStore {
@@ -45,8 +52,8 @@ public class CollectionStore extends CassandraStore {
     }
 
 
-    public Map<String, Object> getCollectionHierarchy(String contentId) {
-        String query = "SELECT hierarchy FROM " + getKeyspace() + "." + getTable() +" WHERE identifier=?";
+    public Map<String, Object> getCollectionHierarchy(String contentId) throws IOException {
+        String query = "SELECT hierarchy FROM " + getKeyspace() + "." + getTable() + " WHERE identifier=?";
 
         Session session = CassandraConnector.getSession();
         PreparedStatement ps = session.prepare(query);
@@ -54,16 +61,22 @@ public class CollectionStore extends CassandraStore {
         try {
             ResultSet rs = session.execute(bound);
             if (null != rs && rs.iterator().hasNext()) {
-                    Row row = rs.iterator().next();
-                    String value = row.getString("hierarchy");
-                    return mapper.readValue(value, Map.class);
+                Row row = rs.iterator().next();
+                String value = row.getString("hierarchy");
+                return mapper.readValue(value, Map.class);
+            } else {
+                throw new ResourceNotFoundException(ResponseCode.RESOURCE_NOT_FOUND.name(), "Resource not found");
             }
         } catch (Exception e) {
             TelemetryManager.error("Error! Executing get collection hierarchy: " + e.getMessage(), e);
-            throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
-                    "Error fetching hierarchy from hierarchy Store.");
-        }
-        return null;
+            if(e instanceof ResourceNotFoundException){
+                throw e;
+            }else{
+                throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
+                        "Error fetching hierarchy from hierarchy Store.", e);
+            }
 
+
+        }
     }
 }
