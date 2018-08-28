@@ -55,6 +55,9 @@ public class KafkaClient {
 	}
 	
 	public static void send(String event, String topic) throws Exception {
+		boolean isTopicCheckReq = Platform.config.hasPath("kafka.topic.send.enable")? Platform.config.getBoolean("kafka.topic.send.enable"):true;
+		if (!isTopicCheckReq)
+			return;
 		if(validate(topic)) {
 			final Producer<Long, String> producer = getProducer();
 			ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(topic, event);

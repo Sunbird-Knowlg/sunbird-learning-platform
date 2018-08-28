@@ -11,6 +11,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -35,8 +36,16 @@ import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
-import org.ekstep.graph.dac.enums.*;
-import org.ekstep.graph.dac.model.*;
+import org.ekstep.graph.dac.enums.AuditProperties;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
+import org.ekstep.graph.dac.enums.SystemProperties;
+import org.ekstep.graph.dac.model.Filter;
+import org.ekstep.graph.dac.model.MetadataCriterion;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.MetadataDefinition;
@@ -64,8 +73,17 @@ import scala.concurrent.Future;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -2058,5 +2076,75 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (!FilenameUtils.getExtension(fileUrl).isEmpty())
 			fileName += "." + FilenameUtils.getExtension(fileUrl);
 		return fileName;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void populateIdsToRetire(Node node, Set<String> identifiers, DefinitionDTO contentDef, DefinitionDTO contentImgDef) {
+		DefinitionDTO definition;
+		if(StringUtils.endsWithIgnoreCase(node.getIdentifier(), DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+			definition = contentImgDef;
+		} else {
+			Response responseImageNode = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
+			if(!checkError(responseImageNode) && !identifiers.contains(node.getIdentifier()))
+				populateIdsToRetire((Node) responseImageNode.get(GraphDACParams.node.name()), identifiers, contentDef, contentImgDef);
+			definition = contentDef;
+		}
+		if(!StringUtils.equalsIgnoreCase("Retired", (String) node.getMetadata().get("status")) && !identifiers.contains(node.getIdentifier())) {
+			identifiers.add(node.getIdentifier());
+			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+			Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
+				if (!children.isEmpty()) {
+					children.stream().forEach(dto -> {
+						Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
+						Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
+						if ("Parent".equals(childNode.getMetadata().get("visibility")) && !identifiers.contains(childNode))
+							populateIdsToRetire(childNode, identifiers, contentDef, contentImgDef);
+					});
+				}
+			});
+		}
+	}
+
+    /**
+	 * @param contentId
+	 * @return
+	 */
+    @Override
+	public Response retire(String contentId) {
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+					"Content Object Id is blank.");
+		Response response = getDataNode(TAXONOMY_ID, contentId);
+		if (checkError(response))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+		Node node = (Node) response.get(GraphDACParams.node.name());
+		Set<String> identifiers = new HashSet<>();
+		populateIdsToRetire(node, identifiers, getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE), getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE));
+		Map<String, Object> params = new HashMap<>();
+		params.put("status", "Retired");
+		if(identifiers.isEmpty()) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
+					"Content is already Retired.");
+		}
+		else {
+			response = updateDataNodes(params, new ArrayList<>(identifiers), TAXONOMY_ID);
+			if(checkError(response)) {
+				return response;
+			}else {
+				Response responseNode = getDataNode(TAXONOMY_ID, contentId);
+				if(checkError(responseNode)) {
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+				} else {
+					node = (Node) responseNode.get("node");
+					Response res = getSuccessResponse();
+					res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
+					res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
+					return res;
+
+				}
+			}
+		}
 	}
 }

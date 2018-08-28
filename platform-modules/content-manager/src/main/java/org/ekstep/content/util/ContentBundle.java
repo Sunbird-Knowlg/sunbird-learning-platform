@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
@@ -69,6 +69,8 @@ public class ContentBundle {
 	
 	private static final String WEB_URL_MIMETYPE = "text/x-url";
 	
+	private static final List<String> EXCLUDE_ECAR_METADATA_FIELDS=Arrays.asList("screenshots","posterImage");
+	
 	/**
 	 * Creates the content manifest data.
 	 *
@@ -86,9 +88,7 @@ public class ContentBundle {
 		List<String> urlFields = new ArrayList<String>();
 		urlFields.add("appIcon");
 		urlFields.add("grayScaleAppIcon");
-		urlFields.add("posterImage");
 		urlFields.add("artifactUrl");
-		//urlFields.add("screenshots");
 
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
@@ -99,9 +99,7 @@ public class ContentBundle {
 						ContentWorkflowPipelineParams.Parent.name());
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
-			// TODO: Added code for removing screenshots, as 'screenshot' is external property, it should not be in manifest file. But this code can be removed later.
-			if(content.containsKey("screenshots"))
-					content.remove("screenshots");
+			content.keySet().removeIf(metadata -> EXCLUDE_ECAR_METADATA_FIELDS.contains(metadata));
 			for (Map.Entry<String, Object> entry : content.entrySet()) {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
@@ -152,9 +150,6 @@ public class ContentBundle {
 			}
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
 					(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
-			Object posterImage = content.get(ContentWorkflowPipelineParams.posterImage.name());
-			if (null != posterImage && StringUtils.isNotBlank((String) posterImage))
-				content.put(ContentWorkflowPipelineParams.appIcon.name(), posterImage);
 			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
 			if (!(StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status) 
 					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Unlisted.name(), status)))
