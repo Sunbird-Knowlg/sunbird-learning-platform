@@ -1398,14 +1398,14 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		retireContent(contentId);
 		validateRetiredNode(contentId);
 	}
-
+	@Ignore
 	@Test
 	public void retirePublishedDocumentContent() throws Exception {
 		String contentId = createResourceContent();
 		uploadResourceContent(contentId);
-		delay(25000);
+		delay(5000);
 		publish(contentId);
-		delay(25000);
+		delay(5000);
 		update(contentId);
 		retireContent(contentId);
 		validateRetiredNode(contentId);
