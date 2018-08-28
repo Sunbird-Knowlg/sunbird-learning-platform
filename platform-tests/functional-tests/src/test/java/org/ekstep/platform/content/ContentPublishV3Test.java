@@ -2,6 +2,7 @@ package org.ekstep.platform.content;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -110,12 +111,13 @@ public class ContentPublishV3Test extends BaseTest{
 		assertTrue("OK".equals(publishComment));
 	}
 	
-	//Publish Content with empty check list
+	//Publish Content with empty check list. 
+	//Expected : publishCheckList metadata should not be present under content metadata
 	@Test
-	public void publishContentWithEmptyCheckListExpect400(){
+	public void publishContentWithEmptyCheckList(){
 		//Create Content
 		int rn = generateRandomInt(0, 999999);
-		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		setURI();
 		Response response = 
 				given().
@@ -138,9 +140,9 @@ public class ContentPublishV3Test extends BaseTest{
 		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path + "/pdf.pdf")).
 		when().
-		post("/content/v3/upload/" + identifier)
-		.then();
-		//log().all().
+		post("/content/v3/upload/" + identifier).
+		then();
+		//spec(get200ResponseSpec());
 				
 		//publish content
 		String publishContentReq = "{\"request\": {\"content\": {\"publisher\": \"EkStep\",\"lastPublishedBy\": \"Ekstep\",\"publishChecklist\":[],\"publishComment\":\"OK\"}}}";
@@ -153,103 +155,31 @@ public class ContentPublishV3Test extends BaseTest{
 		when().
 		post("content/v3/publish/"+identifier).
 		then().//log().all().
-		spec(get400ResponseSpec());
-
-	}
-	
-	//Publish Content with empty check list
-	@Test
-	public void publishContentWithEmptyCheckListExpectClientError(){
-		//Create Content
-		int rn = generateRandomInt(0, 999999);
-		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
-		setURI();
-		Response response = 
-				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-				body(createValidContent).
-				with().
-				contentType(JSON).
-				when().
-				post("content/v3/create").
-				then().//log().all().
-				extract().
-				response();
-		
-		JsonPath jsonResponse = response.jsonPath();
-		String identifier = jsonResponse.get("result.node_id");
-		
-		// Upload Content
-		setURI();
-		given().
-		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
-		multiPart(new File(path + "/pdf.pdf")).
-		when().
-		post("/content/v3/upload/" + identifier)
-		.then();
-		//log().all().
+		spec(get200ResponseSpec());
 				
-		//publish content
-		String publishContentReq = "{\"request\": {\"content\": {\"publisher\": \"EkStep\",\"lastPublishedBy\": \"Ekstep\",\"publishChecklist\":\"\",\"publishComment\":\"OK\"}}}";
+		// Get Content and Validate
 		setURI();
-		given().
-		spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-		body(publishContentReq).
-		with().
-		contentType(JSON).
-		when().
-		post("content/v3/publish/"+identifier).
-		then().//log().all().
-		spec(get400ResponseSpec());
-
-	}
-	
-	//Publish Content without check list
-	@Test
-	public void publishContentWithoutCheckListExpect400(){
-		//Create Content
-		int rn = generateRandomInt(0, 999999);
-		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
-		setURI();
-		Response response = 
+		response = 
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-				body(createValidContent).
-				with().
-				contentType(JSON).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				when().
-				post("content/v3/create").
-				then().//log().all().
-				extract().
-				response();
+				get("/content/v3/read/" + identifier).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 		
-		JsonPath jsonResponse = response.jsonPath();
-		String identifier = jsonResponse.get("result.node_id");
+		// Validate the response
+		jsonResponse = response.jsonPath();
+		String status = jsonResponse.get("result.content.status");
+		List<String> publishChecklist = jsonResponse.get("result.content.publishChecklist");
+		String publishComment = jsonResponse.get("result.content.publishComment");
+		assertTrue("Live".equals(status));
+		assertNull(publishChecklist);
+		assertTrue("OK".equals(publishComment));
 		
-		// Upload Content
-		setURI();
-		given().
-		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
-		multiPart(new File(path + "/pdf.pdf")).
-		when().
-		post("/content/v3/upload/" + identifier)
-		.then();
-		//log().all().
-				
-		//publish content
-		String publishContentReq = "{\"request\": {\"content\": {\"publisher\": \"EkStep\",\"lastPublishedBy\": \"Ekstep\",\"publishComment\":\"OK\"}}}";
-		setURI();
-		given().
-		spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-		body(publishContentReq).
-		with().
-		contentType(JSON).
-		when().
-		post("content/v3/publish/"+identifier).
-		then().//log().all().
-		spec(get400ResponseSpec());
-
 	}
+
 	
 	// ECAR and Spine ECAR Should Not Have "posterImage" metadata.
 	@Test
@@ -383,10 +313,8 @@ public class ContentPublishV3Test extends BaseTest{
 					String appIcon = (String) props.get("appIcon");
 					String posterImage = (String) props.get("posterImage");
 
-					if (null != appIcon && null == posterImage) {
-						if (new File(bundleExtractPath + "/" + appIcon).exists())
-							isValidEcar = true;
-					}
+					if (null != appIcon && new File(bundleExtractPath + "/" + appIcon).exists() && null == posterImage)
+						isValidEcar = true;
 				}
 			}
 			FileUtils.deleteDirectory(new File(downloadPath));
