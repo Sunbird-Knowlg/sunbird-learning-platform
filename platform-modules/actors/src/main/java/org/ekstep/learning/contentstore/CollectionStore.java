@@ -67,14 +67,12 @@ public class CollectionStore extends CassandraStore {
             } else {
                 throw new ResourceNotFoundException(ResponseCode.RESOURCE_NOT_FOUND.name(), "Resource not found");
             }
+        } catch (ResourceNotFoundException re) {
+            throw re;
         } catch (Exception e) {
             TelemetryManager.error("Error! Executing get collection hierarchy: " + e.getMessage(), e);
-            if(e instanceof ResourceNotFoundException){
-                throw e;
-            }else{
-                throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
-                        "Error fetching hierarchy from hierarchy Store.", e);
-            }
+            throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
+                    "Error fetching hierarchy from hierarchy Store.", e);
 
 
         }
