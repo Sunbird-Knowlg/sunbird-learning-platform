@@ -15,9 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -40,7 +39,6 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
@@ -2102,5 +2100,75 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (!FilenameUtils.getExtension(fileUrl).isEmpty())
 			fileName += "." + FilenameUtils.getExtension(fileUrl);
 		return fileName;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void populateIdsToRetire(Node node, Set<String> identifiers, DefinitionDTO contentDef, DefinitionDTO contentImgDef) {
+		DefinitionDTO definition;
+		if(StringUtils.endsWithIgnoreCase(node.getIdentifier(), DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+			definition = contentImgDef;
+		} else {
+			Response responseImageNode = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
+			if(!checkError(responseImageNode) && !identifiers.contains(node.getIdentifier()))
+				populateIdsToRetire((Node) responseImageNode.get(GraphDACParams.node.name()), identifiers, contentDef, contentImgDef);
+			definition = contentDef;
+		}
+		if(!StringUtils.equalsIgnoreCase("Retired", (String) node.getMetadata().get("status")) && !identifiers.contains(node.getIdentifier())) {
+			identifiers.add(node.getIdentifier());
+			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+			Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
+				if (!children.isEmpty()) {
+					children.stream().forEach(dto -> {
+						Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
+						Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
+						if ("Parent".equals(childNode.getMetadata().get("visibility")) && !identifiers.contains(childNode))
+							populateIdsToRetire(childNode, identifiers, contentDef, contentImgDef);
+					});
+				}
+			});
+		}
+	}
+
+    /**
+	 * @param contentId
+	 * @return
+	 */
+    @Override
+	public Response retire(String contentId) {
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+					"Content Object Id is blank.");
+		Response response = getDataNode(TAXONOMY_ID, contentId);
+		if (checkError(response))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+		Node node = (Node) response.get(GraphDACParams.node.name());
+		Set<String> identifiers = new HashSet<>();
+		populateIdsToRetire(node, identifiers, getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE), getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE));
+		Map<String, Object> params = new HashMap<>();
+		params.put("status", "Retired");
+		if(identifiers.isEmpty()) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
+					"Content is already Retired.");
+		}
+		else {
+			response = updateDataNodes(params, new ArrayList<>(identifiers), TAXONOMY_ID);
+			if(checkError(response)) {
+				return response;
+			}else {
+				Response responseNode = getDataNode(TAXONOMY_ID, contentId);
+				if(checkError(responseNode)) {
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+				} else {
+					node = (Node) responseNode.get("node");
+					Response res = getSuccessResponse();
+					res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
+					res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
+					return res;
+
+				}
+			}
+		}
 	}
 }

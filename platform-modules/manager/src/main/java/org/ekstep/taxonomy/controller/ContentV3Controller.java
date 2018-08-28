@@ -438,4 +438,19 @@ public class ContentV3Controller extends BaseController {
 	protected String getAPIVersion() {
 		return API_VERSION_3;
 	}
+
+	@RequestMapping(value="/retire/{id:.+}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Response> retire(@PathVariable(value = "id") String contentId) {
+		String apiId = "ekstep.content.retire";
+		TelemetryManager.log("Retiring content | Content Id : " + contentId);
+		Response response;
+		try {
+			response = contentManager.retire(contentId);
+			return getResponseEntity(response, apiId, null);
+		} catch(Exception e) {
+			TelemetryManager.error("Exception occured while Retiring Content: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 }

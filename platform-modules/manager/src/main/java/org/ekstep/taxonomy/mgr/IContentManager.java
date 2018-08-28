@@ -220,4 +220,5 @@ public interface IContentManager {
 	 */
 	Response copyContent(String contentId, Map<String, Object> requestMap, String mode);
 
+    Response retire(String contentId);
 }
