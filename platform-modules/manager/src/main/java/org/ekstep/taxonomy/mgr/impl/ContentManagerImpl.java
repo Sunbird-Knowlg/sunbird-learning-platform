@@ -2153,17 +2153,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		else {
 			response = updateDataNodes(params, new ArrayList<>(identifiers), TAXONOMY_ID);
-			Response responseNode = getDataNode(TAXONOMY_ID, contentId);
-			if(checkError(responseNode)) {
-				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
-			} else {
-				node = (Node) responseNode.get("node");
-				response.put(ContentAPIParams.node_id.name(), node.getIdentifier());
-				response.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
-				response.getResult().remove("results");
+			if(checkError(response)) {
 				return response;
+			}else {
+				Response responseNode = getDataNode(TAXONOMY_ID, contentId);
+				if(checkError(responseNode)) {
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+				} else {
+					node = (Node) responseNode.get("node");
+					Response res = getSuccessResponse();
+					res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
+					res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
+					return res;
 
+				}
 			}
 		}
 	}
