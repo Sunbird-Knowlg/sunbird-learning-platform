@@ -1353,9 +1353,9 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
     private void uploadResourceContent(String contentId) throws Exception {
         String uploadPath = basePath + "/upload/" + contentId;
-        File inputFile = getResourceFile("test1.pdf");
+        File inputFile = getResourceFile("pdf.pdf");
         FileInputStream fileStream = new FileInputStream(inputFile);
-        MockMultipartFile testFile = new MockMultipartFile("file", "test1.pdf", "application/pdf", fileStream);
+        MockMultipartFile testFile = new MockMultipartFile("file", "pdf.pdf", "application/pdf", fileStream);
         actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(uploadPath).file(testFile).header("user-id", "ilimi"));
         assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
@@ -1403,7 +1403,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	public void retirePublishedDocumentContent() throws Exception {
 		String contentId = createResourceContent();
 		uploadResourceContent(contentId);
-		delay(5000);
+		delay(25000);
 		publish(contentId);
 		delay(25000);
 		update(contentId);
