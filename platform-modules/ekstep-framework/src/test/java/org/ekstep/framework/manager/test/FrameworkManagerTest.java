@@ -131,7 +131,7 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 			Response response = frameworkManager.createFramework(requestMap, channelId);
 			String responseCode = (String) response.getResponseCode().toString();
 			int resCode = response.getResponseCode().code();
-			assertTrue(responseCode.equals("CLIENT_ERROR"));
+			assertTrue("CLIENT_ERROR".equals(responseCode));
 			assertTrue(resCode == 400);
 		} catch (Exception e) {
 			System.out.println("FrameworkManagerTest:::testFramework_03:::Exception : " + e.getMessage());

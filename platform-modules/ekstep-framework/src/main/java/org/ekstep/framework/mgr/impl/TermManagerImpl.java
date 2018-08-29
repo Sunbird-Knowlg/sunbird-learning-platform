@@ -100,14 +100,14 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	public Response readTerm(String scopeId, String termId, String categoryId) {
 		String newCategoryId = categoryId;
 		if (null != scopeId) {
-			newCategoryId = generateIdentifier(scopeId, categoryId);
+			newCategoryId = generateIdentifier(scopeId, newCategoryId);
 			validateRequest(scopeId, newCategoryId);
 		} else {
 			validateCategoryId(newCategoryId);
 		}
-		termId = generateIdentifier(categoryId, termId);
-		//if (validateScopeNode(termId, categoryId)) {
-			return read(termId, TERM_OBJECT_TYPE, TermEnum.term.name());
+		String newTermId = generateIdentifier(newCategoryId, termId);
+		//if (validateScopeNode(newTermId, categoryId)) {
+			return read(newTermId, TERM_OBJECT_TYPE, TermEnum.term.name());
 		//} else {
 		//	throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
 		//}
@@ -168,7 +168,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 * @see org.ekstep.framework.mgr.ITermManager#retireTerm(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Response retireTerm(String scopeId, String categoryId, String termId)  throws Exception {
+	public Response retireTerm(String scopeId, String categoryId, String termId) {
 		String newCategoryId = categoryId;
 		if (null != scopeId) {
 			newCategoryId = generateIdentifier(scopeId, newCategoryId);
@@ -176,10 +176,9 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		} else {
 			validateCategoryId(newCategoryId);
 		}
-		termId = generateIdentifier(newCategoryId, termId);
-		if (validateScopeNode(termId, newCategoryId)) {
-			Response response = retire(termId, TERM_OBJECT_TYPE);
-			return response;
+		String newTermId = generateIdentifier(newCategoryId, termId);
+		if (validateScopeNode(newTermId, newCategoryId)) {
+			return retire(newTermId, TERM_OBJECT_TYPE);
 		} else {
 			throw new ClientException("ERR_CATEGORY_NOT_FOUND", "Category/CategoryInstance is not related Term");
 		}

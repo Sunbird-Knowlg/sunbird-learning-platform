@@ -66,7 +66,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	/** The actions. */
 	private ResultActions actions;
 
-	MockMvc mockMvc;
+	private MockMvc mockMvc;
 
 	private static final String basePath = "/content/v3";
 	private static ObjectMapper mapper = new ObjectMapper();

@@ -50,7 +50,6 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 
 	private MockMvc mockMvc;
 
-	private ResultActions actions;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final String COMPOSITE_SEARCH_INDEX = "testfrcompositesearch";
 	private static final String COMPOSITE_SEARCH_INDEX_TYPE = "cs";
@@ -134,7 +133,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 	@Test
 	public void mockTestFrameworkRead() throws Exception {
 		String path = basePath + "/read/" + frameworkId;
-		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
+		ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Assert.assertTrue(actions.andReturn().getResponse().getContentAsString().contains("test_term_medium_english"));
 	}

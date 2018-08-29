@@ -9,7 +9,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.framework.manager.test.BaseCategoryInstanceMgrTest;
 import org.ekstep.framework.mgr.ICategoryManager;
 import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.framework.mgr.IFrameworkManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -50,9 +49,6 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 	
 	@Autowired
 	private IChannelManager channelMgr;
-	
-	@Autowired
-	private IFrameworkManager frmwrkMgr;
 
 	private String createCategoryValidRequest = "{\"category\":{\"name\":\"category\",\"description\":\"\",\"code\":\"class_1" + "\"}}";
 	private String createCategoryWithoutCode = "{\"request\":{\"category\":{\"name\":\"category\",\"description\":\"\"}}}";
