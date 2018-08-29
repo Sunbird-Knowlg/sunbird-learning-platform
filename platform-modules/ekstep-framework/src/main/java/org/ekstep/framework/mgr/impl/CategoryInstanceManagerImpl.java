@@ -29,7 +29,7 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	private static final String GRAPH_ID = "domain";
 
 	@Override
-	public Response createCategoryInstance(String identifier, Map<String, Object> request) throws Exception {
+	public Response createCategoryInstance(String identifier, Map<String, Object> request) {
 		if (null == request)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (null == request.get("code") || StringUtils.isBlank((String) request.get("code")))
@@ -46,31 +46,28 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 
 	@Override
 	public Response readCategoryInstance(String identifier, String categoryInstanceId) {
-		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(categoryInstanceId, identifier)) {
-			return read(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.category.name());
-		} else {
+		String newCategoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
+		if (validateScopeNode(newCategoryInstanceId, identifier))
+			return read(newCategoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.category.name());
+		else
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
 							+ ContentErrorCodes.ERR_FRAMEWORK_NOT_FOUND.name(),
 					"Given channel/framework is not related to given category");
-		}
 	}
 
 	@Override
-	public Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) throws Exception {
+	public Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(categoryInstanceId, identifier)) {
-			Response response = update(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
-			return response;
-		} else {
+		String newCategoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
+		if (validateScopeNode(newCategoryInstanceId, identifier))
+			return update(newCategoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
+		else
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
 							+ ContentErrorCodes.ERR_FRAMEWORK_NOT_FOUND.name(),
 					"Given channel/framework is not related to given category");
-		}
 	}
 
 	@Override
@@ -81,18 +78,15 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	}
 
 	@Override
-	public Response retireCategoryInstance(String identifier, String categoryInstanceId) throws Exception{
-		categoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(categoryInstanceId, identifier)) {
-			Response response = retire(categoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
-			return response;
-		} else {
+	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
+		String newCategoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
+		if (validateScopeNode(newCategoryInstanceId, identifier))
+			return retire(newCategoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
+		else
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
 							+ ContentErrorCodes.ERR_FRAMEWORK_NOT_FOUND.name(),
 					"Given channel/framework is not related to given category");
-		}
-
 	}
 
 	public boolean validateScopeId(String identifier) {

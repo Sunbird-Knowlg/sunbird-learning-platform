@@ -48,7 +48,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 	@Autowired
 	private WebApplicationContext context;
 
-	MockMvc mockMvc;
+	private MockMvc mockMvc;
 
 	private ResultActions actions;
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -132,7 +132,7 @@ public class ReadCopyFrameworkTest extends GraphEngineTestSetup {
 	}
 
 	@Test
-	public void mockTestFramework_01() throws Exception {
+	public void mockTestFrameworkRead() throws Exception {
 		String path = basePath + "/read/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());

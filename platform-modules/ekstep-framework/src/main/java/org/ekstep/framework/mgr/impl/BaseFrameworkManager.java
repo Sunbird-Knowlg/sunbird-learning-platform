@@ -356,6 +356,7 @@ public class BaseFrameworkManager extends BaseManager {
 			case "term":
 				request.put("terms", relationList);
 				break;
+			default: break;
 			}
 		} catch (Exception e) {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);

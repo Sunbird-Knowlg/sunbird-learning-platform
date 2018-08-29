@@ -54,7 +54,8 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			validateCategoryId(categoryId);
 		}
 
-		int codeError = 0, serverError = 0;
+		int codeError = 0;
+		int serverError = 0;
 		String id = null;
 		List<String> identifiers = new ArrayList<String>();
 
@@ -97,11 +98,12 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 */
 	@Override
 	public Response readTerm(String scopeId, String termId, String categoryId) {
+		String newCategoryId = categoryId;
 		if (null != scopeId) {
-			categoryId = generateIdentifier(scopeId, categoryId);
-			validateRequest(scopeId, categoryId);
+			newCategoryId = generateIdentifier(scopeId, categoryId);
+			validateRequest(scopeId, newCategoryId);
 		} else {
-			validateCategoryId(categoryId);
+			validateCategoryId(newCategoryId);
 		}
 		termId = generateIdentifier(categoryId, termId);
 		//if (validateScopeNode(termId, categoryId)) {
@@ -130,7 +132,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 		} else {
 			validateCategoryId(categoryId);
 		}
-		termId = generateIdentifier(categoryId, termId);
+		String newTermId = generateIdentifier(categoryId, termId);
 		
 		if(!request.containsKey(TermEnum.parents.name()) || ((List<Object>)request.get(TermEnum.parents.name())).isEmpty()) {
 			setRelations(categoryId, request);
@@ -144,9 +146,7 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 			}
 		}
 		request.put("category", category);
-		Response response = update(termId, TERM_OBJECT_TYPE, request);
-		return response;
-		
+		return update(newTermId, TERM_OBJECT_TYPE, request);
 	}
 
 	/* (non-Javadoc)
@@ -154,13 +154,14 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 */
 	@Override
 	public Response searchTerms(String scopeId, String categoryId, Map<String, Object> map) {
+		String newCategoryId = categoryId;
 		if (null != scopeId) {
-			categoryId = generateIdentifier(scopeId, categoryId);
-			validateRequest(scopeId, categoryId);
+			newCategoryId = generateIdentifier(scopeId, newCategoryId);
+			validateRequest(scopeId, newCategoryId);
 		} else {
-			validateCategoryId(categoryId);
+			validateCategoryId(newCategoryId);
 		}
-		return search(map, TERM_OBJECT_TYPE, TermEnum.terms.name(), categoryId);
+		return search(map, TERM_OBJECT_TYPE, TermEnum.terms.name(), newCategoryId);
 	}
 
 	/* (non-Javadoc)
@@ -168,14 +169,15 @@ public class TermManagerImpl extends BaseFrameworkManager implements ITermManage
 	 */
 	@Override
 	public Response retireTerm(String scopeId, String categoryId, String termId)  throws Exception {
+		String newCategoryId = categoryId;
 		if (null != scopeId) {
-			categoryId = generateIdentifier(scopeId, categoryId);
-			validateRequest(scopeId, categoryId);
+			newCategoryId = generateIdentifier(scopeId, newCategoryId);
+			validateRequest(scopeId, newCategoryId);
 		} else {
-			validateCategoryId(categoryId);
+			validateCategoryId(newCategoryId);
 		}
-		termId = generateIdentifier(categoryId, termId);
-		if (validateScopeNode(termId, categoryId)) {
+		termId = generateIdentifier(newCategoryId, termId);
+		if (validateScopeNode(termId, newCategoryId)) {
 			Response response = retire(termId, TERM_OBJECT_TYPE);
 			return response;
 		} else {

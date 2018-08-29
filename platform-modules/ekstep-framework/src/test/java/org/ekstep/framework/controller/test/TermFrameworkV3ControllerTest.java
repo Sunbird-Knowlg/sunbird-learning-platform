@@ -74,10 +74,6 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 	private static final String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 	private static final String createChannelReq = "{\"name\":\"channel\",\"description\":\"\",\"code\":\"channelKA\",\"identifier\":\"channelKA\"}";
 
-	static ClassLoader classLoader = TermFrameworkV3ControllerTest.class.getClassLoader();
-	static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
-	static ActorRef reqRouter = null;
-
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json",
@@ -184,7 +180,7 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 	
 
 	@Before
-	public void setup() {
+	public void setUp() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 

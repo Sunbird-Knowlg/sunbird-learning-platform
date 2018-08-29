@@ -3,12 +3,10 @@ package org.ekstep.framework.controller.test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.manager.test.BaseCategoryInstanceMgrTest;
-import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.framework.mgr.ICategoryManager;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
@@ -45,44 +43,30 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String base_category_path = "/channel/v3/category";
-	static int rn = generateRandomNumber(0, 9999);
-	static String node_id = "";
-	
-	@Before
-	public void setup() {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
-	}
-
-	@Autowired
-	ICategoryInstanceManager categoryInstanceMgr;
+	private static String node_id = "";
 		
 	@Autowired
-	ICategoryManager categoryMgr;
+	private ICategoryManager categoryMgr;
 	
 	@Autowired
-	IChannelManager channelMgr;
+	private IChannelManager channelMgr;
 	
 	@Autowired
-	IFrameworkManager frmwrkMgr;
+	private IFrameworkManager frmwrkMgr;
+
+	private String createCategoryValidRequest = "{\"category\":{\"name\":\"category\",\"description\":\"\",\"code\":\"class_1" + "\"}}";
+	private String createCategoryWithoutCode = "{\"request\":{\"category\":{\"name\":\"category\",\"description\":\"\"}}}";
+	private String updateCategoryRequest = "{\"request\":{\"category\":{\"description\":\"LP category API\"}}}";
+	private String searchCategory = "{\"request\":{\"search\":{}}}";
 	
-	String createCategoryValidRequest = "{\"category\":{\"name\":\"category\",\"description\":\"\",\"code\":\"class_1" + "\"}}";
-	String createCategoryWithoutCode = "{\"request\":{\"category\":{\"name\":\"category\",\"description\":\"\"}}}";
-	String updateCategoryRequest = "{\"request\":{\"category\":{\"description\":\"LP category API\"}}}";
-	String searchCategory = "{\"request\":{\"search\":{}}}";
-	
-	ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = new ObjectMapper();
 	
 //		@BeforeClass()
 //		public static void beforeClass() throws Exception {
 //			loadDefinition("definitions/category_definition.json");
 //		}
-
-	
-	// method to generate random numbers for a given range of input
-	private static int generateRandomNumber(int min, int max) {
-		Random r = new Random();
-		return r.nextInt((max - min) + 1) + min;
-	}
+	@Before
+	public void setUp() { this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build(); }
 		
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
@@ -190,7 +174,7 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 	}
 	
 	@Test
-	public void readCategoryInstanceWithinvalidCategoryId() throws Exception {
+	public void readCategoryInstanceWithInvalidCategoryId() throws Exception {
 		String channelId = createChannel(channelMgr);
 		String readPath = base_category_path + "/read/do_898";
 		actions = this.mockMvc.perform(MockMvcRequestBuilders.get(readPath).header("X-Channel-Id", channelId)
@@ -385,7 +369,7 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 	@Test
 	public void retireCategoryWithInvalidCategoryId() throws Exception {
 		String channelId = createChannel(channelMgr);
-		String retirePath = base_category_path + "/retire/do_876434564";;
+		String retirePath = base_category_path + "/retire/do_876434564";
 		actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(retirePath).header("X-Channel-Id", channelId)
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8));
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());

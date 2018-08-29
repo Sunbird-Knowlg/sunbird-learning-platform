@@ -45,7 +45,7 @@ public class CategoryV3ControllerTest extends GraphEngineTestSetup {
 	static String node_id = "";
 
 	@Before
-	public void setup() {
+	public void setUp() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 	

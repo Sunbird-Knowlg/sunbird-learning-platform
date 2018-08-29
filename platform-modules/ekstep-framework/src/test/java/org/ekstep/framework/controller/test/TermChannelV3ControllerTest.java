@@ -55,8 +55,8 @@ public class TermChannelV3ControllerTest extends GraphEngineTestSetup {
 	private ResultActions actions;
 	private final String base_category_path = "/channel/v3/term";
 	private static String categoryId = null, channelId = null, masterCategoryId=null, masterTermId=null;
-	static String termId = null;
-	static ObjectMapper mapper = new ObjectMapper();
+	private static String termId = null;
+	private static ObjectMapper mapper = new ObjectMapper();
 	private static ICategoryInstanceManager categoryInstanceManager = new CategoryInstanceManagerImpl();
 	private static ICategoryManager categoryManager = new CategoryManagerImpl();
 	private static ITermManager termManager = new TermManagerImpl();
@@ -136,7 +136,7 @@ public class TermChannelV3ControllerTest extends GraphEngineTestSetup {
 	}
 
 	@Before
-	public void setup() {
+	public void setUp() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 

@@ -15,19 +15,15 @@ import org.ekstep.framework.test.common.TestParams;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Unit Test Cases for Framework API.
@@ -46,7 +42,7 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 	private static FrameworkManagerImpl frameworkManager = new FrameworkManagerImpl();
 	private static final String COMPOSITE_SEARCH_INDEX = "testfrcompositesearch";
 
-	static ObjectMapper mapper = new ObjectMapper();
+	private static ObjectMapper mapper = new ObjectMapper();
 
 	private static final String createFrameworkReq = "{\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"code\": \"ka_ncert01\"}";
 	private static final String createChannelReq = "{\"name\":\"channelKA\",\"description\":\"\",\"code\":\"channelKA\"}";
@@ -67,11 +63,6 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 
 	}
 
-	@AfterClass
-	public static void finishTest() {
-
-	}
-
 	private static void createTestIndex() throws Exception {
 		CompositeSearchConstants.COMPOSITE_SEARCH_INDEX = COMPOSITE_SEARCH_INDEX;
 		ElasticSearchUtil.initialiseESClient(COMPOSITE_SEARCH_INDEX,
@@ -87,7 +78,7 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void testFramework_01() {
+	public void testFrameworkCreate() {
 
 		try {
 			Map<String, Object> requestMap = mapper.readValue(createFrameworkReqJson,
@@ -110,7 +101,7 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void testFramework_02() {
+	public void testFrameworkCreateWithInvalidChannel() {
 
 		try {
 			Map<String, Object> requestMap = mapper.readValue(createFrameworkReqJson,
@@ -120,7 +111,7 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 			Response response = frameworkManager.createFramework(requestMap, channelId);
 			String responseCode = (String) response.getResponseCode().toString();
 			int resCode = response.getResponseCode().code();
-			assertTrue(responseCode.equals("CLIENT_ERROR"));
+			assertTrue("CLIENT_ERROR".equals(responseCode));
 			assertTrue(resCode == 400);
 		} catch (Exception e) {
 			System.out.println("FrameworkManagerTest:::testFramework_02:::Exception : " + e.getMessage());
@@ -133,7 +124,7 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void testFramework_03() {
+	public void testFrameworkCreateWithInvalidReqBody() {
 
 		try {
 			Map<String, Object> requestMap = null;
@@ -155,14 +146,12 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void testFramework_05() throws Exception {
-
+	public void testFrameworkReadWithInvalidFrameworkId() throws Exception {
 		exception.expect(ResourceNotFoundException.class);
 		String frameworkId = "test1234"; // Invalid framework id
 		Response response = frameworkManager.readFramework(frameworkId, Arrays.asList());
-		String responseCode = (String) response.getResponseCode().toString();
-		int resCode = response.getResponseCode().code();
-		assertTrue(responseCode.equals("ERR_DATA_NOT_FOUND"));
+		String responseCode = response.getResponseCode().toString();
+		assertTrue("ERR_DATA_NOT_FOUND".equals(responseCode));
 	}
 
 	/**
@@ -171,16 +160,16 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void testFramework_07() throws Exception {
+	public void testFrameworkUpdateWithInvalidOwner() throws Exception {
 
 		Map<String, Object> requestMap = mapper.readValue(updateFrameworkJson,
 				new TypeReference<Map<String, Object>>() {
 				});
 		String channelId = "test1234";
 		Response response = frameworkManager.updateFramework(frameworkId, channelId, requestMap);
-		String responseCode = (String) response.getResponseCode().toString();
+		String responseCode = response.getResponseCode().toString();
 		int resCode = response.getResponseCode().code();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 		assertTrue(resCode == 400);
 	}
 
@@ -190,13 +179,13 @@ public class FrameworkManagerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void testFramework_08() throws Exception {
+	public void testFrameworkRetireWithInvalidOwner() throws Exception {
 
 		String channelId = "test1234"; // Invalid Owner
 		Response response = frameworkManager.retireFramework(frameworkId, channelId);
-		String responseCode = (String) response.getResponseCode().toString();
+		String responseCode = response.getResponseCode().toString();
 		int resCode = response.getResponseCode().code();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 		assertTrue(resCode == 400);
 	}
 
