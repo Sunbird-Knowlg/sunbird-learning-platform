@@ -80,16 +80,17 @@ public class AuditEventGenerator implements ISamzaService {
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
-		LOGGER.debug("Telemetry Audit Started.");
+		LOGGER.info("Input Message for AUDIT Event : "+ message);
 		try {
 			Map<String, Object> auditMap = getAuditMessage(message);
 			String objectType = (String) ((Map<String, Object>) auditMap.get("object")).get("type");
 			if (null != objectType) {
 				collector.send(new OutgoingMessageEnvelope(systemStream, auditMap));
-				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_raw_topic"));
+				LOGGER.info("Telemetry Audit Message Successfully Sent for : "
+						+ (String) ((Map<String, Object>) auditMap.get("object")).get("id"));
 				metrics.incSuccessCounter();
 			} else {
-				LOGGER.info("skipped event as the objectype is not available, event =" + auditMap);
+				LOGGER.info("Skipped event as the objectype is not available, event =" + auditMap);
 				metrics.incSkippedCounter();
 			}
 		} catch (Exception e) {
@@ -167,11 +168,11 @@ public class AuditEventGenerator implements ISamzaService {
 		if (!CollectionUtils.isEmpty(propsExceptSystemProps)) {
 			String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus,
 					cdata);
-			LOGGER.debug("Audit Message : " + auditMessage);
+			LOGGER.info("Audit Message for Content Id [" + objectId + "] : " + auditMessage);
 			auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
 			});
 		} else {
-			LOGGER.debug("Skipping Audit log as props is null or empty");
+			LOGGER.info("Skipping Audit log as props is null or empty");
 			auditMap = mapper.readValue(SKIP_AUDIT, new TypeReference<Map<String, Object>>() {
 			});
 		}
