@@ -61,7 +61,7 @@ public class PublishPipelineService implements ISamzaService {
 
 	private ControllerUtil util = new ControllerUtil();
 
-	private CollectionStore collectionStore = new CollectionStore();
+	private CollectionStore collectionStore = null;
 
 	private Config config = null;
 
@@ -85,6 +85,7 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Akka actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		LOGGER.info("Stream initialized for Failed Events");
+		collectionStore = new CollectionStore();
 	}
 
 	@Override
