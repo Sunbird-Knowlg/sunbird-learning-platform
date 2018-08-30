@@ -17,6 +17,7 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public class CollectionStore extends CassandraStore {
@@ -76,5 +77,14 @@ public class CollectionStore extends CassandraStore {
 
 
         }
+    }
+
+    public void deleteHierarchy(List<String> identifiers) {
+        String query = "DELETE FROM " + getKeyspace() + "." + getTable() + " WHERE identifier IN :ids";
+
+        Session session = CassandraConnector.getSession();
+        PreparedStatement ps = session.prepare(query);
+        BoundStatement bs = ps.bind();
+        session.execute(bs.setList("ids", identifiers));
     }
 }

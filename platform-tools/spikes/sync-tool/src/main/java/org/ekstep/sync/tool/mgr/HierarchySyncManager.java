@@ -3,6 +3,7 @@ package org.ekstep.sync.tool.mgr;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
@@ -25,7 +26,7 @@ public class HierarchySyncManager {
 
     private CollectionStore collectionStore = new CollectionStore();
 
-    private static final int BATCH_SIZE = 50;
+    private static int BATCH_SIZE = 10;
 
     public void syncHierarchy(String graphId) {
         if (StringUtils.isBlank(graphId))
@@ -48,7 +49,7 @@ public class HierarchySyncManager {
 
     private void syncCollections(String graphId, List<String> identifiers, DefinitionDTO definition) {
         long startTime = System.currentTimeMillis();
-
+        long status = 0;
         for(List<String> ids : Lists.partition(identifiers, (identifiers.size()/BATCH_SIZE))) {
             Response response = util.getDataNodes(graphId, ids);
 
@@ -67,6 +68,8 @@ public class HierarchySyncManager {
                 collectionStore.updateContentHierarchy(node.getIdentifier(), hierarchy);
 
             }
+            status += ids.size();
+            System.out.println("Completed " + status + " collections out of " + identifiers.size());
         }
         System.out.println("-----------------------------------------");
         long endTime = System.currentTimeMillis();

@@ -1075,6 +1075,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return response;
 	}
 
+	private Response deleteHierarchy(List<String> identifiers) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.deleteHierarchy.name());
+		request.put(ContentStoreParams.content_id.name(), identifiers);
+		Response response = makeLearningRequest(request);
+		return response;
+	}
+
+
 	/**
 	 * Make a sync request to LearningRequestRouter
 	 *
@@ -2132,6 +2142,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if(checkError(response)) {
 				return response;
 			}else {
+				deleteHierarchy(new ArrayList<>(identifiers));
 				Response responseNode = getDataNode(TAXONOMY_ID, contentId);
 				if(checkError(responseNode)) {
 					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
