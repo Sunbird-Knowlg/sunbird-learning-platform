@@ -352,7 +352,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			publishHierarchy(publishedNode);
 		}
 
-		if(Platform.config.hasPath("content.publish.invoke_web_hook") && Platform.config.getBoolean("content.publish.invoke_web_hook")){
+		if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
 			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
 		}
 		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
