@@ -30,6 +30,7 @@ import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
@@ -59,6 +60,8 @@ public class PublishPipelineService implements ISamzaService {
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	private ControllerUtil util = new ControllerUtil();
+
+	private CollectionStore collectionStore = new CollectionStore();
 
 	private Config config = null;
 
@@ -308,8 +311,11 @@ public class PublishPipelineService implements ISamzaService {
 			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
 			util.updateNode(node);
-			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
-					e.getMessage());
+			collectionStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
+			if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
+				PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
+						e.getMessage());
+			}
 		} finally {
 			try {
 				FileUtils.deleteDirectory(new File(basePath.replace(nodeId, "")));
