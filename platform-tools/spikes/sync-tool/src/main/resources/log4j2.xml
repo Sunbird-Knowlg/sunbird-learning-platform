@@ -12,7 +12,7 @@
         <Logger name="org.ekstep.tools.loader" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Root level="warn" additivity="false">
+        <Root level="error" additivity="false">
             <AppenderRef ref="Console" />
             <AppenderRef ref="MyFile"/>
         </Root>

@@ -1,19 +1,19 @@
 package org.ekstep.learning.actor;
 
-import java.util.List;
-import java.util.Map;
-
+import akka.actor.ActorRef;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
+import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import akka.actor.ActorRef;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Class ContentStoreActor, provides akka actor functionality to access the
@@ -23,7 +23,8 @@ import akka.actor.ActorRef;
  */
 public class ContentStoreActor extends BaseGraphManager {
 
-	ContentStore contentStore = new ContentStore();
+	private ContentStore contentStore = new ContentStore();
+	private CollectionStore collectionStore = new CollectionStore();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -60,6 +61,14 @@ public class ContentStoreActor extends BaseGraphManager {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				Map<String, Object> map = (Map<String, Object>) request.get(ContentStoreParams.properties.name());
 				contentStore.updateContentProperties(contentId, map);
+				OK(sender());
+			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getCollectionHierarchy.name(), operation)) {
+				String contentId = (String) request.get(ContentStoreParams.content_id.name());
+				Map<String, Object> hierarchy = collectionStore.getCollectionHierarchy(contentId);
+				OK(ContentStoreParams.hierarchy.name(), hierarchy, sender());
+			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.deleteHierarchy.name(), operation)) {
+				List<String> identifiers = (List<String>) request.get(ContentStoreParams.content_id.name());
+				collectionStore.deleteHierarchy(identifiers);
 				OK(sender());
 			} else {
 				TelemetryManager.log("Unsupported operation: " + operation);
