@@ -867,7 +867,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (checkError(responseNode)) {
 				resultMap.get("invalidContentList").add(contentId);
 			} else {
-				resp = updateDialCode(map, contentId);
+				resp = updateDialCode(contentId, map);
 				if (!checkError(resp))
 					resultMap.get("updateSuccessList").add(contentId);
 				else
@@ -1552,28 +1552,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
-	 * @param map
-	 * @param contentId
-	 * @return
-	 */
-	private Response updateDialCode(Map<String, Object> map, String contentId) {
-		Response resp;
-		try {
-			String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-			Response imageNodeResponse = getDataNode(TAXONOMY_ID, contentImageId);
-			if (!checkError(imageNodeResponse)) {
-				resp = updateDataNodes(map, Arrays.asList(contentId, contentImageId), TAXONOMY_ID);
-			} else
-				resp = updateDataNodes(map, Arrays.asList(contentId), TAXONOMY_ID);
-
-			return resp;
-		} catch (Exception e) {
-			return ERROR(DialCodeEnum.ERR_DIALCODE_LINK.name(), DialCodeEnum.ERR_DIALCODE_LINK.name(),
-					ResponseCode.SERVER_ERROR, e.getMessage(), null);
-		}
-	}
-
-	/**
 	 * @param channelId
 	 * @param dialcodesList
 	 * @throws Exception
@@ -2170,5 +2148,88 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				}
 			}
 		}
+	}
+    
+    /**
+	 * @param map
+	 * @param contentId
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private Response updateDialCode(String contentId, Map<String, Object> map) throws Exception {
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+
+		String objectType = CONTENT_OBJECT_TYPE;
+		map.put("objectType", CONTENT_OBJECT_TYPE);
+		map.put("identifier", contentId);
+
+		boolean isImageObjectCreationNeeded = false;
+		boolean imageObjectExists = false;
+
+		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		Response getNodeResponse = getDataNode(TAXONOMY_ID, contentImageId);
+		if (checkError(getNodeResponse)) {
+			TelemetryManager.log("Content image not found: " + contentImageId);
+			isImageObjectCreationNeeded = true;
+			getNodeResponse = getDataNode(TAXONOMY_ID, contentId);
+			TelemetryManager.log("Content node response: " + getNodeResponse);
+		} else
+			imageObjectExists = true;
+
+		List<String> externalPropsList = getExternalPropsList(definition);
+
+		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+		TelemetryManager.log("Graph node found: " + graphNode.getIdentifier());
+		Map<String, Object> metadata = graphNode.getMetadata();
+		String status = (String) metadata.get("status");
+
+		boolean checkError = false;
+		Response createResponse = null;
+		if (finalStatus.contains(status)) {
+			if (isImageObjectCreationNeeded) {
+				graphNode.setIdentifier(contentImageId);
+				graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+				metadata.put("status", "Draft");
+				Object lastUpdatedBy = map.get("lastUpdatedBy");
+				if (null != lastUpdatedBy)
+					metadata.put("lastUpdatedBy", lastUpdatedBy);
+				graphNode.setGraphId(TAXONOMY_ID);
+				createResponse = createDataNode(graphNode);
+				checkError = checkError(createResponse);
+				if (!checkError) {
+					TelemetryManager.log("Updating external props for: " + contentImageId);
+					Response bodyResponse = getContentProperties(contentId, externalPropsList);
+					checkError = checkError(bodyResponse);
+					if (!checkError) {
+						Map<String, Object> extValues = (Map<String, Object>) bodyResponse
+								.get(ContentStoreParams.values.name());
+						if (null != extValues && !extValues.isEmpty()) {
+							updateContentProperties(contentImageId, extValues);
+						}
+					}
+					map.put("versionKey", createResponse.get("versionKey"));
+				}
+			}
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
+			contentId = contentImageId;
+		} else if (imageObjectExists) {
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
+			contentId = contentImageId;
+		}
+
+		if (checkError)
+			return createResponse;
+
+		TelemetryManager.log("Updating content node: " + contentId);
+		String passportKey = Platform.config.getString("graph.passport.key.base");
+		map.put("versionKey", passportKey);
+		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+		domainObj.setGraphId(TAXONOMY_ID);
+		domainObj.setIdentifier(contentId);
+		domainObj.setObjectType(objectType);
+		createResponse = updateDataNode(domainObj);
+
+		return createResponse;
 	}
 }
