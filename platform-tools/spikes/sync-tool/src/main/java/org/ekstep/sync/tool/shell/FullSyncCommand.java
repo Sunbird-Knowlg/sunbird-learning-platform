@@ -1,5 +1,7 @@
 package org.ekstep.sync.tool.shell;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.sync.tool.mgr.HierarchySyncManager;
 import org.ekstep.sync.tool.mgr.ISyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +16,11 @@ public class FullSyncCommand  implements CommandMarker {
 	@Autowired
 	@Qualifier("neo4jESSyncManager") 
 	ISyncManager indexSyncManager;
+
+	@Autowired
+	@Qualifier("hierarchySyncManager")
+	HierarchySyncManager hierarchySyncManager;
+
 	
 	@CliCommand(value = "sync", help = "Sync data from Neo4j to Elastic Search by Id(s)")
 	public void syncByIds(@CliOption(key = { "type" }, mandatory = false, unspecifiedDefaultValue = "full", help = "Sync type.") final String type,
@@ -26,7 +33,11 @@ public class FullSyncCommand  implements CommandMarker {
 			throws Exception {
 		System.out.println("Fetching data from graph: "+ graphId + ".");
 		System.out.println("-----------------------------------------");
-		indexSyncManager.syncGraph(graphId, delay, objectType);
+		if(StringUtils.equalsIgnoreCase("hierarchy", type)){
+			hierarchySyncManager.syncHierarchy(graphId);
+		}else {
+			indexSyncManager.syncGraph(graphId, delay, objectType);
+		}
 		System.out.println("-----------------------------------------");
 	}
 	
