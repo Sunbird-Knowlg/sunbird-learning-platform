@@ -2144,9 +2144,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	private Response updateDialCode(String contentId, Map<String, Object> map) throws Exception {
+	private Response updateDialCode(String identifier, Map<String, Object> map) throws Exception {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-
+		String contentId=identifier;
 		String objectType = CONTENT_OBJECT_TYPE;
 		map.put("objectType", CONTENT_OBJECT_TYPE);
 		map.put("identifier", contentId);
