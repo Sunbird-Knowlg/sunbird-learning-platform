@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 
 import java.io.File;
@@ -74,8 +75,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private static String[] validDialCode = { "ABC123", "BCD123", "CDE123", "DEF123", "EFG123" };
 	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"code\": \"test_code\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 	private static final String SCRIPT_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
-	private static final String SCRIPT_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
-
+	private static final String SCRIPT_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,screenshots blob,stageIcons blob,PRIMARY KEY (content_id));";
 	private static final String SCRIPT_3 = "CREATE KEYSPACE IF NOT EXISTS hierarhcy_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
 	private static final String SCRIPT_4 = "CREATE TABLE IF NOT EXISTS hierarhcy_store_test.content_hierarhcy_test (identifier text, hierarchy text, PRIMARY KEY (identifier));";
 
@@ -433,16 +433,53 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testDialCodeLink_01() throws Exception {
-		String path = basePath + "/dialcode/link";
-		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + contentId
+		// Create Document Content
+		String path = basePath + "/create";
+		String contentCreateReq = "{\"request\": {\"content\": {\"name\": \"Test Resource Content\",\"code\": \"test.res.content\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(contentCreateReq));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Response response = getResponse(actions);
+		String nodeId = (String) response.getResult().get("node_id");
+
+		// Upload Content
+		path = basePath + "/upload/" + nodeId;
+		File inputFile = getResourceFile("test2.pdf");
+		FileInputStream fileStream = new FileInputStream(inputFile);
+		MockMultipartFile testFile = new MockMultipartFile("file", "test2.pdf", "application/pdf", fileStream);
+		actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(path).file(testFile).header("user-id", "ilimi"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		// Publish Content
+		path = basePath + "/publish/" + nodeId;
+		String publishReqBody = "{\"request\": {\"content\" : {\"lastPublishedBy\" : \"Ekstep\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(publishReqBody));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+
+		delay(10000);
+
+		// Link DialCode
+		path = basePath + "/dialcode/link";
+		String dialCodeLinkReq = "{\"request\": {\"content\": {\"identifier\": [\"" + nodeId
 				+ "\"],\"dialcode\": [\"ABC123\"]}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(dialCodeLinkReq));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
-		path = basePath + "/read/" + contentId;
+
+		// Read Content
+		path = basePath + "/read/" + nodeId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
-		Response response = getResponse(actions);
+		response = getResponse(actions);
+		List<String> dialcodesLive = (List<String>) (List<String>) ((Map<String, Object>) response.getResult()
+				.get("content")).get("dialcodes");
+		assertNull(dialcodesLive);
+
+		// Read Image Content
+		path = basePath + "/read/" + nodeId + "?mode=edit";
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+		response = getResponse(actions);
 		List<String> dialcodes = (List<String>) (List<String>) ((Map<String, Object>) response.getResult()
 				.get("content")).get("dialcodes");
 		assertEquals("ABC123", (String) dialcodes.get(0));
