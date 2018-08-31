@@ -29,26 +29,26 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	private static final String GRAPH_ID = "domain";
 
 	@Override
-	public Response createCategoryInstance(String identifier, Map<String, Object> request) {
+	public Response createCategoryInstance(String scopeId, Map<String, Object> request) {
 		if (null == request)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		if (null == request.get("code") || StringUtils.isBlank((String) request.get("code")))
 			return ERROR("ERR_CATEGORY_INSTANCE_CODE_REQUIRED", "Unique code is mandatory for categoryInstance",
 					ResponseCode.CLIENT_ERROR);
 		validateCategoryNode((String)request.get("code"));
-		String id = generateIdentifier(identifier, (String) request.get("code"));
-		if (null != id)
-			request.put(CategoryEnum.identifier.name(), id);
-		setRelations(identifier, request);
+		String categoryId = generateIdentifier(scopeId, (String) request.get("code"));
+		if (null != categoryId)
+			request.put(CategoryEnum.identifier.name(), categoryId);
+		setRelations(scopeId, request);
 		Response response = create(request, CATEGORY_INSTANCE_OBJECT_TYPE);
 		return response;
 	}
 
 	@Override
-	public Response readCategoryInstance(String identifier, String categoryInstanceId) {
-		String newCategoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(newCategoryInstanceId, identifier))
-			return read(newCategoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.category.name());
+	public Response readCategoryInstance(String scopeId, String categoryCode) {
+		String categoryId = generateIdentifier(scopeId, categoryCode);
+		if (validateScopeNode(categoryId, scopeId))
+			return read(categoryId, CATEGORY_INSTANCE_OBJECT_TYPE, CategoryEnum.category.name());
 		else
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
@@ -57,12 +57,12 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	}
 
 	@Override
-	public Response updateCategoryInstance(String identifier, String categoryInstanceId, Map<String, Object> map) {
+	public Response updateCategoryInstance(String scopeId, String categoryCode, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		String newCategoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(newCategoryInstanceId, identifier))
-			return update(newCategoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
+		String categoryId = generateIdentifier(scopeId, categoryCode);
+		if (validateScopeNode(categoryId, scopeId))
+			return update(categoryId, CATEGORY_INSTANCE_OBJECT_TYPE, map);
 		else
 			throw new ClientException(
 					ContentErrorCodes.ERR_CHANNEL_NOT_FOUND.name() + "/"
@@ -71,16 +71,16 @@ public class CategoryInstanceManagerImpl extends BaseFrameworkManager implements
 	}
 
 	@Override
-	public Response searchCategoryInstance(String identifier, Map<String, Object> map) {
+	public Response searchCategoryInstance(String categoryId, Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_INVALID_CATEGORY_INSTANCE_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categories", identifier);
+		return search(map, CATEGORY_INSTANCE_OBJECT_TYPE, "categories", categoryId);
 	}
 
 	@Override
-	public Response retireCategoryInstance(String identifier, String categoryInstanceId) {
-		String newCategoryInstanceId = generateIdentifier(identifier, categoryInstanceId);
-		if (validateScopeNode(newCategoryInstanceId, identifier))
+	public Response retireCategoryInstance(String scopeId, String categoryCode) {
+		String newCategoryInstanceId = generateIdentifier(scopeId, categoryCode);
+		if (validateScopeNode(newCategoryInstanceId, scopeId))
 			return retire(newCategoryInstanceId, CATEGORY_INSTANCE_OBJECT_TYPE);
 		else
 			throw new ClientException(

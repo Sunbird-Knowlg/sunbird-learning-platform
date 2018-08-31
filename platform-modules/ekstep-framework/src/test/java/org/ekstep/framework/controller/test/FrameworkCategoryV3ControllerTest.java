@@ -63,11 +63,6 @@ public class FrameworkCategoryV3ControllerTest extends BaseCategoryInstanceMgrTe
 	@Before
 	public void setUp() { this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build(); }
 	
-//	@BeforeClass()
-//	public static void beforeClass() throws Exception {
-//		loadDefinition("definitions/category_definition.json");
-//	}
-	
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test
 	public void createCategoryInstance() throws Exception {

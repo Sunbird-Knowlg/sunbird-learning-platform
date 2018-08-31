@@ -57,10 +57,6 @@ public class ChannelCategoryV3ControllerTest extends BaseCategoryInstanceMgrTest
 	
 	private ObjectMapper mapper = new ObjectMapper();
 	
-//		@BeforeClass()
-//		public static void beforeClass() throws Exception {
-//			loadDefinition("definitions/category_definition.json");
-//		}
 	@Before
 	public void setUp() { this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build(); }
 		
