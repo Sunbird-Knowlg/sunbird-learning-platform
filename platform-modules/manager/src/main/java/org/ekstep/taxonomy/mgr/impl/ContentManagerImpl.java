@@ -2,6 +2,7 @@ package org.ekstep.taxonomy.mgr.impl;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -34,6 +35,7 @@ import org.ekstep.content.mimetype.mgr.impl.H5PMimeTypeMgrImpl;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
@@ -525,7 +527,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Response hierarchyResponse = getCollectionHierarchy(contentId);
 			Response response = new Response();
 			if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
-				response.put("content", hierarchyResponse.getResult().get("hierarchy"));
+				String cachedStatus = RedisStoreUtil.getNodeProperty(TAXONOMY_ID, contentId, "status");
+				Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+				if(StringUtils.isNotBlank(cachedStatus)){
+					hierarchy.put("status", cachedStatus);
+				} else{
+					hierarchy.put("status", getStatus(contentId, mode));
+				}
+
+				response.put("content", hierarchy);
 				response.setParams(getSucessStatus());
 			} else {
 				response = hierarchyResponse;
@@ -533,10 +543,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return response;
 		}
 
+	}
 
-
-
-
+	private String getStatus(String contentId, String mode) {
+			Node node  = getContentNode(TAXONOMY_ID, contentId, mode);
+			RedisStoreUtil.saveNodeProperty(TAXONOMY_ID, contentId, "status", (String) node.getMetadata().get("status"));
+			return (String) node.getMetadata().get("status");
 	}
 
 	public Response create(Map<String, Object> map) throws Exception {

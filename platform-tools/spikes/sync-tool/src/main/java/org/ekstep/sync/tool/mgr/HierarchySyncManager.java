@@ -49,7 +49,7 @@ public class HierarchySyncManager {
     private void syncCollections(String graphId, List<String> identifiers, DefinitionDTO definition) {
         long startTime = System.currentTimeMillis();
         long status = 0;
-        for(List<String> ids : Lists.partition(identifiers, (identifiers.size()/BATCH_SIZE))) {
+        for(List<String> ids : Lists.partition(identifiers, BATCH_SIZE)) {
             Response response = util.getDataNodes(graphId, ids);
 
             if (response.getResponseCode() != ResponseCode.OK)
