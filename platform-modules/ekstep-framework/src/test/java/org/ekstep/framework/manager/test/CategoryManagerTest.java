@@ -11,8 +11,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.mgr.ICategoryManager;
-import org.ekstep.framework.mgr.IChannelManager;
-import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -40,18 +38,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CategoryManagerTest extends GraphEngineTestSetup {
 	
 	@Autowired
-	ICategoryManager mgr;
-	ICategoryManager categoryMgr;
-	IChannelManager channelMgr;
-	IFrameworkManager frmwrkMgr;
-	static ObjectMapper mapper = new ObjectMapper();
+	private ICategoryManager mgr;
+	private static ObjectMapper mapper = new ObjectMapper();
 
-	static int rn = generateRandomNumber(0, 9999);
-	
-	String createCategoryValidRequest = "{\"category\":{\"name\":\"category\",\"description\":\"sample description of category\",\"code\":\"medium_1"+ rn + "\"}}}";
-	String createCategoryWithoutCode = "{\"category\":{\"name\":\"category\",\"description\":\"sample description of category\"}}";
-	String createCategoryWithoutInvalidRequest = "{\"catesafgory\":{\"name\":\"category\",\"description\":\"sample description of category\"}}";
-	
+	private static int rn = generateRandomNumber(0, 9999);
+
+	private String createCategoryValidRequest = "{\"category\":{\"name\":\"category\",\"description\":\"sample description of category\",\"code\":\"medium_1"+ rn + "\"}}}";
+	private String createCategoryWithoutCode = "{\"category\":{\"name\":\"category\",\"description\":\"sample description of category\"}}";
+
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
@@ -78,8 +72,8 @@ public class CategoryManagerTest extends GraphEngineTestSetup {
 		Map<String, Object> requestMap = mapper.readValue(createCategoryWithoutCode, new TypeReference<Map<String, Object>>() {});
 		Map<String,Object> categoryMap = (Map)requestMap.get("category");
 		Response response = mgr.createCategory(categoryMap);
-		String responseCode=(String) response.getResponseCode().toString();
-		// assertTrue(responseCode.equals("CLIENT_ERROR"));
+		String responseCode = response.getResponseCode().toString();
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 	
 	@Test
@@ -87,8 +81,8 @@ public class CategoryManagerTest extends GraphEngineTestSetup {
 		exception.expect(ClientException.class);
 		Map<String,Object> categoryMap = new HashMap<String,Object>();
 		Response response = mgr.createCategory(categoryMap);
-		String responseCode=(String) response.getResponseCode().toString();
-		// assertTrue(responseCode.equals("CLIENT_ERROR"));
+		String responseCode = response.getResponseCode().toString();
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
@@ -136,8 +130,8 @@ public class CategoryManagerTest extends GraphEngineTestSetup {
 		Map<String,Object> updateRequest = new HashMap<String,Object>();
 		updateRequest.put("description", "testDescription");
 		Response resp = mgr.updateCategory("do_13234567", updateRequest);
-		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));	
+		String responseCode = resp.getResponseCode().toString();
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 	
 	@Test
@@ -145,8 +139,8 @@ public class CategoryManagerTest extends GraphEngineTestSetup {
 		Map<String,Object> updateRequest = new HashMap<String,Object>();
 		updateRequest.put("description", "testDescription");
 		Response resp = mgr.updateCategory(null, updateRequest);
-		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		String responseCode = resp.getResponseCode().toString();
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
@@ -169,8 +163,8 @@ public class CategoryManagerTest extends GraphEngineTestSetup {
 	public void searchCategoryWithoutRequest() throws Exception {
 		exception.expect(ClientException.class);
 		Response res = mgr.searchCategory(null);
-		String responseCode=(String) res.getResponseCode().toString();
-		// assertTrue(responseCode.equals("CLIENT_ERROR"));
+		String responseCode = res.getResponseCode().toString();
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 
 	@SuppressWarnings({"unchecked","rawtypes"})
@@ -194,14 +188,14 @@ public class CategoryManagerTest extends GraphEngineTestSetup {
 	public void retireCategoryWithInvalidId() throws Exception {
 		Response resp = mgr.retireCategory(null);
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 	
 	@Test
 	public void retireCategoryWithoutNodeId() throws Exception {
 		Response resp = mgr.retireCategory("do_12456");
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 	
 	private static int generateRandomNumber(int min, int max) {
