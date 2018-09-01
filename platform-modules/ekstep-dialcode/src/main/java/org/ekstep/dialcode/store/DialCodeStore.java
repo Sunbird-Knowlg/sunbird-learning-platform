@@ -109,10 +109,11 @@ public class DialCodeStore extends CassandraStore {
 			syncRequest.put(DialCodeEnum.identifier.name(), row.getString(DialCodeEnum.identifier.name()));
 			syncRequest.put(DialCodeEnum.channel.name(), row.getString(DialCodeEnum.channel.name()));
 			syncRequest.put(DialCodeEnum.publisher.name(), row.getString(DialCodeEnum.publisher.name()));
-			syncRequest.put(DialCodeEnum.batchCode.name(), row.getString(DialCodeEnum.batchCode.name()));
-			syncRequest.put(DialCodeEnum.status.name(), row.getString(DialCodeEnum.status.name()));
+			syncRequest.put(DialCodeEnum.batchcode.name(), row.getString(DialCodeEnum.batchCode.name()));
 			syncRequest.put(DialCodeEnum.status.name(), row.getString(DialCodeEnum.status.name()));
 			syncRequest.put(DialCodeEnum.metadata.name(), row.getString(DialCodeEnum.metadata.name()));
+			syncRequest.put(DialCodeEnum.generated_on.name(), row.getString(DialCodeEnum.generated_on.name()));
+			syncRequest.put(DialCodeEnum.published_on.name(), row.getString(DialCodeEnum.published_on.name()));
 			logTransactionEvent(CassandraStoreParams.UPDATE.name(), row.getString(DialCodeEnum.identifier.name()),
 					syncRequest);
 		}
