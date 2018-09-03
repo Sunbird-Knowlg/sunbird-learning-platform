@@ -40,9 +40,9 @@ public class ChannelV3ControllerTest extends BaseCategoryInstanceMgrTest {
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String base_channel_path = "/channel/v3";
-	static int rn = generateRandomNumber(0, 9999);
-	static String node_id = "";
-	static String framework_id = "";
+	private static int rn = generateRandomNumber(0, 9999);
+	private static String node_id = "";
+	private static String framework_id = "";
 
 	@Autowired
 	IChannelManager mgr;

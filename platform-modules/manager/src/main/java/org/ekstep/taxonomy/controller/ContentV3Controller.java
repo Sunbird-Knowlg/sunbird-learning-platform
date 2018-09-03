@@ -453,4 +453,19 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value="/flag/accept/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> acceptFlag(@PathVariable(value = "id") String contentId){
+		String apiId = "ekstep.content.accept.flag";
+		TelemetryManager.log("Accept flagged content | Content Id : " + contentId);
+		Response response;
+		try {
+			response = contentManager.acceptFlag(contentId);
+			return getResponseEntity(response, apiId, null);
+		} catch(Exception e) {
+			TelemetryManager.error("Exception occured while Accepting Flagged Content: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 }

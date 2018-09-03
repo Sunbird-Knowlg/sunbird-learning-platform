@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
@@ -39,23 +38,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 	
 	@Autowired
-	ICategoryInstanceManager categoryInstanceMgr;
+	private ICategoryInstanceManager categoryInstanceMgr;
 	
 	@Autowired
-	ICategoryManager categoryMgr;
+	private ICategoryManager categoryMgr;
 	
 	@Autowired
-	IChannelManager channelMgr;
+	private IChannelManager channelMgr;
 	
 	@Autowired
-	IFrameworkManager frmwrkMgr;
+	private IFrameworkManager frmwrkMgr;
 	
-	static ObjectMapper mapper = new ObjectMapper();
-
-	static int rn = generateRandomNumber(0, 9999);
+	private static ObjectMapper mapper = new ObjectMapper();
 	
-	String createCategoryValidRequest = "{\"name\":\"category\",\"description\":\"\",\"code\":\"class_1" + "\"}";
-	String createCategoryInvalidRequest = "{}";
+	private String createCategoryValidRequest = "{\"name\":\"category\",\"description\":\"\",\"code\":\"class_1" + "\"}";
+	private String createCategoryInvalidRequest = "{}";
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
@@ -99,7 +96,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		String frameworkId = createFramework(channelMgr, frmwrkMgr);
 		Response response = categoryInstanceMgr.createCategoryInstance(frameworkId, requestMap);
 		String responseCode=(String) response.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -126,7 +123,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		String categoryId = createCategory(categoryMgr);
 		Response resp = categoryInstanceMgr.readCategoryInstance("do_11234", categoryId);
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND"));
+		assertTrue("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND".equals(responseCode));
 	}
 	
 	@Test (expected = ClientException.class)
@@ -134,7 +131,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		String frameworkId = createFramework(channelMgr, frmwrkMgr);
 		Response resp = categoryInstanceMgr.readCategoryInstance(frameworkId, "do_123456787654");
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND"));
+		assertTrue("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND".equals(responseCode));
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -174,7 +171,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		map.put("description", "update category instance");
 		Response resp = categoryInstanceMgr.updateCategoryInstance("do_11234", categoryId, map);
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND"));
+		assertTrue("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND".equals(responseCode));
 	}
 	
 	@Test (expected = ClientException.class)
@@ -184,7 +181,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		map.put("description", "update category instance");
 		Response resp = categoryInstanceMgr.updateCategoryInstance(frameworkId, "do_123456787654", map);
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND"));
+		assertTrue("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND".equals(responseCode));
 	}
 	
 	@Test
@@ -192,7 +189,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		String frameworkId = createFramework(channelMgr, frmwrkMgr);
 		Response resp = categoryInstanceMgr.updateCategoryInstance(frameworkId, "do_123456787654", null);
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -216,7 +213,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		String frameworkId = createFramework(channelMgr, frmwrkMgr);
 		Response resp = categoryInstanceMgr.searchCategoryInstance(frameworkId, null);
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 	
 	@Test
@@ -224,7 +221,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		Map<String,Object> searchMap = new HashMap<String,Object>();
 		Response resp = categoryInstanceMgr.searchCategoryInstance("do_123456776543", searchMap);
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("SERVER_ERROR"));
+		assertTrue("SERVER_ERROR".equals(responseCode));
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -249,7 +246,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		String frameworkId = createFramework(channelMgr, frmwrkMgr);
 		Response resp = categoryInstanceMgr.retireCategoryInstance(frameworkId, "do_123456787654");
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND"));
+		assertTrue("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND".equals(responseCode));
 	}
 	
 	@Test (expected = ClientException.class)
@@ -257,12 +254,7 @@ public class CategoryInstanceManagerTest extends BaseCategoryInstanceMgrTest {
 		String categoryId = createCategory(categoryMgr);
 		Response resp = categoryInstanceMgr.retireCategoryInstance("do_12567890", categoryId);
 		String responseCode=(String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND"));
-	}
-	
-	private static int generateRandomNumber(int min, int max) {
-		Random r = new Random();
-		return r.nextInt((max - min) + 1) + min;
+		assertTrue("ERR_CHANNEL_NOT_FOUND/ERR_FRAMEWORK_NOT_FOUND".equals(responseCode));
 	}
 	
 	@Test

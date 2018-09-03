@@ -44,18 +44,15 @@ public class TermV3ControllerTest extends GraphEngineTestSetup {
 	@Autowired
 	private WebApplicationContext context;
 
-
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String base_category_path = "/framework/v3/category/term";
 	private static String categoryId = null;
-	static String termId = null;
-	static ObjectMapper mapper = new ObjectMapper();
+	private static String termId = null;
+	private static ObjectMapper mapper = new ObjectMapper();
 	private static ICategoryManager categoryManager = new CategoryManagerImpl();
 
 	private static String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
-
-	static ClassLoader classLoader = TermV3ControllerTest.class.getClassLoader();
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -82,7 +79,7 @@ public class TermV3ControllerTest extends GraphEngineTestSetup {
 	}
 
 	@Before
-	public void setup() {
+	public void setUp() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 

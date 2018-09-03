@@ -38,22 +38,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ChannelManagerTest extends GraphEngineTestSetup {
 
 	@Autowired
-	IChannelManager channelMgr;
+	private IChannelManager channelMgr;
 
 	@Autowired
-	IFrameworkManager frameworkMgr;
+	private IFrameworkManager frameworkMgr;
 
-	static ObjectMapper mapper = new ObjectMapper();
+	private static ObjectMapper mapper = new ObjectMapper();
 
-	static int rn = generateRandomNumber(0, 9999);
+	private static int rn = generateRandomNumber(0, 9999);
 
-	static String frameworkId = "";
-	static String channelId = "";
+	private static String frameworkId = "";
+	private static String channelId = "";
 
-	String createChannelValidRequest = "{\"name\":\"channel\",\"description\":\"sample description of channel\",\"code\":\"karnataka"
+	private String createChannelValidRequest = "{\"name\":\"channel\",\"description\":\"sample description of channel\",\"code\":\"karnataka"
 			+ rn + "\"}";
-	String createChannelWithoutCode = "{\"name\":\"channel\",\"description\":\"sample description of channel\"}";
-	String createChannelWithoutInvalidRequest = "{\"channn3el\":{\"name\":\"channel\",\"description\":\"sample description of channel\"}}";
+	private String createChannelWithoutCode = "{\"name\":\"channel\",\"description\":\"sample description of channel\"}";
 
 	@BeforeClass()
 	public static void beforeClass() throws Exception {
@@ -114,7 +113,7 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 				});
 		Response response = channelMgr.createChannel(requestMap);
 		String responseCode = (String) response.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 
 	@Test
@@ -122,7 +121,7 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		Map<String, Object> channelMap = new HashMap<String, Object>();
 		Response response = channelMgr.createChannel(channelMap);
 		String responseCode = (String) response.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -155,7 +154,7 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		updateRequest.put("description", "testDescription");
 		Response resp = channelMgr.updateChannel("do_13234567", updateRequest);
 		String responseCode = (String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 
 	@Test
@@ -164,7 +163,7 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 		updateRequest.put("description", "testDescription");
 		Response resp = channelMgr.updateChannel(null, updateRequest);
 		String responseCode = (String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 
 	@Test
@@ -198,14 +197,14 @@ public class ChannelManagerTest extends GraphEngineTestSetup {
 	public void retireChannelWithInvalidId() throws Exception {
 		Response resp = channelMgr.retireChannel(null);
 		String responseCode = (String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 
 	@Test
 	public void retireChannelWithoutNodeId() throws Exception {
 		Response resp = channelMgr.retireChannel("do_12456");
 		String responseCode = (String) resp.getResponseCode().toString();
-		assertTrue(responseCode.equals("CLIENT_ERROR"));
+		assertTrue("CLIENT_ERROR".equals(responseCode));
 	}
 
 	private static int generateRandomNumber(int min, int max) {
