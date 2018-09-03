@@ -16,7 +16,7 @@ import org.ekstep.common.dto.Response;
  */
 public interface ICategoryInstanceManager {
 
-	Response createCategoryInstance(String identifier, Map<String,Object> request) throws Exception;
+	Response createCategoryInstance(String identifier, Map<String,Object> request);
 
 	Response readCategoryInstance(String identifier, String categoryInstanceId);
 

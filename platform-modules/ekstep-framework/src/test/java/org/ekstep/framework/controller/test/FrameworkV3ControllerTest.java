@@ -84,7 +84,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	private static final String listFrameworkInvalidJson = "{\"id\": \"ekstep.framework.list\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {}}";
 
 	@BeforeClass
-	public static void setup() throws Exception {
+	public static void setUp() throws Exception {
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json",
 				"definitions/category_definition.json", "definitions/categoryInstance_definition.json");
 		LearningRequestRouterPool.init();
@@ -177,7 +177,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_01() throws Exception {
+	public void mockTestFrameworkCreate() throws Exception {
 		String path = BASE_PATH + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA")
 				.content(createFrameworkValidJson));
@@ -193,7 +193,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_02() throws Exception {
+	public void mockTestFrameworkCreateWithInvalidURL() throws Exception {
 		String path = BASE_PATH + "/creat"; // Invalid url
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.content(createFrameworkValidJson));
@@ -209,7 +209,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_03() throws Exception {
+	public void mockTestFrameworkCreateWithInvalidJson() throws Exception {
 		String path = BASE_PATH + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.content(createFrameworkInvalidJson));
@@ -263,7 +263,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_05() throws Exception {
+	public void mockTestFrameworkReadWithInvalidUrl() throws Exception {
 		String path = BASE_PATH + "/rea/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
@@ -278,7 +278,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	//@Test
-	public void mockTestFramework_06() throws Exception {
+	public void mockTestFrameworkReadWithInvalidFrameworkId() throws Exception {
 		String id = "ttttt1234"; // Invalid Framework Id
 		String path = BASE_PATH + "/read/" + id;
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
@@ -296,7 +296,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 */
 	
 	@Test
-	public void mockTestFramework_07() throws Exception {
+	public void mockTestFrameworkUpdateExpect404() throws Exception {
 		String path = BASE_PATH + "/update/" + frameworkId;
 		String updateFrameworkValidJson = "{\"id\": \"ekstep.framework.update\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"versionKey\": \"1511787372693\",\"description\": \" Karnatka NCERT Framework for Std 1 to 10\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
@@ -314,7 +314,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_08() throws Exception {
+	public void mockTestFrameworkUpdateWithInvalidUrl() throws Exception {
 		String path = BASE_PATH + "/updat/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(updateFrameworkValidJson));
@@ -333,7 +333,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_09() throws Exception {
+	public void mockTestFrameworkUpdate() throws Exception {
 		String path = BASE_PATH + "/update/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.content(updateFrameworkValidJson));
@@ -353,7 +353,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_10() throws Exception {
+	public void mockTestFrameworkUpdateExpect400() throws Exception {
 		String path = BASE_PATH + "/update/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelBR").content(updateFrameworkValidJson));
@@ -371,7 +371,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_11() throws Exception {
+	public void mockTestFrameworkExpect404() throws Exception {
 		String path = BASE_PATH + "/update/" + "test11111";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(updateFrameworkValidJson));
@@ -389,7 +389,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_12() throws Exception {
+	public void mockTestFrameworkUpdateWithInvalidJson() throws Exception {
 		String path = BASE_PATH + "/update/" + frameworkId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(updateFrameworkInvalidCIJson));
@@ -407,7 +407,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_13() throws Exception {
+	public void mockTestFrameworkList() throws Exception {
 		String path = BASE_PATH + "/list";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.content(listFrameworkValidJson));
@@ -424,7 +424,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_14() throws Exception {
+	public void mockTestFrameworkListWithInvalidUrl() throws Exception {
 		String path = BASE_PATH + "/lis";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.content(listFrameworkValidJson));
@@ -441,7 +441,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_15() throws Exception {
+	public void mockTestFrameworkListWithInvalidJson() throws Exception {
 		String path = BASE_PATH + "/list";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.content(listFrameworkInvalidJson));
@@ -459,7 +459,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 */
 	
 	@Test
-	public void mockTestFramework_16() throws Exception {
+	public void mockTestFrameworkRetire() throws Exception {
 		String path = BASE_PATH + "/retire/" + frameworkId;
 		actions = mockMvc.perform(
 				MockMvcRequestBuilders.delete(path).header("user-id", "gauraw").header("X-Channel-Id", "channelKA"));
@@ -476,7 +476,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_17() throws Exception {
+	public void mockTestFrameworkRetireExpect404() throws Exception {
 		String path = BASE_PATH + "/retire/" + "test1234";
 		actions = mockMvc.perform(
 				MockMvcRequestBuilders.delete(path).header("user-id", "gauraw").header("X-Channel-Id", "channelKA"));
@@ -493,7 +493,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_18() throws Exception {
+	public void mockTestFrameworkRetireExpectNotFound() throws Exception {
 		String path = BASE_PATH + "/retire" + frameworkId;
 		actions = mockMvc.perform(
 				MockMvcRequestBuilders.delete(path).header("user-id", "gauraw").header("X-Channel-Id", "channelKA"));
@@ -509,7 +509,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_19() throws Exception {
+	public void mockTestFrameworkCreateExpectRes400() throws Exception {
 		String path = BASE_PATH + "/create";
 		actions = mockMvc.perform(
 				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "test").content(createFrameworkValidJson));
@@ -525,7 +525,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_20() throws Exception{
+	public void mockTestFrameworkCreateExpect400() throws Exception{
 		String createFrameworkValidJson = "{\"id\":\"ekstep.framework.create\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {\"framework\": {\"name\": \"NCERT01\",\"description\": \"NCERT framework of Karnatka\",\"owner\": \"channelKA\"}}}";
 		String path = BASE_PATH + "/create";
 		actions = mockMvc.perform(
@@ -544,7 +544,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 */
 	
 	@Test
-	public void mockTestFramework_21() throws Exception {
+	public void mockTestFrameworkCopy() throws Exception {
 		String path = BASE_PATH + "/copy/" + frameworkIdforCopyAPI;
 		String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 21\",\"name\":\"NCERT COPY 21\",\"description\":\"NCERT COPY 21 Description\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -562,7 +562,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_22() throws Exception {
+	public void mockTestFrameworkCopyWithInvalidUrl() throws Exception {
 		String path = BASE_PATH + "/cop/" + frameworkIdforCopyAPI;
 		String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 22\",\"name\":\"NCERT COPY 22\",\"description\":\"NCERT COPY 22 Description\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -582,7 +582,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_23() throws Exception {
+	public void mockTestFrameworkCopyExpectResponse400() throws Exception {
 		String path = BASE_PATH + "/copy/" + frameworkIdforCopyAPI;
 		String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 23\",\"name\":\"NCERT COPY 23\",\"description\":\"NCERT COPY 23 Description\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -603,7 +603,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_24() throws Exception {
+	public void mockTestFrameworkCopyExpectResp400() throws Exception {
 		String path = BASE_PATH + "/copy/" + frameworkIdforCopyAPI;
 		String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 24\",\"name\":\"NCERT COPY 24\",\"description\":\"NCERT COPY 24 Description\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -622,7 +622,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_25() throws Exception {
+	public void mockTestFrameworkCopyWith404() throws Exception {
 		String path = BASE_PATH + "/copy/" + "test11111";
 		String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\"NCERT COPY 25\",\"name\":\"NCERT COPY 25\",\"description\":\"NCERT COPY 25 Description\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -641,7 +641,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_26() throws Exception {
+	public void mockTestFrameworkCopyExpectRes400() throws Exception {
 		String path = BASE_PATH + "/copy/" + frameworkIdforCopyAPI;
 		String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"code\":\""+ frameworkIdforCopyAPI + "\",\"name\":\"NCERT COPY 26\",\"description\":\"NCERT COPY 26 Description\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -660,7 +660,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_27() throws Exception {
+	public void mockTestFrameworkCopyExpectResponseCode400() throws Exception {
 		String path = BASE_PATH + "/copy/" + frameworkIdforCopyAPI;
 		String copyFrameworkValidJson = "{\"request\":{\"framework\":{\"name\":\"NCERT COPY 27\",\"description\":\"NCERT COPY 27 Description\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
@@ -679,7 +679,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * 
 	 */
 	@Test
-	public void mockTestFramework_28() throws Exception {
+	public void mockTestFrameworkExpect400() throws Exception {
 		String existingFrameworkId = "";
 		try {
 			String createFrameworkReq = "{\"name\": \"NCERT28\",\"description\": \"NCERT28 framework\",\"code\": \"NCERT28\"}";
@@ -701,7 +701,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	}
 
 	@Test
-	public void mockTestFramework_29() throws Exception {
+	public void mockTestFrameworkCopyExpect400() throws Exception {
 		String path = BASE_PATH + "/copy/" + frameworkIdforCopyAPI;
 		String copyFrameworkValidJson = "{\"request\":{}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)

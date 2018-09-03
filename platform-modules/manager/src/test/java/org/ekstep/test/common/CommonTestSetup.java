@@ -56,7 +56,6 @@ public class CommonTestSetup {
 
 	@AfterClass
 	public static void afterTest() throws Exception {
-		System.out.println("CommonTestSetup:::::::::::::: - After");
 		DriverUtil.closeDrivers();
 		tearEmbeddedNeo4JSetup();
 		tearEmbeddedCassandraSetup();
@@ -64,7 +63,6 @@ public class CommonTestSetup {
 
 	@BeforeClass
 	public static void before() throws Exception {
-		System.out.println("CommonTestSetup:::::::::::::: - Before");
 		ActorBootstrap.getActorSystem();
 		reqRouter = GraphEngineActorPoolMgr.getRequestRouter();
 		tearEmbeddedNeo4JSetup();

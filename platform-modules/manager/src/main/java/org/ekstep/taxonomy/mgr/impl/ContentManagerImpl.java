@@ -2,6 +2,7 @@ package org.ekstep.taxonomy.mgr.impl;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -34,6 +35,7 @@ import org.ekstep.content.mimetype.mgr.impl.H5PMimeTypeMgrImpl;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
@@ -525,7 +527,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Response hierarchyResponse = getCollectionHierarchy(contentId);
 			Response response = new Response();
 			if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
-				response.put("content", hierarchyResponse.getResult().get("hierarchy"));
+				String cachedStatus = RedisStoreUtil.getNodeProperty(TAXONOMY_ID, contentId, "status");
+				Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+				if(StringUtils.isNotBlank(cachedStatus)){
+					hierarchy.put("status", cachedStatus);
+				} else{
+					hierarchy.put("status", getStatus(contentId, mode));
+				}
+
+				response.put("content", hierarchy);
 				response.setParams(getSucessStatus());
 			} else {
 				response = hierarchyResponse;
@@ -533,10 +543,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return response;
 		}
 
+	}
 
-
-
-
+	private String getStatus(String contentId, String mode) {
+			Node node  = getContentNode(TAXONOMY_ID, contentId, mode);
+			RedisStoreUtil.saveNodeProperty(TAXONOMY_ID, contentId, "status", (String) node.getMetadata().get("status"));
+			return (String) node.getMetadata().get("status");
 	}
 
 	public Response create(Map<String, Object> map) throws Exception {
@@ -2131,7 +2143,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
 					res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
 					return res;
-
 				}
 			}
 		}
@@ -2219,4 +2230,86 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		return createResponse;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#acceptFlag(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response acceptFlag(String contentId) throws Exception {
+		Response response = new Response();
+		boolean isImageNodeExist = false;
+		String versionKey = null;
+
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+					"Content Id Can Not be blank.");
+		Response getResponse = getDataNode(TAXONOMY_ID, contentId);
+		if (checkError(getResponse))
+			throw new ResourceNotFoundException(TaxonomyErrorCodes.ERR_NODE_NOT_FOUND.name(),
+					"Content Not Found With Identifier: " + contentId);
+
+		Node node = (Node) getResponse.get(GraphDACParams.node.name());
+		boolean isValidObj = StringUtils.equalsIgnoreCase(CONTENT_OBJECT_TYPE, node.getObjectType());
+		boolean isValidStatus = StringUtils.equalsIgnoreCase((String) node.getMetadata().get("status"), "Flagged");
+
+		if (!isValidObj || !isValidStatus)
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Invalid Flagged Content! Content Can Not Be Accepted.");
+
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		List<String> externalPropsList = getExternalPropsList(definition);
+
+		String imageContentId = getImageId(contentId);
+		Response imageResponse = getDataNode(TAXONOMY_ID, imageContentId);
+		if (!checkError(imageResponse))
+			isImageNodeExist = true;
+
+		if (!isImageNodeExist) {
+			Node createNode = (Node) getResponse.get(GraphDACParams.node.name());
+			createNode.setIdentifier(imageContentId);
+			createNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+			createNode.getMetadata().put(ContentAPIParams.status.name(), "FlagDraft");
+			createNode.setGraphId(TAXONOMY_ID);
+			Response createResponse = createDataNode(createNode);
+			if (!checkError(createResponse)) {
+				TelemetryManager.log("Updating external props for: " + imageContentId);
+				Response bodyResponse = getContentProperties(contentId, externalPropsList);
+				if (!checkError(bodyResponse)) {
+					Map<String, Object> extValues = (Map<String, Object>) bodyResponse
+							.get(ContentStoreParams.values.name());
+					if (null != extValues && !extValues.isEmpty())
+						updateContentProperties(imageContentId, extValues);
+				}
+				versionKey = (String) createResponse.get("versionKey");
+			} else
+				return createResponse;
+		} else {
+			TelemetryManager.log("Updating Image node: " + imageContentId);
+			Node imageNode = (Node) imageResponse.get(GraphDACParams.node.name());
+			imageNode.setGraphId(TAXONOMY_ID);
+			imageNode.getMetadata().put(ContentAPIParams.status.name(), "FlagDraft");
+			Response updateResponse = updateDataNode(imageNode);
+			if (checkError(updateResponse))
+				return updateResponse;
+			versionKey = (String) updateResponse.get("versionKey");
+		}
+		TelemetryManager.log("Updating Original node: " + contentId);
+		getResponse = getDataNode(TAXONOMY_ID, contentId);
+		Node originalNode = (Node) getResponse.get(GraphDACParams.node.name());
+		originalNode.getMetadata().put(ContentAPIParams.status.name(), "Retired");
+		Response retireResponse = updateDataNode(originalNode);
+		if (!checkError(retireResponse)) {
+			if (StringUtils.equalsIgnoreCase((String) originalNode.getMetadata().get("mimeType"),
+					"application/vnd.ekstep.content-collection"))
+				deleteHierarchy(Arrays.asList(contentId));
+			response = getSuccessResponse();
+			response.getResult().put("node_id", contentId);
+			response.getResult().put("versionKey", versionKey);
+			return response;
+		} else {
+			return retireResponse;
+		}
+	}
+
 }

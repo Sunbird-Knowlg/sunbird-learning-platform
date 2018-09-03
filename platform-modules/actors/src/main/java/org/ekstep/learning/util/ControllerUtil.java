@@ -452,7 +452,7 @@ public class ControllerUtil extends BaseLearningManager {
 	public List<String> getPublishedCollections(String graphId) {
 		List<String> identifiers = new ArrayList<>();
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE n.IL_FUNC_OBJECT_TYPE=\"Content\" AND n.mimeType=\"application/vnd.ekstep.content-collection\" AND n.status IN [\"Live\", \"Unlisted\"] RETURN n.IL_UNIQUE_ID as identifier;", graphId));
+		request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE n.IL_FUNC_OBJECT_TYPE=\"Content\" AND n.mimeType=\"application/vnd.ekstep.content-collection\" AND n.status IN [\"Live\", \"Unlisted\", \"Flagged\"] RETURN n.IL_UNIQUE_ID as identifier;", graphId));
 		List<String> props = new ArrayList<String>();
 		props.add("identifier");
 		request.put(GraphDACParams.property_keys.name(), props);
