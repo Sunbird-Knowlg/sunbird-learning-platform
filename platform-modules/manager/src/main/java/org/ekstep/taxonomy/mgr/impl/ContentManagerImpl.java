@@ -2143,7 +2143,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
 					res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
 					return res;
-
 				}
 			}
 		}
@@ -2232,101 +2231,85 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return createResponse;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#acceptFlag(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public Response acceptFlag(String contentId) {
+	public Response acceptFlag(String contentId) throws Exception {
+		Response response = new Response();
+		boolean isImageNodeExist = false;
+		String versionKey = null;
+
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
-					"Content Object Id is blank.");
-		Response response = getDataNode(TAXONOMY_ID, contentId);
-		if (checkError(response))
+					"Content Id Can Not be blank.");
+		Response getResponse = getDataNode(TAXONOMY_ID, contentId);
+		if (checkError(getResponse))
+			throw new ResourceNotFoundException(TaxonomyErrorCodes.ERR_NODE_NOT_FOUND.name(),
+					"Content Not Found With Identifier: " + contentId);
+
+		Node node = (Node) getResponse.get(GraphDACParams.node.name());
+		boolean isValidObj = StringUtils.equalsIgnoreCase(CONTENT_OBJECT_TYPE, node.getObjectType());
+		boolean isValidStatus = StringUtils.equalsIgnoreCase((String) node.getMetadata().get("status"), "Flagged");
+
+		if (!isValidObj || !isValidStatus)
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-					"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
-		Node node = (Node) response.get(GraphDACParams.node.name());
-		if(!StringUtils.equalsIgnoreCase(CONTENT_OBJECT_TYPE, node.getObjectType()))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_NOT_FOUND.name(),
-					node.getObjectType() + contentId + " not found.");
-		if(!StringUtils.equalsIgnoreCase((String)node.getMetadata().get("status"), "Flagged")) {
-			throw new ClientException(TaxonomyErrorCodes.ERR_CONTENT_NOT_FLAGGED.name(),
-					"Content " + contentId + " is not flagged to accept");
-		}else {
-			response = getDataNode(TAXONOMY_ID, getImageId(contentId));
-			if(isImageCreationNeeded(response)) {
-				Node imageNode = new Node(getImageId(contentId), node.getNodeType(), CONTENT_IMAGE_OBJECT_TYPE);
-				imageNode.setGraphId(node.getGraphId());
-				imageNode.setMetadata(node.getMetadata());
-				imageNode.setTags(node.getTags());
-				imageNode.getMetadata().put("status", "FlagDraft");
-				imageNode.setOutRelations(node.getOutRelations());
-				
-				response = createDataNode(imageNode);
-				if (checkError(response))
-					return response;
-				TelemetryManager.log("Updating external props for: " + getImageId(contentId));
-				List<String> externalPropsList = getExternalPropsList(getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE));
+					"Invalid Flagged Content! Content Can Not Be Accepted.");
+
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		List<String> externalPropsList = getExternalPropsList(definition);
+
+		String imageContentId = getImageId(contentId);
+		Response imageResponse = getDataNode(TAXONOMY_ID, imageContentId);
+		if (!checkError(imageResponse))
+			isImageNodeExist = true;
+
+		if (!isImageNodeExist) {
+			Node createNode = (Node) getResponse.get(GraphDACParams.node.name());
+			createNode.setIdentifier(imageContentId);
+			createNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+			createNode.getMetadata().put(ContentAPIParams.status.name(), "FlagDraft");
+			createNode.setGraphId(TAXONOMY_ID);
+			Response createResponse = createDataNode(createNode);
+			if (!checkError(createResponse)) {
+				TelemetryManager.log("Updating external props for: " + imageContentId);
 				Response bodyResponse = getContentProperties(contentId, externalPropsList);
 				if (!checkError(bodyResponse)) {
-					Map<String, Object> extValues = (Map<String, Object>) bodyResponse.get(ContentStoreParams.values.name());
-					if (null != extValues && !extValues.isEmpty()) {
-						updateContentProperties(getImageId(contentId), extValues);
-					}
+					Map<String, Object> extValues = (Map<String, Object>) bodyResponse
+							.get(ContentStoreParams.values.name());
+					if (null != extValues && !extValues.isEmpty())
+						updateContentProperties(imageContentId, extValues);
 				}
-				String imgContentVersionKey = (String)response.get("versionKey");
-				response = getDataNode(TAXONOMY_ID, contentId);
-				if(checkError(response))
-					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-							"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
-				node = (Node)response.get(GraphDACParams.node.name());
-				Map<String, Object> contentMetadata = node.getMetadata();
-				contentMetadata.put("status", "Retired");
-				contentMetadata.put("prevState", "Flagged");
-				response = updateDataNode(node);
-				if(checkError(response)) {
-					return response;
-				}else {
-					List<String> contentIds = new ArrayList<>();
-					contentIds.add(contentId);
-					deleteHierarchy(contentIds);
-					response.put("versionKey", imgContentVersionKey);
-					return response;
-				}
-			}else {
-				node = (Node)response.get(GraphDACParams.node.name());
-				((Map<String, Object>)node.getMetadata()).put("status", "FlagDraft");
-				response = updateDataNode(node);
-				if(checkError(response))
-					throw new ClientException("ERR_CONTENT_UPDATION_FAILED", "Content updation failed.");
-				String imgContentVersionKey = (String)response.get("versionKey");
-				response = getDataNode(TAXONOMY_ID, contentId);
-				if(checkError(response))
-					throw new ClientException("ERR_CONTENT_UPDATION_FAILED", "Content updation failed.");
-				node = (Node)response.get(GraphDACParams.node.name());
-				Map<String, Object> contentMetadata = node.getMetadata();
-				if(!StringUtils.equalsIgnoreCase("Retired", (String)contentMetadata.get("status"))) {
-					contentMetadata.put("prevState", (String)contentMetadata.get("status"));
-					contentMetadata.put("status", "Retired");
-					response = updateDataNode(node);
-					if(checkError(response)) {
-						return response;
-					}else {
-						List<String> contentIds = new ArrayList<>();
-						contentIds.add(contentId);
-						deleteHierarchy(contentIds);
-						response.put("versionKey", imgContentVersionKey);
-						return response;
-					}
-				}else {
-					response.put("versionKey", imgContentVersionKey);
-					return response;
-				}
-			}
-			
+				versionKey = (String) createResponse.get("versionKey");
+			} else
+				return createResponse;
+		} else {
+			TelemetryManager.log("Updating Image node: " + imageContentId);
+			Node imageNode = (Node) imageResponse.get(GraphDACParams.node.name());
+			imageNode.setGraphId(TAXONOMY_ID);
+			imageNode.getMetadata().put(ContentAPIParams.status.name(), "FlagDraft");
+			Response updateResponse = updateDataNode(imageNode);
+			if (checkError(updateResponse))
+				return updateResponse;
+			versionKey = (String) updateResponse.get("versionKey");
+		}
+		TelemetryManager.log("Updating Original node: " + contentId);
+		getResponse = getDataNode(TAXONOMY_ID, contentId);
+		Node originalNode = (Node) getResponse.get(GraphDACParams.node.name());
+		originalNode.getMetadata().put(ContentAPIParams.status.name(), "Retired");
+		Response retireResponse = updateDataNode(originalNode);
+		if (!checkError(retireResponse)) {
+			if (StringUtils.equalsIgnoreCase((String) originalNode.getMetadata().get("mimeType"),
+					"application/vnd.ekstep.content-collection"))
+				deleteHierarchy(Arrays.asList(contentId));
+			response = getSuccessResponse();
+			response.getResult().put("node_id", contentId);
+			response.getResult().put("versionKey", versionKey);
+			return response;
+		} else {
+			return retireResponse;
 		}
 	}
-	
-	private boolean isImageCreationNeeded(Response response) {
-		if(!checkError(response))
-			return false;
-		else
-			return true;
-	}
+
 }
