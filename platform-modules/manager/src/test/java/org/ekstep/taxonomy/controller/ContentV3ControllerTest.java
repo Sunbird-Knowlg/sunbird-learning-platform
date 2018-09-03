@@ -460,7 +460,18 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 				.header("X-Channel-Id", "channelTest").content(publishReqBody));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 
-		delay(10000);
+		boolean published = false;
+        while(!published) {
+            delay(5000);
+            path = basePath + "/read/" + nodeId;
+            actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("X-Channel-Id", "channelTest"));
+            assertEquals(200, actions.andReturn().getResponse().getStatus());
+            response = getResponse(actions);
+            String status = (String)((Map<String, Object>) response.getResult()
+                    .get("content")).get("status");
+            if(StringUtils.equalsIgnoreCase(status, "Live"))
+                published = true;
+        }
 
 		// Link DialCode
 		path = basePath + "/dialcode/link";
