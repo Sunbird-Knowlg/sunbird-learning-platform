@@ -760,35 +760,36 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		boolean checkError = false;
 		Response createResponse = null;
-		if (finalStatus.contains(status) && isImageObjectCreationNeeded) {
-			graphNode.setIdentifier(contentImageId);
-			graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
-			metadata.put("status", "Draft");
-			Object lastUpdatedBy = map.get("lastUpdatedBy");
-			if (null != lastUpdatedBy)
-				metadata.put("lastUpdatedBy", lastUpdatedBy);
-			graphNode.setGraphId(TAXONOMY_ID);
-			createResponse = createDataNode(graphNode);
-			checkError = checkError(createResponse);
-			if (!checkError) {
-				TelemetryManager.log("Updating external props for: " + contentImageId);
-				Response bodyResponse = getContentProperties(contentId, externalPropsList);
-				checkError = checkError(bodyResponse);
+		if (finalStatus.contains(status)) {
+			if (isImageObjectCreationNeeded) {
+				graphNode.setIdentifier(contentImageId);
+				graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+				metadata.put("status", "Draft");
+				Object lastUpdatedBy = map.get("lastUpdatedBy");
+				if (null != lastUpdatedBy)
+					metadata.put("lastUpdatedBy", lastUpdatedBy);
+				graphNode.setGraphId(TAXONOMY_ID);
+				createResponse = createDataNode(graphNode);
+				checkError = checkError(createResponse);
 				if (!checkError) {
-					Map<String, Object> extValues = (Map<String, Object>) bodyResponse
-							.get(ContentStoreParams.values.name());
-					if (null != extValues && !extValues.isEmpty()) {
-						updateContentProperties(contentImageId, extValues);
+					TelemetryManager.log("Updating external props for: " + contentImageId);
+					Response bodyResponse = getContentProperties(contentId, externalPropsList);
+					checkError = checkError(bodyResponse);
+					if (!checkError) {
+						Map<String, Object> extValues = (Map<String, Object>) bodyResponse
+								.get(ContentStoreParams.values.name());
+						if (null != extValues && !extValues.isEmpty()) {
+							updateContentProperties(contentImageId, extValues);
+						}
 					}
+					map.put("versionKey", createResponse.get("versionKey"));
 				}
-				map.put("versionKey", createResponse.get("versionKey"));
-				imageObjectExists = true;
 			}
-		}
-		if (imageObjectExists) {
 			objectType = CONTENT_IMAGE_OBJECT_TYPE;
 			contentId = contentImageId;
-			map.put("createdOn", metadata.get("createdOn"));
+		} else if (imageObjectExists) {
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
+			contentId = contentImageId;
 		}
 
 		if (checkError)
