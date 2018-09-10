@@ -80,7 +80,8 @@ public class AuditEventGenerator implements ISamzaService {
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
-		LOGGER.info("Input Message for AUDIT Event : "+ message);
+		LOGGER.info("Input Message Received for : [" + message.get("nodeUniqueId") + "], Txn Event createdOn:"
+				+ message.get("createdOn") + ", Operation Type:" + message.get("operationType"));
 		try {
 			Map<String, Object> auditMap = getAuditMessage(message);
 			String objectType = (String) ((Map<String, Object>) auditMap.get("object")).get("type");
@@ -168,7 +169,7 @@ public class AuditEventGenerator implements ISamzaService {
 		if (!CollectionUtils.isEmpty(propsExceptSystemProps)) {
 			String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus,
 					cdata);
-			LOGGER.info("Audit Message for Content Id [" + objectId + "] : " + auditMessage);
+			//LOGGER.info("Audit Message for Content Id [" + objectId + "] : " + auditMessage);
 			auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
 			});
 		} else {
