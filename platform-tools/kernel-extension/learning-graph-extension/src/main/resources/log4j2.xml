@@ -12,6 +12,7 @@
 			</PatternLayout>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="250 MB" />
+				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingFile>
 		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/learning_graph_event_neo4j.log"
@@ -21,6 +22,7 @@
 			</PatternLayout>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="250 MB" />
+				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingRandomAccessFile>
 	</Appenders>
