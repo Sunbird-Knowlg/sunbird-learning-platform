@@ -38,23 +38,6 @@ public class ContentUpdateV3Test extends BaseTest {
                 response();
     }
 
-    private String createCollectionContent() {
-        Response response =  given().
-                spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-                body(createCollectionContentRequestBody).
-                with().
-                contentType(JSON).
-                when().
-                post(BASE_PATH + "/create").
-                then().
-                body("responseCode", equalTo("OK")).
-                extract().
-                response();
-        JsonPath jp = response.jsonPath();
-        String nodeId = jp.get("result.node_id");
-        return nodeId;
-    }
-
     private Response createTextbookContent() {
         return given().
                 spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
@@ -145,22 +128,8 @@ public class ContentUpdateV3Test extends BaseTest {
                 body("responseCode", equalTo("OK"));
     }
 
-    private void flag(String contentId) {
-        String versionKey = getVersionKey(contentId);
-        String flagRequestBody = "{\"request\": {\"flagReasons\":[\"Copyright Violation\"],\"flaggedBy\":\"gauraw\",\"versionKey\": \"" + versionKey + "\"}}";
-        given().
-                spec(getRequestSpecification(contentType, userId, APIToken)).
-                body(flagRequestBody).
-                with().
-                contentType(JSON).
-                when().
-                post("/content/v3/flag/" + contentId).
-                then().
-                body("responseCode", equalTo("OK"));
-    }
 
-
-    String getCreatedOn(String contentId) {
+    private String getCreatedOn(String contentId) {
         Response response = getContent(contentId);
         return response.jsonPath().get("result.content.createdOn");
     }
