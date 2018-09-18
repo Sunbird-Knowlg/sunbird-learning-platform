@@ -384,6 +384,20 @@ public class ContentV3Controller extends BaseController {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/hierarchy/sync/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> syncHierarchy(@PathVariable String identifier) {
+		String apiId = "content.hierarchy.sync";
+		try {
+			Response response = contentManager.syncHierarchy(identifier);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
 	/**
 	 * Controller Method to Link QR Code (DIAL Code) with Content
 	 * 
