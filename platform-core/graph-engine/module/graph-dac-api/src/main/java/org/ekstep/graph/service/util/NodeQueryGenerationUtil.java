@@ -44,16 +44,15 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// Template Query
 			Map<String, Object> mpMap = getMetadataCypherQueryMap(node);
 			Map<String, Object> spMap = getSystemPropertyQueryMap(node, date);
-			Map<String, Object> apMap = getAuditPropertyQueryMap(node, date, StringUtils.endsWithIgnoreCase(node.getIdentifier(), ".img"));
+			Map<String, Object> apMap = getAuditPropertyQueryMap(node, date, false);
 			Map<String, Object> vpMap = getVersionKeyPropertyQueryMap(node, date, false);
 			templateQuery.append(GraphDACParams.CREATE.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
 					.append(mpMap.get(GraphDACParams.query.name())).append(CypherQueryConfigurationConstants.COMMA)
 					.append(spMap.get(GraphDACParams.query.name())).append(CypherQueryConfigurationConstants.COMMA)
-					.append(apMap.get(GraphDACParams.query.name()));
-			if(StringUtils.isNotBlank((String) apMap.get(GraphDACParams.query.name()))) templateQuery.append(CypherQueryConfigurationConstants.COMMA);
-			templateQuery.append(vpMap.get(GraphDACParams.query.name()))
+					.append(apMap.get(GraphDACParams.query.name())).append(CypherQueryConfigurationConstants.COMMA)
+					.append(vpMap.get(GraphDACParams.query.name()))
 					.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
 					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS);
 
