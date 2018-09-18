@@ -112,6 +112,7 @@ public class Neo4JBoltNodeOperations {
 			}
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
+				e.printStackTrace();
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -187,6 +188,7 @@ public class Neo4JBoltNodeOperations {
 			}
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
+				e.printStackTrace();
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -273,6 +275,7 @@ public class Neo4JBoltNodeOperations {
 
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
+				e.printStackTrace();
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -392,6 +395,7 @@ public class Neo4JBoltNodeOperations {
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -430,6 +434,7 @@ public class Neo4JBoltNodeOperations {
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -469,6 +474,7 @@ public class Neo4JBoltNodeOperations {
 			}
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -513,6 +519,7 @@ public class Neo4JBoltNodeOperations {
 					TelemetryManager.log("Upsert Root Node Operation | ", record.asMap());
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}

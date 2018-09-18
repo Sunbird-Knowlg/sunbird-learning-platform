@@ -34,6 +34,7 @@ public class Neo4JBoltBaseValidator {
 				tx.success();
 				tx.close();
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			}

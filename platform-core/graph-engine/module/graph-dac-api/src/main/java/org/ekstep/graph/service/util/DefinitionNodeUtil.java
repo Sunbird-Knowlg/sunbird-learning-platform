@@ -81,6 +81,7 @@ public class DefinitionNodeUtil {
 					metadataMap = node.asMap();
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			}
