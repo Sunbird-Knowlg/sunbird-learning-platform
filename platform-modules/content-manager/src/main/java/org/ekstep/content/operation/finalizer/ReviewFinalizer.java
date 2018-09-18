@@ -68,7 +68,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	 *            checks if Node, ecrfType,ecmlType exists in the parameterMap
 	 *            else throws ClientException Output only ECML format create
 	 *            'artifactUrl' Get Content String write ECML File Create 'ZIP'
-	 *            Package Upload Package Upload to S3 Set artifact file For Node
+	 *            Package Upload Package Upload to AWS/Azure Set artifact file For Node
 	 *            Download App Icon and create thumbnail Set Package Version
 	 *            Create ECAR Bundle Delete local compressed artifactFile
 	 *            Populate Fields and Update Node
@@ -96,7 +96,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 				TelemetryManager.info("Content: " + node.getIdentifier() + " pushed to kafka for publish operation.");
 			} catch (Exception e) {
 				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
-						"Error occured during content publish");
+						"Error occured during content publish", e);
 			}
 			node.getMetadata().put("publish_type", publishType); //Added for executing publish operation locally
 			
@@ -158,8 +158,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 		pdata.put("id", pdataId); 
 		pdata.put("ver", pdataVersion);
 		context.put("pdata", pdata);
-		if (Platform.config.hasPath("s3.env")) {
-			String env = Platform.config.getString("s3.env");
+		if (Platform.config.hasPath("cloud_storage.env")) {
+			String env = Platform.config.getString("cloud_storage.env");
 			context.put("env", env);
 		}
 		

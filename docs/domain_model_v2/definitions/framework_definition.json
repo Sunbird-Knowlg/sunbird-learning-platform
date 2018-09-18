@@ -73,6 +73,18 @@
             "renderingHints": "{'inputType': 'select', 'order': 5}"
         },
         {
+            "propertyName": "translations",
+              "title": "Translations",
+              "description": "Translations for the framework",
+              "category": "General",
+              "dataType": "JSON",
+              "required": false,
+              "displayProperty": "Editable",
+              "defaultValue": "",
+              "renderingHints": "{'inputType': 'object', 'order': 2}",
+              "indexed": true
+        },
+        {
           "propertyName": "createdBy",
           "title": "Created By",
           "description": "",
@@ -149,7 +161,14 @@
       "systemTags": [],
       "metadata": {
         "ttl": 24,
-        "limit": 50
+        "limit": 50,
+        "fields":[
+          "name",
+          "code",
+          "description",
+          "type",
+          "translations"      
+        ]
       }
     }
   ]

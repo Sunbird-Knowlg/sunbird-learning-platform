@@ -200,16 +200,48 @@ public interface IContentManager {
 	 */
 	Response find(String contentId, String mode, List<String> fields);
 
+	/**
+	 * @param map
+	 * @return
+	 * @throws Exception
+	 */
 	Response create(Map<String, Object> map) throws Exception;
 
+	/**
+	 * @param contentId
+	 * @param map
+	 * @return
+	 * @throws Exception
+	 */
 	Response update(String contentId, Map<String, Object> map) throws Exception;
 
+	/**
+	 * @param contentId
+	 * @param fileName
+	 * @return
+	 */
 	Response preSignedURL(String contentId, String fileName);
 
+	/**
+	 * @param data
+	 * @return
+	 */
 	Response updateHierarchy(Map<String, Object> data);
 
+	/**
+	 * @param contentId
+	 * @param map
+	 * @return
+	 * @throws Exception
+	 */
 	Response updateAllContents(String contentId, Map<String, Object> map) throws Exception;
 
+	/**
+	 * @param channelId
+	 * @param reqObj
+	 * @return
+	 * @throws Exception
+	 */
 	Response linkDialCode(String channelId, Object reqObj) throws Exception;
 
 	/**
@@ -220,4 +252,16 @@ public interface IContentManager {
 	 */
 	Response copyContent(String contentId, Map<String, Object> requestMap, String mode);
 
+    /**
+     * @param contentId
+     * @return
+     */
+    Response retire(String contentId);
+    
+    /**
+     * @param contentId
+     * @return
+     * @throws Exception
+     */
+    Response acceptFlag(String contentId) throws Exception;
 }

@@ -1,15 +1,6 @@
 package org.ekstep.content.operation.finalizer;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.rits.cloning.Cloner;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -33,10 +24,21 @@ import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import com.rits.cloning.Cloner;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The Class BundleFinalizer, extends BaseFinalizer which mainly holds common
@@ -59,11 +61,13 @@ public class PublishFinalizer extends BaseFinalizer {
 	/** The ContentId. */
 	protected String contentId;
 
-	private static final String s3Artifact = "s3.artifact.folder";
-	
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+
+	private ControllerUtil util = new ControllerUtil();
+
+	private CollectionStore collectionStore = new CollectionStore();
 
 
 	/**
@@ -91,7 +95,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	/**
 	 * finalize()
 	 *
-	 * @param Map
+	 * @param parameterMap
 	 *            the parameterMap
 	 * 
 	 *            checks if Node, ecrfType,ecmlType exists in the parameterMap
@@ -151,7 +155,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			File packageFile = new File(zipFileName);
 			if (packageFile.exists()) {
 				// Upload to S3
-				String folderName = S3PropertyReader.getProperty(s3Artifact);
+				String folderName = S3PropertyReader.getProperty(ARTEFACT_FOLDER);
 				String[] urlArray = uploadToAWS(packageFile, getUploadFolderName(contentId, folderName));
 				if (null != urlArray && urlArray.length >= 2)
 					artifactUrl = urlArray[IDX_S3_URL];
@@ -258,7 +262,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
-			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
+			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
 
 			TelemetryManager.log("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
@@ -294,7 +298,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		// Populate Fields and Update Node
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
 		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
-		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(s3Key));
+		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(s3Key));
 		
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
@@ -341,15 +345,31 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		getResponse(request);
 
-		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
+		if (StringUtils.equalsIgnoreCase(
+				((String) newNode.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),
+				COLLECTION_MIMETYPE)) {
+			Node publishedNode = util.getNode(TAXONOMY_ID, contentId);
+			publishHierarchy(publishedNode);
+		}
+
+		if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
+			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
+		}
 		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		return response;
 	}
 
+
+	private void publishHierarchy(Node publishedNode) {
+		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
+		Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
+		collectionStore.updateContentHierarchy(publishedNode.getIdentifier(), hierarchy);
+	}
+
 	/**
-	 * @param contentId2
+	 * @param identifier
 	 * @return
 	 */
 	private String preUpdateNode(String identifier) {

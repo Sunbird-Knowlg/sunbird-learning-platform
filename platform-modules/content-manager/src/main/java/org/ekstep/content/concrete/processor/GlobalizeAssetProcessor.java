@@ -1,22 +1,10 @@
 package org.ekstep.content.concrete.processor;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -28,6 +16,13 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * The Class GlobalizeAssetProcessor.
@@ -45,8 +40,8 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  */
 public class GlobalizeAssetProcessor extends AbstractProcessor {
 
-	private static final String s3Content = "s3.content.folder";
-    private static final String s3Assets = "s3.asset.folder";
+	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
+    private static final String ASSETS_FOLDER = "cloud_storage.asset.folder";
 
 	/**
 	 * Instantiates a new <code>GlobalizeAssetProcessor</code> and sets the base
@@ -104,7 +99,7 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 	/**
 	 * Gets the folder path of <code>src</code>.
 	 *
-	 * @param <code>src</code>
+	 * @param src
 	 *            the <code>src</code> attribute.
 	 * @return the folder path.
 	 */
@@ -156,9 +151,9 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 							TelemetryManager.log("Upload File: | [Content Id '" + contentId + "']");
 							String[] uploadedFileUrl;
 							if (uploadFile.exists()) {
-								String folderName = S3PropertyReader.getProperty(s3Content) + "/"
+								String folderName = S3PropertyReader.getProperty(CONTENT_FOLDER) + "/"
 										+ Slug.makeSlug(contentId, true);
-								String path = S3PropertyReader.getProperty(s3Assets);
+								String path = S3PropertyReader.getProperty(ASSETS_FOLDER);
 								/*String folderName = ContentConfigurationConstants.FOLDER_NAME + "/"
 										+ Slug.makeSlug(contentId, true);
 								String path = getFolderPath(media.getSrc());*/
@@ -167,7 +162,6 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 								if (StringUtils.isNotBlank(path))
 									folderName = folderName + "/" + path;
 								folderName = folderName + "/" + System.currentTimeMillis();
-								//uploadedFileUrl = AWSUploader.uploadFile(folderName, uploadFile);
 								uploadedFileUrl = CloudStore.uploadFile(folderName, uploadFile, true);
 								if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 									uploadMap.put(media.getId(),

@@ -39,7 +39,7 @@ public class PublishWebHookInvoker {
 		ExecutorService pool = null;
 		try {
 			TelemetryManager.log("Call PublishWebHook API: " + contentId + " | Status: " + status + " | Error: " + error);
-			String env = S3PropertyReader.getProperty("s3.env");
+			String env = S3PropertyReader.getProperty("cloud_storage.env");
 			String url = urlMap.get(env);
 			TelemetryManager.log("PublishWebHook API URL: " + url + " | Environment: " + env);
 			if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(contentId)) {

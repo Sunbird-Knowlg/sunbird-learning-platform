@@ -86,6 +86,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		String framework = (String) item.getMetadata().get(ContentAPIParams.framework.name());
 		if (StringUtils.isBlank(framework))
 			item.getMetadata().put("framework", getDefaultFramework());
+		
+		if(item.getMetadata().containsKey("level"))
+			item.getMetadata().remove("level");
 
 		Object version = item.getMetadata().get(ContentAPIParams.version.name());
 		if (null == version)
@@ -183,6 +186,10 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		assessmentBody = (String) item.getMetadata().get("body");
 		if (StringUtils.isNotBlank(assessmentBody))
 			item.getMetadata().put("body", null);
+		
+		if(item.getMetadata().containsKey("level"))
+			item.getMetadata().remove("level");
+		
 		Boolean skipValidation = (Boolean) request.get(ContentAPIParams.skipValidations.name());
 		if (null == skipValidation)
 			skipValidation = false;

@@ -77,14 +77,14 @@ public class BasePipeline extends BaseManager {
 	/** The Constant DEF_AWS_FOLDER_NAME */
 	private static final String DEF_AWS_FOLDER_NAME = "content";
 
-	private static final String s3Content = "s3.content.folder";;
+	private static final String CONTEN_FOLDER = "cloud_storage.content.folder";
 
 	/**
 	 * Updates the ContentNode.
 	 *
-	 * @param Node
+	 * @param node
 	 *            the node
-	 * @param Url
+	 * @param url
 	 *            the url
 	 * @return the response of UpdateContentNode with node_id
 	 */
@@ -103,7 +103,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * Updates the given Node.
 	 * 
-	 * @param Node
+	 * @param node
 	 *            the node
 	 * @return the response of UpdateContentNode with node_id
 	 */
@@ -146,8 +146,6 @@ public class BasePipeline extends BaseManager {
 	 * 
 	 * @param request
 	 *            the request object
-	 * @param logger
-	 *            the logger object
 	 * @return the LearningActor response
 	 */
 	protected Response makeLearningRequest(Request request) {
@@ -189,7 +187,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * validates Path
 	 * 
-	 * @param Path
+	 * @param path
 	 *            the path checks if the path exists, if not null then creates a
 	 *            Path for it
 	 * @return true if its a validBasePath return false
@@ -221,7 +219,7 @@ public class BasePipeline extends BaseManager {
 		String folderName = DEF_AWS_FOLDER_NAME;
 		// String env =
 		// PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
-		folderName = S3PropertyReader.getProperty(s3Content);
+		folderName = S3PropertyReader.getProperty(CONTEN_FOLDER);
 		if (!StringUtils.isBlank(folderName)) {
 			folderName = folderName + "/" + Slug.makeSlug(identifier, true) + "/" + folder;
 		}
@@ -255,7 +253,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the NumericValue of the object
 	 * 
-	 * @param object
+	 * @param obj
 	 * @return Number
 	 */
 	protected Number getNumericValue(Object obj) {
@@ -269,7 +267,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the DoubleValue of the object
 	 * 
-	 * @param object
+	 * @param obj
 	 * @return NumberDoubleVale
 	 */
 	protected Double getDoubleValue(Object obj) {
@@ -285,11 +283,11 @@ public class BasePipeline extends BaseManager {
 	 * @param key
 	 * @return fileSize(double)
 	 */
-	protected Double getS3FileSize(String key) {
+	protected Double getCloudStorageFileSize(String key) {
 		Double bytes = null;
 		if (StringUtils.isNotBlank(key)) {
 			try {
-				return CloudStore.getObjectSize(key);//AWSUploader.getObjectSize(key);
+				return CloudStore.getObjectSize(key);
 			} catch (Exception e) {
 				TelemetryManager.warn("Error! While getting the file size from AWS"+ key);
 			}
@@ -321,7 +319,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the date after the given Days
 	 * 
-	 * @param number
+	 * @param days
 	 *            of Days
 	 * @return date
 	 */
@@ -334,7 +332,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * validates the XML from the ContentBody
 	 * 
-	 * @param ContentBody
+	 * @param contentBody
 	 * @return true if validation is successful else false
 	 */
 	protected boolean isValidXML(String contentBody) {
@@ -354,7 +352,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * validates the JSON from ContentBody
 	 * 
-	 * @param ContentBody
+	 * @param contentBody
 	 * @return true if validation is successful else false
 	 */
 	protected boolean isValidJSON(String contentBody) {
@@ -374,7 +372,7 @@ public class BasePipeline extends BaseManager {
 	/**
 	 * gets the basePath from the ContentId
 	 * 
-	 * @param ContentId
+	 * @param contentId
 	 * @return BasePath
 	 */
 	protected String getBasePath(String contentId) {

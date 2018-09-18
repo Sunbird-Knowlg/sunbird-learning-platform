@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.util.RequestWrapper;
@@ -48,7 +49,7 @@ public class ResponseFilter implements Filter {
 		if (StringUtils.isNotBlank(channelId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		else
-			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
+			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), Platform.config.getString("channel.default"));
 
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);

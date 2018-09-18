@@ -40,15 +40,14 @@ public class OptimizerUtil {
 	/** The mapper. */
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	private static final String s3Content = "s3.content.folder";
+	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 
-	private static final String s3Artifact = "s3.artifact.folder";
+	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 
 	/**
 	 * Optimise image.
 	 *
 	 * @param contentId the content id
-	 * @param folder the folder
 	 * @throws Exception the exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -157,15 +156,13 @@ public class OptimizerUtil {
 	 * Upload to AWS.
 	 *
 	 * @param uploadedFile the uploaded file
-	 * @param folder the folder
 	 * @return the string[]
 	 */
 	public static String[] uploadToAWS(File uploadedFile, String identifier) {
 		String[] urlArray = new String[] {};
 		try {
-			String folder = S3PropertyReader.getProperty(s3Content);
-			folder = folder + "/" + Slug.makeSlug(identifier, true) + "/" + S3PropertyReader.getProperty(s3Artifact);
-			//urlArray = AWSUploader.uploadFile(folder, uploadedFile);
+			String folder = S3PropertyReader.getProperty(CONTENT_FOLDER);
+			folder = folder + "/" + Slug.makeSlug(identifier, true) + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
 			urlArray = CloudStore.uploadFile(folder, uploadedFile, true);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Error wihile uploading the File.", e);

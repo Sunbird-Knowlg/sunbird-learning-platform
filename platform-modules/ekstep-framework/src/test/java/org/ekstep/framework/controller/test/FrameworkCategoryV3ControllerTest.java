@@ -2,12 +2,10 @@ package org.ekstep.framework.controller.test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.manager.test.BaseCategoryInstanceMgrTest;
-import org.ekstep.framework.mgr.ICategoryInstanceManager;
 import org.ekstep.framework.mgr.ICategoryManager;
 import org.ekstep.framework.mgr.IChannelManager;
 import org.ekstep.framework.mgr.IFrameworkManager;
@@ -44,44 +42,26 @@ public class FrameworkCategoryV3ControllerTest extends BaseCategoryInstanceMgrTe
 	private MockMvc mockMvc;
 	private ResultActions actions;
 	private final String base_category_path = "/framework/v3/category";
-	static int rn = generateRandomNumber(0, 9999);
-	static String node_id = "";
+	private static String node_id = "";
+	
+	@Autowired
+	private ICategoryManager categoryMgr;
+	
+	@Autowired
+	private IChannelManager channelMgr;
+	
+	@Autowired
+	private IFrameworkManager frmwrkMgr;
+
+	private String createCategoryValidRequest = "{\"category\":{\"name\":\"category\",\"description\":\"\",\"code\":\"class_1" + "\"}}";
+	private String createCategoryWithoutCode = "{\"request\":{\"category\":{\"name\":\"category\",\"description\":\"\"}}}";
+	private String updateCategoryRequest = "{\"request\":{\"category\":{\"description\":\"LP category API\"}}}";
+	private String searchCategory = "{\"request\":{\"search\":{}}}";
+	
+	private ObjectMapper mapper = new ObjectMapper();
 
 	@Before
-	public void setup() {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
-	}
-
-	@Autowired
-	ICategoryInstanceManager categoryInstanceMgr;
-	
-	@Autowired
-	ICategoryManager categoryMgr;
-	
-	@Autowired
-	IChannelManager channelMgr;
-	
-	@Autowired
-	IFrameworkManager frmwrkMgr;
-	
-	String createCategoryValidRequest = "{\"category\":{\"name\":\"category\",\"description\":\"\",\"code\":\"class_1" + "\"}}";
-	String createCategoryWithoutCode = "{\"request\":{\"category\":{\"name\":\"category\",\"description\":\"\"}}}";
-	String updateCategoryRequest = "{\"request\":{\"category\":{\"description\":\"LP category API\"}}}";
-	String searchCategory = "{\"request\":{\"search\":{}}}";
-	
-	ObjectMapper mapper = new ObjectMapper();
-	
-//	@BeforeClass()
-//	public static void beforeClass() throws Exception {
-//		loadDefinition("definitions/category_definition.json");
-//	}
-
-	
-	// method to generate random numbers for a given range of input
-	private static int generateRandomNumber(int min, int max) {
-		Random r = new Random();
-		return r.nextInt((max - min) + 1) + min;
-	}
+	public void setUp() { this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build(); }
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Test

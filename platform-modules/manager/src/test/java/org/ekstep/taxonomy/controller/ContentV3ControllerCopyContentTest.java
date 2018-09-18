@@ -240,7 +240,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	//@Test
 	public void copyContentTest_06() throws Exception {
 		Map<String, Object> map = uploadContent(contentId);
 		delay();

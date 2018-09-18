@@ -1,16 +1,5 @@
 package org.ekstep.content.concrete.processor;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
@@ -25,6 +14,13 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.telemetry.logger.TelemetryManager;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * The Class LocalizeAssetProcessor is a Content Workflow pipeline Processor
@@ -73,8 +69,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		this.basePath = basePath;
 		this.contentId = contentId;
 
-		String env = S3PropertyReader.getProperty("s3.env");
-		this.pluginMediaBaseURL = S3PropertyReader.getProperty("s3.url." + env);
+		this.pluginMediaBaseURL = S3PropertyReader.getProperty("plugin.media.base.url");
 		// TODO need to throw exception if this property not exist. Plan in release-1.10.0
 		this.contentMediaBaseURL = Platform.config.hasPath("content.media.base.url") ? Platform.config.getString("content.media.base.url") : this.pluginMediaBaseURL;
 

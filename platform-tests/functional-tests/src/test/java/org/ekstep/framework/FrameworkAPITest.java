@@ -17,12 +17,10 @@ public class FrameworkAPITest extends BaseTest{
 	int rn = generateRandomInt(0, 999999);
 	public String channelId = "in.ekstep";
 	public String invalidChannelId = "in.ekstep.invalid";
-	String jsonCreateValidFramework = "{\"request\":{\"framework\":{\"name\":\"LP_FT_Framework_"+ rn +"\",\"description\":\"LP_FR\",\"code\":\"LP_FT_Framework_"+ rn +"\"}}}";
+	String jsonCreateValidFramework = "{\"request\":{\"framework\":{\"name\":\"LP_FT_Framework_"+ rn +"\",\"description\":\"FT_Framework\",\"code\":\"LP_FT_Framework_"+ rn +"\",\"translations\":{\"hi\":\"टेस्ट फ़्रेम्वर्क\",\"ka\":\"ೂಾೇೂ ಿೀೋಸಾೈದೀಕ\"}}}";
 	String jsonUpdateFrameworkRequest = "{\"request\":{\"framework\":{\"description\":\"LP_FT_category updated description\",\"name\":\"LP_FT_UpdatedName"+rn+"\"}}}";
 	String jsonSearchFrameworkRequest = "{\"request\":{\"search\":{\"status\":\"Live\"}}}";
 	//String jsonCreateValidFramework = "{\"request\":{\"framework\":{\"name\":\"LP_FR_"+ rn +"\",\"description\":\"LP_FR\",\"code\":\"LP_FR_"+ rn +"\",\"channels\":[{\"identifier\":\"Test\"}]}}}";
-	
-
 	
 	// Create and get Framework
 	@Test
@@ -45,7 +43,7 @@ public class FrameworkAPITest extends BaseTest{
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
 		String frameworkNode = jp.get("result.node_id");
-
+		
 		// Get Framework and validate
 		setURI();
 		Response R1 =
@@ -171,6 +169,19 @@ public class FrameworkAPITest extends BaseTest{
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
 		String frameworkNode = jp.get("result.node_id");
+		
+		//Publish Framework
+		String publishReq="{}";
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+		body(publishReq).
+		with().
+		contentType(JSON).
+		when().
+		post("/framework/v3/publish").
+		then().
+		spec(get200ResponseSpec());
 
 		// Get Framework and validate
 		setURI();
@@ -188,8 +199,14 @@ public class FrameworkAPITest extends BaseTest{
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.framework.identifier");
 		String versionKey = jP1.get("result.framework.versionKey");
+		String code=jP1.getString("result.framework.code");
+		String desc=jP1.getString("result.framework.description");
 		Assert.assertTrue(versionKey!=null);
 		Assert.assertEquals(frameworkNode, identifier);
+		Assert.assertEquals(frameworkNode, code);
+		Assert.assertEquals("FT_Framework", desc);
+		Assert.assertEquals("टेस्ट फ़्रेम्वर्क", jP1.getString("result.framework.translations.hi"));
+		Assert.assertEquals("ೂಾೇೂ ಿೀೋಸಾೈದೀಕ", jP1.getString("result.framework.translations.ka"));
 	}
 	
 	// Read blank framework
