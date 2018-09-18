@@ -3,7 +3,6 @@ package org.ekstep.content.tool.service;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.springframework.stereotype.Component;
@@ -74,25 +73,26 @@ public class SyncService extends BaseService implements ISyncService {
         List<String> failure = new ArrayList<>();
 
         for (String id : identifiers.keySet()) {
-            Response readResponse = executeGet(destUrl + "/content/" + destVersion + "/read/" + id, destKey);
-            if (StringUtils.equals(ResponseParams.StatusType.successful.name(), readResponse.getParams().getStatus())) {
+            Response readResponse = getContent(id, true); //executeGet(destUrl + "/content/" + destVersion + "/read/" + id, destKey);
+            Response sourceContent = getContent(id, false);
+            if (isSuccess(readResponse)) {
                 if (0 == Double.compare((Double) identifiers.get(id), (Double) ((Map<String, Object>) readResponse.get("content")).get("pkgVersion"))) {
                     if(!request.isEmpty()) {
-                        Response updateResponse = executePatch(destUrl + "/system/" + destVersion + "/content/update/" + id, destKey, request, channel);
-                        Response updateSourceResponse = executePatch(sourceUrl + "/system/" + sourceVersion + "/content/update/" + id, sourceKey, request, channel);
+                        Response updateResponse = systemUpdate(id, request, channel, true); //executePatch(destUrl + "/system/" + destVersion + "/content/update/" + id, destKey, request, channel);
+                        Response updateSourceResponse = systemUpdate(id, request, channel, false); //executePatch(sourceUrl + "/system/" + sourceVersion + "/content/update/" + id, sourceKey, request, channel);
+
+                        Map<String, Object> children = new HashMap<>();
+                        fetchChildren(readResponse, children);
+                        if (!children.isEmpty())
+                            updateData(children, request, channel);
+                        if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
+                            successful.add(id);
+                        } else {
+                            failure.add(id);
+                        }
                     }
-
-
-
-                    Map<String, Object> children = new HashMap<>();
-                    fetchChildren(readResponse, children);
-                    if (!children.isEmpty())
-                        updateData(children, request, channel);
-                   /* if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
-                        successful.add(id);
-                    } else {
-                        failure.add(id);
-                    }*/
+                    downloadArtifact(i)
+                    //uploadArtifact();
                 } else {
                     failure.add(id);
                 }
@@ -163,9 +163,9 @@ public class SyncService extends BaseService implements ISyncService {
 
         for (String id : identifiers.keySet()) {
             try {
-                Response destContent = executeGet(destUrl + "/content/" + destVersion + "/read/" + id + "fields=identifier,pkgVersion", destKey);
+                Response destContent = getContent(id, true);//executeGet(destUrl + "/content/" + destVersion + "/read/" + id + "fields=identifier,pkgVersion", destKey);
                 if (isSuccess(destContent)) {
-                    Response sourceContent = executeGet(sourceUrl + "/content/" + sourceVersion + "/read/" + id, sourceKey);
+                    Response sourceContent = getContent(id, false);//executeGet(sourceUrl + "/content/" + sourceVersion + "/read/" + id, sourceKey);
                     if (Double.compare(((Double) destContent.get("pkgVersion")), ((Double) sourceContent.get("pkgVersion"))) == -1) {
                         updateMetadata(sourceContent);
                         synchierarchy(id);
@@ -184,14 +184,12 @@ public class SyncService extends BaseService implements ISyncService {
             }
 
         }
-
-
         return response;
 
     }
 
     private void createContent(String id) throws Exception {
-        Response sourceContent = executeGet(sourceUrl + "/content/" + sourceVersion + "/read/" + id, sourceKey);
+        Response sourceContent = getContent(id, false); //executeGet(sourceUrl + "/content/" + sourceVersion + "/read/" + id, sourceKey);
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
         //cleanMetadata(metadata);
         String channel = (String) metadata.get("channel");
@@ -200,12 +198,13 @@ public class SyncService extends BaseService implements ISyncService {
         Map<String, Object> request = new HashMap<>();
         request.put("request", content);
 
-        Response response = executePatch(destUrl + "/system/" + destVersion + "/content/update/", destKey, request, channel);
+        Response response = systemUpdate(id, request, channel, true);//executePatch(destUrl + "/system/" + destVersion + "/content/update/"+ id, destKey, request, channel);
 
         if (isSuccess(response)) {
-            downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType);
-            copyAssets(id);
-            uploadArtifact(id);
+            String localPath  = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType);
+            if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", (String) metadata.get("mimeType")))
+                copyAssets(localPath);
+            //uploadArtifact(id);
             List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
 
             for (Map<String, Object> child : children) {
@@ -215,8 +214,22 @@ public class SyncService extends BaseService implements ISyncService {
 
     }
 
-    private void copyAssets(String id) {
-        //readECMLFile("/tmp/" + id + /);
+    private void copyAssets(String localPath) throws Exception {
+       Map<String, Object> assets =  readECMLFile(localPath + "/index.ecml");
+       for(String assetId: assets.keySet()) {
+           Response destAsset = getContent(assetId, true);
+           if(!isSuccess(destAsset)) {
+                Response sourceAsset = getContent(assetId, false);
+                if(isSuccess(sourceAsset)){
+                    Map<String, Object> assetRequest = (Map<String, Object>) sourceAsset.get("content");
+                    assetRequest.remove("variants");
+                    Response response = uploadAsset(localPath + assets.get(assetId), assetId);
+
+
+                }
+           }
+       }
+
     }
 
     private void cleanMetadata(Map<String, Object> metadata) {
@@ -241,7 +254,7 @@ public class SyncService extends BaseService implements ISyncService {
         Map<String, Object> request = new HashMap<>();
         request.put("request", content);
 
-        Response response = executePatch(destUrl + "/system/" + destVersion + "/content/update/", destKey, request, channel);
+        Response response = systemUpdate((String) metadata.get("identifier"), request, channel, true); //executePatch(destUrl + "/system/" + destVersion + "/content/update/", destKey, request, channel);
 
     }
 

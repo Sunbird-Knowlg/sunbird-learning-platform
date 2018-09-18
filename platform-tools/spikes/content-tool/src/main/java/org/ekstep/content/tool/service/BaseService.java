@@ -22,6 +22,7 @@ import scala.Option;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -128,17 +129,18 @@ public class BaseService {
         return StringUtils.equals(ResponseParams.StatusType.successful.name(), response.getParams().getStatus());
     }
 
-    protected void uploadArtifact(String id) {
-
+    protected void uploadArtifact(String path, String cloudStoreType) {
+        getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), path, path, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
 
     }
 
-    protected void downloadArtifact(String id, String downloadUrl, String cloudStoreType) {
+    protected String downloadArtifact(String id, String downloadUrl, String cloudStoreType) {
         String localPath = "/tmp/" + id;
         String[] fileUrl = downloadUrl.split("/");
-        String filename = fileUrl[fileUrl.length -1];
+        String filename = fileUrl[fileUrl.length - 1];
         getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), downloadUrl, localPath, Option.apply(false));
         CommonUtil.unZip(localPath + "/" + filename, localPath);
+        return localPath;
     }
 
 
@@ -163,8 +165,8 @@ public class BaseService {
     }
 
 
-    public Map<String, List<Object>> readECMLFile(String filePath) {
-        final Map<String, List<Object>> mediaIdMap = new HashMap<String, List<Object>>();
+    public Map<String, Object> readECMLFile(String filePath) {
+        final Map<String, Object> mediaIdMap = new HashMap<>();
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
@@ -175,19 +177,15 @@ public class BaseService {
                         String id = attributes.getValue("id");
                         if (StringUtils.isNotBlank(id)) {
                             String src = attributes.getValue("src");
-                            if (StringUtils.isNotBlank(src)) {
+                            if (StringUtils.isNotBlank(src) && StringUtils.equalsIgnoreCase("image", attributes.getValue("type"))) {
                                 String assetId = attributes.getValue("assetId");
-                                List<Object> mediaValues = new ArrayList<Object>();
-                                mediaValues.add(src);
-                                mediaValues.add(assetId);
-                                mediaIdMap.put(id, mediaValues);
+                                mediaIdMap.put(id, src);
                             }
                         }
                     }
                 }
 
                 public void endElement(String uri, String localName, String qName) throws SAXException {
-                    // System.out.println("End Element :" + qName);
                 }
             };
             saxParser.parse(filePath, handler);
@@ -197,10 +195,37 @@ public class BaseService {
         return mediaIdMap;
     }
 
+    protected Response getContent(String id, boolean isDestination) throws Exception {
+        if(isDestination)
+            return executeGet(destUrl + "/content/" + destVersion + "/read/" + id, destKey);
+        else
+            return executeGet(sourceUrl + "/content/" + sourceVersion + "/read/" + id, sourceKey);
+    }
 
-    public static void main(String[] args) {
+
+    protected Response systemUpdate(String id, Map<String, Object> request, String channel, boolean isDestination) throws Exception {
+        if(isDestination)
+            return executePatch(destUrl + "/system/" + destVersion + "/content/update/" + id, destKey, request, channel);
+        else
+            return executePatch(sourceUrl + "/system/" + sourceVersion + "/content/update/" + id, sourceKey, request, channel);
+    }
+
+    protected Response uploadAsset(String path, String id) throws Exception {
+        File file = new File(path);
+        HttpResponse<String> httpResponse = Unirest.post(destUrl + "/content/" + destVersion + "/upload/" + id).header("Authorization", destKey).field("file", file).asString();
+        Response response = mapper.readValue(httpResponse.getBody(), Response.class);
+        return response;
+
+    }
+
+    public static void main(String[] args) throws Exception {
         BaseService service  = new BaseService();
-        service.downloadArtifact("do_21259266313247948813016", "https://ekstep-public-qa.s3-ap-south-1.amazonaws.com/content/do_21259266313247948813016/artifact/1537190425252_do_21259266313247948813016.zip", "aws");
+        //service.downloadArtifact("do_21259266313247948813016", "https://ekstep-public-qa.s3-ap-south-1.amazonaws.com/content/do_21259266313247948813016/artifact/1537190425252_do_21259266313247948813016.zip", "aws");
+        Map<String, Object> assets = service.readECMLFile("/Users/pradyumna/Downloads/1537190425252_do_21259266313247948813016/index.ecml");
+
+        for(String assetId: assets.keySet()) {
+            Response response = service.uploadAsset("/Users/pradyumna/Downloads/1537190425252_do_21259266313247948813016/assets/" + (String) assets.get(assetId), assetId);
+        }
     }
 }
 
