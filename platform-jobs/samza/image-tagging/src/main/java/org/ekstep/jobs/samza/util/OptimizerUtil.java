@@ -14,7 +14,6 @@ import org.ekstep.common.optimizr.FileType;
 import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.common.optimizr.image.ImageResolutionUtil;
 import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.graph.dac.model.Node;
