@@ -184,6 +184,9 @@ public class Neo4JBoltNodeOperations {
 								"Object already exists with identifier: " + node.getIdentifier());
 					else
 						throw new ServerException(e.code(), e.getMessage());
+				} catch (Exception ex) {
+					System.out.println("Neo4JBlotNodeOperations - connection issue validation...");
+					ex.printStackTrace();
 				}
 			}
 		} catch (Exception e) {
