@@ -187,8 +187,8 @@ public class Neo4JBoltNodeOperations {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			if (!(e instanceof MiddlewareException)) {
-				e.printStackTrace();
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
