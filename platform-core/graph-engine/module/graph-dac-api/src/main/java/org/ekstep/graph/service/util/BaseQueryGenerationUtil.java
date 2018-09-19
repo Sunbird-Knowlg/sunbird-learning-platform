@@ -204,10 +204,7 @@ public class BaseQueryGenerationUtil {
 			// Adding 'createdOn' Property
 			if (BooleanUtils.isFalse(isUpdateOnly))
 				query.append(AuditProperties.createdOn.name()).append(CypherQueryConfigurationConstants.COLON)
-						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
-						.append(node.getMetadata().containsKey(AuditProperties.createdOn.name())
-									? node.getMetadata().get(AuditProperties.createdOn.name())
-								    : date)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(date)
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 						.append(CypherQueryConfigurationConstants.COMMA);
 
@@ -230,12 +227,10 @@ public class BaseQueryGenerationUtil {
 		if (null != node && StringUtils.isNotBlank(date)) {
 			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
 			// Adding 'createdOn' Property
-			if (BooleanUtils.isFalse(isUpdateOnly)) {
+			if (BooleanUtils.isFalse(isUpdateOnly))
 				query.append(AuditProperties.createdOn.name() + ":  { AP_" + AuditProperties.createdOn.name() + " }, ");
-				if(node.getMetadata().containsKey(AuditProperties.createdOn.name()))
-					paramValuesMap.put("AP_" + AuditProperties.createdOn.name(), node.getMetadata().get(AuditProperties.createdOn.name()));
-				else paramValuesMap.put("AP_" + AuditProperties.createdOn.name(), date);
-			}
+
+			paramValuesMap.put("AP_" + AuditProperties.createdOn.name(), date);
 
 			if (null != node.getMetadata()
 					&& null == node.getMetadata().get(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name())) {
