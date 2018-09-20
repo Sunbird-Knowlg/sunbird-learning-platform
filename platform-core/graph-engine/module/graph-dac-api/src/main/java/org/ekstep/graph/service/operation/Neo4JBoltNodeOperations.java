@@ -112,6 +112,7 @@ public class Neo4JBoltNodeOperations {
 			}
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
+				e.printStackTrace();
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -177,15 +178,23 @@ public class Neo4JBoltNodeOperations {
 							//suppress exception happened when versionKey is null
 						}
 					}
-				} catch (org.neo4j.driver.v1.exceptions.ClientException e) {
-					if (StringUtils.equalsIgnoreCase("Neo.ClientError.Schema.ConstraintValidationFailed", e.code()))
-						throw new ClientException(GraphDacErrorParams.CONSTRAINT_VALIDATION_FAILED.name(),
+
+				} catch (Exception e) {
+					System.out.println("Neo4JBlotNodeOperations - connection issue validation...");
+					e.printStackTrace();
+					if (e instanceof org.neo4j.driver.v1.exceptions.ClientException) {
+						org.neo4j.driver.v1.exceptions.ClientException ex = (org.neo4j.driver.v1.exceptions.ClientException) e;
+						if (StringUtils.equalsIgnoreCase("Neo.ClientError.Schema.ConstraintValidationFailed", ex.code()))
+							throw new ClientException(GraphDacErrorParams.CONSTRAINT_VALIDATION_FAILED.name(),
 								"Object already exists with identifier: " + node.getIdentifier());
-					else
-						throw new ServerException(e.code(), e.getMessage());
+						else
+							throw new ServerException(ex.code(), e.getMessage());
+					}
+						
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			if (!(e instanceof MiddlewareException)) {
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
@@ -273,6 +282,7 @@ public class Neo4JBoltNodeOperations {
 
 		} catch (Exception e) {
 			if (!(e instanceof MiddlewareException)) {
+				e.printStackTrace();
 				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			} else {
@@ -392,6 +402,7 @@ public class Neo4JBoltNodeOperations {
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -430,6 +441,7 @@ public class Neo4JBoltNodeOperations {
 
 			NodeCacheManager.deleteDataNode(graphId, nodeId);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -469,6 +481,7 @@ public class Neo4JBoltNodeOperations {
 			}
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}
@@ -513,6 +526,7 @@ public class Neo4JBoltNodeOperations {
 					TelemetryManager.log("Upsert Root Node Operation | ", record.asMap());
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
 					DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 		}

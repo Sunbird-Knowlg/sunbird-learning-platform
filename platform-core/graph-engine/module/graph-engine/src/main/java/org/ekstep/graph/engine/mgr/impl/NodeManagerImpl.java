@@ -180,6 +180,8 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 							ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
 				}
 			} catch (Exception e) {
+				System.out.println("NodeManagerImpl - connection issue validation...");
+				e.printStackTrace();
 				handleException(e, getSender());
 			}
 		}

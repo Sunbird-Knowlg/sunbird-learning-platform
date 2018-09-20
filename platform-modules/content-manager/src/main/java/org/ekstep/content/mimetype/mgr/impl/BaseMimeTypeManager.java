@@ -492,6 +492,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			folder = folder + "/" + Slug.makeSlug(identifier, true) + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
 			urlArray = CloudStore.uploadFile(folder, uploadedFile, true);
 		} catch (Exception e) {
+			TelemetryManager.error("Error while uploading the file.", e);
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
 					"Error while uploading the File.", e);
 		}
