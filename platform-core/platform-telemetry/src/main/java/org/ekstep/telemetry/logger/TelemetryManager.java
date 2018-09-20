@@ -1,5 +1,6 @@
 package org.ekstep.telemetry.logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,14 +158,61 @@ public class TelemetryManager {
 		String event = TelemetryGenerator.audit(context, props, state, prevState);
 		telemetryHandler.send(event, Level.INFO);
 	}
-	
-	public static void search(String query, Object filters, Object sort, String correlationId, int size, Object topN,
+
+	/**
+	 * @param query
+	 * @param filters
+	 * @param sort
+	 * @param size
+	 * @param topN
+	 * @param type
+	 */
+	public static void search(String query, Object filters, Object sort, int size, Object topN,
 			String type) {
-		Map<String, String> context = getContext();
-		String did = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.DEVICE_ID.name());
-		if(StringUtils.isNotBlank(did))
-			context.put("did", did);
-		String event = TelemetryGenerator.search(context, query, filters, sort, correlationId, size, topN, type);
+		search(null, query, filters, sort, size, topN, type);
+	}
+
+	/**
+	 * @param context
+	 * @param query
+	 * @param filters
+	 * @param sort
+	 * @param size
+	 * @param topN
+	 * @param type
+	 */
+	public static void search(Map<String, Object> context, String query, Object filters, Object sort,
+							  int size, Object topN, String type) {
+		Map<String, String> reqContext=null;
+		String deviceId=null;
+		String appId=null;
+
+		if(null!=context){
+			reqContext=new HashMap<String,String>();
+			reqContext.put(TelemetryParams.ACTOR.name(),(String) context.get(TelemetryParams.ACTOR.name()));
+			reqContext.put(TelemetryParams.ENV.name(),(String) context.get(TelemetryParams.ENV.name()));
+			reqContext.put(TelemetryParams.CHANNEL.name(),(String) context.get(HeaderParam.CHANNEL_ID.name()));
+			deviceId = (String) context.get(HeaderParam.DEVICE_ID.name());
+			if(StringUtils.isNotBlank(deviceId))
+				reqContext.put("did", deviceId);
+			appId=(String) context.get(HeaderParam.APP_ID.name());
+		}else{
+			reqContext = getContext();
+			deviceId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.DEVICE_ID.name());
+			if(StringUtils.isNotBlank(deviceId))
+				context.put("did", deviceId);
+			appId=(String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.APP_ID.name());
+		}
+
+		List<Map<String, Object>> cData = null;
+		if (StringUtils.isNotBlank(deviceId) && StringUtils.isNotBlank(appId)) {
+			cData = new ArrayList<Map<String, Object>>();
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("id", deviceId);
+			data.put("type", appId);
+			cData.add(data);
+		}
+		String event = TelemetryGenerator.search(reqContext, query, filters, sort, cData, size, topN, type);
 		telemetryHandler.send(event, Level.INFO, true);
 	}
 

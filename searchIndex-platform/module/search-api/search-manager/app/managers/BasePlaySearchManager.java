@@ -63,7 +63,7 @@ public class BasePlaySearchManager extends Results {
 									Promise<Result> searchResult = getSearchResponse(response, request);
 									int count = (response.getResult() == null ? 0
 											: (Integer) response.getResult().get("count"));
-									writeTelemetryLog(request, correlationId, response);
+									writeTelemetryLog(request, response);
 									return searchResult.get(SearchRequestRouterPool.REQ_TIMEOUT);
 								}
 								return ok(getResult(response, request, null, correlationId)).as("application/json");
@@ -195,7 +195,8 @@ public class BasePlaySearchManager extends Results {
 		return sdf.format(new Date());
 	}
 
-	protected void writeTelemetryLog(Request request, String correlationId, Response response) {
+	protected void writeTelemetryLog(Request request, Response response) {
+		Map<String,Object> context=request.getContext();
 		String query = StringUtils.isBlank((String) request.get(CompositeSearchParams.query.name())) ? ""
 				: (String) request.get(CompositeSearchParams.query.name());
 		Map<String, Object> filters = (null != request.get(CompositeSearchParams.filters.name()))
@@ -205,7 +206,7 @@ public class BasePlaySearchManager extends Results {
 		int count = (response.getResult() == null ? 0 : (Integer) response.getResult().get("count"));
 		Object topN = getTopNResult(response.getResult());
 		String type = getType(filters);
-		TelemetryManager.search(query, filters, sort, correlationId, count, topN, type);
+		TelemetryManager.search(context, query, filters, sort, count, topN, type);
 	}
 
 	@SuppressWarnings("unchecked")
