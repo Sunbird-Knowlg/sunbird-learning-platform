@@ -15,6 +15,7 @@ import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,11 +29,13 @@ public class HierarchySyncManager {
 
     private int batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
 
-    public void syncHierarchy(String graphId) {
+    public void syncHierarchy(String graphId, String offset, String limit, String[] ignoreIds) {
         if (StringUtils.isBlank(graphId))
             throw new ClientException("BLANK_GRAPH_ID", "Graph Id is blank.");
 
-        List<String> identifiers = util.getPublishedCollections(graphId);
+        int offsets = (StringUtils.isNotBlank(offset))? Integer.parseInt(offset): 0;
+        int limits = (StringUtils.isNotBlank(limit))? Integer.parseInt(limit): 0;
+        List<String> identifiers = util.getPublishedCollections(graphId, offsets, limits);
         DefinitionDTO definition = util.getDefinition(graphId, "Content");
 
         if(CollectionUtils.isEmpty(identifiers)) {
@@ -42,12 +45,12 @@ public class HierarchySyncManager {
 
             System.out.println("-----------------------------------------");
 
-            syncCollections(graphId, identifiers, definition);
+            syncCollections(graphId, identifiers, definition, Arrays.asList(ignoreIds));
 
         }
     }
 
-    private void syncCollections(String graphId, List<String> identifiers, DefinitionDTO definition) {
+    private void syncCollections(String graphId, List<String> identifiers, DefinitionDTO definition, List<String> ignoredIds) {
         long startTime = System.currentTimeMillis();
         long status = 0;
         for(List<String> ids : Lists.partition(identifiers, batchSize)) {
@@ -64,11 +67,15 @@ public class HierarchySyncManager {
 
 
             for(Node node: nodes) {
-                Map<String, Object> hierarchy = util.getContentHierarchyRecursive(node.getGraphId(), node, definition, null, true);
-                collectionStore.updateContentHierarchy(node.getIdentifier(), hierarchy);
-
+                if(!ignoredIds.contains(node.getIdentifier())){
+                    Map<String, Object> hierarchy = util.getContentHierarchyRecursive(node.getGraphId(), node, definition, null, true);
+                    collectionStore.updateContentHierarchy(node.getIdentifier(), hierarchy);
+                    status +=1;
+                }else{
+                    System.out.println("ignoring ID : " + node.getIdentifier());
+                }
             }
-            status += ids.size();
+            //status += ids.size();
             System.out.println("Completed " + status + " collections out of " + identifiers.size());
         }
         System.out.println("-----------------------------------------");
