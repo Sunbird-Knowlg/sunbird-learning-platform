@@ -141,17 +141,22 @@ public class BaseService {
     }
 
     protected String downloadArtifact(String id, String artifactUrl, String cloudStoreType, boolean extractFile) {
-        String localPath = "tmp/" + id;
-        String[] fileUrl = artifactUrl.split("/");
-        String filename = fileUrl[fileUrl.length - 1];
-        getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), artifactUrl, localPath, Option.apply(false));
+        String folder = "content" + File.separator + id + File.separator + "artifact";
+        if(StringUtils.isNotBlank(artifactUrl)){
+            String localPath = "tmp/" + id + File.separator;
+            String[] fileUrl = artifactUrl.split("/");
+            String filename = fileUrl[fileUrl.length - 1];
+            String objectKey = folder + "/" + filename;
+            getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), objectKey, localPath, Option.apply(false));
 
-        if(extractFile){
-            CommonUtil.unZip(localPath + "/" + filename, localPath);
-            return localPath;
-        }else{
-            return localPath + "/" + filename;
+            if(extractFile){
+                CommonUtil.unZip(localPath + "/" + filename, localPath);
+                return localPath;
+            }else{
+                return localPath + "/" + filename;
+            }
         }
+        return null;
 
     }
 

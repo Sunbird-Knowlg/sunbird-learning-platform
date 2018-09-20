@@ -296,19 +296,20 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private void copyAssets(String localPath) throws Exception {
-       Map<String, Object> assets =  readECMLFile(localPath + "/index.ecml");
-       for(String assetId: assets.keySet()) {
-           Response destAsset = getContent(assetId, true);
-           if(!isSuccess(destAsset)) {
-                Response sourceAsset = getContent(assetId, false);
-                if(isSuccess(sourceAsset)){
-                    Map<String, Object> assetRequest = (Map<String, Object>) sourceAsset.get("content");
-                    assetRequest.remove("variants");
-                    Response response = uploadAsset(localPath + assets.get(assetId), assetId);
+        if (StringUtils.isNotBlank(localPath)){
+            Map<String, Object> assets =  readECMLFile(localPath + "/index.ecml");
+            for(String assetId: assets.keySet()) {
+                Response destAsset = getContent(assetId, true);
+                if(!isSuccess(destAsset)) {
+                    Response sourceAsset = getContent(assetId, false);
+                    if(isSuccess(sourceAsset)){
+                        Map<String, Object> assetRequest = (Map<String, Object>) sourceAsset.get("content");
+                        assetRequest.remove("variants");
+                        Response response = uploadAsset(localPath + assets.get(assetId), assetId);
+                    }
                 }
-           }
-       }
-
+            }
+        }
     }
 
     private void cleanMetadata(Map<String, Object> metadata) {
