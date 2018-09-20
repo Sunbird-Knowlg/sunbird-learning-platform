@@ -250,7 +250,7 @@ public class BaseService {
 
     }
 
-    public static void main(String[] args) throws Exception {
+   /* public static void main(String[] args) throws Exception {
         BaseService service  = new BaseService();
         //service.downloadArtifact("do_21259266313247948813016", "https://ekstep-public-qa.s3-ap-south-1.amazonaws.com/content/do_21259266313247948813016/artifact/1537190425252_do_21259266313247948813016.zip", "aws");
         Map<String, Object> assets = service.readECMLFile("/Users/pradyumna/Downloads/1537190425252_do_21259266313247948813016/index.ecml");
@@ -258,6 +258,6 @@ public class BaseService {
         for(String assetId: assets.keySet()) {
             Response response = service.uploadAsset("/Users/pradyumna/Downloads/1537190425252_do_21259266313247948813016/assets/" + (String) assets.get(assetId), assetId);
         }
-    }
+    }*/
 }
 

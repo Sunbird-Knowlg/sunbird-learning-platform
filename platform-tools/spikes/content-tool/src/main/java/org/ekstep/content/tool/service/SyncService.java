@@ -19,6 +19,9 @@ import java.util.Map;
 @Component("contentSyncService")
 public class SyncService extends BaseService implements ISyncService {
 
+
+    private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+
     @Override
     public void dryRun() {
 
@@ -79,7 +82,8 @@ public class SyncService extends BaseService implements ISyncService {
             Response readResponse = getContent(id, true);
             Response sourceContent = getContent(id, false);
             if (isSuccess(readResponse)) {
-                if (0 == Double.compare((Double) identifiers.get(id), (Double) ((Map<String, Object>) readResponse.get("content")).get("pkgVersion"))) {
+                Map<String, Object> content = (Map<String, Object>)readResponse.get("content");
+                if (0 == Double.compare((Double) identifiers.get(id), (Double) content.get("pkgVersion"))) {
                     if(!request.isEmpty()) {
                         Response updateResponse = systemUpdate(id, request, channel, true);
                         Response updateSourceResponse = systemUpdate(id, request, channel, false);
@@ -93,8 +97,15 @@ public class SyncService extends BaseService implements ISyncService {
                     fetchChildren(readResponse, children);
                     if (!children.isEmpty())
                         updateData(children, request, channel);
+                    if(StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) content.get("mimeType")))
+                        syncHierarchy(id);
+
+                    if(containsItemsSet(content)){
+                        copyAssessmentItems((List<Map<String, Object>>) content.get("item_sets"));
+                    }
+
                     copyEcar(readResponse);
-                } else if(-1 == Double.compare((Double) identifiers.get(id), (Double) ((Map<String, Object>) readResponse.get("content")).get("pkgVersion"))) {
+                } else if(-1 == Double.compare((Double) identifiers.get(id), (Double) content.get("pkgVersion"))) {
                     syncData(identifiers);
                     updateData(identifiers, request, channel);
                 } else {
@@ -109,6 +120,25 @@ public class SyncService extends BaseService implements ISyncService {
         output.put("failed", failure);
 
         return output;
+    }
+
+    private boolean containsItemsSet(Map<String, Object> content) {
+        return CollectionUtils.isNotEmpty((List<Map<String, Object>>) content.get("item_sets"));
+    }
+
+    private void copyAssessmentItems(List<Map<String, Object>> itemSets) throws Exception {
+        /*for(Map<String, Object> itemSet: itemSets) {
+            String id = (String) itemSet.get("identifier");
+            Response response = executeGet(destUrl + "/assessment/v3/itemsets/" + id, destKey);
+            if(!isSuccess(response)) {
+                Response sourceItemSet = getContent(id, false);
+                if(isSuccess(sourceItemSet)){
+                    Map<String, Object> metadata = (Map<String, Object>) sourceItemSet.get("assessment_item_set");
+
+                }
+            }
+        }*/
+
     }
 
     private void copyEcar(Response readResponse) throws Exception {
@@ -220,7 +250,7 @@ public class SyncService extends BaseService implements ISyncService {
                     Response sourceContent = getContent(id, false);
                     if (Double.compare(((Double) destContent.get("pkgVersion")), ((Double) sourceContent.get("pkgVersion"))) == -1) {
                         updateMetadata(sourceContent);
-                        synchierarchy(id);
+                        syncHierarchy(id);
                         success.add(id);
                     } else {
                         failed.add(id);
@@ -228,7 +258,7 @@ public class SyncService extends BaseService implements ISyncService {
 
                 } else {
                     createContent(id);
-                    synchierarchy(id);
+                    syncHierarchy(id);
                     success.add(id);
                 }
             } catch (Exception e) {
@@ -274,8 +304,6 @@ public class SyncService extends BaseService implements ISyncService {
                     Map<String, Object> assetRequest = (Map<String, Object>) sourceAsset.get("content");
                     assetRequest.remove("variants");
                     Response response = uploadAsset(localPath + assets.get(assetId), assetId);
-
-
                 }
            }
        }
@@ -291,7 +319,7 @@ public class SyncService extends BaseService implements ISyncService {
         metadata.remove("variants");
     }
 
-    private void synchierarchy(String id) throws Exception {
+    private void syncHierarchy(String id) throws Exception {
         executePost(destUrl + "/content/v3/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
     }
 
