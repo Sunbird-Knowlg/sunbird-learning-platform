@@ -141,7 +141,7 @@ public class BaseService {
     }
 
     protected String downloadArtifact(String id, String artifactUrl, String cloudStoreType, boolean extractFile) {
-        String localPath = "/tmp/" + id;
+        String localPath = "tmp/" + id;
         String[] fileUrl = artifactUrl.split("/");
         String filename = fileUrl[fileUrl.length - 1];
         getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), artifactUrl, localPath, Option.apply(false));
@@ -156,7 +156,7 @@ public class BaseService {
     }
 
     protected String downloadEcar(String id, String downloadUrl, String cloudStoreType) {
-        String localPath = "/tmp/" + id;
+        String localPath = "tmp/" + id;
         String[] fileUrl = downloadUrl.split("/");
         String filename = fileUrl[fileUrl.length - 1];
         String objectKey = "ecar-files" + File.separator + id + File.separator + filename;

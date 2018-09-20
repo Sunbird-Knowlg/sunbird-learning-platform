@@ -184,7 +184,7 @@ public class SyncService extends BaseService implements ISyncService {
             systemUpdate(id, request, (String) metadata.get("channel"), true);
         }
         finally{
-            FileUtils.deleteDirectory(new File("/tmp/" + id));
+            FileUtils.deleteDirectory(new File("tmp/" + id));
         }
     }
 
