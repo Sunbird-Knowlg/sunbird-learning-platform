@@ -1,12 +1,14 @@
 package org.ekstep.content.tool.service;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,6 +52,7 @@ public class SyncService extends BaseService implements ISyncService {
             Map<String, Object> response = syncData(identifiers);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ServerException("ERR_OWNER_MIG", "Error while syncing content data", e);
         }
 
     }
@@ -73,26 +76,27 @@ public class SyncService extends BaseService implements ISyncService {
         List<String> failure = new ArrayList<>();
 
         for (String id : identifiers.keySet()) {
-            Response readResponse = getContent(id, true); //executeGet(destUrl + "/content/" + destVersion + "/read/" + id, destKey);
+            Response readResponse = getContent(id, true);
             Response sourceContent = getContent(id, false);
             if (isSuccess(readResponse)) {
                 if (0 == Double.compare((Double) identifiers.get(id), (Double) ((Map<String, Object>) readResponse.get("content")).get("pkgVersion"))) {
                     if(!request.isEmpty()) {
-                        Response updateResponse = systemUpdate(id, request, channel, true); //executePatch(destUrl + "/system/" + destVersion + "/content/update/" + id, destKey, request, channel);
-                        Response updateSourceResponse = systemUpdate(id, request, channel, false); //executePatch(sourceUrl + "/system/" + sourceVersion + "/content/update/" + id, sourceKey, request, channel);
-
-                        Map<String, Object> children = new HashMap<>();
-                        fetchChildren(readResponse, children);
-                        if (!children.isEmpty())
-                            updateData(children, request, channel);
+                        Response updateResponse = systemUpdate(id, request, channel, true);
+                        Response updateSourceResponse = systemUpdate(id, request, channel, false);
                         if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
                             successful.add(id);
                         } else {
                             failure.add(id);
                         }
                     }
-                    downloadArtifact(i)
-                    //uploadArtifact();
+                    Map<String, Object> children = new HashMap<>();
+                    fetchChildren(readResponse, children);
+                    if (!children.isEmpty())
+                        updateData(children, request, channel);
+                    copyEcar(readResponse);
+                } else if(-1 == Double.compare((Double) identifiers.get(id), (Double) ((Map<String, Object>) readResponse.get("content")).get("pkgVersion"))) {
+                    syncData(identifiers);
+                    updateData(identifiers, request, channel);
                 } else {
                     failure.add(id);
                 }
@@ -107,16 +111,64 @@ public class SyncService extends BaseService implements ISyncService {
         return output;
     }
 
+    private void copyEcar(Response readResponse) throws Exception {
+
+
+            Map<String, Object> metadata = (Map<String, Object>) readResponse.get("content");
+
+            String id = (String) metadata.get("identifier");
+
+        try {
+            String downloadUrl = (String) metadata.get("downloadUrl");
+
+            String path = downloadEcar(id, downloadUrl, sourceStorageType);
+            String destDownloadUrl = uploadEcar(id, destStorageType, path);
+
+            if (StringUtils.isNotBlank(destDownloadUrl)) {
+                metadata.put("downloadUrl", destDownloadUrl);
+            }
+
+            Map<String, Object> variants = (Map<String, Object>) metadata.get("variants");
+
+            if (CollectionUtils.isNotEmpty(variants.keySet())) {
+                String spineEcarUrl = (String) ((Map<String, Object>) variants.get("spine")).get("ecarUrl");
+                if (StringUtils.isNotBlank(spineEcarUrl)) {
+                    String spinePath = downloadEcar(id, spineEcarUrl, sourceStorageType);
+                    String destSpineEcar = uploadEcar(id, destStorageType, spinePath);
+                    variants = (Map<String, Object>) ((Map<String, Object>) variants.get("spine")).put("ecarUrl", destSpineEcar);
+                    metadata.put("variants", variants);
+                }
+
+            }
+            String artefactUrl = (String) metadata.get("artifactUrl");
+            String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
+            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+            if(StringUtils.isNotBlank(destArtefactUrl)) {
+                metadata.put("artifactUrl", destArtefactUrl);
+            }
+
+            Map<String, Object> content = new HashMap<>();
+            content.put("content", metadata);
+            Map<String, Object> request = new HashMap<>();
+            request.put("request", content);
+            systemUpdate(id, request, (String) metadata.get("channel"), true);
+        }
+        finally{
+            FileUtils.deleteDirectory(new File("/tmp/" + id));
+        }
+    }
+
     private void fetchChildren(Response readResponse, Map<String, Object> children) throws Exception {
-        List<Map<String, Object>> childNodes = (List<Map<String, Object>>) readResponse.get("children");
+        List<Map<String, Object>> childNodes = (List<Map<String, Object>>) ((Map<String, Object>)readResponse.get("content")).get("children");
 
         if (!CollectionUtils.isEmpty(childNodes)) {
             for (Map<String, Object> child : childNodes) {
-                Response childContent = executeGet(destUrl + "/content" + destVersion + "/read" + child.get("identifier"), destKey);
-                String visibility = (String) childContent.get("visibility");
+                Response childContent = getContent((String) child.get("identifier"), true);
+                Map<String, Object> contenMetadata = (Map<String, Object>) childContent.get("content");
+                String visibility = (String) contenMetadata.get("visibility");
 
                 if (StringUtils.isNotBlank(visibility) && StringUtils.equalsIgnoreCase("Parent", visibility)) {
-                    children.put(childContent.getId(), childContent.get("pkgVersion"));
+                    children.put((String) contenMetadata.get("identifier"), contenMetadata.get("pkgVersion"));
                     fetchChildren(childContent, children);
                 }
             }
@@ -163,9 +215,9 @@ public class SyncService extends BaseService implements ISyncService {
 
         for (String id : identifiers.keySet()) {
             try {
-                Response destContent = getContent(id, true);//executeGet(destUrl + "/content/" + destVersion + "/read/" + id + "fields=identifier,pkgVersion", destKey);
+                Response destContent = getContent(id, true);
                 if (isSuccess(destContent)) {
-                    Response sourceContent = getContent(id, false);//executeGet(sourceUrl + "/content/" + sourceVersion + "/read/" + id, sourceKey);
+                    Response sourceContent = getContent(id, false);
                     if (Double.compare(((Double) destContent.get("pkgVersion")), ((Double) sourceContent.get("pkgVersion"))) == -1) {
                         updateMetadata(sourceContent);
                         synchierarchy(id);
@@ -189,22 +241,20 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private void createContent(String id) throws Exception {
-        Response sourceContent = getContent(id, false); //executeGet(sourceUrl + "/content/" + sourceVersion + "/read/" + id, sourceKey);
+        Response sourceContent = getContent(id, false);
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
-        //cleanMetadata(metadata);
         String channel = (String) metadata.get("channel");
         Map<String, Object> content = new HashMap<>();
         content.put("content", metadata);
         Map<String, Object> request = new HashMap<>();
         request.put("request", content);
 
-        Response response = systemUpdate(id, request, channel, true);//executePatch(destUrl + "/system/" + destVersion + "/content/update/"+ id, destKey, request, channel);
+        Response response = systemUpdate(id, request, channel, true);
 
         if (isSuccess(response)) {
-            String localPath  = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType);
+            String localPath  = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
             if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", (String) metadata.get("mimeType")))
                 copyAssets(localPath);
-            //uploadArtifact(id);
             List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
 
             for (Map<String, Object> child : children) {
@@ -246,15 +296,7 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private void updateMetadata(Response sourceContent) throws Exception {
-        Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
-
-        String channel = (String) metadata.get("channel");
-        Map<String, Object> content = new HashMap<>();
-        content.put("content", metadata);
-        Map<String, Object> request = new HashMap<>();
-        request.put("request", content);
-
-        Response response = systemUpdate((String) metadata.get("identifier"), request, channel, true); //executePatch(destUrl + "/system/" + destVersion + "/content/update/", destKey, request, channel);
+        createContent(sourceContent.getId());
 
     }
 

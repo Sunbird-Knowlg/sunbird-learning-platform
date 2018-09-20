@@ -87,7 +87,7 @@ public class BaseService {
         Map<String, Object> request = new HashMap<>();
         request.put("request", searchRequest);
 
-        Response searchResponse = executePost(sourceUrl + "/composite/" + sourceVersion + "/search", sourceKey, request, null);
+        Response searchResponse = executePost(sourceUrl + "/composite/v3/search", sourceKey, request, null);
         if (StringUtils.equals(ResponseParams.StatusType.successful.name(), searchResponse.getParams().getStatus())) {
             int count = (int) searchResponse.getResult().get("count");
             getIdsFromResponse(searchResponse.getResult(), count, identifiers, 0, request);
@@ -129,18 +129,50 @@ public class BaseService {
         return StringUtils.equals(ResponseParams.StatusType.successful.name(), response.getParams().getStatus());
     }
 
-    protected void uploadArtifact(String path, String cloudStoreType) {
-        getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), path, path, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
+    protected String uploadArtifact(String id, String path, String cloudStoreType) {
+        String folder = "content" + File.separator + id + File.separator + "artifact";
+        String[] fileUrl = path.split("/");
+        String filename = fileUrl[fileUrl.length - 1];
+        File file = new File(filename);
+        String objectKey = folder + "/" + file.getName();
+        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
+        return url;
 
     }
 
-    protected String downloadArtifact(String id, String downloadUrl, String cloudStoreType) {
+    protected String downloadArtifact(String id, String artifactUrl, String cloudStoreType, boolean extractFile) {
+        String localPath = "/tmp/" + id;
+        String[] fileUrl = artifactUrl.split("/");
+        String filename = fileUrl[fileUrl.length - 1];
+        getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), artifactUrl, localPath, Option.apply(false));
+
+        if(extractFile){
+            CommonUtil.unZip(localPath + "/" + filename, localPath);
+            return localPath;
+        }else{
+            return localPath + "/" + filename;
+        }
+
+    }
+
+    protected String downloadEcar(String id, String downloadUrl, String cloudStoreType) {
         String localPath = "/tmp/" + id;
         String[] fileUrl = downloadUrl.split("/");
         String filename = fileUrl[fileUrl.length - 1];
-        getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), downloadUrl, localPath, Option.apply(false));
-        CommonUtil.unZip(localPath + "/" + filename, localPath);
-        return localPath;
+        String objectKey = "ecar-files" + File.separator + id + File.separator + filename;
+        getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), objectKey, localPath, Option.apply(false));
+
+        return localPath + "/" + filename;
+    }
+
+    protected String uploadEcar(String id, String cloudStoreType, String path) {
+        String folder = "ecar-files/" + id;
+        String[] fileUrl = path.split("/");
+        String filename = fileUrl[fileUrl.length - 1];
+        File file = new File(filename);
+        String objectKey = folder + "/" + file.getName();
+        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
+        return url;
     }
 
 
@@ -197,17 +229,17 @@ public class BaseService {
 
     protected Response getContent(String id, boolean isDestination) throws Exception {
         if(isDestination)
-            return executeGet(destUrl + "/content/" + destVersion + "/read/" + id, destKey);
+            return executeGet(destUrl + "/content/v3/read/" + id, destKey);
         else
-            return executeGet(sourceUrl + "/content/" + sourceVersion + "/read/" + id, sourceKey);
+            return executeGet(sourceUrl + "/content/v3/read/" + id, sourceKey);
     }
 
 
     protected Response systemUpdate(String id, Map<String, Object> request, String channel, boolean isDestination) throws Exception {
         if(isDestination)
-            return executePatch(destUrl + "/system/" + destVersion + "/content/update/" + id, destKey, request, channel);
+            return executePatch(destUrl + "/system/v3/content/update/" + id, destKey, request, channel);
         else
-            return executePatch(sourceUrl + "/system/" + sourceVersion + "/content/update/" + id, sourceKey, request, channel);
+            return executePatch(sourceUrl + "/system/v3/content/update/" + id, sourceKey, request, channel);
     }
 
     protected Response uploadAsset(String path, String id) throws Exception {
