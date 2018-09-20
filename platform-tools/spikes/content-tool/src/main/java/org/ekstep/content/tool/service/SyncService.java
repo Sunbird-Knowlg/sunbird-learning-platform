@@ -292,7 +292,7 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private void synchierarchy(String id) throws Exception {
-        executePost(destUrl + "/content/" + destVersion + "/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
+        executePost(destUrl + "/content/v3/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
     }
 
     private void updateMetadata(Response sourceContent) throws Exception {

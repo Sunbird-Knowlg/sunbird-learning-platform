@@ -387,7 +387,7 @@ public class ContentV3Controller extends BaseController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/hierarchy/sync/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> syncHierarchy(@PathVariable String identifier) {
+	public ResponseEntity<Response> syncHierarchy(@PathVariable(value = "id") String identifier) {
 		String apiId = "content.hierarchy.sync";
 		try {
 			Response response = contentManager.syncHierarchy(identifier);
