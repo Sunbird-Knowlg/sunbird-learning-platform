@@ -262,6 +262,7 @@ public class SyncService extends BaseService implements ISyncService {
                     success.add(id);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 failed.add(id);
             }
 

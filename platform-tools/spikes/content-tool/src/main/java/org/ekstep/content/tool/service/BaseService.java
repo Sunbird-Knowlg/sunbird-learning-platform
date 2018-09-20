@@ -121,7 +121,7 @@ public class BaseService {
     }
 
     protected boolean validChannel(String channel) throws Exception {
-        Response readResponse = executeGet(destUrl + "/channel/" + destVersion + "/read/" + channel, destKey);
+        Response readResponse = executeGet(destUrl + "/channel/v3/read/" + channel, destKey);
         return isSuccess(readResponse);
     }
 
