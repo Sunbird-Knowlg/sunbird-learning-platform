@@ -211,16 +211,16 @@ public class BasePlaySearchManager extends Results {
 
 	@SuppressWarnings("unchecked")
 	private String getType(Map<String, Object> filters) {
-		if(null != filters.get("objectType")){
+		if (null != filters.get("objectType")) {
 			List<String> objectType = (List<String>) filters.get("objectType");
-			if (objectType.size() == 2 && objectType.contains("ContentImage")) {
+			if (objectType.size() == 2) {
 				return objectType.get(0).toLowerCase();
 			} else if (objectType.size() == 1) {
 				return objectType.get(0).toLowerCase();
 			} else {
 				return "all";
 			}
-		}else{
+		} else {
 			return "all";
 		}
 	}

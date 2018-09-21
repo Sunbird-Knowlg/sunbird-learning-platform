@@ -119,7 +119,7 @@ public class SearchBaseController extends Controller {
 		} else if (null != searchRequest && null != searchRequest.getParams().getCid()) {
 			searchRequest.put(TelemetryParams.ACTOR.name(), searchRequest.getParams().getCid());
 		} else {
-			searchRequest.put(TelemetryParams.ACTOR.name(), Platform.config.getString("actor.default"));
+			searchRequest.put(TelemetryParams.ACTOR.name(), "learning.platform");
 		}
 
 	}
