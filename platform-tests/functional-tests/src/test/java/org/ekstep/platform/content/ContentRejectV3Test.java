@@ -4,17 +4,15 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
+import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-
-import org.ekstep.platform.domain.BaseTest;
 
 /**
  * @author gauraw
@@ -41,7 +39,7 @@ public class ContentRejectV3Test extends BaseTest{
 		
 		//Create Content
 		int rn = generateRandomInt(0, 999999);
-		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		setURI();
 		Response res = 
 				given().
@@ -141,7 +139,7 @@ public class ContentRejectV3Test extends BaseTest{
 			
 			//Create Content
 			int rn = generateRandomInt(0, 999999);
-			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 			setURI();
 			Response resp1 = 
 					given().
@@ -296,7 +294,7 @@ public class ContentRejectV3Test extends BaseTest{
 			
 			//Create Content
 			int rn = generateRandomInt(0, 999999);
-			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 			setURI();
 			Response resp1 = 
 					given().
@@ -496,11 +494,11 @@ public class ContentRejectV3Test extends BaseTest{
 		// Test 4 : Reject Review State Content before Publish (Live) without Reject Reason. 
 		
 		@Test
-		public void rejectContentExpect400_01(){
+		public void rejectContentExpect200_04(){
 			
 			//Create Content
 			int rn = generateRandomInt(0, 999999);
-			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 			setURI();
 			Response res = 
 					given().
@@ -570,18 +568,18 @@ public class ContentRejectV3Test extends BaseTest{
 			when().
 			post("content/v3/reject/"+identifier).
 			then().//log().all().
-			spec(get400ResponseSpec());
+			spec(get200ResponseSpec());
 		}
 		
 		// Test 5 : Reject Review State Content before Publish (Live) with blank Reject Reason. 
 		
 		@Test
-		public void rejectContentExpect400_02(){
+		public void rejectContentExpect200_05(){
 			
 			//Create Content
 			setURI();
 			int rn = generateRandomInt(0, 999999);
-			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 			Response res = 
 					given().
 					spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
@@ -650,17 +648,17 @@ public class ContentRejectV3Test extends BaseTest{
 			when().
 			post("content/v3/reject/"+identifier).
 			then().log().all().
-			spec(get400ResponseSpec());
+			spec(get200ResponseSpec());
 		}
 		
-		// Test 6 : Reject Review State Content before Publish (Live) with blank Reject Reason. 
+		// Test 6 : Reject Review State Content before Publish (Live) with blank Reject Reason.
 		@Ignore
 		@Test
-		public void rejectContentExpect400_03(){
+		public void rejectContentExpect200_06(){
 			
 			//Create Content
 			int rn = generateRandomInt(0, 999999);
-			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+			String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/pdf\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 			setURI();
 			Response res = 
 					given().
@@ -730,6 +728,6 @@ public class ContentRejectV3Test extends BaseTest{
 			when().
 			post("content/v3/reject/"+identifier).
 			then().log().all().
-			spec(get400ResponseSpec());
+			spec(get200ResponseSpec());
 		}
 }

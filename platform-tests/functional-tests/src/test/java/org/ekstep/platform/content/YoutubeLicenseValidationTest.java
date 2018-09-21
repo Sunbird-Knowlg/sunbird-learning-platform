@@ -3,8 +3,6 @@ package org.ekstep.platform.content;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 
-import java.io.File;
-
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +27,10 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 	public void testYoutubeContentWithValidVideoUrl_01(){
 		//Create Content
 		setURI();
-		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"video/x-youtube\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn
+				+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"
+				+ rn
+				+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"video/x-youtube\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		Response res = 
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
@@ -37,6 +38,7 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 				with().
 				contentType(JSON).
 				when().
+				//post("v3/content/create").
 				post("content/v3/create").
 				then().//log().all().
 				extract().
@@ -50,21 +52,12 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart("fileUrl","http://youtu.be/-wtIMTCHWuI").
 		when().
+		//post("v3/content/upload/" + identifier).
 		post("/content/v3/upload/" + identifier).
-		then().log().all();
-		//spec(get200ResponseSpec());
-		
-		//Review Content
-		setURI();
-		given().
-		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body("{\"request\":{\"content\":{}}}").
-		when().
-		post("/content/v3/review/" + identifier).
 		then().
 		//log().all().
 		spec(get200ResponseSpec());
-
+		
 		// Get content and validate
 		setURI();
 		Response R1 = given().
@@ -72,14 +65,14 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 				when().
 				get("/content/v3/read/" + identifier).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String status = jP1.get("result.content.status");
 		String license=jP1.get("result.content.license");
-		Assert.assertEquals(status, "Review");
+		Assert.assertEquals(status, "Draft");
 		Assert.assertEquals(license, "Standard YouTube License");
 		
 	}
@@ -93,7 +86,10 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 	public void testYoutubeContentWithValidVideoUrl_02(){
 		//Create Content
 		setURI();
-		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"video/x-youtube\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn
+				+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"
+				+ rn
+				+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"video/x-youtube\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		Response res = 
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
@@ -115,20 +111,10 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 		multiPart("fileUrl","https://www.youtube.com/watch?v=owr198WQpM8").
 		when().
 		post("/content/v3/upload/" + identifier).
-		then().log().all();
-		//spec(get200ResponseSpec());
+		then()
+		//.log().all()
+		.spec(get200ResponseSpec());
 		
-		//Review Content
-		setURI();
-		given().
-		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body("{\"request\":{\"content\":{}}}").
-		when().
-		post("/content/v3/review/" + identifier).
-		then().
-		//log().all().
-		spec(get200ResponseSpec());
-
 		// Get content and validate
 		setURI();
 		Response R1 = given().
@@ -136,14 +122,14 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 				when().
 				get("/content/v3/read/" + identifier).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String status = jP1.get("result.content.status");
 		String license=jP1.get("result.content.license");
-		Assert.assertEquals(status, "Review");
+		Assert.assertEquals(status, "Draft");
 		Assert.assertEquals(license, "Creative Commons Attribution (CC BY)");
 		
 	}
@@ -157,7 +143,10 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 	public void testYoutubeContentWithInValidVideoUrl_03(){
 		//Create Content
 		setURI();
-		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"video/x-youtube\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+		String createValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn
+				+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"
+				+ rn
+				+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"video/x-youtube\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		Response res = 
 				given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
@@ -179,20 +168,10 @@ public class YoutubeLicenseValidationTest extends BaseTest{
 		multiPart("fileUrl","http://www.youtube.com/attribution_link?a=JdfC0C9V6ZI&u=%2Fwatch%3Fv%3DEhxJLojIE_o%26feature%3Dshare").
 		when().
 		post("/content/v3/upload/" + identifier).
-		then().log().all();
-		//spec(get200ResponseSpec());
+		then()
+		//.log().all()
+		.spec(get400ResponseSpec());
 		
-		//Review Content
-		setURI();
-		given().
-		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body("{\"request\":{\"content\":{}}}").
-		when().
-		post("/content/v3/review/" + identifier).
-		then().
-		//log().all().
-		spec(get400ResponseSpec());
-
 	}
 	
 	

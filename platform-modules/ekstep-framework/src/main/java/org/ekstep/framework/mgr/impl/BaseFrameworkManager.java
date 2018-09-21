@@ -9,19 +9,22 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.common.slugs.Slug;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
@@ -47,8 +50,14 @@ public class BaseFrameworkManager extends BaseManager {
 
 	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
 			: "domain";
+	private static final List<String> LANGUAGE_CODES = (Platform.config.hasPath("language.graph_ids"))
+			? Platform.config.getStringList("language.graph_ids")
+			: null;
 
 	protected Response create(Map<String, Object> request, String objectType) {
+		if (request.containsKey("translations"))
+			validateTranslation(request);
+		
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(request, definition, null);
@@ -78,6 +87,9 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 	protected Response update(String identifier, String objectType, Map<String, Object> map) {
+		if (map.containsKey("translations"))
+			validateTranslation(map);
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		Response getNodeResponse = getDataNode(GRAPH_ID, identifier);
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
@@ -111,6 +123,7 @@ public class BaseFrameworkManager extends BaseManager {
 				nodeList.add(responseMap);
 			}
 			Response resp = new Response();
+			resp.setParams(getSucessStatus());
 			resp.put("count", nodeList.size());
 			resp.put(responseObject, nodeList);
 			if (checkError(resp))
@@ -343,6 +356,7 @@ public class BaseFrameworkManager extends BaseManager {
 			case "term":
 				request.put("terms", relationList);
 				break;
+			default: break;
 			}
 		} catch (Exception e) {
 			throw new ServerException("SERVER_ERROR", "Something went wrong while setting inRelations", e);
@@ -469,6 +483,22 @@ public class BaseFrameworkManager extends BaseManager {
 		} catch (Exception e) {
 			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected void validateTranslation(Map<String, Object> request) {
+		Map<String, Object> translations = (Map<String, Object>) request.get("translations");
+		if (null == translations || translations.isEmpty())
+			request.remove("translations");
+		else {
+			Set<String> codes = translations.keySet();
+			List<String> result = codes.stream().filter(code -> !LANGUAGE_CODES.contains(code))
+					.collect(Collectors.toList());
+			if (!result.isEmpty())
+				throw new ClientException("ERR_INVALID_LANGUAGE_CODE",
+						"Please Provide Valid Language Code For translations. Valid Language Codes are : "
+								+ LANGUAGE_CODES);
 		}
 	}
 

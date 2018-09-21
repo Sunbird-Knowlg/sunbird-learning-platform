@@ -1,5 +1,0 @@
-{
-    "name": "sort_maps",
-    "type": "COMMAND",
-    "cmdClass": "org.ekstep.orchestrator.interpreter.command.SortMaps"
-}

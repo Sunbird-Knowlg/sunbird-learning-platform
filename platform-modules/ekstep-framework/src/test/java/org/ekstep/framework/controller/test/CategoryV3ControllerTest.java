@@ -40,12 +40,12 @@ public class CategoryV3ControllerTest extends GraphEngineTestSetup {
 	private WebApplicationContext context;
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_category_path = "/v3/category";
+	private final String base_category_path = "/framework/v3/category/master";
 	static int rn = generateRandomNumber(0, 9999);
 	static String node_id = "";
 
 	@Before
-	public void setup() {
+	public void setUp() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 	

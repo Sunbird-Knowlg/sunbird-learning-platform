@@ -14,6 +14,7 @@ import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.common.Platform;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -79,16 +80,18 @@ public class AuditEventGenerator implements ISamzaService {
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
-		LOGGER.debug("Telemetry Audit Started.");
+		LOGGER.info("Input Message Received for : [" + message.get("nodeUniqueId") + "], Txn Event createdOn:"
+				+ message.get("createdOn") + ", Operation Type:" + message.get("operationType"));
 		try {
 			Map<String, Object> auditMap = getAuditMessage(message);
 			String objectType = (String) ((Map<String, Object>) auditMap.get("object")).get("type");
 			if (null != objectType) {
 				collector.send(new OutgoingMessageEnvelope(systemStream, auditMap));
-				LOGGER.debug("Telemetry Audit Message Sent to Topic : " + config.get("telemetry_raw_topic"));
+				LOGGER.info("Telemetry Audit Message Successfully Sent for : "
+						+ (String) ((Map<String, Object>) auditMap.get("object")).get("id"));
 				metrics.incSuccessCounter();
 			} else {
-				LOGGER.info("skipped event as the objectype is not available, event =" + auditMap);
+				LOGGER.info("Skipped event as the objectype is not available, event =" + auditMap);
 				metrics.incSkippedCounter();
 			}
 		} catch (Exception e) {
@@ -127,7 +130,7 @@ public class AuditEventGenerator implements ISamzaService {
 		Map<String, String> outRelations = new HashMap<>();
 		getRelationDefinitionMaps(definitionNode, inRelations, outRelations);
 
-		String channelId = "in.ekstep";
+		String channelId = Platform.config.getString("channel.default");
 		String channel = (String) message.get(GraphDACParams.channel.name());
 		if (null != channel)
 			channelId = channel;
@@ -142,7 +145,7 @@ public class AuditEventGenerator implements ISamzaService {
 		String pkgVersion = "";
 		Map<String, Object> pkgVerMap = (Map<String, Object>) propertyMap.get("pkgVersion");
 		if (null != pkgVerMap)
-			pkgVersion = (String) pkgVerMap.get("nv");
+			pkgVersion = String.valueOf(pkgVerMap.get("nv"));
 
 		String prevStatus = "";
 		String currStatus = "";
@@ -166,11 +169,11 @@ public class AuditEventGenerator implements ISamzaService {
 		if (!CollectionUtils.isEmpty(propsExceptSystemProps)) {
 			String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus,
 					cdata);
-			LOGGER.debug("Audit Message : " + auditMessage);
+			//LOGGER.info("Audit Message for Content Id [" + objectId + "] : " + auditMessage);
 			auditMap = mapper.readValue(auditMessage, new TypeReference<Map<String, Object>>() {
 			});
 		} else {
-			LOGGER.debug("Skipping Audit log as props is null or empty");
+			LOGGER.info("Skipping Audit log as props is null or empty");
 			auditMap = mapper.readValue(SKIP_AUDIT, new TypeReference<Map<String, Object>>() {
 			});
 		}

@@ -51,7 +51,7 @@ public class AssessmentItemSetV3Test extends GraphEngineTestSetup {
 	static String set_id = null;
 	static String set_id1 = null;
 	List<Integer> items = new ArrayList<Integer>();
-	private final String base_path = "/v3/assessment/itemsets";
+	private final String base_path = "/assessment/v3/itemsets";
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -458,7 +458,7 @@ public class AssessmentItemSetV3Test extends GraphEngineTestSetup {
 		for (int i = 0; i < range; i++) {
 			String request = "{\"request\": {\"assessment_item\": {\"identifier\": \"LP_UT_test_01\",\"objectType\": \"AssessmentItem\",\"metadata\": {\"code\": \"test.qtt02\",\"itemType\":\"UNIT\",\"category\":\"MCQ\",\"version\":2,\"name\": \"MCQ Question 2\",\"type\": \"mcq\",\"num_answers\": 1,\"template\": \"mcq_template_2\",\"template_id\":\"mcq_template_2\",\"qlevel\": \"MEDIUM\",\"owner\": \"username_1\",\"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ.  ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\",\"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ.ಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\",\"model\": {\"img\": {\"type\": \"image\",\"asset\": \"perimeter\"},\"img2\": {\"type\": \"image\",\"asset\": \"smallSquare\"},\"subtext\": \"( = 1  ಚದರ ಸೆಂ.ಮೀ)\"},\"options\": [{\"value\": {\"type\": \"text\",\"asset\": \"12&10\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"14&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"16&8\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"}},{\"value\": {\"type\": \"text\",\"asset\": \"12&7\",\"font\": \"Verdana\",\"color\": \"white\",\"fontsize\": \"240\"},\"score\": 1}],\"max_score\": 1,\"partial_scoring\": false,\"feedback\": \"\"}}}}";
 			try {
-				String path = "/v3/assessment/assessmentitems/create";
+				String path = "/assessment/v3/items/create";
 				actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8)
 						.content(request));

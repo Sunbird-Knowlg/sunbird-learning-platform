@@ -1,6 +1,8 @@
+
 package org.ekstep.framework.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,15 +11,17 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
+import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.common.slugs.Slug;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -28,6 +32,8 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
+
+import scala.concurrent.Await;
 
 /**
  * The Class <code>FrameworkManagerImpl</code> is the implementation of
@@ -97,16 +103,17 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
-		Response response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
+		Response response = new Response();
 		if (Platform.config.hasPath("framework.es.sync")) {
 			if (Platform.config.getBoolean("framework.es.sync")) {
-				Map<String, Object> responseMap = (Map<String, Object>) response.get(FrameworkEnum.framework.name());
+				Map<String, Object> responseMap = new HashMap<>();
 				List<Object> searchResult = searchFramework(frameworkId);
 				if (null != searchResult && !searchResult.isEmpty()) {
 					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
 					if (null != framework.get("fw_hierarchy")) {
 						Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
 								Map.class);
+						responseMap = framework;
 						if (null != hierarchy && !hierarchy.isEmpty()) {
 							List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
 									.get("categories");
@@ -115,21 +122,61 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 									responseMap.put("categories",
 											categories.stream().filter(p -> returnCategories.contains(p.get("code")))
 													.collect(Collectors.toList()));
+									removeAssociations(responseMap, returnCategories);
+
 								} else {
 									responseMap.put("categories", categories);
 								}
 							}
 						}
 					}
+				} else {
+					throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND",
+							"Data not found with id : " + frameworkId);
 				}
+				responseMap.remove("fw_hierarchy");
+				response.put(FrameworkEnum.framework.name(), responseMap);
+				response.setParams(getSucessStatus());
+			} else {
+				response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 			}
+		} else {
+			response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 		}
 		return response;
 	}
 
 
+	/**
+	 * @param responseMap
+	 * @param returnCategories
+	 */
+	@SuppressWarnings("unchecked")
+	private void removeAssociations(Map<String, Object> responseMap, List<String> returnCategories) {
+		((List<Map<String, Object>>) responseMap.get("categories")).forEach(category -> {
+			removeTermAssociations((List<Map<String, Object>>) category.get("terms"), returnCategories);
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	private void removeTermAssociations(List<Map<String, Object>> terms, List<String> returnCategories) {
+		if (!CollectionUtils.isEmpty(terms)) {
+			terms.forEach(term -> {
+				if (!CollectionUtils.isEmpty((List<Map<String, Object>>) term.get("associations"))) {
+					term.put("associations",
+							((List<Map<String, Object>>) term.get("associations")).stream().filter(s -> s != null)
+									.filter(p -> returnCategories.contains(p.get("category")))
+									.collect(Collectors.toList()));
+					if (CollectionUtils.isEmpty((List<Map<String, Object>>) term.get("associations")))
+						term.remove("associations");
+
+					removeTermAssociations((List<Map<String, Object>>) term.get("children"), returnCategories);
+				}
+			});
+		}
+	}
+
 	private List<Object> searchFramework(String frameworkId) throws Exception {
-		List<Object> searchResult = new ArrayList<Object>();
 		SearchDTO searchDto = new SearchDTO();
 		searchDto.setFuzzySearch(false);
 
@@ -138,18 +185,24 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		searchDto.setFields(getFields());
 		searchDto.setLimit(1);
 
-		searchResult = (List<Object>) processor.processSearchQuery(searchDto, false,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false);
+		List<Object> searchResult = Await.result(
+				processor.processSearchQuery(searchDto, false, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false),
+				RequestRouterPool.WAIT_TIMEOUT.duration());
 
 		return searchResult;
 	}
 
 	private List<String> getFields() {
 		List<String> fields = new ArrayList<String>();
+		DefinitionDTO definition = getDefinition(GRAPH_ID, FRAMEWORK_OBJECT_TYPE);
+		String[] fwMetadata = getFields(definition);
+		if (fwMetadata != null)
+			fields.addAll(Arrays.asList(fwMetadata));
 		fields.add("fw_hierarchy");
 		return fields;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private List<Map> setSearchProperties(String frameworkId) {
 		List<Map> properties = new ArrayList<Map>();
 		Map<String, Object> property = new HashMap<>();
@@ -268,7 +321,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	    }
 	  }
 	  
-	  protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId, String clonedFrameworkId, Map<String, Object> requestMap) throws Exception{
+	@SuppressWarnings("unchecked")
+	protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId,
+			String clonedFrameworkId, Map<String, Object> requestMap) throws Exception {
 	    Response responseNode = getDataNode(GRAPH_ID, existingObjectId);
 	    if (checkError(responseNode)) {
 	    		throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + existingObjectId, ResponseCode.RESOURCE_NOT_FOUND);

@@ -13,14 +13,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
-import org.ekstep.common.util.TelemetryAccessEventUtil;
 import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.ekstep.common.util.AccessEventGenerator;;
 
 public class ResponseFilter implements Filter {
 
@@ -48,7 +49,7 @@ public class ResponseFilter implements Filter {
 		if (StringUtils.isNotBlank(channelId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		else
-			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
+			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), Platform.config.getString("channel.default"));
 
 		if (StringUtils.isNotBlank(appId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
@@ -68,7 +69,7 @@ public class ResponseFilter implements Filter {
 
 			chain.doFilter(requestWrapper, responseWrapper);
 
-			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
+			AccessEventGenerator.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
 			TelemetryManager.log("Path: " + httpRequest.getServletPath() +" | Remote Address: " + request.getRemoteAddr());
@@ -88,7 +89,7 @@ public class ResponseFilter implements Filter {
 		if (path.contains("/domain")) {
 			return "domain";
 		} else {
-			return path.split("/")[3];
+			return path.split("/")[2];
 		}
 	}
 
@@ -101,4 +102,5 @@ public class ResponseFilter implements Filter {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
 	}
+
 }

@@ -3,7 +3,6 @@
  */
 package org.ekstep.framework.controller.test;
 
-import java.io.File;
 import java.util.Map;
 
 import org.ekstep.common.dto.Request;
@@ -41,8 +40,6 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import akka.actor.ActorRef;
-
 /**
  * @author pradyumna
  *
@@ -61,10 +58,10 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_category_path = "/v3/framework/term";
+	private final String base_category_path = "/framework/v3/term";
 	private static String categoryId = null, frameworkId = null, masterCategoryId=null, masterTermId=null;
-	static String termId = null;
-	static ObjectMapper mapper = new ObjectMapper();
+	private static String termId = null;
+	private static ObjectMapper mapper = new ObjectMapper();
 	private static ICategoryInstanceManager categoryInstanceManager = new CategoryInstanceManagerImpl();
 	private static ICategoryManager categoryManager = new CategoryManagerImpl();
 	private static ITermManager termManager = new TermManagerImpl();
@@ -73,10 +70,6 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 
 	private static final String createCategoryReq = "{ \"name\":\"Class\", \"description\":\"\", \"code\":\"class\" }";
 	private static final String createChannelReq = "{\"name\":\"channel\",\"description\":\"\",\"code\":\"channelKA\",\"identifier\":\"channelKA\"}";
-
-	static ClassLoader classLoader = TermFrameworkV3ControllerTest.class.getClassLoader();
-	static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
-	static ActorRef reqRouter = null;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -184,7 +177,7 @@ public class TermFrameworkV3ControllerTest extends GraphEngineTestSetup {
 	
 
 	@Before
-	public void setup() {
+	public void setUp() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 

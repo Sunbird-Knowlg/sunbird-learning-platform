@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
@@ -42,8 +42,7 @@ public class BundleFinalizer extends BaseFinalizer {
 	/** The ContentId. */
 	protected String contentId;
 	
-    private static final String s3Bundle = "s3.bundle.folder";
-    private static final String s3Artifact = "s3.artifact.folder";
+    private static final String BUNDLE_FOLDER = "cloud_storage.bundle.folder";
 
 	/**
 	 * Instantiates a new BundleFinalizer and sets the base
@@ -100,7 +99,8 @@ public class BundleFinalizer extends BaseFinalizer {
 				.get(ContentWorkflowPipelineParams.bundleMap.name());
 		List<Map<String, Object>> contents = (List<Map<String, Object>>)(parameterMap.get(ContentWorkflowPipelineParams.Contents.name()));
 		List<String> childrenIds = (List<String>)(parameterMap.get(ContentWorkflowPipelineParams.children.name()));
-		String bundleFileName = (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
+		String bundleFileName = basePath + File.separator
+				+ (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
 		String manifestVersion = (String) parameterMap.get(ContentWorkflowPipelineParams.manifestVersion.name());
 		if (null == bundleMap || bundleMap.isEmpty())
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -181,7 +181,7 @@ public class BundleFinalizer extends BaseFinalizer {
 				File packageFile = new File(zipFileName);
 				if (packageFile.exists()) {
 					// Upload to S3
-					String folderName = S3PropertyReader.getProperty(s3Artifact);
+					String folderName = S3PropertyReader.getProperty(ARTEFACT_FOLDER);
 					String[] urlArray = uploadToAWS(packageFile, getUploadFolderName(this.contentId, folderName));
 					if (null != urlArray && urlArray.length >= 2) {
 						String artifactUrl = urlArray[IDX_S3_URL];
@@ -226,7 +226,7 @@ public class BundleFinalizer extends BaseFinalizer {
 		File file = contentBundle.createBundle(zipPackages, bundleFileName);
 
 		// Upload ECAR to S3
-		String folderName = S3PropertyReader.getProperty(s3Bundle);
+		String folderName = S3PropertyReader.getProperty(BUNDLE_FOLDER);
 		folderName = folderName + System.currentTimeMillis();
 		String[] urlArray = uploadToAWS(file, getUploadFolderName(this.contentId, folderName));
 		if (null != urlArray && urlArray.length >= 2)
@@ -234,7 +234,7 @@ public class BundleFinalizer extends BaseFinalizer {
 
 		try {
 			TelemetryManager.log("Deleting the temporary folder: " + basePath);
-			delete(new File(basePath));
+			delete(new File(basePath).getParentFile());
 		} catch (Exception e) {
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
 		}

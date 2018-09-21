@@ -1,10 +1,5 @@
 package org.ekstep.learning.util;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
@@ -12,16 +7,21 @@ import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
+
+import java.text.MessageFormat;
+import java.util.*;
 
 
 /**
@@ -35,6 +35,7 @@ public class ControllerUtil extends BaseLearningManager {
 	/** The logger. */
 
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	/**
 	 * Gets the node.
@@ -221,7 +222,7 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	public Response getHirerachy(String identifier) {
-		String url = Platform.config.getString("platform-api-url") + "/v3/content/hierarchy/" + identifier;
+		String url = Platform.config.getString("platform-api-url") + "/content/v3/hierarchy/" + identifier;
 		Response hirerachyRes = null;
 		try {
 			String result = HTTPUtil.makeGetRequest(url);
@@ -337,5 +338,139 @@ public class ControllerUtil extends BaseLearningManager {
 		}
 		return nodeIds;
 	}
+	
+	public Map<String, Long> getCountByObjectType(String graphId) {
+		Map<String, Long> counts = new HashMap<String, Long>();
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;", graphId));
+		List<String> props = new ArrayList<String>();
+        props.add("objectType");
+        props.add("count");
+        request.put(GraphDACParams.property_keys.name(), props);
+        Response response = getResponse(request);
+        if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (null != list && !list.isEmpty()) {
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> properties = list.get(i);
+					counts.put((String) properties.get("objectType"), (Long) properties.get("count"));
+				}
+			}
+			
+        }
+		return counts;
+	}
+
+
+	/**
+	 *
+	 * @param graphId
+	 * @param node
+	 * @param definition
+	 * @param mode
+	 * @return
+	 */
+	public Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
+															 String mode, boolean fetchAll) {
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
+		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
+
+		// Collections sort method is used to sort the child content list on the
+		// basis of index.
+		if (null != children && !children.isEmpty()) {
+			Collections.sort(children, new Comparator<NodeDTO>() {
+				@Override
+				public int compare(NodeDTO o1, NodeDTO o2) {
+					return o1.getIndex() - o2.getIndex();
+				}
+			});
+		}
+
+		if (null != children && !children.isEmpty()) {
+			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
+			for (NodeDTO dto : children) {
+				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
+				String nodeStatus = (String)childNode.getMetadata().get("status");
+				if((!org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) &&
+						(fetchAll || (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Live") || org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted")))) {
+					Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode, fetchAll);
+					childMap.put("index", dto.getIndex());
+					Map<String, Object> childData = contentCleanUp(childMap);
+					childList.add(childData);
+				}
+			}
+			contentMap.put("children", childList);
+		}
+		// TODO: Not the best Solution, need to optimize
+		contentMap.remove("collections");
+		contentMap.remove("usedByContent");
+		contentMap.remove("item_sets");
+		contentMap.remove("methods");
+		contentMap.remove("libraries");
+		return contentMap;
+	}
+
+	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
+		if (map.containsKey("identifier")) {
+			String identifier = (String) map.get("identifier");
+			if (org.apache.commons.lang3.StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+				map.replace("identifier", identifier, newIdentifier);
+			}
+		}
+		return map;
+	}
+
+	private Node getContentNode(String graphId, String contentId, String mode) {
+
+		if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase("edit", mode)) {
+			String contentImageId = getImageId(contentId);
+			Response responseNode = getDataNode(graphId, contentImageId);
+			if (!checkError(responseNode)) {
+				Node content = (Node) responseNode.get(GraphDACParams.node.name());
+				return content;
+			}
+		}
+		Response responseNode = getDataNode(graphId, contentId);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+					"Content not found with id: " + contentId);
+
+		Node content = (Node) responseNode.get(GraphDACParams.node.name());
+		return content;
+	}
+
+	protected String getImageId(String identifier) {
+		String imageId = "";
+		if (org.apache.commons.lang3.StringUtils.isNotBlank(identifier))
+			imageId = identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		return imageId;
+	}
+
+
+	public List<String> getPublishedCollections(String graphId) {
+		List<String> identifiers = new ArrayList<>();
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE n.IL_FUNC_OBJECT_TYPE=\"Content\" AND n.mimeType=\"application/vnd.ekstep.content-collection\" AND n.status IN [\"Live\", \"Unlisted\", \"Flagged\"] RETURN n.IL_UNIQUE_ID as identifier;", graphId));
+		List<String> props = new ArrayList<String>();
+		props.add("identifier");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (null != list && !list.isEmpty()) {
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> properties = list.get(i);
+					identifiers.add((String) properties.get("identifier"));
+				}
+			}
+
+		}
+		return identifiers;
+	}
+
+
 }
 

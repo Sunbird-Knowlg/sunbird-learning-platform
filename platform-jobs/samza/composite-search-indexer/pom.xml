@@ -6,14 +6,8 @@
 		<artifactId>samza</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<samza.version>0.12.0</samza.version>
-		<scala.version>2.11</scala.version>
-		<hadoop.version>2.6.2</hadoop.version>
-	</properties>
 	<artifactId>composite-search-indexer</artifactId>
-	<version>0.0.52</version>
+	<version>0.0.60</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.neo4j</groupId>

@@ -1,6 +1,6 @@
 package org.ekstep.common.util;
 
-import java.io.File;
+/*import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map;*/
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.slugs.Slug;
+//import org.apache.commons.lang3.BooleanUtils;
+//import org.apache.commons.lang3.StringUtils;
+//import org.ekstep.common.Slug;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import com.amazonaws.AmazonClientException;
+/*import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.HttpMethod;
-import com.amazonaws.regions.Region;
+import com.amazonaws.HttpMethod;*/
+//import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
+/*import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
@@ -29,7 +29,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.S3ObjectSummary;*/
 
 /**
  * arguments - operation: createStorage, uploadFiles - storageName: name of the
@@ -42,27 +42,27 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
  */
 public class AWSUploader {
 
-	private static final String s3Environment = "s3.env";
+	private static final String s3Environment = "cloud_storage.env";
 	private static final String s3Region = "s3.region";
 	private static final String s3 = "s3";
 	private static final String aws = "amazonaws.com";
 	private static final String dotOper = ".";
 	private static final String hyphen = "-";
 	private static final String forwardSlash = "/";
-	private static final String s3AssetFolder = "s3.asset.folder";
-	private static final String s3UploadURLExpiry = "s3.upload.url.expiry";
+	private static final String s3AssetFolder = "cloud_storage.asset.folder";
+	private static final String s3UploadURLExpiry = "cloud_storage.upload.url.ttl";
 	private static final String defaultBucketType = "public";
-	
+
 	public static String getBucketName(String type) {
 		return S3PropertyReader.getProperty("s3."+ type +".bucket");
 	}
-	
+
 	public static String getBucketName() {
 		return getBucketName(defaultBucketType);
 	}
 	
 
-	public static String[] uploadFile(String folderName, File file) throws Exception {
+	/*public static String[] uploadFile(String folderName, File file) throws Exception {
 		file = Slug.createSlugFile(file);
 		return upload(folderName, file);
 	}
@@ -71,9 +71,9 @@ public class AWSUploader {
 		if (BooleanUtils.isTrue(slugFile))
 			file = Slug.createSlugFile(file);
 		return upload(folderName, file);
-	}
+	}*/
 	
-	private static String[] upload(String folderName, File file) throws Exception {
+	/*private static String[] upload(String folderName, File file) throws Exception {
 		AmazonS3Client s3 = new AmazonS3Client();
 		String key = file.getName();
 		String bucketName = getBucketName();
@@ -86,24 +86,24 @@ public class AWSUploader {
 		URL url = s3.getUrl(bucketName, folderName + "/" + key);
 		TelemetryManager.log("AWS Upload '" + file.getName() + "' complete");
 		return new String[] { folderName + "/" + key, url.toURI().toString() };
-	}
+	}*/
 	
-	public static void deleteFile(String key) throws Exception {
+	/*public static void deleteFile(String key) throws Exception {
 		AmazonS3 s3 = new AmazonS3Client();
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
 			s3.setRegion(region);
 		String bucketName = getBucketName();
 		s3.deleteObject(new DeleteObjectRequest(bucketName, key));
-	}
+	}*/
 
-	public static double getObjectSize(String key) throws IOException {
+	/*public static double getObjectSize(String key) throws IOException {
 		AmazonS3 s3 = new AmazonS3Client();
 		String bucket = getBucketName();
 		return s3.getObjectMetadata(bucket, key).getContentLength();
-	}
+	}*/
 
-	public static List<String> getObjectList(String prefix, String bucketType) {
+	/*public static List<String> getObjectList(String prefix, String bucketType) {
 		AmazonS3 s3 = new AmazonS3Client();
 		TelemetryManager.log("Reading s3 Bucket and Region: " + getBucketName(bucketType) + " : " + s3Environment);
 		String bucketName = getBucketName(bucketType);
@@ -120,7 +120,7 @@ public class AWSUploader {
 		}
 		TelemetryManager.log("resource bundles fileList returned from s3" + fileList);
 		return fileList;
-	}
+	}*/
 
 	public static String updateURL(String url, String oldPublicBucketName, String oldConfigBucketName) {
 		String s3Region = Regions.AP_SOUTHEAST_1.name();
@@ -146,7 +146,7 @@ public class AWSUploader {
 		return url;
 	}
 
-	public static String[] copyObjects(String sourceFolderName, String sourceKey, String destinationFolderName,
+	/*public static String[] copyObjects(String sourceFolderName, String sourceKey, String destinationFolderName,
 			String destinationKey) throws URISyntaxException {
 		String bucketName = getBucketName();
 		AmazonS3 s3client = new AmazonS3Client();
@@ -177,9 +177,9 @@ public class AWSUploader {
 		}
 		URL url = s3client.getUrl(bucketName, destinationFolderName + "/" + destinationKey);
 		return new String[] { destinationFolderName + "/" + destinationKey, url.toURI().toString() };
-	}
+	}*/
 
-	public static Map<String, String> copyObjectsByPrefix(String sourceBucketName, String destinationBucketName,
+	/*public static Map<String, String> copyObjectsByPrefix(String sourceBucketName, String destinationBucketName,
 			String sourcePrefix, String destinationPrefix) {
 		Map<String, String> map = new HashMap<String, String>();
 		try {
@@ -225,9 +225,9 @@ public class AWSUploader {
 					+ "such as not being able to access the network: "+ ace.getMessage(), ace);
 		}
 		return map;
-	}
+	}*/
 
-	public static String preSignedURL(String contentId, String fileName) {
+	/*public static String preSignedURL(String contentId, String fileName) {
 		AmazonS3Client s3 = new AmazonS3Client();
 		String bucketName = getBucketName();
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
@@ -243,9 +243,9 @@ public class AWSUploader {
 		presignedUrlRequest.setExpiration(expiration);
 		URL url = s3.generatePresignedUrl(presignedUrlRequest);
 		return url.toString();
-	}
+	}*/
 	
-	private static Region getS3Region(String name) {
+	/*private static Region getS3Region(String name) {
 		if (StringUtils.isNotBlank(name)) {
 			if (StringUtils.equalsIgnoreCase(Regions.AP_SOUTH_1.name(), name))
 				return Region.getRegion(Regions.AP_SOUTH_1);
@@ -261,14 +261,14 @@ public class AWSUploader {
 				return Region.getRegion(Regions.AP_SOUTHEAST_1);
 		} else
 			return Region.getRegion(Regions.AP_SOUTHEAST_1);
-	}
+	}*/
 	
-	public static String getURL(String bucket, String prefix) {
+	/*public static String getURL(String bucket, String prefix) {
 		AmazonS3 s3client = new AmazonS3Client();
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
 			s3client.setRegion(region);
 		return s3client.getUrl(bucket, prefix).toString();
-	}
+	}*/
 	
 }

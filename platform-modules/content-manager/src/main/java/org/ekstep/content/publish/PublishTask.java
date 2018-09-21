@@ -1,17 +1,5 @@
 package org.ekstep.content.publish;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
@@ -26,8 +14,12 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
+
+import java.util.*;
+import java.util.stream.Stream;
 
 public class PublishTask implements Runnable {
 
@@ -36,7 +28,8 @@ public class PublishTask implements Runnable {
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 	private static final String COLLECTION_CONTENT_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private ControllerUtil util = new ControllerUtil();
-	
+	private CollectionStore collectionStore = new CollectionStore();
+
 	public PublishTask(String contentId, Map<String, Object> parameterMap) {
 		this.contentId = contentId;
 		this.parameterMap = parameterMap;
@@ -80,7 +73,7 @@ public class PublishTask implements Runnable {
 			TelemetryManager.log("Content enrichment done for content: " + node.getIdentifier());
 		}
 	}
-	
+
 	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap) throws Exception {
 		List<String> children;
 		children = getChildren(node);
@@ -369,7 +362,10 @@ public class PublishTask implements Runnable {
 			node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());
 			util.updateNode(node);
-			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(), e.getMessage());
+			collectionStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
+			if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
+				PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(), e.getMessage());
+			}
 		}
 	}
 

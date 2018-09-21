@@ -1,28 +1,15 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.Slug;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.NodeDTO;
@@ -37,8 +24,7 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.common.slugs.Slug;
-import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentMetadata;
@@ -49,10 +35,7 @@ import org.ekstep.content.mimetype.mgr.impl.H5PMimeTypeMgrImpl;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
-import org.ekstep.dialcode.common.DialCodeErrorCodes;
-import org.ekstep.dialcode.common.DialCodeErrorMessage;
-import org.ekstep.dialcode.enums.DialCodeEnum;
-import org.ekstep.dialcode.mgr.IDialCodeManager;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
@@ -76,18 +59,34 @@ import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
+import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.taxonomy.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
+import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * The Class <code>ContentManagerImpl</code> is the implementation of
@@ -104,9 +103,6 @@ import scala.concurrent.Future;
  */
 @Component
 public class ContentManagerImpl extends BaseContentManager implements IContentManager {
-
-	@Autowired
-	private IDialCodeManager dialCodeMgr;
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -132,6 +128,20 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			"Diagnostic", "ContentTemplate", "ItemTemplate");
 	private List<String> finalStatus = Arrays.asList("Flagged", "Live", "Unlisted");
 	private List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
+
+	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
+	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
+			? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
+
+	private ControllerUtil util = new ControllerUtil();
+	/*private BaseStorageService storageService;
+	
+	@PostConstruct
+	public void init() {
+		String storageKey = Platform.config.getString("azure_storage_key");
+		String storageSecret = Platform.config.getString("azure_storage_secret");
+		storageService = StorageServiceFactory.getStorageService(new StorageConfig("azure", storageKey, storageSecret));
+	}*/
 
 	/*
 	 * (non-Javadoc)
@@ -220,7 +230,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				setMimeTypeForUpload(mimeType, node);
 				updateMimeType = true;
 			}
-
+			if (StringUtils.equals("video/x-youtube", mimeType))
+				checkYoutubeLicense(fileUrl, node);
 			TelemetryManager.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
@@ -362,7 +373,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String folder = getFolderName(downloadUrl);
 			TelemetryManager.log("Folder Name: " + folder + " | [Content Id: " + contentId + "]");
 
-			String[] arr = AWSUploader.uploadFile(folder, minEcar);
+			//String[] arr = AWSUploader.uploadFile(folder, minEcar);
+			String[] arr = CloudStore.uploadFile(folder, minEcar, true);
 			response.put("url", arr[1]);
 			TelemetryManager.log("URL: " + arr[1] + " | [Content Id: " + contentId + "]");
 
@@ -386,10 +398,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (checkError(contentResp))
 			return contentResp;
 		Response response = new Response();
-		String preSignedURL = AWSUploader.preSignedURL(contentId, fileName);
+		String objectKey = S3PropertyReader.getProperty("cloud_storage.asset.folder")+"/"+contentId+"/"+ Slug.makeSlug(fileName);
+		String expiry = S3PropertyReader.getProperty("cloud_storage.upload.url.ttl");
+		String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, Option.apply(Integer.parseInt(expiry)), Option.apply("w"));
 		response.put(ContentAPIParams.content_id.name(), contentId);
 		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
-		response.put(ContentAPIParams.url_expiry.name(), S3PropertyReader.getProperty("s3.upload.url.expiry"));
+		response.put(ContentAPIParams.url_expiry.name(), expiry);
 		return response;
 	}
 
@@ -411,12 +425,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
-			if(!validateList(requestMap.get("publishChecklist"))) {
+			if (!validateList(requestMap.get("publishChecklist"))) {
 				requestMap.put("publishChecklist", null);
 			}
 			publisher = (String) requestMap.get("lastPublishedBy");
 			node.getMetadata().putAll(requestMap);
-			
+
 			node.getMetadata().put("rejectReasons", null);
 			node.getMetadata().put("rejectComment", null);
 		}
@@ -473,7 +487,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
-		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl)
+		String license = (String) node.getMetadata().get("license");
+		if (StringUtils.equals("video/x-youtube", mimeType) && null != artifactUrl && StringUtils.isBlank(license))
 			checkYoutubeLicense(artifactUrl, node);
 		TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 
@@ -488,16 +503,52 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	@Override
 	public Response getHierarchy(String contentId, String mode) {
-		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+		if(StringUtils.equalsIgnoreCase("edit", mode)){
+			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
 
-		TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
-		DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-		Map<String, Object> map = getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode);
-		Map<String, Object> dataMap = contentCleanUp(map);
-		Response response = new Response();
-		response.put("content", dataMap);
-		response.setParams(getSucessStatus());
-		return response;
+			boolean fetchAll = true;
+			String nodeStatus = (String) node.getMetadata().get("status");
+			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+						"Content not found with id: " + contentId);
+			}else if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
+				fetchAll = false;
+			}
+
+			TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
+			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
+			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, fetchAll);
+			Map<String, Object> dataMap = contentCleanUp(map);
+			Response response = new Response();
+			response.put("content", dataMap);
+			response.setParams(getSucessStatus());
+			return response;
+		} else{
+			Response hierarchyResponse = getCollectionHierarchy(contentId);
+			Response response = new Response();
+			if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
+				String cachedStatus = RedisStoreUtil.getNodeProperty(TAXONOMY_ID, contentId, "status");
+				Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+				if(StringUtils.isNotBlank(cachedStatus)){
+					hierarchy.put("status", cachedStatus);
+				} else{
+					hierarchy.put("status", getStatus(contentId, mode));
+				}
+
+				response.put("content", hierarchy);
+				response.setParams(getSucessStatus());
+			} else {
+				response = hierarchyResponse;
+			}
+			return response;
+		}
+
+	}
+
+	private String getStatus(String contentId, String mode) {
+			Node node  = getContentNode(TAXONOMY_ID, contentId, mode);
+			RedisStoreUtil.saveNodeProperty(TAXONOMY_ID, contentId, "status", (String) node.getMetadata().get("status"));
+			return (String) node.getMetadata().get("status");
 	}
 
 	public Response create(Map<String, Object> map) throws Exception {
@@ -544,7 +595,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					map.remove(prop);
 				}
 			}
-			
 
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
@@ -570,7 +620,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					ResponseCode.CLIENT_ERROR);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String contentId, String mode, List<String> fields) {
@@ -744,8 +794,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		if (checkError)
 			return createResponse;
-		
-		
+
 		TelemetryManager.log("Updating content node: " + contentId);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 		domainObj.setGraphId(TAXONOMY_ID);
@@ -845,7 +894,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (checkError(responseNode)) {
 				resultMap.get("invalidContentList").add(contentId);
 			} else {
-				resp = updateDialCode(map, contentId);
+				resp = updateDialCode(contentId, map);
 				if (!checkError(resp))
 					resultMap.get("updateSuccessList").add(contentId);
 				else
@@ -954,35 +1003,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
-			String mode) {
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
-		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
-
-		// Collections sort method is used to sort the child content list on the
-		// basis of index.
-		if (null != children && !children.isEmpty()) {
-			Collections.sort(children, new Comparator<NodeDTO>() {
-				@Override
-				public int compare(NodeDTO o1, NodeDTO o2) {
-					return o1.getIndex() - o2.getIndex();
-				}
-			});
-		}
-
-		if (null != children && !children.isEmpty()) {
-			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
-			for (NodeDTO dto : children) {
-				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
-				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode);
-				childMap.put("index", dto.getIndex());
-				Map<String, Object> childData = contentCleanUp(childMap);
-				childList.add(childData);
-			}
-			contentMap.put("children", childList);
-		}
-		return contentMap;
-	}
 
 	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
 		if (map.containsKey(TaxonomyAPIParams.identifier.name())) {
@@ -1027,16 +1047,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return null;
 	}
 
-	@SuppressWarnings("unused")
-	private String getContentBody(String contentId, String mode) {
-		String body = "";
-		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
-			body = getContentBody(getImageId(contentId));
-		if (StringUtils.isBlank(body))
-			body = getContentBody(contentId);
-		return body;
-	}
-
 	private String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -1066,6 +1076,26 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Response response = makeLearningRequest(request);
 		return response;
 	}
+
+
+	private Response getCollectionHierarchy(String contentId) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getCollectionHierarchy.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		Response response = makeLearningRequest(request);
+		return response;
+	}
+
+	private Response deleteHierarchy(List<String> identifiers) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.deleteHierarchy.name());
+		request.put(ContentStoreParams.content_id.name(), identifiers);
+		Response response = makeLearningRequest(request);
+		return response;
+	}
+
 
 	/**
 	 * Make a sync request to LearningRequestRouter
@@ -1382,6 +1412,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null != node) {
 				Map<String, Object> map = (Map<String, Object>) entry.getValue();
 				List<String> children = (List<String>) map.get("children");
+				children = children.stream().distinct().collect(Collectors.toList());
 				if (null != children) {
 					List<Relation> outRelations = node.getOutRelations();
 					if (null == outRelations)
@@ -1519,28 +1550,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
-	 * @param map
-	 * @param contentId
-	 * @return
-	 */
-	private Response updateDialCode(Map<String, Object> map, String contentId) {
-		Response resp;
-		try {
-			String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-			Response imageNodeResponse = getDataNode(TAXONOMY_ID, contentImageId);
-			if (!checkError(imageNodeResponse)) {
-				resp = updateDataNodes(map, Arrays.asList(contentId, contentImageId), TAXONOMY_ID);
-			} else
-				resp = updateDataNodes(map, Arrays.asList(contentId), TAXONOMY_ID);
-
-			return resp;
-		} catch (Exception e) {
-			return ERROR(DialCodeErrorCodes.ERR_DIALCODE_LINK, DialCodeErrorMessage.ERR_DIALCODE_LINK,
-					ResponseCode.SERVER_ERROR, e.getMessage(), null);
-		}
-	}
-
-	/**
 	 * @param channelId
 	 * @param dialcodesList
 	 * @throws Exception
@@ -1552,9 +1561,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			List<String> dialcodes = new ArrayList<String>(dialcodesList);
 			List<String> invalidDialCodeList = new ArrayList<String>(dialcodes);
 			Integer dialcodeCount = dialcodes.size();
+
 			Map<String, Object> requestMap = new HashMap<String, Object>();
-			requestMap.put(ContentAPIParams.identifier.name(), dialcodes);
-			Response searchResponse = dialCodeMgr.searchDialCode(channelId, requestMap);
+			Map<String, Object> searchMap = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put(ContentAPIParams.identifier.name(), dialcodes);
+			searchMap.put("search", data);
+			requestMap.put("request", searchMap);
+
+			Map<String, String> headerParam = new HashMap<String, String>();
+			headerParam.put("X-Channel-Id", channelId);
+
+			Response searchResponse = HttpRestUtil.makePostRequest(DIALCODE_SEARCH_URI, requestMap, headerParam);
 			if (searchResponse.getResponseCode() == ResponseCode.OK) {
 				Map<String, Object> result = searchResponse.getResult();
 				Integer count = (Integer) result.get(DialCodeEnum.count.name());
@@ -1565,7 +1583,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						String identifier = (String) map.get(ContentAPIParams.identifier.name());
 						invalidDialCodeList.remove(identifier);
 					}
-					throw new ResourceNotFoundException(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+					throw new ResourceNotFoundException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
 							"DIAL Code not found with id(s):" + invalidDialCodeList);
 				}
 			} else {
@@ -1590,8 +1608,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
 				node.getMetadata().put("license", "Standard YouTube License");
-			if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
+			else if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))
 				node.getMetadata().put("license", "Creative Commons Attribution (CC BY)");
+			else {
+				TelemetryManager.log("Got Unsupported Youtube License Type : " + licenseType + " | [Content ID: "
+						+ node.getIdentifier() + "]");
+				throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(),
+						"Unsupported Youtube License!");
+			}
 		}
 	}
 
@@ -1679,7 +1703,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		} else if (!invalidContentList.isEmpty() && updateSuccessList.size() == 0) {
 			resp = new Response();
 			resp.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
-			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK,
+			resp.setParams(getErrorStatus(DialCodeEnum.ERR_DIALCODE_LINK.name(),
 					"Content not found with id(s):" + invalidContentList));
 		} else {
 			resp = new Response();
@@ -1690,7 +1714,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (!updateFailedList.isEmpty())
 				messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailedList));
 
-			resp.setParams(getErrorStatus(DialCodeErrorCodes.ERR_DIALCODE_LINK, String.join(",", messages)));
+			resp.setParams(getErrorStatus(DialCodeEnum.ERR_DIALCODE_LINK.name(), String.join(",", messages)));
 		}
 
 		return resp;
@@ -1702,14 +1726,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	private void validateDialCodeLinkRequest(String channelId, List<Map<String, Object>> reqList) throws Exception {
 		if (null == reqList || 0 == reqList.size())
-			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
-					DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
+			throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK_REQUEST.name(), ERR_DIALCODE_LINK_REQUEST);
 
 		Set<String> dialCodeList = new HashSet<String>();
 		for (Map<String, Object> map : reqList) {
 			if (null == map)
-				throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
-						DialCodeErrorMessage.ERR_DIALCODE_LINK_REQUEST);
+				throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK_REQUEST.name(), ERR_DIALCODE_LINK_REQUEST);
 			Object dialObj = map.get(DialCodeEnum.dialcode.name());
 			Object contentObj = map.get("identifier");
 			List<String> dialcodes = getList(dialObj);
@@ -1718,7 +1740,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (!dialcodes.isEmpty())
 				dialCodeList.addAll(dialcodes);
 		}
-		validateDialCodes(channelId, dialCodeList);
+		Boolean isValReq = Platform.config.hasPath("learning.content.link_dialcode_validation")
+				? Platform.config.getBoolean("learning.content.link_dialcode_validation") : true;
+		if (isValReq)
+			validateDialCodes(channelId, dialCodeList);
 	}
 
 	/**
@@ -1727,7 +1752,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	private void validateReqStructure(List<String> dialcodes, List<String> contents) {
 		if (null == dialcodes || null == contents || contents.isEmpty())
-			throw new ClientException(DialCodeErrorCodes.ERR_DIALCODE_LINK_REQUEST,
+			throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK_REQUEST.name(),
 					"Pelase provide required properties in request.");
 
 		int maxLimit = 10;
@@ -1735,7 +1760,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			maxLimit = Platform.config.getInt("dialcode.link.content.max");
 
 		if (dialcodes.size() >= maxLimit || contents.size() >= maxLimit)
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_DIALCODE_LINK_REQUEST,
+			throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK_REQUEST.name(),
 					"Max limit for link content to dialcode in a request is " + maxLimit);
 	}
 
@@ -1760,7 +1785,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@Override
 	public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
 		Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);
-		
 
 		String mimeType = (String) existingNode.getMetadata().get("mimeType");
 		Map<String, String> idMap = new HashMap<>();
@@ -1773,14 +1797,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return OK("node_id", idMap);
 
 	}
-	
+
 	/**
 	 * @param existingNode
 	 * @param requestMap
 	 * @return
 	 */
 	private Map<String, String> copyContentData(Node existingNode, Map<String, Object> requestMap) {
-		
+
 		Node copyNode = copyMetdata(existingNode, requestMap);
 		Response response = createDataNode(copyNode);
 		if (checkError(response)) {
@@ -1793,7 +1817,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		idMap.put(existingNode.getIdentifier(), copyNode.getIdentifier());
 		return idMap;
 	}
-	
+
 	private void uploadExternalProperties(Node existingNode, Node copyNode) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		// Copy the externalProperties in cassandra
@@ -1806,14 +1830,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 		}
 	}
-	
+
 	private void uploadArtifactUrl(Node existingNode, Node copyNode) {
-		String artifactUrl = (String)existingNode.getMetadata().get("artifactUrl");
-		if(StringUtils.isNotBlank(artifactUrl)) {
+		String artifactUrl = (String) existingNode.getMetadata().get("artifactUrl");
+		if (StringUtils.isNotBlank(artifactUrl)) {
 			Response response = null;
-			String mimeType = (String)copyNode.getMetadata().get("mimeType");
+			String mimeType = (String) copyNode.getMetadata().get("mimeType");
 			String contentType = (String) copyNode.getMetadata().get("contentType");
-			
+
 			if (!(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", mimeType)
 					|| StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType))) {
 				IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
@@ -1828,15 +1852,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
 					}
 
-				}else {
+				} else {
 					response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, artifactUrl);
 				}
-				
+
 				if (null == response || checkError(response)) {
 					throw new ClientException("ARTIFACT_NOT_COPIED", "ArtifactUrl not coppied.");
 				}
 			}
-			
+
 		}
 	}
 
@@ -1848,7 +1872,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private Map<String, String> copyCollectionContent(Node existingNode, Map<String, Object> requestMap, String mode) {
 		// Copying Root Node
 		Map<String, String> idMap = copyContentData(existingNode, requestMap);
-		//Generating update hierarchy with copied parent content and calling update hierarchy.
+		// Generating update hierarchy with copied parent content and calling
+		// update hierarchy.
 		copyhierarchy(existingNode, idMap, mode);
 		return idMap;
 	}
@@ -1861,8 +1886,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	private void copyhierarchy(Node existingNode, Map<String, String> idMap, String mode) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-		Map<String, Object> contentMap = getContentHierarchyRecursive(existingNode.getGraphId(), 
-				existingNode, definition, mode);
+		Map<String, Object> contentMap = util.getContentHierarchyRecursive(existingNode.getGraphId(), existingNode,
+				definition, mode, true);
 
 		Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
 				(List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
@@ -1954,7 +1979,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Node copyNode = new Node(newId, existingNode.getNodeType(), existingNode.getObjectType());
 		Map<String, Object> metaData = new HashMap<>();
 		metaData.putAll(existingNode.getMetadata());
-				
+
 		copyNode.setMetadata(metaData);
 		copyNode.setGraphId(existingNode.getGraphId());
 
@@ -1965,18 +1990,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		nullPropList.forEach(i -> nullPropMap.put(i, null));
 		copyNode.getMetadata().putAll(nullPropMap);
 		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
-		
+
 		List<Relation> existingNodeOutRelations = existingNode.getOutRelations();
-        List<Relation> copiedNodeOutRelations = new ArrayList<>();
-        if(null != existingNodeOutRelations && !existingNodeOutRelations.isEmpty()) {
-            for(Relation rel : existingNodeOutRelations) {
-                if(!Arrays.asList("Content", "ContentImage").contains(rel.getEndNodeObjectType())) {
-                    copiedNodeOutRelations.add(new Relation(newId, rel.getRelationType(), rel.getEndNodeId()));
-                }
-            }
-        }
-        copyNode.setOutRelations(copiedNodeOutRelations);
-		
+		List<Relation> copiedNodeOutRelations = new ArrayList<>();
+		if (null != existingNodeOutRelations && !existingNodeOutRelations.isEmpty()) {
+			for (Relation rel : existingNodeOutRelations) {
+				if (!Arrays.asList("Content", "ContentImage").contains(rel.getEndNodeObjectType())) {
+					copiedNodeOutRelations.add(new Relation(newId, rel.getRelationType(), rel.getEndNodeId()));
+				}
+			}
+		}
+		copyNode.setOutRelations(copiedNodeOutRelations);
+
 		return copyNode;
 	}
 
@@ -1987,35 +2012,35 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 
 	private Node validateCopyContentRequest(String contentId, Map<String, Object> requestMap, String mode) {
-		if (null == requestMap) 
+		if (null == requestMap)
 			throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
-		
-		if(StringUtils.isBlank((String)requestMap.get("createdBy")))
+
+		if (StringUtils.isBlank((String) requestMap.get("createdBy")))
 			throw new ClientException("ERR_INVALID_CREATEDBY", "Please provide valid createdBy value");
-		
-		if(!validateList(requestMap.get("createdFor"))) {
+
+		if (!validateList(requestMap.get("createdFor"))) {
 			throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid createdFor value.");
 		}
 		if (!validateList(requestMap.get("organization"))) {
 			throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid Organization value.");
 		}
-		
+
 		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
 		List<String> notCoppiedContent = null;
-		if(Platform.config.hasPath("learning.content.type.not.copied.list")) {
+		if (Platform.config.hasPath("learning.content.type.not.copied.list")) {
 			notCoppiedContent = Platform.config.getStringList("learning.content.type.not.copied.list");
 		}
-		if(notCoppiedContent != null && notCoppiedContent.contains((String)node.getMetadata().get("contentType"))) {
+		if (notCoppiedContent != null && notCoppiedContent.contains((String) node.getMetadata().get("contentType"))) {
 			throw new ClientException(ContentErrorCodes.CONTENTTYPE_ASSET_CAN_NOT_COPY.name(),
-					"ContentType " + (String)node.getMetadata().get("contentType") + " can not be coppied.");
+					"ContentType " + (String) node.getMetadata().get("contentType") + " can not be coppied.");
 		}
-		
+
 		String status = (String) node.getMetadata().get("status");
 		List<String> invalidStatusList = Platform.config.getStringList("learning.content.copy.invalid_status_list");
 		if (invalidStatusList.contains(status))
 			throw new ClientException("ERR_INVALID_REQUEST",
 					"Cannot copy content in " + status.toLowerCase() + " status");
-		
+
 		return node;
 	}
 
@@ -2025,15 +2050,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	protected boolean validateList(Object publishChecklistObj) {
 		try {
 			List<String> publishChecklist = (List<String>) publishChecklistObj;
-			if(null == publishChecklist || publishChecklist.isEmpty()) {
+			if (null == publishChecklist || publishChecklist.isEmpty()) {
 				return false;
 			}
-			
+
 		} catch (Exception e) {
 			return false;
 		}
 		return true;
 	}
+
 	protected File copyURLToFile(String fileUrl) {
 		try {
 			String fileName = getFieNameFromURL(fileUrl);
@@ -2044,11 +2070,246 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "fileUrl is invalid.");
 		}
 	}
-	
+
 	protected String getFieNameFromURL(String fileUrl) {
-		String fileName = FilenameUtils.getBaseName(fileUrl)+"_"+ System.currentTimeMillis();
-		if (!FilenameUtils.getExtension(fileUrl).isEmpty()) 
+		String fileName = FilenameUtils.getBaseName(fileUrl) + "_" + System.currentTimeMillis();
+		if (!FilenameUtils.getExtension(fileUrl).isEmpty())
 			fileName += "." + FilenameUtils.getExtension(fileUrl);
 		return fileName;
 	}
+
+	@SuppressWarnings("unchecked")
+	private void populateIdsToRetire(Node node, Set<String> identifiers, DefinitionDTO contentDef, DefinitionDTO contentImgDef) {
+		DefinitionDTO definition;
+		if(StringUtils.endsWithIgnoreCase(node.getIdentifier(), DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+			definition = contentImgDef;
+		} else {
+			Response responseImageNode = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
+			if(!checkError(responseImageNode) && !identifiers.contains(node.getIdentifier()))
+				populateIdsToRetire((Node) responseImageNode.get(GraphDACParams.node.name()), identifiers, contentDef, contentImgDef);
+			definition = contentDef;
+		}
+		if(!StringUtils.equalsIgnoreCase("Retired", (String) node.getMetadata().get("status")) && !identifiers.contains(node.getIdentifier())) {
+			identifiers.add(node.getIdentifier());
+			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+			Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
+				if (!children.isEmpty()) {
+					children.stream().forEach(dto -> {
+						Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
+						Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
+						if ("Parent".equals(childNode.getMetadata().get("visibility")) && !identifiers.contains(childNode))
+							populateIdsToRetire(childNode, identifiers, contentDef, contentImgDef);
+					});
+				}
+			});
+		}
+	}
+
+    /**
+	 * @param contentId
+	 * @return
+	 */
+    @Override
+	public Response retire(String contentId) {
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+					"Content Object Id is blank.");
+		Response response = getDataNode(TAXONOMY_ID, contentId);
+		if (checkError(response))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+		Node node = (Node) response.get(GraphDACParams.node.name());
+		Set<String> identifiers = new HashSet<>();
+		populateIdsToRetire(node, identifiers, getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE), getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE));
+		Map<String, Object> params = new HashMap<>();
+		params.put("status", "Retired");
+		if(identifiers.isEmpty()) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
+					"Content is already Retired.");
+		}
+		else {
+			response = updateDataNodes(params, new ArrayList<>(identifiers), TAXONOMY_ID);
+			if(checkError(response)) {
+				return response;
+			}else {
+				deleteHierarchy(new ArrayList<>(identifiers));
+				Response responseNode = getDataNode(TAXONOMY_ID, contentId);
+				if(checkError(responseNode)) {
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+				} else {
+					node = (Node) responseNode.get("node");
+					Response res = getSuccessResponse();
+					res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
+					res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));
+					return res;
+				}
+			}
+		}
+	}
+    
+    /**
+	 * @param map
+	 * @param contentId
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private Response updateDialCode(String identifier, Map<String, Object> map) throws Exception {
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		String contentId=identifier;
+		String objectType = CONTENT_OBJECT_TYPE;
+		map.put("objectType", CONTENT_OBJECT_TYPE);
+		map.put("identifier", contentId);
+
+		boolean isImageObjectCreationNeeded = false;
+		boolean imageObjectExists = false;
+
+		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		Response getNodeResponse = getDataNode(TAXONOMY_ID, contentImageId);
+		if (checkError(getNodeResponse)) {
+			TelemetryManager.log("Content image not found: " + contentImageId);
+			isImageObjectCreationNeeded = true;
+			getNodeResponse = getDataNode(TAXONOMY_ID, contentId);
+			TelemetryManager.log("Content node response: " + getNodeResponse);
+		} else
+			imageObjectExists = true;
+
+		List<String> externalPropsList = getExternalPropsList(definition);
+
+		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+		TelemetryManager.log("Graph node found: " + graphNode.getIdentifier());
+		Map<String, Object> metadata = graphNode.getMetadata();
+		String status = (String) metadata.get("status");
+
+		boolean checkError = false;
+		Response createResponse = null;
+		if (finalStatus.contains(status)) {
+			if (isImageObjectCreationNeeded) {
+				graphNode.setIdentifier(contentImageId);
+				graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+				metadata.put("status", "Draft");
+				Object lastUpdatedBy = map.get("lastUpdatedBy");
+				if (null != lastUpdatedBy)
+					metadata.put("lastUpdatedBy", lastUpdatedBy);
+				graphNode.setGraphId(TAXONOMY_ID);
+				createResponse = createDataNode(graphNode);
+				checkError = checkError(createResponse);
+				if (!checkError) {
+					TelemetryManager.log("Updating external props for: " + contentImageId);
+					Response bodyResponse = getContentProperties(contentId, externalPropsList);
+					checkError = checkError(bodyResponse);
+					if (!checkError) {
+						Map<String, Object> extValues = (Map<String, Object>) bodyResponse
+								.get(ContentStoreParams.values.name());
+						if (null != extValues && !extValues.isEmpty()) {
+							updateContentProperties(contentImageId, extValues);
+						}
+					}
+					map.put("versionKey", createResponse.get("versionKey"));
+				}
+			}
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
+			contentId = contentImageId;
+		} else if (imageObjectExists) {
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
+			contentId = contentImageId;
+		}
+
+		if (checkError)
+			return createResponse;
+
+		TelemetryManager.log("Updating content node: " + contentId);
+		String passportKey = Platform.config.getString("graph.passport.key.base");
+		map.put("versionKey", passportKey);
+		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+		domainObj.setGraphId(TAXONOMY_ID);
+		domainObj.setIdentifier(contentId);
+		domainObj.setObjectType(objectType);
+		createResponse = updateDataNode(domainObj);
+
+		return createResponse;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#acceptFlag(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response acceptFlag(String contentId) throws Exception {
+		Response response = new Response();
+		boolean isImageNodeExist = false;
+		String versionKey = null;
+
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+					"Content Id Can Not be blank.");
+		Response getResponse = getDataNode(TAXONOMY_ID, contentId);
+		if (checkError(getResponse))
+			throw new ResourceNotFoundException(TaxonomyErrorCodes.ERR_NODE_NOT_FOUND.name(),
+					"Content Not Found With Identifier: " + contentId);
+
+		Node node = (Node) getResponse.get(GraphDACParams.node.name());
+		boolean isValidObj = StringUtils.equalsIgnoreCase(CONTENT_OBJECT_TYPE, node.getObjectType());
+		boolean isValidStatus = StringUtils.equalsIgnoreCase((String) node.getMetadata().get("status"), "Flagged");
+
+		if (!isValidObj || !isValidStatus)
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Invalid Flagged Content! Content Can Not Be Accepted.");
+
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+		List<String> externalPropsList = getExternalPropsList(definition);
+
+		String imageContentId = getImageId(contentId);
+		Response imageResponse = getDataNode(TAXONOMY_ID, imageContentId);
+		if (!checkError(imageResponse))
+			isImageNodeExist = true;
+
+		if (!isImageNodeExist) {
+			Node createNode = (Node) getResponse.get(GraphDACParams.node.name());
+			createNode.setIdentifier(imageContentId);
+			createNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+			createNode.getMetadata().put(ContentAPIParams.status.name(), "FlagDraft");
+			createNode.setGraphId(TAXONOMY_ID);
+			Response createResponse = createDataNode(createNode);
+			if (!checkError(createResponse)) {
+				TelemetryManager.log("Updating external props for: " + imageContentId);
+				Response bodyResponse = getContentProperties(contentId, externalPropsList);
+				if (!checkError(bodyResponse)) {
+					Map<String, Object> extValues = (Map<String, Object>) bodyResponse
+							.get(ContentStoreParams.values.name());
+					if (null != extValues && !extValues.isEmpty())
+						updateContentProperties(imageContentId, extValues);
+				}
+				versionKey = (String) createResponse.get("versionKey");
+			} else
+				return createResponse;
+		} else {
+			TelemetryManager.log("Updating Image node: " + imageContentId);
+			Node imageNode = (Node) imageResponse.get(GraphDACParams.node.name());
+			imageNode.setGraphId(TAXONOMY_ID);
+			imageNode.getMetadata().put(ContentAPIParams.status.name(), "FlagDraft");
+			Response updateResponse = updateDataNode(imageNode);
+			if (checkError(updateResponse))
+				return updateResponse;
+			versionKey = (String) updateResponse.get("versionKey");
+		}
+		TelemetryManager.log("Updating Original node: " + contentId);
+		getResponse = getDataNode(TAXONOMY_ID, contentId);
+		Node originalNode = (Node) getResponse.get(GraphDACParams.node.name());
+		originalNode.getMetadata().put(ContentAPIParams.status.name(), "Retired");
+		Response retireResponse = updateDataNode(originalNode);
+		if (!checkError(retireResponse)) {
+			if (StringUtils.equalsIgnoreCase((String) originalNode.getMetadata().get("mimeType"),
+					"application/vnd.ekstep.content-collection"))
+				deleteHierarchy(Arrays.asList(contentId));
+			response = getSuccessResponse();
+			response.getResult().put("node_id", contentId);
+			response.getResult().put("versionKey", versionKey);
+			return response;
+		} else {
+			return retireResponse;
+		}
+	}
+
 }

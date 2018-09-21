@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 
 @Controller
-@RequestMapping("/v3/assessment/assessmentitems")
+@RequestMapping("/assessment/v3/items")
 public class AssessmentItemV3Controller extends BaseController {
 
     

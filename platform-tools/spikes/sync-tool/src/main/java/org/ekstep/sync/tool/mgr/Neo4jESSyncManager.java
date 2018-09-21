@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +40,7 @@ import org.springframework.stereotype.Component;
 public class Neo4jESSyncManager implements ISyncManager {
 
 	private ControllerUtil util = new ControllerUtil();
-	private static int batchSize = 500;
+	private static int batchSize = 50;
 	private ObjectMapper mapper = new ObjectMapper();
 
 	@Autowired
@@ -47,8 +48,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 
 	@PostConstruct
 	private void init() throws Exception {
-		int batch = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size")
-				: 500;
+		int batch = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
 		batchSize = batch;
 	}
 	
@@ -102,16 +102,18 @@ public class Neo4jESSyncManager implements ISyncManager {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
-		Map<String, String> errors = null;
+		Map<String, String> errors = new HashMap<>();
 		DefinitionDTO def;
 		if (StringUtils.isNotBlank(objectType)) {
 			def = util.getDefinition(graphId, objectType);
 			if (null != def) {
+				System.out.println("\nSyncing object of type '" + objectType + "'.\n");
 				Map<String, Object> definition = mapper.convertValue(def, new TypeReference<Map<String, Object>>() {
 				});
 				Map<String, String> relationMap = GraphUtil.getRelationMap(objectType, definition);
 				SyncMessageGenerator.definitionMap.put(objectType, relationMap);
 				int start = 0;
+				int completed =0;
 				boolean found = true;
 				while (found) {
 					List<Node> nodes = null;
@@ -123,15 +125,16 @@ public class Neo4jESSyncManager implements ISyncManager {
 						continue;
 					}
 					if (null != nodes && !nodes.isEmpty()) {
-						System.out.println(batchSize + " -- " + def.getObjectType() + " objects are getting synced");
+//						System.out.println(batchSize + " -- " + def.getObjectType() + " objects are getting synced");
 						start += batchSize;
-						errors = new HashMap<>();
 						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
-						if (!errors.isEmpty())
-							System.out
-									.println("Error! while forming ES document data from nodes, below nodes are ignored"
-											+ errors);
+//						if (!errors.isEmpty())
+//							System.out
+//									.println("Error! while forming ES document data from nodes, below nodes are ignored"
+//											+ errors);
 						esConnector.bulkImport(messages);
+						completed += batchSize;
+						System.out.println( "");
 					} else {
 						found = false;
 						break;
@@ -194,4 +197,110 @@ public class Neo4jESSyncManager implements ISyncManager {
 					+ ", remaining nodes got synced successfully");
 		}
 	}
+	
+	public void syncByObjectType(String graphId, String objectType, Long total, Integer delay) throws Exception {
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
+					"Graph Id is blank.");
+		Map<String, String> errors = new HashMap<>();
+		DefinitionDTO def;
+		if (StringUtils.isNotBlank(objectType)) {
+			def = util.getDefinition(graphId, objectType);
+			if (null != def) {
+				System.out.println("-----------------------------------------");
+				System.out.println("\nSyncing object of type '" + objectType + "' with batch size of " + batchSize + " having delay " + delay + "ms for each batch.\n");
+				Map<String, Object> definition = mapper.convertValue(def, new TypeReference<Map<String, Object>>() {
+				});
+				Map<String, String> relationMap = GraphUtil.getRelationMap(objectType, definition);
+				SyncMessageGenerator.definitionMap.put(objectType, relationMap);
+				int start = 0;
+				int current = 0;
+				boolean found = true;
+				long startTime = System.currentTimeMillis();
+				while (found) {
+					List<Node> nodes = null;
+					try {
+						nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
+					}catch(ResourceNotFoundException e) {
+						System.out.println("error while fetching neo4j records for objectType="+objectType+", start="+start+",batchSize="+batchSize);
+						start += batchSize;
+						continue;
+					}
+					if (null != nodes && !nodes.isEmpty()) {
+						start += batchSize;
+						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
+						esConnector.bulkImport(messages);
+						current += messages.size();
+						printProgress(startTime, total, current);
+						if (delay > 0) {
+							Thread.sleep(delay);
+						}
+					} else {
+						found = false;
+						break;
+					}
+				}
+				if (!errors.isEmpty())
+					System.out.println("Error! while forming ES document data from nodes, below nodes are ignored. \n" + errors);
+				long endTime = System.currentTimeMillis();
+				System.out.println("\n'" + objectType + "' nodes sync completed in: " + (endTime - startTime) + "ms");
+			}
+		}
+	}
+	
+	public void syncGraph(String graphId, Integer delay, String[] objectType) throws Exception {
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException("BLANK_GRAPH_ID", "Graph Id is blank.");
+		Map<String, Long> counts = util.getCountByObjectType(graphId);
+		if (counts.isEmpty()) {
+			System.out.println("No objects found in this graph.");
+		} else {
+			List<String> keys = new ArrayList(counts.keySet());
+			if (objectType != null) {
+				keys = counts.keySet().stream().filter(key -> Arrays.asList(objectType).contains(key)).collect(Collectors.toList());
+			}
+			for (String key: counts.keySet()) {
+				Long count = counts.get(key);
+				if (count > 1)
+					System.out.println(count + " - " + key + " nodes.");
+				else
+					System.out.println(count + " - " + key + " node.");
+			}
+			long startTime = System.currentTimeMillis();
+			System.out.println("\nSync starting at " + startTime);
+			for (String key: keys) {
+				syncByObjectType(graphId, key, counts.get(key), delay);
+			}
+			System.out.println("-----------------------------------------");
+			long endTime = System.currentTimeMillis();
+			System.out.println("Sync completed at " + endTime);
+			System.out.println("Time taken to sync nodes: " + (endTime - startTime) + "ms");
+		}
+	}
+	
+	private static void printProgress(long startTime, long total, long current) {
+	    long eta = current == 0 ? 0 : 
+	        (total - current) * (System.currentTimeMillis() - startTime) / current;
+
+	    String etaHms = current == 0 ? "N/A" : 
+	            String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(eta),
+	                    TimeUnit.MILLISECONDS.toMinutes(eta) % TimeUnit.HOURS.toMinutes(1),
+	                    TimeUnit.MILLISECONDS.toSeconds(eta) % TimeUnit.MINUTES.toSeconds(1));
+
+	    StringBuilder string = new StringBuilder(140);   
+	    int percent = (int) (current * 100 / total);
+	    string
+	        .append('\r')
+	        .append(String.join("", Collections.nCopies(percent == 0 ? 2 : 2 - (int) (Math.log10(percent)), " ")))
+	        .append(String.format(" %d%% [", percent))
+	        .append(String.join("", Collections.nCopies(percent, "=")))
+	        .append('>')
+	        .append(String.join("", Collections.nCopies(100 - percent, " ")))
+	        .append(']')
+	        .append(String.join("", Collections.nCopies((int) (Math.log10(total)) - (int) (Math.log10(current)), " ")))
+	        .append(String.format(" %d/%d, ETA: %s", current, total, etaHms));
+
+	    System.out.print(string);
+	}
+
 }

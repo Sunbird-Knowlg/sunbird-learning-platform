@@ -1,23 +1,13 @@
 package org.ekstep.taxonomy.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,6 +20,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 /**
  * The Class ContentV2ControllerTest.
  * 
@@ -50,8 +46,8 @@ public class ContentV2ControllerTest {
 	/** The default Content Bucket Folder */
 	private static final String VALID_CONTENT_PACKAGE_FILE = "TEST_PACKAGE_I.zip";
 	
-	private static final String s3Content = "s3.content.folder";
-    private static final String s3Artifact = "s3.artifact.folder";
+	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
+    private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 
 	/** The Map of Created Node with id */
 	private static final Map<String, String> createdNodeMap = new HashMap<String, String>();
@@ -134,9 +130,9 @@ public class ContentV2ControllerTest {
 			if (null == file) {
 				TelemetryManager.log("Error! Upload File Package Cannot be 'null'.");
 			} else {
-				String folder = S3PropertyReader.getProperty(s3Content);
-            	folder = folder + "/" + identifier + "/" + S3PropertyReader.getProperty(s3Artifact);
-				String[] result = AWSUploader.uploadFile(folder, file);
+				String folder = S3PropertyReader.getProperty(CONTENT_FOLDER);
+            		folder = folder + "/" + identifier + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
+            		String[] result = CloudStore.uploadFile(folder, file, true);
 				if (null != result && result.length == 2)
 					url = result[1];
 			}

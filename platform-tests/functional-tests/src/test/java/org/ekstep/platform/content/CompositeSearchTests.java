@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
@@ -39,6 +40,7 @@ public class CompositeSearchTests extends BaseTest {
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 
 	// Create and search content
+	@Ignore
 	@Test
 	public void createAndSearchExpectSuccess200() throws InterruptedException{
 		contentCleanUp();
@@ -359,7 +361,7 @@ public class CompositeSearchTests extends BaseTest {
 	}
 	
 	// Search with sort by descending
-	
+	@Ignore
 	@Test
 	public void searchWithSortDescExpectSuccess200(){
 		setURI();

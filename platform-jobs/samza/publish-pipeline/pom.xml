@@ -6,25 +6,25 @@
 		<artifactId>samza</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<samza.version>0.12.0</samza.version>
-		<scala.version>2.11</scala.version>
-		<hadoop.version>2.6.2</hadoop.version>
-	</properties>
 	<artifactId>publish-pipeline</artifactId>
-	<version>0.0.110</version>
+	<version>0.0.134</version>
 	<dependencies>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>samza-common</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>content-manager</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>samza-common</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.kafka</groupId>
+					<artifactId>kafka-clients</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
@@ -43,6 +43,21 @@
 		    <artifactId>mockito-all</artifactId>
 		    <version>1.10.19</version>
 		    <scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.7.8</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.7.8</version>
 		</dependency>
 	</dependencies>
 	<build>

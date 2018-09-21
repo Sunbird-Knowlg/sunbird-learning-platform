@@ -11,6 +11,7 @@ import org.ekstep.common.util.AWSUploader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.After;
@@ -50,7 +51,7 @@ public class ContentV3PublishLocalTest extends CommonTestSetup{
 
 	MockMvc mockMvc;
 
-	private static final String basePath = "/v3/content";
+	private static final String basePath = "/content/v3";
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	private static String contentId = ""; 
@@ -154,10 +155,10 @@ public class ContentV3PublishLocalTest extends CommonTestSetup{
 	
 	private void deleteAWSuploads(String contentId, String mimeType) throws Exception {
 		String artifactUrlKey = "content"+ File.separator +contentId;
-		AWSUploader.deleteFile(artifactUrlKey);
+		CloudStore.deleteFile(artifactUrlKey, false);
 		System.out.println("deleted file :"+artifactUrlKey);
-		AWSUploader.deleteFile(getExtractionPath(contentId, "snapshot", mimeType)); 
-		AWSUploader.deleteFile(getExtractionPath(contentId, "latest", mimeType));
+		CloudStore.deleteFile(getExtractionPath(contentId, "snapshot", mimeType), true);
+		CloudStore.deleteFile(getExtractionPath(contentId, "latest", mimeType), true);
 		System.out.println("deleted extracted files");
 	}
 	

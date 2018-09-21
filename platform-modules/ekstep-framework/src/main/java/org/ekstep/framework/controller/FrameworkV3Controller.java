@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
-@RequestMapping("/v3/framework")
+@RequestMapping("/framework/v3")
 public class FrameworkV3Controller extends BaseController {
 
 	@Autowired

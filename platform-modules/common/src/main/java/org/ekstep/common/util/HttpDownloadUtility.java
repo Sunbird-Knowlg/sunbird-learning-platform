@@ -11,7 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.ekstep.common.slugs.Slug;
+import org.ekstep.common.Slug;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**

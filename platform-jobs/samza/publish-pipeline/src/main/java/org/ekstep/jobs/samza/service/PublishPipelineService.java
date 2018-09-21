@@ -1,29 +1,16 @@
 package org.ekstep.jobs.samza.service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.common.Slug;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.slugs.Slug;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -43,10 +30,14 @@ import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class PublishPipelineService implements ISamzaService {
 
@@ -56,9 +47,9 @@ public class PublishPipelineService implements ISamzaService {
 
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
-	private static final String s3Content = "s3.content.folder";
+	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 
-	private static final String s3Artifact = "s3.artifact.folder";
+	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 
 	private static final String COLLECTION_CONTENT_MIMETYPE = "application/vnd.ekstep.content-collection";
 
@@ -69,6 +60,8 @@ public class PublishPipelineService implements ISamzaService {
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	private ControllerUtil util = new ControllerUtil();
+
+	private CollectionStore collectionStore = null;
 
 	private Config config = null;
 
@@ -92,6 +85,7 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Akka actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		LOGGER.info("Stream initialized for Failed Events");
+		collectionStore = new CollectionStore();
 	}
 
 	@Override
@@ -318,8 +312,11 @@ public class PublishPipelineService implements ISamzaService {
 			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
 			util.updateNode(node);
-			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
-					e.getMessage());
+			collectionStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
+			if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
+				PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
+						e.getMessage());
+			}
 		} finally {
 			try {
 				FileUtils.deleteDirectory(new File(basePath.replace(nodeId, "")));
@@ -558,11 +555,12 @@ public class PublishPipelineService implements ISamzaService {
 			try {
 				FileUtils.writeStringToFile(file, data);
 				if (file.exists()) {
-					LOGGER.info("Upload File to S3 :" + file.getName());
-					String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(contentId), file);
+					LOGGER.info("Upload File to cloud storage :" + file.getName());
+					//String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(contentId), file);
+					String[] uploadedFileUrl = CloudStore.uploadFile(getAWSPath(contentId), file, true);
 					if (null != uploadedFileUrl && uploadedFileUrl.length > 1) {
 						String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
-						LOGGER.info("Update S3 url to node" + url);
+						LOGGER.info("Update cloud storage url to node" + url);
 						node.getMetadata().put(ContentAPIParams.toc_url.name(), url);
 					}
 					FileUtils.deleteDirectory(file.getParentFile());
@@ -644,10 +642,10 @@ public class PublishPipelineService implements ISamzaService {
 	}
 
 	private String getAWSPath(String identifier) {
-		String folderName = S3PropertyReader.getProperty(s3Content);
+		String folderName = S3PropertyReader.getProperty(CONTENT_FOLDER);
 		if (!StringUtils.isBlank(folderName)) {
 			folderName = folderName + File.separator + Slug.makeSlug(identifier, true) + File.separator
-					+ S3PropertyReader.getProperty(s3Artifact);
+					+ S3PropertyReader.getProperty(ARTEFACT_FOLDER);
 		}
 		return folderName;
 	}

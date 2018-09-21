@@ -41,7 +41,7 @@ public class ContentV3ControllerExceptionTest {
 
 	MockMvc mockMvc;
 
-	private static final String basePath = "/v3/content";
+	private static final String basePath = "/content/v3";
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Test Contnet\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";

@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.optimizr.FileType;
 import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.common.optimizr.image.ImageResolutionUtil;
 import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
-import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
@@ -21,6 +21,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 
 /**
@@ -39,15 +40,14 @@ public class OptimizerUtil {
 	/** The mapper. */
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	private static final String s3Content = "s3.content.folder";
+	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 
-	private static final String s3Artifact = "s3.artifact.folder";
+	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
 
 	/**
 	 * Optimise image.
 	 *
 	 * @param contentId the content id
-	 * @param folder the folder
 	 * @throws Exception the exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -156,15 +156,14 @@ public class OptimizerUtil {
 	 * Upload to AWS.
 	 *
 	 * @param uploadedFile the uploaded file
-	 * @param folder the folder
 	 * @return the string[]
 	 */
 	public static String[] uploadToAWS(File uploadedFile, String identifier) {
 		String[] urlArray = new String[] {};
 		try {
-			String folder = S3PropertyReader.getProperty(s3Content);
-			folder = folder + "/" + Slug.makeSlug(identifier, true) + "/" + S3PropertyReader.getProperty(s3Artifact);
-			urlArray = AWSUploader.uploadFile(folder, uploadedFile);
+			String folder = S3PropertyReader.getProperty(CONTENT_FOLDER);
+			folder = folder + "/" + Slug.makeSlug(identifier, true) + "/" + S3PropertyReader.getProperty(ARTEFACT_FOLDER);
+			urlArray = CloudStore.uploadFile(folder, uploadedFile, true);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Error wihile uploading the File.", e);
 		}

@@ -20,6 +20,10 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import akka.dispatch.OnSuccess;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+
 /**
  * @author pradyumna
  *
@@ -105,10 +109,13 @@ public class ContentBadgingTest extends BaseSearchTest {
 		searchDTO.setProperties(properties);
 		searchDTO.setLimit(100);
 		searchDTO.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Map<String, Object> response = searchprocessor.processSearch(searchDTO, true);
+		Future<Map<String, Object>> response = searchprocessor.processSearch(searchDTO, true);
 
-		assertNotNull(response);
-
+		response.onSuccess(new OnSuccess<Map<String, Object>>() {
+			public void onSuccess(Map<String, Object> lstResult) {
+				assertNotNull(lstResult);
+			}
+		}, ExecutionContext.Implicits$.MODULE$.global());
 	}
 
 }

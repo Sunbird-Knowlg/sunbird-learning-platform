@@ -12,7 +12,6 @@
 	<modules>
 		<module>transaction-event-handler</module>
 		<module>learning-graph-extension</module>
-		<module>language-graph-extension</module>
 		<module>custom-procedures</module>
 	</modules>
 
