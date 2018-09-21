@@ -200,7 +200,7 @@ public class TelemetryManager {
 			reqContext = getContext();
 			deviceId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.DEVICE_ID.name());
 			if(StringUtils.isNotBlank(deviceId))
-				context.put("did", deviceId);
+				reqContext.put("did", deviceId);
 			appId=(String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.APP_ID.name());
 		}
 
