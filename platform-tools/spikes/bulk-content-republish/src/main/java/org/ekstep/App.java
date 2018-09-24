@@ -126,21 +126,23 @@ public class App {
 				if (null != nodes && !nodes.isEmpty()) {
 					System.out.println(nodes.size() + " objects are getting republished, offset=" + sc.getStartPosition());
 					start += sc.getResultSize();
+					int counter = 0;
 					for (Node node : nodes) {
 						count++;
-						
-						try {
-							String imgNodeId = node.getIdentifier() + ".img";
-							Node imgNode = util.getNode("domain", imgNodeId);
-							if (imgNode == null && !processedObjects.contains(node.getIdentifier())) {
-								processed_ids.add(node.getIdentifier());
-								feeder.push(node, "Public");
-								writeToFile(writer, node);
+						if(counter<50) {
+							try {
+								String imgNodeId = node.getIdentifier() + ".img";
+								Node imgNode = util.getNode("domain", imgNodeId);
+								if (imgNode == null && !processedObjects.contains(node.getIdentifier())) {
+									processed_ids.add(node.getIdentifier());
+									feeder.push(node, "Public");
+									writeToFile(writer, node);
+									counter++;
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
-						} catch (Exception e) {
-							e.printStackTrace();
 						}
-
 					}
 				} else {
 					found = false;
