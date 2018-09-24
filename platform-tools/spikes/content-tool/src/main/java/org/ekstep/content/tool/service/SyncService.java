@@ -91,7 +91,7 @@ public class SyncService extends BaseService implements ISyncService {
             Response sourceContent = getContent(id, false, null);
             if (isSuccess(readResponse)) {
                 Map<String, Object> content = (Map<String, Object>) readResponse.get("content");
-                if (0 == Double.compare((Double) identifiers.get(id), (Double) content.get("pkgVersion"))) {
+                if (0 == Double.compare((Double) identifiers.get(id), ((Number) content.get("pkgVersion")).doubleValue())) {
                     if (!request.isEmpty()) {
                         Response updateResponse = systemUpdate(id, request, channel, true);
                         Response updateSourceResponse = systemUpdate(id, request, channel, false);
@@ -113,7 +113,7 @@ public class SyncService extends BaseService implements ISyncService {
                     }
 
                     copyEcar(readResponse);
-                } else if (-1 == Double.compare((Double) identifiers.get(id), (Double) content.get("pkgVersion"))) {
+                } else if (-1 == Double.compare((Double) identifiers.get(id), ((Number) content.get("pkgVersion")).doubleValue())) {
                     syncData(identifiers);
                     updateData(identifiers, request, channel);
                 } else {
@@ -255,7 +255,7 @@ public class SyncService extends BaseService implements ISyncService {
                 Response destContent = getContent(id, true, null);
                 if (isSuccess(destContent)) {
                     Response sourceContent = getContent(id, false, null);
-                    if (Double.compare(((Double) ((Map<String, Object>) destContent.get("content")).get("pkgVersion")), ((Double) ((Map<String, Object>) sourceContent.get("content")).get("pkgVersion"))) == -1) {
+                    if (Double.compare(((Number) ((Map<String, Object>) destContent.get("content")).get("pkgVersion")).doubleValue(), ((Number) ((Map<String, Object>) sourceContent.get("content")).get("pkgVersion")).doubleValue()) == -1) {
                         updateMetadata(sourceContent);
                         syncHierarchy(id);
                         success.add(id);
@@ -350,7 +350,7 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private void updateMetadata(Response sourceContent) throws Exception {
-        createContent(sourceContent.getId());
+        createContent((String) ((Map<String, Object>) sourceContent.get("content")).get("identifier"));
 
     }
 
