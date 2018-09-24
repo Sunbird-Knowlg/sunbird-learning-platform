@@ -45,8 +45,16 @@ public class BaseService {
     protected String sourceStorageType = Platform.config.getString(sourceEnv + ".storage_type");
     protected String destStorageType = Platform.config.getString(destEnv + ".storage_type");
 
+    protected static Map<String, String> extractMimeType = new HashMap<>();
+
     protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret")));
     protected BaseStorageService azureService = StorageServiceFactory.getStorageService((new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"))));
+
+    static{
+        extractMimeType.put("application/vnd.ekstep.h5p-archive", "h5p");
+        extractMimeType.put("application/vnd.ekstep.ecml-archive", "ecml");
+        extractMimeType.put("application/vnd.ekstep.html-archive", "html");
+    }
 
     protected Response executePost(String url, String authKey, Map<String, Object> request, String channel) throws Exception {
         if (StringUtils.isBlank(channel)) {
@@ -161,7 +169,7 @@ public class BaseService {
     }
 
     protected String downloadEcar(String id, String downloadUrl, String cloudStoreType) {
-        String localPath = "tmp/" + id;
+        String localPath = "tmp/" + id + File.separator;
         String[] fileUrl = downloadUrl.split("/");
         String filename = fileUrl[fileUrl.length - 1];
         String objectKey = "ecar-files" + File.separator + id + File.separator + filename;
@@ -232,11 +240,19 @@ public class BaseService {
         return mediaIdMap;
     }
 
-    protected Response getContent(String id, boolean isDestination) throws Exception {
-        if(isDestination)
-            return executeGet(destUrl + "/content/v3/read/" + id, destKey);
-        else
-            return executeGet(sourceUrl + "/content/v3/read/" + id, sourceKey);
+    protected Response getContent(String id, boolean isDestination, String fields) throws Exception {
+        if(isDestination) {
+            String url = destUrl + "/content/v3/read/" + id;
+            if(StringUtils.isNotBlank(fields))
+                url += "?fields=" + fields;
+            return executeGet(url, destKey);
+        }
+        else{
+            String url = sourceUrl + "/content/v3/read/" + id;
+            if(StringUtils.isNotBlank(fields))
+                url += "?fields=" + fields;
+            return executeGet(url, sourceKey);
+        }
     }
 
 
@@ -254,6 +270,18 @@ public class BaseService {
         return response;
 
     }
+
+
+    protected void extractArchives(String id, String mimetype, String artefactUrl, String pkgVersion) {
+        String[] fileUrl = artefactUrl.split("/");
+        String filename = fileUrl[fileUrl.length - 1];
+        String objectkey = "content" + File.separator + id + File.separator + "artifact" + filename;
+        String tokey = "content" + File.separator + extractMimeType.get(mimetype) + File.separator + id;
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey + "-snapshot");
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-latest");
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-" + pkgVersion);
+    }
+
 
    /* public static void main(String[] args) throws Exception {
         BaseService service  = new BaseService();

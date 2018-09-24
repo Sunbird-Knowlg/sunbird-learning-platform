@@ -3,6 +3,7 @@ package org.ekstep.content.tool.service;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
@@ -52,7 +53,14 @@ public class SyncService extends BaseService implements ISyncService {
     public void sync(String filter, String dryRun) {
         try {
             Map<String, Object> identifiers = getFromSource(filter);
-            Map<String, Object> response = syncData(identifiers);
+            if (StringUtils.equalsIgnoreCase("true", dryRun)) {
+                System.out.println("content count to sync: " + identifiers.keySet().size() + " " + identifiers.keySet());
+            } else {
+                Map<String, Object> response = syncData(identifiers);
+                System.out.println("Contents synced : " + response.get("success"));
+                System.out.println("Contents skipped without syncing : " + response.get("failed"));
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new ServerException("ERR_OWNER_MIG", "Error while syncing content data", e);
@@ -79,12 +87,12 @@ public class SyncService extends BaseService implements ISyncService {
         List<String> failure = new ArrayList<>();
 
         for (String id : identifiers.keySet()) {
-            Response readResponse = getContent(id, true);
-            Response sourceContent = getContent(id, false);
+            Response readResponse = getContent(id, true, null);
+            Response sourceContent = getContent(id, false, null);
             if (isSuccess(readResponse)) {
-                Map<String, Object> content = (Map<String, Object>)readResponse.get("content");
+                Map<String, Object> content = (Map<String, Object>) readResponse.get("content");
                 if (0 == Double.compare((Double) identifiers.get(id), (Double) content.get("pkgVersion"))) {
-                    if(!request.isEmpty()) {
+                    if (!request.isEmpty()) {
                         Response updateResponse = systemUpdate(id, request, channel, true);
                         Response updateSourceResponse = systemUpdate(id, request, channel, false);
                         if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
@@ -97,15 +105,15 @@ public class SyncService extends BaseService implements ISyncService {
                     fetchChildren(readResponse, children);
                     if (!children.isEmpty())
                         updateData(children, request, channel);
-                    if(StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) content.get("mimeType")))
+                    if (StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) content.get("mimeType")))
                         syncHierarchy(id);
 
-                    if(containsItemsSet(content)){
+                    if (containsItemsSet(content)) {
                         copyAssessmentItems((List<Map<String, Object>>) content.get("item_sets"));
                     }
 
                     copyEcar(readResponse);
-                } else if(-1 == Double.compare((Double) identifiers.get(id), (Double) content.get("pkgVersion"))) {
+                } else if (-1 == Double.compare((Double) identifiers.get(id), (Double) content.get("pkgVersion"))) {
                     syncData(identifiers);
                     updateData(identifiers, request, channel);
                 } else {
@@ -142,15 +150,10 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private void copyEcar(Response readResponse) throws Exception {
-
-
-            Map<String, Object> metadata = (Map<String, Object>) readResponse.get("content");
-
-            String id = (String) metadata.get("identifier");
-
+        Map<String, Object> metadata = (Map<String, Object>) readResponse.get("content");
+        String id = (String) metadata.get("identifier");
         try {
             String downloadUrl = (String) metadata.get("downloadUrl");
-
             String path = downloadEcar(id, downloadUrl, sourceStorageType);
             String destDownloadUrl = uploadEcar(id, destStorageType, path);
 
@@ -173,27 +176,31 @@ public class SyncService extends BaseService implements ISyncService {
             String artefactUrl = (String) metadata.get("artifactUrl");
             String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
             String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
-            if(StringUtils.isNotBlank(destArtefactUrl)) {
+            if (StringUtils.isNotBlank(destArtefactUrl)) {
                 metadata.put("artifactUrl", destArtefactUrl);
             }
+
+            if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
+                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, (String) metadata.get("pkgVersion"));
+            }
+
 
             Map<String, Object> content = new HashMap<>();
             content.put("content", metadata);
             Map<String, Object> request = new HashMap<>();
             request.put("request", content);
             systemUpdate(id, request, (String) metadata.get("channel"), true);
-        }
-        finally{
+        } finally {
             FileUtils.deleteDirectory(new File("tmp/" + id));
         }
     }
 
     private void fetchChildren(Response readResponse, Map<String, Object> children) throws Exception {
-        List<Map<String, Object>> childNodes = (List<Map<String, Object>>) ((Map<String, Object>)readResponse.get("content")).get("children");
+        List<Map<String, Object>> childNodes = (List<Map<String, Object>>) ((Map<String, Object>) readResponse.get("content")).get("children");
 
         if (!CollectionUtils.isEmpty(childNodes)) {
             for (Map<String, Object> child : childNodes) {
-                Response childContent = getContent((String) child.get("identifier"), true);
+                Response childContent = getContent((String) child.get("identifier"), true, null);
                 Map<String, Object> contenMetadata = (Map<String, Object>) childContent.get("content");
                 String visibility = (String) contenMetadata.get("visibility");
 
@@ -245,10 +252,10 @@ public class SyncService extends BaseService implements ISyncService {
 
         for (String id : identifiers.keySet()) {
             try {
-                Response destContent = getContent(id, true);
+                Response destContent = getContent(id, true, null);
                 if (isSuccess(destContent)) {
-                    Response sourceContent = getContent(id, false);
-                    if (Double.compare(((Double) destContent.get("pkgVersion")), ((Double) sourceContent.get("pkgVersion"))) == -1) {
+                    Response sourceContent = getContent(id, false, null);
+                    if (Double.compare(((Double) ((Map<String, Object>) destContent.get("content")).get("pkgVersion")), ((Double) ((Map<String, Object>) sourceContent.get("content")).get("pkgVersion"))) == -1) {
                         updateMetadata(sourceContent);
                         syncHierarchy(id);
                         success.add(id);
@@ -267,12 +274,16 @@ public class SyncService extends BaseService implements ISyncService {
             }
 
         }
+
+        response.put("success", success);
+        response.put("failed", failed);
+
         return response;
 
     }
 
     private void createContent(String id) throws Exception {
-        Response sourceContent = getContent(id, false);
+        Response sourceContent = getContent(id, false, null);
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
         String channel = (String) metadata.get("channel");
         Map<String, Object> content = new HashMap<>();
@@ -283,26 +294,39 @@ public class SyncService extends BaseService implements ISyncService {
         Response response = systemUpdate(id, request, channel, true);
 
         if (isSuccess(response)) {
-            String localPath  = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
-            if(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", (String) metadata.get("mimeType")))
-                copyAssets(localPath);
-            List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
+            String localPath = null;
+            try {
+                String externalFields = Platform.config.getString("content.external_fields");
+                Response contentExt = getContent(id, false, externalFields);
+                request.put("request", contentExt.getResult());
+                Response extResp = systemUpdate(id, request, channel, true);
+                localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
+                if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", (String) metadata.get("mimeType")))
+                    copyAssets(localPath);
+                List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
 
-            for (Map<String, Object> child : children) {
-                createContent((String) child.get("identifier"));
+                if (CollectionUtils.isNotEmpty(children)) {
+                    for (Map<String, Object> child : children) {
+                        createContent((String) child.get("identifier"));
+                    }
+                }
+            } finally {
+                if (StringUtils.isNotBlank(localPath))
+                    FileUtils.deleteDirectory(new File(localPath));
             }
+
         }
 
     }
 
     private void copyAssets(String localPath) throws Exception {
-        if (StringUtils.isNotBlank(localPath)){
-            Map<String, Object> assets =  readECMLFile(localPath + "/index.ecml");
-            for(String assetId: assets.keySet()) {
-                Response destAsset = getContent(assetId, true);
-                if(!isSuccess(destAsset)) {
-                    Response sourceAsset = getContent(assetId, false);
-                    if(isSuccess(sourceAsset)){
+        if (StringUtils.isNotBlank(localPath)) {
+            Map<String, Object> assets = readECMLFile(localPath + "/index.ecml");
+            for (String assetId : assets.keySet()) {
+                Response destAsset = getContent(assetId, true, null);
+                if (!isSuccess(destAsset)) {
+                    Response sourceAsset = getContent(assetId, false, null);
+                    if (isSuccess(sourceAsset)) {
                         Map<String, Object> assetRequest = (Map<String, Object>) sourceAsset.get("content");
                         assetRequest.remove("variants");
                         Response response = uploadAsset(localPath + assets.get(assetId), assetId);

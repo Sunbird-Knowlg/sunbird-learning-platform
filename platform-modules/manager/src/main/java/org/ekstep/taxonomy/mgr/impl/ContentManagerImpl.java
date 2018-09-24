@@ -681,6 +681,22 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+
+		Map<String, Object> externalProps = new HashMap<String, Object>();
+		List<String> externalPropsList = getExternalPropsList(definition);
+		if (null != externalPropsList && !externalPropsList.isEmpty()) {
+			for (String prop : externalPropsList) {
+				if (null != map.get(prop))
+					externalProps.put(prop, map.get(prop));
+				if (StringUtils.equalsIgnoreCase(ContentAPIParams.screenshots.name(), prop) && null != map.get(prop)) {
+					map.put(prop, null);
+				} else {
+					map.remove(prop);
+				}
+
+			}
+		}
+
 		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 		map.put("versionKey", graphPassportKey);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
@@ -691,6 +707,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
 		updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
+
+		if (null != externalProps && !externalProps.isEmpty()) {
+			Response externalPropsResponse = updateContentProperties(originalId, externalProps);
+			if (checkError(externalPropsResponse))
+				return externalPropsResponse;
+		}
 		return updateResponse;
 	}
 
