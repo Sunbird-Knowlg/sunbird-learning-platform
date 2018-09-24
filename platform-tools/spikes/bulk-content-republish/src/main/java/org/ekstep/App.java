@@ -34,7 +34,7 @@ public class App {
 	public static SearchCriteria sc = null;
 
 	public static void main(String[] args) throws Exception {
-		
+		System.out.println("I am in main..");
 		if (args.length==0) {
 			throw new Exception("First argument is mandatory. It should be 'republish' or 'validate'.");
 		}
