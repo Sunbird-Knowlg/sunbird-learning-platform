@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -89,6 +91,7 @@ public class App {
 		try{
 			File file = getFile(true);
 			FileWriter writer = new FileWriter(file, true);
+			Set<String> processedObjects = getProcessedObject(file);
 			boolean found = true;
 			List<String> processed_ids = new ArrayList<String>();
 			int start = sc.getStartPosition();
@@ -129,7 +132,7 @@ public class App {
 						try {
 							String imgNodeId = node.getIdentifier() + ".img";
 							Node imgNode = util.getNode("domain", imgNodeId);
-							if (imgNode == null) {
+							if (imgNode == null && !processedObjects.contains(node.getIdentifier())) {
 								processed_ids.add(node.getIdentifier());
 								feeder.push(node, "Public");
 								writeToFile(writer, node);
@@ -255,5 +258,36 @@ public class App {
 		String a = String.valueOf(d.intValue());
 		writer.write(a);
 		writer.write("\r\n");
+	}
+	private static Set<String> getProcessedObject(File file){
+		Set<String> objects = new HashSet<String>();
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(file));
+			String line = br.readLine();
+			while(null != line) {
+				String[] attributes = line.split(",");
+				objects.add(attributes[0]);
+				System.out.println("Added: " + attributes[0]);
+			}
+			return objects;
+		}catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			if(null != br) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return objects;
 	}
 }
