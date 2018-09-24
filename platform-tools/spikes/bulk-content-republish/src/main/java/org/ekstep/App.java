@@ -92,6 +92,7 @@ public class App {
 			File file = getFile(true);
 			FileWriter writer = new FileWriter(file, true);
 			Set<String> processedObjects = getProcessedObject(file);
+			System.out.println("processedObjects: " + processedObjects.toString());
 			boolean found = true;
 			List<String> processed_ids = new ArrayList<String>();
 			int start = sc.getStartPosition();
@@ -271,6 +272,7 @@ public class App {
 				String[] attributes = line.split(",");
 				objects.add(attributes[0]);
 				System.out.println("Added: " + attributes[0]);
+				line = br.readLine();
 			}
 			return objects;
 		}catch (FileNotFoundException e) {
