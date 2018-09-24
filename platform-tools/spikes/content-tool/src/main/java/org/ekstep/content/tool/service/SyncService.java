@@ -286,6 +286,7 @@ public class SyncService extends BaseService implements ISyncService {
         Response sourceContent = getContent(id, false, null);
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
         String channel = (String) metadata.get("channel");
+        metadata.put("pkgVersion", ((Number) metadata.get("pkgVersion")).doubleValue());
         Map<String, Object> content = new HashMap<>();
         content.put("content", metadata);
         Map<String, Object> request = new HashMap<>();
@@ -329,6 +330,11 @@ public class SyncService extends BaseService implements ISyncService {
                     if (isSuccess(sourceAsset)) {
                         Map<String, Object> assetRequest = (Map<String, Object>) sourceAsset.get("content");
                         assetRequest.remove("variants");
+                        Map<String, Object> content = new HashMap<>();
+                        content.put("content", assetRequest);
+                        Map<String, Object> request = new HashMap<>();
+                        request.put("request", request);
+                        Response createResponse = systemUpdate(assetId, request, (String) assetRequest.get("channel"), true);
                         Response response = uploadAsset(localPath + assets.get(assetId), assetId);
                     }
                 }
