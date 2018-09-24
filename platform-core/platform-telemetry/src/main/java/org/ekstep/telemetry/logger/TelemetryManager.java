@@ -205,11 +205,11 @@ public class TelemetryManager {
 		}
 
 		List<Map<String, Object>> cData = null;
-		if (StringUtils.isNotBlank(deviceId) && StringUtils.isNotBlank(appId)) {
+		if (StringUtils.isNotBlank(appId)) {
 			cData = new ArrayList<Map<String, Object>>();
 			Map<String, Object> data = new HashMap<String, Object>();
-			data.put("id", deviceId);
-			data.put("type", appId);
+			data.put("id", appId);
+			data.put("type", "AppId");
 			cData.add(data);
 		}
 		String event = TelemetryGenerator.search(reqContext, query, filters, sort, cData, size, topN, type);
