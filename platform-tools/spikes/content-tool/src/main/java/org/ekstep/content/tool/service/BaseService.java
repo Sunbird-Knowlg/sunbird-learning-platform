@@ -2,15 +2,12 @@ package org.ekstep.content.tool.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ServerException;
-import org.json.JSONObject;
 import org.sunbird.cloud.storage.BaseStorageService;
 import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
@@ -23,8 +20,6 @@ import scala.Option;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -33,17 +28,13 @@ import java.util.Map;
 public class BaseService {
 
     protected ObjectMapper mapper = new ObjectMapper();
-    protected String sourceEnv = Platform.config.getString("source.env");
-    protected String destEnv = Platform.config.getString("destination.env");
     protected String sourceKey = Platform.config.getString("source.key");
     protected String destKey = Platform.config.getString("destination.key");
 
-    protected String sourceUrl = Platform.config.getString(sourceEnv + ".url");
-    protected String destUrl = Platform.config.getString(destEnv + ".url");
-    protected String sourceVersion = Platform.config.getString(sourceEnv + ".version");
-    protected String destVersion = Platform.config.getString(destEnv + ".version");
-    protected String sourceStorageType = Platform.config.getString(sourceEnv + ".storage_type");
-    protected String destStorageType = Platform.config.getString(destEnv + ".storage_type");
+    protected String sourceUrl = Platform.config.getString("source.url");
+    protected String destUrl = Platform.config.getString("destination.url");
+    protected String sourceStorageType = Platform.config.getString("source.storage_type");
+    protected String destStorageType = Platform.config.getString("destination.storage_type");
 
     protected static Map<String, String> extractMimeType = new HashMap<>();
 
@@ -114,7 +105,7 @@ public class BaseService {
 
             ((Map<String, Object>) request.get("request")).put("offset", offset);
 
-            Response searchResponse = executePost(sourceUrl + "/composite/" + sourceVersion + "/search", sourceKey, request, null);
+            Response searchResponse = executePost(sourceUrl + "/composite/v3/search", sourceKey, request, null);
             if (isSuccess(searchResponse)) {
                 getIdsFromResponse(searchResponse.getResult(), count, identifiers, 0, request);
             } else {
@@ -265,7 +256,7 @@ public class BaseService {
 
     protected Response uploadAsset(String path, String id) throws Exception {
         File file = new File(path);
-        HttpResponse<String> httpResponse = Unirest.post(destUrl + "/content/" + destVersion + "/upload/" + id).header("Authorization", destKey).field("file", file).asString();
+        HttpResponse<String> httpResponse = Unirest.post(destUrl + "/content/v3/upload/" + id).header("Authorization", destKey).field("file", file).asString();
         Response response = mapper.readValue(httpResponse.getBody(), Response.class);
         return response;
 
