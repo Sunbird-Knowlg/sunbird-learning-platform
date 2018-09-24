@@ -91,6 +91,7 @@ public class App {
 		try{
 			File file = getFile(true);
 			FileWriter writer = new FileWriter(file, true);
+			System.out.println("In process method...*****");
 			Set<String> processedObjects = getProcessedObject(file);
 			System.out.println("processedObjects: " + processedObjects.toString());
 			boolean found = true;
@@ -143,6 +144,8 @@ public class App {
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
+						}else {
+							found = false;
 						}
 					}
 				} else {
