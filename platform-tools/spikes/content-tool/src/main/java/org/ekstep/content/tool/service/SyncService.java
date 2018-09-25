@@ -94,13 +94,22 @@ public class SyncService extends BaseService implements ISyncService {
                 double destPkgVersion = ((Number) destContent.get("pkgVersion")).doubleValue();
                 if (isForceupdate(forceUpdate) || (0 == Double.compare(srcPkgVersion, destPkgVersion))) {
                     if (!request.isEmpty()) {
+                        System.out.println("Updating the content !!!!");
                         Response updateResponse = systemUpdate(id, request, channel, true);
                         Response updateSourceResponse = systemUpdate(id, request, channel, false);
+
+                        System.out.println("Destination Update Response : "  + updateResponse.getResult());
+                        System.out.println("Source Update Response : "  + updateSourceResponse.getResult());
+
                         if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
                             successful.add(id);
+                            Response response = getContent(id, true, null);
+                            copyEcar(response);
                         } else {
                             failure.add(id);
                         }
+                    }else{
+                        copyEcar(readResponse);
                     }
                     Map<String, Map<String, Object>> children = new HashMap<>();
                     fetchChildren(readResponse, children);
@@ -112,8 +121,6 @@ public class SyncService extends BaseService implements ISyncService {
                     if (containsItemsSet(destContent)) {
                         copyAssessmentItems((List<Map<String, Object>>) destContent.get("item_sets"));
                     }
-
-                    copyEcar(readResponse);
                 } else if (isForceupdate(forceUpdate) || (-1 == Double.compare(srcPkgVersion, destPkgVersion))) {
                     syncData(identifiers, forceUpdate);
                     updateData(identifiers, request, channel, forceUpdate);
@@ -177,16 +184,44 @@ public class SyncService extends BaseService implements ISyncService {
                     metadata.put("variants", variants);
                 }
             }
-//            String artefactUrl = (String) metadata.get("artifactUrl");
-//            String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
-//            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
-//            if (StringUtils.isNotBlank(destArtefactUrl)) {
-//                metadata.put("artifactUrl", destArtefactUrl);
-//            }
+            String artefactUrl = (String) metadata.get("artifactUrl");
+            String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
+            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+            if (StringUtils.isNotBlank(destArtefactUrl)) {
+                metadata.put("artifactUrl", destArtefactUrl);
+            }
 
-//            if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
-//                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, (String) metadata.get("pkgVersion"));
-//            }
+            String appIconUrl = (String) metadata.get("appIcon");
+            if(StringUtils.isNotBlank(appIconUrl)){
+                String appIconPath = downloadArtifact(id, appIconUrl, sourceStorageType, false);
+                String destAppIconUrl = uploadArtifact(id, appIconPath, destStorageType);
+                if (StringUtils.isNotBlank(destAppIconUrl)) {
+                    metadata.put("appIcon", destAppIconUrl);
+                }
+            }
+
+            String posterImageUrl = (String) metadata.get("posterImage");
+            if(StringUtils.isNotBlank(posterImageUrl)){
+                String posterImagePath = downloadArtifact(id, posterImageUrl, sourceStorageType, false);
+                String destPosterImageUrl = uploadArtifact(id, posterImagePath, destStorageType);
+                if (StringUtils.isNotBlank(destPosterImageUrl)) {
+                    metadata.put("posterImage", destPosterImageUrl);
+                }
+            }
+
+            String tocUrl = (String) metadata.get("toc_url");
+            if(StringUtils.isNotBlank(tocUrl)){
+                String tocUrlPath = downloadArtifact(id, tocUrl, sourceStorageType, false);
+                String destTocUrlUrl = uploadArtifact(id, tocUrlPath, destStorageType);
+                if (StringUtils.isNotBlank(destTocUrlUrl)) {
+                    metadata.put("toc_url", destTocUrlUrl);
+                }
+            }
+
+
+            if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
+                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, (String) metadata.get("pkgVersion"));
+            }
 
 
             Map<String, Object> content = new HashMap<>();
@@ -237,6 +272,7 @@ public class SyncService extends BaseService implements ISyncService {
         Map<String, Object> request = new HashMap<>();
         request.put("request", content);
 
+        System.out.println("Request : " + request);
         return request;
     }
 

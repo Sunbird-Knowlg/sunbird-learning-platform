@@ -133,29 +133,30 @@ public class BaseService {
 
     protected String uploadArtifact(String id, String path, String cloudStoreType) {
         String folder = "content" + File.separator + id + File.separator + "artifact";
-        String[] fileUrl = path.split("/");
-        String filename = fileUrl[fileUrl.length - 1];
-        File file = new File(filename);
+        File file = new File(path);
         String objectKey = folder + "/" + file.getName();
+        System.out.println("Uploading Artifact path : " + file.getAbsolutePath());
         String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
         return url;
 
     }
 
-    protected String downloadArtifact(String id, String artifactUrl, String cloudStoreType, boolean extractFile) {
+    protected String downloadArtifact(String id, String artifactUrl, String cloudStoreType, boolean extractFile) throws Exception {
         String folder = "content" + File.separator + id + File.separator + "artifact";
         if(StringUtils.isNotBlank(artifactUrl)){
             String localPath = "tmp/" + id + File.separator;
             String[] fileUrl = artifactUrl.split("/");
             String filename = fileUrl[fileUrl.length - 1];
             String objectKey = folder + "/" + filename;
-            getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), objectKey, localPath, Option.apply(false));
+            File file = new File(localPath + filename);
+            FileUtils.copyURLToFile(new URL(artifactUrl), file);
+            //getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), objectKey, localPath, Option.apply(false));
 
             if(extractFile){
                 CommonUtil.unZip(localPath + "/" + filename, localPath);
                 return localPath;
             }else{
-                return localPath + "/" + filename;
+                return file.getAbsolutePath();
             }
         }
         return null;
