@@ -29,14 +29,14 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     @Override
-    public void ownerMigration(String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String filter, String dryRun) {
+    public void ownerMigration(String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String filter, String dryRun, String forceUpdate) {
         try {
             if (validChannel(channel)) {
                 Map<String, Map<String, Object>> identifiers = getFromSource(filter);
                 if (StringUtils.equalsIgnoreCase(dryRun, "true")) {
                     System.out.println("content count to migrate: " + identifiers.keySet().size() + " " + identifiers.keySet());
                 } else {
-                    updateOwnership(identifiers, createdBy, channel, createdFor, organisation, creator);
+                    updateOwnership(identifiers, createdBy, channel, createdFor, organisation, creator, forceUpdate);
 
                 }
 
@@ -50,13 +50,13 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     @Override
-    public void sync(String filter, String dryRun) {
+    public void sync(String filter, String dryRun, String forceUpdate) {
         try {
             Map<String, Map<String, Object>> identifiers = getFromSource(filter);
             if (StringUtils.equalsIgnoreCase("true", dryRun)) {
                 System.out.println("content count to sync: " + identifiers.keySet().size() + " " + identifiers.values());
             } else {
-                Map<String, Object> response = syncData(identifiers);
+                Map<String, Object> response = syncData(identifiers, forceUpdate);
                 System.out.println("Contents synced : " + response.get("success"));
                 System.out.println("Contents skipped without syncing : " + response.get("failed"));
             }
@@ -68,10 +68,10 @@ public class SyncService extends BaseService implements ISyncService {
 
     }
 
-    private void updateOwnership(Map<String, Map<String, Object>> identifiers, String createdBy, String channel, String[] createdFor, String[] organisation, String creator) throws Exception {
+    private void updateOwnership(Map<String, Map<String, Object>> identifiers, String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String forceUpdate) throws Exception {
         if (!identifiers.isEmpty()) {
             Map<String, Object> request = getUpdateRequest(createdBy, channel, createdFor, organisation, creator);
-            Map<String, Object> response = updateData(identifiers, request, channel);
+            Map<String, Object> response = updateData(identifiers, request, channel, forceUpdate);
 
             System.out.println("Migrated content count: " + ((List<String>) response.get("success")).size() + " : " + response.get("success"));
             System.out.println("Skipped content count: " + ((List<String>) response.get("failed")).size() + " : " + response.get("failed"));
@@ -81,7 +81,7 @@ public class SyncService extends BaseService implements ISyncService {
         }
     }
 
-    private Map<String, Object> updateData(Map<String, Map<String, Object>> identifiers, Map<String, Object> request, String channel) throws Exception {
+    private Map<String, Object> updateData(Map<String, Map<String, Object>> identifiers, Map<String, Object> request, String channel, String forceUpdate) throws Exception {
         Map<String, Object> output = new HashMap<>();
         List<String> successful = new ArrayList<>();
         List<String> failure = new ArrayList<>();
@@ -92,7 +92,7 @@ public class SyncService extends BaseService implements ISyncService {
                 Map<String, Object> destContent = (Map<String, Object>) readResponse.get("content");
                 double srcPkgVersion = ((Number) identifiers.get(id).get("pkgVersion")).doubleValue();
                 double destPkgVersion = ((Number) destContent.get("pkgVersion")).doubleValue();
-                if (0 == Double.compare(srcPkgVersion, destPkgVersion)) {
+                if (isForceupdate(forceUpdate) || (0 == Double.compare(srcPkgVersion, destPkgVersion))) {
                     if (!request.isEmpty()) {
                         Response updateResponse = systemUpdate(id, request, channel, true);
                         Response updateSourceResponse = systemUpdate(id, request, channel, false);
@@ -105,7 +105,7 @@ public class SyncService extends BaseService implements ISyncService {
                     Map<String, Map<String, Object>> children = new HashMap<>();
                     fetchChildren(readResponse, children);
                     if (!children.isEmpty())
-                        updateData(children, request, channel);
+                        updateData(children, request, channel, forceUpdate);
                     if (StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) destContent.get("mimeType")))
                         syncHierarchy(id);
 
@@ -114,9 +114,9 @@ public class SyncService extends BaseService implements ISyncService {
                     }
 
                     copyEcar(readResponse);
-                } else if (-1 == Double.compare(srcPkgVersion, destPkgVersion)) {
-                    syncData(identifiers);
-                    updateData(identifiers, request, channel);
+                } else if (isForceupdate(forceUpdate) || (-1 == Double.compare(srcPkgVersion, destPkgVersion))) {
+                    syncData(identifiers, forceUpdate);
+                    updateData(identifiers, request, channel, forceUpdate);
                 } else {
                     failure.add(id);
                 }
@@ -129,6 +129,10 @@ public class SyncService extends BaseService implements ISyncService {
         output.put("failed", failure);
 
         return output;
+    }
+
+    private boolean isForceupdate(String forceUpdate) {
+        return StringUtils.equalsIgnoreCase("true", forceUpdate);
     }
 
     private boolean containsItemsSet(Map<String, Object> content) {
@@ -246,7 +250,7 @@ public class SyncService extends BaseService implements ISyncService {
      * - download the ecar or artifact and upload the same using upload api
      * - update the collection hierarchy
      **/
-    private Map<String, Object> syncData(Map<String, Map<String, Object>> identifiers) {
+    private Map<String, Object> syncData(Map<String, Map<String, Object>> identifiers, String forceUpdate) {
         Map<String, Object> response = new HashMap<>();
         List<String> success = new ArrayList<>();
         List<String> failed = new ArrayList<>();
@@ -256,8 +260,8 @@ public class SyncService extends BaseService implements ISyncService {
                 Response destContent = getContent(id, true, null);
                 if (isSuccess(destContent)) {
                     Response sourceContent = getContent(id, false, null);
-                    if (Double.compare(((Number) ((Map<String, Object>) destContent.get("content")).get("pkgVersion")).doubleValue(), ((Number) ((Map<String, Object>) sourceContent.get("content")).get("pkgVersion")).doubleValue()) == -1) {
-                        updateMetadata(sourceContent);
+                    if (isForceupdate(forceUpdate) || (Double.compare(((Number) ((Map<String, Object>) destContent.get("content")).get("pkgVersion")).doubleValue(), ((Number) ((Map<String, Object>) sourceContent.get("content")).get("pkgVersion")).doubleValue()) == -1)) {
+                        updateMetadata(sourceContent, forceUpdate);
                         syncHierarchy(id);
                         success.add(id);
                     } else {
@@ -265,7 +269,7 @@ public class SyncService extends BaseService implements ISyncService {
                     }
 
                 } else {
-                    createContent(id);
+                    createContent(id, forceUpdate);
                     syncHierarchy(id);
                     success.add(id);
                 }
@@ -283,7 +287,7 @@ public class SyncService extends BaseService implements ISyncService {
 
     }
 
-    private void createContent(String id) throws Exception {
+    private void createContent(String id, String forceUpdate) throws Exception {
         Response sourceContent = getContent(id, false, null);
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
         String channel = (String) metadata.get("channel");
@@ -304,12 +308,12 @@ public class SyncService extends BaseService implements ISyncService {
                 Response extResp = systemUpdate(id, request, channel, true);
                 localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
                 if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", (String) metadata.get("mimeType")))
-                    copyAssets(localPath);
+                    copyAssets(localPath, forceUpdate);
                 List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
 
                 if (CollectionUtils.isNotEmpty(children)) {
                     for (Map<String, Object> child : children) {
-                        createContent((String) child.get("identifier"));
+                        createContent((String) child.get("identifier"), forceUpdate);
                     }
                 }
             } finally {
@@ -321,20 +325,23 @@ public class SyncService extends BaseService implements ISyncService {
 
     }
 
-    private void copyAssets(String localPath) throws Exception {
+    private void copyAssets(String localPath, String forceUpdate) throws Exception {
         if (StringUtils.isNotBlank(localPath)) {
             Map<String, Object> assets = readECMLFile(localPath + "/index.ecml");
             for (String assetId : assets.keySet()) {
                 Response destAsset = getContent(assetId, true, null);
-                if (!isSuccess(destAsset)) {
+                if (isForceupdate(forceUpdate) || !isSuccess(destAsset)) {
                     Response sourceAsset = getContent(assetId, false, null);
                     if (isSuccess(sourceAsset)) {
                         Map<String, Object> assetRequest = (Map<String, Object>) sourceAsset.get("content");
                         assetRequest.remove("variants");
+                        assetRequest.remove("downloadUrl");
+                        assetRequest.remove("status");
+                        assetRequest.put("framework","NCF");
                         Map<String, Object> content = new HashMap<>();
                         content.put("content", assetRequest);
                         Map<String, Object> request = new HashMap<>();
-                        request.put("request", request);
+                        request.put("request", content);
                         Response createResponse = systemUpdate(assetId, request, (String) assetRequest.get("channel"), true);
                         Response response = uploadAsset(localPath + assets.get(assetId), assetId);
                     }
@@ -356,8 +363,8 @@ public class SyncService extends BaseService implements ISyncService {
         executePost(destUrl + "/content/v3/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
     }
 
-    private void updateMetadata(Response sourceContent) throws Exception {
-        createContent((String) ((Map<String, Object>) sourceContent.get("content")).get("identifier"));
+    private void updateMetadata(Response sourceContent, String forceUpdate) throws Exception {
+        createContent((String) ((Map<String, Object>) sourceContent.get("content")).get("identifier"), forceUpdate);
 
     }
 

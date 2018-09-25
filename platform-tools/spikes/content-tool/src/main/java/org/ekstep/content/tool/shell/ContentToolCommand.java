@@ -29,23 +29,29 @@ public class ContentToolCommand implements CommandMarker {
                                @CliOption(key = {
                                        "filter"}, mandatory = false, help = "filters to search for ") final String filter,
                                @CliOption(key = {
-                                       "dry-run"}, mandatory = false, unspecifiedDefaultValue = "false", help = "dry run") String dryRun)
+                                       "dry-run"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "dry run") String dryRun,
+                               @CliOption(key = {
+                                       "force"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "force update") String forceUpdate)
             throws Exception {
 
         System.out.println("-----------------------------------------");
-        syncService.ownerMigration(createdBy, channel, createdFor, organisation, creator , filter, dryRun);
+        syncService.ownerMigration(createdBy, channel, createdFor, organisation, creator, filter, dryRun, forceUpdate);
         System.out.println("-----------------------------------------");
     }
 
     @CliCommand(value = "content-tool sync", help = "Content Sync")
     public void sync(@CliOption(key = {
-                                       "filter"}, mandatory = false, help = "filters to search for ") final String filter,
-                               @CliOption(key = {
-                                       "dry-run"}, mandatory = false, unspecifiedDefaultValue = "false", help = "dry run ") String dryRun)
-            throws Exception {
+            "filter"}, mandatory = false, help = "filters to search for ") final String filter,
+                     @CliOption(key = {
+                             "dry-run"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "dry run ") String dryRun,
+                     @CliOption(key = {
+                             "force"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "force update") String forceUpdate)
+            throws Exception
+
+    {
 
         System.out.println("-----------------------------------------");
-        syncService.sync(filter, dryRun);
+        syncService.sync(filter, dryRun, forceUpdate);
         System.out.println("-----------------------------------------");
     }
 
