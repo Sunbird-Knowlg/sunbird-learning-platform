@@ -191,9 +191,10 @@ public class App {
 		Map<String, Integer> resultMap = new HashMap<String, Integer>();   
 		
 		boolean moreLines = true;
+		String line = null;
 		while(moreLines) {
 			for (int i = 0; i < batchSize; i++) {
-				String line = reader.readLine();
+				line = reader.readLine();
 				if (line != null) {
 					String[] arr = line.split(",");
 					resultMap.put(arr[0], Integer.parseInt(arr[1]));
