@@ -305,12 +305,12 @@ public class SyncService extends BaseService implements ISyncService {
                 String externalFields = Platform.config.getString("content.external_fields");
                 Response contentExt = getContent(id, false, externalFields);
                 request.put("request", contentExt.getResult());
-                Response extResp = systemUpdate(id, request, channel, true);
-                localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
-                if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", (String) metadata.get("mimeType")))
-                    copyAssets(localPath, forceUpdate);
+                Response extResp = systemUpdate(id, request, channel, true);                
+                if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", (String) metadata.get("mimeType"))) {
+                		localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
+                		copyAssets(localPath, forceUpdate);
+                }
                 List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
-
                 if (CollectionUtils.isNotEmpty(children)) {
                     for (Map<String, Object> child : children) {
                         createContent((String) child.get("identifier"), forceUpdate);
