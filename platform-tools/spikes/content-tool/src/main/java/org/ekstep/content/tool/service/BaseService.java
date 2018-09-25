@@ -3,6 +3,8 @@ package org.ekstep.content.tool.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
@@ -20,6 +22,7 @@ import scala.Option;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -166,16 +169,12 @@ public class BaseService {
         String objectKey = "ecar-files" + File.separator + id + File.separator + filename;
         File file = new File(localPath + filename);
         FileUtils.copyURLToFile(new URL(downloadUrl), file);
-        //getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), objectKey, localPath, Option.apply(false));
-        System.out.println("Downloaded Ecar Path : " + file.getAbsolutePath());
         return file.getAbsolutePath();
     }
 
     protected String uploadEcar(String id, String cloudStoreType, String path) {
         String folder = "ecar-files/" + id;
-        String[] fileUrl = path.split("/");
-        String filename = fileUrl[fileUrl.length - 1];
-        File file = new File(filename);
+        File file = new File(path);
         String objectKey = folder + "/" + file.getName();
         String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
         return url;

@@ -173,21 +173,20 @@ public class SyncService extends BaseService implements ISyncService {
                 if (StringUtils.isNotBlank(spineEcarUrl)) {
                     String spinePath = downloadEcar(id, spineEcarUrl, sourceStorageType);
                     String destSpineEcar = uploadEcar(id, destStorageType, spinePath);
-                    variants = (Map<String, Object>) ((Map<String, Object>) variants.get("spine")).put("ecarUrl", destSpineEcar);
+                    ((Map<String, Object>) variants.get("spine")).put("ecarUrl", destSpineEcar);
                     metadata.put("variants", variants);
                 }
+            }
+//            String artefactUrl = (String) metadata.get("artifactUrl");
+//            String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
+//            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+//            if (StringUtils.isNotBlank(destArtefactUrl)) {
+//                metadata.put("artifactUrl", destArtefactUrl);
+//            }
 
-            }
-            String artefactUrl = (String) metadata.get("artifactUrl");
-            String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
-            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
-            if (StringUtils.isNotBlank(destArtefactUrl)) {
-                metadata.put("artifactUrl", destArtefactUrl);
-            }
-
-            if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
-                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, (String) metadata.get("pkgVersion"));
-            }
+//            if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
+//                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, (String) metadata.get("pkgVersion"));
+//            }
 
 
             Map<String, Object> content = new HashMap<>();
