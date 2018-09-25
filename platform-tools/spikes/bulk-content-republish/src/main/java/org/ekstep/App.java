@@ -30,7 +30,7 @@ public class App {
 	private static GraphUtil util = new GraphUtil();
 	private static InstructionEventFeeder feeder = new InstructionEventFeeder();
 	private static int totalSize = 0;
-	private final static int defaultBatchSize = 500;
+	private final static int defaultBatchSize = 1000;
 	public static SearchCriteria sc = null;
 
 	public static void main(String[] args) throws Exception {
