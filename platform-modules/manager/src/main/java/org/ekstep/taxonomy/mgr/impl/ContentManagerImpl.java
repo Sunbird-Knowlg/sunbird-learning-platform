@@ -705,8 +705,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return updateResponse;
 		updateResponse.put(GraphDACParams.node_id.name(), originalId);
 
-		Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
-		updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
+		Response getNodeResponse = getDataNode(TAXONOMY_ID, originalId + ".img");
+		if(!checkError(getNodeResponse)){
+			Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+			updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
+		}
+
+
 
 		if (null != externalProps && !externalProps.isEmpty()) {
 			Response externalPropsResponse = updateContentProperties(originalId, externalProps);
