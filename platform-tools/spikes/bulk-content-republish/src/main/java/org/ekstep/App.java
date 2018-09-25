@@ -210,8 +210,10 @@ public class App {
 	private static void addUnpublishedContent(Map<String, Integer> map, List<String> notPublishedContent) {
 		List<String> contentList = new ArrayList<String>(map.keySet());
 		List<Node> nodes = new ArrayList<Node>();
-		
+		System.out.println("contentList: " + contentList);
 		Response response = util.getDataNodes("domain", contentList);
+		System.out.println("response*****: " + response.toString());
+		System.out.println("response.getParams()*****: " + response.getParams().toString());
 		if (StringUtils.equalsIgnoreCase("failed", response.getParams().getStatus()))
 			throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: domain");
 		else {
