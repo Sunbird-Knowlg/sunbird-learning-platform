@@ -165,71 +165,72 @@ public class App {
 	
 	private static void validate() throws Exception{
 		File file = getFile(false);
-		List<String> notPublishedContent = new ArrayList<String>();
+		List<String> notPublishedContent = readBatch(file);
 		
+		if(null == notPublishedContent || notPublishedContent.isEmpty()) {
+			System.out.println("****************** All contents got published ******************");
+		}else {
+			System.out.println("****************** There are total " + notPublishedContent.size() + " contents not got published ******************");
+			System.out.println(notPublishedContent.toString());
+		}
+		
+	}
+	
+	private static List<String> readBatch(File file) throws IOException {
+		Map<String, Integer> resultMap = new HashMap<String, Integer>();   
+		String line = null;
+		BufferedReader bufferedReader = null;
+		List<String> notPublishedContent = null;
 		try {
-			
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-			int batchSize = 50;
-			readBatch(bufferedReader, batchSize, notPublishedContent);
-			bufferedReader.close();
-			if(notPublishedContent.isEmpty()) {
-				System.out.println("****************** All contents got published ******************");
-			}else {
-				System.out.println("****************** There are total " + notPublishedContent.size() + " contents not got published ******************");
-				System.out.println(notPublishedContent.toString());
+			bufferedReader = new BufferedReader(new FileReader(file));
+			while((line = bufferedReader.readLine()) != null) {
+				String[] arr = line.split(",");
+				resultMap.put(arr[0], Integer.parseInt(arr[1]));
 			}
+			return addUnpublishedContent(resultMap);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}finally {
-			//file.delete();
+			if(null != bufferedReader)
+				bufferedReader.close();
 			ActorBootstrap.getActorSystem().shutdown();
 		}
+		return notPublishedContent;
 	}
 	
-	private static void readBatch(BufferedReader reader, int batchSize, List<String> notPublishedContent) throws IOException {
-		Map<String, Integer> resultMap = new HashMap<String, Integer>();   
-		
-		boolean moreLines = true;
-		String line = null;
-		while(moreLines) {
-			for (int i = 0; i < batchSize; i++) {
-				line = reader.readLine();
-				if (line != null) {
-					String[] arr = line.split(",");
-					resultMap.put(arr[0], Integer.parseInt(arr[1]));
-				} else {
-					moreLines = false;
+	private static List<String> addUnpublishedContent(Map<String, Integer> map) {
+		List<String> contentList = new ArrayList<String>(map.keySet());
+		List<Node> nodes = null;
+		List<String> notPublishedContent = new ArrayList();
+		int batchSize = 50;
+		while(!contentList.isEmpty()) {
+			List<String> sublist;
+			if(contentList.size()>batchSize)
+				sublist = contentList.subList(0, batchSize);
+			else
+				sublist = contentList.subList(0, contentList.size());
+			if(!sublist.isEmpty()) {
+				Response response = util.getDataNodes("domain", sublist);
+				if (StringUtils.equalsIgnoreCase("failed", response.getParams().getStatus()))
+					throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: domain");
+				else {
+					nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
 				}
 			}
-			addUnpublishedContent(resultMap, notPublishedContent);
-			resultMap = new HashMap<String, Integer>();
-		}
-	}
-	
-	private static void addUnpublishedContent(Map<String, Integer> map, List<String> notPublishedContent) {
-		List<String> contentList = new ArrayList<String>(map.keySet());
-		List<Node> nodes = new ArrayList<Node>();
-		System.out.println("contentList: " + contentList);
-		Response response = util.getDataNodes("domain", contentList);
-		System.out.println("response*****: " + response.toString());
-		System.out.println("response.getParams()*****: " + response.getParams().toString());
-		if (StringUtils.equalsIgnoreCase("failed", response.getParams().getStatus()))
-			throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: domain");
-		else {
-			nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
 			
-		}
-		
-		for(Node node : nodes) {
-			Double d = getDoubleValue(node.getMetadata().get("pkgVersion"));
-			int republishedContentPkgVer = d.intValue();
-			int beforeRepublishedContentPkgVer = map.get(node.getIdentifier());
-			if(!(beforeRepublishedContentPkgVer<republishedContentPkgVer)) {
-				notPublishedContent.add(node.getIdentifier());
+			if(null != nodes && !nodes.isEmpty()) {
+				for(Node node : nodes) {
+					Double pkgVersion = getDoubleValue(node.getMetadata().get("pkgVersion"));
+					int republishedContentPkgVer = pkgVersion.intValue();
+					int beforeRepublishedContentPkgVer = map.get(node.getIdentifier());
+					if(!(beforeRepublishedContentPkgVer<republishedContentPkgVer)) {
+						notPublishedContent.add(node.getIdentifier());
+					}
+				}
 			}
+			contentList.removeIf(x -> sublist.contains(x));
 		}
-		//map.clear();
+		return notPublishedContent;
 	}
 	
 	private static File getFile(boolean fileToCreate) throws IOException {
