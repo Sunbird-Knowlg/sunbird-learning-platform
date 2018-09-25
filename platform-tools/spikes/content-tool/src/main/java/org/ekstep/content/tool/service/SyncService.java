@@ -225,9 +225,9 @@ public class SyncService extends BaseService implements ISyncService {
             metadata.put("channel", channel);
         if (StringUtils.isNotBlank(createdBy))
             metadata.put("createdBy", createdBy);
-        if (createdFor.length > 0)
+        if (null != createdFor && createdFor.length > 0)
             metadata.put("createdFor", Arrays.asList(createdFor));
-        if (organisation.length > 0)
+        if (null != organisation && organisation.length > 0)
             metadata.put("organization", Arrays.asList(organisation));
         if (StringUtils.isNotBlank(creator))
             metadata.put("creator", creator);
