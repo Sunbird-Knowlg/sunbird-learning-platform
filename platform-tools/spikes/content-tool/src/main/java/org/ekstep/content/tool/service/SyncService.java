@@ -220,7 +220,7 @@ public class SyncService extends BaseService implements ISyncService {
 
 
             if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
-                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, (String) metadata.get("pkgVersion"));
+                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, ((Number) metadata.get("pkgVersion")).doubleValue());
             }
 
 

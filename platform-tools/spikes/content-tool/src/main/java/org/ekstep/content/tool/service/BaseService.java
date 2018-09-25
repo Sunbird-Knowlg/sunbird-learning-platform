@@ -2,10 +2,12 @@ package org.ekstep.content.tool.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -258,14 +260,26 @@ public class BaseService {
 
     protected Response uploadAsset(String path, String id) throws Exception {
         File file = new File(path);
-        HttpResponse<String> httpResponse = Unirest.post(destUrl + "/content/v3/upload/" + id).header("Authorization", destKey).field("file", file).asString();
-        Response response = mapper.readValue(httpResponse.getBody(), Response.class);
-        return response;
+        String objectKey = "assets" + File.separator + id + File.separator + file.getName();
+        String signedUrl = getcloudService(destStorageType).getSignedURL(getContainerName(destStorageType), objectKey, Option.apply(null), Option.apply("w"));
+        HttpResponse<String> httpResponse = Unirest.put(signedUrl).header("x-ms-blob-type", "BlockBlob").field("file", file).asString();
+        if(httpResponse.getStatus() == 200 || httpResponse.getStatus() == 201) {
+            String uploadUrl = signedUrl.split("\\?")[0];
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("fileUrl", uploadUrl);
+            HttpResponse<String> uploadResponse = Unirest.post(destUrl + "/content/v3/upload/" + id).queryString(parameters).header("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW").header("Authorization", destKey).asString();
+            Response response = mapper.readValue(uploadResponse.getBody(), Response.class);
+            return response;
+        }else{
+            throw new ServerException("ERR_ASSET_UPLOAD", "Failed while uploading Asset: " + id);
+        }
+
+
 
     }
 
 
-    protected void extractArchives(String id, String mimetype, String artefactUrl, String pkgVersion) {
+    protected void extractArchives(String id, String mimetype, String artefactUrl, double pkgVersion) {
         String[] fileUrl = artefactUrl.split("/");
         String filename = fileUrl[fileUrl.length - 1];
         String objectkey = "content" + File.separator + id + File.separator + "artifact" + filename;
