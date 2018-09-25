@@ -32,7 +32,7 @@ public class SyncService extends BaseService implements ISyncService {
     public void ownerMigration(String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String filter, String dryRun) {
         try {
             if (validChannel(channel)) {
-                Map<String, Object> identifiers = getFromSource(filter);
+                Map<String, Map<String, Object>> identifiers = getFromSource(filter);
                 if (StringUtils.equalsIgnoreCase(dryRun, "true")) {
                     System.out.println("content count to migrate: " + identifiers.keySet().size() + " " + identifiers.keySet());
                 } else {
@@ -52,9 +52,9 @@ public class SyncService extends BaseService implements ISyncService {
     @Override
     public void sync(String filter, String dryRun) {
         try {
-            Map<String, Object> identifiers = getFromSource(filter);
+            Map<String, Map<String, Object>> identifiers = getFromSource(filter);
             if (StringUtils.equalsIgnoreCase("true", dryRun)) {
-                System.out.println("content count to sync: " + identifiers.keySet().size() + " " + identifiers.keySet());
+                System.out.println("content count to sync: " + identifiers.keySet().size() + " " + identifiers.values());
             } else {
                 Map<String, Object> response = syncData(identifiers);
                 System.out.println("Contents synced : " + response.get("success"));
@@ -68,7 +68,7 @@ public class SyncService extends BaseService implements ISyncService {
 
     }
 
-    private void updateOwnership(Map<String, Object> identifiers, String createdBy, String channel, String[] createdFor, String[] organisation, String creator) throws Exception {
+    private void updateOwnership(Map<String, Map<String, Object>> identifiers, String createdBy, String channel, String[] createdFor, String[] organisation, String creator) throws Exception {
         if (!identifiers.isEmpty()) {
             Map<String, Object> request = getUpdateRequest(createdBy, channel, createdFor, organisation, creator);
             Map<String, Object> response = updateData(identifiers, request, channel);
@@ -81,17 +81,18 @@ public class SyncService extends BaseService implements ISyncService {
         }
     }
 
-    private Map<String, Object> updateData(Map<String, Object> identifiers, Map<String, Object> request, String channel) throws Exception {
+    private Map<String, Object> updateData(Map<String, Map<String, Object>> identifiers, Map<String, Object> request, String channel) throws Exception {
         Map<String, Object> output = new HashMap<>();
         List<String> successful = new ArrayList<>();
         List<String> failure = new ArrayList<>();
 
         for (String id : identifiers.keySet()) {
             Response readResponse = getContent(id, true, null);
-            Response sourceContent = getContent(id, false, null);
             if (isSuccess(readResponse)) {
-                Map<String, Object> content = (Map<String, Object>) readResponse.get("content");
-                if (0 == Double.compare((Double) identifiers.get(id), ((Number) content.get("pkgVersion")).doubleValue())) {
+                Map<String, Object> destContent = (Map<String, Object>) readResponse.get("content");
+                double srcPkgVersion = ((Number) identifiers.get(id).get("pkgVersion")).doubleValue();
+                double destPkgVersion = ((Number) destContent.get("pkgVersion")).doubleValue();
+                if (0 == Double.compare(srcPkgVersion, destPkgVersion)) {
                     if (!request.isEmpty()) {
                         Response updateResponse = systemUpdate(id, request, channel, true);
                         Response updateSourceResponse = systemUpdate(id, request, channel, false);
@@ -101,19 +102,19 @@ public class SyncService extends BaseService implements ISyncService {
                             failure.add(id);
                         }
                     }
-                    Map<String, Object> children = new HashMap<>();
+                    Map<String, Map<String, Object>> children = new HashMap<>();
                     fetchChildren(readResponse, children);
                     if (!children.isEmpty())
                         updateData(children, request, channel);
-                    if (StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) content.get("mimeType")))
+                    if (StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) destContent.get("mimeType")))
                         syncHierarchy(id);
 
-                    if (containsItemsSet(content)) {
-                        copyAssessmentItems((List<Map<String, Object>>) content.get("item_sets"));
+                    if (containsItemsSet(destContent)) {
+                        copyAssessmentItems((List<Map<String, Object>>) destContent.get("item_sets"));
                     }
 
                     copyEcar(readResponse);
-                } else if (-1 == Double.compare((Double) identifiers.get(id), ((Number) content.get("pkgVersion")).doubleValue())) {
+                } else if (-1 == Double.compare(srcPkgVersion, destPkgVersion)) {
                     syncData(identifiers);
                     updateData(identifiers, request, channel);
                 } else {
@@ -195,7 +196,7 @@ public class SyncService extends BaseService implements ISyncService {
         }
     }
 
-    private void fetchChildren(Response readResponse, Map<String, Object> children) throws Exception {
+    private void fetchChildren(Response readResponse, Map<String, Map<String, Object>> children) throws Exception {
         List<Map<String, Object>> childNodes = (List<Map<String, Object>>) ((Map<String, Object>) readResponse.get("content")).get("children");
 
         if (!CollectionUtils.isEmpty(childNodes)) {
@@ -205,7 +206,7 @@ public class SyncService extends BaseService implements ISyncService {
                 String visibility = (String) contenMetadata.get("visibility");
 
                 if (StringUtils.isNotBlank(visibility) && StringUtils.equalsIgnoreCase("Parent", visibility)) {
-                    children.put((String) contenMetadata.get("identifier"), contenMetadata.get("pkgVersion"));
+                    children.put((String) contenMetadata.get("identifier"), contenMetadata);
                     fetchChildren(childContent, children);
                 }
             }
@@ -245,7 +246,7 @@ public class SyncService extends BaseService implements ISyncService {
      * - download the ecar or artifact and upload the same using upload api
      * - update the collection hierarchy
      **/
-    private Map<String, Object> syncData(Map<String, Object> identifiers) {
+    private Map<String, Object> syncData(Map<String, Map<String, Object>> identifiers) {
         Map<String, Object> response = new HashMap<>();
         List<String> success = new ArrayList<>();
         List<String> failed = new ArrayList<>();

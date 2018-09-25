@@ -74,14 +74,14 @@ public class BaseService {
         return response;
     }
 
-    protected Map<String, Object> getFromSource(String filter) throws Exception {
-        Map<String, Object> identifiers = new HashMap<>();
+    protected Map<String, Map<String, Object>> getFromSource(String filter) throws Exception {
+        Map<String, Map<String, Object>> identifiers = new HashMap<>();
         Map<String, Object> filters = mapper.readValue(filter, Map.class);
         filters.remove("status");
         Map<String, Object> searchRequest = new HashMap<>();
 
         searchRequest.put("filters", filters);
-        searchRequest.put("fields", Arrays.asList("identifier", "pkgVersion"));
+        searchRequest.put("fields", Arrays.asList("identifier", "name", "pkgVersion"));
 
         Map<String, Object> request = new HashMap<>();
         request.put("request", searchRequest);
@@ -95,10 +95,10 @@ public class BaseService {
         return identifiers;
     }
 
-    private void getIdsFromResponse(Map<String, Object> result, int count, Map<String, Object> identifiers, int offset, Map<String, Object> request) throws Exception {
+    private void getIdsFromResponse(Map<String, Object> result, int count, Map<String, Map<String, Object>> identifiers, int offset, Map<String, Object> request) throws Exception {
         if ((count - 100) >= 0) {
             for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
-                identifiers.put((String) res.get("identifier"), res.get("pkgVersion"));
+                identifiers.put((String) res.get("identifier"), res);
             }
             count -= 100;
             offset += 100;
@@ -114,7 +114,7 @@ public class BaseService {
 
         } else {
             for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
-                identifiers.put((String) res.get("identifier"), res.get("pkgVersion"));
+                identifiers.put((String) res.get("identifier"), res);
             }
         }
     }
