@@ -336,14 +336,14 @@ public class SyncService extends BaseService implements ISyncService {
                         Map<String, Object> assetRequest = (Map<String, Object>) sourceAsset.get("content");
                         assetRequest.remove("variants");
                         assetRequest.remove("downloadUrl");
+                        assetRequest.remove("artifactUrl");
                         assetRequest.remove("status");
-                        assetRequest.put("framework","NCF");
                         Map<String, Object> content = new HashMap<>();
                         content.put("content", assetRequest);
                         Map<String, Object> request = new HashMap<>();
                         request.put("request", content);
                         Response createResponse = systemUpdate(assetId, request, (String) assetRequest.get("channel"), true);
-                        Response response = uploadAsset(localPath + assets.get(assetId), assetId);
+                        Response response = uploadAsset(localPath + File.separator + "assets" + File.separator + assets.get(assetId), assetId);
                     }
                 }
             }
