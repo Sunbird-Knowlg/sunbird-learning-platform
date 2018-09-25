@@ -253,7 +253,8 @@ public class ContentAcceptFlagV3Test extends BaseTest {
      * Accepting Flag for Resource Content with Draft Status.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  Client Error - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForDocumentContentWithDraftStatus() {
@@ -261,13 +262,16 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         String contentId = createDocumentContent();
         upload(contentId);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
     }
 
     /**
      * Accepting Flag for Resource Content with Review Status.
      * Given: Content Id
      * When:  Flag Accept API Hits
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForDocumentContentWithReviewStatus() {
@@ -276,14 +280,16 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         upload(contentId);
         review(contentId);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
     }
 
     /**
      * Accepting Flag for Resource Content with Review Status.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  Client Error - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForDocumentContentWithLiveStatus() {
@@ -293,14 +299,16 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         publish(contentId);
         delay(25000);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
     }
 
     /**
      * Accepting Flag for Resource Content with Live Status with Image Node.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  400 - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForDocumentContentWithLiveStatusAndImageNode() {
@@ -311,14 +319,16 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         delay(25000);
         update(contentId);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
     }
 
     /**
      * Accepting Flag for Resource Content with Retired Status.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  400 - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForDocumentContentWithRetiredStatus() {
@@ -327,7 +337,8 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         upload(contentId);
         retire(contentId);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
     }
 
     /**
@@ -379,21 +390,24 @@ public class ContentAcceptFlagV3Test extends BaseTest {
      * Accepting Flag for Collection Content with Draft Status.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  400 - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForCollectionContentWithDraftStatus() {
         setURI();
         String collectionContentId = createCollectionContent();
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
     }
 
     /**
      * Accepting Flag for Collection Content with Review Status.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  400 - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForCollectionContentWithReviewStatus() {
@@ -402,14 +416,16 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         hierarchyUpdate(collectionContentId);
         review(collectionContentId);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
     }
 
     /**
      * Accepting Flag for Collection Content with Live Status.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  400 - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForCollectionContentWithLiveStatus() {
@@ -419,14 +435,16 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         publish(collectionContentId);
         delay(25000);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
     }
 
     /**
      * Accepting Flag for Collection Content with Live Status with Image Node.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  400 - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForCollectionContentWithLiveStatusAndImageNode() {
@@ -437,14 +455,16 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         delay(25000);
         update(collectionContentId);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
     }
 
     /**
      * Accepting Flag for Collection Content with Retired Status.
      * Given: Content Id
      * When:  Flag Accept API Hits
-     * Then:  400 - Response Code
+     * Then:  Err Taxonomy Invalid Content - Error Code
+     *        Client Error - Response Code
      */
     @Test
     public void acceptFlagForCollectionContentWithRetiredStatus() {
@@ -456,7 +476,8 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         update(collectionContentId);
         retire(collectionContentId);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals(400, response.getStatusCode());
+        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals("ERR_TAXONOMY_INVALID_CONTENT", response.jsonPath().get("params.err"));
     }
 
 }
