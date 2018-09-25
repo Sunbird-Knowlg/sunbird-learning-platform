@@ -159,14 +159,16 @@ public class BaseService {
 
     }
 
-    protected String downloadEcar(String id, String downloadUrl, String cloudStoreType) {
+    protected String downloadEcar(String id, String downloadUrl, String cloudStoreType) throws Exception {
         String localPath = "tmp/" + id + File.separator;
         String[] fileUrl = downloadUrl.split("/");
         String filename = fileUrl[fileUrl.length - 1];
         String objectKey = "ecar-files" + File.separator + id + File.separator + filename;
-        getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), objectKey, localPath, Option.apply(false));
-
-        return localPath + "/" + filename;
+        File file = new File(localPath + filename);
+        FileUtils.copyURLToFile(new URL(downloadUrl), file);
+        //getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), objectKey, localPath, Option.apply(false));
+        System.out.println("Downloaded Ecar Path : " + file.getAbsolutePath());
+        return file.getAbsolutePath();
     }
 
     protected String uploadEcar(String id, String cloudStoreType, String path) {
