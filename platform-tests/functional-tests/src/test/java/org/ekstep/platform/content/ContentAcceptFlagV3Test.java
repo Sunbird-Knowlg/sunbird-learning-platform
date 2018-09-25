@@ -17,42 +17,44 @@ public class ContentAcceptFlagV3Test extends BaseTest {
     private static final String BASE_PATH = "/content/v3";
     private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
-    private static ClassLoader classLoader = ContentRetireV3Test.class.getClassLoader();
+    private static ClassLoader classLoader = ContentAcceptFlagV3Test.class.getClassLoader();
     private static File filePath = new File(classLoader.getResource("UploadFiles/").getFile());
 
-    private final String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
     private final String publishRequestBody = "{\"request\": {\"content\": {\"publisher\": \"EkStep\",\"lastPublishedBy\": \"Ekstep\",\"publishChecklist\":[\"Good Content\",\"Very Good\"],\"publishComment\":\"Good Work\"}}}";
-    private final String createCollectionContentRequestBody = "{\"request\": {\"content\": {\"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_Dev\",\"name\": \"TestBook1\",\"language\":[\"English\"],\"contentType\": \"TextBook\",\"code\": \"testbook1\",\"tags\":[\"QA_Content\"],\"mimeType\": \"application/vnd.ekstep.content-collection\",\"children\":[]}}}";
 
     private String createDocumentContent() {
+        int rn = generateRandomInt(0, 999999);
+        String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"identifier\":\"LP_FT_" + rn + "\", \"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
         Response response =  given().
-                spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-                body(createDocumentContentRequestBody).
+                    spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+                    body(createDocumentContentRequestBody).
                 with().
-                contentType(JSON).
+                    contentType(JSON).
                 when().
-                post(BASE_PATH + "/create").
+                    post(BASE_PATH + "/create").
                 then().
-                body("responseCode", equalTo("OK")).
-                extract().
-                response();
+                    body("responseCode", equalTo("OK")).
+                    extract().
+                    response();
         JsonPath jp = response.jsonPath();
         String nodeId = jp.get("result.node_id");
         return nodeId;
     }
 
     private String createCollectionContent() {
+        int rn = generateRandomInt(0, 999999);
+        String createCollectionContentRequestBody = "{\"request\": {\"content\": {\"identifier\":\"LP_FT_" + rn + "\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_Dev\",\"name\": \"TestBook1\",\"language\":[\"English\"],\"contentType\": \"TextBook\",\"code\": \"testbook1\",\"tags\":[\"QA_Content\"],\"mimeType\": \"application/vnd.ekstep.content-collection\",\"children\":[]}}}";
         Response response =  given().
-                spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-                body(createCollectionContentRequestBody).
+                    spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+                    body(createCollectionContentRequestBody).
                 with().
-                contentType(JSON).
+                    contentType(JSON).
                 when().
-                post(BASE_PATH + "/create").
+                    post(BASE_PATH + "/create").
                 then().
-                body("responseCode", equalTo("OK")).
-                extract().
-                response();
+                    body("responseCode", equalTo("OK")).
+                    extract().
+                    response();
         JsonPath jp = response.jsonPath();
         String nodeId = jp.get("result.node_id");
         return nodeId;
@@ -60,14 +62,11 @@ public class ContentAcceptFlagV3Test extends BaseTest {
 
     private Response getContent(String contentId) {
         return  given().
-                spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-                body(createDocumentContentRequestBody).
-                with().
-                contentType(JSON).
+                    spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
                 when().
-                get(BASE_PATH + "/read/" + contentId).
+                    get(BASE_PATH + "/read/" + contentId).
                 then().
-                extract().
+                    extract().
                 response();
     }
 
@@ -78,11 +77,11 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         given().
                 spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
                 body(hierarchyUpdateRequestBody).
-                with().
+            with().
                 contentType(JSON).
-                when().
+            when().
                 patch(BASE_PATH + "/hierarchy/update").
-                then().
+            then().
                 body("responseCode", equalTo("OK"));
     }
 
@@ -103,11 +102,11 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         given().
                 spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
                 body(publishRequestBody).
-                with().
+            with().
                 contentType(JSON).
-                when().
+            when().
                 post(BASE_PATH + "/publish/" + contentId).
-                then().
+            then().
                 body("responseCode", equalTo("OK"));
     }
 
@@ -121,11 +120,11 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         given().
                 spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
                 body(updateRequestBody).
-                with().
+            with().
                 contentType(JSON).
-                when().
+            when().
                 patch(BASE_PATH + "/update/" + contentId).
-                then().
+            then().
                 body("responseCode", equalTo("OK"));
     }
 
@@ -133,9 +132,9 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         given().
                 spec(getRequestSpecification(uploadContentType, userId, APIToken)).
                 multiPart(new File(filePath + "/pdf.pdf")).
-                when().
-                post("/content/v3/upload/" + contentId).
-                then().
+            when().
+                post(BASE_PATH + "/upload/" + contentId).
+            then().
                 body("responseCode", equalTo("OK"));
     }
 
@@ -156,11 +155,11 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         given().
                 spec(getRequestSpecification(contentType, userId, APIToken)).
                 body(flagRequestBody).
-                with().
+            with().
                 contentType(JSON).
-                when().
-                post("/content/v3/flag/" + contentId).
-                then().
+            when().
+                post(BASE_PATH + "/flag/" + contentId).
+            then().
                 body("responseCode", equalTo("OK"));
     }
 
@@ -201,10 +200,17 @@ public class ContentAcceptFlagV3Test extends BaseTest {
                     get(BASE_PATH + "/read/" + contentId).
                 then().
                     body("responseCode", equalTo("OK")).
-                extract().
-                response();
+                    extract().
+                    response();
     }
 
+    /**
+     * Accepting Flagged Resource Content.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  Retired   - Status : Original Content will be retired,
+     *        FlagDraft - Status : Image Content will be Flagged Draft.
+     */
     @Test
     public void acceptFlaggedDocumentContent() {
         setURI();
@@ -220,6 +226,13 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 
+    /**
+     * Accepting Flagged Resource Content with Image Node.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  Retired   - Status : Original Content will be retired,
+     * 	      FlagDraft - Status : Image Content will be Flagged Draft.
+     */
     @Test
     public void acceptFlaggedDocumentContentWithImageNode() {
         setURI();
@@ -236,15 +249,26 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 
+    /**
+     * Accepting Flag for Resource Content with Draft Status.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  Client Error - Response Code
+     */
     @Test
     public void acceptFlagForDocumentContentWithDraftStatus() {
         setURI();
         String contentId = createDocumentContent();
         upload(contentId);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flag for Resource Content with Review Status.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     */
     @Test
     public void acceptFlagForDocumentContentWithReviewStatus() {
         setURI();
@@ -252,9 +276,15 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         upload(contentId);
         review(contentId);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flag for Resource Content with Review Status.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  Client Error - Response Code
+     */
     @Test
     public void acceptFlagForDocumentContentWithLiveStatus() {
         setURI();
@@ -263,9 +293,15 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         publish(contentId);
         delay(25000);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flag for Resource Content with Live Status with Image Node.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  400 - Response Code
+     */
     @Test
     public void acceptFlagForDocumentContentWithLiveStatusAndImageNode() {
         setURI();
@@ -275,9 +311,15 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         delay(25000);
         update(contentId);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flag for Resource Content with Retired Status.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  400 - Response Code
+     */
     @Test
     public void acceptFlagForDocumentContentWithRetiredStatus() {
         setURI();
@@ -285,9 +327,16 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         upload(contentId);
         retire(contentId);
         Response response = acceptFlagAndGetResponse(contentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flagged Collection Content.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  Retired - Status : Original Content will be retired,
+     * 	      FlagDraft - Status : Image Content will be Flagged Draft.
+     */
     @Test
     public void acceptFlaggedCollectionContent() {
         setURI();
@@ -303,6 +352,13 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 
+    /**
+     * Accepting Flagged Collection Content with Image Node.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  Retired   - Status : Original Content will be retired,
+     * 	      FlagDraft - Status : Image Content will be Flagged Draft.
+     */
     @Test
     public void acceptFlaggedCollectionContentWithImageNode() {
         setURI();
@@ -319,15 +375,26 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         assertEquals("Retired", response.jsonPath().get("result.content.status"));
     }
 
+    /**
+     * Accepting Flag for Collection Content with Draft Status.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  400 - Response Code
+     */
     @Test
     public void acceptFlagForCollectionContentWithDraftStatus() {
         setURI();
         String collectionContentId = createCollectionContent();
-        hierarchyUpdate(collectionContentId);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flag for Collection Content with Review Status.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  400 - Response Code
+     */
     @Test
     public void acceptFlagForCollectionContentWithReviewStatus() {
         setURI();
@@ -335,9 +402,15 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         hierarchyUpdate(collectionContentId);
         review(collectionContentId);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flag for Collection Content with Live Status.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  400 - Response Code
+     */
     @Test
     public void acceptFlagForCollectionContentWithLiveStatus() {
         setURI();
@@ -346,9 +419,15 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         publish(collectionContentId);
         delay(25000);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flag for Collection Content with Live Status with Image Node.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  400 - Response Code
+     */
     @Test
     public void acceptFlagForCollectionContentWithLiveStatusAndImageNode() {
         setURI();
@@ -358,9 +437,15 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         delay(25000);
         update(collectionContentId);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
+    /**
+     * Accepting Flag for Collection Content with Retired Status.
+     * Given: Content Id
+     * When:  Flag Accept API Hits
+     * Then:  400 - Response Code
+     */
     @Test
     public void acceptFlagForCollectionContentWithRetiredStatus() {
         setURI();
@@ -371,7 +456,7 @@ public class ContentAcceptFlagV3Test extends BaseTest {
         update(collectionContentId);
         retire(collectionContentId);
         Response response = acceptFlagAndGetResponse(collectionContentId);
-        assertEquals("CLIENT_ERROR", response.jsonPath().get("responseCode"));
+        assertEquals(400, response.getStatusCode());
     }
 
 }
