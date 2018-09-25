@@ -133,6 +133,7 @@ public class App {
 						count++;
 						int maxContentCount = Platform.config.getInt("max.content.count");
 						System.out.println("maxContentCount: " + maxContentCount);
+						System.out.println("counter***: " + counter);
 						if(counter<maxContentCount) {
 							try {
 								String imgNodeId = node.getIdentifier() + ".img";
@@ -150,6 +151,7 @@ public class App {
 							}
 						}else {
 							found = false;
+							break;
 						}
 					}
 				} else {
