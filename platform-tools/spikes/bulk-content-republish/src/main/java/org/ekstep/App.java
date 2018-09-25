@@ -132,6 +132,7 @@ public class App {
 					for (Node node : nodes) {
 						count++;
 						int maxContentCount = Platform.config.getInt("max.content.count");
+						System.out.println("maxContentCount: " + maxContentCount);
 						if(counter<maxContentCount) {
 							try {
 								String imgNodeId = node.getIdentifier() + ".img";
@@ -141,8 +142,8 @@ public class App {
 									feeder.push(node, "Public");
 									writeToFile(writer, node);
 									counter++;
-									int maxTimeGap = Platform.config.getInt("max.time.gap");
-									Thread.sleep(maxTimeGap);
+									//int maxTimeGap = Platform.config.getInt("max.time.gap");
+									//Thread.sleep(maxTimeGap);
 								}
 							} catch (Exception e) {
 								e.printStackTrace();
