@@ -98,6 +98,7 @@ public class App {
 			int start = sc.getStartPosition();
 			int count = 0;
 			int counter = 0;
+			int maxTimeGap = Platform.config.getInt("max.time.gap");
 			//check and change result size to set it to minimum batches
 			if (sc.getResultSize() == 0)
 				sc.setResultSize(defaultBatchSize);
@@ -142,10 +143,13 @@ public class App {
 								writeToFile(writer, node);
 								counter++;
 								System.out.println("counter*****: "+ counter);
-								//int maxTimeGap = Platform.config.getInt("max.time.gap");
-								//Thread.sleep(maxTimeGap);
+								System.out.println("Sleep Starts: " + System.currentTimeMillis());
+								Thread.sleep(maxTimeGap);
+								System.out.println("Sleep Ends: " + System.currentTimeMillis());
 							}
-						} catch (Exception e) {
+						}catch(InterruptedException e) {
+							e.printStackTrace();
+						}catch (Exception e) {
 							e.printStackTrace();
 						}
 						if(maxContentCount!=0 && counter==maxContentCount) {
