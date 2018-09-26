@@ -164,6 +164,7 @@ public class SyncService extends BaseService implements ISyncService {
     private void copyEcar(Response readResponse) throws Exception {
         Map<String, Object> metadata = (Map<String, Object>) readResponse.get("content");
         String id = (String) metadata.get("identifier");
+        String mimeType = (String) metadata.get("mimeType");
         try {
             String downloadUrl = (String) metadata.get("downloadUrl");
             String path = downloadEcar(id, downloadUrl, sourceStorageType);
@@ -174,7 +175,6 @@ public class SyncService extends BaseService implements ISyncService {
             }
 
             Map<String, Object> variants = (Map<String, Object>) metadata.get("variants");
-
             if (CollectionUtils.isNotEmpty(variants.keySet())) {
                 String spineEcarUrl = (String) ((Map<String, Object>) variants.get("spine")).get("ecarUrl");
                 if (StringUtils.isNotBlank(spineEcarUrl)) {
@@ -184,13 +184,7 @@ public class SyncService extends BaseService implements ISyncService {
                     metadata.put("variants", variants);
                 }
             }
-            String artefactUrl = (String) metadata.get("artifactUrl");
-            String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
-            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
-            if (StringUtils.isNotBlank(destArtefactUrl)) {
-                metadata.put("artifactUrl", destArtefactUrl);
-            }
-
+            
             String appIconUrl = (String) metadata.get("appIcon");
             if(StringUtils.isNotBlank(appIconUrl)){
                 String appIconPath = downloadArtifact(id, appIconUrl, sourceStorageType, false);
@@ -218,11 +212,18 @@ public class SyncService extends BaseService implements ISyncService {
                 }
             }
 
-
-            if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
-                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, ((Number) metadata.get("pkgVersion")).doubleValue());
-            }
-
+            if (!StringUtils.equals(mimeType, "video/x-youtube")) {
+	        		String artefactUrl = (String) metadata.get("artifactUrl");
+	            String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
+	            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+	            if (StringUtils.isNotBlank(destArtefactUrl)) {
+	                metadata.put("artifactUrl", destArtefactUrl);
+	            }
+	            
+	            if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
+	                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, ((Number) metadata.get("pkgVersion")).doubleValue());
+	            }
+	        }
 
             Map<String, Object> content = new HashMap<>();
             content.put("content", metadata);
