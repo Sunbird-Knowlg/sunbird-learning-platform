@@ -30,7 +30,7 @@ public class App {
 	private static GraphUtil util = new GraphUtil();
 	private static InstructionEventFeeder feeder = new InstructionEventFeeder();
 	private static int totalSize = 0;
-	private final static int defaultBatchSize = 1000;
+	private final static int defaultBatchSize = 500;
 	public static SearchCriteria sc = null;
 
 	public static void main(String[] args) throws Exception {
@@ -91,13 +91,13 @@ public class App {
 		try{
 			File file = getFile(true);
 			FileWriter writer = new FileWriter(file, true);
-			System.out.println("In process method...*****");
 			Set<String> processedObjects = getProcessedObject(file);
-			System.out.println("processedObjects: " + processedObjects.toString());
 			boolean found = true;
+			int maxContentCount=0;
 			List<String> processed_ids = new ArrayList<String>();
 			int start = sc.getStartPosition();
 			int count = 0;
+			int counter = 0;
 			//check and change result size to set it to minimum batches
 			if (sc.getResultSize() == 0)
 				sc.setResultSize(defaultBatchSize);
@@ -106,7 +106,9 @@ public class App {
 				if(sc.getResultSize()>defaultBatchSize)
 					sc.setResultSize(defaultBatchSize);
 			}
-
+			if(Platform.config.hasPath("max.content.count"))
+				maxContentCount = Platform.config.getInt("max.content.count");
+			
 			while (found) {
 				if (totalSize != 0 && totalSize == count) {
 					System.out.println("Skipping remaining as it reaches result size(" + totalSize + ") to process");
@@ -128,30 +130,26 @@ public class App {
 				if (null != nodes && !nodes.isEmpty()) {
 					System.out.println(nodes.size() + " objects are getting republished, offset=" + sc.getStartPosition());
 					start += sc.getResultSize();
-					int counter = 0;
+					
 					for (Node node : nodes) {
 						count++;
-						int maxContentCount = Platform.config.getInt("max.content.count");
-						System.out.println("maxContentCount: " + maxContentCount);
-						System.out.println("counter***: " + counter);
-						if(counter<maxContentCount) {
-							try {
-								String imgNodeId = node.getIdentifier() + ".img";
-								Node imgNode = util.getNode("domain", imgNodeId);
-								if (imgNode == null && !processedObjects.contains(node.getIdentifier())) {
-									processed_ids.add(node.getIdentifier());
-									feeder.push(node, "Public");
-									writeToFile(writer, node);
-									counter++;
-									//int maxTimeGap = Platform.config.getInt("max.time.gap");
-									//Thread.sleep(maxTimeGap);
+						try {
+							String imgNodeId = node.getIdentifier() + ".img";
+							Node imgNode = util.getNode("domain", imgNodeId);
+							if (imgNode == null && !processedObjects.contains(node.getIdentifier())) {
+								processed_ids.add(node.getIdentifier());
+								feeder.push(node, "Public");
+								writeToFile(writer, node);
+								counter++;
+								if(maxContentCount!=0 && counter==maxContentCount) {
+									found = false;
+									break;
 								}
-							} catch (Exception e) {
-								e.printStackTrace();
+								//int maxTimeGap = Platform.config.getInt("max.time.gap");
+								//Thread.sleep(maxTimeGap);
 							}
-						}else {
-							found = false;
-							break;
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
 				} else {
