@@ -177,12 +177,17 @@ public class Neo4JBoltNodeOperations {
 							//suppress exception happened when versionKey is null
 						}
 					}
-				} catch (org.neo4j.driver.v1.exceptions.ClientException e) {
-					if (StringUtils.equalsIgnoreCase("Neo.ClientError.Schema.ConstraintValidationFailed", e.code()))
-						throw new ClientException(GraphDacErrorParams.CONSTRAINT_VALIDATION_FAILED.name(),
+
+				} catch (Exception e) {
+					if (e instanceof org.neo4j.driver.v1.exceptions.ClientException) {
+						org.neo4j.driver.v1.exceptions.ClientException ex = (org.neo4j.driver.v1.exceptions.ClientException) e;
+						if (StringUtils.equalsIgnoreCase("Neo.ClientError.Schema.ConstraintValidationFailed", ex.code()))
+							throw new ClientException(GraphDacErrorParams.CONSTRAINT_VALIDATION_FAILED.name(),
 								"Object already exists with identifier: " + node.getIdentifier());
-					else
-						throw new ServerException(e.code(), e.getMessage());
+						else
+							throw new ServerException(ex.code(), e.getMessage());
+					}
+						
 				}
 			}
 		} catch (Exception e) {

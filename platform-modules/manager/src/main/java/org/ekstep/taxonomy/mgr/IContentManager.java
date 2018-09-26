@@ -264,4 +264,6 @@ public interface IContentManager {
      * @throws Exception
      */
     Response acceptFlag(String contentId) throws Exception;
+
+    Response syncHierarchy(String identifier);
 }

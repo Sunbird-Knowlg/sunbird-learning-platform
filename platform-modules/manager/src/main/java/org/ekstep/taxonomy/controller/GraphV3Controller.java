@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
-@RequestMapping("/v3/system")
+@RequestMapping("/system/v3")
 public class GraphV3Controller extends BaseController {
 
 	@Autowired
