@@ -342,16 +342,28 @@ public class SyncService extends BaseService implements ISyncService {
                 String externalFields = Platform.config.getString("content.external_fields");
                 Response contentExt = getContent(id, false, externalFields);
                 request.put("request", contentExt.getResult());
-                Response extResp = systemUpdate(id, request, channel, true);                
-                if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", (String) metadata.get("mimeType"))) {
-                		localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
-                		copyAssets(localPath, forceUpdate);
-                }
-                List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
-                if (CollectionUtils.isNotEmpty(children)) {
-                    for (Map<String, Object> child : children) {
-                        createContent((String) child.get("identifier"), forceUpdate);
-                    }
+                Response extResp = systemUpdate(id, request, channel, true);
+                String mimeType = (String) metadata.get("mimeType");
+                switch (mimeType) {
+                    case "application/vnd.ekstep.ecml-archive":
+                        localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
+                        copyAssets(localPath, forceUpdate);
+                        break;
+                    case "application/vnd.ekstep.content-collection":
+                        List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
+                        if (CollectionUtils.isNotEmpty(children)) {
+                            for (Map<String, Object> child : children) {
+                                createContent((String) child.get("identifier"), forceUpdate);
+                            }
+                        }
+                        break;
+                    case "application/vnd.ekstep.h5p-archive":
+                    case "application/vnd.ekstep.html-archive":
+                        localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
+
+                        break;
+                    default:
+                        break;
                 }
             } finally {
                 if (StringUtils.isNotBlank(localPath))
