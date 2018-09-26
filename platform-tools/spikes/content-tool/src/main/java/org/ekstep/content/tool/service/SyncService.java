@@ -215,15 +215,17 @@ public class SyncService extends BaseService implements ISyncService {
 
             if (!StringUtils.equals(mimeType, "video/x-youtube")) {
                 String artefactUrl = (String) metadata.get("artifactUrl");
-	            String artefactPath = downloadArtifact(id, artefactUrl, false);
-	            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
-	            if (StringUtils.isNotBlank(destArtefactUrl)) {
-	                metadata.put("artifactUrl", destArtefactUrl);
-	            }
-	            
-	            if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
-	                extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, ((Number) metadata.get("pkgVersion")).doubleValue());
-	            }
+                if(StringUtils.isNotBlank(artefactUrl)){
+                    String artefactPath = downloadArtifact(id, artefactUrl, false);
+                    String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+                    if (StringUtils.isNotBlank(destArtefactUrl)) {
+                        metadata.put("artifactUrl", destArtefactUrl);
+                    }
+
+                    if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
+                        extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, ((Number) metadata.get("pkgVersion")).doubleValue());
+                    }
+                }
 	        }
 
             Map<String, Object> content = new HashMap<>();
@@ -353,9 +355,18 @@ public class SyncService extends BaseService implements ISyncService {
                     case "application/vnd.ekstep.content-collection":
                         List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
                         if (CollectionUtils.isNotEmpty(children)) {
+                            List<Map<String, String>> childrenReq = new ArrayList<>();
                             for (Map<String, Object> child : children) {
-                                createContent((String) child.get("identifier"), forceUpdate);
+                                String childId = (String) child.get("identifier");
+                                createContent(childId, forceUpdate);
+                                Map<String, String> childReq = new HashMap<>();
+                                childReq.put("identifier", childId);
+                                childrenReq.add(childReq);
                             }
+                            if(CollectionUtils.isNotEmpty(childrenReq)) {
+                                systemUpdate(id, makeContentRequest(childrenReq), channel, true);
+                            }
+                            syncHierarchy(id);
                         }
                         break;
                     case "application/vnd.ekstep.h5p-archive":
@@ -415,6 +426,14 @@ public class SyncService extends BaseService implements ISyncService {
     private void updateMetadata(Response sourceContent, String forceUpdate) throws Exception {
         createContent((String) ((Map<String, Object>) sourceContent.get("content")).get("identifier"), forceUpdate);
 
+    }
+    
+    private Map<String, Object> makeContentRequest(Object metadata) {
+        Map<String, Object> content = new HashMap<>();
+        content.put("content", metadata);
+        Map<String, Object> request = new HashMap<>();
+        request.put("request", content);
+        return request;
     }
 
 }
