@@ -7,6 +7,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -94,7 +95,7 @@ public class SyncService extends BaseService implements ISyncService {
                 double destPkgVersion = ((Number) destContent.get("pkgVersion")).doubleValue();
                 if (isForceupdate(forceUpdate) || (0 == Double.compare(srcPkgVersion, destPkgVersion))) {
                     if (!request.isEmpty()) {
-                        System.out.println("Updating the content !!!!");
+                        TelemetryManager.info("Updating the content !!!!");
                         Response updateResponse = systemUpdate(id, request, channel, true);
                         Response updateSourceResponse = systemUpdate(id, request, channel, false);
 
