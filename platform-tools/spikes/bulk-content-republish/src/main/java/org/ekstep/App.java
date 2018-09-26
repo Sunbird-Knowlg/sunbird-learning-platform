@@ -108,7 +108,7 @@ public class App {
 			}
 			if(Platform.config.hasPath("max.content.count"))
 				maxContentCount = Platform.config.getInt("max.content.count");
-			
+			System.out.println("maxContentCount***:"+ maxContentCount);
 			while (found) {
 				if (totalSize != 0 && totalSize == count) {
 					System.out.println("Skipping remaining as it reaches result size(" + totalSize + ") to process");
@@ -141,15 +141,17 @@ public class App {
 								feeder.push(node, "Public");
 								writeToFile(writer, node);
 								counter++;
-								if(maxContentCount!=0 && counter==maxContentCount) {
-									found = false;
-									break;
-								}
+								System.out.println("counter*****: "+ counter);
 								//int maxTimeGap = Platform.config.getInt("max.time.gap");
 								//Thread.sleep(maxTimeGap);
 							}
 						} catch (Exception e) {
 							e.printStackTrace();
+						}
+						if(maxContentCount!=0 && counter==maxContentCount) {
+							System.out.println("******counter*****: "+ counter);
+							found = false;
+							break;
 						}
 					}
 				} else {
