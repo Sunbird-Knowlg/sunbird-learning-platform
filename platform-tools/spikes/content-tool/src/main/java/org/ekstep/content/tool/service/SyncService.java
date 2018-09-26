@@ -188,7 +188,7 @@ public class SyncService extends BaseService implements ISyncService {
             
             String appIconUrl = (String) metadata.get("appIcon");
             if(StringUtils.isNotBlank(appIconUrl)){
-                String appIconPath = downloadArtifact(id, appIconUrl, sourceStorageType, false);
+                String appIconPath = downloadArtifact(id, appIconUrl, false);
                 String destAppIconUrl = uploadArtifact(id, appIconPath, destStorageType);
                 if (StringUtils.isNotBlank(destAppIconUrl)) {
                     metadata.put("appIcon", destAppIconUrl);
@@ -197,7 +197,7 @@ public class SyncService extends BaseService implements ISyncService {
 
             String posterImageUrl = (String) metadata.get("posterImage");
             if(StringUtils.isNotBlank(posterImageUrl)){
-                String posterImagePath = downloadArtifact(id, posterImageUrl, sourceStorageType, false);
+                String posterImagePath = downloadArtifact(id, posterImageUrl, false);
                 String destPosterImageUrl = uploadArtifact(id, posterImagePath, destStorageType);
                 if (StringUtils.isNotBlank(destPosterImageUrl)) {
                     metadata.put("posterImage", destPosterImageUrl);
@@ -206,7 +206,7 @@ public class SyncService extends BaseService implements ISyncService {
 
             String tocUrl = (String) metadata.get("toc_url");
             if(StringUtils.isNotBlank(tocUrl)){
-                String tocUrlPath = downloadArtifact(id, tocUrl, sourceStorageType, false);
+                String tocUrlPath = downloadArtifact(id, tocUrl, false);
                 String destTocUrlUrl = uploadArtifact(id, tocUrlPath, destStorageType);
                 if (StringUtils.isNotBlank(destTocUrlUrl)) {
                     metadata.put("toc_url", destTocUrlUrl);
@@ -214,8 +214,8 @@ public class SyncService extends BaseService implements ISyncService {
             }
 
             if (!StringUtils.equals(mimeType, "video/x-youtube")) {
-	        		String artefactUrl = (String) metadata.get("artifactUrl");
-	            String artefactPath = downloadArtifact(id, artefactUrl, sourceStorageType, false);
+                String artefactUrl = (String) metadata.get("artifactUrl");
+	            String artefactPath = downloadArtifact(id, artefactUrl, false);
 	            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
 	            if (StringUtils.isNotBlank(destArtefactUrl)) {
 	                metadata.put("artifactUrl", destArtefactUrl);
@@ -328,7 +328,8 @@ public class SyncService extends BaseService implements ISyncService {
         Response sourceContent = getContent(id, false, null);
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
         String channel = (String) metadata.get("channel");
-        metadata.put("pkgVersion", ((Number) metadata.get("pkgVersion")).doubleValue());
+        double pkgVersion = ((Number) metadata.get("pkgVersion")).doubleValue();
+        metadata.put("pkgVersion", pkgVersion);
         Map<String, Object> content = new HashMap<>();
         content.put("content", metadata);
         Map<String, Object> request = new HashMap<>();
@@ -346,7 +347,7 @@ public class SyncService extends BaseService implements ISyncService {
                 String mimeType = (String) metadata.get("mimeType");
                 switch (mimeType) {
                     case "application/vnd.ekstep.ecml-archive":
-                        localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
+                        localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), true);
                         copyAssets(localPath, forceUpdate);
                         break;
                     case "application/vnd.ekstep.content-collection":
@@ -359,8 +360,7 @@ public class SyncService extends BaseService implements ISyncService {
                         break;
                     case "application/vnd.ekstep.h5p-archive":
                     case "application/vnd.ekstep.html-archive":
-                        localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), sourceStorageType, true);
-
+                        uploadAndExtract(id, (String) metadata.get("artifactUrl"), mimeType, pkgVersion);
                         break;
                     default:
                         break;

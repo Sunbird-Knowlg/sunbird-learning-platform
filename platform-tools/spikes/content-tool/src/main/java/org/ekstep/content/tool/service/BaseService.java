@@ -13,6 +13,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.sunbird.cloud.storage.BaseStorageService;
 import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
@@ -145,16 +146,13 @@ public class BaseService {
 
     }
 
-    protected String downloadArtifact(String id, String artifactUrl, String cloudStoreType, boolean extractFile) throws Exception {
-        String folder = "content" + File.separator + id + File.separator + "artifact";
+    protected String downloadArtifact(String id, String artifactUrl, boolean extractFile) throws Exception {
         if(StringUtils.isNotBlank(artifactUrl)){
             String localPath = "tmp/" + id + File.separator;
             String[] fileUrl = artifactUrl.split("/");
             String filename = fileUrl[fileUrl.length - 1];
-            String objectKey = folder + "/" + filename;
             File file = new File(localPath + filename);
             FileUtils.copyURLToFile(new URL(artifactUrl), file);
-            //getcloudService(cloudStoreType).download(getContainerName(cloudStoreType), objectKey, localPath, Option.apply(false));
 
             if(extractFile){
                 CommonUtil.unZip(localPath + "/" + filename, localPath);
@@ -272,15 +270,21 @@ public class BaseService {
         return response;
     }
 
+    protected void uploadAndExtract(String id, String artefactUrl, String mimeType, double pkgVersion) throws Exception {
+        String artefactPath = downloadArtifact(id, artefactUrl, false);
+        String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+        TelemetryManager.info("Content destination URL: "+ destArtefactUrl);
+        extractArchives(id, mimeType, destArtefactUrl, pkgVersion);
+    }
 
     protected void extractArchives(String id, String mimetype, String artefactUrl, double pkgVersion) {
         String[] fileUrl = artefactUrl.split("/");
         String filename = fileUrl[fileUrl.length - 1];
-        String objectkey = "content" + File.separator + id + File.separator + "artifact" + filename;
+        String objectkey = "content" + File.separator + id + File.separator + "artifact" + File.separator + filename;
         String tokey = "content" + File.separator + extractMimeType.get(mimetype) + File.separator + id;
-        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey + "-snapshot");
-        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-latest");
-        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-" + pkgVersion);
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey + "-snapshot/");
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-latest/");
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-" + pkgVersion + "/");
     }
 
 
