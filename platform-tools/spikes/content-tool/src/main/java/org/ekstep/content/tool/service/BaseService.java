@@ -8,6 +8,7 @@ import com.mashape.unirest.http.Unirest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
+import org.apache.tika.Tika;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -40,6 +41,7 @@ public class BaseService {
     protected String destUrl = Platform.config.getString("destination.url");
     protected String sourceStorageType = Platform.config.getString("source.storage_type");
     protected String destStorageType = Platform.config.getString("destination.storage_type");
+    protected Tika tika = new Tika();
 
     protected static Map<String, String> extractMimeType = new HashMap<>();
 
@@ -258,24 +260,16 @@ public class BaseService {
             return executePatch(sourceUrl + "/system/v3/content/update/" + id, sourceKey, request, channel);
     }
 
-    protected Response uploadAsset(String path, String id) throws Exception {
+    protected Response uploadAsset(String path, String id, String src) throws Exception {
         File file = new File(path);
-        String objectKey = "assets" + File.separator + id + File.separator + file.getName();
-        String signedUrl = getcloudService(destStorageType).getSignedURL(getContainerName(destStorageType), objectKey, Option.apply(null), Option.apply("w"));
-        HttpResponse<String> httpResponse = Unirest.put(signedUrl).header("x-ms-blob-type", "BlockBlob").field("file", file).asString();
-        if(httpResponse.getStatus() == 200 || httpResponse.getStatus() == 201) {
-            String uploadUrl = signedUrl.split("\\?")[0];
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("fileUrl", uploadUrl);
-            HttpResponse<String> uploadResponse = Unirest.post(destUrl + "/content/v3/upload/" + id).queryString(parameters).header("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW").header("Authorization", destKey).asString();
-            Response response = mapper.readValue(uploadResponse.getBody(), Response.class);
-            return response;
-        }else{
-            throw new ServerException("ERR_ASSET_UPLOAD", "Failed while uploading Asset: " + id);
-        }
-
-
-
+        String objectKey = src.replaceAll("assets/public/", "");
+        String url = getcloudService(destStorageType).upload(getContainerName(destStorageType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
+        String uploadUrl = url.split("\\?")[0];
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("fileUrl", uploadUrl);
+        HttpResponse<String> uploadResponse = Unirest.post(destUrl + "/content/v3/upload/" + id).queryString(parameters).header("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW").header("Authorization", destKey).asString();
+        Response response = mapper.readValue(uploadResponse.getBody(), Response.class);
+        return response;
     }
 
 
@@ -290,13 +284,13 @@ public class BaseService {
     }
 
 
-   /* public static void main(String[] args) throws Exception {
+    /*public static void main(String[] args) throws Exception {
         BaseService service  = new BaseService();
-        //service.downloadArtifact("do_21259266313247948813016", "https://ekstep-public-qa.s3-ap-south-1.amazonaws.com/content/do_21259266313247948813016/artifact/1537190425252_do_21259266313247948813016.zip", "aws");
-        Map<String, Object> assets = service.readECMLFile("/Users/pradyumna/Downloads/1537190425252_do_21259266313247948813016/index.ecml");
+        String path = service.downloadArtifact("do_112598819372515328131", "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/do_112598819372515328131/artifact/1537941895508_do_112598819372515328131.zip", "aws", true);
+        Map<String, Object> assets = service.readECMLFile(path + "/"  + "index.ecml");
 
         for(String assetId: assets.keySet()) {
-            Response response = service.uploadAsset("/Users/pradyumna/Downloads/1537190425252_do_21259266313247948813016/assets/" + (String) assets.get(assetId), assetId);
+            Response response = service.uploadAsset(path + "/assets/" + (String) assets.get(assetId), assetId, (String) assets.get(assetId));
         }
     }*/
 }

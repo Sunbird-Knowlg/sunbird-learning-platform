@@ -380,7 +380,7 @@ public class SyncService extends BaseService implements ISyncService {
                         Map<String, Object> request = new HashMap<>();
                         request.put("request", content);
                         Response createResponse = systemUpdate(assetId, request, (String) assetRequest.get("channel"), true);
-                        Response response = uploadAsset(localPath + File.separator + "assets" + File.separator + assets.get(assetId), assetId);
+                        Response response = uploadAsset(localPath + File.separator + "assets" + File.separator + assets.get(assetId), assetId, (String) assets.get(assetId));
                     }
                 }
             }
