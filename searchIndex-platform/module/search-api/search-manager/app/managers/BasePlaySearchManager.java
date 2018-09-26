@@ -213,9 +213,7 @@ public class BasePlaySearchManager extends Results {
 	private String getType(Map<String, Object> filters) {
 		if (null != filters.get("objectType")) {
 			List<String> objectType = (List<String>) filters.get("objectType");
-			if (objectType.size() == 2) {
-				return objectType.get(0).toLowerCase();
-			} else if (objectType.size() == 1) {
+			if (objectType.size() <= 2) {
 				return objectType.get(0).toLowerCase();
 			} else {
 				return "all";
