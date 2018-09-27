@@ -86,6 +86,9 @@ public class BaseService {
         Map<String, Map<String, Object>> identifiers = new HashMap<>();
         Map<String, Object> filters = mapper.readValue(filter, Map.class);
         filters.remove("status");
+        Map<String, Object>  removeAsset = new HashMap<>();
+        removeAsset.put("ne", Arrays.asList("Asset", "Plugin"));
+        filters.put("contentType", removeAsset);
         Map<String, Object> searchRequest = new HashMap<>();
 
         searchRequest.put("filters", filters);
