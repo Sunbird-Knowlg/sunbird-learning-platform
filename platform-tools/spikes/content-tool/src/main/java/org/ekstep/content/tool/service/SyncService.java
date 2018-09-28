@@ -7,6 +7,8 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.content.tool.util.Input;
+import org.ekstep.content.tool.util.InputList;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
@@ -20,24 +22,17 @@ import java.util.Map;
 
 @Component("contentSyncService")
 public class SyncService extends BaseService implements ISyncService {
-
-
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
-
-    @Override
-    public void dryRun() {
-
-    }
 
     @Override
     public void ownerMigration(String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String filter, String dryRun, String forceUpdate) {
         try {
             if (validChannel(channel)) {
-                Map<String, Map<String, Object>> identifiers = getFromSource(filter);
+                InputList inputList = getFromSource(filter);
                 if (StringUtils.equalsIgnoreCase(dryRun, "true")) {
-                    System.out.println("content count to migrate: " + identifiers.keySet().size() + " " + identifiers.keySet());
+                    System.out.println("Content count to migrate: " + inputList.size() + "\n" + "Data : \n" + inputList.toString());
                 } else {
-                    updateOwnership(identifiers, createdBy, channel, createdFor, organisation, creator, forceUpdate);
+                    updateOwnership(inputList, createdBy, channel, createdFor, organisation, creator, forceUpdate);
 
                 }
 
@@ -53,13 +48,13 @@ public class SyncService extends BaseService implements ISyncService {
     @Override
     public void sync(String filter, String dryRun, String forceUpdate) {
         try {
-            Map<String, Map<String, Object>> identifiers = getFromSource(filter);
+            InputList inputList = getFromSource(filter);
             if (StringUtils.equalsIgnoreCase("true", dryRun)) {
-                System.out.println("content count to sync: " + identifiers.keySet().size() + " " + identifiers.values());
+                System.out.println("Content count to sync: " + inputList.size() + "\n" + "Data : \n" + inputList.toString());
             } else {
-                Map<String, Object> response = syncData(identifiers, forceUpdate);
-                System.out.println("Contents synced : " + response.get("success"));
-                System.out.println("Contents skipped without syncing : " + response.get("failed"));
+                Map<String, InputList> response = syncData(inputList, forceUpdate);
+                System.out.println("Contents synced : " + response.get("success").size() +  "\n" + response.get("success").toString());
+                System.out.println("Contents skipped without syncing : " + response.get("failed").size() +  "\n" + response.get("failed").toString());
             }
 
         } catch (Exception e) {
@@ -69,67 +64,67 @@ public class SyncService extends BaseService implements ISyncService {
 
     }
 
-    private void updateOwnership(Map<String, Map<String, Object>> identifiers, String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String forceUpdate) throws Exception {
-        if (!identifiers.isEmpty()) {
+    private void updateOwnership(InputList inputList, String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String forceUpdate) throws Exception {
+        if (CollectionUtils.isNotEmpty(inputList.getInputList())) {
             Map<String, Object> request = getUpdateRequest(createdBy, channel, createdFor, organisation, creator);
-            Map<String, Object> response = updateData(identifiers, request, channel, forceUpdate);
+            Map<String, InputList> response = updateData(inputList, request, channel, forceUpdate);
 
-            System.out.println("Migrated content count: " + ((List<String>) response.get("success")).size() + " : " + response.get("success"));
-            System.out.println("Skipped content count: " + ((List<String>) response.get("failed")).size() + " : " + response.get("failed"));
+            System.out.println("Migrated content count: " + response.get("success").size() +  "\n" + response.get("success").toString());
+            System.out.println("Skipped content count: " + response.get("failed").size() +  "\n" + response.get("failed").toString());
 
         } else {
             System.out.println("No contents to migrate");
         }
     }
 
-    private Map<String, Object> updateData(Map<String, Map<String, Object>> identifiers, Map<String, Object> request, String channel, String forceUpdate) throws Exception {
-        Map<String, Object> output = new HashMap<>();
-        List<String> successful = new ArrayList<>();
-        List<String> failure = new ArrayList<>();
+    private Map<String, InputList> updateData(InputList inputList, Map<String, Object> request, String channel, String forceUpdate) throws Exception {
+        Map<String, InputList> output = new HashMap<>();
+        InputList successful = new InputList(new ArrayList<>());
+        InputList failure = new InputList(new ArrayList<>());
 
-        for (String id : identifiers.keySet()) {
-            Response readResponse = getContent(id, true, null);
+        for (Input input : inputList.getInputList()) {
+            Response readResponse = getContent(input.getId(), true, null);
             if (isSuccess(readResponse)) {
                 Map<String, Object> destContent = (Map<String, Object>) readResponse.get("content");
-                double srcPkgVersion = ((Number) identifiers.get(id).get("pkgVersion")).doubleValue();
+                double srcPkgVersion = input.getPkgVersion();
                 double destPkgVersion = ((Number) destContent.get("pkgVersion")).doubleValue();
                 if (isForceupdate(forceUpdate) || (0 == Double.compare(srcPkgVersion, destPkgVersion))) {
                     if (!request.isEmpty()) {
                         TelemetryManager.info("Updating the content !!!!");
-                        Response updateResponse = systemUpdate(id, request, channel, true);
-                        Response updateSourceResponse = systemUpdate(id, request, channel, false);
+                        Response updateResponse = systemUpdate(input.getId(), request, channel, true);
+                        Response updateSourceResponse = systemUpdate(input.getId(), request, channel, false);
 
                         System.out.println("Destination Update Response : "  + updateResponse.getResult());
                         System.out.println("Source Update Response : "  + updateSourceResponse.getResult());
 
                         if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
-                            successful.add(id);
-                            Response response = getContent(id, true, null);
+                            successful.add(input);
+                            Response response = getContent(input.getId(), true, null);
                             copyEcar(response);
                         } else {
-                            failure.add(id);
+                            failure.add(input);
                         }
                     }else{
                         copyEcar(readResponse);
                     }
-                    Map<String, Map<String, Object>> children = new HashMap<>();
+                    InputList children = new InputList( new ArrayList<>());
                     fetchChildren(readResponse, children);
-                    if (!children.isEmpty())
+                    if (children.isNotEmpty())
                         updateData(children, request, channel, forceUpdate);
                     if (StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) destContent.get("mimeType")))
-                        syncHierarchy(id);
+                        syncHierarchy(input.getId());
 
                     if (containsItemsSet(destContent)) {
                         copyAssessmentItems((List<Map<String, Object>>) destContent.get("item_sets"));
                     }
                 } else if (isForceupdate(forceUpdate) || (-1 == Double.compare(srcPkgVersion, destPkgVersion))) {
-                    syncData(identifiers, forceUpdate);
-                    updateData(identifiers, request, channel, forceUpdate);
+                    syncData(inputList, forceUpdate);
+                    updateData(inputList, request, channel, forceUpdate);
                 } else {
-                    failure.add(id);
+                    failure.add(input);
                 }
             } else {
-                failure.add(id);
+                failure.add(input);
             }
         }
 
@@ -238,7 +233,7 @@ public class SyncService extends BaseService implements ISyncService {
         }
     }
 
-    private void fetchChildren(Response readResponse, Map<String, Map<String, Object>> children) throws Exception {
+    private void fetchChildren(Response readResponse, InputList children) throws Exception {
         List<Map<String, Object>> childNodes = (List<Map<String, Object>>) ((Map<String, Object>) readResponse.get("content")).get("children");
 
         if (!CollectionUtils.isEmpty(childNodes)) {
@@ -248,7 +243,8 @@ public class SyncService extends BaseService implements ISyncService {
                 String visibility = (String) contenMetadata.get("visibility");
 
                 if (StringUtils.isNotBlank(visibility) && StringUtils.equalsIgnoreCase("Parent", visibility)) {
-                    children.put((String) contenMetadata.get("identifier"), contenMetadata);
+                    Input childInput = new Input((String) contenMetadata.get("identifier"), (String) contenMetadata.get("name"), ((Number) contenMetadata.get("pkgVersion")).doubleValue(), (String) contenMetadata.get("objectType"), (String) contenMetadata.get("status"));
+                    children.add(childInput);
                     fetchChildren(childContent, children);
                 }
             }
@@ -289,32 +285,32 @@ public class SyncService extends BaseService implements ISyncService {
      * - download the ecar or artifact and upload the same using upload api
      * - update the collection hierarchy
      **/
-    private Map<String, Object> syncData(Map<String, Map<String, Object>> identifiers, String forceUpdate) {
-        Map<String, Object> response = new HashMap<>();
-        List<String> success = new ArrayList<>();
-        List<String> failed = new ArrayList<>();
+    private Map<String, InputList> syncData(InputList inputList, String forceUpdate) {
+        Map<String, InputList> response = new HashMap<>();
+        InputList success = new InputList(new ArrayList<>());
+        InputList failed = new InputList(new ArrayList<>());
 
-        for (String id : identifiers.keySet()) {
+        for (Input input : inputList.getInputList()) {
             try {
-                Response destContent = getContent(id, true, null);
+                Response destContent = getContent(input.getId(), true, null);
                 if (isSuccess(destContent)) {
-                    Response sourceContent = getContent(id, false, null);
+                    Response sourceContent = getContent(input.getId(), false, null);
                     if (isForceupdate(forceUpdate) || (Double.compare(((Number) ((Map<String, Object>) destContent.get("content")).get("pkgVersion")).doubleValue(), ((Number) ((Map<String, Object>) sourceContent.get("content")).get("pkgVersion")).doubleValue()) == -1)) {
                         updateMetadata(sourceContent, forceUpdate);
-                        syncHierarchy(id);
-                        success.add(id);
+                        syncHierarchy(input.getId());
+                        success.add(input);
                     } else {
-                        failed.add(id);
+                        failed.add(input);
                     }
 
                 } else {
-                    createContent(id, forceUpdate);
-                    syncHierarchy(id);
-                    success.add(id);
+                    createContent(input.getId(), forceUpdate);
+                    syncHierarchy(input.getId());
+                    success.add(input);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                failed.add(id);
+                failed.add(input);
             }
 
         }

@@ -13,6 +13,8 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.content.tool.util.Input;
+import org.ekstep.content.tool.util.InputList;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.sunbird.cloud.storage.BaseStorageService;
 import org.sunbird.cloud.storage.factory.StorageConfig;
@@ -27,6 +29,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -82,8 +85,8 @@ public class BaseService {
         return response;
     }
 
-    protected Map<String, Map<String, Object>> getFromSource(String filter) throws Exception {
-        Map<String, Map<String, Object>> identifiers = new HashMap<>();
+    protected InputList getFromSource(String filter) throws Exception {
+        InputList inputList = new InputList(new ArrayList<>());
         Map<String, Object> filters = mapper.readValue(filter, Map.class);
         filters.remove("status");
         Map<String, Object>  removeAsset = new HashMap<>();
@@ -92,7 +95,7 @@ public class BaseService {
         Map<String, Object> searchRequest = new HashMap<>();
 
         searchRequest.put("filters", filters);
-        searchRequest.put("fields", Arrays.asList("identifier", "name", "pkgVersion"));
+        searchRequest.put("fields", Arrays.asList("identifier", "name", "pkgVersion", "objectType","status"));
 
         Map<String, Object> request = new HashMap<>();
         request.put("request", searchRequest);
@@ -100,16 +103,16 @@ public class BaseService {
         Response searchResponse = executePost(sourceUrl + "/composite/v3/search", sourceKey, request, null);
         if (StringUtils.equals(ResponseParams.StatusType.successful.name(), searchResponse.getParams().getStatus())) {
             int count = (int) searchResponse.getResult().get("count");
-            getIdsFromResponse(searchResponse.getResult(), count, identifiers, 0, request);
+            getIdsFromResponse(searchResponse.getResult(), count, inputList, 0, request);
         }
 
-        return identifiers;
+        return inputList;
     }
 
-    private void getIdsFromResponse(Map<String, Object> result, int count, Map<String, Map<String, Object>> identifiers, int offset, Map<String, Object> request) throws Exception {
+    private void getIdsFromResponse(Map<String, Object> result, int count, InputList inputList, int offset, Map<String, Object> request) throws Exception {
         if ((count - 100) >= 0) {
             for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
-                identifiers.put((String) res.get("identifier"), res);
+                inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), ((Number)res.get("pkgVersion")).doubleValue(), (String)res.get("objectType"), (String)res.get("status")));
             }
             count -= 100;
             offset += 100;
@@ -118,14 +121,14 @@ public class BaseService {
 
             Response searchResponse = executePost(sourceUrl + "/composite/v3/search", sourceKey, request, null);
             if (isSuccess(searchResponse)) {
-                getIdsFromResponse(searchResponse.getResult(), count, identifiers, 0, request);
+                getIdsFromResponse(searchResponse.getResult(), count, inputList, 0, request);
             } else {
                 throw new ServerException("ERR_SYNC_SERVICE", "Error while fetching identifiers", searchResponse.getParams().getErr());
             }
 
         } else {
             for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
-                identifiers.put((String) res.get("identifier"), res);
+                inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), ((Number)res.get("pkgVersion")).doubleValue(), (String)res.get("objectType"), (String)res.get("status")));
             }
         }
     }
@@ -285,9 +288,9 @@ public class BaseService {
         String filename = fileUrl[fileUrl.length - 1];
         String objectkey = "content" + File.separator + id + File.separator + "artifact" + File.separator + filename;
         String tokey = "content" + File.separator + extractMimeType.get(mimetype) + File.separator + id;
-        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey + "-snapshot/");
-        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-latest/");
-        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-" + pkgVersion + "/");
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey + "-snapshot" + File.separator);
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-latest" + File.separator);
+        getcloudService(destStorageType).extractArchive(getContainerName(destStorageType), objectkey, tokey+ "-" + pkgVersion + File.separator);
     }
 
 
