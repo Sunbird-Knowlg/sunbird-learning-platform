@@ -3,8 +3,9 @@ package org.ekstep.platform.content;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FileReader;
@@ -1857,8 +1858,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 				spec(get200ResponseSpec()).
 				extract().response();
 
-		JsonPath jP2 = R2.jsonPath();
-		String body = jP2.get("result.content.body");
+		//JsonPath jP2 = R2.jsonPath();
+		//String body = jP2.get("result.content.body");
 		//// System.out.println(body);
 
 		// Setting status to review
@@ -3407,7 +3408,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP3 = R3.jsonPath();
 		String bodyNew = jP3.get("result.content.body");
 		if (isValidXML(bodyNew) || isValidJSON(bodyNew)) {
-			assertTrue(!body.equals(bodyNew));
+			assertFalse(body == bodyNew);
 		}
 
 		publish(nodeId, getPublishRequestBodyWithAppIcon());
@@ -3540,7 +3541,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
+		assertTrue(validatePublishFields(response.jsonPath()));
 
 		contentCleanUp(nodeId);
 	}
@@ -3928,24 +3929,20 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
+				given().spec(getRequestSpecification(contentType, userId, APIToken))
 						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 						.post("/content/v3/publish/" + node2).then().extract().response();
 
-				Response R2 = getReadResponseWithValidStatus(node2, "Live", null);
-
-				JsonPath jp1 = R2.jsonPath();
-				String versionKey = jp1.get("result.content.versionKey");
-
 				// Update status as Retired
 				setURI();
-				jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("version_Key",
-						versionKey);
-				//// System.out.println(jsonUpdateContentValid);
-				given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateContentValid).with()
-						.contentType("application/json").then().
-						// log().all().
-						patch("/content/v3/update/" + node2);
+				given().
+						spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+						with().
+						contentType(JSON).
+						when().
+						delete("/content/v3/retire/" + node2).
+						then().
+						body("responseCode", equalTo("OK"));
 
 			}
 			count++;
@@ -4198,7 +4195,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String c_identifier = jp2.get("result.content.identifier");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
-		validatePublishFields(jp2);
+		assertTrue(validatePublishFields(jp2));
 		contentCleanUp(nodeId);
 	}
 
@@ -4258,7 +4255,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 						// log().all().
 						extract().response();
 
-				JsonPath jp1 = R1.jsonPath();
+				//JsonPath jp1 = R1.jsonPath();
 				//String versionKey = jp1.get("result.versionKey");
 
 				// Update status as Retired
@@ -4305,7 +4302,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, collectionNode, c_identifier, node1, node2);
-		validatePublishFields(jp2);
+		assertTrue(validatePublishFields(jp2));
 		contentCleanUp(collectionNode);
 	}
 
@@ -4385,14 +4382,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Publish collection
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken))
+		given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
 				.post("/content/v3/publish/" + nodeId).then().
 				// log().all().
 				spec(get200ResponseSpec()).extract().response();
 
 		Response R3 = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(R3.jsonPath());
+		assertTrue(validatePublishFields(R3.jsonPath()));
 
 		JsonPath jP2 = R3.jsonPath();
 		String versionKey = jP2.get("result.content.versionKey");
@@ -4532,7 +4529,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
 		assertTrue(n_status.equals("Live") || n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(collectionId)
 				&& n_identifier1.contains(nodeId));
-		validatePublishFields(jp4);
+		assertTrue(validatePublishFields(jp4));
 		contentCleanUp(collectionId);
 		}
 
