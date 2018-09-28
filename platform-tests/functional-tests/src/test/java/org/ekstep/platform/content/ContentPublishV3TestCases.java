@@ -4,6 +4,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileReader;
@@ -62,12 +63,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 	private String jsonCreateInvalidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.app\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"]}}}";
 	private String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"version_Key\", \"body\": \"{\"theme\":{\"id\":\"theme\",\"version\":\"1.0\",\"startStage\":\"cd168631-889c-4414-909d-a85a83ca3a68\",\"stage\":[{\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"id\":\"cd168631-889c-4414-909d-a85a83ca3a68\",\"rotate\":null,\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true,\"color\":\"#FFFFFF\",\"genieControls\":false,\"instructions\":\"\"}\"},\"param\":[{\"name\":\"next\",\"value\":\"b4a01a33-a6e4-4c63-b37a-11c783c950b5\"}],\"manifest\":{\"media\":[{\"assetId\":\"do_11233272325713920013\"}]},\"image\":[{\"asset\":\"do_11233272325713920013\",\"x\":20,\"y\":20,\"w\":49.81,\"h\":88.56,\"rotate\":0,\"z-index\":0,\"id\":\"d434956b-672c-4204-bdd1-864dbae40c0c\",\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true}\"}}]},{\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"id\":\"b4a01a33-a6e4-4c63-b37a-11c783c950b5\",\"rotate\":null,\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true,\"color\":\"#FFFFFF\",\"genieControls\":false,\"instructions\":\"\"}\"},\"param\":[{\"name\":\"previous\",\"value\":\"cd168631-889c-4414-909d-a85a83ca3a68\"}],\"manifest\":{\"media\":[{\"assetId\":\"do_11233272325713920013\"},{\"assetId\":\"do_10095813\"}]},\"image\":[{\"asset\":\"do_11233272325713920013\",\"x\":20,\"y\":20,\"w\":49.81,\"h\":88.56,\"rotate\":0,\"z-index\":0,\"id\":\"cc35e88c-1630-414b-9d50-a343c522e316\",\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true}\"}},{\"asset\":\"do_10095813\",\"x\":20,\"y\":20,\"w\":49.49,\"h\":87.98,\"rotate\":0,\"z-index\":1,\"id\":\"7849c5a6-0013-44a6-97ae-c5872974d500\",\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true}\"}}]}],\"manifest\":{\"media\":[{\"id\":\"do_11233272325713920013\",\"src\":\"/assets/public/content/do_11233272325713920013/artifact/5c568572a97acec4f01f596694396418_1505459382119.jpeg\",\"type\":\"image\"},{\"id\":\"do_10095813\",\"src\":\"/assets/public/content/c7a7d301f288f1afe24117ad59083b2a_1475430290462.jpeg\",\"type\":\"image\"}]},\"plugin-manifest\":{\"plugin\":[]},\"compatibilityVersion\":2}}\"}}}";
 	private String jsonUpdateChildren = "{\"request\":{\"content\":{\"children\":[],\"versionKey\":\"version_Key\"}}}";
-	private String jsonPublishContent = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}";
 	private String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"version_key\",\"language\":[\"Tamil\",\"Telugu\"]}}}";
 	private String invalidContentId = "LP_NFT" + rn + "";
 	private String malformedXMLBody = "xml version=\"1.0\" ";
 	private String malformedJSONBody = "{\"theme\":{\"manifes77\",\"scribble\":[],\"htext\":[],\"g\":[]}";
-	private String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_NFT\"}}";
 
 	private String jsonSimpleSearchQuery = "{\"request\": {\"filters\":{},\"query\": \"add\",\"limit\": 10}}";
 	private String jsonFilteredSearch = "{\"request\": {\"filters\": {\"objectType\": [\"content\", \"concept\"], \"identifier\":[\"identifierNew\"]},\"limit\": 10}}";
@@ -140,7 +139,7 @@ public class ContentPublishV3TestCases extends BaseTest {
         return response;
     }
 
-	private void validatePublishFields(JsonPath responseJsonPath) {
+	private boolean validatePublishFields(JsonPath responseJsonPath) {
 		String mimeType = responseJsonPath.get("result.content.mimeType");
 		assertNotNull(mimeType);
 		if (!"application/vnd.ekstep.content-collection".equals(mimeType)) {
@@ -159,6 +158,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		assertNotNull(responseJsonPath.get("result.content.downloadUrl"));
 		assertNotNull(responseJsonPath.get("result.content.compatibilityLevel"));
 		assertNotNull(responseJsonPath.get("result.content.variants"));
+		return true;
 	}
 
 	private Response createContentAndGetResponse(String requestBody) {
@@ -220,7 +220,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 						response();
 	}
 
-	private String getPublishRequestBodyWithAppIcon(String nodeId) {
+	private String getPublishRequestBodyWithAppIcon() {
 		return "{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\",\"publisher\":\"Test_EkStep\",\"publishComment\":\"Good Work\",\"appIcon\":\""+ appIcon() +"\"}}}";
 	}
 
@@ -261,7 +261,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
 		String versionKey = jP1.get("result.content.versionKey");
-		Assert.assertTrue(versionKey != null);
+		assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
 		contentCleanUp(nodeId);
 	}
@@ -299,7 +299,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
 		String versionKey = jP1.get("result.content.versionKey");
-		Assert.assertTrue(versionKey != null);
+		assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
 		contentCleanUp(nodeId);
 	}
@@ -344,7 +344,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP1 = R1.jsonPath();
 		String status = jP1.get("result.content.status");
 		String versionKey = jP1.get("result.content.versionKey");
-		Assert.assertTrue(versionKey != null);
+		assertTrue(versionKey != null);
 		Assert.assertEquals(status, "Draft");
 		contentCleanUp(nodeId);
 	}
@@ -387,8 +387,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String identifier = jP1.get("result.content.identifier");
 		String versionKey = jP1.get("result.content.versionKey");
 		ArrayList<String> gradeLevel = jP1.get("result.content.gradeLevel");
-		Assert.assertTrue(gradeLevel.contains("Class 1"));
-		Assert.assertTrue(versionKey != null);
+		assertTrue(gradeLevel.contains("Class 1"));
+		assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
 		contentCleanUp(nodeId);
 	}
@@ -433,7 +433,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
 		String versionKey = jP1.get("result.content.versionKey");
-		Assert.assertTrue(versionKey != null);
+		assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
 		contentCleanUp(nodeId);
 	}
@@ -510,8 +510,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP2 = R2.jsonPath();
 		ArrayList<String> identifiers = jP2.get("result.content.children.identifier");
 		String versionKey = jP2.get("result.content.versionKey");
-		Assert.assertTrue(versionKey != null);
-		Assert.assertTrue(identifiers.contains(node1) && identifiers.contains(node2));
+		assertTrue(versionKey != null);
+		assertTrue(identifiers.contains(node1) && identifiers.contains(node2));
 		contentCleanUp(nodeId);
 	}
 
@@ -577,9 +577,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String identifier = jP1.get("result.content.identifier");
 		String versionKey = jP1.get("result.content.versionKey");
 		String resourceType = jP1.get("result.content.resourceType");
-		Assert.assertTrue(versionKey != null);
-		Assert.assertTrue(resourceType.equals("Read"));
-		Assert.assertTrue(resourceType.equals("Read"));
+		assertTrue(versionKey != null);
+		assertTrue("Read".equals(resourceType));
+		assertTrue("Read".equals(resourceType));
 		Assert.assertEquals(nodeId, identifier);
 		contentCleanUp(nodeId);
 	}
@@ -813,7 +813,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
 		String versionKey = jP1.get("result.content.versionKey");
-		Assert.assertTrue(versionKey!=null);
+		assertTrue(versionKey!=null);
 		Assert.assertEquals(ecmlNode, identifier);
 		contentCleanUp(ecmlNode);
 	}
@@ -1025,7 +1025,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String artifactUrl = jP2.get("result.content.artifactUrl");
 
 		Assert.assertFalse(identifier.contains(".img"));
-		Assert.assertTrue(body!=null && artifactUrl.endsWith(".zip"));
+		assertTrue(body!=null && artifactUrl.endsWith(".zip"));
 		contentCleanUp(nodeId);
 	}
 
@@ -1120,7 +1120,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
 		String versionKey = jP1.get("result.content.versionKey");
-		Assert.assertTrue(versionKey != null);
+		assertTrue(versionKey != null);
 		Assert.assertEquals(nodeId, identifier);
 	}
 
@@ -1170,7 +1170,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Update content metadata
 		jsonUpdateMetadata = jsonUpdateMetadata.replace("version_key", versionKey);
 		//// System.out.println(jsonUpdateMetadata);
-		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();};
+		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();}
 		setURI();
 		Response nR =
 				given().
@@ -1205,7 +1205,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		ArrayList<String> language = jP2.get("result.content.language");
-		Assert.assertTrue(language.contains("Tamil") && language.contains("Telugu"));
+		assertTrue(language.contains("Tamil") && language.contains("Telugu"));
 		validatePublishFields(jP2);
 		contentCleanUp(nodeId);
 	}
@@ -1662,12 +1662,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 		contentCleanUp(nodeId);
@@ -1721,7 +1721,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
 
 			// Setting status to review
@@ -1936,7 +1936,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
 
 			// Setting status to review
@@ -2093,7 +2093,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
 
 			// Publish created content
@@ -2179,7 +2179,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP8 = R8.jsonPath();
 		String statusNew = jP8.get("result.content.status");
-		Assert.assertTrue(statusNew.equals("FlagReview"));
+		assertTrue("FlagReview".equals(statusNew));
 
 		// Reject flag review content
 		setURI();
@@ -2306,7 +2306,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
 
 			// Setting status to review
@@ -2394,7 +2394,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
 
 			// Publish Content
@@ -2499,11 +2499,11 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 		contentCleanUp(nodeId);
@@ -2556,12 +2556,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -2617,12 +2617,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response R3 = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(R3.jsonPath());
 		contentCleanUp(nodeId);
@@ -2655,14 +2655,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().
+		Response response = given().
 		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path + "/jpegImage.jpeg")).
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
 		// log().all().
-		spec(get200ResponseSpecUpload());
+		spec(get200ResponseSpecUpload())
+		.extract().response();
+		assertNotNull(response.jsonPath().get("result.content_url"));
 		contentCleanUpRetire(nodeId);
 	}
 
@@ -2742,14 +2744,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().
+		Response response = given().
 		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path + "/sample.mp3")).
 		when().
 		post("/content/v3/upload/" + nodeId).
 		then().
 		// log().all().
-		spec(get200ResponseSpec());
+		spec(get200ResponseSpec()).
+		extract().response();
+		assertNotNull(response.jsonPath().get("result.content_url"));
 		contentCleanUp(nodeId);
 	}
 
@@ -2855,12 +2859,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 		contentCleanUp(nodeId);
@@ -2917,12 +2921,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 		contentCleanUp(nodeId);
@@ -2977,12 +2981,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3044,12 +3048,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3109,12 +3113,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3169,12 +3173,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3228,12 +3232,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3288,12 +3292,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3348,7 +3352,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
 
 			// Publish created content
@@ -3403,12 +3407,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JsonPath jP3 = R3.jsonPath();
 		String bodyNew = jP3.get("result.content.body");
 		if (isValidXML(bodyNew) || isValidJSON(bodyNew)) {
-			Assert.assertTrue(body != bodyNew);
+			assertTrue(!body.equals(bodyNew));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
+		assertTrue(validatePublishFields(response.jsonPath()));
 
 		contentCleanUp(nodeId);
 	}
@@ -3468,12 +3472,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3534,7 +3538,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// log().all().
 		spec(get200ResponseSpec());
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3593,12 +3597,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3656,15 +3660,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
+		assertTrue(validatePublishFields(response.jsonPath()));
 		contentCleanUp(nodeId);
 	}
 
@@ -3719,12 +3722,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
-		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon(nodeId));
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 
@@ -3853,7 +3856,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
-		validatePublishFields(jp2);
+		assertTrue(validatePublishFields(jp2));
 		contentCleanUp(nodeId);
 	}
 
@@ -3988,7 +3991,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
-		validatePublishFields(jp2);
+		assertTrue(validatePublishFields(jp2));
 		contentCleanUp(nodeId);
 	}
 
@@ -4097,7 +4100,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
-		validatePublishFields(jp2);
+		assertTrue(validatePublishFields(jp2));
 		contentCleanUp(nodeId);
 	}
 
@@ -4527,7 +4530,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live") || n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(collectionId)
+		assertTrue(n_status.equals("Live") || n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(collectionId)
 				&& n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(collectionId);
@@ -5335,7 +5338,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -5486,7 +5489,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -5637,7 +5640,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -5796,7 +5799,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -5953,7 +5956,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -6087,7 +6090,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -6224,7 +6227,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -6408,7 +6411,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -6584,7 +6587,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -6783,7 +6786,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		Assert.assertTrue(n_status.equals("Live")
+		assertTrue(n_status.equals("Live")
 				|| n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId2));
 		validatePublishFields(jp4);
 		contentCleanUp(textBookId);
@@ -6957,7 +6960,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			// Extracting the JSON path and validate the result
 			JsonPath jp2 = R2.jsonPath();
 			ArrayList<String> name = jp2.get("result.content.name");
-			Assert.assertTrue(name.contains(ecmlNode));
+			assertTrue(name.contains(ecmlNode));
 			contentCleanUp(ecmlNode);
 		}
 
@@ -7307,7 +7310,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 			JsonPath jP = R1.jsonPath();
 			ArrayList<String> record = jP.get("result.audit_history_record");
-			Assert.assertTrue(record.isEmpty());
+			assertTrue(record.isEmpty());
 		}
 
 	// Content clean up
@@ -7517,7 +7520,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 //						}
 						String pkgVersion = getStringValue(item, "pkgVersion");
 						// Assert.assertNotSame(pkgVersionActual, pkgVersion);
-						Assert.assertTrue(artifactUrl.endsWith(".zip") || artifactUrl.endsWith(".apk")
+						assertTrue(artifactUrl.endsWith(".zip") || artifactUrl.endsWith(".apk")
 								&& downloadUrl.endsWith(".ecar") && statusUpdated.equals("Live"));
 						//// System.out.println(description +mediaType +code);
 					} catch (JSONException jse) {
@@ -7586,13 +7589,13 @@ public class ContentPublishV3TestCases extends BaseTest {
 					i++;
 				}
 				if (statusUpdated.equals("Live")) {
-					Assert.assertTrue(
+					assertTrue(
 							c_identifier.equals(nodeId) && identifier1.contains(node1) && identifier1.contains(node2));
 					break;
 				}
 			}
 		} else if (status.equals("Live")) {
-			Assert.assertTrue(
+			assertTrue(
 					c_identifier.equals(nodeId) && identifier1.contains(node1) && identifier1.contains(node2));
 		}
 	}
@@ -7618,7 +7621,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				filesnotpresent = uploadListFiles[i].getName() + "," + filesnotpresent;
 			}
 		}
-		// Assert.assertTrue(final_status);
+		// assertTrue(final_status);
 		if (final_status) {
 			//// System.out.println("Files are same");
 			return "success";
