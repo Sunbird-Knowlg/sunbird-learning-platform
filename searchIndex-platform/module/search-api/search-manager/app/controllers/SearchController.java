@@ -24,6 +24,7 @@ public class SearchController extends SearchBaseController {
 	public Promise<Result> search() {
 		String apiId = "composite-search.search";
 		Request request = getRequest(request().body(),apiId,request().uri());
+		setHeaderContext(request(),request);
 		Promise<Result> searchResponse = mgr.search(request);
 		return searchResponse;
 	}

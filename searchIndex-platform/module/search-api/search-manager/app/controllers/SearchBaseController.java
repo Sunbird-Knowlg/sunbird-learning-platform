@@ -3,14 +3,18 @@ package controllers;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.RequestParams;
+import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Http.RequestBody;
 
 public class SearchBaseController extends Controller {
@@ -78,6 +82,46 @@ public class SearchBaseController extends Controller {
 			request.setVer(getAPIVersion(path));
 		}
 		return request;
+	}
+
+	/**
+	 *
+	 * @param httpRequest
+	 * @param searchRequest
+	 */
+	protected void setHeaderContext(Http.Request httpRequest, Request searchRequest) {
+		String sessionId = httpRequest.getHeader("X-Session-ID");
+		String consumerId = httpRequest.getHeader("X-Consumer-ID");
+		String deviceId = httpRequest.getHeader("X-Device-ID");
+		String authUserId = httpRequest.getHeader("X-Authenticated-Userid");
+		String channelId = httpRequest.getHeader("X-Channel-ID");
+		String appId = httpRequest.getHeader("X-App-Id");
+
+		if (StringUtils.isNotBlank(sessionId))
+			searchRequest.getContext().put("SESSION_ID", sessionId);
+		if (StringUtils.isNotBlank(consumerId))
+			searchRequest.getContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
+		if (StringUtils.isNotBlank(deviceId))
+			searchRequest.getContext().put(HeaderParam.DEVICE_ID.name(), deviceId);
+		if (StringUtils.isNotBlank(authUserId))
+			searchRequest.getContext().put(HeaderParam.CONSUMER_ID.name(), authUserId);
+		if (StringUtils.isNotBlank(channelId))
+			searchRequest.getContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
+		else
+			searchRequest.getContext().put(HeaderParam.CHANNEL_ID.name(), Platform.config.getString("channel.default"));
+		if (StringUtils.isNotBlank(appId))
+			searchRequest.getContext().put(HeaderParam.APP_ID.name(), appId);
+
+		searchRequest.getContext().put(TelemetryParams.ENV.name(), "search");
+
+		if (null != searchRequest.getContext().get(HeaderParam.CONSUMER_ID.name())) {
+			searchRequest.put(TelemetryParams.ACTOR.name(), searchRequest.getContext().get(HeaderParam.CONSUMER_ID.name()));
+		} else if (null != searchRequest && null != searchRequest.getParams().getCid()) {
+			searchRequest.put(TelemetryParams.ACTOR.name(), searchRequest.getParams().getCid());
+		} else {
+			searchRequest.put(TelemetryParams.ACTOR.name(), "learning.platform");
+		}
+
 	}
 
 }
