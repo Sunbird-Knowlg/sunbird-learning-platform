@@ -46,31 +46,17 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.134</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
-	<!--<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>object-lifecycle</artifactId>
-			<version>0.0.22</version>
+			<version>0.0.136</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>upload-content</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>republish-pipeline</artifactId>
+			<version>0.0.1</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
-		</dependency> 
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>bundle-content</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency> -->
+		</dependency>
     </dependencies>
     <build>
         <plugins>

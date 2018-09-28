@@ -6,8 +6,8 @@
 		<artifactId>samza</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>publish-pipeline</artifactId>
-	<version>0.0.136</version>
+	<artifactId>republish-pipeline</artifactId>
+	<version>0.0.1</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.ekstep</groupId>
