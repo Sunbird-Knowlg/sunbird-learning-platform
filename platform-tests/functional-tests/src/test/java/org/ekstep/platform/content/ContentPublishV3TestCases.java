@@ -1848,15 +1848,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Get content and validate
 		setURI();
-		Response R2 =
-				given().
-				spec(getRequestSpecification(contentType, userId, APIToken)).
-				when().
-				get("/content/v3/read/" + nodeId + "?fields=body").
-				then().
-				// log().all().
-				spec(get200ResponseSpec()).
-				extract().response();
+//		Response R2 =
+//				given().
+//				spec(getRequestSpecification(contentType, userId, APIToken)).
+//				when().
+//				get("/content/v3/read/" + nodeId + "?fields=body").
+//				then().
+//				// log().all().
+//				spec(get200ResponseSpec()).
+//				extract().response();
 
 		//JsonPath jP2 = R2.jsonPath();
 		//String body = jP2.get("result.content.body");
@@ -3394,21 +3394,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Get body and validate
 		setURI();
 		try{Thread.sleep(5000);}catch(InterruptedException e){ System.out.println(e);}
-		Response R3 =
-				given().
-				spec(getRequestSpecification(contentType, userId, APIToken)).
-				when().
-				get("/content/v3/read/" + nodeId + "?fields=body").
-				then().
-				// log().all().
-				spec(get200ResponseSpec()).
-				extract().
-				response();
+		Response R3 = getReadResponseWithValidStatus(nodeId, "Live", null);
 
 		JsonPath jP3 = R3.jsonPath();
 		String bodyNew = jP3.get("result.content.body");
 		if (isValidXML(bodyNew) || isValidJSON(bodyNew)) {
-			assertFalse(body == bodyNew);
+			assertFalse(body.equals(bodyNew));
 		}
 
 		publish(nodeId, getPublishRequestBodyWithAppIcon());
@@ -4527,7 +4518,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		String n_status = jp4.get("result.content.status");
 		String n_identifier = jp4.get("result.content.identifier");
 		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		assertTrue(n_status.equals("Live") || n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(collectionId)
+		assertTrue("Live".equals(n_status) || n_status.equals(PROCESSING) || n_status.equals(PENDING) && n_identifier.equals(collectionId)
 				&& n_identifier1.contains(nodeId));
 		assertTrue(validatePublishFields(jp4));
 		contentCleanUp(collectionId);
