@@ -15,10 +15,10 @@ public class RepublishPipelineTask extends AbstractTask {
 	
 	public ISamzaService initialize() throws Exception {
 		LOGGER.info("Task initialized");
-		this.jobType = "publish";
-		this.jobStartMessage = "Started processing of publish samza job";
-		this.jobEndMessage = "Publish job processing complete";
-		this.jobClass = "org.ekstep.jobs.samza.task.PublishPipelineTask";
+		this.jobType = "republish";
+		this.jobStartMessage = "Started processing of republish samza job";
+		this.jobEndMessage = "Republish job processing complete";
+		this.jobClass = "org.ekstep.jobs.samza.task.RepublishPipelineTask";
 		
 		return service;
 	}
