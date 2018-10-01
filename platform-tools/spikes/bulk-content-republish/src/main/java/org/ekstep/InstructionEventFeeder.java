@@ -18,7 +18,7 @@ public class InstructionEventFeeder {
 	private static String actorType = "System";
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
-	private static String action = "publish";
+	private static String action = "republish";
 
 	public void push(Node node, String publishType) throws Exception{
 		Map<String,Object> actor = new HashMap<String,Object>();
