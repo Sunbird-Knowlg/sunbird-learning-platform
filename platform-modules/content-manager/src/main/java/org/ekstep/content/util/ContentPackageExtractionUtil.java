@@ -20,6 +20,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import scala.Option;
 
 import java.io.File;
 import java.io.IOException;
@@ -432,6 +433,10 @@ public class ContentPackageExtractionUtil {
 	
 	public String getS3URL(String contentId, Node node, ExtractionType extractionType) {
 		String path = getExtractionPath(contentId, node, extractionType);
-		return CloudStore.getURL(path);
+		String mimeType = (String) node.getMetadata().get("mimeType");
+		boolean isDirectory = false;
+		if (extractableMimeTypes.containsKey(mimeType))
+			isDirectory = true;
+		return CloudStore.getURI(path, Option.apply(isDirectory));
 	}
 }
