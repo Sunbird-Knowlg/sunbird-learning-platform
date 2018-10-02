@@ -57,8 +57,8 @@ public class Input {
 
     @Override
     public String toString() {
-        return "identifier : " + id  + ", name : " + name  + ", pkgVersion : " + pkgVersion
- + ", objectType : " + objectType  + ", status : " + status;
+        return id  + ", " + name  + ", " + pkgVersion
+ + ", " +  status;
     }
 
 }

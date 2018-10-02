@@ -28,7 +28,7 @@ public class SyncService extends BaseService implements ISyncService {
     public void ownerMigration(String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String filter, String dryRun, String forceUpdate) {
         try {
             if (validChannel(channel)) {
-                InputList inputList = getFromSource(filter);
+                InputList inputList = search(filter);
                 if (StringUtils.equalsIgnoreCase(dryRun, "true")) {
                     System.out.println("Content count to migrate: " + inputList.size() + "\n" + "Data : \n" + inputList.toString());
                 } else {
@@ -48,7 +48,7 @@ public class SyncService extends BaseService implements ISyncService {
     @Override
     public void sync(String filter, String dryRun, String forceUpdate) {
         try {
-            InputList inputList = getFromSource(filter);
+            InputList inputList = search(filter);
             if (StringUtils.equalsIgnoreCase("true", dryRun)) {
                 System.out.println("Content count to sync: " + inputList.size() + "\n" + "Data : \n" + inputList.toString());
             } else {
@@ -145,7 +145,7 @@ public class SyncService extends BaseService implements ISyncService {
     private void copyAssessmentItems(List<Map<String, Object>> itemSets) throws Exception {
         /*for(Map<String, Object> itemSet: itemSets) {
             String id = (String) itemSet.get("identifier");
-            Response response = executeGet(destUrl + "/assessment/v3/itemsets/" + id, destKey);
+            Response response = executeGET(destUrl + "/assessment/v3/itemsets/" + id, destKey);
             if(!isSuccess(response)) {
                 Response sourceItemSet = getContent(id, false);
                 if(isSuccess(sourceItemSet)){
@@ -163,7 +163,7 @@ public class SyncService extends BaseService implements ISyncService {
         String mimeType = (String) metadata.get("mimeType");
         try {
             String downloadUrl = (String) metadata.get("downloadUrl");
-            String path = downloadEcar(id, downloadUrl, sourceStorageType);
+            String path = downloadEcar(id, downloadUrl);
             String destDownloadUrl = uploadEcar(id, destStorageType, path);
 
             if (StringUtils.isNotBlank(destDownloadUrl)) {
@@ -174,7 +174,7 @@ public class SyncService extends BaseService implements ISyncService {
             if (CollectionUtils.isNotEmpty(variants.keySet())) {
                 String spineEcarUrl = (String) ((Map<String, Object>) variants.get("spine")).get("ecarUrl");
                 if (StringUtils.isNotBlank(spineEcarUrl)) {
-                    String spinePath = downloadEcar(id, spineEcarUrl, sourceStorageType);
+                    String spinePath = downloadEcar(id, spineEcarUrl);
                     String destSpineEcar = uploadEcar(id, destStorageType, spinePath);
                     ((Map<String, Object>) variants.get("spine")).put("ecarUrl", destSpineEcar);
                     metadata.put("variants", variants);
@@ -416,7 +416,7 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private void syncHierarchy(String id) throws Exception {
-        executePost(destUrl + "/content/v3/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
+        executePOST(destUrl + "/content/v3/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
     }
 
     private void updateMetadata(Response sourceContent, String forceUpdate) throws Exception {

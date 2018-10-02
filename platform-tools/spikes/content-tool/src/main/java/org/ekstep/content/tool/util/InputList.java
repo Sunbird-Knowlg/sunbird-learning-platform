@@ -40,7 +40,7 @@ public class InputList {
         if(CollectionUtils.isNotEmpty(inputList)){
             StringBuilder builder = new StringBuilder();
             for(Input input : inputList) {
-                builder.append(input.toString() + ",\n");
+                builder.append(input.toString() + "\n");
             }
             return builder.toString();
         }else{
