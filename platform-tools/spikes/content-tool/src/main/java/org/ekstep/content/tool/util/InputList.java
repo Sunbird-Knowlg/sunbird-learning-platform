@@ -6,14 +6,23 @@ import java.util.List;
 
 public class InputList {
     private List<Input> inputList;
+    private int count;
 
-    public InputList(List<Input> inputList) {
+    public InputList(List<Input> inputList, int count) {
+        this.count = count;
         this.inputList = inputList;
     }
 
-    public List<Input> getInputList() {
-        return inputList;
+    public InputList(List<Input> inputList) {
+        this.count = inputList.size();
+        this.inputList = inputList;
     }
+
+    public int getCount() { return count; }
+
+    public void setCount(int count) { this.count = count; }
+
+    public List<Input> getInputList() { return inputList; }
 
     public void setInputList(List<Input> inputList) {
         this.inputList = inputList;
@@ -30,6 +39,8 @@ public class InputList {
     public void add(Input input) {
         inputList.add(input);
     }
+
+    public void addAll(List<Input> list) { this.inputList.addAll(list); }
 
     public int size() {
         return inputList.size();

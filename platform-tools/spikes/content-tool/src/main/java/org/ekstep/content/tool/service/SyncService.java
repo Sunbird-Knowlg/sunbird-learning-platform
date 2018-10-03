@@ -50,7 +50,7 @@ public class SyncService extends BaseService implements ISyncService {
         try {
             InputList inputList = search(filter);
             if (StringUtils.equalsIgnoreCase("true", dryRun)) {
-                System.out.println("Content count to sync: " + inputList.size() + "\n" + "Data : \n" + inputList.toString());
+                System.out.println("Content count to sync: " + inputList.getCount() + "\n" + "Data : \n" + inputList.toString());
             } else {
                 Map<String, InputList> response = syncData(inputList, forceUpdate);
                 System.out.println("Contents synced : " + response.get("success").size() +  "\n" + response.get("success").toString());
@@ -100,12 +100,16 @@ public class SyncService extends BaseService implements ISyncService {
                         if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
                             successful.add(input);
                             Response response = getContent(input.getId(), true, null);
-                            copyEcar(response);
+                            Map<String, Object> metadata = (Map<String, Object>) response.get("content");
+                            Map<String, Object> urlUpdateReq = cloudStoreManager.copyEcar(metadata);
+                            systemUpdate(input.getId(), urlUpdateReq, (String) metadata.get("channel"), true);
                         } else {
                             failure.add(input);
                         }
                     }else{
-                        copyEcar(readResponse);
+                        Map<String, Object> metadata = (Map<String, Object>) readResponse.get("content");
+                        Map<String, Object> urlUpdateReq = cloudStoreManager.copyEcar(metadata);
+                        systemUpdate(input.getId(), urlUpdateReq, (String) metadata.get("channel"), true);
                     }
                     InputList children = new InputList( new ArrayList<>());
                     fetchChildren(readResponse, children);
@@ -157,81 +161,6 @@ public class SyncService extends BaseService implements ISyncService {
 
     }
 
-    private void copyEcar(Response readResponse) throws Exception {
-        Map<String, Object> metadata = (Map<String, Object>) readResponse.get("content");
-        String id = (String) metadata.get("identifier");
-        String mimeType = (String) metadata.get("mimeType");
-        try {
-            String downloadUrl = (String) metadata.get("downloadUrl");
-            String path = downloadEcar(id, downloadUrl);
-            String destDownloadUrl = uploadEcar(id, destStorageType, path);
-
-            if (StringUtils.isNotBlank(destDownloadUrl)) {
-                metadata.put("downloadUrl", destDownloadUrl);
-            }
-
-            Map<String, Object> variants = (Map<String, Object>) metadata.get("variants");
-            if (CollectionUtils.isNotEmpty(variants.keySet())) {
-                String spineEcarUrl = (String) ((Map<String, Object>) variants.get("spine")).get("ecarUrl");
-                if (StringUtils.isNotBlank(spineEcarUrl)) {
-                    String spinePath = downloadEcar(id, spineEcarUrl);
-                    String destSpineEcar = uploadEcar(id, destStorageType, spinePath);
-                    ((Map<String, Object>) variants.get("spine")).put("ecarUrl", destSpineEcar);
-                    metadata.put("variants", variants);
-                }
-            }
-            
-            String appIconUrl = (String) metadata.get("appIcon");
-            if(StringUtils.isNotBlank(appIconUrl)){
-                String appIconPath = downloadArtifact(id, appIconUrl, false);
-                String destAppIconUrl = uploadArtifact(id, appIconPath, destStorageType);
-                if (StringUtils.isNotBlank(destAppIconUrl)) {
-                    metadata.put("appIcon", destAppIconUrl);
-                }
-            }
-
-            String posterImageUrl = (String) metadata.get("posterImage");
-            if(StringUtils.isNotBlank(posterImageUrl)){
-                String posterImagePath = downloadArtifact(id, posterImageUrl, false);
-                String destPosterImageUrl = uploadArtifact(id, posterImagePath, destStorageType);
-                if (StringUtils.isNotBlank(destPosterImageUrl)) {
-                    metadata.put("posterImage", destPosterImageUrl);
-                }
-            }
-
-            String tocUrl = (String) metadata.get("toc_url");
-            if(StringUtils.isNotBlank(tocUrl)){
-                String tocUrlPath = downloadArtifact(id, tocUrl, false);
-                String destTocUrlUrl = uploadArtifact(id, tocUrlPath, destStorageType);
-                if (StringUtils.isNotBlank(destTocUrlUrl)) {
-                    metadata.put("toc_url", destTocUrlUrl);
-                }
-            }
-
-            if (!StringUtils.equals(mimeType, "video/x-youtube")) {
-                String artefactUrl = (String) metadata.get("artifactUrl");
-                if(StringUtils.isNotBlank(artefactUrl)){
-                    String artefactPath = downloadArtifact(id, artefactUrl, false);
-                    String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
-                    if (StringUtils.isNotBlank(destArtefactUrl)) {
-                        metadata.put("artifactUrl", destArtefactUrl);
-                    }
-
-                    if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
-                        extractArchives(id, (String) metadata.get("mimeType"), artefactUrl, ((Number) metadata.get("pkgVersion")).doubleValue());
-                    }
-                }
-	        }
-
-            Map<String, Object> content = new HashMap<>();
-            content.put("content", metadata);
-            Map<String, Object> request = new HashMap<>();
-            request.put("request", content);
-            systemUpdate(id, request, (String) metadata.get("channel"), true);
-        } finally {
-            FileUtils.deleteDirectory(new File("tmp/" + id));
-        }
-    }
 
     private void fetchChildren(Response readResponse, InputList children) throws Exception {
         List<Map<String, Object>> childNodes = (List<Map<String, Object>>) ((Map<String, Object>) readResponse.get("content")).get("children");
@@ -312,7 +241,6 @@ public class SyncService extends BaseService implements ISyncService {
                 e.printStackTrace();
                 failed.add(input);
             }
-
         }
 
         response.put("success", success);
@@ -345,7 +273,7 @@ public class SyncService extends BaseService implements ISyncService {
                 String mimeType = (String) metadata.get("mimeType");
                 switch (mimeType) {
                     case "application/vnd.ekstep.ecml-archive":
-                        localPath = downloadArtifact(id, (String) metadata.get("artifactUrl"), true);
+                        localPath = cloudStoreManager.downloadArtifact(id, (String) metadata.get("artifactUrl"), true);
                         copyAssets(localPath, forceUpdate);
                         break;
                     case "application/vnd.ekstep.content-collection":
@@ -367,7 +295,7 @@ public class SyncService extends BaseService implements ISyncService {
                         break;
                     case "application/vnd.ekstep.h5p-archive":
                     case "application/vnd.ekstep.html-archive":
-                        uploadAndExtract(id, (String) metadata.get("artifactUrl"), mimeType, pkgVersion);
+                        cloudStoreManager.uploadAndExtract(id, (String) metadata.get("artifactUrl"), mimeType, pkgVersion);
                         break;
                     default:
                         break;
@@ -406,22 +334,8 @@ public class SyncService extends BaseService implements ISyncService {
         }
     }
 
-    private void cleanMetadata(Map<String, Object> metadata) {
-        metadata.remove("downloadUrl");
-        metadata.remove("artifactUrl");
-        metadata.remove("posterImage");
-        metadata.remove("pkgVersion");
-        metadata.remove("s3key");
-        metadata.remove("variants");
-    }
-
-    private void syncHierarchy(String id) throws Exception {
-        executePOST(destUrl + "/content/v3/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
-    }
-
     private void updateMetadata(Response sourceContent, String forceUpdate) throws Exception {
         createContent((String) ((Map<String, Object>) sourceContent.get("content")).get("identifier"), forceUpdate);
-
     }
     
     private Map<String, Object> makeContentRequest(Object metadata) {

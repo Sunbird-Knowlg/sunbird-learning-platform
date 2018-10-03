@@ -24,26 +24,22 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
     }
 
     protected Response getContent(String id, boolean isDestination, String fields) throws Exception {
-        if(isDestination) {
-            String url = destUrl + "/content/v3/read/" + id;
-            if(StringUtils.isNotBlank(fields))
-                url += "?fields=" + fields;
-            return executeGET(url, destKey);
-        }
-        else{
-            String url = sourceUrl + "/content/v3/read/" + id;
-            if(StringUtils.isNotBlank(fields))
-                url += "?fields=" + fields;
-            return executeGET(url, sourceKey);
-        }
+        String url = (isDestination)? destUrl : sourceUrl;
+        url += "/content/v3/read/" + id;
+        if(StringUtils.isNotBlank(fields))
+            url += "?fields=" + fields;
+        return executeGET(url, destKey);
     }
 
 
     protected Response systemUpdate(String id, Map<String, Object> request, String channel, boolean isDestination) throws Exception {
-        if(isDestination)
-            return executePATCH(destUrl + "/system/v3/content/update/" + id, destKey, request, channel);
-        else
-            return executePATCH(sourceUrl + "/system/v3/content/update/" + id, sourceKey, request, channel);
+        String url = (isDestination)? destUrl : sourceUrl;
+        url += "/system/v3/content/update/" + id;
+        return executePATCH(url, destKey, request, channel);
+    }
+
+    protected void syncHierarchy(String id) throws Exception {
+        executePOST(destUrl + "/content/v3/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
     }
 
     protected InputList search(String filter) throws Exception {
@@ -64,7 +60,7 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
         Response searchResponse = executePOST(sourceUrl + "/composite/v3/search", sourceKey, request, null);
         if (StringUtils.equals(ResponseParams.StatusType.successful.name(), searchResponse.getParams().getStatus())) {
             int count = (int) searchResponse.getResult().get("count");
-            System.out.println("Count: " + count);
+            inputList.setCount(count);
             getIdsFromResponse(searchResponse.getResult(), count, inputList, 0, request);
         }
 
