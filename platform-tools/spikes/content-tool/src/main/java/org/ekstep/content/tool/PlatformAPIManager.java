@@ -25,17 +25,19 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
 
     protected Response getContent(String id, boolean isDestination, String fields) throws Exception {
         String url = (isDestination)? destUrl : sourceUrl;
+        String key = (isDestination)? destKey : sourceKey;
         url += "/content/v3/read/" + id;
         if(StringUtils.isNotBlank(fields))
             url += "?fields=" + fields;
-        return executeGET(url, destKey);
+        return executeGET(url, key);
     }
 
 
     protected Response systemUpdate(String id, Map<String, Object> request, String channel, boolean isDestination) throws Exception {
         String url = (isDestination)? destUrl : sourceUrl;
+        String key = (isDestination)? destKey : sourceKey;
         url += "/system/v3/content/update/" + id;
-        return executePATCH(url, destKey, request, channel);
+        return executePATCH(url, key, request, channel);
     }
 
     protected void syncHierarchy(String id) throws Exception {
