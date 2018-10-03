@@ -51,8 +51,15 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
         removeAsset.put("ne", Arrays.asList("Asset", "Plugin"));
         filters.put("contentType", removeAsset);
         Map<String, Object> searchRequest = new HashMap<>();
+        searchRequest.put("limit", filters.get("limit"));
+        boolean isLimited = (null != filters.get("limit"));
+        searchRequest.put("offset", filters.get("offset"));
+
+        filters.remove("limit");
+        filters.remove("offset");
 
         searchRequest.put("filters", filters);
+
         searchRequest.put("fields", Arrays.asList("identifier", "name", "pkgVersion", "objectType","status"));
 
         Map<String, Object> request = new HashMap<>();
@@ -63,14 +70,14 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
             int count = (int) searchResponse.getResult().get("count");
             inputList.setCount(count);
             if(count > 0)
-                getIdsFromResponse(searchResponse.getResult(), count, inputList, 0, request);
+                getIdsFromResponse(searchResponse.getResult(), count, inputList, 0, request, isLimited);
         }
 
         return inputList;
     }
 
-    private void getIdsFromResponse(Map<String, Object> result, int count, InputList inputList, int offset, Map<String, Object> request) throws Exception {
-        if ((count - 100) >= 0) {
+    private void getIdsFromResponse(Map<String, Object> result, int count, InputList inputList, int offset, Map<String, Object> request, boolean isLimited) throws Exception {
+        if (!isLimited && (count - 100) >= 0) {
             for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
                 inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), ((Number)res.get("pkgVersion")).doubleValue(), (String)res.get("objectType"), (String)res.get("status")));
             }
@@ -81,7 +88,7 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
 
             Response searchResponse = executePOST(sourceUrl + "/composite/v3/search", sourceKey, request, null);
             if (isSuccess(searchResponse)) {
-                getIdsFromResponse(searchResponse.getResult(), count, inputList, offset, request);
+                getIdsFromResponse(searchResponse.getResult(), count, inputList, offset, request, isLimited);
             } else {
                 throw new ServerException("ERR_SYNC_SERVICE", "Error while fetching identifiers", searchResponse.getParams().getErr());
             }

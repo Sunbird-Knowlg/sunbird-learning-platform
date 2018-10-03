@@ -1,7 +1,6 @@
 package org.ekstep.content.tool.shell;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.content.tool.service.ISyncService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,18 +10,13 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
-public class SyncCommand implements CommandMarker {
-
-
-    private ObjectMapper mapper = new ObjectMapper();
+public class SyncCommand extends BaseCommand implements CommandMarker {
 
     @Autowired
     @Qualifier("contentSyncService")
@@ -44,38 +38,19 @@ public class SyncCommand implements CommandMarker {
                      @CliOption(key = {
                              "dry-run"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "dry run ") String dryRun,
                      @CliOption(key = {
-                             "force"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "force update") String forceUpdate)
+                             "force"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "force update") String forceUpdate,
+                     @CliOption(key = {
+                             "limit"}, mandatory = false, help = "limit on sync count") String limit,
+                     @CliOption(key = {
+                             "offset"}, mandatory = false, help = "offset from which the sync should continue") String offset)
             throws Exception
 
     {
 
         System.out.println("-----------------------------------------");
-        String filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn);
+        String filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn,  limit, offset, true);
         syncService.sync(filters, dryRun, forceUpdate);
         System.out.println("-----------------------------------------");
     }
 
-
-
-    private String prepareFilters(String objectType, String filter, String[] ids, String createdBy, String lastUpdatedOn) throws Exception {
-        Map<String, Object> filters = new HashMap<>();
-
-        if(StringUtils.isNoneBlank(filter)){
-            filters = mapper.readValue(filter, Map.class);
-        }
-
-        if(null != ids && ids.length>0){
-            List<String> identifiers = Arrays.asList(ids);
-            filters.put("identifier", identifiers);
-        }
-        if(StringUtils.isNotBlank(createdBy)){
-            filters.put("createdBy", createdBy);
-        }
-        if(StringUtils.isNotBlank(lastUpdatedOn)){
-            filters.put("lastUpdatedOn", mapper.readValue(lastUpdatedOn, Object.class));
-        }
-        filters.put("objectType", objectType);
-        filters.remove("status");
-        return mapper.writeValueAsString(filters);
-    }
 }

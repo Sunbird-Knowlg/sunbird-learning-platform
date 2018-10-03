@@ -30,7 +30,7 @@ public class SyncService extends BaseService implements ISyncService {
             if (validChannel(channel)) {
                 InputList inputList = search(filter);
                 if (StringUtils.equalsIgnoreCase(dryRun, "true")) {
-                    System.out.println("Content count to migrate: " + inputList.size() + "\n" + "Data : \n" + inputList.toString());
+                    System.out.println("Content count to migrate: " + inputList.getCount() + "\n" + "Data : \n" + inputList.toString());
                 } else {
                     updateOwnership(inputList, createdBy, channel, createdFor, organisation, creator, forceUpdate);
 
@@ -195,14 +195,7 @@ public class SyncService extends BaseService implements ISyncService {
         if (StringUtils.isNotBlank(creator))
             metadata.put("creator", creator);
 
-        Map<String, Object> content = new HashMap<>();
-        content.put("content", metadata);
-
-        Map<String, Object> request = new HashMap<>();
-        request.put("request", content);
-
-        System.out.println("Request : " + request);
-        return request;
+        return makeContentRequest(metadata);
     }
 
 

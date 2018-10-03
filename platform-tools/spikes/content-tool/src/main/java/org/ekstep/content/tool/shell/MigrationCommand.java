@@ -9,7 +9,7 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MigrationCommand implements CommandMarker {
+public class MigrationCommand extends BaseCommand implements CommandMarker {
 
     @Autowired
     @Qualifier("contentSyncService")
@@ -17,7 +17,7 @@ public class MigrationCommand implements CommandMarker {
 
 
     @CliCommand(value = "content-tool owner-migration", help = "Ownership migration")
-    public void ownerMigration(@CliOption(key = {"userId"}, mandatory = false, help = "User Id") final String createdBy,
+    public void ownerMigration(@CliOption(key = {"userId"}, mandatory = false, help = "User Id") final String userId,
                                @CliOption(key = {
                                        "channel"}, mandatory = false, unspecifiedDefaultValue = "in.ekstep", help = "channel ID") final String channel,
                                @CliOption(key = {
@@ -29,16 +29,27 @@ public class MigrationCommand implements CommandMarker {
                                @CliOption(key = {
                                        "filter"}, mandatory = false, help = "filters to search for ") final String filter,
                                @CliOption(key = {
+                                       "ids"}, mandatory = false, help = "identifiers to be synced") final String[] ids,
+                               @CliOption(key = {
+                                       "objectType"}, mandatory = false, unspecifiedDefaultValue = "Content", help = "object Type - Content by default") final String objectType,
+                               @CliOption(key = {
+                                       "createdBy"}, mandatory = false, help = "createdBy / user id") final String createdBy,
+                               @CliOption(key = {
+                                       "lastUpdatedOn"}, mandatory = false, help = "last updated on date") final String lastUpdatedOn,
+                               @CliOption(key = {
                                        "dry-run"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "dry run") String dryRun,
                                @CliOption(key = {
-                                       "force"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "force update") String forceUpdate)
+                                       "force"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "force update") String forceUpdate,
+                               @CliOption(key = {
+                                       "limit"}, mandatory = false, help = "limit on migration count") String limit,
+                               @CliOption(key = {
+                                       "offset"}, mandatory = false, help = "offset from which the migration should continue") String offset)
             throws Exception {
 
         System.out.println("-----------------------------------------");
-        syncService.ownerMigration(createdBy, channel, createdFor, organisation, creator, filter, dryRun, forceUpdate);
+        String filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn,  limit, offset, false);
+        syncService.ownerMigration(userId, channel, createdFor, organisation, creator, filters, dryRun, forceUpdate);
         System.out.println("-----------------------------------------");
     }
-
-
 
 }
