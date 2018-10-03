@@ -9,7 +9,7 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ContentToolCommand implements CommandMarker {
+public class MigrationCommand implements CommandMarker {
 
     @Autowired
     @Qualifier("contentSyncService")
@@ -39,20 +39,6 @@ public class ContentToolCommand implements CommandMarker {
         System.out.println("-----------------------------------------");
     }
 
-    @CliCommand(value = "content-tool sync", help = "Content Sync")
-    public void sync(@CliOption(key = {
-            "filter"}, mandatory = false, help = "filters to search for ") final String filter,
-                     @CliOption(key = {
-                             "dry-run"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "dry run ") String dryRun,
-                     @CliOption(key = {
-                             "force"}, mandatory = false, unspecifiedDefaultValue = "false", specifiedDefaultValue = "true", help = "force update") String forceUpdate)
-            throws Exception
 
-    {
-
-        System.out.println("-----------------------------------------");
-        syncService.sync(filter, dryRun, forceUpdate);
-        System.out.println("-----------------------------------------");
-    }
 
 }

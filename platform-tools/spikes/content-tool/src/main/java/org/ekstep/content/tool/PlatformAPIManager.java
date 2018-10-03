@@ -45,7 +45,6 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
     protected InputList search(String filter) throws Exception {
         InputList inputList = new InputList(new ArrayList<>());
         Map<String, Object> filters = mapper.readValue(filter, Map.class);
-        filters.remove("status");
         Map<String, Object>  removeAsset = new HashMap<>();
         removeAsset.put("ne", Arrays.asList("Asset", "Plugin"));
         filters.put("contentType", removeAsset);
@@ -61,7 +60,8 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
         if (StringUtils.equals(ResponseParams.StatusType.successful.name(), searchResponse.getParams().getStatus())) {
             int count = (int) searchResponse.getResult().get("count");
             inputList.setCount(count);
-            getIdsFromResponse(searchResponse.getResult(), count, inputList, 0, request);
+            if(count > 0)
+                getIdsFromResponse(searchResponse.getResult(), count, inputList, 0, request);
         }
 
         return inputList;
@@ -79,7 +79,7 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
 
             Response searchResponse = executePOST(sourceUrl + "/composite/v3/search", sourceKey, request, null);
             if (isSuccess(searchResponse)) {
-                getIdsFromResponse(searchResponse.getResult(), count, inputList, 0, request);
+                getIdsFromResponse(searchResponse.getResult(), count, inputList, offset, request);
             } else {
                 throw new ServerException("ERR_SYNC_SERVICE", "Error while fetching identifiers", searchResponse.getParams().getErr());
             }
