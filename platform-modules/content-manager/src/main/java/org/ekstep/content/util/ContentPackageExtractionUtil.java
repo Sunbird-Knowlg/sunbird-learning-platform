@@ -20,6 +20,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import scala.Option;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,24 +95,14 @@ public class ContentPackageExtractionUtil {
 
 			// Fetching Destination Prefix For Copy Objects in S3
 			String destinationPrefix = getExtractionPath(contentId, node, extractionType);
-			TelemetryManager.log("Source Prefix: " + destinationPrefix);
+			TelemetryManager.log("Destination Prefix: " + destinationPrefix);
 
 			// Copying Objects
 			TelemetryManager.log("Copying Objects...STARTED");
-			ExecutorService pool = null;
-			try {
-				pool = Executors.newFixedThreadPool(1);
-				pool.execute(new Runnable() {
-					@Override
-					public void run() {
-						CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
-					}
-				});
-			} catch (Exception e) {
-				TelemetryManager.error("Error sending Content2Vec request", e);
-			} finally {
-				if (null != pool)
-					pool.shutdown();
+			try	{
+				CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
+			} catch(Exception e) {
+				TelemetryManager.error("Error while copying object by prefix", e);
 			}
 			TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
 		}
@@ -432,6 +423,10 @@ public class ContentPackageExtractionUtil {
 	
 	public String getS3URL(String contentId, Node node, ExtractionType extractionType) {
 		String path = getExtractionPath(contentId, node, extractionType);
-		return CloudStore.getURL(path);
+		String mimeType = (String) node.getMetadata().get("mimeType");
+		boolean isDirectory = false;
+		if (extractableMimeTypes.containsKey(mimeType))
+			isDirectory = true;
+		return CloudStore.getURI(path, Option.apply(isDirectory));
 	}
 }

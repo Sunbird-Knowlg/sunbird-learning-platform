@@ -134,32 +134,36 @@ public class TelemetryGenerator {
 		return error(context, code, type, stacktrace, null, null);
 	}
 
-	/**
-	 * @param context
-	 * @param query
-	 * @param filters
-	 * @param sort
-	 * @param correlationId
-	 * @param size
-	 * @param topN
-	 * @param type
-	 * @return
-	 */
-	public static String search(Map<String, String> context, String query, Object filters, Object sort,
-			String correlationId, int size, Object topN, String type) {
-		Actor actor = getActor(context);
-		Context eventContext = getContext(context);
-		Map<String, Object> edata = new HashMap<String, Object>();
-		edata.put("type", type);
-		edata.put("query", query);
-		edata.put("filters", filters);
-		edata.put("sort", sort);
-		edata.put("correlationid", correlationId);
-		edata.put("size", size);
-		edata.put("topn", topN);
-		Telemetry telemetry = new Telemetry("SEARCH", actor, eventContext, edata);
-		return getTelemetry(telemetry);
-	}
+    /**
+     * @param context
+     * @param query
+     * @param filters
+     * @param sort
+     * @param cData
+     * @param size
+     * @param topN
+     * @param type
+     * @return
+     */
+    public static String search(Map<String, String> context, String query, Object filters, Object sort,
+                                List<Map<String, Object>> cData, int size, Object topN, String type) {
+        Actor actor = getActor(context);
+        Context eventContext = getContext(context);
+        Map<String, Object> edata = new HashMap<String, Object>();
+        edata.put("type", type);
+        edata.put("query", query);
+        edata.put("filters", filters);
+        edata.put("sort", sort);
+        edata.put("size", size);
+        edata.put("topn", topN);
+        Telemetry telemetry;
+        if (null != cData) {
+            telemetry = new Telemetry("SEARCH", actor, eventContext, edata, cData);
+        } else {
+            telemetry = new Telemetry("SEARCH", actor, eventContext, edata);
+        }
+        return getTelemetry(telemetry);
+    }
 
 	/**
 	 * @param context

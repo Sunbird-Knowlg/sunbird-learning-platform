@@ -73,11 +73,9 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		storageService.copyObjects(container, sourcePrefix, container, destinationPrefix, Option.apply(true));
 	}
 	
-	public static String getURL(String prefix) {
+	public static String getURI(String prefix, Option<Object> isDirectory) {
 		String container = getContainerName();
-		Blob blob =  (Blob)storageService.getObject(container, prefix, Option.apply(false));
-		Map<String, Object> map = scala.collection.JavaConversions.mapAsJavaMap(blob.metadata());
-		return (String)map.get("uri");
+		return storageService.getUri(container, prefix, isDirectory);
 	}
 
 

@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.util.AWSUploader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;

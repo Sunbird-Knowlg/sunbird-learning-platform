@@ -538,15 +538,13 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		String type = DialCodeEnum.DialCode.name();
 		Map sort = new HashMap();
 
-		String correlationId = UUID.randomUUID().toString();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(DialCodeEnum.objectType.name(), DialCodeEnum.DialCode.name());
 		filters.put(DialCodeEnum.channel.name(), channelId);
 		filters.putAll(searchCriteria);
-
 		int count = (int) dialCodeSearch.get(DialCodeEnum.count.name());
 		Object topN = getTopNResult((List<Object>) dialCodeSearch.get(DialCodeEnum.dialcodes.name()));
-		TelemetryManager.search(query, filters, sort, correlationId, count, topN, type);
+		TelemetryManager.search(query, filters, sort, count, topN, type);
 
 	}
 
