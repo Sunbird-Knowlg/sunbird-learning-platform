@@ -123,6 +123,7 @@ public class ContentPublishV3TestCases extends BaseTest {
                 when().
                     get(readUrl(contentId, fields)).
                 then().
+//                    log().all().
 					body("responseCode", equalTo("OK")).
 					extract().
 					response();
@@ -138,6 +139,17 @@ public class ContentPublishV3TestCases extends BaseTest {
             else delay(3000);
         }
         return response;
+    }
+
+    private void delayUntilStatus(String nodeId, String status) {
+        String currStatus;
+        Response response;
+	    while (true) {
+            response = getContentResponse(nodeId);
+            currStatus = response.jsonPath().get("result.content.status");
+            if (currStatus.equals(status)) break;
+            else delay(3000);
+        }
     }
 
 	private boolean validatePublishFields(JsonPath responseJsonPath) {
@@ -1668,7 +1680,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 		contentCleanUp(nodeId);
@@ -2504,7 +2515,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
 		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
 		validatePublishFields(response.jsonPath());
 		contentCleanUp(nodeId);
@@ -2561,11 +2571,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
 		contentCleanUp(nodeId);
 	}
 
@@ -2622,10 +2627,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response R3 = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(R3.jsonPath());
 		contentCleanUp(nodeId);
 	}
 
@@ -2864,10 +2865,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
 		contentCleanUp(nodeId);
 	}
 
@@ -2926,10 +2923,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
 		contentCleanUp(nodeId);
 	}
 
@@ -2986,11 +2979,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
 		contentCleanUp(nodeId);
 	}
 
@@ -3053,11 +3041,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
 		contentCleanUp(nodeId);
 	}
 
@@ -3118,11 +3101,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
 		contentCleanUp(nodeId);
 	}
 
@@ -3178,11 +3156,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
 		contentCleanUp(nodeId);
 	}
 
@@ -3237,11 +3210,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
 		contentCleanUp(nodeId);
 	}
 
@@ -3297,16 +3265,12 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
 		contentCleanUp(nodeId);
 	}
 
 	// Publish content and upload zip and validate
 
+    @Ignore
 	@Test
 	public void publishContentNewZipExpectSuccess200() {
 		setURI();
@@ -3368,9 +3332,10 @@ public class ContentPublishV3TestCases extends BaseTest {
 			spec(get200ResponseSpec());
 		}
 
+        delayUntilStatus(nodeId, "Live");
+
 		// Upload Content
 		setURI();
-		try{Thread.sleep(5000);}catch(InterruptedException e){ System.out.println(e);}
 		given().
 		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path + "/tweenAndaudioSprite.zip")).
@@ -3380,32 +3345,17 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// log().all().
 		spec(get200ResponseSpec());
 
-		// Publish created content
-		setURI();
-		given().
-		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
-		when().
-		post("/content/v3/publish/" + nodeId).
-		then().
-		// log().all().
-		spec(get200ResponseSpec());
-
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
+        delay(50000);
 		// Get body and validate
-		setURI();
-		try{Thread.sleep(5000);}catch(InterruptedException e){ System.out.println(e);}
-		Response R3 = getReadResponseWithValidStatus(nodeId, "Live", null);
-
+		Response R3 = getReadResponseWithValidStatus(nodeId, "Live", "body", "status");
 		JsonPath jP3 = R3.jsonPath();
 		String bodyNew = jP3.get("result.content.body");
 		if (isValidXML(bodyNew) || isValidJSON(bodyNew)) {
 			assertFalse(body.equals(bodyNew));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
+		Response response = getReadResponseWithValidStatus(nodeId, "Live");
 		assertTrue(validatePublishFields(response.jsonPath()));
-
 		contentCleanUp(nodeId);
 	}
 
@@ -3468,10 +3418,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
 
 		contentCleanUp(nodeId);
 	}
@@ -3594,10 +3540,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 			assertTrue(accessURL(nodeId));
 		}
 
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
-
 		contentCleanUp(nodeId);
 	}
 
@@ -3656,12 +3598,47 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		assertTrue(validatePublishFields(response.jsonPath()));
 		contentCleanUp(nodeId);
 	}
+
+	@Test
+    public void publishYoutubeContent() {
+        setURI();
+        JSONObject js = new JSONObject(jsonCreateValidContent);
+        js.getJSONObject("request").getJSONObject("content").put("mimeType", "video/x-youtube").put("contentType", "Resource");
+        String jsonCreateValidContentHtml = js.toString();
+        Response R =
+                given().
+                        spec(getRequestSpecification(contentType, userId, APIToken)).
+                        body(jsonCreateValidContentHtml).
+                        with().
+                        contentType(JSON).
+                        when().
+                        post("/content/v3/create").
+                        then().
+                        // log().all().
+                                spec(get200ResponseSpec()).
+                        extract().response();
+
+        // Extracting the JSON path
+        JsonPath jp = R.jsonPath();
+        String nodeId = jp.get("result.node_id");
+
+        // Upload Content
+        setURI();
+        given().
+                spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+                multiPart("fileUrl", "https://www.youtube.com/watch?v=owr198WQpM8").
+                when().
+                post("/content/v3/upload/" + nodeId).
+                then().
+                // log().all().
+                        spec(get200ResponseSpec());
+
+        publish(nodeId, getPublishRequestBodyWithAppIcon());
+        Response response = getReadResponseWithValidStatus(nodeId, "Live");
+        assertTrue(validatePublishFields(response.jsonPath()));
+    }
 
 	// Create, upload, publish and validate APK Content
 
@@ -3718,10 +3695,6 @@ public class ContentPublishV3TestCases extends BaseTest {
 		if (isValidXML(body) || isValidJSON(body)) {
 			assertTrue(accessURL(nodeId));
 		}
-
-		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
-		validatePublishFields(response.jsonPath());
 
 		contentCleanUp(nodeId);
 	}
@@ -4187,6 +4160,86 @@ public class ContentPublishV3TestCases extends BaseTest {
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
 		asyncPublishValidations(identifier1, status, nodeId, c_identifier, node1, node2);
 		assertTrue(validatePublishFields(jp2));
+		contentCleanUp(nodeId);
+	}
+
+	@Test
+	public void publishPDFContent() {
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateValidContent);
+		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/pdf").put("contentType", "Resource");
+		String jsonCreateValidContentH5P = js.toString();
+		Response R =
+				given().
+						spec(getRequestSpecification(contentType, userId, APIToken)).
+						body(jsonCreateValidContentH5P).
+						with().
+						contentType(JSON).
+						when().
+						post("/content/v3/create").
+						then().
+						// log().all().
+								spec(get200ResponseSpec()).
+						extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+				multiPart(new File(path + "/pdf.pdf")).
+				when().
+				post("/content/v3/upload/" + nodeId).
+				then().
+				// log().all().
+						spec(get200ResponseSpec());
+
+        publish(nodeId, getPublishRequestBodyWithAppIcon());
+        Response response = getReadResponseWithValidStatus(nodeId, "Live");
+        assertTrue(validatePublishFields(response.jsonPath()));
+		contentCleanUp(nodeId);
+	}
+
+	@Test
+	public void publishVideoContent() {
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateValidContent);
+		js.getJSONObject("request").getJSONObject("content").put("mimeType", "video/mp4").put("contentType", "Resource");
+		String jsonCreateValidContentH5P = js.toString();
+		Response R =
+				given().
+						spec(getRequestSpecification(contentType, userId, APIToken)).
+						body(jsonCreateValidContentH5P).
+						with().
+						contentType(JSON).
+						when().
+						post("/content/v3/create").
+						then().
+						// log().all().
+								spec(get200ResponseSpec()).
+						extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+				multiPart(new File(path + "/education.mp4")).
+				when().
+				post("/content/v3/upload/" + nodeId).
+				then().
+				// log().all().
+						spec(get200ResponseSpec());
+
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
+        Response response = getReadResponseWithValidStatus(nodeId, "Live");
+        assertTrue(validatePublishFields(response.jsonPath()));
 		contentCleanUp(nodeId);
 	}
 
@@ -6880,6 +6933,66 @@ public class ContentPublishV3TestCases extends BaseTest {
 		contentCleanUp(nodeId);
 	}
 
+	@Test
+	public void publishH5PContent() {
+		setURI();
+		JSONObject js = new JSONObject(jsonCreateValidContent);
+		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.ekstep.h5p-archive");
+		String jsonCreateValidContentH5P = js.toString();
+		Response R =
+				given().
+						spec(getRequestSpecification(contentType, userId, APIToken)).
+						body(jsonCreateValidContentH5P).
+						with().
+						contentType(JSON).
+						when().
+						post("/content/v3/create").
+						then().
+						// log().all().
+								spec(get200ResponseSpec()).
+						extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+				multiPart(new File(path + "/valid_h5p_content.h5p")).
+				when().
+				post("/content/v3/upload/" + nodeId).
+				then().
+				// log().all().
+						spec(get200ResponseSpec());
+
+		// Get body and validate
+		setURI();
+		Response R2 =
+				given().
+						spec(getRequestSpecification(contentType, userId, APIToken)).
+						when().
+						get("/content/v3/read/" + nodeId + "?fields=body").
+						then().
+						// log().all().
+								spec(get200ResponseSpec()).
+						extract().response();
+
+		JsonPath jP2 = R2.jsonPath();
+		String body = jP2.get("result.content.body");
+		assertTrue((isValidXML(body) || isValidJSON(body)));
+		if (isValidXML(body) || isValidJSON(body)) {
+			assertTrue(accessURL(nodeId));
+		}
+
+		publish(nodeId, getPublishRequestBodyWithAppIcon());
+		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
+		assertTrue(validatePublishFields(response.jsonPath()));
+		contentCleanUp(nodeId);
+
+	}
+
 	// Create and search content
 		@Ignore
 		@Test
@@ -7361,7 +7474,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		setURI();
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		body(getPublishRequestBodyWithAppIcon()).
 		when().
 		post("/content/v3/publish/" + nodeId).
 		then().
@@ -7373,6 +7486,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		Response R1 =  getReadResponseWithValidStatus(nodeId, "Live", null);
 
 		JsonPath jP1 = R1.jsonPath();
+        validatePublishFields(jP1);
 		String statusUpdated = jP1.get("result.content.status");
 		// Fetching metadatas from API response
 
@@ -7511,6 +7625,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 						assertTrue(artifactUrl.endsWith(".zip") || artifactUrl.endsWith(".apk")
 								&& downloadUrl.endsWith(".ecar") && statusUpdated.equals("Live"));
 						//// System.out.println(description +mediaType +code);
+
 					} catch (JSONException jse) {
 						return false;
 						// jse.printStackTrace();
