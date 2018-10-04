@@ -50,8 +50,10 @@ public class InputList {
     public String toString(){
         if(CollectionUtils.isNotEmpty(inputList)){
             StringBuilder builder = new StringBuilder();
+            int count = 1;
             for(Input input : inputList) {
-                builder.append(input.toString() + "\n");
+                builder.append(count + ") " + input.toString() + "\n");
+                count++;
             }
             return builder.toString();
         }else{

@@ -49,12 +49,12 @@ public class SyncService extends BaseService implements ISyncService {
         try {
             InputList inputList = search(filter);
             if (StringUtils.equalsIgnoreCase("true", dryRun)) {
-                TelemetryManager.info("Content count to sync: " + inputList.getCount() + "\n" + "Data : \n" + inputList.toString());
+                System.out.println("Content count to sync: " + inputList.getCount() + "\n" + "Data : \n" + inputList.toString());
             } else {
                 Map<String, InputList> response = syncData(inputList, forceUpdate);
-                TelemetryManager.info("Contents synced : " + response.get("success").size() +  "\n" + response.get("success").toString());
-                TelemetryManager.info("Contents skipped without syncing : " + response.get("skipped").size() +  "\n" + response.get("skipped").toString());
-                TelemetryManager.info("Contents failed without syncing : " + response.get("failed").size() +  "\n" + response.get("failed").toString());
+                System.out.println("Contents synced : " + response.get("success").size() +  "\n" + response.get("success").toString());
+                System.out.println("Contents skipped without syncing : " + response.get("skipped").size() +  "\n" + response.get("skipped").toString());
+                System.out.println("Contents failed without syncing : " + response.get("failed").size() +  "\n" + response.get("failed").toString());
             }
 
         } catch (Exception e) {
