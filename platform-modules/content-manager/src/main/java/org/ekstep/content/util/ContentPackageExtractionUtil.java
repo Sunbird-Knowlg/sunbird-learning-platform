@@ -95,26 +95,35 @@ public class ContentPackageExtractionUtil {
 
 			// Fetching Destination Prefix For Copy Objects in S3
 			String destinationPrefix = getExtractionPath(contentId, node, extractionType);
-			TelemetryManager.log("Source Prefix: " + destinationPrefix);
+			TelemetryManager.log("Destination Prefix: " + destinationPrefix);
 
 			// Copying Objects
 			TelemetryManager.log("Copying Objects...STARTED");
-			ExecutorService pool = null;
-			try {
-				pool = Executors.newFixedThreadPool(1);
-				pool.execute(new Runnable() {
-					@Override
-					public void run() {
-						CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
-					}
-				});
-			} catch (Exception e) {
-				TelemetryManager.error("Error sending Content2Vec request", e);
-			} finally {
-				if (null != pool)
-					pool.shutdown();
+			if(ExtractionType.version.name().equals(extractionType)){
+				ExecutorService pool = null;
+				try {
+					pool = Executors.newFixedThreadPool(1);
+					pool.execute(new Runnable() {
+						@Override
+						public void run() {
+							CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
+						}
+					});
+				} catch (Exception e) {
+					TelemetryManager.error("Error while copying object by prefix", e);
+				} finally {
+					if (null != pool)
+						pool.shutdown();
+				}
+				TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
+			} else if(ExtractionType.latest.name().equals(extractionType)){
+				try	{
+					CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
+					TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
+				} catch(Exception e) {
+					TelemetryManager.error("Error while copying object by prefix", e);
+				}
 			}
-			TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
 		}
 	}
 
