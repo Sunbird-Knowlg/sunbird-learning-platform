@@ -30,7 +30,7 @@ public class BaseCommand {
         if(StringUtils.isNotBlank(limit) && !StringUtils.equalsIgnoreCase("0", limit))
             filters.put("limit", Integer.parseInt(limit));
 
-        if(StringUtils.isNotBlank(limit) && !StringUtils.equalsIgnoreCase("0", offset))
+        if(StringUtils.isNotBlank(offset) && !StringUtils.equalsIgnoreCase("0", offset))
             filters.put("offset", Integer.parseInt(offset));
 
         filters.put("objectType", objectType);
