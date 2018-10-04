@@ -150,7 +150,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			assertNotNull(responseJsonPath.get("result.content.appIcon"));
 			assertNotNull(responseJsonPath.get("result.content.posterImage"));
 			assertNotNull(responseJsonPath.get("result.content.publishComment"));
-			if(!"application/vnd.ekstep.plugin-archive".equals(mimeType))
+			if(!"application/vnd.ekstep.plugin-archive".equals(mimeType) && !"application/vnd.android.package-archive".equals(mimeType))
 				assertNotNull(responseJsonPath.get("result.content.previewUrl"));
 		}
 		if("application/vnd.ekstep.content-collection".equals(mimeType))
@@ -4492,7 +4492,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Create nested collection
 		setURI();
-		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
+		String jsonCreateNestedCollection = this.jsonCreateNestedCollection.replace("id1", nodeId);
 		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken))
 				.body(jsonCreateNestedCollection).with().contentType(JSON).when().post("/content/v3/create").then().
 				// log().all().
@@ -5895,9 +5895,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		}
 		// Create TextbookUnit
 		setURI();
-		jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2)
+		String newJsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2)
 				.replace("id3", node3).replace("id4", node4);
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
+		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(newJsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("/content/v3/create").then().
 				// log().all().
 				spec(get200ResponseSpec()).extract().response();
@@ -6340,9 +6340,9 @@ public class ContentPublishV3TestCases extends BaseTest {
 		}
 		// Create TextbookUnit
 		setURI();
-		jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2)
+		String newJsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2)
 				.replace("id3", node3).replace("id4", node4);
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateTextbookUnit)
+		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(newJsonCreateTextbookUnit)
 				.with().contentType(JSON).when().post("/content/v3/create").then().
 				// log().all().
 				spec(get200ResponseSpec()).extract().response();
