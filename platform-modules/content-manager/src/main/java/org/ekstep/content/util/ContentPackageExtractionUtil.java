@@ -99,7 +99,7 @@ public class ContentPackageExtractionUtil {
 
 			// Copying Objects
 			TelemetryManager.log("Copying Objects...STARTED");
-			if(ExtractionType.version.name().equals(extractionType)){
+			if(ExtractionType.version.name().equals(extractionType.name())){
 				ExecutorService pool = null;
 				try {
 					pool = Executors.newFixedThreadPool(1);
@@ -116,7 +116,7 @@ public class ContentPackageExtractionUtil {
 						pool.shutdown();
 				}
 				TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
-			} else if(ExtractionType.latest.name().equals(extractionType)){
+			} else if(ExtractionType.latest.name().equals(extractionType.name())){
 				try	{
 					CloudStore.copyObjectsByPrefix(sourcePrefix, destinationPrefix);
 					TelemetryManager.log("Copying Objects...DONE | Under: " + destinationPrefix);
