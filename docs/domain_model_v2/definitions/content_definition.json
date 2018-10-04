@@ -210,6 +210,19 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "contentCredits",
+					"title": "List of Content Credits",
+					"description": "List of Content Credits",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 9 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"required": true,
 					"dataType": "Select",
 					"propertyName": "mimeType",
