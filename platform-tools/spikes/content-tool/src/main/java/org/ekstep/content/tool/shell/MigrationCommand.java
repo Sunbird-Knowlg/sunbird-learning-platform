@@ -8,6 +8,8 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class MigrationCommand extends BaseCommand implements CommandMarker {
 
@@ -47,7 +49,7 @@ public class MigrationCommand extends BaseCommand implements CommandMarker {
             throws Exception {
 
         System.out.println("-----------------------------------------");
-        String filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn,  limit, offset, false);
+        Map<String, Object> filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn,  limit, offset, false);
         syncService.ownerMigration(userId, channel, createdFor, organisation, creator, filters, dryRun, forceUpdate);
         System.out.println("-----------------------------------------");
     }

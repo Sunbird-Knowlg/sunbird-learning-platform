@@ -23,16 +23,34 @@ import java.util.Map;
 @Component("contentSyncService")
 public class SyncService extends BaseService implements ISyncService {
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+    private int totalSuccess = 0;
+    private int totalSkipped = 0;
+    private int totalFailed = 0;
 
     @Override
-    public void ownerMigration(String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String filter, String dryRun, String forceUpdate) {
+    public void ownerMigration(String createdBy, String channel, String[] createdFor, String[] organisation, String creator,  Map<String, Object> filters, String dryRun, String forceUpdate) {
+        initialise();
         try {
             if (validChannel(channel)) {
-                InputList inputList = search(filter);
+                int count = searchCount(new HashMap<>(filters));
+
                 if (StringUtils.equalsIgnoreCase(dryRun, "true")) {
-                    TelemetryManager.info("Content count to migrate: " + inputList.getCount() + "\n" + "Data : \n" + inputList.toString());
+                    if(null == filters.get("limit") || (defaultLimit < (int) filters.get("limit")))
+                        filters.put("limit", defaultLimit);
+                    InputList inputList = search(filters);
+                    TelemetryManager.info("Content count to migrate: " + count + "\n" + "Data : \n" + inputList.toString());
                 } else {
-                    updateOwnership(inputList, createdBy, channel, createdFor, organisation, creator, forceUpdate);
+                    if(count > 0) {
+                        System.out.println("Total No. of Contents : " + count);
+                        System.out.println("-----------------------------------------");
+                        updateOwnership(filters, createdBy, channel, createdFor, organisation, creator, forceUpdate, count);
+                        System.out.println("-----------------------------------------");
+                        System.out.println("Total Success : " + totalSuccess);
+                        System.out.println("Total Skipped  : " + totalSkipped);
+                        System.out.println("Total Failed : " + totalFailed);
+                    } else {
+                        TelemetryManager.info("No contents to migrate");
+                    }
                 }
 
             } else {
@@ -45,16 +63,29 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     @Override
-    public void sync(String filter, String dryRun, String forceUpdate) {
+    public void sync(Map<String, Object> filters, String dryRun, String forceUpdate) {
+        initialise();
         try {
-            InputList inputList = search(filter);
+            int count = searchCount(new HashMap<>(filters));
+
             if (StringUtils.equalsIgnoreCase("true", dryRun)) {
-                System.out.println("Content count to sync: " + inputList.getCount() + "\n" + "Data : \n" + inputList.toString());
+                if(null == filters.get("limit") || (defaultLimit < (int) filters.get("limit")))
+                    filters.put("limit", defaultLimit);
+                InputList inputList = search(filters);
+                System.out.println("Content count to sync: " + count + "\n" + "Data : \n" + inputList.toString());
             } else {
-                Map<String, InputList> response = syncData(inputList, forceUpdate);
-                System.out.println("Contents synced : " + response.get("success").size() +  "\n" + response.get("success").toString());
-                System.out.println("Contents skipped without syncing : " + response.get("skipped").size() +  "\n" + response.get("skipped").toString());
-                System.out.println("Contents failed without syncing : " + response.get("failed").size() +  "\n" + response.get("failed").toString());
+                if(count > 0) {
+                    System.out.println("Total No. of Contents : " + count);
+                    System.out.println("-----------------------------------------");
+                    syncData(filters, forceUpdate, count);
+                    System.out.println("-----------------------------------------");
+                    System.out.println("Total Success : " + totalSuccess);
+                    System.out.println("Total Skipped  : " + totalSkipped);
+                    System.out.println("Total Failed : " + totalFailed);
+                }
+                else {
+                    System.out.println("No data to sync");
+                }
             }
 
         } catch (Exception e) {
@@ -62,20 +93,70 @@ public class SyncService extends BaseService implements ISyncService {
         }
     }
 
-    private void updateOwnership(InputList inputList, String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String forceUpdate) throws Exception {
-        if (CollectionUtils.isNotEmpty(inputList.getInputList())) {
-            Map<String, Object> request = getUpdateRequest(createdBy, channel, createdFor, organisation, creator);
-            Map<String, InputList> response = updateData(inputList, request, channel, forceUpdate);
 
-            TelemetryManager.info("Migrated content count: " + response.get("success").size() +  "\n" + response.get("success").toString());
-            TelemetryManager.info("Skipped content count: " + response.get("skipped").size() +  "\n" + response.get("skipped").toString());
-            TelemetryManager.info("Falied content count: " + response.get("failed").size() +  "\n" + response.get("failed").toString());
-        } else {
-            TelemetryManager.info("No contents to migrate");
+    private void syncData(Map<String, Object> filters, String forceUpdate, int maxLimit) throws Exception {
+        int limit = (null != filters.get("limit")) ? (int) filters.get("limit") : 0;
+        int offset = (null != filters.get("offset")) ? (int) filters.get("offset") : 0;
+        maxLimit = getMaxLimit(limit, offset, maxLimit);
+        while(maxLimit > 0) {
+            if((limit == 0) || (defaultLimit < limit))
+                filters.put("limit", defaultLimit);
+            else
+                filters.put("limit", limit);
+            filters.put("offset", offset);
+            InputList inputList = search(new HashMap<>(filters));
+            Map<String, InputList> response = syncData(inputList, forceUpdate);
+            System.out.println("Contents synced : " + response.get("success").size() + "\n" + response.get("success").toString());
+            System.out.println("Contents skipped without syncing : " + response.get("skipped").size() + "\n" + response.get("skipped").toString());
+            System.out.println("Contents failed without syncing : " + response.get("failed").size() + "\n" + response.get("failed").toString());
+            totalSuccess += response.get("success").size();
+            totalSkipped += response.get("skipped").size();
+            totalFailed += response.get("failed").size();
+
+
+            maxLimit -= ((int)filters.get("limit"));
+            limit = ((limit - defaultLimit) >= 0)?(limit - defaultLimit):0;
+            offset += ((int)filters.get("limit"));
         }
     }
 
-    private Map<String, InputList> updateData(InputList inputList, Map<String, Object> request, String channel, String forceUpdate) throws Exception {
+    private int getMaxLimit(int limit, int offset, int maxLimit) {
+        if(limit > 0) {
+            return limit;
+        }else{
+            return (maxLimit - offset);
+        }
+    }
+
+    private void updateOwnership(Map<String, Object> filters, String createdBy, String channel, String[] createdFor, String[] organisation, String creator, String forceUpdate, int maxLimit) throws Exception {
+        Map<String, Object> request = getUpdateRequest(createdBy, channel, createdFor, organisation, creator);
+        int limit = (null != filters.get("limit")) ? (int) filters.get("limit") : 0;
+        int offset = (null != filters.get("offset")) ? (int) filters.get("offset") : 0;
+        maxLimit = getMaxLimit(limit, offset, maxLimit);
+        while(maxLimit > 0 ) {
+            if((limit == 0) || (defaultLimit < limit))
+                filters.put("limit", defaultLimit);
+            else
+                filters.put("limit", limit);
+            filters.put("offset", offset);
+            InputList inputList = search(new HashMap<>(filters));
+            Map<String, InputList> response = updateData(inputList, request, channel, forceUpdate);
+
+            System.out.println("Migrated content count: " + response.get("success").size() + "\n" + response.get("success").toString());
+            System.out.println("Skipped content count: " + response.get("skipped").size() + "\n" + response.get("skipped").toString());
+            System.out.println("Falied content count: " + response.get("failed").size() + "\n" + response.get("failed").toString());
+            totalSuccess += response.get("success").size();
+            totalSkipped += response.get("skipped").size();
+            totalFailed += response.get("failed").size();
+
+            maxLimit -= ((int)filters.get("limit"));
+            limit = ((limit - defaultLimit) >= 0)?(limit - defaultLimit):0;
+            offset += ((int)filters.get("limit"));
+        }
+    }
+
+
+    private Map<String, InputList> updateData(InputList inputList, Map<String, Object> request, String channel, String forceUpdate) {
         Map<String, InputList> output = new HashMap<>();
         InputList successful = new InputList(new ArrayList<>());
         InputList skipped = new InputList(new ArrayList<>());
@@ -184,7 +265,6 @@ public class SyncService extends BaseService implements ISyncService {
             Response sourceContent = getContent(input.getId(), false, null);
             if (isForceupdate(forceUpdate) || (Double.compare(((Number) ((Map<String, Object>) destContent.get("content")).get("pkgVersion")).doubleValue(), ((Number) ((Map<String, Object>) sourceContent.get("content")).get("pkgVersion")).doubleValue()) == -1)) {
                 updateMetadata(sourceContent, forceUpdate);
-                syncHierarchy(input.getId());
                 return true;
             } else {
                 return false;
@@ -192,7 +272,6 @@ public class SyncService extends BaseService implements ISyncService {
 
         } else {
             createContent(input.getId(), forceUpdate);
-            syncHierarchy(input.getId());
             return true;
         }
 
@@ -258,10 +337,23 @@ public class SyncService extends BaseService implements ISyncService {
     private void updateExternalProps(String id, String channel) throws Exception {
         String externalFields = Platform.config.getString("content.external_fields");
         Response contentExt = getContent(id, false, externalFields);
-        Response extResp = systemUpdate(id, makeContentRequest(contentExt.getResult().get("content")), channel, true);
-        if(!isSuccess(extResp)){
-            throw new ServerException("ERR_CONTENT_SYNC","Error while updating external fields to content " + id +" in destination env : "+  extResp.getParams().getErrmsg());
+        Map<String, Object> externalRequest = makeExtPropRequest(contentExt, Platform.config.getStringList("content.external_fields"));
+        if(CollectionUtils.isNotEmpty(externalRequest.keySet())){
+            Response extResp = systemUpdate(id, makeContentRequest(contentExt.getResult().get("content")), channel, true);
+            if(!isSuccess(extResp)){
+                throw new ServerException("ERR_CONTENT_SYNC","Error while updating external fields to content " + id +" in destination env : "+  extResp.getParams().getErrmsg());
+            }
         }
+    }
+
+    private Map<String,Object> makeExtPropRequest(Response contentExt, List<String> extProps) {
+       Map<String, Object>metadata = (Map<String, Object>) contentExt.getResult().get("content");
+        Map<String, Object> externalRequest = new HashMap<>();
+       for(String key : metadata.keySet()) {
+           if (extProps.contains(key))
+               externalRequest.put(key, metadata.get(key));
+       }
+        return externalRequest;
     }
 
     private void copyAssets(String localPath, String forceUpdate) throws Exception {
@@ -361,5 +453,11 @@ public class SyncService extends BaseService implements ISyncService {
             metadata.put("creator", creator);
 
         return makeContentRequest(metadata);
+    }
+
+    private void initialise() {
+        totalSuccess = 0;
+        totalSkipped = 0;
+        totalFailed = 0;
     }
 }

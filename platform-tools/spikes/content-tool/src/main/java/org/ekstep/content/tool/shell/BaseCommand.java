@@ -11,7 +11,7 @@ public class BaseCommand {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    protected String prepareFilters(String objectType, String filter, String[] ids, String createdBy, String lastUpdatedOn, String limit, String offset, boolean removeStatus) throws Exception {
+    protected  Map<String, Object> prepareFilters(String objectType, String filter, String[] ids, String createdBy, String lastUpdatedOn, String limit, String offset, boolean removeStatus) throws Exception {
         Map<String, Object> filters = new HashMap<>();
 
         if(null != ids && ids.length>0) {
@@ -38,7 +38,11 @@ public class BaseCommand {
         if(removeStatus)
             filters.remove("status");
 
-        return mapper.writeValueAsString(filters);
+        Map<String, Object>  removeAsset = new HashMap<>();
+        removeAsset.put("ne", Arrays.asList("Asset", "Plugin"));
+        filters.put("contentType", removeAsset);
+
+        return filters;
     }
 
 }

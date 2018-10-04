@@ -122,7 +122,7 @@ public class CloudStoreManager {
         String folder = "content" + File.separator + id + File.separator + "artifact";
         File file = new File(path);
         String objectKey = folder + "/" + file.getName();
-        System.out.println("Uploading Artifact path : " + file.getAbsolutePath());
+        TelemetryManager.info("Uploading Artifact path : " + file.getAbsolutePath());
         String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
         return url;
 

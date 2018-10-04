@@ -17,6 +17,7 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
 
     protected String sourceUrl = Platform.config.getString("source.url");
     protected String destUrl = Platform.config.getString("destination.url");
+    protected int defaultLimit = Platform.config.hasPath("default.limit")? Platform.config.getInt("default.limit"): 10;
 
     protected boolean validChannel(String channel) throws Exception {
         Response readResponse = executeGET(destUrl + "/channel/v3/read/" + channel, destKey);
@@ -44,12 +45,24 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
         executePOST(destUrl + "/content/v3/hierarchy/sync/" + id, destKey, new HashMap<>(), null);
     }
 
-    protected InputList search(String filter) throws Exception {
+
+    protected int searchCount(Map<String, Object> filters) throws Exception {
+        Map<String, Object> searchRequest = new HashMap<>();
+        filters.remove("limit");
+        filters.remove("offset");
+        searchRequest.put("filters", filters);
+        Map<String, Object> request = new HashMap<>();
+        request.put("request", searchRequest);
+        Response searchResponse = executePOST(sourceUrl + "/search/v2/search/count", sourceKey, request, null);
+        if(isSuccess(searchResponse)){
+            return (int) searchResponse.getResult().get("count");
+        }else{
+            throw new ServerException("ERR_CONTENT_SYNC", "Error while getting count of records : " + searchResponse.getParams().getErrmsg());
+        }
+    }
+
+    protected InputList search(Map<String, Object> filters) throws Exception {
         InputList inputList = new InputList(new ArrayList<>());
-        Map<String, Object> filters = mapper.readValue(filter, Map.class);
-        Map<String, Object>  removeAsset = new HashMap<>();
-        removeAsset.put("ne", Arrays.asList("Asset", "Plugin"));
-        filters.put("contentType", removeAsset);
         Map<String, Object> searchRequest = new HashMap<>();
         searchRequest.put("limit", filters.get("limit"));
         boolean isLimited = (null != filters.get("limit"));
@@ -66,7 +79,7 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
         request.put("request", searchRequest);
 
         Response searchResponse = executePOST(sourceUrl + "/composite/v3/search", sourceKey, request, null);
-        if (StringUtils.equals(ResponseParams.StatusType.successful.name(), searchResponse.getParams().getStatus())) {
+        if (isSuccess(searchResponse)) {
             int count = (int) searchResponse.getResult().get("count");
             inputList.setCount(count);
             if(count > 0)
