@@ -212,8 +212,15 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		setPragma(node);
+
+		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
+			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, node, ExtractionType.latest);
+		}
 		
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
+			//update previewUrl for content streaming
+			updatePreviewURL(node);
+
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
 			
@@ -307,8 +314,6 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
-
-			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.latest);
 		}
 
 		try {
@@ -316,11 +321,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			delete(new File(basePath));
 		} catch (Exception e) {
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
-		}
-
-		//update previewUrl for content streaming
-		if (BooleanUtils.isFalse(isAssetTypeContent)) {
-			updatePreviewURL(newNode);
 		}
 
 		// Setting default version key for internal node update
