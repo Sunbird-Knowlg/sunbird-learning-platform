@@ -38,7 +38,7 @@ public class SyncService extends BaseService implements ISyncService {
                     if(null == filters.get("limit") || (defaultLimit < (int) filters.get("limit")))
                         filters.put("limit", defaultLimit);
                     InputList inputList = search(filters);
-                    TelemetryManager.info("Content count to migrate: " + count + "\n" + "Data : \n" + inputList.toString());
+                    System.out.println("Content count to migrate: " + count + "\n" + "Data : \n" + inputList.toString());
                 } else {
                     if(count > 0) {
                         System.out.println("Total No. of Contents : " + count);
