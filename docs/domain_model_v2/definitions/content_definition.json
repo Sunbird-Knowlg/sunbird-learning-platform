@@ -2309,6 +2309,16 @@
 				{
 					"relationName": "associatedTo",
 					"objectTypes": [
+						"AssessmentItem"
+					],
+					"title": "questions",
+					"description": "Assessment items associated with this content",
+					"required": false,
+					"renderingHints": "{ 'order': 26 }"
+				},
+				{
+					"relationName": "associatedTo",
+					"objectTypes": [
 						"ItemSet"
 					],
 					"title": "item_sets",

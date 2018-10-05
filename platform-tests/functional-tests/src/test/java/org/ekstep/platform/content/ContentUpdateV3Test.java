@@ -62,9 +62,6 @@ public class ContentUpdateV3Test extends BaseTest {
     private Response getContent(String contentId) {
         return  given().
                 spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
-                body(createDocumentContentRequestBody).
-                with().
-                contentType(JSON).
                 when().
                 get(BASE_PATH + "/read/" + contentId).
                 then().
