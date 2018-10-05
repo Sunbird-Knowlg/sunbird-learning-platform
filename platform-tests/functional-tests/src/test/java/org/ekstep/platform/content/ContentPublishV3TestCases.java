@@ -3,6 +3,7 @@ package org.ekstep.platform.content;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
@@ -62,7 +63,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 	private String jsonGetContentListEmptySearch = "{\"request\": { \"search\": {}}}";
 	private String jsonCreateNestedCollection = "{\"request\": {\"content\": {\"identifier\": \"Test_QANested_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}]}}}";
 	private String jsonCreateInvalidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_" + rn+ "\",\"osId\": \"org.ekstep.app\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Resource\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"]}}}";
-	private String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"version_Key\", \"body\": \"{\"theme\":{\"id\":\"theme\",\"version\":\"1.0\",\"startStage\":\"cd168631-889c-4414-909d-a85a83ca3a68\",\"stage\":[{\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"id\":\"cd168631-889c-4414-909d-a85a83ca3a68\",\"rotate\":null,\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true,\"color\":\"#FFFFFF\",\"genieControls\":false,\"instructions\":\"\"}\"},\"param\":[{\"name\":\"next\",\"value\":\"b4a01a33-a6e4-4c63-b37a-11c783c950b5\"}],\"manifest\":{\"media\":[{\"assetId\":\"do_11233272325713920013\"}]},\"image\":[{\"asset\":\"do_11233272325713920013\",\"x\":20,\"y\":20,\"w\":49.81,\"h\":88.56,\"rotate\":0,\"z-index\":0,\"id\":\"d434956b-672c-4204-bdd1-864dbae40c0c\",\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true}\"}}]},{\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"id\":\"b4a01a33-a6e4-4c63-b37a-11c783c950b5\",\"rotate\":null,\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true,\"color\":\"#FFFFFF\",\"genieControls\":false,\"instructions\":\"\"}\"},\"param\":[{\"name\":\"previous\",\"value\":\"cd168631-889c-4414-909d-a85a83ca3a68\"}],\"manifest\":{\"media\":[{\"assetId\":\"do_11233272325713920013\"},{\"assetId\":\"do_10095813\"}]},\"image\":[{\"asset\":\"do_11233272325713920013\",\"x\":20,\"y\":20,\"w\":49.81,\"h\":88.56,\"rotate\":0,\"z-index\":0,\"id\":\"cc35e88c-1630-414b-9d50-a343c522e316\",\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true}\"}},{\"asset\":\"do_10095813\",\"x\":20,\"y\":20,\"w\":49.49,\"h\":87.98,\"rotate\":0,\"z-index\":1,\"id\":\"7849c5a6-0013-44a6-97ae-c5872974d500\",\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true}\"}}]}],\"manifest\":{\"media\":[{\"id\":\"do_11233272325713920013\",\"src\":\"/assets/public/content/do_11233272325713920013/artifact/5c568572a97acec4f01f596694396418_1505459382119.jpeg\",\"type\":\"image\"},{\"id\":\"do_10095813\",\"src\":\"/assets/public/content/c7a7d301f288f1afe24117ad59083b2a_1475430290462.jpeg\",\"type\":\"image\"}]},\"plugin-manifest\":{\"plugin\":[]},\"compatibilityVersion\":2}}\"}}}";
+	private String ecmlBody = "{  \"theme\": {    \"id\": \"theme\",    \"version\": \"1.0\",    \"startStage\": \"cd168631 - 889 c - 4414 - 909 d - a85a83ca3a68\",    \"stage \": [      {        \"x \": 0,        \"y \": 0,        \"w \": 100,        \"h \": 100,        \"id \": \"cd168631 - 889 c - 4414 - 909 d - a85a83ca3a6\",        \"rotate \": null,        \"config \": {          \"__cdata \": {            \"opacity\": 100,            \"strokeWidth\": 1,            \"stroke\": \"rgba(255, 255, 255, 0)\",            \"autoplay\": false,            \"visible\": true,            \"color\": \"#FFFFFF\",            \"genieControls\": false,            \"instructions\": \"\"          }        },        \"param \": [          {            \"name \": \"next \",            \"value \": \"b4a01a33 - a6e4 - 4 c63 - b37a - 11 c783c950b5 \"          }        ],        \"manifest \": {          \"media \": [            {              \"assetId\": \"do_11233272325713920013\"            }          ]        },        \"image \": [          {            \"asset \": \"do_11233272325713920013 \",            \"x \": 20,            \"y \": 20,            \"w \": 49.81,            \"h \": 88.56,            \"rotate \": 0,            \"z - index \": 0,            \"id \": \"d434956b - 672 c - 4204 - bdd1 - 864 dbae40c0c \",            \"config \": {              \"__cdata \": {                \"opacity\": 100,                \"strokeWidth\": 1,                \"stroke\": \"rgba(255, 255, 255, 0)\",                \"autoplay\": false,                \"visible\": true              }            }          }        ]      },      {        \"x \": 0,        \"y \": 0,        \"w \": 100,        \"h \": 100,        \"id \": \"b4a01a33 - a6e4 - 4 c63 - b37a - 11 c783c950b5 \",        \"rotate \": null,        \"config \": {          \"__cdata \": {            \"opacity\": 100,            \"strokeWidth\": 1,            \"stroke\": \"rgba(255, 255, 255, 0)\",            \"autoplay\": false,            \"visible\": true,            \"color\": \"#FFFFFF\",            \"genieControls\": false,            \"instructions\": \"\"          }        },        \"param \": [          {            \"name \": \"previous \",            \"value \": \"cd168631 - 889 c - 4414 - 909 d - a85a83ca3a68 \"          }        ],        \"manifest \": {          \"media \": [            {              \"assetId \": \"do_11233272325713920013 \"            },            {              \"assetId \": \"do_10095813 \"            }          ]        },        \"image \": [          {            \"asset \": \"do_11233272325713920013 \",            \"x \": 20,            \"y \": 20,            \"w \": 49.81,            \"h \": 88.56,            \"rotate \": 0,            \"z - index \": 0,            \"id \": \"cc35e88c - 1630 - 414 b - 9 d50 - a343c522e316 \",            \"config \": {              \"__cdata \": {                \"opacity\": 100,                \"strokeWidth\": 1,                \"stroke\": \"rgba(255, 255, 255, 0)\",                \"autoplay\": false,                \"visible\": true              }            }          },          {            \"asset \": \"do_10095813 \",            \"x \": 20,            \"y \": 20,            \"w \": 49.49,            \"h \": 87.98,            \"rotate \": 0,            \"z - index \": 1,            \"id \": \"7849 c5a6 - 0013 - 44 a6 - 97 ae - c5872974d500 \",            \"config \": {              \"__cdata \": {                \"opacity\": 100,                \"strokeWidth\": 1,                \"stroke\": \"rgba(255, 255, 255, 0)\",                \"autoplay\": false,                \"visible\": true              }            }          }        ]      }    ],    \"manifest \": {      \"media \": [        {          \"id \": \"do_11233272325713920013 \",          \"src \": \" / assets / public / content / do_11233272325713920013 / artifact / 5 c568572a97acec4f01f596694396418_1505459382119.jpeg \",          \"type \": \"image \"        },        {          \"id \": \"do_10095813 \",          \"src \": \" / assets / public / content / c7a7d301f288f1afe24117ad59083b2a_1475430290462.jpeg \",          \"type \": \"image \"        }      ]    },    \"plugin - manifest \": {      \"plugin \": []    },    \"compatibilityVersion \": 2  }}";
+	private String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"version_Key\", \"body\": "+ ecmlBody.replaceAll("\\s","") +"}}}";
 	private String jsonUpdateChildren = "{\"request\":{\"content\":{\"children\":[],\"versionKey\":\"version_Key\"}}}";
 	private String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"version_key\",\"language\":[\"Tamil\",\"Telugu\"]}}}";
 	private String invalidContentId = "LP_NFT" + rn + "";
@@ -140,6 +142,20 @@ public class ContentPublishV3TestCases extends BaseTest {
         }
         return response;
     }
+
+	private Response getReadResponseWithValidStatus(String nodeId, long delayBeforeNextRead, long maxCountOfRead, String status, String... fields) {
+		String currStatus;
+		Response response;
+		int i = 1;
+		while (true) {
+			response = getContentResponse(nodeId, fields);
+			currStatus = response.jsonPath().get("result.content.status");
+			if (currStatus.equals(status) || i == maxCountOfRead) break;
+			else delay(delayBeforeNextRead);
+			i++;
+		}
+		return response;
+	}
 
     private void delayUntilStatus(String nodeId, String status) {
         String currStatus;
@@ -3426,10 +3442,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 	// Create content
 
-	/**
-	 * ToDo
-	 */
-	@Ignore
+
 	@Test
 	public void publishATContentExpectSuccess200() {
 		setURI();
@@ -3442,8 +3455,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				post("/content/v3/create").
 				then().
-				// log().all().
-				// spec(get200ResponseSpec()).
+//				log().all().
+				spec(get200ResponseSpec()).
 				extract().response();
 
 		// Extracting the JSON path
@@ -3453,33 +3466,22 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Update content body
 		setURI();
-		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_key", versionKey);
+		String newJsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body(jsonUpdateATContentBody).
+		body(newJsonUpdateATContentBody).
 		with().
 		contentType(JSON).
 		then().
 		patch("/content/v3/update/" + nodeId).
 		then().
-		//// log().all().
-		spec(get200ResponseSpec());
-
-		// Publish created content
-		setURI();
-		given().
-		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
-		when().
-		post("/content/v3/publish/" + nodeId).
-		then().
-		// log().all().
+//		 log().all().
 		spec(get200ResponseSpec());
 
 		publish(nodeId, getPublishRequestBodyWithAppIcon());
-		Response response = getReadResponseWithValidStatus(nodeId, "Live", null);
+		Response response = getReadResponseWithValidStatus(nodeId, 3000, 15, "Live");
+		assertEquals("Live", response.jsonPath().get("result.content.status"));
 		assertTrue(validatePublishFields(response.jsonPath()));
-
 		contentCleanUp(nodeId);
 	}
 
