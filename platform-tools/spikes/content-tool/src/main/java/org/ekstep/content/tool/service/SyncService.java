@@ -337,7 +337,7 @@ public class SyncService extends BaseService implements ISyncService {
     private void updateExternalProps(String id, String channel) throws Exception {
         String externalFields = Platform.config.getString("content.external_fields");
         Response contentExt = getContent(id, false, externalFields);
-        Map<String, Object> externalRequest = makeExtPropRequest(contentExt, Platform.config.getStringList("content.external_fields"));
+        Map<String, Object> externalRequest = makeExtPropRequest(contentExt, Platform.config.getString("content.external_fields"));
         if(CollectionUtils.isNotEmpty(externalRequest.keySet())){
             Response extResp = systemUpdate(id, makeContentRequest(contentExt.getResult().get("content")), channel, true);
             if(!isSuccess(extResp)){
@@ -346,11 +346,12 @@ public class SyncService extends BaseService implements ISyncService {
         }
     }
 
-    private Map<String,Object> makeExtPropRequest(Response contentExt, List<String> extProps) {
+    private Map<String,Object> makeExtPropRequest(Response contentExt, String extProps) {
        Map<String, Object>metadata = (Map<String, Object>) contentExt.getResult().get("content");
         Map<String, Object> externalRequest = new HashMap<>();
+        List<String> externalProps = Arrays.asList(extProps.split(","));
        for(String key : metadata.keySet()) {
-           if (extProps.contains(key))
+           if (externalProps.contains(key))
                externalRequest.put(key, metadata.get(key));
        }
         return externalRequest;
