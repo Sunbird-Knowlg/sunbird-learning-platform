@@ -282,6 +282,7 @@ public class SyncService extends BaseService implements ISyncService {
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
         String channel = (String) metadata.get("channel");
         metadata.put("pkgVersion", ((Number) metadata.get("pkgVersion")).doubleValue());
+        metadata.remove("collections");
         Response response = systemUpdate(id, makeContentRequest(metadata), channel, true);
         if (isSuccess(response)) {
             updateExternalProps(id, channel);
@@ -339,7 +340,7 @@ public class SyncService extends BaseService implements ISyncService {
         Response contentExt = getContent(id, false, externalFields);
         Map<String, Object> externalRequest = makeExtPropRequest(contentExt, Platform.config.getString("content.external_fields"));
         if(CollectionUtils.isNotEmpty(externalRequest.keySet())){
-            Response extResp = systemUpdate(id, makeContentRequest(contentExt.getResult().get("content")), channel, true);
+            Response extResp = systemUpdate(id, makeContentRequest(externalRequest), channel, true);
             if(!isSuccess(extResp)){
                 throw new ServerException("ERR_CONTENT_SYNC","Error while updating external fields to content " + id +" in destination env : "+  extResp.getParams().getErrmsg());
             }
