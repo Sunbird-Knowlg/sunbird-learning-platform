@@ -49,7 +49,7 @@ public class SyncService extends BaseService implements ISyncService {
                         System.out.println("Total Skipped  : " + totalSkipped);
                         System.out.println("Total Failed : " + totalFailed);
                     } else {
-                        TelemetryManager.info("No contents to migrate");
+                        System.out.println("No contents to migrate");
                     }
                 }
 
