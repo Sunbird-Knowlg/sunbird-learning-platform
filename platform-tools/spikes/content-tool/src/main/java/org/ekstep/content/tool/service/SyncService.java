@@ -194,7 +194,7 @@ public class SyncService extends BaseService implements ISyncService {
                     Response updateSourceResponse = systemUpdate(input.getId(), request, channel, false);
 
                     if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
-                        Response response = getContent(input.getId(), true, null);
+                        Response response = getContent(input.getId(), false, null);
                         updateEcarInfo(input.getId(), (Map<String, Object>) response.get("content"));
                         return true;
                     } else {
