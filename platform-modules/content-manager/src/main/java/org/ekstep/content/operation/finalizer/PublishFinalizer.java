@@ -132,6 +132,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		String artifactUrl = null;
 		String downloadUrl = null;
 		String s3Key = null;
+		File packageFile=null;
 		boolean isAssetTypeContent = StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.Asset.name());
@@ -152,7 +153,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			TelemetryManager.info("Zip file name: " + zipFileName);
 			createZipPackage(basePath, zipFileName);
 			// Upload Package
-			File packageFile = new File(zipFileName);
+			packageFile = new File(zipFileName);
 			if (packageFile.exists()) {
 				// Upload to S3
 				String folderName = S3PropertyReader.getProperty(ARTEFACT_FOLDER);
@@ -161,7 +162,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					artifactUrl = urlArray[IDX_S3_URL];
 
 				// Set artifact file For Node
-				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), packageFile);
+				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 			}
 		}
 		// Download App Icon and create thumbnail
@@ -212,8 +213,15 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		setPragma(node);
+
+		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
+			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, node, ExtractionType.latest);
+		}
 		
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
+			//update previewUrl for content streaming
+			updatePreviewURL(node);
+
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
 			
@@ -280,10 +288,10 @@ public class PublishFinalizer extends BaseFinalizer {
 		// Delete local compressed artifactFile
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 		if (null != artifact && artifact instanceof File) {
-			File packageFile = (File) artifact;
-			if (packageFile.exists())
-				packageFile.delete();
-			TelemetryManager.info("Deleting Local Artifact Package File: " + packageFile.getAbsolutePath());
+			File pkgFile = (File) artifact;
+			if (pkgFile.exists())
+				pkgFile.delete();
+			TelemetryManager.info("Deleting Local Artifact Package File: " + pkgFile.getAbsolutePath());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
 
 			if (StringUtils.isNotBlank(artifactUrl))
@@ -307,8 +315,6 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
-
-			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.latest);
 		}
 
 		try {
@@ -316,11 +322,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			delete(new File(basePath));
 		} catch (Exception e) {
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
-		}
-
-		//update previewUrl for content streaming
-		if (BooleanUtils.isFalse(isAssetTypeContent)) {
-			updatePreviewURL(newNode);
 		}
 
 		// Setting default version key for internal node update

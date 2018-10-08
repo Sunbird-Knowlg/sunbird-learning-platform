@@ -209,7 +209,7 @@ public class TelemetryManager {
 			cData = new ArrayList<Map<String, Object>>();
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("id", appId);
-			data.put("type", "AppId");
+			data.put("type", "appId");
 			cData.add(data);
 		}
 		String event = TelemetryGenerator.search(reqContext, query, filters, sort, cData, size, topN, type);
