@@ -14,12 +14,12 @@ public class BaseCommand {
     protected  Map<String, Object> prepareFilters(String objectType, String filter, String[] ids, String createdBy, String lastUpdatedOn, String limit, String offset, boolean removeStatus) throws Exception {
         Map<String, Object> filters = new HashMap<>();
 
+        if(StringUtils.isNoneBlank(filter))
+            filters = mapper.readValue(filter, Map.class);
+
         if(null != ids && ids.length>0) {
             filters.put("identifier", Arrays.asList(ids));
         } else {
-            if(StringUtils.isNoneBlank(filter))
-                filters = mapper.readValue(filter, Map.class);
-
             if(StringUtils.isNotBlank(createdBy))
                 filters.put("createdBy", createdBy);
 

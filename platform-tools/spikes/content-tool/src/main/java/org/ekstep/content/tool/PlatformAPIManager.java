@@ -92,7 +92,8 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
     private void getIdsFromResponse(Map<String, Object> result, int count, InputList inputList, int offset, Map<String, Object> request, boolean isLimited) throws Exception {
         if (!isLimited && (count - 100) >= 0) {
             for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
-                inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), ((Number)res.get("pkgVersion")).doubleValue(), (String)res.get("objectType"), (String)res.get("status")));
+                double pkgVersion = (null != res.get("pkgVersion"))? ((Number)res.get("pkgVersion")).doubleValue(): 0d;
+                inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), pkgVersion, (String)res.get("objectType"), (String)res.get("status")));
             }
             count -= 100;
             offset += 100;
@@ -108,8 +109,18 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
 
         } else {
             for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
-                inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), ((Number)res.get("pkgVersion")).doubleValue(), (String)res.get("objectType"), (String)res.get("status")));
+                double pkgVersion = (null != res.get("pkgVersion"))? ((Number)res.get("pkgVersion")).doubleValue(): 0d;
+                inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), pkgVersion, (String)res.get("objectType"), (String)res.get("status")));
             }
         }
+    }
+
+
+
+    protected Response readQuestion(String id, boolean isDestination) throws Exception {
+        String url = (isDestination)? destUrl : sourceUrl;
+        String key = (isDestination)? destKey : sourceKey;
+        url += "/assessment/v3/items/read/" + id;
+        return executeGET(url, key);
     }
 }

@@ -187,7 +187,7 @@ public class SyncService extends BaseService implements ISyncService {
         if (isSuccess(readResponse)) {
             Map<String, Object> destContent = (Map<String, Object>) readResponse.get("content");
             double srcPkgVersion = input.getPkgVersion();
-            double destPkgVersion = ((Number) destContent.get("pkgVersion")).doubleValue();
+            double destPkgVersion = (null!= destContent.get("pkgVersion"))? ((Number) destContent.get("pkgVersion")).doubleValue(): 0d;
             if (isForceupdate(forceUpdate) || (0 == Double.compare(srcPkgVersion, destPkgVersion))) {
                 if (!request.isEmpty()) {
                     Response updateResponse = systemUpdate(input.getId(), request, channel, true);
@@ -210,17 +210,18 @@ public class SyncService extends BaseService implements ISyncService {
                 if (StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) destContent.get("mimeType")))
                     syncHierarchy(input.getId());
                 if (containsItemsSet(destContent)) {
-                    copyAssessmentItems((List<Map<String, Object>>) destContent.get("item_sets"));
+                    copyAssessmentItems((List<Map<String, Object>>) destContent.get("questions"));
                 }
                 return true;
             } else if (-1 == Double.compare(srcPkgVersion, destPkgVersion)) {
-                syncData(new InputList(Arrays.asList(input)), forceUpdate);
+                sync(input, forceUpdate);
                 return migrateOwner(input, request, channel, forceUpdate);
             } else {
                 return false;
             }
         } else {
-            throw new ServerException("ERR_CONTENT_SYNC", "Error while fetching the content " + input.getId() + " from destination env", readResponse.getParams().getErrmsg());
+            return sync(input, "true");
+            //throw new ServerException("ERR_CONTENT_SYNC", "Error while fetching the content " + input.getId() + " from destination env", readResponse.getParams().getErrmsg());
         }
     }
 
@@ -281,7 +282,8 @@ public class SyncService extends BaseService implements ISyncService {
         Response sourceContent = getContent(id, false, null);
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
         String channel = (String) metadata.get("channel");
-        metadata.put("pkgVersion", ((Number) metadata.get("pkgVersion")).doubleValue());
+        if(null != metadata.get("pkgVersion"))
+            metadata.put("pkgVersion", ((Number) metadata.get("pkgVersion")).doubleValue());
         metadata.remove("collections");
         Response response = systemUpdate(id, makeContentRequest(metadata), channel, true);
         if (isSuccess(response)) {
@@ -297,7 +299,7 @@ public class SyncService extends BaseService implements ISyncService {
         String localPath = null;
         try {
             String mimeType = (String) metadata.get("mimeType");
-            double pkgVersion = ((Number) metadata.get("pkgVersion")).doubleValue();
+            double pkgVersion = (null!= metadata.get("pkgVersion"))?((Number) metadata.get("pkgVersion")).doubleValue(): 0d;
             String channel = (String) metadata.get("channel");
             switch (mimeType) {
                 case "application/vnd.ekstep.ecml-archive":
@@ -408,19 +410,28 @@ public class SyncService extends BaseService implements ISyncService {
         return CollectionUtils.isNotEmpty((List<Map<String, Object>>) content.get("item_sets"));
     }
 
-    private void copyAssessmentItems(List<Map<String, Object>> itemSets) throws Exception {
-        /*for(Map<String, Object> itemSet: itemSets) {
-            String id = (String) itemSet.get("identifier");
-            Response response = executeGET(destUrl + "/assessment/v3/itemsets/" + id, destKey);
-            if(!isSuccess(response)) {
-                Response sourceItemSet = getContent(id, false);
-                if(isSuccess(sourceItemSet)){
-                    Map<String, Object> metadata = (Map<String, Object>) sourceItemSet.get("assessment_item_set");
-
-                }
+    private void copyAssessmentItems(List<Map<String, Object>> questions) throws Exception {
+        if(CollectionUtils.isNotEmpty(questions)){
+            for(Map<String, Object> question: questions) {
+                copyQuestion(question);
             }
-        }*/
+        }
+    }
 
+    private void copyQuestion(Map<String, Object> question) throws Exception {
+        String id = (String) question.get("identifier");
+        Response destQuestion = readQuestion(id, true);
+        if(!isSuccess(destQuestion)) {
+            Response sourceQuest = readQuestion(id, false);
+            if(isSuccess(sourceQuest)){
+                Map<String, Object> request = prepareQuestionRequest(sourceQuest);
+            }
+        }
+    }
+
+    private Map<String,Object> prepareQuestionRequest(Response sourceQuest) {
+        Map<String, Object> assessmentItem = new HashMap<>();
+        return null;
     }
 
 

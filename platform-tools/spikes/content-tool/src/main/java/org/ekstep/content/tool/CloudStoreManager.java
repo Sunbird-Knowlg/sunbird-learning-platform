@@ -38,15 +38,17 @@ public class CloudStoreManager {
         String mimeType = (String) metadata.get("mimeType");
         try {
             String downloadUrl = (String) metadata.get("downloadUrl");
-            String path = downloadEcar(id, downloadUrl);
-            String destDownloadUrl = uploadEcar(id, destStorageType, path);
-
-            if (StringUtils.isNotBlank(destDownloadUrl)) {
-                metadata.put("downloadUrl", destDownloadUrl);
+            if(StringUtils.isNotBlank(downloadUrl)){
+                String path = downloadEcar(id, downloadUrl);
+                String destDownloadUrl = uploadEcar(id, destStorageType, path);
+                if (StringUtils.isNotBlank(destDownloadUrl)) {
+                    metadata.put("downloadUrl", destDownloadUrl);
+                }
             }
 
+
             Map<String, Object> variants = (Map<String, Object>) metadata.get("variants");
-            if (CollectionUtils.isNotEmpty(variants.keySet())) {
+            if (null != variants && CollectionUtils.isNotEmpty(variants.keySet())) {
                 String spineEcarUrl = (String) ((Map<String, Object>) variants.get("spine")).get("ecarUrl");
                 if (StringUtils.isNotBlank(spineEcarUrl)) {
                     String spinePath = downloadEcar(id, spineEcarUrl);
@@ -165,10 +167,12 @@ public class CloudStoreManager {
     }
 
     public void uploadAndExtract(String id, String artefactUrl, String mimeType, double pkgVersion) throws Exception {
-        String artefactPath = downloadArtifact(id, artefactUrl, false);
-        String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
-        TelemetryManager.info("Content destination URL: "+ destArtefactUrl);
-        extractArchives(id, mimeType, destArtefactUrl, pkgVersion);
+        if(StringUtils.isNotBlank(artefactUrl)){
+            String artefactPath = downloadArtifact(id, artefactUrl, false);
+            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+            TelemetryManager.info("Content destination URL: "+ destArtefactUrl);
+            extractArchives(id, mimeType, destArtefactUrl, pkgVersion);
+        }
     }
 
 
