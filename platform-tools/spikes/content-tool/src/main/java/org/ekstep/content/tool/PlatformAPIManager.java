@@ -123,4 +123,9 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
         url += "/assessment/v3/items/read/" + id;
         return executeGET(url, key);
     }
+
+    protected Response createQuestion(Map<String, Object> request, String channel) throws Exception {
+        String url = destUrl + "/assessment/v3/items/create";
+        return executePOST(url, destKey, request, channel);
+    }
 }

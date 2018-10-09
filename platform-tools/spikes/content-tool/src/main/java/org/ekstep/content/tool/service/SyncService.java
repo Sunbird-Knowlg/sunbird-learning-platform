@@ -196,7 +196,6 @@ public class SyncService extends BaseService implements ISyncService {
                     if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
                         Response response = getContent(input.getId(), false, null);
                         updateEcarInfo(input.getId(), (Map<String, Object>) response.get("content"));
-                        return true;
                     } else {
                        return false;
                     }
@@ -220,7 +219,8 @@ public class SyncService extends BaseService implements ISyncService {
                 return false;
             }
         } else {
-            return sync(input, "true");
+            sync(input, "true");
+            return migrateOwner(input, request, channel, "true");
             //throw new ServerException("ERR_CONTENT_SYNC", "Error while fetching the content " + input.getId() + " from destination env", readResponse.getParams().getErrmsg());
         }
     }
@@ -407,7 +407,7 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private boolean containsItemsSet(Map<String, Object> content) {
-        return CollectionUtils.isNotEmpty((List<Map<String, Object>>) content.get("item_sets"));
+        return CollectionUtils.isNotEmpty((List<Map<String, Object>>) content.get("questions"));
     }
 
     private void copyAssessmentItems(List<Map<String, Object>> questions) throws Exception {
@@ -425,13 +425,21 @@ public class SyncService extends BaseService implements ISyncService {
             Response sourceQuest = readQuestion(id, false);
             if(isSuccess(sourceQuest)){
                 Map<String, Object> request = prepareQuestionRequest(sourceQuest);
+                String channel = (String) ((Map<String, Object>)((Map<String, Object>)request.get("request")).get("assessment_item")).get("channel");
+                Response createResp = createQuestion(request, channel);
+                if(!isSuccess(createResp)){
+                    TelemetryManager.error("Error while creating Questions : " + createResp.getParams().getErrmsg() + " : "  + createResp.getResult());
+                }
             }
         }
     }
 
     private Map<String,Object> prepareQuestionRequest(Response sourceQuest) {
         Map<String, Object> assessmentItem = new HashMap<>();
-        return null;
+        assessmentItem.put("assessment_item", sourceQuest.get("assessment_item"));
+        Map<String, Object> request = new HashMap<>();
+        request.put("request", assessmentItem);
+        return request;
     }
 
 

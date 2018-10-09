@@ -3,6 +3,7 @@ package org.ekstep.content.tool.shell;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,7 @@ public class BaseCommand {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    protected  Map<String, Object> prepareFilters(String objectType, String filter, String[] ids, String createdBy, String lastUpdatedOn, String limit, String offset, boolean removeStatus) throws Exception {
+    protected  Map<String, Object> prepareFilters(String objectType, String filter, String[] ids, String createdBy, String lastUpdatedOn, String limit, String offset, boolean removeStatus, String status) throws Exception {
         Map<String, Object> filters = new HashMap<>();
 
         if(StringUtils.isNoneBlank(filter))
@@ -34,6 +35,14 @@ public class BaseCommand {
             filters.put("offset", Integer.parseInt(offset));
 
         filters.put("objectType", objectType);
+
+        if(null != status) {
+            if(StringUtils.isBlank(status)){
+                filters.put("status", new ArrayList<>());
+            }else {
+                filters.put("status", Arrays.asList(status.split(",")));
+            }
+        }
 
         if(removeStatus)
             filters.remove("status");

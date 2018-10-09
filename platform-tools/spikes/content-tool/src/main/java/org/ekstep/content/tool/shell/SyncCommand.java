@@ -48,7 +48,7 @@ public class SyncCommand extends BaseCommand implements CommandMarker {
     {
 
         System.out.println("-----------------------------------------");
-        Map<String, Object> filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn,  limit, offset, true);
+        Map<String, Object> filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn,  limit, offset, true, null);
         syncService.sync(filters, dryRun, forceUpdate);
         System.out.println("-----------------------------------------");
     }

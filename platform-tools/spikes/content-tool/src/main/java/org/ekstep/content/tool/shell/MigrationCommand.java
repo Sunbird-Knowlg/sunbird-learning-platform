@@ -45,11 +45,13 @@ public class MigrationCommand extends BaseCommand implements CommandMarker {
                                @CliOption(key = {
                                        "limit"}, mandatory = false, help = "limit on migration count") String limit,
                                @CliOption(key = {
-                                       "offset"}, mandatory = false, help = "offset from which the migration should continue") String offset)
+                                       "offset"}, mandatory = false, help = "offset from which the migration should continue") String offset,
+                               @CliOption(key = {
+                                       "status"}, mandatory = false, unspecifiedDefaultValue = "Live", specifiedDefaultValue = "", help = " of the content") String status)
             throws Exception {
 
         System.out.println("-----------------------------------------");
-        Map<String, Object> filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn,  limit, offset, false);
+        Map<String, Object> filters = prepareFilters(objectType, filter, ids, createdBy, lastUpdatedOn,  limit, offset, false, status);
         syncService.ownerMigration(userId, channel, createdFor, organisation, creator, filters, dryRun, forceUpdate);
         System.out.println("-----------------------------------------");
     }
