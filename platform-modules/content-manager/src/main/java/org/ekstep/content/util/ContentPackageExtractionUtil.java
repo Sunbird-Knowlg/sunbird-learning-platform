@@ -306,69 +306,6 @@ public class ContentPackageExtractionUtil {
 	}
 
 	/**
-	 * Bulk file upload.
-	 *
-	 * @param files
-	 *            the files
-	 * @param AWSFolderPath
-	 *            the AWS folder path
-	 * @param basePath
-	 *            the base path
-	 * @return the list
-	 * @throws InterruptedException
-	 *             the interrupted exception
-	 * @throws ExecutionException
-	 *             the execution exception
-	 */
-	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath, String basePath, boolean slugFile)
-			throws InterruptedException, ExecutionException {
-
-		// Validating Parameters
-		if (null == files || files.size() < 1)
-			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
-					"Error! Atleast One file is needed for Content Package Extraction.");
-
-		if (StringUtils.isBlank(basePath))
-			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
-					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
-
-		List<String> lstUploadedFileUrls = new ArrayList<>();
-		TelemetryManager.log("Starting the Fan-out for Upload.");
-		ExecutorService pool = Executors.newFixedThreadPool(10);
-		List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(files.size());
-
-		TelemetryManager.log("Adding All Files to Upload.");
-		for (final File file : files) {
-			tasks.add(new Callable<Map<String, String>>() {
-				public Map<String, String> call() throws Exception {
-					Map<String, String> uploadMap = new HashMap<String, String>();
-					if (file.exists() && !file.isDirectory()) {
-						String folderName = AWSFolderPath;
-						String path = getFolderPath(file, basePath);
-						if (StringUtils.isNotBlank(path))
-							folderName += File.separator + path;
-						TelemetryManager.log("Folder Name For Storage Space Extraction: " + folderName);
-						String[] uploadedFileUrl = CloudStore.uploadFile(folderName, file, slugFile);
-						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
-							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
-					}
-
-					return uploadMap;
-				}
-			});
-		}
-		List<Future<Map<String, String>>> results = pool.invokeAll(tasks);
-		for (Future<Map<String, String>> uMap : results) {
-			Map<String, String> m = uMap.get();
-			if (null != m)
-				lstUploadedFileUrls.addAll(m.values());
-		}
-		pool.shutdown();
-
-		return lstUploadedFileUrls;
-	}
-
-	/**
 	 * Gets the extraction path.
 	 *
 	 * @param node
