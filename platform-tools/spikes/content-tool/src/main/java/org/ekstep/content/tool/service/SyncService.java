@@ -400,6 +400,7 @@ public class SyncService extends BaseService implements ISyncService {
     private void updateEcarInfo(String id, Map<String, Object> metadata) throws Exception {
         Map<String, Object> urlUpdateReq = cloudStoreManager.copyEcar(metadata);
         systemUpdate(id, urlUpdateReq, (String) metadata.get("channel"), true);
+        systemUpdate(id, urlUpdateReq, (String) metadata.get("channel"), false);
     }
 
     private boolean isForceupdate(String forceUpdate) {
