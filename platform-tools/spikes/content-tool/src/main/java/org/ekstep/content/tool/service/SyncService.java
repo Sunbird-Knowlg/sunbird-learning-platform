@@ -318,7 +318,9 @@ public class SyncService extends BaseService implements ISyncService {
                             childrenReq.add(childReq);
                         }
                         if(CollectionUtils.isNotEmpty(childrenReq)) {
-                            systemUpdate(id, makeContentRequest(childrenReq), channel, true);
+                            Map<String, Object> childRequest = new HashMap<>();
+                            childRequest.put("children", childrenReq);
+                            systemUpdate(id, makeContentRequest(childRequest), channel, true);
                         }
                         syncHierarchy(id);
                     }
