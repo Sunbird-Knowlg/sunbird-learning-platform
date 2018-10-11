@@ -455,7 +455,8 @@ public class SyncService extends BaseService implements ISyncService {
                 String visibility = (String) contenMetadata.get("visibility");
 
                 if (StringUtils.isNotBlank(visibility) && StringUtils.equalsIgnoreCase("Parent", visibility)) {
-                    Input childInput = new Input((String) contenMetadata.get("identifier"), (String) contenMetadata.get("name"), ((Number) contenMetadata.get("pkgVersion")).doubleValue(), (String) contenMetadata.get("objectType"), (String) contenMetadata.get("status"));
+                    double pkgVersion = (null != contenMetadata.get("pkgVersion"))?((Number) contenMetadata.get("pkgVersion")).doubleValue():0d;
+                    Input childInput = new Input((String) contenMetadata.get("identifier"), (String) contenMetadata.get("name"), pkgVersion, (String) contenMetadata.get("objectType"), (String) contenMetadata.get("status"));
                     children.add(childInput);
                     fetchChildren(childContent, children);
                 }
