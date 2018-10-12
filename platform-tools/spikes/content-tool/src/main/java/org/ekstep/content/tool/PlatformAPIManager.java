@@ -90,8 +90,14 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
     }
 
     private void getIdsFromResponse(Map<String, Object> result, int count, InputList inputList, int offset, Map<String, Object> request, boolean isLimited) throws Exception {
+        List<Map<String, Object>> results = new ArrayList<>();
+        if(null != result.get("content")) {
+            results = (List<Map<String, Object>>) result.get("content");
+        }else if(null != result.get("items")) {
+            results = (List<Map<String, Object>>) result.get("items");
+        }
         if (!isLimited && (count - 100) >= 0) {
-            for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
+            for (Map<String, Object> res : results) {
                 double pkgVersion = (null != res.get("pkgVersion"))? ((Number)res.get("pkgVersion")).doubleValue(): 0d;
                 inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), pkgVersion, (String)res.get("objectType"), (String)res.get("status")));
             }
@@ -108,7 +114,7 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
             }
 
         } else {
-            for (Map<String, Object> res : (List<Map<String, Object>>) result.get("content")) {
+            for (Map<String, Object> res : results) {
                 double pkgVersion = (null != res.get("pkgVersion"))? ((Number)res.get("pkgVersion")).doubleValue(): 0d;
                 inputList.add(new Input((String) res.get("identifier"), (String) res.get("name"), pkgVersion, (String)res.get("objectType"), (String)res.get("status")));
             }
@@ -124,8 +130,17 @@ public class PlatformAPIManager extends BaseRESTAPIManager {
         return executeGET(url, key);
     }
 
-    protected Response createQuestion(Map<String, Object> request, String channel) throws Exception {
-        String url = destUrl + "/assessment/v3/items/create";
-        return executePOST(url, destKey, request, channel);
+    protected Response createQuestion(Map<String, Object> request, String channel, boolean isDestination) throws Exception {
+        String url = (isDestination)? destUrl : sourceUrl;
+        String key = (isDestination)? destKey : sourceKey;
+        url += "/assessment/v3/items/create";
+        return executePOST(url, key, request, channel);
+    }
+
+    protected Response updateQuestion(String id, Map<String, Object> request, String channel, boolean isDestination) throws Exception {
+        String url = (isDestination)? destUrl : sourceUrl;
+        String key = (isDestination)? destKey : sourceKey;
+        url += "/assessment/v3/items/update/"+ id;
+        return executePATCH(url, key, request, channel);
     }
 }

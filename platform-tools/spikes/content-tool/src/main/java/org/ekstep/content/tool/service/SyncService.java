@@ -72,10 +72,10 @@ public class SyncService extends BaseService implements ISyncService {
                 if(null == filters.get("limit") || (defaultLimit < (int) filters.get("limit")))
                     filters.put("limit", defaultLimit);
                 InputList inputList = search(filters);
-                System.out.println("Content count to sync: " + count + "\n" + "Data : \n" + inputList.toString());
+                System.out.println("Data count to sync: " + count + "\n" + "Data : \n" + inputList.toString());
             } else {
                 if(count > 0) {
-                    System.out.println("Total No. of Contents : " + count);
+                    System.out.println("Total No. of data : " + count);
                     System.out.println("-----------------------------------------");
                     syncData(filters, forceUpdate, count);
                     System.out.println("-----------------------------------------");
@@ -183,6 +183,37 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private boolean migrateOwner(Input input, Map<String, Object> request, String channel, String forceUpdate) throws Exception {
+        switch(input.getObjectType()) {
+            case "Content" : return migrateContent(input, request, channel, forceUpdate);
+            case "AssessmentItem": return migrateQuestion(input, request, channel);
+            default: return false;
+        }
+
+    }
+
+    private boolean migrateQuestion(Input input, Map<String, Object> request, String channel) throws Exception {
+        Response destQuestion = readQuestion(input.getId(), true);
+        if(isSuccess(destQuestion)) {
+            Response sourceQuestion = readQuestion(input.getId(), false);
+            if(isSuccess(sourceQuestion) && (!request.isEmpty())) {
+                Map<String, Object> questionRequest = prepareQuestionRequest(sourceQuestion);
+                if(StringUtils.isBlank(channel)) {
+                    channel = (String) ((Map<String, Object>)destQuestion.getResult().get("content")).get("channel");
+                }
+                ((Map<String, Object>)((Map<String, Object>)((Map<String, Object>)questionRequest.get("request")).get("assessment_item")).get("metadata")).put("createdBy", request.get("createdBy"));
+                Response destUpdate = updateQuestion(input.getId(),questionRequest, channel, true);
+                Response sourceUpdate = updateQuestion(input.getId(), questionRequest, channel, false);
+                return (isSuccess(destUpdate) && isSuccess(sourceUpdate));
+            }else{
+                return false;
+            }
+        }else{
+            syncQuestion(input);
+            return migrateQuestion(input, request, channel);
+        }
+    }
+
+    private boolean migrateContent(Input input, Map<String, Object> request, String channel, String forceUpdate) throws Exception {
         Response readResponse = getContent(input.getId(), true, null);
         if (isSuccess(readResponse)) {
             Map<String, Object> destContent = (Map<String, Object>) readResponse.get("content");
@@ -190,6 +221,9 @@ public class SyncService extends BaseService implements ISyncService {
             double destPkgVersion = (null!= destContent.get("pkgVersion"))? ((Number) destContent.get("pkgVersion")).doubleValue(): 0d;
             if (isForceupdate(forceUpdate) || (0 == Double.compare(srcPkgVersion, destPkgVersion))) {
                 if (!request.isEmpty()) {
+                    if(StringUtils.isBlank(channel)) {
+                        channel = (String) destContent.get("channel");
+                    }
                     Response updateResponse = systemUpdate(input.getId(), request, channel, true);
                     Response updateSourceResponse = systemUpdate(input.getId(), request, channel, false);
 
@@ -197,7 +231,7 @@ public class SyncService extends BaseService implements ISyncService {
                         Response response = getContent(input.getId(), false, null);
                         updateEcarInfo(input.getId(), (Map<String, Object>) response.get("content"));
                     } else {
-                       return false;
+                        return false;
                     }
                 }else{
                     updateEcarInfo(input.getId(), (Map<String, Object>) readResponse.get("content"));
@@ -221,9 +255,9 @@ public class SyncService extends BaseService implements ISyncService {
         } else {
             sync(input, "true");
             return migrateOwner(input, request, channel, "true");
-            //throw new ServerException("ERR_CONTENT_SYNC", "Error while fetching the content " + input.getId() + " from destination env", readResponse.getParams().getErrmsg());
         }
     }
+
 
     /**
      * For each ID
@@ -261,6 +295,21 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private boolean sync(Input input, String forceUpdate) throws Exception{
+        switch(input.getObjectType()) {
+            case "Content":
+                return syncContent(input, forceUpdate);
+            case "AssessmentItem":
+                return syncQuestion(input);
+            default:
+                return false;
+        }
+    }
+
+    private boolean syncQuestion(Input input) throws Exception {
+       return  copyQuestion(input.getId());
+    }
+
+    private boolean syncContent(Input input, String forceUpdate) throws Exception {
         Response destContent = getContent(input.getId(), true, null);
         if (isSuccess(destContent)) {
             Response sourceContent = getContent(input.getId(), false, null);
@@ -416,30 +465,64 @@ public class SyncService extends BaseService implements ISyncService {
     private void copyAssessmentItems(List<Map<String, Object>> questions) throws Exception {
         if(CollectionUtils.isNotEmpty(questions)){
             for(Map<String, Object> question: questions) {
-                copyQuestion(question);
+                copyQuestion( (String) question.get("identifier"));
             }
         }
     }
 
-    private void copyQuestion(Map<String, Object> question) throws Exception {
-        String id = (String) question.get("identifier");
+    private boolean copyQuestion(String id) throws Exception {
         Response destQuestion = readQuestion(id, true);
         if(!isSuccess(destQuestion)) {
             Response sourceQuest = readQuestion(id, false);
             if(isSuccess(sourceQuest)){
                 Map<String, Object> request = prepareQuestionRequest(sourceQuest);
-                String channel = (String) ((Map<String, Object>)((Map<String, Object>)request.get("request")).get("assessment_item")).get("channel");
-                Response createResp = createQuestion(request, channel);
+                String channel = (String) ((Map<String, Object>)((Map<String, Object>)((Map<String, Object>)request.get("request")).get("assessment_item")).get("metadata")).get("channel");
+                Response createResp = createQuestion(request, channel, true);
                 if(!isSuccess(createResp)){
                     TelemetryManager.error("Error while creating Questions : " + createResp.getParams().getErrmsg() + " : "  + createResp.getResult());
+                    return false;
                 }
+                return true;
             }
+            else{
+                TelemetryManager.error("Error while fetcing Questions " + id + " from source : " + sourceQuest.getParams().getErrmsg() + " : "  + sourceQuest.getResult());
+                return false;
+            }
+        }else{
+            TelemetryManager.info("Question with ID " + id + " already exists in destination");
+            return false;
         }
     }
 
     private Map<String,Object> prepareQuestionRequest(Response sourceQuest) {
+        Map<String, Object> question = (Map<String, Object>) sourceQuest.get("assessment_item");
+        Map<String, Object> metadata = new HashMap<>(question);
+        metadata.remove("identifier");
+        metadata.remove("objectType");
+        metadata.remove("concepts");
+        metadata.remove("subject");
+
+        if(null != question.get("concepts")){
+            List<Map<String, Object>> concepts = (List<Map<String, Object>>) question.get("concepts");
+            List<Map<String, Object>> outRelations = new ArrayList<>();
+            for(Map<String, Object> concept : concepts) {
+                Map<String, Object> relation = new HashMap<>();
+                relation.put("endNodeId", concept.get("identifier"));
+                relation.put("relationType", concept.get("relation"));
+                outRelations.add(relation);
+            }
+            question.put("outRelations", outRelations);
+            question.remove("concepts");
+        }
+        Map<String, Object> item = new HashMap<>();
+        item.put("identifier", question.get("identifier"));
+        item.put("objectType", "AssessmentItem");
+        item.put("metadata", metadata);
+        item.put("outRelations", question.get("outRelations"));
+
         Map<String, Object> assessmentItem = new HashMap<>();
-        assessmentItem.put("assessment_item", sourceQuest.get("assessment_item"));
+        assessmentItem.put("assessment_item", item);
+
         Map<String, Object> request = new HashMap<>();
         request.put("request", assessmentItem);
         return request;

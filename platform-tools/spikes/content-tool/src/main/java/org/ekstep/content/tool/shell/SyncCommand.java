@@ -30,7 +30,7 @@ public class SyncCommand extends BaseCommand implements CommandMarker {
                      @CliOption(key = {
                              "ids"}, mandatory = false, help = "identifiers to be synced") final String[] ids,
                      @CliOption(key = {
-                             "objectType"}, mandatory = false, unspecifiedDefaultValue = "Content", help = "object Type - Content by default") final String objectType,
+                             "objectType"}, mandatory = false, help = "object Type") final String objectType,
                      @CliOption(key = {
                              "createdBy"}, mandatory = false, help = "createdBy / user id") final String createdBy,
                      @CliOption(key = {

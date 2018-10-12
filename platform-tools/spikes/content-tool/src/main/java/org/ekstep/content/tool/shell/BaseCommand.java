@@ -34,7 +34,8 @@ public class BaseCommand {
         if(StringUtils.isNotBlank(offset) && !StringUtils.equalsIgnoreCase("0", offset))
             filters.put("offset", Integer.parseInt(offset));
 
-        filters.put("objectType", objectType);
+        if(StringUtils.isNotBlank(objectType))
+            filters.put("objectType", objectType);
 
         if(null != status) {
             if(StringUtils.isBlank(status)){
