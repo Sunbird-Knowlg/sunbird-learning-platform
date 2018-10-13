@@ -2,9 +2,9 @@ package org.ekstep.content.tool;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.sunbird.cloud.storage.BaseStorageService;
@@ -24,6 +24,9 @@ public class CloudStoreManager {
 
     protected BaseStorageService awsService = StorageServiceFactory.getStorageService(new StorageConfig("aws", Platform.config.getString("aws_storage_key"), Platform.config.getString("aws_storage_secret")));
     protected BaseStorageService azureService = StorageServiceFactory.getStorageService((new StorageConfig("azure", Platform.config.getString("azure_storage_key"), Platform.config.getString("azure_storage_secret"))));
+    private String cloudSrcBaseURL = Platform.config.getString("cloud.src.baseurl");
+    private String cloudDestBaseURL = Platform.config.getString("cloud.dest.baseurl");
+
 
     protected static Map<String, String> extractMimeType = new HashMap<>();
 
@@ -33,14 +36,34 @@ public class CloudStoreManager {
         extractMimeType.put("application/vnd.ekstep.html-archive", "html");
     }
 
+    public String getDestUrl(String url) {
+        String destUrl = "";
+        String relativePath = StringUtils.replace(url, cloudSrcBaseURL, "");
+        relativePath = StringUtils.replace(relativePath, cloudDestBaseURL, "");
+        if (StringUtils.isNotBlank(relativePath))
+            destUrl = cloudDestBaseURL + relativePath;
+        return destUrl;
+    }
+
+    public boolean urlAvailable(String url) throws Exception {
+        Process p = Runtime.getRuntime().exec("curl -I " + url);
+        String response = IOUtils.toString(p.getInputStream());
+        return StringUtils.contains(response, "HTTP/1.1 200 OK");
+    }
+
     public Map<String, Object> copyEcar(Map<String, Object> metadata) throws Exception {
         String id = (String) metadata.get("identifier");
         String mimeType = (String) metadata.get("mimeType");
         try {
             String downloadUrl = (String) metadata.get("downloadUrl");
             if(StringUtils.isNotBlank(downloadUrl)){
-                String path = downloadEcar(id, downloadUrl);
-                String destDownloadUrl = uploadEcar(id, destStorageType, path);
+                String destDownloadUrl = getDestUrl(downloadUrl);
+                if (!urlAvailable(destDownloadUrl)) {
+                    String path = downloadEcar(id, downloadUrl);
+                    destDownloadUrl = uploadEcar(id, destStorageType, path);
+                } else {
+                    TelemetryManager.info("downloadUrl available in destination: " + destDownloadUrl);
+                }
                 if (StringUtils.isNotBlank(destDownloadUrl)) {
                     metadata.put("downloadUrl", destDownloadUrl);
                 }
@@ -51,8 +74,13 @@ public class CloudStoreManager {
             if (null != variants && CollectionUtils.isNotEmpty(variants.keySet())) {
                 String spineEcarUrl = (String) ((Map<String, Object>) variants.get("spine")).get("ecarUrl");
                 if (StringUtils.isNotBlank(spineEcarUrl)) {
-                    String spinePath = downloadEcar(id, spineEcarUrl);
-                    String destSpineEcar = uploadEcar(id, destStorageType, spinePath);
+                    String destSpineEcar = getDestUrl(spineEcarUrl);
+                    if (!urlAvailable(destSpineEcar)) {
+                        String spinePath = downloadEcar(id, spineEcarUrl);
+                        destSpineEcar = uploadEcar(id, destStorageType, spinePath);
+                    } else {
+                        TelemetryManager.info("variants.spine.ecarUrl available in destination: " + destSpineEcar);
+                    }
                     ((Map<String, Object>) variants.get("spine")).put("ecarUrl", destSpineEcar);
                     metadata.put("variants", variants);
                 }
@@ -60,8 +88,13 @@ public class CloudStoreManager {
 
             String appIconUrl = (String) metadata.get("appIcon");
             if(StringUtils.isNotBlank(appIconUrl)){
-                String appIconPath = downloadArtifact(id, appIconUrl, false);
-                String destAppIconUrl = uploadArtifact(id, appIconPath, destStorageType);
+                String destAppIconUrl = getDestUrl(appIconUrl);
+                if (!urlAvailable(destAppIconUrl)) {
+                    String appIconPath = downloadArtifact(id, appIconUrl, false);
+                    destAppIconUrl = uploadArtifact(id, appIconPath, destStorageType);
+                } else {
+                    TelemetryManager.info("appIcon available in destination: " + destAppIconUrl);
+                }
                 if (StringUtils.isNotBlank(destAppIconUrl)) {
                     metadata.put("appIcon", destAppIconUrl);
                 }
@@ -69,8 +102,13 @@ public class CloudStoreManager {
 
             String posterImageUrl = (String) metadata.get("posterImage");
             if(StringUtils.isNotBlank(posterImageUrl)){
-                String posterImagePath = downloadArtifact(id, posterImageUrl, false);
-                String destPosterImageUrl = uploadArtifact(id, posterImagePath, destStorageType);
+                String destPosterImageUrl = getDestUrl(posterImageUrl);
+                if (!urlAvailable(destPosterImageUrl)) {
+                    String posterImagePath = downloadArtifact(id, posterImageUrl, false);
+                    destPosterImageUrl = uploadArtifact(id, posterImagePath, destStorageType);
+                } else {
+                    TelemetryManager.info("posterImage available in destination: " + destPosterImageUrl);
+                }
                 if (StringUtils.isNotBlank(destPosterImageUrl)) {
                     metadata.put("posterImage", destPosterImageUrl);
                 }
@@ -78,8 +116,13 @@ public class CloudStoreManager {
 
             String tocUrl = (String) metadata.get("toc_url");
             if(StringUtils.isNotBlank(tocUrl)){
-                String tocUrlPath = downloadArtifact(id, tocUrl, false);
-                String destTocUrlUrl = uploadArtifact(id, tocUrlPath, destStorageType);
+                String destTocUrlUrl = getDestUrl(tocUrl);
+                if (!urlAvailable(destTocUrlUrl)) {
+                    String tocUrlPath = downloadArtifact(id, tocUrl, false);
+                    destTocUrlUrl = uploadArtifact(id, tocUrlPath, destStorageType);
+                } else {
+                    TelemetryManager.info("toc_url available in destination: " + destTocUrlUrl);
+                }
                 if (StringUtils.isNotBlank(destTocUrlUrl)) {
                     metadata.put("toc_url", destTocUrlUrl);
                 }
@@ -88,8 +131,14 @@ public class CloudStoreManager {
             if (!StringUtils.equals(mimeType, "video/x-youtube")) {
                 String artefactUrl = (String) metadata.get("artifactUrl");
                 if(StringUtils.isNotBlank(artefactUrl)){
-                    String artefactPath = downloadArtifact(id, artefactUrl, false);
-                    String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+                    String destArtefactUrl = getDestUrl(artefactUrl);
+                    if (!urlAvailable(destArtefactUrl)) {
+                        String artefactPath = downloadArtifact(id, artefactUrl, false);
+                        destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+                    } else {
+                        TelemetryManager.info("toc_url available in destination: " + destArtefactUrl);
+                    }
+
                     if (StringUtils.isNotBlank(destArtefactUrl)) {
                         metadata.put("artifactUrl", destArtefactUrl);
                     }
@@ -159,7 +208,7 @@ public class CloudStoreManager {
     }
 
     public String uploadEcar(String id, String cloudStoreType, String path) {
-        String folder = "ecar-files/" + id;
+        String folder = "ecar_files/" + id;
         File file = new File(path);
         String objectKey = folder + "/" + file.getName();
         String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
@@ -168,9 +217,16 @@ public class CloudStoreManager {
 
     public void uploadAndExtract(String id, String artefactUrl, String mimeType, double pkgVersion) throws Exception {
         if(StringUtils.isNotBlank(artefactUrl)){
-            String artefactPath = downloadArtifact(id, artefactUrl, false);
-            String destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
-            TelemetryManager.info("Content destination URL: "+ destArtefactUrl);
+            String destArtefactUrl = getDestUrl(artefactUrl);
+            if (!urlAvailable(destArtefactUrl)) {
+                String artefactPath = downloadArtifact(id, artefactUrl, false);
+                destArtefactUrl = uploadArtifact(id, artefactPath, destStorageType);
+                TelemetryManager.info("Content destination URL: "+ destArtefactUrl);
+            } else {
+                TelemetryManager.info("artifactUrl available in destination but syncing extracted paths: " + destArtefactUrl);
+            }
+
+
             extractArchives(id, mimeType, destArtefactUrl, pkgVersion);
         }
     }

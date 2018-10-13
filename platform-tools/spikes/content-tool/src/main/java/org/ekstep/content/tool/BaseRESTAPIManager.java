@@ -6,6 +6,7 @@ import com.mashape.unirest.http.Unirest;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.Map;
 
@@ -14,7 +15,11 @@ public class BaseRESTAPIManager {
     protected ObjectMapper mapper = new ObjectMapper();
 
     public boolean isSuccess(Response response) {
-        return StringUtils.equals(ResponseParams.StatusType.successful.name(), response.getParams().getStatus());
+        boolean success = StringUtils.equals(ResponseParams.StatusType.successful.name(), response.getParams().getStatus());
+        if (!success) {
+            TelemetryManager.info("API call unsuccessful. ", response.getResult());
+        }
+        return success;
     }
 
     protected Response executePOST(String url, String authKey, Map<String, Object> request, String channel) throws Exception {
