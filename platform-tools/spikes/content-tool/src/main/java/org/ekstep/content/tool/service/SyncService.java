@@ -198,9 +198,10 @@ public class SyncService extends BaseService implements ISyncService {
             if(isSuccess(sourceQuestion) && (!request.isEmpty())) {
                 Map<String, Object> questionRequest = prepareQuestionRequest(sourceQuestion);
                 if(StringUtils.isBlank(channel)) {
-                    channel = (String) ((Map<String, Object>)destQuestion.getResult().get("content")).get("channel");
+                    channel = (String) ((Map<String, Object>)destQuestion.getResult().get("assessment_item")).get("channel");
                 }
-                ((Map<String, Object>)((Map<String, Object>)((Map<String, Object>)questionRequest.get("request")).get("assessment_item")).get("metadata")).put("createdBy", request.get("createdBy"));
+                String createdBy = (String) ((Map<String, Object>)((Map<String, Object>)request.get("request")).get("content")).get("createdBy");
+                ((Map<String, Object>)((Map<String, Object>)((Map<String, Object>)questionRequest.get("request")).get("assessment_item")).get("metadata")).put("createdBy", createdBy);
                 Response destUpdate = updateQuestion(input.getId(),questionRequest, channel, true);
                 Response sourceUpdate = updateQuestion(input.getId(), questionRequest, channel, false);
                 return (isSuccess(destUpdate) && isSuccess(sourceUpdate));
@@ -477,7 +478,7 @@ public class SyncService extends BaseService implements ISyncService {
             if(isSuccess(sourceQuest)){
                 Map<String, Object> request = prepareQuestionRequest(sourceQuest);
                 String channel = (String) ((Map<String, Object>)((Map<String, Object>)((Map<String, Object>)request.get("request")).get("assessment_item")).get("metadata")).get("channel");
-                Response createResp = createQuestion(request, channel, true);
+                Response createResp = updateQuestion(id, request, channel, true);
                 if(!isSuccess(createResp)){
                     TelemetryManager.error("Error while creating Questions : " + createResp.getParams().getErrmsg() + " : "  + createResp.getResult());
                     return false;
