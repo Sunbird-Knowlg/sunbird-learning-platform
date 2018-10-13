@@ -21,7 +21,7 @@ public class MigrationCommand extends BaseCommand implements CommandMarker {
     @CliCommand(value = "content-tool owner-migration", help = "Ownership migration")
     public void ownerMigration(@CliOption(key = {"userId"}, mandatory = false, help = "User Id") final String userId,
                                @CliOption(key = {
-                                       "channel"}, mandatory = false, unspecifiedDefaultValue = "in.ekstep", help = "channel ID") final String channel,
+                                       "channel"}, mandatory = false, help = "channel ID") final String channel,
                                @CliOption(key = {
                                        "createdFor"}, mandatory = false, help = "Content created for?") final String[] createdFor,
                                @CliOption(key = {
