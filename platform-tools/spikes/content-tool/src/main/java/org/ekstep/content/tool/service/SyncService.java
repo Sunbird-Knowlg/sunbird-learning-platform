@@ -9,6 +9,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.content.tool.util.Input;
 import org.ekstep.content.tool.util.InputList;
+import org.ekstep.content.tool.util.ShellCommandUtils;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
@@ -315,14 +316,18 @@ public class SyncService extends BaseService implements ISyncService {
         if (isSuccess(destContent)) {
             Response sourceContent = getContent(input.getId(), false, null);
             if (isForceupdate(forceUpdate) || (Double.compare(((Number) ((Map<String, Object>) destContent.get("content")).get("pkgVersion")).doubleValue(), ((Number) ((Map<String, Object>) sourceContent.get("content")).get("pkgVersion")).doubleValue()) == -1)) {
+                ShellCommandUtils.print(input.getId() + " updating metadata...");
                 updateMetadata(sourceContent, forceUpdate);
+                ShellCommandUtils.print(input.getId() + " update metadata complete...");
                 return true;
             } else {
                 return false;
             }
 
         } else {
+            ShellCommandUtils.print(input.getId() + " creating content...");
             createContent(input.getId(), forceUpdate);
+            ShellCommandUtils.print(input.getId() + " create content complete...");
             return true;
         }
 
@@ -337,7 +342,9 @@ public class SyncService extends BaseService implements ISyncService {
         metadata.remove("collections");
         Response response = systemUpdate(id, makeContentRequest(metadata), channel, true);
         if (isSuccess(response)) {
+            ShellCommandUtils.print(id + " updating external props of content...");
             updateExternalProps(id, channel);
+            ShellCommandUtils.print( id + " updated external props of content...");
             updateMimeType(id, metadata, forceUpdate);
         }else{
             throw new ServerException("ERR_CONTENT_SYNC","Error while creating content " + id +" in destination env : "+  response.getParams().getErrmsg());
@@ -354,11 +361,14 @@ public class SyncService extends BaseService implements ISyncService {
             switch (mimeType) {
                 case "application/vnd.ekstep.ecml-archive":
                     localPath = cloudStoreManager.downloadArtifact(id, (String) metadata.get("artifactUrl"), true);
+                    ShellCommandUtils.print(id + " copying content assets...");
                     copyAssets(localPath, forceUpdate);
+                    ShellCommandUtils.print(id + " copied content assets...");
                     break;
                 case "application/vnd.ekstep.content-collection":
                     List<Map<String, Object>> children = (List<Map<String, Object>>) metadata.get("children");
                     if (CollectionUtils.isNotEmpty(children)) {
+                        ShellCommandUtils.print(id + " creating children of the content...");
                         List<Map<String, String>> childrenReq = new ArrayList<>();
                         for (Map<String, Object> child : children) {
                             String childId = (String) child.get("identifier");
@@ -373,11 +383,14 @@ public class SyncService extends BaseService implements ISyncService {
                             systemUpdate(id, makeContentRequest(childRequest), channel, true);
                         }
                         syncHierarchy(id);
+                        ShellCommandUtils.print(id + " created children of the content...");
                     }
                     break;
                 case "application/vnd.ekstep.h5p-archive":
                 case "application/vnd.ekstep.html-archive":
+                    ShellCommandUtils.print(id + " uploading h5p/html artifactUrl of the content...");
                     cloudStoreManager.uploadAndExtract(id, (String) metadata.get("artifactUrl"), mimeType, pkgVersion);
+                    ShellCommandUtils.print(id + " uploaded h5p/html artifactUrl of the content...");
                     break;
                 default:
                     break;
