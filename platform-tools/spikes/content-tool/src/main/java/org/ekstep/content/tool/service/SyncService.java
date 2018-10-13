@@ -32,7 +32,6 @@ public class SyncService extends BaseService implements ISyncService {
     public void ownerMigration(String createdBy, String channel, String[] createdFor, String[] organisation, String creator,  Map<String, Object> filters, String dryRun, String forceUpdate) {
         initialise();
         try {
-            if (validChannel(channel)) {
                 int count = searchCount(new HashMap<>(filters));
 
                 if (StringUtils.equalsIgnoreCase(dryRun, "true")) {
@@ -53,11 +52,6 @@ public class SyncService extends BaseService implements ISyncService {
                         System.out.println("No contents to migrate");
                     }
                 }
-
-            } else {
-                TelemetryManager.error("Error while ownership migration", new ClientException("ERR_INVALID_REQUEST", "Invalid Channel Id"));
-                System.out.println("Channel Id is invalid!! Please provide valid channel ID");
-            }
         } catch (Exception e) {
             TelemetryManager.error("Error while ownership migration", e);
         }
