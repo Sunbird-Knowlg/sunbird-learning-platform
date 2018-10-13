@@ -149,6 +149,7 @@ public class CloudStoreManager {
                 }
             }
 
+            metadata.remove("status");
             Map<String, Object> content = new HashMap<>();
             content.put("content", metadata);
             Map<String, Object> request = new HashMap<>();
