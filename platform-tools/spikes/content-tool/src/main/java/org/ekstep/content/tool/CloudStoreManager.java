@@ -52,6 +52,7 @@ public class CloudStoreManager {
     }
 
     public Map<String, Object> copyEcar(Map<String, Object> metadata) throws Exception {
+        Map<String, Object> updateUrls = new HashMap<>();
         String id = (String) metadata.get("identifier");
         String mimeType = (String) metadata.get("mimeType");
         try {
@@ -65,7 +66,7 @@ public class CloudStoreManager {
                     TelemetryManager.info("downloadUrl available in destination: " + destDownloadUrl);
                 }
                 if (StringUtils.isNotBlank(destDownloadUrl)) {
-                    metadata.put("downloadUrl", destDownloadUrl);
+                    updateUrls.put("downloadUrl", destDownloadUrl);
                 }
             }
 
@@ -82,7 +83,7 @@ public class CloudStoreManager {
                         TelemetryManager.info("variants.spine.ecarUrl available in destination: " + destSpineEcar);
                     }
                     ((Map<String, Object>) variants.get("spine")).put("ecarUrl", destSpineEcar);
-                    metadata.put("variants", variants);
+                    updateUrls.put("variants", variants);
                 }
             }
 
@@ -96,7 +97,7 @@ public class CloudStoreManager {
                     TelemetryManager.info("appIcon available in destination: " + destAppIconUrl);
                 }
                 if (StringUtils.isNotBlank(destAppIconUrl)) {
-                    metadata.put("appIcon", destAppIconUrl);
+                    updateUrls.put("appIcon", destAppIconUrl);
                 }
             }
 
@@ -110,7 +111,7 @@ public class CloudStoreManager {
                     TelemetryManager.info("posterImage available in destination: " + destPosterImageUrl);
                 }
                 if (StringUtils.isNotBlank(destPosterImageUrl)) {
-                    metadata.put("posterImage", destPosterImageUrl);
+                    updateUrls.put("posterImage", destPosterImageUrl);
                 }
             }
 
@@ -124,7 +125,7 @@ public class CloudStoreManager {
                     TelemetryManager.info("toc_url available in destination: " + destTocUrlUrl);
                 }
                 if (StringUtils.isNotBlank(destTocUrlUrl)) {
-                    metadata.put("toc_url", destTocUrlUrl);
+                    updateUrls.put("toc_url", destTocUrlUrl);
                 }
             }
 
@@ -140,7 +141,7 @@ public class CloudStoreManager {
                     }
 
                     if (StringUtils.isNotBlank(destArtefactUrl)) {
-                        metadata.put("artifactUrl", destArtefactUrl);
+                        updateUrls.put("artifactUrl", destArtefactUrl);
                     }
 
                     if(extractMimeType.keySet().contains(metadata.get("mimeType"))){
@@ -151,7 +152,7 @@ public class CloudStoreManager {
 
             metadata.remove("status");
             Map<String, Object> content = new HashMap<>();
-            content.put("content", metadata);
+            content.put("content", updateUrls);
             Map<String, Object> request = new HashMap<>();
             request.put("request", content);
             return request;
