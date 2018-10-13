@@ -478,7 +478,7 @@ public class SyncService extends BaseService implements ISyncService {
             if(isSuccess(sourceQuest)){
                 Map<String, Object> request = prepareQuestionRequest(sourceQuest);
                 String channel = (String) ((Map<String, Object>)((Map<String, Object>)((Map<String, Object>)request.get("request")).get("assessment_item")).get("metadata")).get("channel");
-                Response createResp = updateQuestion(id, request, channel, true);
+                Response createResp = createQuestion(request, channel, true);
                 if(!isSuccess(createResp)){
                     TelemetryManager.error("Error while creating Questions : " + createResp.getParams().getErrmsg() + " : "  + createResp.getResult());
                     return false;
