@@ -18,6 +18,8 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 
+import static org.ekstep.jobs.samza.service.util.TaskUtils.getAllDefinitions;
+
 public class CompositeSearchIndexerTask implements StreamTask, InitableTask, WindowableTask {
 	
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerTask.class);
@@ -62,9 +64,11 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 	}
 	
 	@Override
-	public void window(MessageCollector collector, TaskCoordinator coordinator) throws Exception {
+	public void window(MessageCollector collector, TaskCoordinator coordinator) {
 		Map<String, Object> event = metrics.collect();
 		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
 		metrics.clear();
+		LOGGER.info("Updating Definitions");
+		getAllDefinitions();
 	}
 }

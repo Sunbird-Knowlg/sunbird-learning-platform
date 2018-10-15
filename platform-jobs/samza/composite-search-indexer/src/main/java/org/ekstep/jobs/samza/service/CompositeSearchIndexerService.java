@@ -18,6 +18,8 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 
+import static org.ekstep.jobs.samza.service.util.TaskUtils.getAllDefinitions;
+
 public class CompositeSearchIndexerService implements ISamzaService {
 
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerService.class);
@@ -41,6 +43,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		dcIndexer = new DialCodeIndexer();
 		dcIndexer.createDialCodeIndex();
 		LOGGER.info(CompositeSearchConstants.DIAL_CODE_INDEX + " created");
+		LOGGER.info("Initializing Definitions");
+		getAllDefinitions();
 	}
 
 	@Override
