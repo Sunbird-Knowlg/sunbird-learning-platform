@@ -18,6 +18,7 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 
+import static java.lang.Long.parseLong;
 import static org.ekstep.jobs.samza.service.util.TaskUtils.getAllDefinitions;
 
 public class CompositeSearchIndexerTask implements StreamTask, InitableTask, WindowableTask {
@@ -27,12 +28,17 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 	private JobMetrics metrics;
 	
 	ISamzaService service = new CompositeSearchIndexerService();
+
+	private long taskWindow, updateDefinitionsCounter = 0;
+
+	private static final long updateDefinitionsWindow = 3600000;
 	
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
 		try {
 			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			service.initialize(config);
+			taskWindow = parseLong(config.get("task.window.ms"));
 			LOGGER.info("Task initialized");
 		} catch (Exception ex) {
 			LOGGER.error("Task initialization failed", ex);
@@ -65,10 +71,14 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 	
 	@Override
 	public void window(MessageCollector collector, TaskCoordinator coordinator) {
+		updateDefinitionsCounter += taskWindow;
 		Map<String, Object> event = metrics.collect();
 		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", metrics.getTopic()), event));
 		metrics.clear();
-		LOGGER.info("Updating Definitions");
-		getAllDefinitions();
+		if (updateDefinitionsCounter >= updateDefinitionsWindow) {
+			LOGGER.info("Updating Definitions");
+			getAllDefinitions();
+			updateDefinitionsCounter = 0;
+		}
 	}
 }
