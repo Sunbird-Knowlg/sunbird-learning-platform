@@ -5,7 +5,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.content.tool.util.Input;
 import org.ekstep.content.tool.util.InputList;
@@ -187,31 +186,46 @@ public class SyncService extends BaseService implements ISyncService {
     }
 
     private boolean migrateQuestion(Input input, Map<String, Object> request, String channel) throws Exception {
+        ShellCommandUtils.print(input.getId() + " Fetching Question from destination...");
         Response destQuestion = readQuestion(input.getId(), true);
         if(isSuccess(destQuestion)) {
+            ShellCommandUtils.print(input.getId() + " Fetched Question from destination...");
+            ShellCommandUtils.print(input.getId() + " Fetching Question from source...");
             Response sourceQuestion = readQuestion(input.getId(), false);
             if(isSuccess(sourceQuestion) && (!request.isEmpty())) {
+                ShellCommandUtils.print(input.getId() + " Fetched Question from source...");
+                ShellCommandUtils.print(input.getId() + " Preparing the update Request...");
                 Map<String, Object> questionRequest = prepareQuestionRequest(sourceQuestion);
                 if(StringUtils.isBlank(channel)) {
                     channel = (String) ((Map<String, Object>)destQuestion.getResult().get("assessment_item")).get("channel");
                 }
                 String createdBy = (String) ((Map<String, Object>)((Map<String, Object>)request.get("request")).get("content")).get("createdBy");
                 ((Map<String, Object>)((Map<String, Object>)((Map<String, Object>)questionRequest.get("request")).get("assessment_item")).get("metadata")).put("createdBy", createdBy);
+                ShellCommandUtils.print(input.getId() + " Prepared the update Request...");
+                ShellCommandUtils.print(input.getId() + " Updating question in destination...");
                 Response destUpdate = updateQuestion(input.getId(),questionRequest, channel, true);
+                ShellCommandUtils.print(input.getId() + " Updated question in destination...");
+                ShellCommandUtils.print(input.getId() + " Updating question in source...");
                 Response sourceUpdate = updateQuestion(input.getId(), questionRequest, channel, false);
+                ShellCommandUtils.print(input.getId() + " Updated question in source...");
                 return (isSuccess(destUpdate) && isSuccess(sourceUpdate));
             }else{
+                ShellCommandUtils.print(input.getId() + " Fetching Question from source failed or request is empty...");
                 return false;
             }
         }else{
+            ShellCommandUtils.print(input.getId() + " Question not present in destination... Sync in Progress...");
             syncQuestion(input);
+            ShellCommandUtils.print(input.getId() + " Question Synced...");
             return migrateQuestion(input, request, channel);
         }
     }
 
     private boolean migrateContent(Input input, Map<String, Object> request, String channel, String forceUpdate) throws Exception {
+        ShellCommandUtils.print(input.getId() + " Fetching Content from destination...");
         Response readResponse = getContent(input.getId(), true, null);
         if (isSuccess(readResponse)) {
+            ShellCommandUtils.print(input.getId() + " Fetched Content from destination...");
             Map<String, Object> destContent = (Map<String, Object>) readResponse.get("content");
             double srcPkgVersion = input.getPkgVersion();
             double destPkgVersion = (null!= destContent.get("pkgVersion"))? ((Number) destContent.get("pkgVersion")).doubleValue(): 0d;
@@ -220,36 +234,56 @@ public class SyncService extends BaseService implements ISyncService {
                     if(StringUtils.isBlank(channel)) {
                         channel = (String) destContent.get("channel");
                     }
+                    ShellCommandUtils.print(input.getId() + " Updating content in destination...");
                     Response updateResponse = systemUpdate(input.getId(), request, channel, true);
+                    ShellCommandUtils.print(input.getId() + " Updated content in destination...");
+                    ShellCommandUtils.print(input.getId() + " Updating content in source...");
                     Response updateSourceResponse = systemUpdate(input.getId(), request, channel, false);
+                    ShellCommandUtils.print(input.getId() + " Updated content in source...");
 
                     if (isSuccess(updateResponse) && isSuccess(updateSourceResponse)) {
                         Response response = getContent(input.getId(), false, null);
+                        ShellCommandUtils.print(input.getId() + " Updating ecarURls information...");
                         updateEcarInfo(input.getId(), (Map<String, Object>) response.get("content"));
+                        ShellCommandUtils.print(input.getId() + " Updated ecarURls information...");
                     } else {
+                        ShellCommandUtils.print(input.getId() + " Updating content failed...");
                         return false;
                     }
                 }else{
+                    ShellCommandUtils.print(input.getId() + " Updating ecarURls information...");
                     updateEcarInfo(input.getId(), (Map<String, Object>) readResponse.get("content"));
+                    ShellCommandUtils.print(input.getId() + " Updated ecarURls information...");
                 }
                 InputList children = new InputList( new ArrayList<>());
                 fetchChildren(readResponse, children);
                 if (children.isNotEmpty())
+                    ShellCommandUtils.print(input.getId() + " Updating children in destination...");
                     updateData(children, request, channel, forceUpdate);
+                    ShellCommandUtils.print(input.getId() + " Updated children in destination...");
                 if (StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) destContent.get("mimeType")))
+                    ShellCommandUtils.print(input.getId() + " Syncing Hierarchy updates...");
                     syncHierarchy(input.getId());
+                    ShellCommandUtils.print(input.getId() + " Synced Hierarchy updates...");
                 if (containsItemsSet(destContent)) {
+                    ShellCommandUtils.print(input.getId() + " Copying Questions...");
                     copyAssessmentItems((List<Map<String, Object>>) destContent.get("questions"));
+                    ShellCommandUtils.print(input.getId() + " Copied Questions...");
                 }
                 return true;
             } else if (-1 == Double.compare(srcPkgVersion, destPkgVersion)) {
+                ShellCommandUtils.print(input.getId() + " Syncing content before migration...");
                 sync(input, forceUpdate);
+                ShellCommandUtils.print(input.getId() + " Synced content before migration...");
                 return migrateOwner(input, request, channel, forceUpdate);
             } else {
+                ShellCommandUtils.print(input.getId() + " Failed migration...");
                 return false;
             }
         } else {
+            ShellCommandUtils.print(input.getId() + " Syncing content before migration...");
             sync(input, "true");
+            ShellCommandUtils.print(input.getId() + " Synced content before migration...");
             return migrateOwner(input, request, channel, "true");
         }
     }
