@@ -84,11 +84,12 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			String objectType = (String) message.get("objectType");
 			String graphId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
+			String messageId = (String) message.get("mid");
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_SET:
 			case CompositeSearchConstants.NODE_TYPE_DATA:
 			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
-				csIndexer.processESMessage(graphId, objectType, uniqueId, message, metrics);
+				csIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
 				break;
 			}
 			case CompositeSearchConstants.NODE_TYPE_EXTERNAL: {

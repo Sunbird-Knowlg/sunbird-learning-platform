@@ -176,8 +176,8 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 		return definition;
 	}
 
-	public void processESMessage(String graphId, String objectType, String uniqueId, Map<String, Object> message,
-			JobMetrics metrics) throws Exception {
+	public void processESMessage(String graphId, String objectType, String uniqueId, String messageId,
+			 Map<String, Object> message, JobMetrics metrics) throws Exception {
 
 		DefinitionDTO definitionNode = getDefinition(objectType);
 		if (null == definitionNode) {
@@ -189,7 +189,7 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 		Map<String, Object> definition = mapper.convertValue(definitionNode, new TypeReference<Map<String, Object>>() {
 		});
 		LOGGER.debug("definition fetched from cache: " + definitionNode.getIdentifier());
-		LOGGER.info(uniqueId + " is indexing into compositesearch.");
+		LOGGER.info("Message Id: " + messageId + ", " + "Unique Id: " + uniqueId + " is indexing into compositesearch.");
 		Map<String, String> relationMap = getRelationMap(objectType, definition);
 		upsertDocument(uniqueId, message, relationMap);
 	}
