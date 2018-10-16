@@ -44,6 +44,7 @@ public class MediaController extends BaseController {
             	String folder = S3PropertyReader.getProperty(MEDIA_FOLDER);
             	urlArray = CloudStore.uploadFile(folder, uploadedFile, true);
             } catch (Exception e) {
+                TelemetryManager.error("Error while uploading the file.", e);
                 throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
                         "Error while uploading the File.", e);
             }
