@@ -449,10 +449,17 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 
-	public List<String> getPublishedCollections(String graphId) {
+	public List<String> getPublishedCollections(String graphId, int offset, int limit) {
 		List<String> identifiers = new ArrayList<>();
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE n.IL_FUNC_OBJECT_TYPE=\"Content\" AND n.mimeType=\"application/vnd.ekstep.content-collection\" AND n.status IN [\"Live\", \"Unlisted\", \"Flagged\"] RETURN n.IL_UNIQUE_ID as identifier;", graphId));
+		String query = "MATCH (n:{0}) WHERE n.IL_FUNC_OBJECT_TYPE=\"Content\" AND n.mimeType=\"application/vnd.ekstep.content-collection\" AND n.status IN [\"Live\", \"Unlisted\", \"Flagged\"] RETURN n.IL_UNIQUE_ID as identifier";
+		if(offset > 0){
+			query += " SKIP " + offset;
+		}
+		if(limit > 0) {
+			query += " LIMIT " + limit;
+		}
+		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId));
 		List<String> props = new ArrayList<String>();
 		props.add("identifier");
 		request.put(GraphDACParams.property_keys.name(), props);
