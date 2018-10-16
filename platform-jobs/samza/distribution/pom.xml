@@ -9,13 +9,14 @@
     <packaging>pom</packaging>
     <name>Distribution</name>
     <dependencies>
-		<dependency>
+    		<!-- Uncomment for deploying republish job -->
+		<!-- <dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>republish-pipeline</artifactId>
 			<version>0.0.7</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
