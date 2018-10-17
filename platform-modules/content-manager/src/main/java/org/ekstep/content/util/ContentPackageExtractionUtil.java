@@ -2,7 +2,6 @@ package org.ekstep.content.util;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
@@ -25,6 +24,7 @@ import scala.Option;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,26 +220,16 @@ public class ContentPackageExtractionUtil {
 	 */
 	public void uploadExtractedPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
 			boolean slugFile) {
-		List<String> lstUploadedFilesUrl = new ArrayList<String>();
+		List<String> lstUploadedFilesUrl = new ArrayList<>();
 		String awsFolderPath = "";
 		try {
-			// Get List of All the Files in the Extracted Folder
+			// Get Extracted Folder
 			File extractionDir = new File(basePath);
-			List<File> lstFilesToUpload = (List<File>) FileUtils.listFiles(extractionDir, TrueFileFilter.INSTANCE,
-					TrueFileFilter.INSTANCE);
 
-			// Upload All the File to S3 Recursively and Concurrently
+			// Upload Directory to S3
 			awsFolderPath = getExtractionPath(contentId, node, extractionType);
-			lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, awsFolderPath, basePath, slugFile);
-		} catch (InterruptedException e) {
-			cleanUpAWSFolder(awsFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! The Extraction Process was Interrupted.", e);
-		} catch (ExecutionException e) {
-			cleanUpAWSFolder(awsFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! Something went wrong while Executing bulk upload of Files during Extraction.", e);
-		} catch (Exception e) {
+			lstUploadedFilesUrl = directoryUpload(extractionDir, awsFolderPath, basePath, slugFile);
+		}  catch (Exception e) {
 			cleanUpAWSFolder(awsFolderPath);
 			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
 					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
@@ -275,64 +265,42 @@ public class ContentPackageExtractionUtil {
 	}
 
 	/**
-	 * Bulk file upload.
+	 * Directory upload.
 	 *
-	 * @param files
+	 * @param dir
 	 *            the files
 	 * @param AWSFolderPath
 	 *            the AWS folder path
 	 * @param basePath
 	 *            the base path
 	 * @return the list
-	 * @throws InterruptedException
-	 *             the interrupted exception
-	 * @throws ExecutionException
-	 *             the execution exception
 	 */
-	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath, String basePath, boolean slugFile)
-			throws InterruptedException, ExecutionException {
-
+	private List<String> directoryUpload(File dir, String AWSFolderPath, String basePath, boolean slugFile) {
 		// Validating Parameters
-		if (null == files || files.size() < 1)
+		if(null == dir)
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
 					"Error! Atleast One file is needed for Content Package Extraction.");
-
+		if(dir.isFile())
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Not a Directory");
+		if (dir.listFiles().length < 1)
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Atleast One file is needed for Content Package Extraction.");
 		if (StringUtils.isBlank(basePath))
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
 					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
 
 		List<String> lstUploadedFileUrls = new ArrayList<>();
-		TelemetryManager.log("Starting the Fan-out for Upload.");
-		ExecutorService pool = Executors.newFixedThreadPool(10);
-		List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(files.size());
-
-		TelemetryManager.log("Adding All Files to Upload.");
-		for (final File file : files) {
-			tasks.add(new Callable<Map<String, String>>() {
-				public Map<String, String> call() throws Exception {
-					Map<String, String> uploadMap = new HashMap<String, String>();
-					if (file.exists() && !file.isDirectory()) {
-						String folderName = AWSFolderPath;
-						String path = getFolderPath(file, basePath);
-						if (StringUtils.isNotBlank(path))
-							folderName += File.separator + path;
-						TelemetryManager.log("Folder Name For Storage Space Extraction: " + folderName);
-						String[] uploadedFileUrl = CloudStore.uploadFile(folderName, file, slugFile);
-						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
-							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
-					}
-
-					return uploadMap;
-				}
-			});
-		}
-		List<Future<Map<String, String>>> results = pool.invokeAll(tasks);
-		for (Future<Map<String, String>> uMap : results) {
-			Map<String, String> m = uMap.get();
-			if (null != m)
-				lstUploadedFileUrls.addAll(m.values());
-		}
-		pool.shutdown();
+		TelemetryManager.log("Adding Extracted Directory to Upload.");
+		String folderName = AWSFolderPath;
+		String path = getFolderPath(dir, basePath);
+		if (StringUtils.isNotBlank(path))
+			folderName += File.separator + path;
+		TelemetryManager.log("Folder Name For Storage Space Extraction: " + folderName);
+		String[] uploadedFileUrl = CloudStore.uploadDirectory(folderName, dir, slugFile);
+		if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
+			lstUploadedFileUrls = Arrays.asList(uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX].
+					substring(5, uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX].length() - 1).split(", "));
 
 		return lstUploadedFileUrls;
 	}
