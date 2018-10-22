@@ -3,6 +3,8 @@ package org.ekstep.telemetry.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Request;
@@ -116,7 +118,12 @@ public class TelemetryAccessEventUtil {
 
 	private static String getRequestString(Request request) {
 		try {
-			return mapper.writeValueAsString(request.getRequest());
+			int trimLength = Platform.config.hasPath("learning.telemetry_req_length")?Platform.config.getInt("learning.telemetry_req_length"):-1;
+			String requestStr = mapper.writeValueAsString(request.getRequest());
+			if(trimLength >= 0) {
+				requestStr = StringUtils.left(requestStr, trimLength);
+			}
+			return requestStr;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
