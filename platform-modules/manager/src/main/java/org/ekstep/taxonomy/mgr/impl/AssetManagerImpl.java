@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 /**
  * The Class <code>AssetManagerImpl</code> is the implementation of
@@ -28,7 +29,7 @@ public class AssetManagerImpl implements IAssetManager {
 
     @PostConstruct
     public void init() {
-        validLicenses = Platform.config.getStringList("learning.valid-license");
+        validLicenses = Platform.config.hasPath("learning.valid-license") ? Platform.config.getStringList("learning.valid-license") : Arrays.asList("creativeCommon");
     }
 
     private String getProvider(Map<String, Object> asset) throws Exception {
