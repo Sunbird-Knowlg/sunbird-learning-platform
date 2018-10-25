@@ -1,7 +1,5 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -16,7 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,18 +23,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+
+/**
+ * Unit Test Cases for {@link AssetManagerImpl#licenseValidate(Map)} and {@link AssetManagerImpl#metadataRead(Map)}
+ *
+ * @see AssetManagerImpl
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class AssetManagerImplTest {
 
-    List<String> validLicenses = Platform.config.hasPath("learning.valid-license") ? Platform.config.getStringList("learning.valid-license") : Arrays.asList("creativeCommon");
-
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final String PROVIDER = "__PROVIDER__";
-    private final String URL      = "__URL__";
+    private final String learningValidLicensesProperty = "learning.valid-license";
+    private List<String> validLicenses = Platform.config.hasPath(learningValidLicensesProperty) ? Platform.config.getStringList(learningValidLicensesProperty) : Arrays.asList("creativeCommon");
 
     private final String VALID_LICENSE = "validLicense";
 
@@ -63,19 +62,8 @@ public class AssetManagerImplTest {
         public int code() { return code; }
     }
 
-
     @Autowired
     private IAssetManager assetManager;
-
-
-
-    private Map<String, Object> getMapFromString(String str) throws IOException {
-        try {
-            return mapper.readValue(str, new TypeReference<Map<String, Object>>() {});
-        } catch (IOException e) {
-            throw new IOException("Error converting String to Map.", e);
-        }
-    }
 
     @Test
     public void validateLicenseCreativeCommonsYouTubeLicense() throws Exception {
@@ -223,7 +211,6 @@ public class AssetManagerImplTest {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.SPECIFY_URL.value(), e.getMessage());
         }
-
     }
 
     @Test
@@ -238,4 +225,5 @@ public class AssetManagerImplTest {
             assertEquals(ErrMsg.SPECIFY_VALID_YOUTUBE_URL.value(), e.getMessage());
         }
     }
+
 }
