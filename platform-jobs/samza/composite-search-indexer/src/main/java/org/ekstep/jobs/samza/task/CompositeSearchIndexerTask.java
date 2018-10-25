@@ -13,6 +13,7 @@ import org.apache.samza.task.StreamTask;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
 import org.apache.samza.task.WindowableTask;
+import org.ekstep.graph.model.node.MetadataDefinition;
 import org.ekstep.jobs.samza.service.CompositeSearchIndexerService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -20,6 +21,7 @@ import org.ekstep.jobs.samza.service.util.TaskUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 
 import static java.lang.Long.parseLong;
+import static java.util.stream.Collectors.toList;
 import static org.ekstep.jobs.samza.service.util.TaskUtils.getAllDefinitions;
 
 public class CompositeSearchIndexerTask implements StreamTask, InitableTask, WindowableTask {
@@ -42,7 +44,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 			taskWindow = parseLong(config.get("task.window.ms"));
 			updateDefinitionsWindow = parseLong(config.get("definitions.update.window.ms"));
 			LOGGER.info("Task initialized");
-			LOGGER.info("Initial Content Definition Properties:: " + TaskUtils.getDefinition("Content").getProperties().toString());
+			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
 		} catch (Exception ex) {
 			LOGGER.error("Task initialization failed", ex);
 			throw ex;
@@ -81,7 +83,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 		if (updateDefinitionsCounter >= updateDefinitionsWindow) {
 			LOGGER.info("Updating Definitions");
 			getAllDefinitions();
-			LOGGER.info("Updated Content Definition Properties:: " + TaskUtils.getDefinition("Content").getProperties().toString());
+			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
 			updateDefinitionsCounter = 0;
 		}
 	}
