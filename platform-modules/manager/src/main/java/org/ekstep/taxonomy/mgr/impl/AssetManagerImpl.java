@@ -35,14 +35,14 @@ public class AssetManagerImpl implements IAssetManager {
     private String getProvider(Map<String, Object> asset) throws Exception {
         String provider = (String) asset.get(AssetParams.provider.name());
         if(null == provider || StringUtils.isBlank(provider))
-            throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Provider is blank.");
+            throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Please specify provider");
         return provider;
     }
 
     private String getUrl(Map<String, Object> asset) throws Exception {
         String url = (String) asset.get(AssetParams.url.name());
         if(null == url || StringUtils.isBlank(url))
-            throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Url.");
+            throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Please specify url");
         return url;
     }
 
@@ -50,7 +50,7 @@ public class AssetManagerImpl implements IAssetManager {
         String licenseType;
         switch (StringUtils.lowerCase(getProvider(asset))) {
             case "youtube": licenseType = YouTubeDataAPIV3Service.getLicense(getUrl(asset));
-                break;
+                            break;
             default       : throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
         }
         return licenseType;
@@ -83,9 +83,9 @@ public class AssetManagerImpl implements IAssetManager {
     public Response metadataRead(Map<String, Object> asset) throws Exception {
         String licenseType = getLicenseType(asset);
         Map<String, Object> metadata = new HashMap<>();
-        metadata.put("license", licenseType);
+        metadata.put(AssetParams.license.name(), licenseType);
         Response response = new Response();
-        response.getResult().put("metadata", metadata);
+        response.getResult().put(AssetParams.metadata.name(), metadata);
         return response;
     }
 }
