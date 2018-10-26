@@ -72,7 +72,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"terms\":[{\"lemma\":\"add\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"addition\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"adding\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"ಕೂಡಿಸು\",\"categories\":[\"keywords\"]},{\"lemma\":\"sub\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"subtract\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"ಕಳೆ\",\"categories\":[\"keywords\"]}]}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/create").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/create").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertEquals("application/json", result.contentType());
@@ -90,7 +90,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"terms\":[{\"lemma\":\"add\",\"categories\":[\"keywords\"],\"language\":\"cun\"},{\"lemma\":\"addition\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"adding\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"ಕೂಡಿಸು\",\"categories\":[\"keywords\"],\"language\":\"ka\"},{\"lemma\":\"sub\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"subtract\",\"categories\":[\"keywords\"],\"language\":\"en\"},{\"lemma\":\"ಕಳೆ\",\"categories\":[\"keywords\"],\"language\":\"ka\"}]}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/create").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/create").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(PARTIAL_CONTENT, result.status());
 		} catch (JsonProcessingException e) {
@@ -105,7 +105,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"terms\":[]}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/create").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/create").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(BAD_REQUEST, result.status());
 		} catch (JsonProcessingException e) {
@@ -120,7 +120,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"terms\":[{\"lemma\":\"add\",\"categories\":[\"keywords\"],\"language\":\"cun\"}]}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/create").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/create").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(BAD_REQUEST, result.status());
 		} catch (JsonProcessingException e) {
@@ -135,7 +135,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : \"add\", \"limit\":3}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST)
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST)
 					.bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
@@ -152,7 +152,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : \"add\", \"categories\":[\"keywords\"], \"language\":\"en\", \"limit\":3}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST)
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST)
 					.bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
@@ -169,7 +169,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : \"add\", \"categories\":[\"asd\"],\"language\":\"en\"}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST)
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST)
 					.bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
@@ -186,7 +186,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : {\"endsWith\":\"dd\"}}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertTrue(contentAsString(result).contains("count"));
@@ -202,7 +202,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : {\"startsWith\":\"add\"}}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertTrue(contentAsString(result).contains("count"));
@@ -218,7 +218,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : {\"notEquals\":\"add\"}}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertTrue(contentAsString(result).contains("count"));
@@ -234,7 +234,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : {\"not\":\"add\"}}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(INTERNAL_SERVER_ERROR, result.status());
 		} catch (JsonProcessingException e) {
@@ -249,7 +249,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : \"ಕಳೆ\", \"categories\":[\"keywords\"],\"language\":\"ka\"}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertTrue(contentAsString(result).contains("\"count\":1"));
@@ -265,7 +265,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : \"add\"}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertTrue(contentAsString(result).contains("count"));
@@ -281,7 +281,7 @@ public class VocabularyTermTest extends WithApplication {
 		String json = "{\"request\":{\"text\" : \"\"}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/v3/vocabulary/term/suggest").method(POST)
+			RequestBuilder req = new RequestBuilder().uri("/vocabulary/v3/term/suggest").method(POST)
 					.bodyJson(data);
 			Result result = route(req);
 			assertEquals(BAD_REQUEST, result.status());

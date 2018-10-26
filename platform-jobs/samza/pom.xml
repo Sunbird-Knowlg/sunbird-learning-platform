@@ -24,6 +24,7 @@
 	    <module>audit-event-generator</module>	
 		<module>composite-search-indexer</module>
 		<module>publish-pipeline</module>
+		<module>republish-pipeline</module>
 		<module>upload-content</module>
 		<module>image-tagging</module>
 		<module>distribution</module>
