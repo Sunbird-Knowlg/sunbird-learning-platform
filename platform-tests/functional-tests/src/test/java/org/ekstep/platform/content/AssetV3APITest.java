@@ -66,7 +66,7 @@ public class AssetV3APITest extends BaseTest {
             when().
                 post(BASE_PATH + VALIDATE_LICENSE_REQUEST_PATH).
             then().
-                log().all().
+                // log().all().
                 // body("responseCode", equalTo("OK")).
                 extract().
                 response();
@@ -82,7 +82,7 @@ public class AssetV3APITest extends BaseTest {
             when().
                 post(BASE_PATH + METADATA_READ_REQUEST_PATH).
             then().
-                log().all().
+                // log().all().
                 // body("responseCode", equalTo("OK")).
                 extract().
                 response();
