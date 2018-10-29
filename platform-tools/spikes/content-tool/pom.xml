@@ -66,14 +66,14 @@
         <dependency>
             <groupId>org.sunbird</groupId>
             <artifactId>cloud-store-sdk</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>
     </dependencies>
 
     <repositories>
         <repository>
             <id>cloudStorerepo</id>
-            <url>https://oss.sonatype.org/content/repositories/orgsunbird-1013
+            <url>https://oss.sonatype.org/content/repositories/orgsunbird-1015
             </url>
         </repository>
     </repositories>
