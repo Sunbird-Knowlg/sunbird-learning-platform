@@ -69,6 +69,7 @@ public class AssetManagerImpl implements IAssetManager {
         boolean validLicense = validLicenses.contains(licenseType);
         Response response = new Response();
         response.getResult().put(AssetParams.validLicense.name(), validLicense);
+        response.getResult().put(AssetParams.license.name(), licenseType);
         return response;
     }
 

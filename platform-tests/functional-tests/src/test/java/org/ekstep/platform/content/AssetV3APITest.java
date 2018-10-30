@@ -33,7 +33,7 @@ public class AssetV3APITest extends BaseTest {
 
     private String assetMetadataRequest = "{\"request\" : {\"asset\" : {\"provider\": \"" + PROVIDER + "\",\"url\": \"" + URL + "\"}}}";
 
-    enum ErrMsg {
+    private enum ErrMsg {
         INVALID_PROVIDER("Invalid Provider"),
         SPECIFY_PROVIDER("Please specify provider"),
         SPECIFY_URL("Please specify url"),
@@ -46,7 +46,7 @@ public class AssetV3APITest extends BaseTest {
         public String value() { return value; }
     }
 
-    enum ResponseCode {
+    private enum ResponseCode {
         CLIENT_ERROR(400), OK(200);
 
         private int code;
@@ -97,6 +97,7 @@ public class AssetV3APITest extends BaseTest {
 
         assertEquals(ResponseCode.OK.code(), response.statusCode());
         assertTrue(response.jsonPath().get("result.validLicense"));
+        assertTrue(validLicenses.contains(response.jsonPath().get("result.license")));
     }
 
     @Test
@@ -108,6 +109,7 @@ public class AssetV3APITest extends BaseTest {
 
         assertEquals(ResponseCode.OK.code(), response.statusCode());
         assertFalse(response.jsonPath().get("result.validLicense"));
+        assertFalse(validLicenses.contains(response.jsonPath().get("result.license")));
     }
 
     @Test

@@ -39,8 +39,9 @@ public class AssetManagerImplTest {
     private List<String> validLicenses = Platform.config.hasPath(learningValidLicensesProperty) ? Platform.config.getStringList(learningValidLicensesProperty) : Arrays.asList("creativeCommon");
 
     private final String VALID_LICENSE = "validLicense";
+    private final String LICENSE = "license";
 
-    enum ErrMsg {
+    private enum ErrMsg {
         INVALID_PROVIDER("Invalid Provider"),
         SPECIFY_PROVIDER("Please specify provider"),
         SPECIFY_URL("Please specify url"),
@@ -52,7 +53,7 @@ public class AssetManagerImplTest {
         public String value() { return value; }
     }
 
-    enum ResponseCode {
+    private enum ResponseCode {
         CLIENT_ERROR(400), OK(200);
 
         private int code;
@@ -75,6 +76,7 @@ public class AssetManagerImplTest {
 
         assertEquals(ResponseCode.OK.code(), response.getResponseCode().code());
         assertTrue( (boolean) response.getResult().get(VALID_LICENSE) );
+        assertTrue(validLicenses.contains(response.getResult().get(LICENSE)));
     }
 
     @Test
@@ -87,6 +89,7 @@ public class AssetManagerImplTest {
 
         assertEquals(ResponseCode.OK.code(), response.getResponseCode().code());
         assertFalse( (boolean) response.getResult().get(VALID_LICENSE) );
+        assertFalse(validLicenses.contains(response.getResult().get(LICENSE)));
     }
 
     @Test
