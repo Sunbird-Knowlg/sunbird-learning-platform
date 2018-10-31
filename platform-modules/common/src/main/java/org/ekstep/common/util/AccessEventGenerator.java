@@ -1,14 +1,12 @@
 package org.ekstep.common.util;
 
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.telemetry.util.TelemetryAccessEventUtil;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.ekstep.common.dto.Request;
-import org.ekstep.common.dto.Response;
-import org.ekstep.common.util.RequestWrapper;
-import org.ekstep.common.util.ResponseWrapper;
-import org.ekstep.telemetry.util.TelemetryAccessEventUtil;
 
 public class AccessEventGenerator extends TelemetryAccessEventUtil {
 	
