@@ -38,7 +38,7 @@ import java.util.Optional;
  */
 public class YoutubeAssetProcessor extends AbstractProcessor {
 
-    private static List<String> validLicenses = Platform.config.hasPath("learning.valid-license") ? Platform.config.getStringList("learning.valid-license") : Arrays.asList("creativeCommon");
+    private static List<String> validLicenses = Platform.config.hasPath("learning.valid_license") ? Platform.config.getStringList("learning.valid_license") : Arrays.asList("creativeCommon");
 
     /**
      * Instantiates a new <code>YoutbeAssetProcessor</code> and sets the base path and

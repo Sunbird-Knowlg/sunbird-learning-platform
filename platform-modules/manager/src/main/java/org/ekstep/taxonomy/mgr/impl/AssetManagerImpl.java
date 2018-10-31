@@ -30,7 +30,7 @@ public class AssetManagerImpl implements IAssetManager {
 
     @PostConstruct
     public void init() {
-        validLicenses = Platform.config.hasPath("learning.valid-license") ? Platform.config.getStringList("learning.valid-license") : Arrays.asList("creativeCommon");
+        validLicenses = Platform.config.hasPath("learning.valid_license") ? Platform.config.getStringList("learning.valid_license") : Arrays.asList("creativeCommon");
     }
 
     private String getProvider(Map<String, Object> asset) {
