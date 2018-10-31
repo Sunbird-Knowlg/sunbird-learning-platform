@@ -12,6 +12,7 @@ import org.ekstep.content.concrete.processor.GlobalizeAssetProcessor;
 import org.ekstep.content.concrete.processor.LocalizeAssetProcessor;
 import org.ekstep.content.concrete.processor.MissingAssetValidatorProcessor;
 import org.ekstep.content.concrete.processor.MissingControllerValidatorProcessor;
+import org.ekstep.content.concrete.processor.YoutubeAssetProcessor;
 import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
@@ -45,6 +46,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
  * @see MissingAssetValidatorProcessor
  * @see MissingControllerValidatorProcessor
  * @see ContentPipelineProcessor
+ * @see YoutubeAssetProcessor
  * 
  */
 public abstract class AbstractProcessor extends BaseConcreteProcessor {

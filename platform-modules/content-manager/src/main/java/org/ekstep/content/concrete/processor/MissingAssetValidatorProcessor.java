@@ -80,6 +80,9 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 				List<String> mediaIds = new ArrayList<String>();
 				TelemetryManager.log("Validating Assets.");
 				for (Media media : medias) {
+					if(null != media.getType() &&
+							StringUtils.equals(ContentWorkflowPipelineParams.youtube.name(), media.getType()))
+						continue;
 					if (mediaIds.contains(getMediaId(media)))
 						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_ASSET_ID.name(),
 								ContentErrorMessageConstants.DUPLICATE_ASSET_ID_ERROR + " | [Asset Id '" + media.getId()

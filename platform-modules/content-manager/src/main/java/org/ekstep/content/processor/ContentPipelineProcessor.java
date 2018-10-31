@@ -12,6 +12,7 @@ import org.ekstep.content.concrete.processor.GlobalizeAssetProcessor;
 import org.ekstep.content.concrete.processor.LocalizeAssetProcessor;
 import org.ekstep.content.concrete.processor.MissingAssetValidatorProcessor;
 import org.ekstep.content.concrete.processor.MissingControllerValidatorProcessor;
+import org.ekstep.content.concrete.processor.YoutubeAssetProcessor;
 import org.ekstep.content.entity.Plugin;
 
 /**
@@ -32,6 +33,7 @@ import org.ekstep.content.entity.Plugin;
  * @see LocalizeAssetProcessor
  * @see MissingAssetValidatorProcessor
  * @see MissingControllerValidatorProcessor
+ * @see YoutubeAssetProcessor
  * 
  * @see AbstractProcessor
  */

@@ -7,7 +7,8 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.taxonomy.enums.AssetParams;
 import org.ekstep.taxonomy.mgr.IAssetManager;
-import org.ekstep.taxonomy.util.YouTubeDataAPIV3Service;
+import org.ekstep.common.util.YouTubeDataAPIV3Service;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -32,28 +33,42 @@ public class AssetManagerImpl implements IAssetManager {
         validLicenses = Platform.config.hasPath("learning.valid-license") ? Platform.config.getStringList("learning.valid-license") : Arrays.asList("creativeCommon");
     }
 
-    private String getProvider(Map<String, Object> asset) throws Exception {
+    private String getProvider(Map<String, Object> asset) {
         String provider = (String) asset.get(AssetParams.provider.name());
         if(null == provider || StringUtils.isBlank(provider))
             throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Please specify provider");
         return provider;
     }
 
-    private String getUrl(Map<String, Object> asset) throws Exception {
+    private String getUrl(Map<String, Object> asset) {
         String url = (String) asset.get(AssetParams.url.name());
         if(null == url || StringUtils.isBlank(url))
             throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Please specify url");
         return url;
     }
 
-    private String getLicenseType(Map<String, Object> asset) throws Exception {
+    private String getLicenseType(String provider, String url) {
         String licenseType;
-        switch (StringUtils.lowerCase(getProvider(asset))) {
-            case "youtube": licenseType = YouTubeDataAPIV3Service.getLicense(getUrl(asset));
+        switch (StringUtils.lowerCase(provider)) {
+            case "youtube": TelemetryManager.log("Getting Youtube License");
+                            licenseType = YouTubeDataAPIV3Service.getLicense(url);
                             break;
             default       : throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
         }
         return licenseType;
+    }
+
+    private Map<String, Object> getMetadata(Map<String, Object> asset) {
+        Map<String, Object> metadata = new HashMap<>();
+        String provider = getProvider(asset);
+        String url = getUrl(asset);
+        switch (StringUtils.lowerCase(provider)) {
+            case "youtube": String licenseType = getLicenseType(provider, url);
+                            metadata.put(AssetParams.license.name(), licenseType);
+                            break;
+            default       : throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
+        }
+        return metadata;
     }
 
     /**
@@ -64,8 +79,10 @@ public class AssetManagerImpl implements IAssetManager {
      * @throws Exception
      */
     @Override
-    public Response licenseValidate(Map<String, Object> asset) throws Exception {
-        String licenseType = getLicenseType(asset);
+    public Response licenseValidate(Map<String, Object> asset) {
+        String provider = getProvider(asset);
+        String url = getUrl(asset);
+        String licenseType = getLicenseType(provider, url);
         boolean validLicense = validLicenses.contains(licenseType);
         Response response = new Response();
         response.getResult().put(AssetParams.validLicense.name(), validLicense);
@@ -81,10 +98,8 @@ public class AssetManagerImpl implements IAssetManager {
      * @throws Exception
      */
     @Override
-    public Response metadataRead(Map<String, Object> asset) throws Exception {
-        String licenseType = getLicenseType(asset);
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put(AssetParams.license.name(), licenseType);
+    public Response metadataRead(Map<String, Object> asset) {
+        Map<String, Object> metadata = getMetadata(asset);
         Response response = new Response();
         response.getResult().put(AssetParams.metadata.name(), metadata);
         return response;
