@@ -66,10 +66,20 @@
         <dependency>
             <groupId>org.sunbird</groupId>
             <artifactId>cloud-store-sdk</artifactId>
-            <version>1.0</version>
+            <version>1.2</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>cloudStorerepo</id>
+            <url>https://oss.sonatype.org/content/repositories/orgsunbird-1015
+            </url>
+        </repository>
+    </repositories>
+
     <build>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -95,13 +105,16 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.springframework.shell.Bootstrap</mainClass>
+                                    <mainClass>
+                                        org.springframework.shell.Bootstrap
+                                    </mainClass>
                                 </transformer>
                                 <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring.handlers</resource>
+                                    <resource>META-INF/spring.handlers
+                                    </resource>
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -115,5 +128,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>
