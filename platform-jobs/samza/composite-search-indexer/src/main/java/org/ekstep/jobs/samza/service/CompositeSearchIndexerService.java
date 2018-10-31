@@ -58,7 +58,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 				LOGGER.error("Error while processing message:", message, ex);
 				metrics.incFailedCounter();
 				FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
-						PlatformErrorCodes.SYSTEM_ERROR.name(), ex.getMessage());
+						PlatformErrorCodes.SYSTEM_ERROR.name(), ex);
 			} catch (Exception ex) {
 				LOGGER.error("Error while processing message:", message, ex);
 				metrics.incErrorCounter();
@@ -66,7 +66,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 					String errorCode = ex instanceof NoNodeAvailableException ? PlatformErrorCodes.SYSTEM_ERROR.name()
 							: PlatformErrorCodes.PROCESSING_ERROR.name();
 					FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
-							errorCode, ex.getMessage());
+							errorCode, ex);
 				}
 			}
 		} else {

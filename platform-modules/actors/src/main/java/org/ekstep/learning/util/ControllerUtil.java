@@ -6,7 +6,9 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
@@ -53,7 +55,15 @@ public class ControllerUtil extends BaseLearningManager {
 		Response getNodeRes = getResponse(request);
 		Response response = copyResponse(getNodeRes);
 		if (checkError(response)) {
-			return null;
+			if(StringUtils.endsWith(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+				return null;
+			else {
+				switch(response.getResponseCode()){
+					case RESOURCE_NOT_FOUND: throw new ResourceNotFoundException(response.getParams().getErr(), response.getParams().getErrmsg());
+					case CLIENT_ERROR: throw new ClientException(response.getParams().getErr(), response.getParams().getErrmsg());
+					default : throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+				}
+			}
 		}
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
 		return node;
