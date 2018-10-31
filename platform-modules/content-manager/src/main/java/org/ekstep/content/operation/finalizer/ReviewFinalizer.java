@@ -165,9 +165,14 @@ public class ReviewFinalizer extends BaseFinalizer {
 		
 		object.put("id", contentId);
 		object.put("ver", metadata.get("versionKey"));
-		
+
+		Map<String, Object> instructionEventMetadata = new HashMap<>();
+		instructionEventMetadata.put("pkgVersion", metadata.get("pkgVersion"));
+		instructionEventMetadata.put("mimeType", metadata.get("mimeType"));
+		instructionEventMetadata.put("lastPublishedBy", metadata.get("lastPublishedBy"));
+
 		edata.put("action", action);
-		edata.put("metadata", metadata);
+		edata.put("metadata", instructionEventMetadata);
 		edata.put("publish_type", publishType);
 		edata.put("contentType", metadata.get("contentType"));
 	}
