@@ -39,8 +39,6 @@ import static org.ekstep.common.util.AssetUtil.isValidLicense;
  */
 public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
 
-    private static List<String> validLicenses;
-
     /** List of Media Types which require License Validation*/
     private static List<String> validMediaTypes;
 
@@ -64,8 +62,7 @@ public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
                     ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
         this.basePath = basePath;
         this.contentId = contentId;
-        validLicenses = Platform.config.hasPath("learning.valid_license") ? Platform.config.getStringList("learning.valid_license") : Arrays.asList("creativeCommon");
-        this.validMediaTypes = Arrays.asList("youtube");
+        validMediaTypes = Arrays.asList("youtube");
     }
 
     /**
@@ -105,7 +102,7 @@ public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
     private void validateLicense(String type, String src) {
         switch (type) {
             case "youtube": if (!isValidLicense(YouTubeDataAPIV3Service.getLicense(src)))
-                                throw new ClientException(ContentErrorCodeConstants.INVALID_YOUTUBE_MEDIA.name(), ContentErrorMessageConstants.LICENSE_NOT_SUPPORTED);;
+                                throw new ClientException(ContentErrorCodeConstants.INVALID_YOUTUBE_MEDIA.name(), ContentErrorMessageConstants.LICENSE_NOT_SUPPORTED);
                             break;
             default       :
         }
