@@ -220,7 +220,7 @@ public class ContentPackageExtractionUtil {
 	 */
 	public void uploadExtractedPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
 			boolean slugFile) {
-		List<String> lstUploadedFilesUrl = new ArrayList<>();
+//		List<String> lstUploadedFilesUrl = new ArrayList<>();
 		String awsFolderPath = "";
 		try {
 			// Get Extracted Folder
