@@ -46,16 +46,6 @@ public class AssetV3APITest extends BaseTest {
         public String value() { return value; }
     }
 
-    private enum ResponseCode {
-        CLIENT_ERROR(400), OK(200);
-
-        private int code;
-
-        ResponseCode(int code) { this.code = code; }
-
-        public int code() { return code; }
-    }
-
     private Response validateLicense(String request) {
        setURI();
        return given().
