@@ -41,7 +41,6 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		dcIndexer = new DialCodeIndexer();
 		dcIndexer.createDialCodeIndex();
 		LOGGER.info(CompositeSearchConstants.DIAL_CODE_INDEX + " created");
-		LOGGER.info("Initializing Definitions");
 	}
 
 	@Override

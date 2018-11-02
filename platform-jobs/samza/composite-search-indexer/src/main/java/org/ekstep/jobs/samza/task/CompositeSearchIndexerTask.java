@@ -45,6 +45,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			service.initialize(config);
 			graphIds = config.getList("graph.ids");
+			LOGGER.info("Initializing Definitions");
 			getAllDefinitions(graphIds);
 			taskWindow = parseLong(config.get("task.window.ms"));
 			updateDefinitionsWindow = parseLong(config.get("definitions.update.window.ms"));
