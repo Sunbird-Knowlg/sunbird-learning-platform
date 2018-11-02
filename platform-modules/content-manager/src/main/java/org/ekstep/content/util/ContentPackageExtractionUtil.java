@@ -24,11 +24,11 @@ import scala.Option;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The Class ContentPackageExtractionUtil.
@@ -38,7 +38,7 @@ import java.util.concurrent.*;
 public class ContentPackageExtractionUtil {
 	
 	/** The Constant AWS_UPLOAD_RESULT_URL_INDEX. */
-	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
+//	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
 	/** The Constant DASH. */
 	private static final String DASH = "-";
@@ -228,14 +228,14 @@ public class ContentPackageExtractionUtil {
 
 			// Upload Directory to S3
 			awsFolderPath = getExtractionPath(contentId, node, extractionType);
-			lstUploadedFilesUrl = directoryUpload(extractionDir, awsFolderPath, basePath, slugFile);
+			directoryUpload(extractionDir, awsFolderPath, basePath, slugFile);
 		}  catch (Exception e) {
 			cleanUpAWSFolder(awsFolderPath);
 			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
 					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
 		} finally {
 			try {
-				TelemetryManager.log("Total Uploaded Files: " + lstUploadedFilesUrl.size());
+				// TelemetryManager.log("Total Uploaded Files: " + lstUploadedFilesUrl.size());
 				TelemetryManager.log("Deleting Locally Extracted File.");
 				File dir = new File(basePath);
 				if (dir.exists())
@@ -275,7 +275,7 @@ public class ContentPackageExtractionUtil {
 	 *            the base path
 	 * @return the list
 	 */
-	private List<String> directoryUpload(File dir, String AWSFolderPath, String basePath, boolean slugFile) {
+	private void directoryUpload(File dir, String AWSFolderPath, String basePath, boolean slugFile) {
 		// Validating Parameters
 		if(null == dir)
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
@@ -290,19 +290,20 @@ public class ContentPackageExtractionUtil {
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
 					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
 
-		List<String> lstUploadedFileUrls = new ArrayList<>();
+//		List<String> lstUploadedFileUrls = new ArrayList<>();
 		TelemetryManager.log("Adding Extracted Directory to Upload.");
 		String folderName = AWSFolderPath;
 		String path = getFolderPath(dir, basePath);
 		if (StringUtils.isNotBlank(path))
 			folderName += File.separator + path;
 		TelemetryManager.log("Folder Name For Storage Space Extraction: " + folderName);
-		String[] uploadedFileUrl = CloudStore.uploadDirectory(folderName, dir, slugFile);
-		if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
-			lstUploadedFileUrls = Arrays.asList(uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX].
-					substring(5, uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX].length() - 1).split(", "));
-
-		return lstUploadedFileUrls;
+		CloudStore.uploadDirectory(folderName, dir, slugFile);
+//		String[] uploadedFileUrl = CloudStore.uploadDirectory(folderName, dir, slugFile);
+//		if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
+//			lstUploadedFileUrls = Arrays.asList(uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX].
+//					substring(5, uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX].length() - 1).split(", "));
+//
+//		return lstUploadedFileUrls;
 	}
 
 	/**
