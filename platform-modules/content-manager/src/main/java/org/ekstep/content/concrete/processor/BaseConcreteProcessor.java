@@ -39,6 +39,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  * 
  * @see AssessmentItemCreatorProcessor
  * @see AssetCreatorProcessor
+ * @see AssetsLicenseValidatorProcessor
  * @see AssetsValidatorProcessor
  * @see BaseConcreteProcessor
  * @see EmbedControllerProcessor
@@ -47,7 +48,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  * @see MissingAssetValidatorProcessor
  * @see MissingControllerValidatorProcessor
  * @see ContentPipelineProcessor
- * @see YoutubeAssetProcessor
  */
 public class BaseConcreteProcessor extends BaseManager {
 	

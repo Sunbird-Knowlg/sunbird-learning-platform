@@ -1,12 +1,12 @@
 package org.ekstep.content.client;
-	
+
+import org.ekstep.content.concrete.processor.AssetsLicenseValidatorProcessor;
 import org.ekstep.content.concrete.processor.AssetsValidatorProcessor;
 import org.ekstep.content.concrete.processor.EmbedControllerProcessor;
 import org.ekstep.content.concrete.processor.GlobalizeAssetProcessor;
 import org.ekstep.content.concrete.processor.LocalizeAssetProcessor;
 import org.ekstep.content.concrete.processor.MissingAssetValidatorProcessor;
 import org.ekstep.content.concrete.processor.MissingControllerValidatorProcessor;
-import org.ekstep.content.concrete.processor.YoutubeAssetProcessor;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.processor.ContentPipelineProcessor;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -22,7 +22,7 @@ public class PipelineRequestorClient {
 		AbstractProcessor missingCtrlValidatorProcessor = new MissingControllerValidatorProcessor(basePath, contentId);
 		AbstractProcessor assetsValidatorProcessor = new AssetsValidatorProcessor(basePath, contentId);
 		AbstractProcessor globalizeAssetProcessor = new GlobalizeAssetProcessor(basePath, contentId);
-		AbstractProcessor youtubeAssetProcessor = new YoutubeAssetProcessor(basePath, contentId);
+		AbstractProcessor assetLicenseValidatorProcessor = new AssetsLicenseValidatorProcessor(basePath, contentId);
 		
 		switch (operation) {
 		case "compress":
@@ -49,7 +49,7 @@ public class PipelineRequestorClient {
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			contentPipeline.registerProcessor(assetsValidatorProcessor);
 			contentPipeline.registerProcessor(missingCtrlValidatorProcessor);
-			contentPipeline.registerProcessor(youtubeAssetProcessor);
+			contentPipeline.registerProcessor(assetLicenseValidatorProcessor);
 			break;
 
 		default:

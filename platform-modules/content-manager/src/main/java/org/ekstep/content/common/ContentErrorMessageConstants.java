@@ -159,8 +159,6 @@ public class ContentErrorMessageConstants {
 
 	public static final String FILE_DELETE_ERROR = "Error! While Deleting the File";
 
-	public static final String MISSING_YOUTUBE_SOURCE = "Error! Missing Youtube Source";
-
 	public static final String LICENSE_NOT_SUPPORTED = "Error! License Not Supported.";
 
 	private ContentErrorMessageConstants(){

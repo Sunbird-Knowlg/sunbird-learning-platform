@@ -184,8 +184,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 			ExecutorService pool = Executors.newFixedThreadPool(10);
 			List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(medias.size());
 			for (final Media media : medias) {
-				if(null != media.getType() &&
-						StringUtils.equals(ContentWorkflowPipelineParams.youtube.name(), media.getType()))
+				if (StringUtils.equals(ContentWorkflowPipelineParams.youtube.name(), media.getType()))
 					continue;
 				tasks.add(new Callable<Map<String, String>>() {
 					public Map<String, String> call() throws Exception {
