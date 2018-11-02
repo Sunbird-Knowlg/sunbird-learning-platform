@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.68</version>
+			<version>0.0.69</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

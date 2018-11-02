@@ -1,6 +1,7 @@
 package org.ekstep.jobs.samza.task;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.samza.config.Config;
@@ -35,16 +36,20 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 	private long taskWindow, updateDefinitionsCounter = 0;
 
 	private long updateDefinitionsWindow;
+
+	private List<String> graphIds;
 	
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
 		try {
 			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			service.initialize(config);
+			graphIds = config.getList("graph.ids");
+			getAllDefinitions(graphIds);
 			taskWindow = parseLong(config.get("task.window.ms"));
 			updateDefinitionsWindow = parseLong(config.get("definitions.update.window.ms"));
 			LOGGER.info("Task initialized");
-			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
+			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("domain", "Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
 		} catch (Exception ex) {
 			LOGGER.error("Task initialization failed", ex);
 			throw ex;
@@ -82,8 +87,8 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 		metrics.clear();
 		if (updateDefinitionsCounter >= updateDefinitionsWindow) {
 			LOGGER.info("Updating Definitions");
-			getAllDefinitions();
-			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
+			getAllDefinitions(graphIds);
+			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("domain", "Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
 			updateDefinitionsCounter = 0;
 		}
 	}

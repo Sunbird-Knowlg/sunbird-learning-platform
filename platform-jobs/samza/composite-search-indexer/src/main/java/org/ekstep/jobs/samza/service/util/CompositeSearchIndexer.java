@@ -179,7 +179,7 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 	public void processESMessage(String graphId, String objectType, String uniqueId, String messageId,
 			 Map<String, Object> message, JobMetrics metrics) throws Exception {
 
-		DefinitionDTO definitionNode = getDefinition(objectType);
+		DefinitionDTO definitionNode = getDefinition((String) message.get("graphId"), objectType);
 		if (null == definitionNode) {
 			LOGGER.info("Failed to fetch definition node from cache");
 			throw new PlatformException(PlatformErrorCodes.ERR_DEFINITION_NOT_FOUND.name(),

@@ -1,7 +1,5 @@
 package org.ekstep.jobs.samza.service;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
@@ -18,7 +16,7 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 
-import static org.ekstep.jobs.samza.service.util.TaskUtils.getAllDefinitions;
+import java.util.Map;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
@@ -44,7 +42,6 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		dcIndexer.createDialCodeIndex();
 		LOGGER.info(CompositeSearchConstants.DIAL_CODE_INDEX + " created");
 		LOGGER.info("Initializing Definitions");
-		getAllDefinitions();
 	}
 
 	@Override
