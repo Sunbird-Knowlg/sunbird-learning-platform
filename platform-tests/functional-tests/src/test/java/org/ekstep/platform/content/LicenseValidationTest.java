@@ -1,11 +1,13 @@
 package org.ekstep.platform.content;
 
 import com.jayway.restassured.builder.ResponseSpecBuilder;
+import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.ekstep.platform.domain.BaseTest;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 
 public class LicenseValidationTest extends BaseTest {
 
@@ -19,7 +21,7 @@ public class LicenseValidationTest extends BaseTest {
     private String publishRequestBody = "{\"request\": {\"content\" : {\"lastPublishedBy\" : \"LP_FT\"}}}";
 
     public ResponseSpecification get400YoutubeLicenseNotSupportedResponseSpec() {
-        return new ResponseSpecBuilder().expectStatusCode(400).
+        return new ResponseSpecBuilder().expectStatusCode(ResponseCode.CLIENT_ERROR.code()).
                 expectBody("params.err", equalTo("INVALID_YOUTUBE_MEDIA")).
                 expectBody("params.status", equalTo("failed")).
                 expectBody("params.errmsg", equalTo("Error! License Not Supported.")).
@@ -37,7 +39,8 @@ public class LicenseValidationTest extends BaseTest {
         String youtubeUrl = "https://www.youtube.com/watch?v=NpnsqOCkhIs";
         String updateRequestBodyWithContentBody = this.updateRequestBodyWithContentBody.replace(VERSION_KEY, versionKey).replace(YOUTUBE_URL, youtubeUrl);
         contentV3API.update(identifier, updateRequestBodyWithContentBody, getRequestSpecification(contentType, userId, APIToken), get200ResponseSpec());
-        contentV3API.review(identifier, "{}", getRequestSpecification(contentType, validuserId, APIToken), get200ResponseSpec());
+        Response response = contentV3API.review(identifier, "{}", getRequestSpecification(contentType, validuserId, APIToken), get200ResponseSpec());
+        assertEquals(ResponseCode.OK.code(), response.statusCode());
     }
 
     @Test
@@ -50,7 +53,8 @@ public class LicenseValidationTest extends BaseTest {
         String youtubeUrl = "https://www.youtube.com/watch?v=gffirQukQvs";
         String updateRequestBodyWithContentBody = this.updateRequestBodyWithContentBody.replace(VERSION_KEY, versionKey).replace(YOUTUBE_URL, youtubeUrl);
         contentV3API.update(identifier, updateRequestBodyWithContentBody, getRequestSpecification(contentType, userId, APIToken), get200ResponseSpec());
-        contentV3API.review(identifier, "{}", getRequestSpecification(contentType, validuserId, APIToken), get400YoutubeLicenseNotSupportedResponseSpec());
+        Response response = contentV3API.review(identifier, "{}", getRequestSpecification(contentType, validuserId, APIToken), get400YoutubeLicenseNotSupportedResponseSpec());
+        assertEquals(ResponseCode.CLIENT_ERROR.code(), response.statusCode());
     }
 
     @Test
@@ -63,7 +67,8 @@ public class LicenseValidationTest extends BaseTest {
         String youtubeUrl = "https://www.youtube.com/watch?v=NpnsqOCkhIs";
         String updateRequestBodyWithContentBody = this.updateRequestBodyWithContentBody.replace(VERSION_KEY, versionKey).replace(YOUTUBE_URL, youtubeUrl);
         contentV3API.update(identifier, updateRequestBodyWithContentBody, getRequestSpecification(contentType, userId, APIToken), get200ResponseSpec());
-        contentV3API.publish(identifier, publishRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        Response response = contentV3API.publish(identifier, publishRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        assertEquals(ResponseCode.OK.code(), response.statusCode());
     }
 
     @Test
@@ -76,6 +81,7 @@ public class LicenseValidationTest extends BaseTest {
         String youtubeUrl = "https://www.youtube.com/watch?v=gffirQukQvs";
         String updateRequestBodyWithContentBody = this.updateRequestBodyWithContentBody.replace(VERSION_KEY, versionKey).replace(YOUTUBE_URL, youtubeUrl);
         contentV3API.update(identifier, updateRequestBodyWithContentBody, getRequestSpecification(contentType, userId, APIToken), get200ResponseSpec());
-        contentV3API.publish(identifier, publishRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get400YoutubeLicenseNotSupportedResponseSpec());
+        Response response = contentV3API.publish(identifier, publishRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get400YoutubeLicenseNotSupportedResponseSpec());
+        assertEquals(ResponseCode.CLIENT_ERROR.code(), response.statusCode());
     }
 }

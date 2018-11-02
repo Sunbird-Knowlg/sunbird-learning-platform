@@ -104,7 +104,7 @@ public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
             case "youtube": if (!isValidLicense(YouTubeDataAPIV3Service.getLicense(src)))
                                 throw new ClientException(ContentErrorCodeConstants.INVALID_YOUTUBE_MEDIA.name(), ContentErrorMessageConstants.LICENSE_NOT_SUPPORTED);
                             break;
-            default       :
+            default       : break;
         }
     }
 }
