@@ -164,7 +164,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.channel.name(),
 							((Map) removedNodeProp.get(GraphDACParams.channel.name())).get("ov"));
 					map.put(GraphDACParams.transactionData.name(), transactionData);
-					map.put(GraphDACParams.mid.name(), UUID.randomUUID());
+					map.put(GraphDACParams.mid.name(), getUUID());
 					lstMessageMap.add(map);
 				}
 			}
@@ -587,8 +587,13 @@ public class ProcessTransactionData {
 			map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
 		map.put(GraphDACParams.channel.name(), channelId);
 		map.put(GraphDACParams.transactionData.name(), transactionData);
-		map.put(GraphDACParams.mid.name(), UUID.randomUUID());
+		map.put(GraphDACParams.mid.name(), getUUID());
 		return map;
 
+	}
+
+	private String getUUID() {
+		UUID uid = UUID.randomUUID();
+		return uid.toString();
 	}
 }

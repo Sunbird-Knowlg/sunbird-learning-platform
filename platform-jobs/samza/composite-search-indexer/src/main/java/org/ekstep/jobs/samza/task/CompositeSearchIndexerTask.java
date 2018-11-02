@@ -50,7 +50,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 			taskWindow = parseLong(config.get("task.window.ms"));
 			updateDefinitionsWindow = parseLong(config.get("definitions.update.window.ms"));
 			LOGGER.info("Task initialized");
-			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("domain", "Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
+//			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("domain", "Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
 		} catch (Exception ex) {
 			LOGGER.error("Task initialization failed", ex);
 			throw ex;
@@ -89,7 +89,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 		if (updateDefinitionsCounter >= updateDefinitionsWindow) {
 			LOGGER.info("Updating Definitions");
 			getAllDefinitions(graphIds);
-			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("domain", "Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
+//			LOGGER.info("Updated Content Definition Properties Name:: " + TaskUtils.getDefinition("domain", "Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
 			updateDefinitionsCounter = 0;
 		}
 	}
