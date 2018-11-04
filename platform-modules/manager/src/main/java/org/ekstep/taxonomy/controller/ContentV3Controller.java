@@ -420,6 +420,32 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	/**
+	 * Controller Method to Link QR Code (DIAL Code) with Content
+	 * 
+	 * @author amitp
+	 * @param contentId
+	 *            The Content Id for whom dialcodes has to be reserved           
+	 * @return
+	 */
+	@RequestMapping(value = "/dialcode/reserve/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> reserveDialCode(
+			@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
+		String apiId = "ekstep.learning.content.dialcode.reserve";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> reqMap = (Map<String, Object>)request.get(ContentAPIParams.dialcodes.name());
+			Response response = contentManager.reserveDialCode(contentId, channelId, reqMap);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception occured while Reserving Dial Code with Content: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
 	/**
 	 * This method copy the Content by Content Id

@@ -2,7 +2,6 @@ package org.ekstep.taxonomy.mgr.impl;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -133,7 +132,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
 	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
 			? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
-
+	private static final String DIALCODE_GENERATE_URI = Platform.config.hasPath("dialcode.api.generate.url")
+			? Platform.config.getString("dialcode.api.generate.url") : "http://localhost:8080/learning-service/v3/dialcode/generate";
+			
 	private ControllerUtil util = new ControllerUtil();
 	private CollectionStore collectionStore = new CollectionStore();
 	/*private BaseStorageService storageService;
@@ -1686,7 +1687,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		return resp;
 	}
-
+	
 	/**
 	 * @param reqObj
 	 * @return
@@ -2357,4 +2358,115 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
     }
 
+	/* (non-Javadoc)
+	 * @see org.ekstep.taxonomy.mgr.IContentManager#reserveDialCode(java.lang.String, java.lang.Object)
+	 */
+	@Override
+	public Response reserveDialCode(String contentId, String channelId, Map<String, Object> reqMap) throws Exception {
+		Response response = new Response();
+		if(StringUtils.isBlank(channelId)) {
+			throw new ClientException(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), 
+					"Channel can not be blank.");
+		}
+		if(StringUtils.isBlank(contentId)) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
+					"Content Id Can Not be blank.");
+		}
+		Node node = getContentNode(TAXONOMY_ID, contentId, "edit");
+		Map<String, Object> metaData = node.getMetadata();
+		if(!StringUtils.equalsIgnoreCase((String)metaData.get(ContentAPIParams.contentType.name()), ContentAPIParams.TextBook.name())) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CONTENTTYPE.name(),
+					"Invalid Content Type.");
+		}
+		if(!StringUtils.equals((String)metaData.get(ContentAPIParams.channel.name()), channelId)) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(),
+					"Invalid Channel Id.");
+		}
+		List<String> reservedDialcodes = (List<String>)metaData.get(ContentAPIParams.reservedDialcodes.name());
+		/*if(null != reservedDialcodes && reservedDialcodes.size()>0) {
+			String batchCode = fetchBatchCode(channelId, reservedDialcodes.get(0)); Need to discuss
+			List<String> dialCodes = generateDialcode(channelId, batchCode, reqObj);
+		}*/
+		List<String> dialCodes = generateDialcode(channelId, reqMap);
+		if(null == reservedDialcodes)
+			reservedDialcodes = dialCodes;
+		else
+			reservedDialcodes.addAll(dialCodes);
+		Response resp = getSuccessResponse();
+		resp.put(DialCodeEnum.dialcodes.name(), dialCodes);
+		TelemetryManager.info("DIAL codes generated and reserved.", resp.getResult());
+		return resp;
+	}
+	
+	/**
+	 * @param channelId
+	 * @param dialcode
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "unchecked" })
+	private String fetchBatchCode(String channelId, String dialcode) throws Exception {
+		if (!dialcode.isEmpty()) {
+			List<Object> resultList = null;
+			
+			Map<String, Object> requestMap = new HashMap<String, Object>();
+			Map<String, Object> searchMap = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put(ContentAPIParams.identifier.name(), dialcode);
+			searchMap.put("search", data);
+			requestMap.put("request", searchMap);
+
+			Map<String, String> headerParam = new HashMap<String, String>();
+			headerParam.put("X-Channel-Id", channelId);
+
+			Response searchResponse = HttpRestUtil.makePostRequest(DIALCODE_SEARCH_URI, requestMap, headerParam);
+			if (searchResponse.getResponseCode() == ResponseCode.OK) {
+				Map<String, Object> result = searchResponse.getResult();
+				Integer count = (Integer) result.get(DialCodeEnum.count.name());
+				if (count > 0) {
+					resultList = (List<Object>) result.get(DialCodeEnum.dialcodes.name());
+					Map<String, Object> map = (Map<String, Object>) resultList.get(0);
+					return (String) map.get(ContentAPIParams.batchcode.name());
+				}else {
+					throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+							"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+				}
+			} else {
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+			}
+		}else {
+			return null;
+		}
+	}
+	
+	private List<String> generateDialcode(String channelId, Map<String, Object> reqMap) throws Exception{
+		if(null == reqMap || reqMap.isEmpty()) 
+			throw new ClientException(ContentErrorCodes.ERR_REQUEST_BLANK.name(), 
+					"Request can not be blank.");
+		if(null == (Integer)reqMap.get(ContentAPIParams.count.name()) ||
+				!(reqMap.get(ContentAPIParams.count.name()) instanceof Integer) ||
+				(Integer)reqMap.get(ContentAPIParams.count.name())<1)
+			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(), 
+					"Invalid dialcode count.");
+		if(StringUtils.isBlank((String)reqMap.get(ContentAPIParams.publisher.name())))
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_PUBLISHER.name(), 
+						"Invalid publisher name.");
+		
+		Map<String, String> headerParam = new HashMap<String, String>();
+		headerParam.put("X-Channel-Id", channelId);
+		Response generateResponse = HttpRestUtil.makePostRequest(DIALCODE_GENERATE_URI, reqMap, headerParam);
+		if (generateResponse.getResponseCode() == ResponseCode.OK) {
+			Map<String, Object> result = generateResponse.getResult();
+			List<String> generatedDialCodes = (List<String>)result.get(ContentAPIParams.dialcodes.name());
+			if(!generatedDialCodes.isEmpty())
+				return generatedDialCodes;
+			else
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+		}else {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+		}
+		
+	}
 }

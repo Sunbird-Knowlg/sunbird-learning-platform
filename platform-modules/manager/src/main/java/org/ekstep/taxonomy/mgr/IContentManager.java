@@ -266,4 +266,13 @@ public interface IContentManager {
     Response acceptFlag(String contentId) throws Exception;
 
     Response syncHierarchy(String identifier);
+    
+    /**
+     * @param contentId
+     * @param channelId
+     * @param reqObj
+     * @return
+     * @throws Exception
+     */
+    Response reserveDialCode(String contentId, String channelId, Map<String, Object> reqMap) throws Exception;
 }
