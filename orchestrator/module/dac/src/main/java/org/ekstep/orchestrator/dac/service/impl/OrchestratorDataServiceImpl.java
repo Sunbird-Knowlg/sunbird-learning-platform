@@ -241,10 +241,12 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 		Session session = null;
 		try {
 			session = CassandraConnector.getSession();
-			if(null != session)
+			if(null!= session && !session.isClosed()){
+				session.execute("SELECT now() FROM system.local");
 				return true;
-			else
+			}else{
 				return false;
+			}
 		}catch(Exception e) {
 			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error! Executing do Establish Connection: "+ e.getMessage(), e);
 		}
