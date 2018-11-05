@@ -34,7 +34,7 @@ public class AssetsLicenseValidatorProcessorTest {
             FileUtils.deleteQuietly(tmpFolder);
             FileUtils.touch(tmpFolder);
         } catch(IOException e) {
-            throw new RuntimeException("Error! Creating temp folder.", e);
+            e.printStackTrace();
         }
     }
 
