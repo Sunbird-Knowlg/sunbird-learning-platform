@@ -20,16 +20,13 @@ import java.util.Optional;
 import static org.ekstep.common.util.AssetUtil.isValidLicense;
 
 /**
- * YoutubeAssetProcessor is a Content Workflow pipeline Processor
+ * AssetsLicenseValidatorProcessor is a Content Workflow pipeline Processor
  * Which is responsible for Validating Youtube Asset Medias and
  * their license support.
  *
- * @see AssessmentItemCreatorProcessor
- * @see AssetCreatorProcessor
  * @see AssetsValidatorProcessor
  * @see BaseConcreteProcessor
  * @see ContentPipelineProcessor
- * @see EmbedControllerProcessor
  * @see GlobalizeAssetProcessor
  * @see LocalizeAssetProcessor
  * @see MissingAssetValidatorProcessor
@@ -39,11 +36,12 @@ import static org.ekstep.common.util.AssetUtil.isValidLicense;
  */
 public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
 
-    /** List of Media Types which require License Validation*/
-    private static List<String> validMediaTypes;
+    /** List of Media Types which require License Validation */
+    private static List<String> validMediaTypes = Platform.config.hasPath("learning.service_provider") ?
+            Platform.config.getStringList("learning.service_provider") : Arrays.asList("youtube");
 
     /**
-     * Instantiates a new <code>YoutbeAssetProcessor</code> and sets the base path and
+     * Instantiates a new <code>AssetsLicenseValidatorProcessor</code> and sets the base path and
      * current content id for further processing.
      *
      * @param basePath
@@ -62,7 +60,6 @@ public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
                     ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
         this.basePath = basePath;
         this.contentId = contentId;
-        validMediaTypes = Arrays.asList("youtube");
     }
 
     /**

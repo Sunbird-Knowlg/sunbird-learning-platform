@@ -11,7 +11,7 @@ import java.util.List;
 
 public class AssetUtil {
 
-    private static List<String> validLicenses = Platform.config.hasPath("learning.valid_license") ? Platform.config.getStringList("learning.valid_license") : Arrays.asList("creativeCommon");;
+    private static List<String> validLicenses = Platform.config.hasPath("learning.valid_license") ? Platform.config.getStringList("learning.valid_license") : Arrays.asList("creativeCommon");
 
     public static String getLicenseType(String provider, String url) {
         String licenseType;
