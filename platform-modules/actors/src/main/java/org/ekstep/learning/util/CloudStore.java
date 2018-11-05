@@ -58,8 +58,8 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		return new String[] { objectKey, url};
 	}
 
-	public static String[] uploadDirectory(String folderName, File dir, boolean slugFile) {
-		File file = dir;
+	public static String[] uploadDirectory(String folderName, File directory, boolean slugFile) {
+		File file = directory;
 		if (BooleanUtils.isTrue(slugFile))
 			file = Slug.createSlugFile(file);
 		String container = getContainerName();
