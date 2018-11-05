@@ -2361,9 +2361,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.IContentManager#reserveDialCode(java.lang.String, java.lang.Object)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response reserveDialCode(String contentId, String channelId, Map<String, Object> reqMap) throws Exception {
-		Response response = new Response();
 		if(StringUtils.isBlank(channelId)) {
 			throw new ClientException(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), 
 					"Channel can not be blank.");
@@ -2392,10 +2392,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			reservedDialcodes = dialCodes;
 		else
 			reservedDialcodes.addAll(dialCodes);
-		Response resp = getSuccessResponse();
-		resp.put(DialCodeEnum.dialcodes.name(), dialCodes);
-		TelemetryManager.info("DIAL codes generated and reserved.", resp.getResult());
-		return resp;
+		metaData.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
+		Response updateResponse = updateDataNode(node);
+		if(updateResponse.getResponseCode() == ResponseCode.OK) {
+			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
+			TelemetryManager.info("DIAL codes generated and reserved.", updateResponse.getResult());
+			return updateResponse;
+		}else {
+			return updateResponse;
+		}
 	}
 	
 	/**

@@ -2298,6 +2298,18 @@
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 21 }",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"propertyName": "reservedDialcodes",
+					"title": "Reserved Dialcodes",
+					"description": "List of reserved dialcodes for the content",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text',  'order': 22}",
+					"indexed": true
 				}
 			],
 			"inRelations": [
