@@ -105,6 +105,21 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	/**
+	 * Gets all the definitions
+	 *
+	 * @param taxonomyId
+	 * 				the taxonomy id
+	 * @return list of defintions
+	 */
+	public List<DefinitionDTO> getAllDefinitions(String taxonomyId) {
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getAllDefinitions");
+		Response response = getResponse(request);
+		if (!checkError(response))
+			return (List<DefinitionDTO>) response.getResult().get(GraphDACParams.definition_nodes.name());
+		return new ArrayList<>();
+	}
+
+	/**
 	 * Adds out relations.
 	 *
 	 * @param taxonomyId

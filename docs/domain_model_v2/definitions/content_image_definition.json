@@ -797,6 +797,32 @@
 				},
 				{
 					"required": false,
+					"dataType": "Text",
+					"propertyName": "creators",
+					"title": "Creators",
+					"description": "List of primary contributors",
+					"category": "Ownership",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "contributors",
+					"title": "Contributors",
+					"description": "List of secondary contributors",
+					"category": "Ownership",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
 					"dataType": "List",
 					"propertyName": "voiceCredits",
 					"title": "Voice Credits",
