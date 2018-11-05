@@ -2363,7 +2363,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response reserveDialCode(String contentId, String channelId, Map<String, Object> reqMap) throws Exception {
+	public Response reserveDialCode(String contentId, String channelId, Map<String, Object> request) throws Exception {
 		if(StringUtils.isBlank(channelId)) {
 			throw new ClientException(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), 
 					"Channel can not be blank.");
@@ -2382,12 +2382,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(),
 					"Invalid Channel Id.");
 		}
-		List<String> reservedDialcodes = (List<String>)metaData.get(ContentAPIParams.reservedDialcodes.name());
-		/*if(null != reservedDialcodes && reservedDialcodes.size()>0) {
-			String batchCode = fetchBatchCode(channelId, reservedDialcodes.get(0)); Need to discuss
-			List<String> dialCodes = generateDialcode(channelId, batchCode, reqObj);
-		}*/
-		List<String> dialCodes = generateDialcode(channelId, reqMap);
+		Object metadataReservedDialcode = metaData.get(ContentAPIParams.reservedDialcodes.name());
+		List<String> reservedDialcodes = null;
+		if(null != metadataReservedDialcode) {
+			reservedDialcodes = new ArrayList<>();
+			reservedDialcodes.addAll(Arrays.asList((String[])metadataReservedDialcode));
+		}
+		
+		List<String> dialCodes = generateDialcode(channelId, contentId, request);
 		if(null == reservedDialcodes)
 			reservedDialcodes = dialCodes;
 		else
@@ -2396,6 +2398,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Response updateResponse = updateDataNode(node);
 		if(updateResponse.getResponseCode() == ResponseCode.OK) {
 			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
+			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
 			TelemetryManager.info("DIAL codes generated and reserved.", updateResponse.getResult());
 			return updateResponse;
 		}else {
@@ -2403,63 +2406,23 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 	
-	/**
-	 * @param channelId
-	 * @param dialcode
-	 * @throws Exception
-	 */
-	@SuppressWarnings({ "unchecked" })
-	private String fetchBatchCode(String channelId, String dialcode) throws Exception {
-		if (!dialcode.isEmpty()) {
-			List<Object> resultList = null;
-			
-			Map<String, Object> requestMap = new HashMap<String, Object>();
-			Map<String, Object> searchMap = new HashMap<String, Object>();
-			Map<String, Object> data = new HashMap<String, Object>();
-			data.put(ContentAPIParams.identifier.name(), dialcode);
-			searchMap.put("search", data);
-			requestMap.put("request", searchMap);
-
-			Map<String, String> headerParam = new HashMap<String, String>();
-			headerParam.put("X-Channel-Id", channelId);
-
-			Response searchResponse = HttpRestUtil.makePostRequest(DIALCODE_SEARCH_URI, requestMap, headerParam);
-			if (searchResponse.getResponseCode() == ResponseCode.OK) {
-				Map<String, Object> result = searchResponse.getResult();
-				Integer count = (Integer) result.get(DialCodeEnum.count.name());
-				if (count > 0) {
-					resultList = (List<Object>) result.get(DialCodeEnum.dialcodes.name());
-					Map<String, Object> map = (Map<String, Object>) resultList.get(0);
-					return (String) map.get(ContentAPIParams.batchcode.name());
-				}else {
-					throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-							"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
-				}
-			} else {
-				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
-			}
-		}else {
-			return null;
-		}
-	}
-	
-	private List<String> generateDialcode(String channelId, Map<String, Object> reqMap) throws Exception{
-		if(null == reqMap || reqMap.isEmpty()) 
+	private List<String> generateDialcode(String channelId, String contentId, Map<String, Object> request) throws Exception{
+		if(null == request || request.isEmpty()) 
 			throw new ClientException(ContentErrorCodes.ERR_REQUEST_BLANK.name(), 
 					"Request can not be blank.");
-		if(null == (Integer)reqMap.get(ContentAPIParams.count.name()) ||
-				!(reqMap.get(ContentAPIParams.count.name()) instanceof Integer) ||
-				(Integer)reqMap.get(ContentAPIParams.count.name())<1)
+		Map<String, Object> dialcodeMap = (Map<String, Object>)request.get(ContentAPIParams.dialcodes.name());
+		if(null == (Integer)dialcodeMap.get(ContentAPIParams.count.name()) ||
+				!(dialcodeMap.get(ContentAPIParams.count.name()) instanceof Integer) ||
+				(Integer)dialcodeMap.get(ContentAPIParams.count.name())<1)
 			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(), 
 					"Invalid dialcode count.");
-		if(StringUtils.isBlank((String)reqMap.get(ContentAPIParams.publisher.name())))
+		if(StringUtils.isBlank((String)dialcodeMap.get(ContentAPIParams.publisher.name())))
 				throw new ClientException(ContentErrorCodes.ERR_INVALID_PUBLISHER.name(), 
 						"Invalid publisher name.");
-		
+		dialcodeMap.put(ContentAPIParams.batchCode.name(), contentId);
 		Map<String, String> headerParam = new HashMap<String, String>();
 		headerParam.put("X-Channel-Id", channelId);
-		Response generateResponse = HttpRestUtil.makePostRequest(DIALCODE_GENERATE_URI, reqMap, headerParam);
+		Response generateResponse = HttpRestUtil.makePostRequest(DIALCODE_GENERATE_URI, request, headerParam);
 		if (generateResponse.getResponseCode() == ResponseCode.OK) {
 			Map<String, Object> result = generateResponse.getResult();
 			List<String> generatedDialCodes = (List<String>)result.get(ContentAPIParams.dialcodes.name());

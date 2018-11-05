@@ -438,8 +438,8 @@ public class ContentV3Controller extends BaseController {
 		String apiId = "ekstep.learning.content.dialcode.reserve";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> reqMap = (Map<String, Object>)request.get(ContentAPIParams.dialcodes.name());
-			Response response = contentManager.reserveDialCode(contentId, channelId, reqMap);
+			//Map<String, Object> reqMap = (Map<String, Object>)request;
+			Response response = contentManager.reserveDialCode(contentId, channelId, (Map<String, Object>)request);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Reserving Dial Code with Content: " + e.getMessage(), e);
