@@ -1,8 +1,6 @@
 package org.ekstep.content.util;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
@@ -24,11 +22,10 @@ import scala.Option;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The Class ContentPackageExtractionUtil.
@@ -38,7 +35,7 @@ import java.util.concurrent.*;
 public class ContentPackageExtractionUtil {
 	
 	/** The Constant AWS_UPLOAD_RESULT_URL_INDEX. */
-	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
+//	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
 	/** The Constant DASH. */
 	private static final String DASH = "-";
@@ -220,32 +217,27 @@ public class ContentPackageExtractionUtil {
 	 */
 	public void uploadExtractedPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
 			boolean slugFile) {
-		List<String> lstUploadedFilesUrl = new ArrayList<String>();
-		String awsFolderPath = "";
-		try {
-			// Get List of All the Files in the Extracted Folder
-			File extractionDir = new File(basePath);
-			List<File> lstFilesToUpload = (List<File>) FileUtils.listFiles(extractionDir, TrueFileFilter.INSTANCE,
-					TrueFileFilter.INSTANCE);
 
-			// Upload All the File to S3 Recursively and Concurrently
-			awsFolderPath = getExtractionPath(contentId, node, extractionType);
-			lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, awsFolderPath, basePath, slugFile);
-		} catch (InterruptedException e) {
-			cleanUpAWSFolder(awsFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! The Extraction Process was Interrupted.", e);
-		} catch (ExecutionException e) {
-			cleanUpAWSFolder(awsFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! Something went wrong while Executing bulk upload of Files during Extraction.", e);
-		} catch (Exception e) {
-			cleanUpAWSFolder(awsFolderPath);
+		if (StringUtils.isBlank(basePath))
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
+
+		String cloudExtractionPath = "";
+
+		try {
+
+			// Get extracted folder
+			File extractedDir = new File(basePath);
+			//Get Cloud folder
+			cloudExtractionPath = getExtractionPath(contentId, node, extractionType);
+			// Upload Directory to Cloud
+			directoryUpload(extractedDir, cloudExtractionPath, slugFile);
+		}  catch (Exception e) {
+			cleanUpCloudFolder(cloudExtractionPath);
 			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
 					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
 		} finally {
 			try {
-				TelemetryManager.log("Total Uploaded Files: " + lstUploadedFilesUrl.size());
 				TelemetryManager.log("Deleting Locally Extracted File.");
 				File dir = new File(basePath);
 				if (dir.exists())
@@ -259,82 +251,45 @@ public class ContentPackageExtractionUtil {
 	}
 
 	/**
-	 * Clean up AWS folder.
+	 * Clean up Cloud folder.
 	 *
-	 * @param AWSFolderPath
-	 *            the AWS folder path
+	 * @param cloudFolderPath
+	 *            the Cloud folder path
 	 */
-	private void cleanUpAWSFolder(String AWSFolderPath) {
+	private void cleanUpCloudFolder(String cloudFolderPath) {
 		try {
-			TelemetryManager.log("Cleaning AWS Folder Path: " + AWSFolderPath);
-			if (StringUtils.isNoneBlank(AWSFolderPath))
-				CloudStore.deleteFile(AWSFolderPath, true);
+			TelemetryManager.log("Cleaning AWS Folder Path: " + cloudFolderPath);
+			if (StringUtils.isNoneBlank(cloudFolderPath))
+				CloudStore.deleteFile(cloudFolderPath, true);
 		} catch (Exception ex) {
 			TelemetryManager.error("Error! While Cleanup of Half Extracted Folder from S3: " + ex.getMessage(), ex);
 		}
 	}
 
 	/**
-	 * Bulk file upload.
+	 * Directory upload.
 	 *
-	 * @param files
-	 *            the files
-	 * @param AWSFolderPath
-	 *            the AWS folder path
-	 * @param basePath
-	 *            the base path
+	 * @param directory
+	 *            the directory to be uploaded
+	 * @param cloudFolderPath
+	 *            the Cloud folder path
 	 * @return the list
-	 * @throws InterruptedException
-	 *             the interrupted exception
-	 * @throws ExecutionException
-	 *             the execution exception
 	 */
-	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath, String basePath, boolean slugFile)
-			throws InterruptedException, ExecutionException {
-
-		// Validating Parameters
-		if (null == files || files.size() < 1)
+	private void directoryUpload(File directory, String cloudFolderPath, boolean slugFile) {
+		// Validating directory to be uploaded
+		if (!directory.exists())
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Extraction File cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
+		if (directory.isFile())
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Not a Directory");
+		if (directory.listFiles().length < 1)
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
 					"Error! Atleast One file is needed for Content Package Extraction.");
 
-		if (StringUtils.isBlank(basePath))
-			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
-					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
-
-		List<String> lstUploadedFileUrls = new ArrayList<>();
-		TelemetryManager.log("Starting the Fan-out for Upload.");
-		ExecutorService pool = Executors.newFixedThreadPool(10);
-		List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(files.size());
-
-		TelemetryManager.log("Adding All Files to Upload.");
-		for (final File file : files) {
-			tasks.add(new Callable<Map<String, String>>() {
-				public Map<String, String> call() throws Exception {
-					Map<String, String> uploadMap = new HashMap<String, String>();
-					if (file.exists() && !file.isDirectory()) {
-						String folderName = AWSFolderPath;
-						String path = getFolderPath(file, basePath);
-						if (StringUtils.isNotBlank(path))
-							folderName += File.separator + path;
-						TelemetryManager.log("Folder Name For Storage Space Extraction: " + folderName);
-						String[] uploadedFileUrl = CloudStore.uploadFile(folderName, file, slugFile);
-						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
-							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
-					}
-
-					return uploadMap;
-				}
-			});
-		}
-		List<Future<Map<String, String>>> results = pool.invokeAll(tasks);
-		for (Future<Map<String, String>> uMap : results) {
-			Map<String, String> m = uMap.get();
-			if (null != m)
-				lstUploadedFileUrls.addAll(m.values());
-		}
-		pool.shutdown();
-
-		return lstUploadedFileUrls;
+		TelemetryManager.log("Uploading Extracted Directory to Cloud");
+		TelemetryManager.log("Folder Name For Storage Space Extraction: " + cloudFolderPath);
+		CloudStore.uploadDirectory(cloudFolderPath, directory, slugFile);
 	}
 
 	/**
@@ -400,26 +355,6 @@ public class ContentPackageExtractionUtil {
 		if (!StringUtils.isBlank(contentId))
 			path = TEMP_FILE_LOCATION + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
 					+ File.separator + contentId;
-		return path;
-	}
-
-	/**
-	 * Gets the folder path.
-	 *
-	 * @param file
-	 *            the file
-	 * @param basePath
-	 *            the base path
-	 * @return the folder path
-	 */
-	private String getFolderPath(File file, String basePath) {
-		String path = "";
-		String filePath = file.getAbsolutePath();
-		TelemetryManager.log("Cleaned File Path: " + filePath + "[Get Folder Path]");
-		String base = new File(basePath).getPath();
-		path = filePath.replace(base, "");
-		path = FilenameUtils.getPathNoEndSeparator(path);
-		TelemetryManager.log("Cleaned Base Path: " + base + "[Get Folder Path]");
 		return path;
 	}
 

@@ -1,7 +1,6 @@
 package org.ekstep.learning.util;
 
 import java.io.File;
-import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,12 +10,10 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.S3PropertyReader;
 import org.sunbird.cloud.storage.BaseStorageService;
 import org.sunbird.cloud.storage.Model.Blob;
-import org.sunbird.cloud.storage.conf.AppConf;
 import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
 
 import scala.Option;
-import scala.collection.JavaConversions;
 
 public class CloudStore {
 
@@ -59,6 +56,16 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		String container = getContainerName();
 		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
 		return new String[] { objectKey, url};
+	}
+
+	public static String[] uploadDirectory(String folderName, File directory, boolean slugFile) {
+		File file = directory;
+		if (BooleanUtils.isTrue(slugFile))
+			file = Slug.createSlugFile(file);
+		String container = getContainerName();
+		String objectKey = folderName + File.separator;
+		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(true), Option.empty(), Option.empty());
+		return new String[] { objectKey, url };
 	}
 	
 	public static double getObjectSize(String key) throws Exception {
