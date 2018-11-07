@@ -222,18 +222,18 @@ public class ContentPackageExtractionUtil {
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
 					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
 
-		String cloudFolderPath = "";
+		String cloudExtractionPath = "";
 
 		try {
 
-			// Get Extracted Folder
-			File extractionDir = new File(basePath);
-
+			// Get extracted folder
+			File extractedDir = new File(basePath);
+			//Get Cloud folder
+			cloudExtractionPath = getExtractionPath(contentId, node, extractionType);
 			// Upload Directory to Cloud
-			cloudFolderPath = getExtractionPath(contentId, node, extractionType);
-			directoryUpload(extractionDir, cloudFolderPath, slugFile);
+			directoryUpload(extractedDir, cloudExtractionPath, slugFile);
 		}  catch (Exception e) {
-			cleanUpCloudFolder(cloudFolderPath);
+			cleanUpCloudFolder(cloudExtractionPath);
 			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
 					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
 		} finally {
