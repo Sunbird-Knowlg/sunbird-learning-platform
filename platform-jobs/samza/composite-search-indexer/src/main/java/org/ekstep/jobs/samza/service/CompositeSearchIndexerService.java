@@ -1,7 +1,5 @@
 package org.ekstep.jobs.samza.service;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
@@ -17,6 +15,8 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
+
+import java.util.Map;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
@@ -80,11 +80,12 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			String objectType = (String) message.get("objectType");
 			String graphId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
+			String messageId = (String) message.get("mid");
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_SET:
 			case CompositeSearchConstants.NODE_TYPE_DATA:
 			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
-				csIndexer.processESMessage(graphId, objectType, uniqueId, message, metrics);
+				csIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
 				break;
 			}
 			case CompositeSearchConstants.NODE_TYPE_EXTERNAL: {
