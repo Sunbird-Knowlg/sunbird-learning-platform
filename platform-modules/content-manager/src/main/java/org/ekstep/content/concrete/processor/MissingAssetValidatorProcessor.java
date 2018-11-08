@@ -80,14 +80,15 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 				List<String> mediaIds = new ArrayList<String>();
 				TelemetryManager.log("Validating Assets.");
 				for (Media media : medias) {
-					if (StringUtils.equals(ContentWorkflowPipelineParams.youtube.name(), media.getType()))
-						continue;
 					if (mediaIds.contains(getMediaId(media)))
 						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_ASSET_ID.name(),
 								ContentErrorMessageConstants.DUPLICATE_ASSET_ID_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is used more than once in the manifest.]");
 					else
 						mediaIds.add(getMediaId(media));
+
+					if (StringUtils.equals(ContentWorkflowPipelineParams.youtube.name(), media.getType()))
+						continue;
 					if (isWidgetTypeAsset(media.getType())
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.widgets.name()
 									+ File.separator + media.getSrc()).exists())
