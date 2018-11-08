@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>stream-generator-job</artifactId>
+        <groupId>org.ekstep</groupId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>sunbird-media-service</artifactId>
+
+    <properties>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <scala.maj.version>2.11</scala.maj.version>
+        <scala.version>2.11.8</scala.version>
+        <spark.maj.version>2.0</spark.maj.version>
+        <spark.version>2.0.1</spark.version>
+        <type-safe-version>1.3.3</type-safe-version>
+        <aws-java-sdk-version>1.11.417</aws-java-sdk-version>
+        <jackson-2-version>2.9.4</jackson-2-version>
+        <azure-media-api-version>1.0.0-beta</azure-media-api-version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>${aws-java-sdk-version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-mediaconvert -->
+        <!--<dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-mediaconvert</artifactId>
+            <version>1.11.443</version>
+        </dependency>-->
+
+
+        <!-- https://mvnrepository.com/artifact/com.microsoft.azure.mediaservices.v2018_07_01/azure-mgmt-media -->
+        <dependency>
+            <groupId>com.microsoft.azure.mediaservices.v2018_07_01</groupId>
+            <artifactId>azure-mgmt-media</artifactId>
+            <version>${azure-media-api-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-media</artifactId>
+            <version>0.9.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson-2-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson-2-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-2-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>${type-safe-version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

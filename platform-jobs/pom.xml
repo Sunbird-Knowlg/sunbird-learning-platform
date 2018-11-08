@@ -22,6 +22,7 @@
 
 	<modules>
 		<module>samza</module>
+		<module>stream-generator-job</module>
 	</modules>
 
 	<dependencies>
