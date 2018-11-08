@@ -22,7 +22,7 @@
 
 	<modules>
 		<module>samza</module>
-		<module>stream-generator-job</module>
+		<module>lp-batch</module>
 	</modules>
 
 	<dependencies>
