@@ -11,7 +11,7 @@ object AppConfig {
 
   lazy val defaultConfig = ConfigFactory.load();
   lazy val envConfig = ConfigFactory.systemEnvironment();
-  lazy val config = defaultConfig.withFallback(envConfig);
+  lazy val config = envConfig.withFallback(defaultConfig);
 
   def getConfig(key: String): String = {
     if (config.hasPath(key))
