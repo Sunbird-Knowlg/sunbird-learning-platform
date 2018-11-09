@@ -39,6 +39,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
  * 
  * @see AssessmentItemCreatorProcessor
  * @see AssetCreatorProcessor
+ * @see AssetsLicenseValidatorProcessor
  * @see AssetsValidatorProcessor
  * @see BaseConcreteProcessor
  * @see EmbedControllerProcessor

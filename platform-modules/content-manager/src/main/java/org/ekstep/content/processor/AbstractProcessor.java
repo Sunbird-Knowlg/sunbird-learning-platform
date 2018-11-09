@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.content.concrete.processor.AssessmentItemCreatorProcessor;
 import org.ekstep.content.concrete.processor.AssetCreatorProcessor;
+import org.ekstep.content.concrete.processor.AssetsLicenseValidatorProcessor;
 import org.ekstep.content.concrete.processor.AssetsValidatorProcessor;
 import org.ekstep.content.concrete.processor.BaseConcreteProcessor;
 import org.ekstep.content.concrete.processor.EmbedControllerProcessor;
@@ -37,6 +38,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
  * 
  * @see AssessmentItemCreatorProcessor
  * @see AssetCreatorProcessor
+ * @see AssetsLicenseValidatorProcessor
  * @see AssetsValidatorProcessor
  * @see BaseConcreteProcessor
  * @see EmbedControllerProcessor
