@@ -1,11 +1,11 @@
 package org.sunbird.media.service.impl
 
-import java.util.UUID
-
 import org.sunbird.media.common.{MediaRequest, MediaResponse, ResponseCode}
 import org.sunbird.media.config.AppConfig
 import org.sunbird.media.exception.MediaServiceException
 import org.sunbird.media.service.IMediaService
+import org.sunbird.media.util.HttpRestUtil
+import scala.collection.immutable.HashMap
 
 /**
   *
@@ -13,8 +13,16 @@ import org.sunbird.media.service.IMediaService
   */
 object AzureMediaServiceImpl extends IMediaService {
 
+  var API_ACCESS_TOKEN: String = _
+
   override def getToken(request: MediaRequest): MediaResponse = {
-    null
+    val tanent = AppConfig.getSystemConfig("azure.tanent")
+    val clientKey = AppConfig.getSystemConfig("azure.token.client_key")
+    val clientSecret = AppConfig.getSystemConfig("azure.token.client_secret")
+    val loginUrl = "https://login.microsoftonline.com/" + tanent + "/oauth2/token"
+    val body = ""
+    // API Call
+    null //Return Response
   }
 
   override def submitJob(request: MediaRequest): MediaResponse = {
@@ -22,7 +30,8 @@ object AzureMediaServiceImpl extends IMediaService {
   }
 
   override def getJob(jobId: String): MediaResponse = {
-    null
+    val url = getApiUrl("job").replace("jobId", jobId)
+    HttpRestUtil.get(url, getDefaultHeader(), null)
   }
 
   override def getStreamingPaths(jobId: String): MediaResponse = {
@@ -37,7 +46,22 @@ object AzureMediaServiceImpl extends IMediaService {
     null
   }
 
-  def prepareApiUrl(apiName: String): String = {
+  def createAsset(assetId: String): MediaResponse = {
+    val url = getApiUrl("asset")
+    null
+  }
+
+  def createStreamingLocator(streamingLocatorName: String): MediaResponse = {
+    val url = getApiUrl("stream_locator")
+    null
+  }
+
+  def getStreamUrls(streamingLocatorName: String): MediaResponse = {
+    val url = getApiUrl("list_paths")
+    null
+  }
+
+  def getApiUrl(apiName: String): String = {
 
     val subscriptionId: String = AppConfig.getSystemConfig("azure.subscription_id")
     val resourceGroupName: String = AppConfig.getSystemConfig("azure.resource_group_name")
@@ -56,9 +80,18 @@ object AzureMediaServiceImpl extends IMediaService {
     apiName.toLowerCase() match {
       case "asset" => baseUrl + "/assets/:assetId?api-version=" + apiVersion
       case "job" => baseUrl + "/transforms/" + transformName + "/jobs/jobId?api-version=" + apiVersion
-      case "create_stream_locator" => baseUrl + "/streamingLocators/streamingLocatorName?api-version=" + apiVersion
+      case "stream_locator" => baseUrl + "/streamingLocators/streamingLocatorName?api-version=" + apiVersion
       case "list_paths" => baseUrl + "s/treamingLocators/streamingLocatorName/listPaths?api-version=" + apiVersion
       case _ => throw new MediaServiceException("ERR_INVALID_API_NAME", "Please Provide Valid Media Service API Name")
     }
+  }
+
+  def getDefaultHeader(): Map[String, String] = {
+    val authToken = "Bearer " + API_ACCESS_TOKEN
+    HashMap[String, String](
+      "Content-Type" -> "application/json",
+      "Accept" -> "application/json",
+      "Authorization" -> authToken
+    )
   }
 }
