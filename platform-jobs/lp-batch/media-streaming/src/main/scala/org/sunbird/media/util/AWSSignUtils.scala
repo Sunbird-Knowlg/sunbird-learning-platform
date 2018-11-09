@@ -1,7 +1,7 @@
 package org.sunbird.media.util
 
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.{Date, TimeZone}
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import javax.xml.bind.DatatypeConverter
@@ -21,9 +21,11 @@ object AWSSignUtils {
   val service = AppConfig.getConfig("aws.service.name")
   val version = AppConfig.getConfig("aws.api.version")
 
+  val dateFormat = new SimpleDateFormat("yyyyMMdd")
+  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+
 
   def getSiginingkey() : Array[Byte] = {
-    val dateFormat = new SimpleDateFormat("yyyyMMdd")
     val date = dateFormat.format(new Date()).getBytes("UTF8")
     val kSecret = ("AWS4" + secret).getBytes("UTF8");
     val kDate = HmacSHA256(date, kSecret);
@@ -45,7 +47,7 @@ object AWSSignUtils {
     val canonicalRequest = httpMethod + "\n" + canonicalUri + "\n" + canonicalQueryString +"\n" + canonicalHeaders + "\n" + signedHeaders + "\n" + hashedPayload
 
     val timeStampISO8601Format = headers.get("x-amz-date").get
-    val scope = new SimpleDateFormat("yyyyMMdd").format(new Date()) + "/" + region + "/" + service + "/aws4_request"
+    val scope = dateFormat.format(new Date()) + "/" + region + "/" + service + "/aws4_request"
 
     val stringToSign = "AWS4-HMAC-SHA256" + "\n" + timeStampISO8601Format + "\n" + scope + "\n" + sha256Hash(canonicalRequest)
 
@@ -55,7 +57,7 @@ object AWSSignUtils {
   def generateToken(httpMethod: String, url: String, headers: Map[String, String], payload : Map[String, AnyRef]) : String = {
     val signature = new String(Hex.encodeHex(HmacSHA256(getStringToSign(httpMethod, url, headers, payload).getBytes("UTF-8"), getSiginingkey())))
 
-    "AWS4-HMAC-SHA256 Credential=" + accessKey +  "/" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + "/" + region + "/" + service + "/aws4_request,SignedHeaders=" + getSignedHeaders(headers.keySet) + ",Signature=" + signature
+    "AWS4-HMAC-SHA256 Credential=" + accessKey +  "/" + dateFormat.format(new Date()) + "/" + region + "/" + service + "/aws4_request,SignedHeaders=" + getSignedHeaders(headers.keySet) + ",Signature=" + signature
   }
 
 
