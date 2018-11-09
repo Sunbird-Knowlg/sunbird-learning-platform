@@ -1,10 +1,12 @@
 package org.sunbird.media.service.impl
 
+import com.google.gson.Gson
 import org.sunbird.media.common.{MediaRequest, MediaResponse, ResponseCode}
 import org.sunbird.media.config.AppConfig
 import org.sunbird.media.exception.MediaServiceException
 import org.sunbird.media.service.IMediaService
 import org.sunbird.media.util.HttpRestUtil
+
 import scala.collection.immutable.HashMap
 
 /**
@@ -20,9 +22,20 @@ object AzureMediaServiceImpl extends IMediaService {
     val clientKey = AppConfig.getSystemConfig("azure.token.client_key")
     val clientSecret = AppConfig.getSystemConfig("azure.token.client_secret")
     val loginUrl = "https://login.microsoftonline.com/" + tanent + "/oauth2/token"
-    val body = ""
-    // API Call
-    null //Return Response
+
+    val data = HashMap[String, String](
+      "grant_type" -> "client_credentials",
+      "client_id" -> clientKey,
+      "client_secret" -> clientSecret,
+      "resource" -> "https://management.core.windows.net/"
+    )
+
+    val header = HashMap[String, String](
+      "Content-Type" -> "application/x-www-form-urlencoded",
+      "Keep-Alive" -> "true"
+    )
+
+    HttpRestUtil.post(loginUrl, header, data)
   }
 
   override def submitJob(request: MediaRequest): MediaResponse = {

@@ -27,19 +27,31 @@ object HttpRestUtil {
   def post(url: String, headers: Map[String, String], requestBody: String): MediaResponse = {
     if (null == headers) throw new MediaServiceException("ERR_INVALID_HEADER_PARAM", "Header Parameter is Mandatory.")
     if (StringUtils.isBlank(requestBody)) throw new MediaServiceException("ERR_INVALID_REQUEST_BODY", "Request body is Mandatory.")
-    try
+    try {
       getResponse(Unirest.post(url).headers(headers.asJava).body(requestBody).asString)
-    catch {
+    } catch {
       case e: Exception => getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
+    }
+  }
+
+  def post(url: String, headers: Map[String, String], requestBody: Map[String, AnyRef]): MediaResponse = {
+    if (null == headers) throw new MediaServiceException("ERR_INVALID_HEADER_PARAM", "Header Parameter is Mandatory.")
+    try {
+      getResponse(Unirest.post(url).headers(headers.asJava).fields(requestBody.asJava).asString())
+    } catch {
+      case e: Exception => {
+        e.printStackTrace()
+        getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
+      }
     }
   }
 
   def put(url: String, headers: Map[String, String], requestBody: String): MediaResponse = {
     if (null == headers) throw new MediaServiceException("ERR_INVALID_HEADER_PARAM", "Header Parameter is Mandatory.")
     if (StringUtils.isBlank(requestBody)) throw new MediaServiceException("ERR_INVALID_REQUEST_BODY", "Request body is Mandatory.")
-    try
+    try {
       getResponse(Unirest.put(url).headers(headers.asJava).body(requestBody).asString)
-    catch {
+    } catch {
       case e: Exception => getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
     }
   }
