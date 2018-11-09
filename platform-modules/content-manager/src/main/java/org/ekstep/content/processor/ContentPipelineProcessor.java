@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.ekstep.content.concrete.processor.AssessmentItemCreatorProcessor;
 import org.ekstep.content.concrete.processor.AssetCreatorProcessor;
+import org.ekstep.content.concrete.processor.AssetsLicenseValidatorProcessor;
 import org.ekstep.content.concrete.processor.AssetsValidatorProcessor;
 import org.ekstep.content.concrete.processor.BaseConcreteProcessor;
 import org.ekstep.content.concrete.processor.EmbedControllerProcessor;
@@ -32,6 +33,7 @@ import org.ekstep.content.entity.Plugin;
  * @see LocalizeAssetProcessor
  * @see MissingAssetValidatorProcessor
  * @see MissingControllerValidatorProcessor
+ * @see AssetsLicenseValidatorProcessor
  * 
  * @see AbstractProcessor
  */
