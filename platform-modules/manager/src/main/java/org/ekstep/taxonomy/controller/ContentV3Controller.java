@@ -456,12 +456,13 @@ public class ContentV3Controller extends BaseController {
 	 */
 	@RequestMapping(value="/dialcode/release/{id}", method = RequestMethod.PATCH)
 	@ResponseBody
-	public ResponseEntity<Response> releaseDialCodes(@PathVariable(value="id") String contentId) {
+	public ResponseEntity<Response> releaseDialcodes(@PathVariable(value="id") String contentId,
+													 @RequestHeader(value = CHANNEL_ID) String channelId) {
 		String apiId = "ekstep.learning.content.dialcode.reslease";
 		TelemetryManager.log("Release DialCode | Content Id : " + contentId);
 		Response response;
 		try {
-			response = this.contentManager.releaseDialcodes(contentId);
+			response = this.contentManager.releaseDialcodes(contentId, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Releasing DialCode with Content: " + e.getMessage(), e);

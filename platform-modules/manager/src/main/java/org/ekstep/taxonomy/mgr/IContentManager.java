@@ -279,8 +279,9 @@ public interface IContentManager {
 	/**
 	 *
 	 * @param contentId
+	 * @param channelId
 	 * @return
 	 * @throws Exception
 	 */
-	Response releaseDialcodes(String contentId) throws Exception;
+	Response releaseDialcodes(String contentId, String channelId) throws Exception;
 }

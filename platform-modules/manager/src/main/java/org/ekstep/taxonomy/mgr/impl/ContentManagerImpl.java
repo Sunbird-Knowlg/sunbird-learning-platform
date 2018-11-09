@@ -2441,15 +2441,20 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
-	 * Implementation for {@link IContentManager#releaseDialcodes(String)}
+	 * Implementation for {@link IContentManager#releaseDialcodes(String, String)}
 	 *
 	 * @param contentId
+	 * @param channelId
 	 * @return
 	 * @throws Exception
 	 */
 	@Override
-	public Response releaseDialcodes(String contentId) throws Exception {
-		if (StringUtils.isBlank(contentId))
+	public Response releaseDialcodes(String contentId, String channelId) throws Exception {
+        if(StringUtils.isBlank(channelId))
+            throw new ClientException(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(),
+                    "Channel can not be blank.");
+
+	    if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
 					"Content Id Can Not be blank.");
 
@@ -2461,9 +2466,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Node node = (Node) response.get(GraphDACParams.node.name());
         Map<String, Object> metadata = node.getMetadata();
 
-        if (!StringUtils.equals(ContentAPIParams.content.name(), (String) metadata.get(ContentAPIParams.mediaType.name())))
+        if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(),
+                    "Invalid Channel Id.");
+        if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType()))
         	throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content");
-		if (!StringUtils.equals(ContentAPIParams.TextBook.name(), (String) metadata.get(ContentAPIParams.contentType.name())))
+		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.TextBook.name(), (String) metadata.get(ContentAPIParams.contentType.name())))
 			throw new ClientException(ContentErrorCodes.ERR_NOT_A_TEXTBOOK.name(), "Error! Content Is not a Textbook.");
         if (StringUtils.equalsIgnoreCase((String) metadata.get(ContentAPIParams.status.name()), ContentAPIParams.Retired.name()))
             throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
@@ -2476,17 +2484,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
                 throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(), "Error! No Dialcodes are Reserved.");
         } else throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(), "Error! No Dialcodes are Reserved.");
 
-		DefinitionDTO contentDefinition      = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-        DefinitionDTO contentImageDefinition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
-
         TelemetryManager.log("Collecting Dialcodes For Original Content Id: " + node.getIdentifier());
-        Set<String> assignedDialcodes = getAllDescendentsAssisgnedDialcodesRecursive(node, contentDefinition, contentImageDefinition);
+        Set<String> assignedDialcodes = getAllDescendentsAssisgnedDialcodesRecursive(node);
 
         response = getDataNode(TAXONOMY_ID, getImageId(contentId));
 		if (!checkError(response)) {
 			node = (Node) response.get(GraphDACParams.node.name());
 			TelemetryManager.log("Collecting Dialcodes For Image Content Id: " + node.getIdentifier());
-			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(node, contentDefinition, contentImageDefinition));
+			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(node));
 		}
 
 		List<String> releasedDialcodes = new ArrayList<>();
@@ -2528,9 +2533,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				(String) node.getMetadata().get(ContentAPIParams.visibility.name()));
 	}
 
-	private Set<String> getAllDescendentsAssisgnedDialcodesRecursive(Node node, DefinitionDTO contentDefinition, DefinitionDTO contentImageDefinition) {
-		DefinitionDTO definition = StringUtils.endsWith(node.getIdentifier(), DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX) ?
-				contentImageDefinition : contentDefinition;
+	private Set<String> getAllDescendentsAssisgnedDialcodesRecursive(Node node) {
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
 
 		Set<String> assignedDialcodes = new HashSet<>();
 
@@ -2542,7 +2546,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					if (isNodeVisibilityParent(childNode)) {
 						if (childNode.getMetadata().containsKey(ContentAPIParams.dialcodes.name())) {
 							assignedDialcodes.addAll(Arrays.asList((String[]) childNode.getMetadata().get(ContentAPIParams.dialcodes.name())));
-							assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childNode, contentDefinition, contentImageDefinition));
+							assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childNode));
 						}
 					}
 				});
