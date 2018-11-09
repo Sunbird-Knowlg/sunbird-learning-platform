@@ -1,7 +1,6 @@
 package org.sunbird.media.service.impl
 
-import com.google.gson.Gson
-import org.sunbird.media.common.{MediaRequest, MediaResponse, ResponseCode}
+import org.sunbird.media.common.{AzureRequestBody, MediaRequest, MediaResponse, Response}
 import org.sunbird.media.config.AppConfig
 import org.sunbird.media.exception.MediaServiceException
 import org.sunbird.media.service.IMediaService
@@ -39,7 +38,21 @@ object AzureMediaServiceImpl extends IMediaService {
   }
 
   override def submitJob(request: MediaRequest): MediaResponse = {
-    null
+    val inputUrl = request.request.getOrElse("artifact_url", "").toString
+    val contentId = request.request.get("content_id").mkString
+    val jobId = contentId + "_" + System.currentTimeMillis()
+    val temp = inputUrl.splitAt(inputUrl.lastIndexOf("/") + 1)
+    val assetId = "asset-" + jobId
+
+    val createAssetResponse = createAsset(assetId, jobId)
+
+    if (createAssetResponse.responseCode.equalsIgnoreCase("OK")) {
+      val apiUrl = getApiUrl("job").replace("jobIdentifier", jobId)
+      val reqBody = AzureRequestBody.submit_job.replace("assetId", assetId).replace("baseInputUrl", temp._1).replace("inputVideoFile", temp._2)
+      HttpRestUtil.put(apiUrl, getDefaultHeader(), reqBody)
+    } else {
+      Response.getFailureResponse(createAssetResponse.result, "SERVER_ERROR", "Output Asset [ " + assetId + " ] Creation Failed for Job : " + jobId)
+    }
   }
 
   override def getJob(jobId: String): MediaResponse = {
@@ -48,7 +61,14 @@ object AzureMediaServiceImpl extends IMediaService {
   }
 
   override def getStreamingPaths(jobId: String): MediaResponse = {
-    null
+    val streamLocatorName = "sl-" + jobId
+    val assetName = "asset-" + jobId
+    val locatorResponse = createStreamingLocator(streamLocatorName, assetName)
+    if (locatorResponse.responseCode.equalsIgnoreCase("OK")) {
+      Response.getSuccessResponse(prepareStreamingUrl(streamLocatorName, jobId))
+    } else {
+      Response.getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Streaming Locator [" + streamLocatorName + "] Creation Failed for Job : " + jobId)
+    }
   }
 
   override def listJobs(listJobsRequest: MediaRequest): MediaResponse = {
@@ -59,23 +79,26 @@ object AzureMediaServiceImpl extends IMediaService {
     null
   }
 
-  def createAsset(assetId: String): MediaResponse = {
-    val url = getApiUrl("asset")
-    null
+  def createAsset(assetId: String, jobId: String): MediaResponse = {
+    val url = getApiUrl("asset").replace("assetId", assetId)
+    val requestBody = AzureRequestBody.create_asset.replace("assetId", assetId)
+      .replace("assetDescription", "Output Asset for " + jobId)
+    HttpRestUtil.put(url, getDefaultHeader(), requestBody)
   }
 
-  def createStreamingLocator(streamingLocatorName: String): MediaResponse = {
-    val url = getApiUrl("stream_locator")
-    null
+  def createStreamingLocator(streamingLocatorName: String, assetName: String): MediaResponse = {
+    val url = getApiUrl("stream_locator").replace("streamingLocatorName", streamingLocatorName)
+    val streamingPolicyName = AppConfig.getConfig("azure.stream.policy_name")
+    val reqBody = AzureRequestBody.create_stream_locator.replace("assetId", assetName).replace("policyName", streamingPolicyName)
+    HttpRestUtil.put(url, getDefaultHeader(), reqBody)
   }
 
   def getStreamUrls(streamingLocatorName: String): MediaResponse = {
-    val url = getApiUrl("list_paths")
-    null
+    val url = getApiUrl("list_paths").replace("streamingLocatorName", streamingLocatorName)
+    HttpRestUtil.post(url, getDefaultHeader(), "{}")
   }
 
   def getApiUrl(apiName: String): String = {
-
     val subscriptionId: String = AppConfig.getSystemConfig("azure.subscription_id")
     val resourceGroupName: String = AppConfig.getSystemConfig("azure.resource_group_name")
     val accountName: String = AppConfig.getSystemConfig("azure.account_name")
@@ -91,10 +114,10 @@ object AzureMediaServiceImpl extends IMediaService {
 
 
     apiName.toLowerCase() match {
-      case "asset" => baseUrl + "/assets/:assetId?api-version=" + apiVersion
+      case "asset" => baseUrl + "/assets/assetId?api-version=" + apiVersion
       case "job" => baseUrl + "/transforms/" + transformName + "/jobs/jobId?api-version=" + apiVersion
       case "stream_locator" => baseUrl + "/streamingLocators/streamingLocatorName?api-version=" + apiVersion
-      case "list_paths" => baseUrl + "s/treamingLocators/streamingLocatorName/listPaths?api-version=" + apiVersion
+      case "list_paths" => baseUrl + "/streamingLocators/streamingLocatorName/listPaths?api-version=" + apiVersion
       case _ => throw new MediaServiceException("ERR_INVALID_API_NAME", "Please Provide Valid Media Service API Name")
     }
   }
@@ -106,5 +129,22 @@ object AzureMediaServiceImpl extends IMediaService {
       "Accept" -> "application/json",
       "Authorization" -> authToken
     )
+  }
+
+  //TODO: Complete implementation
+  def prepareStreamingUrl(streamLocatorName: String, jobId: String): Map[String, AnyRef] = {
+    val streamType = AppConfig.getConfig("azure.stream.protocol")
+    var streamUrl = ""
+    val listPathResponse = getStreamUrls(streamLocatorName)
+    if (listPathResponse.responseCode.equalsIgnoreCase("OK")) {
+      val urlList = listPathResponse.result.get("streamingPaths").toList
+
+      println("urlList:" + urlList)
+      null
+    } else {
+      val getJobResponse = getJob(jobId)
+      //val videoName=getJobResponse.result.get()
+      null
+    }
   }
 }
