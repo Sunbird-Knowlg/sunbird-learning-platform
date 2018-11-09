@@ -88,6 +88,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * The Class <code>ContentManagerImpl</code> is the implementation of
  * <code>IContentManager</code> for all the operation including CRUD operation
@@ -2410,7 +2412,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if(null == request || request.isEmpty()) 
 			throw new ClientException(ContentErrorCodes.ERR_REQUEST_BLANK.name(), 
 					"Request can not be blank.");
-		Map<String, Object> dialcodeMap = (Map<String, Object>)request.get(ContentAPIParams.dialcodes.name());
+		Map<String, Object> dialcodeMap = (Map<String, Object>) ((Map<String, Object>)request.get("request")).get(ContentAPIParams.dialcodes.name());
 		if(null == (Integer)dialcodeMap.get(ContentAPIParams.count.name()) ||
 				!(dialcodeMap.get(ContentAPIParams.count.name()) instanceof Integer) ||
 				(Integer)dialcodeMap.get(ContentAPIParams.count.name())<1)
@@ -2437,4 +2439,115 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		
 	}
+
+	/**
+	 * Implementation for {@link IContentManager#releaseDialcodes(String)}
+	 *
+	 * @param contentId
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public Response releaseDialcodes(String contentId) throws Exception {
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
+					"Content Id Can Not be blank.");
+
+		Response response = getDataNode(TAXONOMY_ID, contentId);
+		if (checkError(response))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+
+		Node node = (Node) response.get(GraphDACParams.node.name());
+        Map<String, Object> metadata = node.getMetadata();
+
+        if (!StringUtils.equals(ContentAPIParams.content.name(), (String) metadata.get(ContentAPIParams.mediaType.name())))
+        	throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content");
+		if (!StringUtils.equals(ContentAPIParams.TextBook.name(), (String) metadata.get(ContentAPIParams.contentType.name())))
+			throw new ClientException(ContentErrorCodes.ERR_NOT_A_TEXTBOOK.name(), "Error! Content Is not a Textbook.");
+        if (StringUtils.equalsIgnoreCase((String) metadata.get(ContentAPIParams.status.name()), ContentAPIParams.Retired.name()))
+            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+                    "Error! Content not found with id: " + contentId);
+
+        String[] metadataReservedDialcodes;
+        if (metadata.containsKey(ContentAPIParams.reservedDialcodes.name())) {
+			metadataReservedDialcodes = (String[]) metadata.get(ContentAPIParams.reservedDialcodes.name());
+            if (metadataReservedDialcodes.length == 0)
+                throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(), "Error! No Dialcodes are Reserved.");
+        } else throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(), "Error! No Dialcodes are Reserved.");
+
+		DefinitionDTO contentDefinition      = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+        DefinitionDTO contentImageDefinition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
+
+        TelemetryManager.log("Collecting Dialcodes For Original Content Id: " + node.getIdentifier());
+        Set<String> assignedDialcodes = getAllDescendentsAssisgnedDialcodesRecursive(node, contentDefinition, contentImageDefinition);
+
+        response = getDataNode(TAXONOMY_ID, getImageId(contentId));
+		if (!checkError(response)) {
+			node = (Node) response.get(GraphDACParams.node.name());
+			TelemetryManager.log("Collecting Dialcodes For Image Content Id: " + node.getIdentifier());
+			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(node, contentDefinition, contentImageDefinition));
+		}
+
+		List<String> releasedDialcodes = new ArrayList<>();
+
+		List<String> reservedDialcodes = Arrays.stream(metadataReservedDialcodes).
+				filter(dialcode -> {
+					if (assignedDialcodes.contains(dialcode)) {
+						return true;
+					} else {
+						releasedDialcodes.add(dialcode);
+						return false;
+					}
+				}).collect(toList());
+
+		if (releasedDialcodes.isEmpty())
+			throw new ServerException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved Dialcodes are Utilized.");
+
+		Map<String, Object> updateMap = new HashMap<>();
+		updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
+
+		response = updateAllContents(contentId, updateMap);
+		if (checkError(response)) {
+			return response;
+		} else {
+			response.put(ContentAPIParams.releasedDialcodes.name(), releasedDialcodes);
+			response.put(ContentAPIParams.node_id.name(), contentId);
+			TelemetryManager.info("DIAL codes released.", response.getResult());
+			return response;
+		}
+	}
+
+	List<NodeDTO> getChildren(Node node, DefinitionDTO definition) {
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, node.getIdentifier(), definition, null);
+		return (List<NodeDTO>) contentMap.get(ContentAPIParams.children.name());
+	}
+
+	private boolean isNodeVisibilityParent(Node node) {
+		return StringUtils.equals(ContentAPIParams.Parent.name(),
+				(String) node.getMetadata().get(ContentAPIParams.visibility.name()));
+	}
+
+	private Set<String> getAllDescendentsAssisgnedDialcodesRecursive(Node node, DefinitionDTO contentDefinition, DefinitionDTO contentImageDefinition) {
+		DefinitionDTO definition = StringUtils.endsWith(node.getIdentifier(), DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX) ?
+				contentImageDefinition : contentDefinition;
+
+		Set<String> assignedDialcodes = new HashSet<>();
+
+		getChildren(node, definition).
+				stream().
+				map(NodeDTO::getIdentifier).
+				forEach(childIdentifier -> {
+					Node childNode = getContentNode(TAXONOMY_ID, childIdentifier, null);
+					if (isNodeVisibilityParent(childNode)) {
+						if (childNode.getMetadata().containsKey(ContentAPIParams.dialcodes.name())) {
+							assignedDialcodes.addAll(Arrays.asList((String[]) childNode.getMetadata().get(ContentAPIParams.dialcodes.name())));
+							assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childNode, contentDefinition, contentImageDefinition));
+						}
+					}
+				});
+
+		return assignedDialcodes;
+	}
+
 }

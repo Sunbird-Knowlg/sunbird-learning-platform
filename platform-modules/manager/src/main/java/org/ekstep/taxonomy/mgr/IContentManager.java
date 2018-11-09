@@ -275,4 +275,12 @@ public interface IContentManager {
      * @throws Exception
      */
     Response reserveDialCode(String contentId, String channelId, Map<String, Object> reqMap) throws Exception;
+
+	/**
+	 *
+	 * @param contentId
+	 * @return
+	 * @throws Exception
+	 */
+	Response releaseDialcodes(String contentId) throws Exception;
 }
