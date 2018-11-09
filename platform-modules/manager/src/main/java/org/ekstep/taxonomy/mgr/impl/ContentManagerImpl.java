@@ -2542,13 +2542,24 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				stream().
 				map(NodeDTO::getIdentifier).
 				forEach(childIdentifier -> {
-					Node childNode = getContentNode(TAXONOMY_ID, childIdentifier, null);
+
+				    Node childNode = getContentNode(TAXONOMY_ID, childIdentifier, null);
 					if (isNodeVisibilityParent(childNode)) {
 						if (childNode.getMetadata().containsKey(ContentAPIParams.dialcodes.name())) {
-							assignedDialcodes.addAll(Arrays.asList((String[]) childNode.getMetadata().get(ContentAPIParams.dialcodes.name())));
+
+						    assignedDialcodes.addAll(Arrays.asList((String[]) node.getMetadata().get(ContentAPIParams.dialcodes.name())));
 							assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childNode));
+
+							Response response = getDataNode(TAXONOMY_ID, getImageId(childIdentifier));
+                            if (!checkError(response)) {
+                                Node imageNode = (Node) response.get(GraphDACParams.node.name());
+                                assignedDialcodes.addAll(Arrays.asList((String[]) childNode.getMetadata().get(ContentAPIParams.dialcodes.name())));
+                                assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(imageNode));
+                            }
+
 						}
 					}
+
 				});
 
 		return assignedDialcodes;
