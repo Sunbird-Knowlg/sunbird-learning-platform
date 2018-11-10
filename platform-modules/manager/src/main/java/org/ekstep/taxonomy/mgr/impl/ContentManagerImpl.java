@@ -86,7 +86,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -2492,16 +2491,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		reservedDialcodes.addAll(Arrays.asList((String[])metadataReservedDialcode));
         
         
-        
-        TelemetryManager.log("Collecting Dialcodes For Original Content Id: " + node.getIdentifier());
-        Set<String> assignedDialcodes = getAllDescendentsAssisgnedDialcodesRecursive(node);
-
-        response = getDataNode(TAXONOMY_ID, getImageId(contentId));
-		if (!checkError(response)) {
-			node = (Node) response.get(GraphDACParams.node.name());
-			TelemetryManager.log("Collecting Dialcodes For Image Content Id: " + node.getIdentifier());
-			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(node));
-		}
+        Set<String> assignedDialcodes = getAllAssignedDialCodes(node);
 
 		List<String> releasedDialcodes = assignedDialcodes.isEmpty() ? 
 				reservedDialcodes 
@@ -2570,6 +2560,19 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 				}));
 
+		return assignedDialcodes;
+	}
+
+	Set<String> getAllAssignedDialCodes(Node node) {
+		TelemetryManager.log("Collecting Dialcodes For Original Content Id: " + node.getIdentifier());
+		Set<String> assignedDialcodes = getAllDescendentsAssisgnedDialcodesRecursive(node);
+
+		Response response = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
+		if (!checkError(response)) {
+			node = (Node) response.get(GraphDACParams.node.name());
+			TelemetryManager.log("Collecting Dialcodes For Image Content Id: " + node.getIdentifier());
+			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(node));
+		}
 		return assignedDialcodes;
 	}
 
