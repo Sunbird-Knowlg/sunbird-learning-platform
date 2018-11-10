@@ -86,7 +86,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         String status = "";
         while(!StringUtils.equalsIgnoreCase("Live", status)) {
             delay(10000);
-            response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+            response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
             status = response.jsonPath().get("result.content.status");
         }
         String versionKey = response.jsonPath().get("result.content.versionKey");
@@ -96,9 +96,9 @@ public class ContentV3DialcodeTest extends BaseTest {
         String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 50);
         response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
         List<String> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         List<String> reservedDialcodesOriginalNode = response.jsonPath().get("result.content.reservedDialcodes");
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.read(identifier, "edit", getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         List<String> reservedDialcodesImageNode = response.jsonPath().get("result.content.reservedDialcodes");
         assertTrue(reservedDialcodesOriginalNode.containsAll(reservedDialcodes));
         assertTrue(reservedDialcodesImageNode.containsAll(reservedDialcodes));
@@ -130,7 +130,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         String status = "";
         while(!StringUtils.equalsIgnoreCase("Live", status)) {
             delay(10000);
-            response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+            response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
             status = response.jsonPath().get("result.content.status");
         }
         String versionKey = response.jsonPath().get("result.content.versionKey");
@@ -140,12 +140,15 @@ public class ContentV3DialcodeTest extends BaseTest {
         String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 50);
         response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
         List<String> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
+
         Response responseRelease = this.contentV3API.releaseDialcodes(identifier, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
         List<String> releasedDialcodes = responseRelease.jsonPath().get("result.releasedDialcodes");
         assertTrue(releasedDialcodes.containsAll(reservedDialcodes));
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+
+        response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         assertNull(response.jsonPath().get("result.content.reservedDialcodes"));
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+
+        response = this.contentV3API.read(identifier, "edit", getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         assertNull(response.jsonPath().get("result.content.reservedDialcodes"));
     }
 
@@ -176,7 +179,7 @@ public class ContentV3DialcodeTest extends BaseTest {
                 replace("__TextBookUnit_ID6__", textBookUnit6Suffix);
         this.contentV3API.hierarchyUpdate(updateHierarchyReqBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
 
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         List<String> children = ((List<Map<String, Object>>) response.jsonPath().get("result.content.children")).
                 stream().
                 map(child -> (String) child.get("identifier")).
@@ -189,7 +192,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         assertEquals(49, releasedDialcodes.size());
         assertFalse(releasedDialcodes.contains(reservedDialcodes.get(0)));
 
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         List<String> updatedReservedDialcodes = response.jsonPath().get("result.content.reservedDialcodes");
         assertEquals(1, updatedReservedDialcodes.size());
         assertTrue(updatedReservedDialcodes.contains(reservedDialcodes.get(0)));
@@ -226,11 +229,11 @@ public class ContentV3DialcodeTest extends BaseTest {
         String status = "";
         while(!StringUtils.equalsIgnoreCase("Live", status)) {
             delay(10000);
-            response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+            response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
             status = response.jsonPath().get("result.content.status");
         }
 
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         List<String> children = ((List<Map<String, Object>>) response.jsonPath().get("result.content.children")).
                 stream().
                 map(child -> (String) child.get("identifier")).
@@ -243,7 +246,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         assertEquals(49, releasedDialcodes.size());
         assertFalse(releasedDialcodes.contains(reservedDialcodes.get(0)));
 
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         List<String> updatedReservedDialcodes = response.jsonPath().get("result.content.reservedDialcodes");
         assertEquals(1, updatedReservedDialcodes.size());
         assertTrue(updatedReservedDialcodes.contains(reservedDialcodes.get(0)));
@@ -280,7 +283,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         String status = "";
         while(!StringUtils.equalsIgnoreCase("Live", status)) {
             delay(10000);
-            response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+            response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
             status = response.jsonPath().get("result.content.status");
         }
 
@@ -288,7 +291,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         String updateRequestBody = this.updateRequestBody.replace(VERSION_KEY, versionKey);
         this.contentV3API.update(identifier, updateRequestBody, getRequestSpecification(contentType, userId, APIToken), get200ResponseSpec());
 
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         List<String> children = ((List<Map<String, Object>>) response.jsonPath().get("result.content.children")).
                 stream().
                 map(child -> (String) child.get("identifier")).
@@ -301,11 +304,17 @@ public class ContentV3DialcodeTest extends BaseTest {
         assertEquals(49, releasedDialcodes.size());
         assertFalse(releasedDialcodes.contains(reservedDialcodes.get(0)));
 
-        response = this.contentV3API.read(identifier, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
         assertNotNull(response.jsonPath().get("result.content.reservedDialcodes"));
         List<String> updatedReservedDialcodes = response.jsonPath().get("result.content.reservedDialcodes");
         assertEquals(1, updatedReservedDialcodes.size());
         assertTrue(updatedReservedDialcodes.contains(reservedDialcodes.get(0)));
+
+        response = this.contentV3API.read(identifier, "edit", getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        assertNotNull(response.jsonPath().get("result.content.reservedDialcodes"));
+        List<String> updatedReservedDialcodesImageNode = response.jsonPath().get("result.content.reservedDialcodes");
+        assertEquals(1, updatedReservedDialcodesImageNode.size());
+        assertTrue(updatedReservedDialcodesImageNode.contains(reservedDialcodes.get(0)));
     }
 
 

@@ -3,6 +3,7 @@ package org.ekstep.platform.content;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.taxonomy.controller.ContentV3Controller;
 
 import java.util.Map;
@@ -55,19 +56,26 @@ public class ContentV3API {
     /**
      * Sends GET Request to Read Content V3 API {@link ContentV3Controller#find(String, String[], String)}
      *
-     * Note : Pass Request Params in Request Specifications for mode and fields.
-     *
      * @param identifier
-     * @param fields
      * @param requestSpec
      * @param responseSpec
      * @return Response object
      */
-    public Response read(String identifier, RequestSpecification requestSpec, ResponseSpecification responseSpec, String... fields) {
+    public Response read(String identifier, String mode, RequestSpecification requestSpec, ResponseSpecification responseSpec, String... fields) {
+        String modeParam   = StringUtils.isBlank(mode) ? "" : "mode=" + mode;
+        String fieldsParam = null == fields || fields.length == 0 ? "" : "fields=" + String.join(",", fields);
+        String uriSuffix = "";
+        if (StringUtils.isNotBlank(modeParam) || StringUtils.isNotBlank(fieldsParam)) {
+            uriSuffix += "?";
+            if (StringUtils.isNotBlank(modeParam))   uriSuffix += modeParam;
+            if (StringUtils.isNotBlank(modeParam) && StringUtils.isNotBlank(fieldsParam)) uriSuffix += "&";
+            if (StringUtils.isNotBlank(fieldsParam)) uriSuffix += fieldsParam;
+        }
+
         return  given().
                 spec(requestSpec).
                 when().
-                get(BASE_PATH + "/read/" + identifier).
+                get(BASE_PATH + "/read/" + identifier + uriSuffix).
                 then().
                 spec(responseSpec).
 //                log().all().
