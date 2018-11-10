@@ -2526,9 +2526,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	List<NodeDTO> getChildren(Node node, DefinitionDTO definition) {
+	Optional<List<NodeDTO>> getChildren(Node node, DefinitionDTO definition) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-		return (List<NodeDTO>) contentMap.get(ContentAPIParams.children.name());
+		return Optional.ofNullable((List<NodeDTO>) contentMap.get(ContentAPIParams.children.name()));
 	}
 
 	private boolean isNodeVisibilityParent(Node node) {
@@ -2541,29 +2541,34 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		Set<String> assignedDialcodes = new HashSet<>();
 
-		getChildren(node, definition).
+		getChildren(node, definition).ifPresent(childrens ->
+				childrens.
 				stream().
 				map(NodeDTO::getIdentifier).
 				forEach(childIdentifier -> {
 
 				    Node childNode = getContentNode(TAXONOMY_ID, childIdentifier, null);
 					if (isNodeVisibilityParent(childNode)) {
-						if (childNode.getMetadata().containsKey(ContentAPIParams.dialcodes.name())) {
+						Optional.ofNullable((String[]) childNode.getMetadata().get(ContentAPIParams.dialcodes.name())).
+								ifPresent(dialcodes -> {
+									assignedDialcodes.addAll(Arrays.asList(dialcodes));
+									assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childNode));
+								});
 
-						    assignedDialcodes.addAll(Arrays.asList((String[]) node.getMetadata().get(ContentAPIParams.dialcodes.name())));
-							assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childNode));
-
-							Response response = getDataNode(TAXONOMY_ID, getImageId(childIdentifier));
-                            if (!checkError(response)) {
-                                Node imageNode = (Node) response.get(GraphDACParams.node.name());
-                                assignedDialcodes.addAll(Arrays.asList((String[]) childNode.getMetadata().get(ContentAPIParams.dialcodes.name())));
-                                assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(imageNode));
-                            }
+						Response response = getDataNode(TAXONOMY_ID, getImageId(childIdentifier));
+						if (!checkError(response)) {
+							Node childImageNode = (Node) response.get(GraphDACParams.node.name());
+							Optional.ofNullable((String[]) childImageNode.getMetadata().get(ContentAPIParams.dialcodes.name())).
+									ifPresent(dialcodes -> {
+										assignedDialcodes.addAll(Arrays.asList(dialcodes));
+										assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childImageNode));
+									});
 
 						}
+
 					}
 
-				});
+				}));
 
 		return assignedDialcodes;
 	}
