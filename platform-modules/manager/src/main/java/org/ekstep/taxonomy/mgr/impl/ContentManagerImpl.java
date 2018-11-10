@@ -1444,7 +1444,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null != node) {
 				Map<String, Object> map = (Map<String, Object>) entry.getValue();
 				List<String> children = (List<String>) map.get("children");
-				children = children.stream().distinct().collect(Collectors.toList());
+				children = children.stream().distinct().collect(toList());
 				if (null != children) {
 					List<Relation> outRelations = node.getOutRelations();
 					if (null == outRelations)
@@ -1576,7 +1576,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			paramList = Arrays.asList(str);
 		}
 		if (null != paramList) {
-			paramList = paramList.stream().filter(x -> x != null && x != "" && x != " ").collect(Collectors.toList());
+			paramList = paramList.stream().filter(x -> x != null && x != "" && x != " ").collect(toList());
 		}
 		return paramList;
 	}
@@ -2526,7 +2526,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	Optional<List<NodeDTO>> getChildren(Node node, DefinitionDTO definition) {
+	private Optional<List<NodeDTO>> getChildren(Node node, DefinitionDTO definition) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		return Optional.ofNullable((List<NodeDTO>) contentMap.get(ContentAPIParams.children.name()));
 	}
