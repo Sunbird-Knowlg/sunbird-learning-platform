@@ -37,7 +37,7 @@ object AWSSignUtils {
   }
 
 
-  def getStringToSign(httpMethod: String, url: String, headers:Map[String, String], payload : Map[String, AnyRef]) : String = {
+  def getStringToSign(httpMethod: String, url: String, headers:Map[String, String], payload : String) : String = {
     val canonicalUri = getCanonicalUri(url)
     val canonicalQueryString = getCanonicalQueryString(url)
     val hashedPayload = getHashedPayload(payload)
@@ -54,7 +54,7 @@ object AWSSignUtils {
     stringToSign
   }
 
-  def generateToken(httpMethod: String, url: String, headers: Map[String, String], payload : Map[String, AnyRef]) : String = {
+  def generateToken(httpMethod: String, url: String, headers: Map[String, String], payload : String) : String = {
     val signature = new String(Hex.encodeHex(HmacSHA256(getStringToSign(httpMethod, url, headers, payload).getBytes("UTF-8"), getSiginingkey())))
 
     "AWS4-HMAC-SHA256 Credential=" + accessKey +  "/" + dateFormat.format(new Date()) + "/" + region + "/" + service + "/aws4_request,SignedHeaders=" + getSignedHeaders(headers.keySet) + ",Signature=" + signature
@@ -138,9 +138,9 @@ object AWSSignUtils {
   }
 
 
-  def getHashedPayload(payload: Map[String, AnyRef]) : String = {
-    if(null != payload && !payload.isEmpty) {
-      sha256Hash(JSONObject(payload).toString())
+  def getHashedPayload(payload: String) : String = {
+    if(StringUtils.isNotBlank(payload)) {
+      sha256Hash(payload)
     }else {
       sha256Hash("")
     }
