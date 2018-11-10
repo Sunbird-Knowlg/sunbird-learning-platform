@@ -153,7 +153,7 @@ public class ContentV3DialcodeTest extends BaseTest {
     }
 
     @Test
-    public void releaseAllUnutilizedDialcodesForTextBook() {
+    public void releaseAllNotLinkedDialcodesForTextBook() {
         setURI();
         String textBookSuffix = "" + generateRandomInt(0, 99999);
         String createTextBookrequest = this.createTextBookRequest.replace(IDENTIFIER, textBookSuffix);
@@ -199,7 +199,7 @@ public class ContentV3DialcodeTest extends BaseTest {
     }
 
     @Test
-    public void releaseAllUnutilizedDialcodesForLiveTextBook() {
+    public void releaseAllNotLinkedDialcodesForLiveTextBook() {
         setURI();
         String textBookSuffix = "" + generateRandomInt(0, 99999);
         String createTextBookrequest = this.createTextBookRequest.replace(IDENTIFIER, textBookSuffix);
@@ -253,7 +253,7 @@ public class ContentV3DialcodeTest extends BaseTest {
     }
 
     @Test
-    public void releaseAllUnutilizedDialcodesForTextBookHavingImage() {
+    public void releaseAllNotLinkedDialcodesForTextBookHavingImage() {
         setURI();
         String textBookSuffix = "" + generateRandomInt(0, 99999);
         String createTextBookrequest = this.createTextBookRequest.replace(IDENTIFIER, textBookSuffix);

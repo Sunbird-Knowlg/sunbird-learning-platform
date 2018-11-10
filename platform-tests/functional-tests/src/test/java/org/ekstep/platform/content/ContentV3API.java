@@ -62,20 +62,13 @@ public class ContentV3API {
      * @return Response object
      */
     public Response read(String identifier, String mode, RequestSpecification requestSpec, ResponseSpecification responseSpec, String... fields) {
-        String modeParam   = StringUtils.isBlank(mode) ? "" : "mode=" + mode;
-        String fieldsParam = null == fields || fields.length == 0 ? "" : "fields=" + String.join(",", fields);
-        String uriSuffix = "";
-        if (StringUtils.isNotBlank(modeParam) || StringUtils.isNotBlank(fieldsParam)) {
-            uriSuffix += "?";
-            if (StringUtils.isNotBlank(modeParam))   uriSuffix += modeParam;
-            if (StringUtils.isNotBlank(modeParam) && StringUtils.isNotBlank(fieldsParam)) uriSuffix += "&";
-            if (StringUtils.isNotBlank(fieldsParam)) uriSuffix += fieldsParam;
-        }
 
         return  given().
+                param("mode", StringUtils.isBlank(mode) ? "" : mode).
+                param("fields", null != fields || 0 == fields.length ? "" : fields).
                 spec(requestSpec).
                 when().
-                get(BASE_PATH + "/read/" + identifier + uriSuffix).
+                get(BASE_PATH + "/read/" + identifier).
                 then().
                 spec(responseSpec).
 //                log().all().
