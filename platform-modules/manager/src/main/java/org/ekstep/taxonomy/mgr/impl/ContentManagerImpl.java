@@ -2125,10 +2125,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 			Optional.ofNullable((List<NodeDTO>) contentMap.get("children")).ifPresent(children -> {
 				if (!children.isEmpty()) {
-					children.stream().forEach(dto -> {
+					children.forEach(dto -> {
 						Response responseNode = getDataNode(TAXONOMY_ID, dto.getIdentifier());
 						Node childNode = (Node) responseNode.get(GraphDACParams.node.name());
-						if ("Parent".equals(childNode.getMetadata().get("visibility")) && !identifiers.contains(childNode))
+						if ("Parent".equals(childNode.getMetadata().get("visibility")) && !identifiers.contains(childNode.getIdentifier()))
 							populateIdsToRetire(childNode, identifiers, contentDef, contentImgDef);
 					});
 				}
