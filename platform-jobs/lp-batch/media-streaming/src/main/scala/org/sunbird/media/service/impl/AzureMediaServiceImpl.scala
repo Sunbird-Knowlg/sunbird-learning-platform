@@ -1,5 +1,6 @@
 package org.sunbird.media.service.impl
 
+import org.apache.commons.lang3.StringUtils
 import org.sunbird.media.common.{AzureRequestBody, MediaRequest, MediaResponse, Response}
 import org.sunbird.media.config.AppConfig
 import org.sunbird.media.exception.MediaServiceException
@@ -137,9 +138,15 @@ object AzureMediaServiceImpl extends IMediaService {
     var streamUrl = ""
     val listPathResponse = getStreamUrls(streamLocatorName)
     if (listPathResponse.responseCode.equalsIgnoreCase("OK")) {
-      val urlList = listPathResponse.result.get("streamingPaths").toList
+      val urlList: List[Map[String, AnyRef]] = listPathResponse.result.getOrElse("streamingPaths", List).asInstanceOf[List[Map[String, AnyRef]]]
 
+      urlList.map(streamMap => {
+        if(StringUtils.equalsIgnoreCase(streamMap.getOrElse("streamingProtocol", null).toString, streamType)) {
+          streamUrl = streamMap.get("paths").get.asInstanceOf[List[String]].head
+        }
+      })
       println("urlList:" + urlList)
+      println("streamUrl : " + streamUrl)
       null
     } else {
       val getJobResponse = getJob(jobId)
