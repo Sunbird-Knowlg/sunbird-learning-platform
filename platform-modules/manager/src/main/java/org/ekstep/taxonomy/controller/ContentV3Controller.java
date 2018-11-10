@@ -436,9 +436,7 @@ public class ContentV3Controller extends BaseController {
 			@RequestBody Map<String, Object> requestMap,
 			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.learning.content.dialcode.reserve";
-		Request request = getRequest(requestMap);
 		try {
-			//Map<String, Object> reqMap = (Map<String, Object>)request;
 			Response response = contentManager.reserveDialCode(contentId, channelId, requestMap);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -462,7 +460,7 @@ public class ContentV3Controller extends BaseController {
 		TelemetryManager.log("Release DialCode | Content Id : " + contentId);
 		Response response;
 		try {
-			response = this.contentManager.releaseDialcodes(contentId, channelId);
+			response = contentManager.releaseDialcodes(contentId, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Releasing DialCode with Content: " + e.getMessage(), e);

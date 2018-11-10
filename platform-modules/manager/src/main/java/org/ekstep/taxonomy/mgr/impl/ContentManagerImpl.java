@@ -2396,8 +2396,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			reservedDialcodes = dialCodes;
 		else
 			reservedDialcodes.addAll(dialCodes);
-		metaData.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
-		Response updateResponse = updateDataNode(node);
+		//metaData.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
+		//Response updateResponse = updateDataNode(node);
+		
+		Map<String, Object> reqMap = new HashMap<>();
+		reqMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
+		
+		Response updateResponse = updateAllContents(contentId, reqMap);
 		if(updateResponse.getResponseCode() == ResponseCode.OK) {
 			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
 			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
@@ -2466,24 +2471,28 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Node node = (Node) response.get(GraphDACParams.node.name());
         Map<String, Object> metadata = node.getMetadata();
 
-        if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(),
-                    "Invalid Channel Id.");
         if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType()))
-        	throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content");
-		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.TextBook.name(), (String) metadata.get(ContentAPIParams.contentType.name())))
+        		throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content.");
+        
+        if (!StringUtils.equalsIgnoreCase(ContentAPIParams.TextBook.name(), (String) metadata.get(ContentAPIParams.contentType.name())))
 			throw new ClientException(ContentErrorCodes.ERR_NOT_A_TEXTBOOK.name(), "Error! Content Is not a Textbook.");
+        
+        if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(), "Invalid Channel Id.");
+        
         if (StringUtils.equalsIgnoreCase((String) metadata.get(ContentAPIParams.status.name()), ContentAPIParams.Retired.name()))
-            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                    "Error! Content not found with id: " + contentId);
+            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Error! Content not found with id: " + contentId);
 
-        String[] metadataReservedDialcodes;
-        if (metadata.containsKey(ContentAPIParams.reservedDialcodes.name())) {
-			metadataReservedDialcodes = (String[]) metadata.get(ContentAPIParams.reservedDialcodes.name());
-            if (metadataReservedDialcodes.length == 0)
-                throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(), "Error! No Dialcodes are Reserved.");
-        } else throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(), "Error! No Dialcodes are Reserved.");
-
+        
+        Object metadataReservedDialcode = metadata.get(ContentAPIParams.reservedDialcodes.name());
+        if(null == metadataReservedDialcode || ((String[])metadataReservedDialcode).length==0)
+        		throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(), 
+        				"Error! No Dialcodes are Reserved for content:: " + contentId);
+		List<String> reservedDialcodes = new ArrayList<>();
+		reservedDialcodes.addAll(Arrays.asList((String[])metadataReservedDialcode));
+        
+        
+        
         TelemetryManager.log("Collecting Dialcodes For Original Content Id: " + node.getIdentifier());
         Set<String> assignedDialcodes = getAllDescendentsAssisgnedDialcodesRecursive(node);
 
@@ -2494,23 +2503,17 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(node));
 		}
 
-		List<String> releasedDialcodes = new ArrayList<>();
-
-		List<String> reservedDialcodes = Arrays.stream(metadataReservedDialcodes).
-				filter(dialcode -> {
-					if (assignedDialcodes.contains(dialcode)) {
-						return true;
-					} else {
-						releasedDialcodes.add(dialcode);
-						return false;
-					}
-				}).collect(toList());
-
+		List<String> releasedDialcodes = assignedDialcodes.isEmpty() ? 
+				reservedDialcodes 
+				: reservedDialcodes.stream().filter(dialcode -> !assignedDialcodes.contains(dialcode)).collect(toList());
+		
 		if (releasedDialcodes.isEmpty())
 			throw new ServerException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved Dialcodes are Utilized.");
-
+		
+		List<String> leftReservedDialcodes = reservedDialcodes.stream().filter(dialcode -> !releasedDialcodes.contains(dialcode)).collect(toList());
+		
 		Map<String, Object> updateMap = new HashMap<>();
-		updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
+		updateMap.put(ContentAPIParams.reservedDialcodes.name(), leftReservedDialcodes);
 
 		response = updateAllContents(contentId, updateMap);
 		if (checkError(response)) {
@@ -2524,7 +2527,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	List<NodeDTO> getChildren(Node node, DefinitionDTO definition) {
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, node.getIdentifier(), definition, null);
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		return (List<NodeDTO>) contentMap.get(ContentAPIParams.children.name());
 	}
 
