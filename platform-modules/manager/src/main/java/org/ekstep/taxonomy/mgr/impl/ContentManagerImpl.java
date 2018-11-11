@@ -2500,7 +2500,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				: reservedDialcodes.stream().filter(dialcode -> !assignedDialcodes.contains(dialcode)).collect(toList());
 		
 		if (releasedDialcodes.isEmpty())
-			throw new ServerException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved Dialcodes are Utilized.");
+			throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved Dialcodes are Utilized.");
 		
 		List<String> leftReservedDialcodes = reservedDialcodes.stream().filter(dialcode -> !releasedDialcodes.contains(dialcode)).collect(toList());
 		
