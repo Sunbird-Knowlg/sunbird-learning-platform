@@ -135,19 +135,19 @@ object AzureMediaServiceImpl extends IMediaService {
   //TODO: Complete implementation
   def prepareStreamingUrl(streamLocatorName: String, jobId: String): Map[String, AnyRef] = {
     val streamType = AppConfig.getConfig("azure.stream.protocol")
-    var streamUrl = ""
+    val streamHost = AppConfig.getConfig("azure.stream.base_url")
+    var url = ""
     val listPathResponse = getStreamUrls(streamLocatorName)
     if (listPathResponse.responseCode.equalsIgnoreCase("OK")) {
       val urlList: List[Map[String, AnyRef]] = listPathResponse.result.getOrElse("streamingPaths", List).asInstanceOf[List[Map[String, AnyRef]]]
-
       urlList.map(streamMap => {
-        if(StringUtils.equalsIgnoreCase(streamMap.getOrElse("streamingProtocol", null).toString, streamType)) {
-          streamUrl = streamMap.get("paths").get.asInstanceOf[List[String]].head
+        if (StringUtils.equalsIgnoreCase(streamMap.getOrElse("streamingProtocol", null).toString, streamType)) {
+          url = streamMap.get("paths").get.asInstanceOf[List[String]].head
         }
       })
-      println("urlList:" + urlList)
+      val streamUrl = streamHost + url.replace("aapl", "aapl-v3")
       println("streamUrl : " + streamUrl)
-      null
+      HashMap[String, AnyRef]("streamUrl" -> streamUrl)
     } else {
       val getJobResponse = getJob(jobId)
       //val videoName=getJobResponse.result.get()

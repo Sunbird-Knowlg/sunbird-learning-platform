@@ -2,13 +2,11 @@ package org.sunbird.media.service.impl
 
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
-
 import org.sunbird.media.common._
 import org.sunbird.media.config.AppConfig
 import org.sunbird.media.exception.MediaServiceException
 import org.sunbird.media.service.IMediaService
 import org.sunbird.media.util.{AWSSignUtils, HttpRestUtil}
-
 import scala.collection.immutable.HashMap
 import scala.reflect.io.File
 
@@ -36,7 +34,16 @@ object AWSMediaServiceImpl extends IMediaService {
   }
 
   override def getStreamingPaths(jobId: String): MediaResponse = {
-    null
+    val region = AppConfig.getConfig("aws.region");
+    val streamType = AppConfig.getConfig("aws.stream.protocol").toLowerCase()
+    val getResponse = getJob(jobId)
+    val inputs: List[Map[String, AnyRef]] = getResponse.result.getOrElse("job", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("settings", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("inputs", List).asInstanceOf[List[Map[String, AnyRef]]]
+    val input: String = inputs.head.getOrElse("fileInput", "").toString
+    val host = "https://s3." + region + ".amazonaws.com"
+    val streamUrl: String = input.replace("s3:/", host)
+      .replace("artifact", streamType)
+      .replace(".mp4", ".m3u8")
+    Response.getSuccessResponse(HashMap[String, AnyRef]("streamUrl" -> streamUrl))
   }
 
   override def listJobs(listJobsRequest: MediaRequest): MediaResponse = {
@@ -93,7 +100,7 @@ object AWSMediaServiceImpl extends IMediaService {
   def prepareJobRequestBody(jobRequest: Map[String, AnyRef]): String = {
     val queue = AppConfig.getSystemConfig("aws.service.queue")
     val role = AppConfig.getSystemConfig("aws.service.role")
-    val streamType = AppConfig.getConfig("aws.stream.protocol")
+    val streamType = AppConfig.getConfig("aws.stream.protocol").toLowerCase()
     val artifactUrl = jobRequest.get("artifact_url").mkString
     val contentId = jobRequest.get("content_id").mkString
     val inputFile = prepareInputUrl(artifactUrl)
