@@ -2482,11 +2482,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
         if (StringUtils.equalsIgnoreCase((String) metadata.get(ContentAPIParams.status.name()), ContentAPIParams.Retired.name()))
             throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Error! Content not found with id: " + contentId);
 
-        
-        Object metadataReservedDialcode = metadata.get(ContentAPIParams.reservedDialcodes.name());
-        if(null == metadataReservedDialcode || ((String[])metadataReservedDialcode).length==0)
-        		throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(), 
-        				"Error! No Dialcodes are Reserved for content:: " + contentId);
+
+        Object metadataReservedDialcode = Optional.ofNullable(metadata.get(ContentAPIParams.reservedDialcodes.name())).
+                                             filter(m -> 0 != ((String[]) m).length).
+                                             orElseThrow(() ->
+                                                     new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
+                                                           "Error! No Dialcodes are Reserved for content:: " + contentId));
+
 		List<String> reservedDialcodes = new ArrayList<>();
 		reservedDialcodes.addAll(Arrays.asList((String[])metadataReservedDialcode));
         
