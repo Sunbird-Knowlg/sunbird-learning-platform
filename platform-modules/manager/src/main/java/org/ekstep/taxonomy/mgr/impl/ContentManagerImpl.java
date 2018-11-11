@@ -1575,7 +1575,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			paramList = Arrays.asList(str);
 		}
 		if (null != paramList) {
-			paramList = paramList.stream().filter(x -> x != null && x != "" && x != " ").collect(toList());
+			paramList = paramList.stream().filter(x -> StringUtils.isNotBlank(x) && !StringUtils.equals(" ", x)).collect(toList());
 		}
 		return paramList;
 	}
@@ -2563,15 +2563,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return assignedDialcodes;
 	}
 
-	Set<String> getAllAssignedDialCodes(Node node) {
+	private Set<String> getAllAssignedDialCodes(Node node) {
 		TelemetryManager.log("Collecting Dialcodes For Original Content Id: " + node.getIdentifier());
 		Set<String> assignedDialcodes = getAllDescendentsAssisgnedDialcodesRecursive(node);
 
 		Response response = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
 		if (!checkError(response)) {
-			node = (Node) response.get(GraphDACParams.node.name());
-			TelemetryManager.log("Collecting Dialcodes For Image Content Id: " + node.getIdentifier());
-			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(node));
+			Node imageNode = (Node) response.get(GraphDACParams.node.name());
+			TelemetryManager.log("Collecting Dialcodes For Image Content Id: " + imageNode.getIdentifier());
+			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(imageNode));
 		}
 		return assignedDialcodes;
 	}
