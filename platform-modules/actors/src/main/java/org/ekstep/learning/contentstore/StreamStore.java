@@ -10,8 +10,6 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 public class StreamStore extends CassandraStore {
 
-    private static ObjectMapper mapper = new ObjectMapper();
-
     public StreamStore() {
         super();
         String keyspace = Platform.config.hasPath("stream.keyspace.name")

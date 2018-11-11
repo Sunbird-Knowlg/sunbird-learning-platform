@@ -27,8 +27,10 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.contentstore.StreamStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.net.URL;
@@ -47,6 +49,9 @@ import java.util.stream.Collectors;
  */
 public class PublishFinalizer extends BaseFinalizer {
 
+	@Autowired
+	private StreamStore streamStroe;
+	
 	private static final String TAXONOMY_ID = "domain";
 	
 	/** The Constant IDX_S3_KEY. */
@@ -344,7 +349,13 @@ public class PublishFinalizer extends BaseFinalizer {
 		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
 
 		getResponse(request);
-
+		
+		List<String> streamableMimeType = Platform.config.hasPath("streamable.mime.type")?
+				Platform.config.getStringList("streamable.mime.type"):Arrays.asList("video/mp4");
+		if(streamableMimeType.contains((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())))	{
+			streamStroe.insert(contentId, (String)node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()));
+		}
+		
 		if (StringUtils.equalsIgnoreCase(
 				((String) newNode.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),
 				COLLECTION_MIMETYPE)) {
