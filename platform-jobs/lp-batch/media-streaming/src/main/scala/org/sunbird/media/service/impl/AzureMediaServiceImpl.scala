@@ -8,6 +8,7 @@ import org.sunbird.media.service.IMediaService
 import org.sunbird.media.util.HttpRestUtil
 
 import scala.collection.immutable.HashMap
+import scala.reflect.io.File
 
 /**
   *
@@ -65,7 +66,7 @@ object AzureMediaServiceImpl extends IMediaService {
     val streamLocatorName = "sl-" + jobId
     val assetName = "asset-" + jobId
     val locatorResponse = createStreamingLocator(streamLocatorName, assetName)
-    if (locatorResponse.responseCode.equalsIgnoreCase("OK")) {
+    if (locatorResponse.responseCode == "OK" || locatorResponse.responseCode == "CLIENT_ERROR") {
       Response.getSuccessResponse(prepareStreamingUrl(streamLocatorName, jobId))
     } else {
       Response.getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Streaming Locator [" + streamLocatorName + "] Creation Failed for Job : " + jobId)
@@ -92,6 +93,11 @@ object AzureMediaServiceImpl extends IMediaService {
     val streamingPolicyName = AppConfig.getConfig("azure.stream.policy_name")
     val reqBody = AzureRequestBody.create_stream_locator.replace("assetId", assetName).replace("policyName", streamingPolicyName)
     HttpRestUtil.put(url, getDefaultHeader(), reqBody)
+  }
+
+  def getStreamingLocator(streamingLocatorName: String): MediaResponse = {
+    val url = getApiUrl("stream_locator").replace("streamingLocatorName", streamingLocatorName)
+    HttpRestUtil.get(url, getDefaultHeader(), null)
   }
 
   def getStreamUrls(streamingLocatorName: String): MediaResponse = {
@@ -132,7 +138,6 @@ object AzureMediaServiceImpl extends IMediaService {
     )
   }
 
-  //TODO: Complete implementation
   def prepareStreamingUrl(streamLocatorName: String, jobId: String): Map[String, AnyRef] = {
     val streamType = AppConfig.getConfig("azure.stream.protocol")
     val streamHost = AppConfig.getConfig("azure.stream.base_url")
@@ -146,12 +151,14 @@ object AzureMediaServiceImpl extends IMediaService {
         }
       })
       val streamUrl = streamHost + url.replace("aapl", "aapl-v3")
-      println("streamUrl : " + streamUrl)
       HashMap[String, AnyRef]("streamUrl" -> streamUrl)
     } else {
-      val getJobResponse = getJob(jobId)
-      //val videoName=getJobResponse.result.get()
-      null
+      val getResponse: MediaResponse = getJob(jobId)
+      val fileName: String = getResponse.result.getOrElse("properties", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("input", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("files", List).asInstanceOf[List[AnyRef]].head.toString
+      val getStreamResponse = getStreamingLocator(streamLocatorName);
+      val locatorId = getStreamResponse.result.getOrElse("properties", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("streamingLocatorId", "").toString
+      val streamUrl = streamHost + File.separator + locatorId + File.separator + fileName.replace(".mp4", ".ism") + "/manifest(format=m3u8-aapl-v3)"
+      HashMap[String, AnyRef]("streamUrl" -> streamUrl)
     }
   }
 }
