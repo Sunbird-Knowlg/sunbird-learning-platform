@@ -58,7 +58,7 @@ object AzureMediaServiceImpl extends IMediaService {
   }
 
   override def getJob(jobId: String): MediaResponse = {
-    val url = getApiUrl("job").replace("jobId", jobId)
+    val url = getApiUrl("job").replace("jobIdentifier", jobId)
     HttpRestUtil.get(url, getDefaultHeader(), null)
   }
 
@@ -122,7 +122,7 @@ object AzureMediaServiceImpl extends IMediaService {
 
     apiName.toLowerCase() match {
       case "asset" => baseUrl + "/assets/assetId?api-version=" + apiVersion
-      case "job" => baseUrl + "/transforms/" + transformName + "/jobs/jobId?api-version=" + apiVersion
+      case "job" => baseUrl + "/transforms/" + transformName + "/jobs/jobIdentifier?api-version=" + apiVersion
       case "stream_locator" => baseUrl + "/streamingLocators/streamingLocatorName?api-version=" + apiVersion
       case "list_paths" => baseUrl + "/streamingLocators/streamingLocatorName/listPaths?api-version=" + apiVersion
       case _ => throw new MediaServiceException("ERR_INVALID_API_NAME", "Please Provide Valid Media Service API Name")
