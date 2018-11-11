@@ -8,37 +8,7 @@ import org.ekstep.framework.ChannelV3APITest;
 import org.ekstep.framework.FrameworkAPITest;
 import org.ekstep.framework.FrameworkCategoryInstanceV3APITests;
 import org.ekstep.framework.FrameworkTermsV3APITests;
-import org.ekstep.platform.content.AssesmentItemAPITest;
-import org.ekstep.platform.content.AssetV3APITest;
-import org.ekstep.platform.content.ChannelWorkflowTests;
-import org.ekstep.platform.content.CollectionTestCases;
-import org.ekstep.platform.content.CompositeSearchSoftConstraintTests;
-import org.ekstep.platform.content.CompositeSearchTests;
-import org.ekstep.platform.content.CompositeSearchV3TestCases;
-import org.ekstep.platform.content.ContentAPITests;
-import org.ekstep.platform.content.ContentBundleFunctionalTestCases;
-import org.ekstep.platform.content.ContentBundleV3TestCases;
-import org.ekstep.platform.content.ContentFlaggingTests;
-import org.ekstep.platform.content.ContentPublishV3Test;
-import org.ekstep.platform.content.ContentPublishV3TestCases;
-import org.ekstep.platform.content.ContentPublishWorkflowTests;
-import org.ekstep.platform.content.ContentRejectV3Test;
-import org.ekstep.platform.content.ContentSuggestionTests;
-import org.ekstep.platform.content.ContentUploadTest;
-import org.ekstep.platform.content.CopyContentV3APITests;
-import org.ekstep.platform.content.CreateContentWithNewCategoryTest;
-import org.ekstep.platform.content.EnrichmentConsumerTests;
-import org.ekstep.platform.content.H5PContentWorkflowTest;
-import org.ekstep.platform.content.ImageAssetResolutionTests;
-import org.ekstep.platform.content.ItemSetAPITests;
-import org.ekstep.platform.content.LicenseValidationTest;
-import org.ekstep.platform.content.MimeTypeMgrTests;
-import org.ekstep.platform.content.ObjectChannelIdAppIdConsumerIdTest;
-import org.ekstep.platform.content.TagWorkflowTests;
-import org.ekstep.platform.content.UnlistedPublishTestCases;
-import org.ekstep.platform.content.UpdateHierarchyTest;
-import org.ekstep.platform.content.YoutubeLicenseValidationTest;
-import org.ekstep.platform.content.hierarchyAPITests;
+import org.ekstep.platform.content.*;
 import org.ekstep.platform.dialcode.DialCodeV3APITest;
 import org.ekstep.platform.domain.ConceptAPITests;
 import org.ekstep.platform.domain.ConceptAPIV3Tests;
@@ -62,7 +32,7 @@ import org.junit.runners.Suite;
 	DialCodeV3APITest.class, 
 	FrameworkAPITest.class, ChannelV3APITest.class, CategoryV3APITests.class, CategoryTermsV3APITests.class, FrameworkCategoryInstanceV3APITests.class, FrameworkTermsV3APITests.class, ChannelCategoryInstanceV3APITests.class, ChannelTermsV3APITests.class,
 	ConceptAPITests.class, ConceptAPIV3Tests.class, DataExportImportTestCases.class, DimensionAPITests.class, DimensionAPIV3Tests.class, DomainAPITests.class, DomainV3APITests.class, MethodAPITests.class, MethodV3APITests.class,
-	AssetV3APITest.class, LicenseValidationTest.class
+	AssetV3APITest.class, LicenseValidationTest.class, ContentV3DialcodeTest.class
 	})
 public class AllTestRunner {
 
