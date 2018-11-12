@@ -2364,6 +2364,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(), "Invalid Channel Id.");
 	}
 
+	private void validateContentForReservedDialcodes(Map<String, Object> metaData) {
+        List<String> validContentType = Platform.config.hasPath("learning.reserve_dialcode.content_type") ?
+                Platform.config.getStringList("learning.reserve_dialcode.content_type") :
+                Arrays.asList("TextBook");
+
+        if(!validContentType.contains((String)metaData.get(ContentAPIParams.contentType.name())))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_CONTENTTYPE.name(),
+                    "Invalid Content Type.");
+    }
+
 	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.IContentManager#reserveDialCode(java.lang.String, java.lang.Object)
 	 */
@@ -2383,16 +2393,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		Node node = getContentNode(TAXONOMY_ID, contentId, "edit");
 		Map<String, Object> metaData = node.getMetadata();
-		List<String> validContentType = Platform.config.hasPath("learning.reserve_dialcode.content_type") ? 
-				Platform.config.getStringList("learning.reserve_dialcode.content_type") : 
-				Arrays.asList("TextBook");
 
-		if(!validContentType.contains((String)metaData.get(ContentAPIParams.contentType.name())))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CONTENTTYPE.name(),
-					"Invalid Content Type.");
-		if(!StringUtils.equals((String)metaData.get(ContentAPIParams.channel.name()), channelId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(),
-					"Invalid Channel Id.");
+		validateContentForReservedDialcodes(metaData);
+
+		validateChannel(metaData, channelId);
+
 		if(null == request.get(ContentAPIParams.count.name()) ||
 				!(request.get(ContentAPIParams.count.name()) instanceof Integer)) {
 			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(), 
@@ -2456,9 +2461,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		dialcodeMap.put(ContentAPIParams.publisher.name(), publisher);
 		dialcodeMap.put(ContentAPIParams.batchCode.name(), contentId);
 		request.put(ContentAPIParams.dialcodes.name(), dialcodeMap);
+		Map<String, Object> requestMap = new HashMap<>();
+		requestMap.put(ContentAPIParams.request.name(), request);
 		Map<String, String> headerParam = new HashMap<String, String>();
 		headerParam.put("X-Channel-Id", channelId);
-		Response generateResponse = HttpRestUtil.makePostRequest(DIALCODE_GENERATE_URI, request, headerParam);
+		Response generateResponse = HttpRestUtil.makePostRequest(DIALCODE_GENERATE_URI, requestMap, headerParam);
 		if (generateResponse.getResponseCode() == ResponseCode.OK) {
 			Map<String, Object> result = generateResponse.getResult();
 			List<String> generatedDialCodes = (List<String>)result.get(ContentAPIParams.dialcodes.name());
@@ -2510,15 +2517,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Node node = getContentNode(TAXONOMY_ID, contentId, null);
         Map<String, Object> metadata = node.getMetadata();
 
-        List<String> validContentType = Platform.config.hasPath("learning.reserve_dialcode.content_type") ? 
-				Platform.config.getStringList("learning.reserve_dialcode.content_type") : 
-				Arrays.asList("TextBook");
+        if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType()))
+            throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content.");
 
-		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType()))
-        		throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content.");
-        
-		if(!validContentType.contains((String)metadata.get(ContentAPIParams.contentType.name())))
-	        	throw new ClientException(ContentErrorCodes.ERR_NOT_A_TEXTBOOK.name(), "Error! Content Is not a Textbook.");
+        validateContentForReservedDialcodes(metadata);
         
         validateChannel(metadata, channelId);
         

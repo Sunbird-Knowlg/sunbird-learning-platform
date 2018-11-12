@@ -112,7 +112,8 @@ public class ContentV3DialcodeTest extends BaseTest {
         String identifier = result[0];
         String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 300);
         Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get400ResponseSpec());
-        assertEquals("Invalid dialcode count.", response.jsonPath().get("params.errmsg"));
+        assertEquals("ERR_INVALID_COUNT", response.jsonPath().get("params.err"));
+        assertEquals("Invalid dialcode count range. Its hould be between 1 to 250.", response.jsonPath().get("params.errmsg"));
     }
 
     @Test
