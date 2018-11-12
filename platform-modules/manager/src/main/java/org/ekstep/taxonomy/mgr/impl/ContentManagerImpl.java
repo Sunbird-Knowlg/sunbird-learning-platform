@@ -2362,9 +2362,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.IContentManager#reserveDialCode(java.lang.String, java.lang.Object)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public Response reserveDialCode(String contentId, String channelId, Map<String, Object> request) throws Exception {
+		if(null == request || request.isEmpty()) 
+			throw new ClientException(ContentErrorCodes.ERR_REQUEST_BLANK.name(), 
+					"Request can not be blank.");
+		
 		if(StringUtils.isBlank(channelId)) {
 			throw new ClientException(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), 
 					"Channel can not be blank.");
@@ -2375,35 +2378,64 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		Node node = getContentNode(TAXONOMY_ID, contentId, "edit");
 		Map<String, Object> metaData = node.getMetadata();
-		if(!StringUtils.equalsIgnoreCase((String)metaData.get(ContentAPIParams.contentType.name()), ContentAPIParams.TextBook.name())) {
+		List<String> validContentType = Platform.config.hasPath("learning.reserve_dialcode.content_type") ? 
+				Platform.config.getStringList("learning.reserve_dialcode.content_type") : 
+				Arrays.asList("TextBook");
+
+		if(!validContentType.contains((String)metaData.get(ContentAPIParams.contentType.name())))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CONTENTTYPE.name(),
 					"Invalid Content Type.");
-		}
-		if(!StringUtils.equals((String)metaData.get(ContentAPIParams.channel.name()), channelId)) {
+		if(!StringUtils.equals((String)metaData.get(ContentAPIParams.channel.name()), channelId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(),
 					"Invalid Channel Id.");
+		if(null == request.get(ContentAPIParams.count.name()) ||
+				!(request.get(ContentAPIParams.count.name()) instanceof Integer)) {
+			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(), 
+					"Invalid dialcode count.");
 		}
-		Object metadataReservedDialcode = metaData.get(ContentAPIParams.reservedDialcodes.name());
-		List<String> reservedDialcodes = null;
-		if(null != metadataReservedDialcode) {
-			reservedDialcodes = new ArrayList<>();
-			reservedDialcodes.addAll(Arrays.asList((String[])metadataReservedDialcode));
+		int count = (Integer)request.get(ContentAPIParams.count.name());
+		int maxCount = Platform.config.hasPath("learnig.reserve_dialcode.max_count") ? 
+					Platform.config.getInt("learnig.reserve_dialcode.max_count") : 250;
+		if(count<1 || count>maxCount)
+			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(), 
+					"Invalid dialcode count range. Its hould be between 1 to " + maxCount + ".");
+		
+		if(StringUtils.isBlank((String)request.get(ContentAPIParams.publisher.name())))
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_PUBLISHER.name(), 
+						"Invalid publisher name.");
+		
+		String[] metadataReservedDialcode = (String[])metaData.get(ContentAPIParams.reservedDialcodes.name());
+		int reqDialcodesCount = 0;
+		boolean updateContent = false;
+		List<String> dialCodes = new ArrayList<>();
+		if(null != metadataReservedDialcode && metadataReservedDialcode.length>0) {
+			dialCodes.addAll(Arrays.asList(metadataReservedDialcode));
+			reqDialcodesCount = (Integer)request.get(ContentAPIParams.count.name()) - dialCodes.size();
+			if(reqDialcodesCount>0) {
+				dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount,
+					(String)request.get(ContentAPIParams.publisher.name())));
+				updateContent = true;
+			}
+			
+		}else {
+			reqDialcodesCount = (Integer)request.get(ContentAPIParams.count.name());
+			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount,
+					(String)request.get(ContentAPIParams.publisher.name())));
+			updateContent = true;
 		}
 		
-		List<String> dialCodes = generateDialcode(channelId, contentId, request);
-		if(null == reservedDialcodes)
-			reservedDialcodes = dialCodes;
-		else
-			reservedDialcodes.addAll(dialCodes);
-		//metaData.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
-		//Response updateResponse = updateDataNode(node);
-		
-		Map<String, Object> reqMap = new HashMap<>();
-		reqMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
-		
-		Response updateResponse = updateAllContents(contentId, reqMap);
+		Response updateResponse = null;
+		if(updateContent) {
+			Map<String, Object> reqMap = new HashMap<>();
+			reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
+			updateResponse = updateAllContents(contentId, reqMap);
+		}else {
+			updateResponse = getSuccessResponse();
+			updateResponse.put(ContentAPIParams.messages.name(), 
+					"No new dialcode has been generated, as requested count is less ");
+		}
 		if(updateResponse.getResponseCode() == ResponseCode.OK) {
-			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodes);
+			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
 			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
 			TelemetryManager.info("DIAL codes generated and reserved.", updateResponse.getResult());
 			return updateResponse;
@@ -2412,20 +2444,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 	
-	private List<String> generateDialcode(String channelId, String contentId, Map<String, Object> request) throws Exception{
-		if(null == request || request.isEmpty()) 
-			throw new ClientException(ContentErrorCodes.ERR_REQUEST_BLANK.name(), 
-					"Request can not be blank.");
-		Map<String, Object> dialcodeMap = (Map<String, Object>) ((Map<String, Object>)request.get("request")).get(ContentAPIParams.dialcodes.name());
-		if(null == (Integer)dialcodeMap.get(ContentAPIParams.count.name()) ||
-				!(dialcodeMap.get(ContentAPIParams.count.name()) instanceof Integer) ||
-				(Integer)dialcodeMap.get(ContentAPIParams.count.name())<1)
-			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(), 
-					"Invalid dialcode count.");
-		if(StringUtils.isBlank((String)dialcodeMap.get(ContentAPIParams.publisher.name())))
-				throw new ClientException(ContentErrorCodes.ERR_INVALID_PUBLISHER.name(), 
-						"Invalid publisher name.");
+	private List<String> generateDialcode(String channelId, String contentId, int dialcodeCount, String publisher) throws Exception{
+		Map<String, Object> request = new HashMap<>();
+		Map<String, Object> dialcodeMap = new HashMap<>();
+		dialcodeMap.put(ContentAPIParams.count.name(), dialcodeCount);
+		dialcodeMap.put(ContentAPIParams.publisher.name(), publisher);
 		dialcodeMap.put(ContentAPIParams.batchCode.name(), contentId);
+		request.put(ContentAPIParams.dialcodes.name(), dialcodeMap);
 		Map<String, String> headerParam = new HashMap<String, String>();
 		headerParam.put("X-Channel-Id", channelId);
 		Response generateResponse = HttpRestUtil.makePostRequest(DIALCODE_GENERATE_URI, request, headerParam);
@@ -2470,11 +2495,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Node node = (Node) response.get(GraphDACParams.node.name());
         Map<String, Object> metadata = node.getMetadata();
 
-        if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType()))
+        List<String> validContentType = Platform.config.hasPath("learning.reserve_dialcode.content_type") ? 
+				Platform.config.getStringList("learning.reserve_dialcode.content_type") : 
+				Arrays.asList("TextBook");
+
+		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType()))
         		throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content.");
         
-        if (!StringUtils.equalsIgnoreCase(ContentAPIParams.TextBook.name(), (String) metadata.get(ContentAPIParams.contentType.name())))
-			throw new ClientException(ContentErrorCodes.ERR_NOT_A_TEXTBOOK.name(), "Error! Content Is not a Textbook.");
+		if(!validContentType.contains((String)metadata.get(ContentAPIParams.contentType.name())))
+	        	throw new ClientException(ContentErrorCodes.ERR_NOT_A_TEXTBOOK.name(), "Error! Content Is not a Textbook.");
         
         if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(), "Invalid Channel Id.");
