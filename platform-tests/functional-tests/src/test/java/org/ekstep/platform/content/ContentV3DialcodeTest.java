@@ -117,6 +117,81 @@ public class ContentV3DialcodeTest extends BaseTest {
     }
 
     @Test
+    public void reserveDialcodesTwiceWithSameCount() {
+        setURI();
+        String createTextBookRequest = this.createTextBookRequest.replace(IDENTIFIER, "" + generateRandomInt(0, 99999));
+        String[] result = this.contentV3API.createAndGetResult(createTextBookRequest, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        String identifier = result[0];
+
+        String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 20);
+        Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
+        List<String> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
+        assertEquals(20, reservedDialcodes.size());
+
+        response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
+        List<String> reservedDialcodesNew = response.jsonPath().get("result.reservedDialcodes");
+        assertEquals(20, reservedDialcodesNew.size());
+        assertEquals("No new dialcode has been generated, as requested count is less ", response.jsonPath().get("result.messages"));
+        assertTrue(reservedDialcodesNew.containsAll(reservedDialcodes));
+
+    }
+
+    @Test
+    public void reserveDialcodesTwiceWithHigherCountSecondTime() {
+        setURI();
+        String createTextBookRequest = this.createTextBookRequest.replace(IDENTIFIER, "" + generateRandomInt(0, 99999));
+        String[] result = this.contentV3API.createAndGetResult(createTextBookRequest, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        String identifier = result[0];
+
+        String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 20);
+        Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
+        List<String> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
+        assertEquals(20, reservedDialcodes.size());
+
+        reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 25);
+        response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
+        List<String> reservedDialcodesNew = response.jsonPath().get("result.reservedDialcodes");
+        assertEquals(25, reservedDialcodesNew.size());
+        assertTrue(reservedDialcodesNew.containsAll(reservedDialcodes));
+
+    }
+
+    @Test
+    public void reserveDialcodesTwiceWithLowerCountSecondTime() {
+        setURI();
+        String createTextBookRequest = this.createTextBookRequest.replace(IDENTIFIER, "" + generateRandomInt(0, 99999));
+        String[] result = this.contentV3API.createAndGetResult(createTextBookRequest, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        String identifier = result[0];
+
+        String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 20);
+        Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
+        List<String> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
+        assertEquals(20, reservedDialcodes.size());
+
+        reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 15);
+        response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
+        List<String> reservedDialcodesNew = response.jsonPath().get("result.reservedDialcodes");
+        assertEquals(20, reservedDialcodesNew.size());
+        assertEquals("No new dialcode has been generated, as requested count is less ", response.jsonPath().get("result.messages"));
+        assertTrue(reservedDialcodesNew.containsAll(reservedDialcodes));
+
+    }
+
+    @Test
+    public void reserveZeroDialCodes() {
+        setURI();
+        String createTextBookRequest = this.createTextBookRequest.replace(IDENTIFIER, "" + generateRandomInt(0, 99999));
+        String[] result = this.contentV3API.createAndGetResult(createTextBookRequest, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        String identifier = result[0];
+
+        String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 0);
+        Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get400ResponseSpec());
+        assertEquals("ERR_INVALID_COUNT", response.jsonPath().get("params.err"));
+        assertEquals("Invalid dialcode count range. Its hould be between 1 to 250.", response.jsonPath().get("params.errmsg"));
+
+    }
+
+    @Test
     public void releaseAllDialcodesForTextBook() {
         setURI();
         String createTextBookrequest = this.createTextBookRequest.replace(IDENTIFIER, "" + generateRandomInt(0, 99999));
@@ -328,6 +403,5 @@ public class ContentV3DialcodeTest extends BaseTest {
         assertEquals(1, updatedReservedDialcodesImageNode.size());
         assertTrue(updatedReservedDialcodesImageNode.contains(reservedDialcodes.get(0)));
     }
-
 
 }
