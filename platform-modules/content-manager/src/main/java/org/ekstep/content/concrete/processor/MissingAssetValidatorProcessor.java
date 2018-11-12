@@ -86,6 +86,9 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 										+ "' is used more than once in the manifest.]");
 					else
 						mediaIds.add(getMediaId(media));
+
+					if (StringUtils.equals(ContentWorkflowPipelineParams.youtube.name(), media.getType()))
+						continue;
 					if (isWidgetTypeAsset(media.getType())
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.widgets.name()
 									+ File.separator + media.getSrc()).exists())

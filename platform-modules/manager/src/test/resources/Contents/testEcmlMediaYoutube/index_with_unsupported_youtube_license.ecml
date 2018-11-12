@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<theme id="theme" version="1.0" startStage="8c257a7e-34a7-4e68-a724-6d387acca094" compatibilityVersion="4">
+  <stage x="0" y="0" w="100" h="100" id="8c257a7e-34a7-4e68-a724-6d387acca094" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="next" value="12003661-b526-4aab-9360-7387285dbe39"/>
+    <manifest>
+      <media assetId="do_1123200393395486721284"/>
+      <media assetId="0c049488-17ac-4d65-a50b-b3dbd93d1b91"/>
+    </manifest>
+    <shape type="rect" x="34.17" y="15.8" fill="#FFFF00" w="14" h="25" stroke="rgba(255, 255, 255, 0)" strokeWidth="1" opacity="1" rotate="0" z-index="0" id="13d508a8-62d8-4242-beb2-d4bd8d751635">
+      <config>
+        <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFF00"}]]>
+      </config>
+      <event type="click">
+        <action id="b8ee3e66-9260-4215-b0d0-d84894c030ab" type="command" command="hide" asset="b3be1dd2-4784-4287-906e-18d57b330a28" name="Shape (b3be1dd2-4784-4...)"/>
+      </event>
+    </shape>
+    <shape type="ellipse" x="59.86" y="18.46" fill="#00FF00" w="18" h="32" stroke="rgba(255, 255, 255, 0)" strokeWidth="1" opacity="1" rotate="0" r="64.8" z-index="1" id="b3be1dd2-4784-4287-906e-18d57b330a28">
+      <config>
+        <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#00FF00","radius":64.8}]]>
+      </config>
+    </shape>
+    <audio asset="do_1123200393395486721284" x="0" y="0" w="0" h="0" rotate="" z-index="4" id="c2199a5e-8bc7-4537-93c9-423a6296c168">
+      <config>
+        <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+      </config>
+    </audio>
+    <org.ekstep.video y="7.9" x="10.97" w="78.4" h="79.51" rotate="0" z-index="2" id="0c049488-17ac-4d65-a50b-b3dbd93d1b91">
+      <config>
+        <![CDATA[{"autoplay":true,"controls":false,"muted":false,"visible":true,"url":"https://www.youtube.com/watch?v=owr198WQpM8"}]]>
+      </config>
+    </org.ekstep.video>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="12003661-b526-4aab-9360-7387285dbe39" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="8c257a7e-34a7-4e68-a724-6d387acca094"/>
+    <param name="next" value="c0b59a70-66a7-48d6-9aac-7721d133a2da"/>
+    <manifest>
+      <media assetId="8309bd78-b5db-4896-9177-a5603a987bde"/>
+    </manifest>
+    <org.ekstep.video y="7.9" x="10.97" w="78.4" h="79.51" rotate="0" z-index="0" id="8309bd78-b5db-4896-9177-a5603a987bde">
+      <config>
+        <![CDATA[{"autoplay":true,"controls":false,"muted":false,"visible":true,"url":"https://drive.google.com/uc?export=download&id=1gY3Q06CqkW2DEW81p9TA87DUD4qWHSCO"}]]>
+      </config>
+    </org.ekstep.video>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="c0b59a70-66a7-48d6-9aac-7721d133a2da" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#f1c232","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="12003661-b526-4aab-9360-7387285dbe39"/>
+    <param name="next" value="ab976b3a-87db-4838-add9-dc2e5664b026"/>
+    <manifest/>
+    <shape type="rect" subtype="slidebackground" x="0" y="0" fill="#f1c232" w="100" h="100" stroke="rgba(255, 255, 255, 0)" strokeWidth="1" opacity="1" z-index="-999" rotate="" id="b8985b62-11b0-4db7-b4e4-8372445bbd72">
+      <config>
+        <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#f1c232"}]]>
+      </config>
+    </shape>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="ab976b3a-87db-4838-add9-dc2e5664b026" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#741b47","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="c0b59a70-66a7-48d6-9aac-7721d133a2da"/>
+    <param name="next" value="31c35b60-c632-4732-a2e3-44c764530b2b"/>
+    <manifest/>
+    <shape type="rect" subtype="slidebackground" x="0" y="0" fill="#741b47" w="100" h="100" stroke="rgba(255, 255, 255, 0)" strokeWidth="1" opacity="1" z-index="-999" rotate="" id="de104d92-5103-4d06-bb75-0d137559e2de">
+      <config>
+        <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#741b47"}]]>
+      </config>
+    </shape>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="31c35b60-c632-4732-a2e3-44c764530b2b" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#93c47d","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="ab976b3a-87db-4838-add9-dc2e5664b026"/>
+    <param name="next" value="41557486-6356-4e27-a0c2-b1385415ad97"/>
+    <manifest/>
+    <shape type="rect" subtype="slidebackground" x="0" y="0" fill="#93c47d" w="100" h="100" stroke="rgba(255, 255, 255, 0)" strokeWidth="1" opacity="1" z-index="-999" rotate="" id="74adeda0-234e-412c-9209-56485501e292">
+      <config>
+        <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#93c47d"}]]>
+      </config>
+    </shape>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="41557486-6356-4e27-a0c2-b1385415ad97" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="31c35b60-c632-4732-a2e3-44c764530b2b"/>
+    <param name="next" value="78bde598-d11e-480a-ae7c-e601ddb34ea3"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="78bde598-d11e-480a-ae7c-e601ddb34ea3" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="41557486-6356-4e27-a0c2-b1385415ad97"/>
+    <param name="next" value="b4c4d419-7c9d-48aa-a863-21a8d3167c1d"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="b4c4d419-7c9d-48aa-a863-21a8d3167c1d" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="78bde598-d11e-480a-ae7c-e601ddb34ea3"/>
+    <param name="next" value="c9591881-7c4e-497e-8083-a9404610e099"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="c9591881-7c4e-497e-8083-a9404610e099" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="b4c4d419-7c9d-48aa-a863-21a8d3167c1d"/>
+    <param name="next" value="0c6d536a-6463-45a6-aa48-5cce90aab08a"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="0c6d536a-6463-45a6-aa48-5cce90aab08a" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="c9591881-7c4e-497e-8083-a9404610e099"/>
+    <param name="next" value="734dd624-8067-45b0-8b59-55ce8a2c0615"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="734dd624-8067-45b0-8b59-55ce8a2c0615" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="0c6d536a-6463-45a6-aa48-5cce90aab08a"/>
+    <param name="next" value="b3475c96-0732-4668-870a-90e1cc677561"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="b3475c96-0732-4668-870a-90e1cc677561" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="734dd624-8067-45b0-8b59-55ce8a2c0615"/>
+    <param name="next" value="74a19bd9-3cc6-4177-8bcd-b39306b31a66"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="74a19bd9-3cc6-4177-8bcd-b39306b31a66" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="b3475c96-0732-4668-870a-90e1cc677561"/>
+    <param name="next" value="51a89938-649b-409d-9907-e957eb0918a6"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="51a89938-649b-409d-9907-e957eb0918a6" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="74a19bd9-3cc6-4177-8bcd-b39306b31a66"/>
+    <param name="next" value="3a9aa070-1259-412c-b5a3-c3bccdd96c3a"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="3a9aa070-1259-412c-b5a3-c3bccdd96c3a" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="51a89938-649b-409d-9907-e957eb0918a6"/>
+    <param name="next" value="08389bd9-db3b-411e-8998-8910b08c1a63"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="08389bd9-db3b-411e-8998-8910b08c1a63" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="3a9aa070-1259-412c-b5a3-c3bccdd96c3a"/>
+    <param name="next" value="1086d180-cba4-4c18-a8ca-cd7de64d549a"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="1086d180-cba4-4c18-a8ca-cd7de64d549a" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="08389bd9-db3b-411e-8998-8910b08c1a63"/>
+    <param name="next" value="6bce987a-5330-4038-9c14-68816cad8d9b"/>
+    <manifest/>
+  </stage>
+  <stage x="0" y="0" w="100" h="100" id="6bce987a-5330-4038-9c14-68816cad8d9b" rotate="">
+    <config>
+      <![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#FFFFFF","genieControls":false,"instructions":""}]]>
+    </config>
+    <param name="previous" value="1086d180-cba4-4c18-a8ca-cd7de64d549a"/>
+    <manifest/>
+  </stage>
+  <manifest>
+      <media id="0c049488-17ac-4d65-a50b-b3dbd93d1b91" src="https://www.youtube.com/watch?v=gffirQukQvs" assetId="0c049488-17ac-4d65-a50b-b3dbd93d1b91" type="youtube"/>
+    </manifest>
+  <plugin-manifest>
+    <plugin id="org.ekstep.navigation" ver="1.0" type="plugin" depends=""/>
+    <plugin id="org.ekstep.video" ver="1.2" type="widget" depends=""/>
+  </plugin-manifest>
+</theme>

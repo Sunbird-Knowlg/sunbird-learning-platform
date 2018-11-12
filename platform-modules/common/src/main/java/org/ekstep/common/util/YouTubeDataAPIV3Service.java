@@ -1,4 +1,4 @@
-package org.ekstep.taxonomy.util;
+package org.ekstep.common.util;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -70,7 +70,7 @@ public class YouTubeDataAPIV3Service {
 	 * @param videoUrl
 	 * @return licenceType
 	 */
-	public static String getLicense(String videoUrl) throws Exception {
+	public static String getLicense(String videoUrl) {
 		String videoId = getIdFromUrl(videoUrl);
 		String licenceType = "";
 		try {
