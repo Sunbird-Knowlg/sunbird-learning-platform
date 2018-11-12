@@ -51,15 +51,16 @@ object AzureMediaServiceImpl extends IMediaService {
     if (createAssetResponse.responseCode.equalsIgnoreCase("OK")) {
       val apiUrl = getApiUrl("job").replace("jobIdentifier", jobId)
       val reqBody = AzureRequestBody.submit_job.replace("assetId", assetId).replace("baseInputUrl", temp._1).replace("inputVideoFile", temp._2)
-      HttpRestUtil.put(apiUrl, getDefaultHeader(), reqBody)
+      val response = HttpRestUtil.put(apiUrl, getDefaultHeader(), reqBody)
+      if (response.responseCode == "OK") Response.getSuccessResponse(Response.getSubmitJobResult(response)) else response
     } else {
       Response.getFailureResponse(createAssetResponse.result, "SERVER_ERROR", "Output Asset [ " + assetId + " ] Creation Failed for Job : " + jobId)
     }
   }
 
   override def getJob(jobId: String): MediaResponse = {
-    val url = getApiUrl("job").replace("jobIdentifier", jobId)
-    HttpRestUtil.get(url, getDefaultHeader(), null)
+    val response = getJobDetails(jobId)
+    if (response.responseCode == "OK") Response.getSuccessResponse(Response.getSubmitJobResult(response)) else response
   }
 
   override def getStreamingPaths(jobId: String): MediaResponse = {
@@ -79,6 +80,11 @@ object AzureMediaServiceImpl extends IMediaService {
 
   override def cancelJob(cancelJobRequest: MediaRequest): MediaResponse = {
     null
+  }
+
+  def getJobDetails(jobId: String): MediaResponse = {
+    val url = getApiUrl("job").replace("jobIdentifier", jobId)
+    HttpRestUtil.get(url, getDefaultHeader(), null)
   }
 
   def createAsset(assetId: String, jobId: String): MediaResponse = {
@@ -153,7 +159,7 @@ object AzureMediaServiceImpl extends IMediaService {
       val streamUrl = streamHost + url.replace("aapl", "aapl-v3")
       HashMap[String, AnyRef]("streamUrl" -> streamUrl)
     } else {
-      val getResponse: MediaResponse = getJob(jobId)
+      val getResponse: MediaResponse = getJobDetails(jobId)
       val fileName: String = getResponse.result.getOrElse("properties", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("input", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("files", List).asInstanceOf[List[AnyRef]].head.toString
       val getStreamResponse = getStreamingLocator(streamLocatorName);
       val locatorId = getStreamResponse.result.getOrElse("properties", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("streamingLocatorId", "").toString

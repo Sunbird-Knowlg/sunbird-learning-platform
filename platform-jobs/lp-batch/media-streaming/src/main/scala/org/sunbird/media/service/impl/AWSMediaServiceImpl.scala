@@ -24,19 +24,19 @@ object AWSMediaServiceImpl extends IMediaService {
     val url = getApiUrl("job")
     val reqBody = prepareJobRequestBody(jobRequest.request)
     val header = getDefaultHeader("POST", url, reqBody)
-    HttpRestUtil.post(url, header, reqBody)
+    val response = HttpRestUtil.post(url, header, reqBody)
+    if (response.responseCode == "OK") Response.getSuccessResponse(Response.getSubmitJobResult(response)) else response
   }
 
   override def getJob(jobId: String): MediaResponse = {
-    val url = getApiUrl("job") + "/" + jobId
-    val header = getDefaultHeader("GET", url, null)
-    HttpRestUtil.get(url, header, null)
+    val response = getJobDetails(jobId)
+    if (response.responseCode == "OK") Response.getSuccessResponse(Response.getJobResult(response)) else response
   }
 
   override def getStreamingPaths(jobId: String): MediaResponse = {
     val region = AppConfig.getConfig("aws.region");
     val streamType = AppConfig.getConfig("aws.stream.protocol").toLowerCase()
-    val getResponse = getJob(jobId)
+    val getResponse = getJobDetails(jobId)
     val inputs: List[Map[String, AnyRef]] = getResponse.result.getOrElse("job", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("settings", Map).asInstanceOf[Map[String, AnyRef]].getOrElse("inputs", List).asInstanceOf[List[Map[String, AnyRef]]]
     val input: String = inputs.head.getOrElse("fileInput", "").toString
     val host = "https://s3." + region + ".amazonaws.com"
@@ -52,6 +52,12 @@ object AWSMediaServiceImpl extends IMediaService {
 
   override def cancelJob(cancelJobRequest: MediaRequest): MediaResponse = {
     null
+  }
+
+  def getJobDetails(jobId: String): MediaResponse = {
+    val url = getApiUrl("job") + "/" + jobId
+    val header = getDefaultHeader("GET", url, null)
+    HttpRestUtil.get(url, header, null)
   }
 
   def prepareInputUrl(url: String): String = {
