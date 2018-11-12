@@ -446,11 +446,11 @@ public class ContentV3Controller extends BaseController {
 	}
 
 	/**
-	 * Releases given number of Dialcodes from Reserved and Unused Dialcodes
-	 * for the Content.
+	 * Controller method to Releases all not Linked QR Codes (DIAL Codes) from Textbook.
 	 *
 	 * @param contentId
-	 * @return
+	 * 				The Content Id of the Textbook from which Dialcodes are to be released
+	 * @return The Response Entity with list of Released QR Codes
 	 */
 	@RequestMapping(value="/dialcode/release/{id}", method = RequestMethod.PATCH)
 	@ResponseBody

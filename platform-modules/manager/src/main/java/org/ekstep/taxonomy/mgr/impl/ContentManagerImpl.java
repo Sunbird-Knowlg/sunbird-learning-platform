@@ -2359,6 +2359,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
     }
 
+    private void validateChannel(Map<String, Object> metadata, String channelId) {
+		if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(), "Invalid Channel Id.");
+	}
+
 	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.IContentManager#reserveDialCode(java.lang.String, java.lang.Object)
 	 */
@@ -2444,6 +2449,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		
 	}
 
+	private Optional<List<String>> getList(String[] params) {
+		return Optional.ofNullable(params).map(dialcodes -> new ArrayList<>(Arrays.asList(params)));
+	}
+
+	private Optional<List<String>> getReservedDialCodes(Node node) {
+		return getList((String[]) node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()));
+	}
+
+	private List<String> validateAndGetReservedDialCodes(Node node) {
+		return getReservedDialCodes(node).
+				orElseThrow(() ->
+					new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
+						"Error! No Dialcodes are Reserved for content:: " + node.getIdentifier()));
+	}
+
 	/**
 	 * Implementation for {@link IContentManager#releaseDialcodes(String, String)}
 	 *
@@ -2462,12 +2482,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
 					"Content Id Can Not be blank.");
 
-		Response response = getDataNode(TAXONOMY_ID, contentId);
-		if (checkError(response))
-			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-					"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
-
-		Node node = (Node) response.get(GraphDACParams.node.name());
+		Node node = getContentNode(TAXONOMY_ID, contentId, null);
         Map<String, Object> metadata = node.getMetadata();
 
         if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType()))
@@ -2476,21 +2491,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
         if (!StringUtils.equalsIgnoreCase(ContentAPIParams.TextBook.name(), (String) metadata.get(ContentAPIParams.contentType.name())))
 			throw new ClientException(ContentErrorCodes.ERR_NOT_A_TEXTBOOK.name(), "Error! Content Is not a Textbook.");
         
-        if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_CHANNEL.name(), "Invalid Channel Id.");
+        validateChannel(metadata, channelId);
         
         if (StringUtils.equalsIgnoreCase((String) metadata.get(ContentAPIParams.status.name()), ContentAPIParams.Retired.name()))
             throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Error! Content not found with id: " + contentId);
 
 
-        Object metadataReservedDialcode = Optional.ofNullable(metadata.get(ContentAPIParams.reservedDialcodes.name())).
-                                             filter(m -> 0 != ((String[]) m).length).
-                                             orElseThrow(() ->
-                                                     new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
-                                                           "Error! No Dialcodes are Reserved for content:: " + contentId));
-
-		List<String> reservedDialcodes = new ArrayList<>();
-		reservedDialcodes.addAll(Arrays.asList((String[])metadataReservedDialcode));
+		List<String> reservedDialcodes = validateAndGetReservedDialCodes(node);
         
         
         Set<String> assignedDialcodes = getAllAssignedDialCodes(node);
@@ -2507,7 +2514,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Map<String, Object> updateMap = new HashMap<>();
 		updateMap.put(ContentAPIParams.reservedDialcodes.name(), leftReservedDialcodes);
 
-		response = updateAllContents(contentId, updateMap);
+		Response response = updateAllContents(contentId, updateMap);
 		if (checkError(response)) {
 			return response;
 		} else {
