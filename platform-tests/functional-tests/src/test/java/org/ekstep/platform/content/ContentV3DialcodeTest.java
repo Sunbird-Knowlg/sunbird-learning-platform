@@ -105,6 +105,17 @@ public class ContentV3DialcodeTest extends BaseTest {
     }
 
     @Test
+    public void reserve300DialCodesForTextBook() {
+        setURI();
+        String createTextBookRequest = this.createTextBookRequest.replace(IDENTIFIER, "" + generateRandomInt(0, 99999));
+        String[] result = this.contentV3API.createAndGetResult(createTextBookRequest, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        String identifier = result[0];
+        String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 300);
+        Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get400ResponseSpec());
+        assertEquals("Invalid dialcode count.", response.jsonPath().get("params.errmsg"));
+    }
+
+    @Test
     public void releaseAllDialcodesForTextBook() {
         setURI();
         String createTextBookrequest = this.createTextBookRequest.replace(IDENTIFIER, "" + generateRandomInt(0, 99999));
