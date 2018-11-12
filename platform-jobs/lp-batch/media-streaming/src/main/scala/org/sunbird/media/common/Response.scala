@@ -42,6 +42,7 @@ object Response {
       val timing: Map[String, AnyRef] = job.getOrElse("timing", Map).asInstanceOf[Map[String, AnyRef]]
       jobId = job.getOrElse("id", "").toString
       jobStatus = job.getOrElse("status", "").toString.toUpperCase()
+      //TODO: Convert submittedOn, lastModifiedOn to UTC
       submittedOn = timing.getOrElse("submitTime", "").toString
       lastModifiedOn = timing.getOrElse("finishTime", "").toString
 

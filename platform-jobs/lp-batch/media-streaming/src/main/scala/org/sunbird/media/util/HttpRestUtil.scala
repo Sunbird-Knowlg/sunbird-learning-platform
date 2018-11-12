@@ -1,8 +1,7 @@
 package org.sunbird.media.util
 
-import java.util.UUID
 import com.mashape.unirest.http.{HttpResponse, Unirest}
-import org.sunbird.media.common.{MediaResponse, ResponseCode}
+import org.sunbird.media.common.{MediaResponse, Response}
 import org.sunbird.media.exception.MediaServiceException
 import org.apache.commons.lang.StringUtils
 import org.json4s.jackson.JsonMethods
@@ -20,7 +19,7 @@ object HttpRestUtil {
     try {
       getResponse(Unirest.get(url).headers(headers.asJava).asString)
     } catch {
-      case e: Exception => getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
+      case e: Exception => Response.getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
     }
   }
 
@@ -30,7 +29,7 @@ object HttpRestUtil {
     try {
       getResponse(Unirest.post(url).headers(headers.asJava).body(requestBody).asString)
     } catch {
-      case e: Exception => getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
+      case e: Exception => Response.getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
     }
   }
 
@@ -41,7 +40,7 @@ object HttpRestUtil {
     } catch {
       case e: Exception => {
         e.printStackTrace()
-        getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
+        Response.getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
       }
     }
   }
@@ -52,7 +51,7 @@ object HttpRestUtil {
     try {
       getResponse(Unirest.put(url).headers(headers.asJava).body(requestBody).asString)
     } catch {
-      case e: Exception => getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
+      case e: Exception => Response.getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
     }
   }
 
@@ -61,7 +60,7 @@ object HttpRestUtil {
     try {
       getResponse(Unirest.delete(url).headers(headers.asJava).asString)
     } catch {
-      case e: Exception => getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
+      case e: Exception => Response.getFailureResponse(new HashMap[String, AnyRef], "SERVER_ERROR", "Some Error Occurred While Calling Cloud Service API's.  ")
     }
   }
 
@@ -79,34 +78,16 @@ object HttpRestUtil {
     }
 
     status match {
-      case 200 => getSuccessResponse(result)
-      case 201 => getSuccessResponse(result)
-      case 400 => getFailureResponse(result, "BAD_REQUEST", "Please Provide Correct Request Data.")
-      case 401 => getFailureResponse(result, "SERVER_ERROR", "Access Token Expired.")
-      case 404 => getFailureResponse(result, "RESOURCE_NOT_FOUND", "Resource Not Found.")
-      case 405 => getFailureResponse(result, "METHOD_NOT_ALLOWED", "Requested Operation Not Allowed.")
-      case 500 => getFailureResponse(result, "SERVER_ERROR", "Internal Server Error. Please Try Again Later!")
-      case _ => getFailureResponse(result, "SERVER_ERROR", "Internal Server Error. Please Try Again Later!")
+      case 200 => Response.getSuccessResponse(result)
+      case 201 => Response.getSuccessResponse(result)
+      case 400 => Response.getFailureResponse(result, "BAD_REQUEST", "Please Provide Correct Request Data.")
+      case 401 => Response.getFailureResponse(result, "SERVER_ERROR", "Access Token Expired.")
+      case 404 => Response.getFailureResponse(result, "RESOURCE_NOT_FOUND", "Resource Not Found.")
+      case 405 => Response.getFailureResponse(result, "METHOD_NOT_ALLOWED", "Requested Operation Not Allowed.")
+      case 500 => Response.getFailureResponse(result, "SERVER_ERROR", "Internal Server Error. Please Try Again Later!")
+      case _ => Response.getFailureResponse(result, "SERVER_ERROR", "Internal Server Error. Please Try Again Later!")
     }
 
-  }
-
-  def getSuccessResponse(result: Map[String, AnyRef]): MediaResponse = {
-    new MediaResponse(UUID.randomUUID().toString, System.currentTimeMillis().toString, new HashMap[String, AnyRef], ResponseCode.OK.toString, result);
-  }
-
-  def getFailureResponse(result: Map[String, AnyRef], errorCode: String, errorMessage: String): MediaResponse = {
-    val respCode: String = errorCode match {
-      case "BAD_REQUEST" => ResponseCode.CLIENT_ERROR.toString
-      case "RESOURCE_NOT_FOUND" => ResponseCode.RESOURCE_NOT_FOUND.toString
-      case "METHOD_NOT_ALLOWED" => ResponseCode.CLIENT_ERROR.toString
-      case "SERVER_ERROR" => ResponseCode.SERVER_ERROR.toString
-    }
-    val params = HashMap[String, String](
-      "err" -> errorCode,
-      "errMsg" -> errorMessage
-    )
-    new MediaResponse(UUID.randomUUID().toString, System.currentTimeMillis().toString, params, respCode, result);
   }
 
 }
