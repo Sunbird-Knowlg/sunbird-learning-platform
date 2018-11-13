@@ -49,8 +49,7 @@ import java.util.stream.Collectors;
  */
 public class PublishFinalizer extends BaseFinalizer {
 
-	@Autowired
-	private VideoStreamingJobRequest streamJobRequest;
+	private VideoStreamingJobRequest streamJobRequest = new VideoStreamingJobRequest();
 	
 	private static final String TAXONOMY_ID = "domain";
 	
