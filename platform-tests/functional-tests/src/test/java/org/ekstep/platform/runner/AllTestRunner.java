@@ -9,6 +9,7 @@ import org.ekstep.framework.FrameworkAPITest;
 import org.ekstep.framework.FrameworkCategoryInstanceV3APITests;
 import org.ekstep.framework.FrameworkTermsV3APITests;
 import org.ekstep.platform.content.AssesmentItemAPITest;
+import org.ekstep.platform.content.AssetV3APITest;
 import org.ekstep.platform.content.ChannelWorkflowTests;
 import org.ekstep.platform.content.CollectionTestCases;
 import org.ekstep.platform.content.CompositeSearchSoftConstraintTests;
@@ -30,6 +31,7 @@ import org.ekstep.platform.content.EnrichmentConsumerTests;
 import org.ekstep.platform.content.H5PContentWorkflowTest;
 import org.ekstep.platform.content.ImageAssetResolutionTests;
 import org.ekstep.platform.content.ItemSetAPITests;
+import org.ekstep.platform.content.LicenseValidationTest;
 import org.ekstep.platform.content.MimeTypeMgrTests;
 import org.ekstep.platform.content.ObjectChannelIdAppIdConsumerIdTest;
 import org.ekstep.platform.content.TagWorkflowTests;
@@ -60,6 +62,7 @@ import org.junit.runners.Suite;
 	DialCodeV3APITest.class, 
 	FrameworkAPITest.class, ChannelV3APITest.class, CategoryV3APITests.class, CategoryTermsV3APITests.class, FrameworkCategoryInstanceV3APITests.class, FrameworkTermsV3APITests.class, ChannelCategoryInstanceV3APITests.class, ChannelTermsV3APITests.class,
 	ConceptAPITests.class, ConceptAPIV3Tests.class, DataExportImportTestCases.class, DimensionAPITests.class, DimensionAPIV3Tests.class, DomainAPITests.class, DomainV3APITests.class, MethodAPITests.class, MethodV3APITests.class,
+	AssetV3APITest.class, LicenseValidationTest.class
 	})
 public class AllTestRunner {
 

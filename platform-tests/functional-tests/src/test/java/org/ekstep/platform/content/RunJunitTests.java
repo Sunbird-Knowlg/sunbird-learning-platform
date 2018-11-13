@@ -1,7 +1,7 @@
 package org.ekstep.platform.content;
 
 
-	import org.ekstep.platform.domain.ConceptAPIV3Tests;
+import org.ekstep.platform.domain.ConceptAPIV3Tests;
 import org.ekstep.platform.domain.DomainV3APITests;
 import org.ekstep.platform.domain.MethodV3APITests;
 import org.junit.runner.RunWith;
