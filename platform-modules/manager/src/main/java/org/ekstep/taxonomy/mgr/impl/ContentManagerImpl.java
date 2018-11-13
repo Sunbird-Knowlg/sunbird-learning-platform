@@ -2439,7 +2439,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}else {
 			updateResponse = getSuccessResponse();
 			updateResponse.put(ContentAPIParams.messages.name(), 
-					"No new dialcode has been generated, as requested count is less ");
+					"No new dialcode has been generated, as requested count is less or equal to existing reserved dialcode count.");
 		}
 		if(updateResponse.getResponseCode() == ResponseCode.OK) {
 			updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
