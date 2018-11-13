@@ -1,6 +1,6 @@
 package org.sunbird.media.service.impl
 
-import org.sunbird.media.common.{AzureRequestBody, MediaRequest, MediaResponse, Response}
+import org.sunbird.media.common.{AzureRequestBody, MediaRequest, MediaResponse, Response,AzureResult}
 import org.sunbird.media.service.AzureMediaService
 import org.sunbird.media.util.HttpRestUtil
 
@@ -25,7 +25,7 @@ object AzureMediaServiceImpl extends AzureMediaService {
       val apiUrl = getApiUrl("job").replace("jobIdentifier", jobId)
       val reqBody = AzureRequestBody.submit_job.replace("assetId", assetId).replace("baseInputUrl", temp._1).replace("inputVideoFile", temp._2)
       val response = HttpRestUtil.put(apiUrl, getDefaultHeader(), reqBody)
-      if (response.responseCode == "OK") Response.getSuccessResponse(Response.getSubmitJobResult(response)) else response
+      if (response.responseCode == "OK") Response.getSuccessResponse(AzureResult.getSubmitJobResult(response)) else response
     } else {
       Response.getFailureResponse(createAssetResponse.result, "SERVER_ERROR", "Output Asset [ " + assetId + " ] Creation Failed for Job : " + jobId)
     }
@@ -33,7 +33,7 @@ object AzureMediaServiceImpl extends AzureMediaService {
 
   override def getJob(jobId: String): MediaResponse = {
     val response = getJobDetails(jobId)
-    if (response.responseCode == "OK") Response.getSuccessResponse(Response.getSubmitJobResult(response)) else response
+    if (response.responseCode == "OK") Response.getSuccessResponse(AzureResult.getSubmitJobResult(response)) else response
   }
 
   override def getStreamingPaths(jobId: String): MediaResponse = {
