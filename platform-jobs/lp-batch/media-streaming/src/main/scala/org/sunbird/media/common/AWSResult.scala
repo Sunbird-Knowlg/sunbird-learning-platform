@@ -33,7 +33,7 @@ object AWSResult {
         "id" -> job.getOrElse("id", "").toString,
         "status" -> job.getOrElse("status", "").toString.toUpperCase(),
         "submittedOn" -> formatter.format(new Date(timing.getOrElse("submitTime", "").toString.toLong*1000)),
-        "lastModifiedOn" -> formatter.format(new Date(timing.getOrElse("finishTime", "").toString.toLong*1000)),
+        "lastModifiedOn" -> { if(StringUtils.isNotBlank(timing.getOrElse("finishTime", "").toString)){formatter.format(new Date(timing.getOrElse("finishTime", "").toString.toLong*1000))} else {""}},
         "error" -> {
           if (StringUtils.equalsIgnoreCase(job.getOrElse("status", "").toString.toUpperCase(), "ERROR")) {
             HashMap[String, String](
