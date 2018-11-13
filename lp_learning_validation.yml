@@ -1,0 +1,6 @@
+- hosts: learningall
+  vars_files:
+       - "{{ secrets_path }}"
+  roles:
+    - lp-learning-validation
+  serial: 1

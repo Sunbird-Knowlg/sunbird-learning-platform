@@ -1,0 +1,7 @@
+---
+- hosts: lp-yarn-master
+  tasks:
+     - command: ./samza_alerts.sh
+       args:
+        chdir: /home/hduser
+       become: yes

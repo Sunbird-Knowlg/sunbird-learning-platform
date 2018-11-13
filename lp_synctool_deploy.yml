@@ -1,0 +1,5 @@
+- hosts: learning1
+  vars_files:
+    - "{{ secrets_path }}"
+  roles:
+    - lp-synctool-deploy
