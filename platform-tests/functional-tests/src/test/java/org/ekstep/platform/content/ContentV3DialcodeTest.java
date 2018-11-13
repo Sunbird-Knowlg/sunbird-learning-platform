@@ -113,7 +113,6 @@ public class ContentV3DialcodeTest extends BaseTest {
         String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 300);
         Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get400ResponseSpec());
         assertEquals("ERR_INVALID_COUNT", response.jsonPath().get("params.err"));
-        assertEquals("Invalid dialcode count range. Its hould be between 1 to 250.", response.jsonPath().get("params.errmsg"));
     }
 
     @Test
@@ -131,7 +130,6 @@ public class ContentV3DialcodeTest extends BaseTest {
         response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
         List<String> reservedDialcodesNew = response.jsonPath().get("result.reservedDialcodes");
         assertEquals(20, reservedDialcodesNew.size());
-        assertEquals("No new dialcode has been generated, as requested count is less ", response.jsonPath().get("result.messages"));
         assertTrue(reservedDialcodesNew.containsAll(reservedDialcodes));
 
     }
@@ -172,7 +170,6 @@ public class ContentV3DialcodeTest extends BaseTest {
         response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get200ResponseSpec());
         List<String> reservedDialcodesNew = response.jsonPath().get("result.reservedDialcodes");
         assertEquals(20, reservedDialcodesNew.size());
-        assertEquals("No new dialcode has been generated, as requested count is less ", response.jsonPath().get("result.messages"));
         assertTrue(reservedDialcodesNew.containsAll(reservedDialcodes));
 
     }
@@ -187,7 +184,6 @@ public class ContentV3DialcodeTest extends BaseTest {
         String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 0);
         Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getContentDialcodeRequestSpecification(contentType, channelId), get400ResponseSpec());
         assertEquals("ERR_INVALID_COUNT", response.jsonPath().get("params.err"));
-        assertEquals("Invalid dialcode count range. Its hould be between 1 to 250.", response.jsonPath().get("params.errmsg"));
 
     }
 
