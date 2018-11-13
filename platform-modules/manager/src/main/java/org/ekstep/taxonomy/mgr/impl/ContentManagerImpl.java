@@ -2374,9 +2374,24 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
                     "Invalid Content Type.");
     }
 
+    private void validateCountForReservingDialCode(Map<String, Object> request) {
+		if(null == request.get(ContentAPIParams.count.name()) ||
+				!(request.get(ContentAPIParams.count.name()) instanceof Integer)) {
+			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(),
+					"Invalid dialcode count.");
+		}
+		int count = (Integer)request.get(ContentAPIParams.count.name());
+		int maxCount = Platform.config.hasPath("learnig.reserve_dialcode.max_count") ?
+				Platform.config.getInt("learnig.reserve_dialcode.max_count") : 250;
+		if(count<1 || count>maxCount)
+			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(),
+					"Invalid dialcode count range. Its hould be between 1 to " + maxCount + ".");
+	}
+
 	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.IContentManager#reserveDialCode(java.lang.String, java.lang.Object)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response reserveDialCode(String contentId, String channelId, Map<String, Object> request) throws Exception {
 		if(null == request || request.isEmpty()) 
@@ -2398,43 +2413,25 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		validateChannel(metaData, channelId);
 
-		if(null == request.get(ContentAPIParams.count.name()) ||
-				!(request.get(ContentAPIParams.count.name()) instanceof Integer)) {
-			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(), 
-					"Invalid dialcode count.");
-		}
-		int count = (Integer)request.get(ContentAPIParams.count.name());
-		int maxCount = Platform.config.hasPath("learnig.reserve_dialcode.max_count") ? 
-					Platform.config.getInt("learnig.reserve_dialcode.max_count") : 250;
-		if(count<1 || count>maxCount)
-			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(), 
-					"Invalid dialcode count range. Its hould be between 1 to " + maxCount + ".");
+		validateCountForReservingDialCode(request);
 		
 		if(StringUtils.isBlank((String)request.get(ContentAPIParams.publisher.name())))
 				throw new ClientException(ContentErrorCodes.ERR_INVALID_PUBLISHER.name(), 
 						"Invalid publisher name.");
-		
-		String[] metadataReservedDialcode = (String[])metaData.get(ContentAPIParams.reservedDialcodes.name());
-		int reqDialcodesCount = 0;
+
+		int reqDialcodesCount;
 		boolean updateContent = false;
-		List<String> dialCodes = new ArrayList<>();
-		if(null != metadataReservedDialcode && metadataReservedDialcode.length>0) {
-			dialCodes.addAll(Arrays.asList(metadataReservedDialcode));
-			reqDialcodesCount = (Integer)request.get(ContentAPIParams.count.name()) - dialCodes.size();
-			if(reqDialcodesCount>0) {
-				dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount,
-					(String)request.get(ContentAPIParams.publisher.name())));
-				updateContent = true;
-			}
-			
-		}else {
-			reqDialcodesCount = (Integer)request.get(ContentAPIParams.count.name());
+
+		List<String> dialCodes = getReservedDialCodes(node).orElseGet(ArrayList::new);
+
+		reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name()) - dialCodes.size();
+		if(reqDialcodesCount > 0) {
 			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount,
 					(String)request.get(ContentAPIParams.publisher.name())));
 			updateContent = true;
 		}
 		
-		Response updateResponse = null;
+		Response updateResponse;
 		if(updateContent) {
 			Map<String, Object> reqMap = new HashMap<>();
 			reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
@@ -2445,6 +2442,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					"No new dialcode has been generated, as requested count is less ");
 		}
 		if(updateResponse.getResponseCode() == ResponseCode.OK) {
+			updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
 			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
 			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
 			TelemetryManager.info("DIAL codes generated and reserved.", updateResponse.getResult());
@@ -2504,6 +2502,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response releaseDialcodes(String contentId, String channelId) throws Exception {
         if(StringUtils.isBlank(channelId))
@@ -2549,6 +2548,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (checkError(response)) {
 			return response;
 		} else {
+			response.put(ContentAPIParams.count.name(), releasedDialcodes.size());
 			response.put(ContentAPIParams.releasedDialcodes.name(), releasedDialcodes);
 			response.put(ContentAPIParams.node_id.name(), contentId);
 			TelemetryManager.info("DIAL codes released.", response.getResult());
