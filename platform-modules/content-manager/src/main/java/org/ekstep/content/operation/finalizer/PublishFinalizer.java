@@ -351,7 +351,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		getResponse(request);
 		
 		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type")?
-				Platform.config.getStringList("stream.mime.type"):Arrays.asList("video/mp4");
+				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
 		if(streamableMimeType.contains((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())))	{
 			streamJobRequest.insert(contentId, (String)node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()));
 		}
