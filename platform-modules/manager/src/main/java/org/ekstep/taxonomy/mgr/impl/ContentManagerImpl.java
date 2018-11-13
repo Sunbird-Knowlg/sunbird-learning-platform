@@ -2546,7 +2546,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		List<String> reservedDialcodes = validateAndGetReservedDialCodes(node);
         
         
-        Set<String> assignedDialcodes = getAllAssignedDialCodes(node);
+        Set<String> assignedDialcodes = getAllAssisgnedDialcodesRecursive(node);
 
 		List<String> releasedDialcodes = assignedDialcodes.isEmpty() ? 
 				reservedDialcodes 
@@ -2582,53 +2582,32 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				(String) node.getMetadata().get(ContentAPIParams.visibility.name()));
 	}
 
-	private Set<String> getAllDescendentsAssisgnedDialcodesRecursive(Node node) {
+	private Optional<String[]> getDialcodes(Node node) {
+		return Optional.ofNullable((String[]) node.getMetadata().get(ContentAPIParams.dialcodes.name())).filter(dialcodes -> dialcodes.length > 0);
+	}
+
+	private Set<String> getAllAssisgnedDialcodesRecursive(Node node) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
 
 		Set<String> assignedDialcodes = new HashSet<>();
+		getDialcodes(node).ifPresent(dialcodes -> assignedDialcodes.addAll(Arrays.asList(dialcodes)));
 
 		getChildren(node, definition).ifPresent(childrens ->
 				childrens.
 				stream().
 				map(NodeDTO::getIdentifier).
 				forEach(childIdentifier -> {
-
 				    Node childNode = getContentNode(TAXONOMY_ID, childIdentifier, null);
-					if (isNodeVisibilityParent(childNode)) {
-						Optional.ofNullable((String[]) childNode.getMetadata().get(ContentAPIParams.dialcodes.name())).
-								ifPresent(dialcodes -> {
-									assignedDialcodes.addAll(Arrays.asList(dialcodes));
-									assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childNode));
-								});
-
-						Response response = getDataNode(TAXONOMY_ID, getImageId(childIdentifier));
-						if (!checkError(response)) {
-							Node childImageNode = (Node) response.get(GraphDACParams.node.name());
-							Optional.ofNullable((String[]) childImageNode.getMetadata().get(ContentAPIParams.dialcodes.name())).
-									ifPresent(dialcodes -> {
-										assignedDialcodes.addAll(Arrays.asList(dialcodes));
-										assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(childImageNode));
-									});
-
-						}
-
-					}
-
+					if (isNodeVisibilityParent(childNode))
+						assignedDialcodes.addAll(getAllAssisgnedDialcodesRecursive(childNode));
 				}));
-
-		return assignedDialcodes;
-	}
-
-	private Set<String> getAllAssignedDialCodes(Node node) {
-		TelemetryManager.log("Collecting Dialcodes For Original Content Id: " + node.getIdentifier());
-		Set<String> assignedDialcodes = getAllDescendentsAssisgnedDialcodesRecursive(node);
 
 		Response response = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
 		if (!checkError(response)) {
-			Node imageNode = (Node) response.get(GraphDACParams.node.name());
-			TelemetryManager.log("Collecting Dialcodes For Image Content Id: " + imageNode.getIdentifier());
-			assignedDialcodes.addAll(getAllDescendentsAssisgnedDialcodesRecursive(imageNode));
+			Node childImageNode = (Node) response.get(GraphDACParams.node.name());
+			assignedDialcodes.addAll(getAllAssisgnedDialcodesRecursive(childImageNode));
 		}
+
 		return assignedDialcodes;
 	}
 
