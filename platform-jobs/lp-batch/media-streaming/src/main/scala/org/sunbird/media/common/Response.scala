@@ -99,7 +99,7 @@ object Response {
       if (jobStatus == "ERROR") {
         val errorMap: Map[String, AnyRef] = output.getOrElse("error", Map).asInstanceOf[Map[String, AnyRef]]
         error = HashMap[String, String](
-          "errorCode" -> error.getOrElse("code", "").toString,
+          "errorCode" -> errorMap.getOrElse("code", "").toString,
           "errorMessage" -> errorMap.getOrElse("details", List).asInstanceOf[List[Map[String, AnyRef]]].head.getOrElse("message", "").toString
         )
       } else {
