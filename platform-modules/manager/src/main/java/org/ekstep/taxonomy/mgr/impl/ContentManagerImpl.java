@@ -2494,6 +2494,24 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						"Error! No Dialcodes are Reserved for content:: " + node.getIdentifier()));
 	}
 
+	private boolean isContent(Node node) {
+		return StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType());
+	}
+
+	private void validateIsContent(Node node) {
+		if (!isContent(node))
+			throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content.");
+	}
+
+	private boolean isRetired(Map<String, Object> metadata) {
+		return StringUtils.equalsIgnoreCase((String) metadata.get(ContentAPIParams.status.name()), ContentAPIParams.Retired.name());
+	}
+
+	private void validateIsNodeRetired(Map<String, Object> metadata) {
+		if (isRetired(metadata))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Error! Content not found with id: " + metadata.get("identifier"));
+	}
+
 	/**
 	 * Implementation for {@link IContentManager#releaseDialcodes(String, String)}
 	 *
@@ -2516,15 +2534,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Node node = getContentNode(TAXONOMY_ID, contentId, null);
         Map<String, Object> metadata = node.getMetadata();
 
-        if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Content.name(), node.getObjectType()))
-            throw new ClientException(ContentErrorCodes.ERR_NOT_A_CONTENT.name(), "Error! Not a Content.");
+		validateIsContent(node);
 
         validateContentForReservedDialcodes(metadata);
         
         validateChannel(metadata, channelId);
         
-        if (StringUtils.equalsIgnoreCase((String) metadata.get(ContentAPIParams.status.name()), ContentAPIParams.Retired.name()))
-            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Error! Content not found with id: " + contentId);
+        validateIsNodeRetired(metadata);
 
 
 		List<String> reservedDialcodes = validateAndGetReservedDialCodes(node);
