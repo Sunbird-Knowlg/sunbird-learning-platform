@@ -8,8 +8,6 @@ import org.sunbird.media.common.{MediaRequest, MediaResponse}
   */
 trait IMediaService {
 
-  def getToken(request: MediaRequest): MediaResponse
-
   def submitJob(request: MediaRequest): MediaResponse
 
   def getJob(jobId: String): MediaResponse
