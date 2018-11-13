@@ -2544,9 +2544,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 
 		List<String> reservedDialcodes = validateAndGetReservedDialCodes(node);
-        
-        
-        Set<String> assignedDialcodes = getAllAssisgnedDialcodesRecursive(node);
+
+		Set<String> assignedDialcodes = new HashSet<>();
+		populateAllAssisgnedDialcodesRecursive(node, assignedDialcodes);
 
 		List<String> releasedDialcodes = assignedDialcodes.isEmpty() ? 
 				reservedDialcodes 
@@ -2586,10 +2586,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return Optional.ofNullable((String[]) node.getMetadata().get(ContentAPIParams.dialcodes.name())).filter(dialcodes -> dialcodes.length > 0);
 	}
 
-	private Set<String> getAllAssisgnedDialcodesRecursive(Node node) {
+	private void populateAllAssisgnedDialcodesRecursive(Node node, Set<String> assignedDialcodes) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
 
-		Set<String> assignedDialcodes = new HashSet<>();
 		getDialcodes(node).ifPresent(dialcodes -> assignedDialcodes.addAll(Arrays.asList(dialcodes)));
 
 		getChildren(node, definition).ifPresent(childrens ->
@@ -2599,16 +2598,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				forEach(childIdentifier -> {
 				    Node childNode = getContentNode(TAXONOMY_ID, childIdentifier, null);
 					if (isNodeVisibilityParent(childNode))
-						assignedDialcodes.addAll(getAllAssisgnedDialcodesRecursive(childNode));
+						populateAllAssisgnedDialcodesRecursive(childNode, assignedDialcodes);
 				}));
 
 		Response response = getDataNode(TAXONOMY_ID, getImageId(node.getIdentifier()));
 		if (!checkError(response)) {
 			Node childImageNode = (Node) response.get(GraphDACParams.node.name());
-			assignedDialcodes.addAll(getAllAssisgnedDialcodesRecursive(childImageNode));
+			populateAllAssisgnedDialcodesRecursive(childImageNode, assignedDialcodes);
 		}
 
-		return assignedDialcodes;
 	}
 
 }
