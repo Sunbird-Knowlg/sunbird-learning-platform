@@ -66,7 +66,7 @@ public class CollectionStore extends CassandraStore {
                 String value = row.getString("hierarchy");
                 return mapper.readValue(value, Map.class);
             } else {
-                throw new ResourceNotFoundException(ResponseCode.RESOURCE_NOT_FOUND.name(), "Resource not found");
+                throw new ResourceNotFoundException(ResponseCode.RESOURCE_NOT_FOUND.name(), "Resource not found : " + contentId);
             }
         } catch (ResourceNotFoundException re) {
             throw re;

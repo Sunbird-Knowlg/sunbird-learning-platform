@@ -31,7 +31,7 @@ public class VideoStreamingJobRequest extends CassandraStore {
         nodeType = CompositeSearchConstants.NODE_TYPE_DATA;
     }
 
-    public void insert(String contentId, String artifactUrl) {
+    public void insert(String contentId, String artifactUrl, String channel) {
         try {
         String query = "INSERT INTO " + getKeyspace() + "." + getTable() + "(client_key,request_id,job_name,job_id,status,request_data,location,dt_file_created,dt_first_event,dt_last_event,dt_expiration,iteration,dt_job_submitted,dt_job_processing,dt_job_completed,input_events,output_events,file_size,latency,execution_time,err_message,stage,stage_status) VALUES ('SYSTEM_LP',?,'VIDEO_STREAMING',NULL,'SUBMITTED',?,?,NULL,NULL,NULL,NULL,0,dateOf(now()),NULL,NULL,0,0,0,0,0,NULL,NULL,NULL);";
         String requestId = DigestUtils.md5Hex(contentId + artifactUrl);
@@ -39,6 +39,7 @@ public class VideoStreamingJobRequest extends CassandraStore {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("content_id", contentId);
         requestMap.put("artifactUrl", artifactUrl);
+        requestMap.put("channel", channel);
         String requestData = mapper.writeValueAsString(requestMap);
 
         Session session = CassandraConnector.getSession();
