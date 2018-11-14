@@ -2437,9 +2437,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
 			updateResponse = updateAllContents(contentId, reqMap);
 		}else {
-			updateResponse = getSuccessResponse();
+			updateResponse = getClientErrorResponse();
 			updateResponse.put(ContentAPIParams.messages.name(), 
 					"No new dialcode has been generated, as requested count is less or equal to existing reserved dialcode count.");
+			updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
+			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
+			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
+			return updateResponse;
 		}
 		if(updateResponse.getResponseCode() == ResponseCode.OK) {
 			updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
@@ -2473,7 +2477,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}else {
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+			if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR)
+				throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
+			else throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}
 		
