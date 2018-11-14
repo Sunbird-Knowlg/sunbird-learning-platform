@@ -2477,10 +2477,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
 		}else {
-			if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR)
+			if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				TelemetryManager.error("Client Error during Generate Dialcode: " + generateResponse.getParams().getErrmsg());
 				throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
-			else throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+			}
+			else {
+				TelemetryManager.error("Server Error during Generate Dialcode: " + generateResponse.getParams().getErrmsg());
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+			}
 		}
 		
 	}
@@ -2538,16 +2543,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					"Content Id Can Not be blank.");
 
 		Node node = getContentNode(TAXONOMY_ID, contentId, null);
-        Map<String, Object> metadata = node.getMetadata();
 
-		validateIsContent(node);
-
-        validateContentForReservedDialcodes(metadata);
-        
-        validateChannel(metadata, channelId);
-        
-        validateIsNodeRetired(metadata);
-
+		validateRequest(node, channelId);
 
 		List<String> reservedDialcodes = validateAndGetReservedDialCodes(node);
 
@@ -2576,6 +2573,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			TelemetryManager.info("DIAL codes released.", response.getResult());
 			return response;
 		}
+	}
+
+	private void validateRequest(Node node, String channelId) {
+		Map<String, Object> metadata = node.getMetadata();
+
+		validateIsContent(node);
+		validateContentForReservedDialcodes(metadata);
+		validateChannel(metadata, channelId);
+		validateIsNodeRetired(metadata);
 	}
 
 	private Optional<List<NodeDTO>> getChildren(Node node, DefinitionDTO definition) {

@@ -127,7 +127,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         List<String> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
         assertEquals(20, reservedDialcodes.size());
 
-        response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get400ResponseSpec());
         List<String> reservedDialcodesNew = response.jsonPath().get("result.reservedDialcodes");
         assertEquals(20, reservedDialcodesNew.size());
         assertTrue(reservedDialcodesNew.containsAll(reservedDialcodes));
@@ -167,7 +167,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         assertEquals(20, reservedDialcodes.size());
 
         reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 15);
-        response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get400ResponseSpec());
         List<String> reservedDialcodesNew = response.jsonPath().get("result.reservedDialcodes");
         assertEquals(20, reservedDialcodesNew.size());
         assertTrue(reservedDialcodesNew.containsAll(reservedDialcodes));
@@ -185,6 +185,18 @@ public class ContentV3DialcodeTest extends BaseTest {
         Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get400ResponseSpec());
         assertEquals("ERR_INVALID_COUNT", response.jsonPath().get("params.err"));
 
+    }
+
+    @Test
+    public void reserveDialcodesWithInvalidPublisher() {
+        setURI();
+        String createTextBookRequest = this.createTextBookRequest.replace(IDENTIFIER, "" + generateRandomInt(0, 99999));
+        String[] result = this.contentV3API.createAndGetResult(createTextBookRequest, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
+        String identifier = result[0];
+
+        String reserveDialcodesRequestBody = "{\"request\": {\"dialcodes\": {\"count\":90,\"publisher\": \"INVALID_PUBLISHER\"}}}";
+        Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get400ResponseSpec());
+        assertEquals("ERR_INVALID_PUBLISHER", response.jsonPath().get("params.err"));
     }
 
     @Test
