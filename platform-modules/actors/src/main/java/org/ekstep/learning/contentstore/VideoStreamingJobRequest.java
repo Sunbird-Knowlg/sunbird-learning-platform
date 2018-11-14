@@ -42,7 +42,7 @@ public class VideoStreamingJobRequest extends CassandraStore {
         requestMap.put("channel", channel);
         String requestData = mapper.writeValueAsString(requestMap);
 
-        Session session = CassandraConnector.getSession();
+        Session session = CassandraConnector.getSession("lpa");
         com.datastax.driver.core.PreparedStatement statement = session.prepare(query);
         BoundStatement boundStatement = new BoundStatement(statement);
         session.execute(boundStatement.bind(requestId, requestData, artifactUrl));
