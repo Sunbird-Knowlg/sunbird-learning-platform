@@ -426,7 +426,7 @@ public class ContentV3Controller extends BaseController {
 	 * 
 	 * @author amitp
 	 * @param contentId
-	 *            The Content Id for whom dialcodes has to be reserved           
+	 *            The Content Id for whom DIAL Codes have to be reserved           
 	 * @return
 	 */
 	@RequestMapping(value = "/dialcode/reserve/{id:.+}", method = RequestMethod.POST)
@@ -436,13 +436,14 @@ public class ContentV3Controller extends BaseController {
 			@RequestBody Map<String, Object> requestMap,
 			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.learning.content.dialcode.reserve";
+		TelemetryManager.log("Reserve DIAL Codes | Content Id : " + contentId);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get(ContentAPIParams.dialcodes.name());
 			Response response = contentManager.reserveDialCode(contentId, channelId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.error("Exception occured while Reserving Dial Code with Content: " + e.getMessage(), e);
+			TelemetryManager.error("Exception occured while Reserving DIAL Codes with Content: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -451,21 +452,21 @@ public class ContentV3Controller extends BaseController {
 	 * Controller method to Releases all not Linked QR Codes (DIAL Codes) from Textbook.
 	 *
 	 * @param contentId
-	 * 				The Content Id of the Textbook from which Dialcodes are to be released
+	 * 				The Content Id of the Textbook from which DIAL Codes have to be released
 	 * @return The Response Entity with list of Released QR Codes
 	 */
 	@RequestMapping(value="/dialcode/release/{id}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> releaseDialcodes(@PathVariable(value="id") String contentId,
 													 @RequestHeader(value = CHANNEL_ID) String channelId) {
-		String apiId = "ekstep.learning.content.dialcode.reslease";
-		TelemetryManager.log("Release DialCode | Content Id : " + contentId);
+		String apiId = "ekstep.learning.content.dialcode.release";
+		TelemetryManager.log("Release DIAL Codes | Content Id : " + contentId);
 		Response response;
 		try {
 			response = contentManager.releaseDialcodes(contentId, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			TelemetryManager.error("Exception occured while Releasing DialCode with Content: " + e.getMessage(), e);
+			TelemetryManager.error("Exception occured while Releasing DIAL Codes with Content: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

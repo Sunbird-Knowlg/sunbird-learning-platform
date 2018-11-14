@@ -2439,7 +2439,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}else {
 			updateResponse = getClientErrorResponse();
 			updateResponse.put(ContentAPIParams.messages.name(), 
-					"No new dialcode has been generated, as requested count is less or equal to existing reserved dialcode count.");
+					"No new DIAL Codes have been generated, as requested count is less or equal to existing reserved dialcode count.");
 			updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
 			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
 			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
@@ -2449,7 +2449,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
 			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
 			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
-			TelemetryManager.info("DIAL codes generated and reserved.", updateResponse.getResult());
+			TelemetryManager.info("DIAL Codes generated and reserved.", updateResponse.getResult());
 			return updateResponse;
 		}else {
 			return updateResponse;
@@ -2502,7 +2502,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return getReservedDialCodes(node).
 				orElseThrow(() ->
 					new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
-						"Error! No Dialcodes are Reserved for content:: " + node.getIdentifier()));
+							"Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier()));
 	}
 
 	private boolean isContent(Node node) {
@@ -2556,7 +2556,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				: reservedDialcodes.stream().filter(dialcode -> !assignedDialcodes.contains(dialcode)).collect(toList());
 		
 		if (releasedDialcodes.isEmpty())
-			throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved Dialcodes are Utilized.");
+			throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved DIAL Codes are Utilized.");
 		
 		List<String> leftReservedDialcodes = reservedDialcodes.stream().filter(dialcode -> !releasedDialcodes.contains(dialcode)).collect(toList());
 		
@@ -2570,7 +2570,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			response.put(ContentAPIParams.count.name(), releasedDialcodes.size());
 			response.put(ContentAPIParams.releasedDialcodes.name(), releasedDialcodes);
 			response.put(ContentAPIParams.node_id.name(), contentId);
-			TelemetryManager.info("DIAL codes released.", response.getResult());
+			TelemetryManager.info("DIAL Codes released.", response.getResult());
 			return response;
 		}
 	}
