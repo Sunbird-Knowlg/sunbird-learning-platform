@@ -30,7 +30,6 @@ import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.net.URL;
