@@ -54,7 +54,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 
 	public void syncByIds(String graphId, List<String> identifiers) throws Exception {
 		System.out.println("Total Number of Objects : " + identifiers.size());
-		System.out.println("Identifiers : [" + identifiers + "]");
+		System.out.println("Identifiers : " + identifiers);
 		syncNode(graphId, identifiers, null);
 	}
 
