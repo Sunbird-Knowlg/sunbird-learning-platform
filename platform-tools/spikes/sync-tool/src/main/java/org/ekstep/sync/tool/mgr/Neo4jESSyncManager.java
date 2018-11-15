@@ -174,20 +174,22 @@ public class Neo4jESSyncManager implements ISyncManager {
 			List<String> batch_ids = identifiers.subList(0, currentBatchSize);
 
 			Response response = util.getDataNodes(graphId, batch_ids);
-			if (response.getResponseCode() != ResponseCode.OK)
+			List<Node> nodes;
+			if (response.getResponseCode() != ResponseCode.OK) {
 				throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND",
 						"Error: " + response.getParams().getErrmsg());
-			List<Node> nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
-			if (nodes == null || nodes.isEmpty())
-				throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND", "Objects not found ");
+			} else {
+				nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
+			}
 
-			errors = new HashMap<>();
-			Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
-			if (!errors.isEmpty())
-				System.out
-						.println("Error! while forming ES document data from nodes, below nodes are ignored" + errors);
-			esConnector.bulkImport(messages);
-
+			if (nodes != null && !nodes.isEmpty()) {
+				errors = new HashMap<>();
+				Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
+				if (!errors.isEmpty())
+					System.out
+							.println("Error! while forming ES document data from nodes, below nodes are ignored" + errors);
+				esConnector.bulkImport(messages);
+			}
 			uniqueIds.removeAll(nodes.stream().map(x -> x.getIdentifier()).collect(Collectors.toList()));
 			// clear the already batched node ids from the list
 			identifiers.subList(0, currentBatchSize).clear();
