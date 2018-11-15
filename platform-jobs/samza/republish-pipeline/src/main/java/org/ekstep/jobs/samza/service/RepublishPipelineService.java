@@ -124,12 +124,12 @@ public class RepublishPipelineService implements ISamzaService {
 				LOGGER.error("Failed to process message", message, e);
 				metrics.incFailedCounter();
 				FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
-						PlatformErrorCodes.PROCESSING_ERROR.name(), e.getMessage());
+						PlatformErrorCodes.PROCESSING_ERROR.name(), e);
 			} catch (Exception e) {
 				LOGGER.error("Failed to process message", message, e);
 				metrics.incErrorCounter();
 				FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
-						PlatformErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
+						PlatformErrorCodes.SYSTEM_ERROR.name(), e);
 			}
 		} else {
 			metrics.incSkippedCounter();

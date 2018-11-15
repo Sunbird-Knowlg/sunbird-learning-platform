@@ -298,5 +298,14 @@ public abstract class BaseManager {
 		resp.setParams(respParam);
 		return resp;
 	}
+
+	protected Response getClientErrorResponse() {
+		Response resp = new Response();
+		ResponseParams respParam = new ResponseParams();
+		respParam.setStatus("failed");
+		resp.setResponseCode(ResponseCode.CLIENT_ERROR);
+		resp.setParams(respParam);
+		return resp;
+	}
 	
 }

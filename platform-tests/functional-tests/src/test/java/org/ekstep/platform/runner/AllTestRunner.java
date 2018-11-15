@@ -25,6 +25,7 @@ import org.ekstep.platform.content.ContentPublishWorkflowTests;
 import org.ekstep.platform.content.ContentRejectV3Test;
 import org.ekstep.platform.content.ContentSuggestionTests;
 import org.ekstep.platform.content.ContentUploadTest;
+import org.ekstep.platform.content.ContentV3DialcodeTest;
 import org.ekstep.platform.content.CopyContentV3APITests;
 import org.ekstep.platform.content.CreateContentWithNewCategoryTest;
 import org.ekstep.platform.content.EnrichmentConsumerTests;
@@ -62,7 +63,7 @@ import org.junit.runners.Suite;
 	DialCodeV3APITest.class, 
 	FrameworkAPITest.class, ChannelV3APITest.class, CategoryV3APITests.class, CategoryTermsV3APITests.class, FrameworkCategoryInstanceV3APITests.class, FrameworkTermsV3APITests.class, ChannelCategoryInstanceV3APITests.class, ChannelTermsV3APITests.class,
 	ConceptAPITests.class, ConceptAPIV3Tests.class, DataExportImportTestCases.class, DimensionAPITests.class, DimensionAPIV3Tests.class, DomainAPITests.class, DomainV3APITests.class, MethodAPITests.class, MethodV3APITests.class,
-	AssetV3APITest.class, LicenseValidationTest.class
+	AssetV3APITest.class, LicenseValidationTest.class, ContentV3DialcodeTest.class
 	})
 public class AllTestRunner {
 
