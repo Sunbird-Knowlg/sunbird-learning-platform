@@ -5,13 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.Platform;
-import org.ekstep.common.exception.ServerException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 
 /**
@@ -22,8 +19,8 @@ public class FailedEventsUtil {
 
 	private static JobLogger LOGGER = new JobLogger(FailedEventsUtil.class);
 
-	public static void pushEventForRetry(SystemStream sysStream, Map<String, Object> eventMessage, JobMetrics metrics,
-			MessageCollector collector, String errorCode, Throwable error) {
+	public static void pushEventForRetry(SystemStream sysStream, Map<String, Object> eventMessage, 
+			JobMetrics metrics, MessageCollector collector, String errorCode, Throwable error) {
 		Map<String, Object> failedEventMap = new HashMap<String, Object>();
 		String errorString[] = ExceptionUtils.getStackTrace(error).split("\\n\\t");
 
