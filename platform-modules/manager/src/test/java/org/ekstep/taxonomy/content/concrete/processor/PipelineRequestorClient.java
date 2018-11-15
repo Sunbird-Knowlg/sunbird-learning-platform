@@ -1,5 +1,6 @@
 package org.ekstep.taxonomy.content.concrete.processor;
 
+import org.ekstep.content.concrete.processor.AssetsLicenseValidatorProcessor;
 import org.ekstep.content.concrete.processor.EmbedControllerProcessor;
 import org.ekstep.content.concrete.processor.GlobalizeAssetProcessor;
 import org.ekstep.content.concrete.processor.LocalizeAssetProcessor;
@@ -18,6 +19,7 @@ public class PipelineRequestorClient {
 		AbstractProcessor missingAssetValidatorProcessor = new MissingAssetValidatorProcessor(basePath, contentId);
 		AbstractProcessor missingCtrlValidatorProcessor = new MissingControllerValidatorProcessor(basePath, contentId);
 		AbstractProcessor globalizeAssetProcessor = new GlobalizeAssetProcessor(basePath, contentId);
+		AbstractProcessor assetsLicenseValidatorProcessor = new AssetsLicenseValidatorProcessor(basePath, contentId);
 
 		switch (operation) {
 			
@@ -39,6 +41,10 @@ public class PipelineRequestorClient {
 
 		case "missingCtrlValidatorProcessor":
 			contentPipeline.registerProcessor(missingCtrlValidatorProcessor);
+			break;
+
+		case "assetsLicenseValidatorProcessor":
+			contentPipeline.registerProcessor(assetsLicenseValidatorProcessor);
 			break;
 			
 		default:

@@ -1,7 +1,5 @@
 package org.ekstep.platform.domain;
 
-
-/// hi this is test to check smartgit sync.
 import static com.jayway.restassured.RestAssured.baseURI;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -18,6 +16,7 @@ import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import org.ekstep.platform.content.ContentV3API;
 
 public class BaseTest 
 {
@@ -33,6 +32,21 @@ public class BaseTest
 	public String APIToken = Platform.config.getString("ft.access_key");
 	public String validuserId = "functional-tests";
 	public String invalidUserId = "abc";
+
+	protected final String IDENTIFIER = "__IDENTIFIER__";
+	protected final String VERSION_KEY = "__VERSION_KEY__";
+
+	protected ContentV3API contentV3API = new ContentV3API();
+
+	protected enum ResponseCode {
+		CLIENT_ERROR(400), OK(200);
+
+		private int code;
+
+		ResponseCode(int code) { this.code = code; }
+
+		public int code() { return code; }
+	}
 	
 	public void parser(){
 		RestAssured.registerParser("text/csv", null);
@@ -107,6 +121,7 @@ public class BaseTest
 	 */
 	public ResponseSpecification get200ResponseSpec()
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectStatusCode(200);
 		builderres.expectBody("params.size()", is(5));
 		builderres.expectBody("params.status", equalTo("successful"));
@@ -118,6 +133,7 @@ public class BaseTest
 	
 	public ResponseSpecification get200ResponseSpecUpload()
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectStatusCode(200);
 		builderres.expectBody("params.size()", is(5));
 		//builderres.expectBody("params.status", equalTo("successful"));
@@ -135,6 +151,7 @@ public class BaseTest
 	 */
 	public ResponseSpecification get500ResponseSpec()
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectStatusCode(500);
 		builderres.expectBody("params.size()", is(5));
 		builderres.expectBody("params.status", equalTo("failed"));
@@ -151,6 +168,7 @@ public class BaseTest
 	 */
 	public ResponseSpecification get500HTMLResponseSpec()
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectStatusCode(500);
 		builderres.expectBody("params.size()", is(1));
 		ResponseSpecification responseSpec = builderres.build();
@@ -166,6 +184,7 @@ public class BaseTest
 	 */
 	public ResponseSpecification get400ResponseSpec()
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectStatusCode(400);
 		ResponseSpecification responseSpec = builderres.build();
 		return responseSpec;
@@ -179,6 +198,7 @@ public class BaseTest
 	 */
 	public ResponseSpecification get404ResponseSpec()
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectStatusCode(404);
 		builderres.expectBody("params.size()", is(5));
 		builderres.expectBody("params.status", equalTo("failed"));
@@ -194,6 +214,7 @@ public class BaseTest
 	 */
 	public ResponseSpecification get400ValidationErrorResponseSpec()
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectBody("params.errmsg", equalTo("Validation Errors"));
 		ResponseSpecification responseSpec = builderres.build();
 		return responseSpec;
@@ -206,6 +227,7 @@ public class BaseTest
 	 */
 	public ResponseSpecification verify400DetailedResponseSpec(String errmsg, String responseCode, String resMessages)
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectBody("params.errmsg", equalTo(errmsg));
 		builderres.expectBody("params.status", equalTo("failed"));
 		builderres.expectBody("responseCode", equalTo(responseCode));
@@ -245,6 +267,7 @@ public class BaseTest
 	
 	public ResponseSpecification get207ResponseSpec()
 	{
+		ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 		builderres.expectStatusCode(207);
 		builderres.expectBody("params.size()", is(5));
 		builderres.expectBody("params.status", equalTo("partial successful"));

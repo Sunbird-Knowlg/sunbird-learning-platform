@@ -1,0 +1,170 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "Asset API",
+    "description": "Assets APIs",
+    "contact": {}
+  },
+  "host": "staging.open-sunbird.org",
+  "basePath": "/action/asset/v3",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/license/validate": {
+      "post": {
+        "description": "API validate url license as per the configured license list.",
+        "summary": "URLValidation",
+        "tags": [
+          "Misc"
+        ],
+        "operationId": "LicenseValidatePost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "Request body",
+            "schema": {
+              "$ref": "#/definitions/URLValidationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/metadata/read": {
+      "post": {
+        "description": "API read the URL metadata.",
+        "summary": "URLMetadataRead",
+        "tags": [
+          "Misc"
+        ],
+        "operationId": "MetadataReadPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "Request body",
+            "schema": {
+              "$ref": "#/definitions/URLMetadataReadRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "URLValidationRequest": {
+      "title": "URLValidationRequest",
+      "example": {
+        "request": {
+          "asset": {
+            "provider": "youtube",
+            "url": "https://www.youtube.com/watch?v=NpnsqOCkhIs"
+          }
+        }
+      },
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/Request"
+        }
+      },
+      "required": [
+        "request"
+      ]
+    },
+    "Request": {
+      "title": "Request",
+      "type": "object",
+      "properties": {
+        "asset": {
+          "$ref": "#/definitions/Asset"
+        }
+      },
+      "required": [
+        "asset"
+      ]
+    },
+    "Asset": {
+      "title": "Asset",
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "url"
+      ]
+    },
+    "URLMetadataReadRequest": {
+      "title": "URLMetadataReadRequest",
+      "example": {
+        "request": {
+          "asset": {
+            "provider": "youtube",
+            "url": "https://www.youtube.com/watch?v=EyN6X9LHXRY"
+          }
+        }
+      },
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/Request"
+        }
+      },
+      "required": [
+        "request"
+      ]
+    }
+  },
+  "tags": [
+    {
+      "name": "Misc",
+      "description": ""
+    }
+  ]
+}
