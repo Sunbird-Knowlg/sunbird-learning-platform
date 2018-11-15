@@ -1,8 +1,10 @@
 package org.ekstep.sync.tool.mgr;
 
+import java.util.List;
+
 public interface ISyncManager {
 
-	public void syncByIds(String graphId, String[] ids) throws Exception;
+	public void syncByIds(String graphId, List<String> identifiers) throws Exception;
 
 	public void syncByFile(String graphId, String filePath, String objectType) throws Exception;
 

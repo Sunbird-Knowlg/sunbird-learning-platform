@@ -51,9 +51,10 @@ public class Neo4jESSyncManager implements ISyncManager {
 		int batch = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
 		batchSize = batch;
 	}
-	
-	public void syncByIds(String graphId, String[] ids) throws Exception {
-		List<String> identifiers = new ArrayList<>(Arrays.asList(ids));
+
+	public void syncByIds(String graphId, List<String> identifiers) throws Exception {
+		System.out.println("Total Number of Objects : " + identifiers.size());
+		System.out.println("Identifiers : [" + identifiers + "]");
 		syncNode(graphId, identifiers, null);
 	}
 
