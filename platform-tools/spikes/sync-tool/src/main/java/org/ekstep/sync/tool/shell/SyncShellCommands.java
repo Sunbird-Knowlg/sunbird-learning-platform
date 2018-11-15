@@ -2,6 +2,7 @@ package org.ekstep.sync.tool.shell;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
 import org.ekstep.sync.tool.mgr.ISyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class SyncShellCommands implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		indexSyncManager.syncByIds(graphId, ids);
+		indexSyncManager.syncByIds(graphId, Arrays.asList(ids));
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");
