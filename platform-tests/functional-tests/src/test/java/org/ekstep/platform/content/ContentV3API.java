@@ -3,6 +3,7 @@ package org.ekstep.platform.content;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.taxonomy.controller.ContentV3Controller;
 
 import java.util.Map;
@@ -11,7 +12,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 
 /**
- * Functional Test Cases for Content V3 APIs
+ * Functional Test (RestAssured) Requests for Content V3 APIs
  *
  * @see ContentV3Controller
  */
@@ -56,25 +57,23 @@ public class ContentV3API {
      * Sends GET Request to Read Content V3 API {@link ContentV3Controller#find(String, String[], String)}
      *
      * @param identifier
-     * @param mode
-     * @param fields
      * @param requestSpec
      * @param responseSpec
      * @return Response object
      */
-    public Response read(String identifier, String mode, String[] fields, RequestSpecification requestSpec, ResponseSpecification responseSpec) {
+    public Response read(String identifier, String mode, RequestSpecification requestSpec, ResponseSpecification responseSpec, String... fields) {
+
         return  given().
-                    pathParam("id", identifier).
-                    queryParam("fields", fields).
-                    queryParam("mode", mode).
-                    spec(requestSpec).
+                param("mode", StringUtils.isBlank(mode) ? "" : mode).
+                param("fields", null != fields || 0 == fields.length ? "" : fields).
+                spec(requestSpec).
                 when().
-                    get(BASE_PATH + "/read/{id}").
+                get(BASE_PATH + "/read/" + identifier).
                 then().
-                    // log().all().
-                    spec(responseSpec).
-                    extract().
-                    response();
+                spec(responseSpec).
+//                log().all().
+                extract().
+                response();
     }
 
     /**
@@ -94,7 +93,7 @@ public class ContentV3API {
                 when().
                     post(BASE_PATH + "/review/{id}").
                 then().
-                    log().all().
+//                    log().all().
                     spec(responseSpec).
                     extract().
                     response();
@@ -144,6 +143,79 @@ public class ContentV3API {
                     post(BASE_PATH + "/publish/{id}").
                 then().
                     // log().all().
+                    spec(responseSpec).
+                    extract().
+                    response();
+    }
+
+    /**
+     * Sends POST Request to Reserve Dialcode Content V3 API {@link ContentV3Controller#reserveDialCode(String, Map, String)}
+     *
+     * @param identifier
+     * @param request
+     * @param requestSpec
+     * @param responseSpec
+     * @return
+     *
+     */
+    public Response reserveDialcode(String identifier, String request, RequestSpecification requestSpec, ResponseSpecification responseSpec) {
+        return given().
+                    pathParam("id", identifier).
+                    spec(requestSpec).
+                    body(request).
+                with().
+                    contentType(JSON).
+                when().
+                    post(BASE_PATH + "/dialcode/reserve/{id}").
+                then().
+//                     log().all().
+                    spec(responseSpec).
+                    extract().
+                    response();
+    }
+
+    /**
+     * Sends PATCH Request to Reserve Dialcode Content V3 API {@link ContentV3Controller#releaseDialcodes(String, String)}
+     *
+     * @param identifier
+     * @param requestSpec
+     * @param responseSpec
+     * @return
+     *
+     */
+    public Response releaseDialcodes(String identifier, RequestSpecification requestSpec, ResponseSpecification responseSpec) {
+        return given().
+                    pathParam("id", identifier).
+                    spec(requestSpec).
+                with().
+                    contentType(JSON).
+                when().
+                    patch(BASE_PATH + "/dialcode/release/{id}").
+                then().
+//                     log().all().
+                    spec(responseSpec).
+                    extract().
+                    response();
+    }
+
+    /**
+     * Sends PATCH Request to Hierarchy Update Content V3 API {@link ContentV3Controller#updateHierarchy(Map)}
+     *
+     * @param requestBody
+     * @param requestSpec
+     * @param responseSpec
+     * @return
+     */
+    public Response hierarchyUpdate(String requestBody, RequestSpecification requestSpec, ResponseSpecification responseSpec) {
+        return given().
+                    spec(requestSpec).
+                    body(requestBody).
+                with().
+                    contentType(JSON).
+                when().
+                    patch(BASE_PATH + "/hierarchy/update").
+                then().
+//                     log().all().
                     spec(responseSpec).
                     extract().
                     response();
