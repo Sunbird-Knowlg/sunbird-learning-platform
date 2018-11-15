@@ -313,11 +313,13 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
-			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, node, ExtractionType.latest);
+			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.latest);
 		}
-		
+
 		//update previewUrl for content streaming
-	    updatePreviewURL(node);
+		if (BooleanUtils.isFalse(isAssetTypeContent)) {
+			updatePreviewURL(newNode);
+		}
 
 		try {
 			TelemetryManager.log("Deleting the temporary folder: " + basePath);
