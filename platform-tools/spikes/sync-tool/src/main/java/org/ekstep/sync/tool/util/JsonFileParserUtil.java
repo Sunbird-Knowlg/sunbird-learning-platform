@@ -3,6 +3,7 @@ package org.ekstep.sync.tool.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -24,8 +25,10 @@ public class JsonFileParserUtil {
      * @param filePath
      * @return
      */
-    public static List<String> getIdentifiers(String filePath) {
+    public static List<String> getIdentifiers(String filePath) throws Exception{
         String jsonFilePath = extractFile(filePath);
+        if(StringUtils.isBlank(jsonFilePath))
+            throw new Exception("Something Went Wrong While Extracting File.");
         List<Map<String, Object>> events = new ArrayList<>();
         List<String> identifiers = new ArrayList<>();
         try (Stream<String> stream = Files.lines(Paths.get(jsonFilePath))) {
