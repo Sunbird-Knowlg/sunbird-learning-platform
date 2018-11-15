@@ -33,6 +33,9 @@ public class BaseTest
 	public String validuserId = "functional-tests";
 	public String invalidUserId = "abc";
 
+	protected final String IDENTIFIER = "__IDENTIFIER__";
+	protected final String VERSION_KEY = "__VERSION_KEY__";
+
 	protected ContentV3API contentV3API = new ContentV3API();
 
 	protected enum ResponseCode {

@@ -11,6 +11,7 @@ import org.ekstep.common.Slug;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -118,20 +119,24 @@ public class PublishPipelineService implements ISamzaService {
 					}
 				} else {
 					metrics.incSkippedCounter();
+					FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
+							PlatformErrorCodes.PROCESSING_ERROR.name(), new ServerException("ERR_PUBLISH_PIPELINE", "Please check neo4j connection or identfier to publish"));
 					LOGGER.debug("Invalid Node Object. Unable to process the event", message);
 				}
 			} catch (PlatformException e) {
 				LOGGER.error("Failed to process message", message, e);
 				metrics.incFailedCounter();
 				FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
-						PlatformErrorCodes.PROCESSING_ERROR.name(), e.getMessage());
+						PlatformErrorCodes.PROCESSING_ERROR.name(), e);
 			} catch (Exception e) {
 				LOGGER.error("Failed to process message", message, e);
 				metrics.incErrorCounter();
 				FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
-						PlatformErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
+						PlatformErrorCodes.SYSTEM_ERROR.name(), e);
 			}
 		} else {
+			FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
+					PlatformErrorCodes.SYSTEM_ERROR.name(), new ServerException("ERR_PUBLISH_PIPELINE", "Id is blank"));
 			metrics.incSkippedCounter();
 			LOGGER.debug("Invalid NodeId. Unable to process the event", message);
 		}
