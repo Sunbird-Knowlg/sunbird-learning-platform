@@ -10,6 +10,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +24,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.toList;
 
 @Component
-public class ContentManagerReleaseDialcodeImpl extends BaseContentDialcodeManager {
+public class ContentManagerReleaseDialcodeImpl extends BaseContentManager {
 
     public Response releaseDialcodes(String contentId, String channelId) throws Exception {
         if(StringUtils.isBlank(channelId))

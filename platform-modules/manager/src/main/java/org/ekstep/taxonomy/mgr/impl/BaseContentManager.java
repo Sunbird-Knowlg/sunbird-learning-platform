@@ -298,6 +298,16 @@ public abstract class BaseContentManager extends BaseManager {
 		return updateResponse;
 	}
 
+	protected void validateContentForReservedDialcodes(Map<String, Object> metaData) {
+		List<String> validContentType = Platform.config.hasPath("learning.reserve_dialcode.content_type") ?
+				Platform.config.getStringList("learning.reserve_dialcode.content_type") :
+				Arrays.asList("TextBook");
+
+		if(!validContentType.contains(metaData.get(ContentAPIParams.contentType.name())))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CONTENTTYPE.name(),
+					"Invalid Content Type.");
+	}
+
 	private Optional<List<String>> getList(String[] params) {
 		return Optional.ofNullable(params).filter(a -> a.length != 0).map(a -> new ArrayList<>(Arrays.asList(a)));
 	}
