@@ -25,28 +25,10 @@ public class CassandraConnector {
 		prepareSession("lp","lpa");
 	}
 
-
-	public static void loadProperties(){
-		try{
-			String host = Platform.config.getString("cassandra.host");
-			int port = Platform.config.getInt("cassandra.port");
-			TelemetryManager.info("Fetched cassandra properties from config - Path: " + host +":"+ port);
-			if (StringUtils.isBlank(host))
-				host = "localhost";
-			if (port <= 0)
-				port = 9042;
-			cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
-			session = cluster.connect();
-			registerShutdownHook();
-		} catch (Exception e) {
-			TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
-		}
-	}
-	
 	/**
-	 * Provide my Session.
+	 * Provide lp Session.
 	 * 
-	 * @return My session.
+	 * @return lp session.
 	 */
 	public static Session getSession() {
 		return getSession("lp");
@@ -72,7 +54,7 @@ public class CassandraConnector {
 		if (null != session)
 			return session;
 		else
-			throw new ServerException("ERR_INITIALISE", "Error while initialising cassandra");
+			throw new ServerException("ERR_INITIALISE_CASSANDRA_SESSION", "Error while initialising cassandra");
 	}
 
 	/**
