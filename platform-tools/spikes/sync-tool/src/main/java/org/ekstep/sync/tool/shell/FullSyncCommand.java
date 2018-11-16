@@ -48,7 +48,7 @@ public class FullSyncCommand implements CommandMarker {
         if (StringUtils.equalsIgnoreCase("hierarchy", type)) {
             hierarchySyncManager.syncHierarchy(graphId, offset, limit, ignoredIds);
         } else if (StringUtils.equalsIgnoreCase("file", type)) {
-            indexSyncManager.syncFromFile(graphId, filePath);
+            indexSyncManager.syncByFile(graphId, filePath, "json");
         } else {
             indexSyncManager.syncGraph(graphId, delay, objectType);
         }

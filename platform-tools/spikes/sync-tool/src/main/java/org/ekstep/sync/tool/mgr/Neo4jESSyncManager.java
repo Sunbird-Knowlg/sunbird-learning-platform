@@ -51,18 +51,38 @@ public class Neo4jESSyncManager implements ISyncManager {
 		batchSize = batch;
 	}
 
+	@Override
 	public void syncByIds(String graphId, List<String> identifiers) throws Exception {
 		System.out.println("Total Number of Objects to be Synced : " + identifiers.size());
 		System.out.println("Identifiers : " + identifiers);
 		syncNode(graphId, identifiers, null);
 	}
-
-	public void syncByFile(String graphId, String filePath, String objectType) throws Exception {
+	
+	@Override
+	public void syncByFile(String graphId, String filePath, String fileType) throws Exception {
 		List<String> identifiers;
-		identifiers = CSVFileParserUtil.getIdentifiers(filePath, objectType);
-		syncNode(graphId, identifiers, objectType);
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		long startTime = System.currentTimeMillis();
+		LocalDateTime start = LocalDateTime.now();
+		
+		if(StringUtils.equalsIgnoreCase(fileType, "csv")) 
+			identifiers = CSVFileParserUtil.getIdentifiers(filePath, null);
+		else if(StringUtils.equalsIgnoreCase(fileType, "json")) 
+			identifiers = JsonFileParserUtil.getIdentifiers(filePath);
+		else {
+			System.out.println("Specified file type : " + fileType + " is not supported.");
+			throw new ClientException("FILE_NOT_SUPPORTED", "Specified file type : " + fileType + " is not supported.");
+		}
+		syncByIds(graphId, identifiers);
+		
+		long endTime = System.currentTimeMillis();
+		LocalDateTime end = LocalDateTime.now();
+		System.out.println("Total time of execution: " + (endTime - startTime) + "ms");
+		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+		
 	}
-
+	
+	@Override
 	public void syncByDateRange(String graphId, String startDate, String endDate, String objectType) throws Exception {
 		SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
 		inputFormat.setLenient(false);
@@ -98,6 +118,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 		}
 	}
 
+	@Override
 	public void syncByObjectType(String graphId, String objectType) throws Exception {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
@@ -125,13 +146,8 @@ public class Neo4jESSyncManager implements ISyncManager {
 						continue;
 					}
 					if (null != nodes && !nodes.isEmpty()) {
-//						System.out.println(batchSize + " -- " + def.getObjectType() + " objects are getting synced");
 						start += batchSize;
 						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
-//						if (!errors.isEmpty())
-//							System.out
-//									.println("Error! while forming ES document data from nodes, below nodes are ignored"
-//											+ errors);
 						esConnector.bulkImport(messages);
 						completed += batchSize;
 						System.out.println( "");
@@ -278,19 +294,6 @@ public class Neo4jESSyncManager implements ISyncManager {
 			System.out.println("Sync completed at " + endTime);
 			System.out.println("Time taken to sync nodes: " + (endTime - startTime) + "ms");
 		}
-	}
-
-	@Override
-	public void syncFromFile(String graphId, String filePath) throws Exception {
-		long startTime = System.currentTimeMillis();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime start = LocalDateTime.now();
-		syncByIds(graphId, JsonFileParserUtil.getIdentifiers(filePath));
-		long endTime = System.currentTimeMillis();
-		long exeTime = endTime - startTime;
-		System.out.println("Total time of execution: " + exeTime + "ms");
-		LocalDateTime end = LocalDateTime.now();
-		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
 	}
 
 	private static void printProgress(long startTime, long total, long current) {
