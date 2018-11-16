@@ -22,7 +22,7 @@ public class CassandraConnector {
 	private static Map<String,Session> sessionMap=new HashMap<>();
 	
 	static {
-		prepareSession("lp","lpa");
+		prepareSession("lp");
 	}
 
 	/**
