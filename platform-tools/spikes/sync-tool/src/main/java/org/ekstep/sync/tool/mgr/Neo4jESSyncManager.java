@@ -2,6 +2,8 @@ package org.ekstep.sync.tool.mgr;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,10 +31,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.sync.tool.util.CSVFileParserUtil;
-import org.ekstep.sync.tool.util.ElasticSearchConnector;
-import org.ekstep.sync.tool.util.GraphUtil;
-import org.ekstep.sync.tool.util.SyncMessageGenerator;
+import org.ekstep.sync.tool.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -53,7 +52,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 	}
 
 	public void syncByIds(String graphId, List<String> identifiers) throws Exception {
-		System.out.println("Total Number of Objects : " + identifiers.size());
+		System.out.println("Total Number of Objects to be Synced : " + identifiers.size());
 		System.out.println("Identifiers : " + identifiers);
 		syncNode(graphId, identifiers, null);
 	}
@@ -280,7 +279,20 @@ public class Neo4jESSyncManager implements ISyncManager {
 			System.out.println("Time taken to sync nodes: " + (endTime - startTime) + "ms");
 		}
 	}
-	
+
+	@Override
+	public void syncFromFile(String graphId, String filePath) throws Exception {
+		long startTime = System.currentTimeMillis();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime start = LocalDateTime.now();
+		syncByIds(graphId, JsonFileParserUtil.getIdentifiers(filePath));
+		long endTime = System.currentTimeMillis();
+		long exeTime = endTime - startTime;
+		System.out.println("Total time of execution: " + exeTime + "ms");
+		LocalDateTime end = LocalDateTime.now();
+		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+	}
+
 	private static void printProgress(long startTime, long total, long current) {
 	    long eta = current == 0 ? 0 : 
 	        (total - current) * (System.currentTimeMillis() - startTime) / current;

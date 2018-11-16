@@ -48,15 +48,7 @@ public class FullSyncCommand implements CommandMarker {
         if (StringUtils.equalsIgnoreCase("hierarchy", type)) {
             hierarchySyncManager.syncHierarchy(graphId, offset, limit, ignoredIds);
         } else if (StringUtils.equalsIgnoreCase("file", type)) {
-            long startTime = System.currentTimeMillis();
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            LocalDateTime start = LocalDateTime.now();
-            indexSyncManager.syncByIds(graphId, JsonFileParserUtil.getIdentifiers(filePath));
-            long endTime = System.currentTimeMillis();
-            long exeTime = endTime - startTime;
-            System.out.println("Total time of execution: " + exeTime + "ms");
-            LocalDateTime end = LocalDateTime.now();
-            System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+            indexSyncManager.syncFromFile(graphId, filePath);
         } else {
             indexSyncManager.syncGraph(graphId, delay, objectType);
         }

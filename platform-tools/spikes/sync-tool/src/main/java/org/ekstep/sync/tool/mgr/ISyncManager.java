@@ -13,4 +13,6 @@ public interface ISyncManager {
 	public void syncByDateRange(String graphId, String startDate, String endDate, String objectType) throws Exception;
 	
 	public void syncGraph(String graphId, Integer delay, String[] objectType) throws Exception;
+
+	public void syncFromFile(String graphId, String filePath) throws Exception;
 }
