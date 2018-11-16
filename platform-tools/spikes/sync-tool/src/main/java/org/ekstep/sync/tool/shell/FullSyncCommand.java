@@ -3,7 +3,6 @@ package org.ekstep.sync.tool.shell;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.sync.tool.mgr.HierarchySyncManager;
 import org.ekstep.sync.tool.mgr.ISyncManager;
-import org.ekstep.sync.tool.util.JsonFileParserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.shell.core.CommandMarker;
@@ -11,8 +10,6 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 public class FullSyncCommand implements CommandMarker {
