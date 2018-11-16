@@ -37,23 +37,6 @@ public class SyncShellCommands implements CommandMarker {
 		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
 	}
 
-	@CliCommand(value = "syncbyfile", help = "Sync data from Neo4j to Elastic Search by Id and objectType(optional) listed in a file")
-	public void syncByFile(@CliOption(key = {
-			"graphId" }, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
-			@CliOption(key = { "filePath" }, mandatory = true, help = "File Path of the csv file") String filePath)
-			throws Exception {
-
-		long startTime = System.currentTimeMillis();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime start = LocalDateTime.now();
-		indexSyncManager.syncByFile(graphId, filePath, "csv");	
-		long endTime = System.currentTimeMillis();
-		long exeTime = endTime - startTime;
-		System.out.println("Total time of execution: " + exeTime + "ms");
-		LocalDateTime end = LocalDateTime.now();
-		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
-	}
-
 	@CliCommand(value = "syncbyobjecttype", help = "Sync data from Neo4j to Elastic Search by the given object type")
 	public void syncByObjectType(@CliOption(key = {
 			"graphId" }, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,

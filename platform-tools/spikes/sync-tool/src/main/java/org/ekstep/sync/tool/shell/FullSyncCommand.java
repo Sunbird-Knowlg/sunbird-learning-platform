@@ -1,6 +1,7 @@
 package org.ekstep.sync.tool.shell;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.sync.tool.mgr.HierarchySyncManager;
 import org.ekstep.sync.tool.mgr.ISyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,10 @@ public class FullSyncCommand implements CommandMarker {
         if (StringUtils.equalsIgnoreCase("hierarchy", type)) {
             hierarchySyncManager.syncHierarchy(graphId, offset, limit, ignoredIds);
         } else if (StringUtils.equalsIgnoreCase("file", type)) {
+        		if(StringUtils.isBlank(filePath)) {
+        			System.out.println("Field --filepath can not be blank.");
+        			throw new ClientException("BLANK_FILEPATH", "Field --filepath is blank.");
+        		}
             indexSyncManager.syncByFile(graphId, filePath, "json");
         } else {
             indexSyncManager.syncGraph(graphId, delay, objectType);
