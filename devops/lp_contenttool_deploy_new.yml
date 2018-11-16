@@ -1,0 +1,30 @@
+---
+- name: "LP Content-Tool Provision."
+  hosts: prod-migration
+  vars_files:
+       - ['{{inventory_dir}}/secrets/lp_secrets.yml', '{{inventory_dir}}/secrets/secrets.yml']
+  roles:
+    - java
+    - lp-contenttool
+  tags: 
+    - provision
+
+- name: "LP Content-Tool Run"
+  hosts: prod-migration
+  tags: 
+    - run
+  tasks:
+    - name: Run Sync tool with given command and parameters.
+      become: yes
+      become_user: "{{user}}"
+      shell: "java -Dconfig.file=/home/learning/content_tool/application.conf -jar content-tool-1.0-SNAPSHOT.jar content-tool {{command}} {{parameters}}"
+      async: 3600
+      poll: 10
+      args:
+        chdir: /home/learning/content_tool/
+      register: job_status
+    - name: Print the job status to console
+      become: yes
+      become_user: "{{user}}"
+      debug:
+        var: job_status
