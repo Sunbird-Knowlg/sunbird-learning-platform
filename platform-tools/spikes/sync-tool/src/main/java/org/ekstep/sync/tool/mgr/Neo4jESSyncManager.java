@@ -2,6 +2,8 @@ package org.ekstep.sync.tool.mgr;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,10 +31,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.sync.tool.util.CSVFileParserUtil;
-import org.ekstep.sync.tool.util.ElasticSearchConnector;
-import org.ekstep.sync.tool.util.GraphUtil;
-import org.ekstep.sync.tool.util.SyncMessageGenerator;
+import org.ekstep.sync.tool.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,18 +50,39 @@ public class Neo4jESSyncManager implements ISyncManager {
 		int batch = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
 		batchSize = batch;
 	}
-	
-	public void syncByIds(String graphId, String[] ids) throws Exception {
-		List<String> identifiers = new ArrayList<>(Arrays.asList(ids));
+
+	@Override
+	public void syncByIds(String graphId, List<String> identifiers) throws Exception {
+		System.out.println("Total Number of Objects to be Synced : " + identifiers.size());
+		System.out.println("Identifiers : " + identifiers);
 		syncNode(graphId, identifiers, null);
 	}
-
-	public void syncByFile(String graphId, String filePath, String objectType) throws Exception {
+	
+	@Override
+	public void syncByFile(String graphId, String filePath, String fileType) throws Exception {
 		List<String> identifiers;
-		identifiers = CSVFileParserUtil.getIdentifiers(filePath, objectType);
-		syncNode(graphId, identifiers, objectType);
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		long startTime = System.currentTimeMillis();
+		LocalDateTime start = LocalDateTime.now();
+		
+		if(StringUtils.equalsIgnoreCase(fileType, "csv")) 
+			identifiers = CSVFileParserUtil.getIdentifiers(filePath, null);
+		else if(StringUtils.equalsIgnoreCase(fileType, "json")) 
+			identifiers = JsonFileParserUtil.getIdentifiers(filePath);
+		else {
+			System.out.println("Specified file type : " + fileType + " is not supported.");
+			throw new ClientException("FILE_NOT_SUPPORTED", "Specified file type : " + fileType + " is not supported.");
+		}
+		syncByIds(graphId, identifiers);
+		
+		long endTime = System.currentTimeMillis();
+		LocalDateTime end = LocalDateTime.now();
+		System.out.println("Total time of execution: " + (endTime - startTime) + "ms");
+		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+		
 	}
-
+	
+	@Override
 	public void syncByDateRange(String graphId, String startDate, String endDate, String objectType) throws Exception {
 		SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
 		inputFormat.setLenient(false);
@@ -98,6 +118,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 		}
 	}
 
+	@Override
 	public void syncByObjectType(String graphId, String objectType) throws Exception {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
@@ -125,13 +146,8 @@ public class Neo4jESSyncManager implements ISyncManager {
 						continue;
 					}
 					if (null != nodes && !nodes.isEmpty()) {
-//						System.out.println(batchSize + " -- " + def.getObjectType() + " objects are getting synced");
 						start += batchSize;
 						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
-//						if (!errors.isEmpty())
-//							System.out
-//									.println("Error! while forming ES document data from nodes, below nodes are ignored"
-//											+ errors);
 						esConnector.bulkImport(messages);
 						completed += batchSize;
 						System.out.println( "");
@@ -173,20 +189,22 @@ public class Neo4jESSyncManager implements ISyncManager {
 			List<String> batch_ids = identifiers.subList(0, currentBatchSize);
 
 			Response response = util.getDataNodes(graphId, batch_ids);
-			if (response.getResponseCode() != ResponseCode.OK)
+			List<Node> nodes;
+			if (response.getResponseCode() != ResponseCode.OK) {
 				throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND",
 						"Error: " + response.getParams().getErrmsg());
-			List<Node> nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
-			if (nodes == null || nodes.isEmpty())
-				throw new ResourceNotFoundException("ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND", "Objects not found ");
+			} else {
+				nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
+			}
 
-			errors = new HashMap<>();
-			Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
-			if (!errors.isEmpty())
-				System.out
-						.println("Error! while forming ES document data from nodes, below nodes are ignored" + errors);
-			esConnector.bulkImport(messages);
-
+			if (nodes != null && !nodes.isEmpty()) {
+				errors = new HashMap<>();
+				Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
+				if (!errors.isEmpty())
+					System.out
+							.println("Error! while forming ES document data from nodes, below nodes are ignored" + errors);
+				esConnector.bulkImport(messages);
+			}
 			uniqueIds.removeAll(nodes.stream().map(x -> x.getIdentifier()).collect(Collectors.toList()));
 			// clear the already batched node ids from the list
 			identifiers.subList(0, currentBatchSize).clear();
@@ -277,7 +295,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 			System.out.println("Time taken to sync nodes: " + (endTime - startTime) + "ms");
 		}
 	}
-	
+
 	private static void printProgress(long startTime, long total, long current) {
 	    long eta = current == 0 ? 0 : 
 	        (total - current) * (System.currentTimeMillis() - startTime) / current;
