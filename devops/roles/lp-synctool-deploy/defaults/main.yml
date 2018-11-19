@@ -19,3 +19,5 @@ youtube_app_name: fetch-youtube-license
 youtube_api_key: "{{ vault_youtube_api_key }}"
 instance: "{{env}}"
 instance_name: 
+
+cassandra_lp_connection: "{{groups['cassandra-cluster']|join(':9042,')}}:9042"

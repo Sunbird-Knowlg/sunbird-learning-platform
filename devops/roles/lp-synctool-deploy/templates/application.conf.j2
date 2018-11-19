@@ -41,7 +41,7 @@ search.fields.date=["lastUpdatedOn","createdOn","versionDate","lastSubmittedOn",
 search.batch.size=500
 search.connection.timeout=30
 
-nested.fields=["badgeAssertions"]
+nested.fields=["badgeAssertions","targets","contentCredits"]
 channel.default="in.ekstep"
 
 # Cassandra Configurations
@@ -49,3 +49,4 @@ hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
 cassandra.host="{{ cassandra_host }}"
 cassandra.port={{ cassandra_port }}
+cassandra.lp.connection={{ cassandra_lp_connection }}
