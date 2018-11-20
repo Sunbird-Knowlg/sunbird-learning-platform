@@ -36,6 +36,7 @@
   become: yes
   tasks:
     - include: ./roles/yarn/tasks/common.yml
+    - include: ./roles/yarn/templates
 
 - name: Install java on all yarn slaves
   hosts: "lp-yarn-slave"
