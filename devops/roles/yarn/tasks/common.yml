@@ -4,7 +4,7 @@
     dest: "/usr/local/"
     owner: hduser 
     group: hadoop 
-    # creates: "{{hadoop_yarn_home}}"
+    creates: "{{hadoop_yarn_home}}"
     remote_src: yes
 
 - name: Creates symlink
