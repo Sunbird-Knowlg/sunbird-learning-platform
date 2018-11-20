@@ -48,10 +48,7 @@
 # Running common tasks in slaves
 - name: Running common tasks in slaves
   include: common.yml
-  delegate_to: "{{slave}}"
-  with_items: "{{groups['dp-yarn-slave']}}"
-  loop_control:
-    loop_var: slave
+  delegate_to: "11.2.4.33"
 
 - name: Copy truncate_files.sh
   copy: 
