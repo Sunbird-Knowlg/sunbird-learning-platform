@@ -1,3 +1,7 @@
+- name: debugg
+  debug:
+    var: yarn_slaves
+
 - name: Debian | Install Maven
   apt:
     pkg: "{{item}}"
