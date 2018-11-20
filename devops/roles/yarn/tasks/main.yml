@@ -38,6 +38,13 @@
     line: "{{item}}"
   with_items: "{{yarn_slaves}}"
 
+- name: Running common tasks in slaves
+  debug:
+    var: inventory_hostname
+  delegate_to: "{{slave}}"
+  with_items: "{{yarn_slaves}}"
+  loop_control:
+    loop_var: slave
 # Running common tasks in slaves
 - name: Running common tasks in slaves
   include: common.yml
