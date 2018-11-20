@@ -431,8 +431,6 @@ public class PublishFinalizer extends BaseFinalizer {
 						break;
 					case "application/vnd.android.package-archive":
 						break;
-					case "video/mp4":
-						break;
 					case "assets":
 						break;
 					case "application/vnd.ekstep.ecml-archive":
