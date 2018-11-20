@@ -42,6 +42,13 @@
 #   loop_control:
 #     loop_var: slave
 
+- name: Synchronizing "{{hadoop_yarn_home}}" with yarn slaves
+  synchronize:
+    src: "{{hadoop_yarn_home}}"
+    dest: "{{hadoop_yarn_home}}"
+  delegate_to: "{{ item }}"
+  loop: "{{yarn_slaves}}"
+
 - name: Copy truncate_files.sh
   copy: 
     src: truncate_logs.sh 
