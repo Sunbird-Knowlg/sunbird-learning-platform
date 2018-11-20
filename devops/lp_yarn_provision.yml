@@ -26,6 +26,17 @@
     - yarn
     - samza-job-server
 
+# As of ansible2.5 delegation and inlcude tasks file won't work 
+# with looping. So this is a possible workaround
+# https://github.com/ansible/ansible/issues/37995
+- name: Running common tasks in yarn slaves
+  vars_files:
+    - ./roles/yarn/defaults/main.yml
+  hosts: "lp-yarn-slave"
+  become: yes
+  tasks:
+    - include: ./roles/yarn/tasks/common.yml
+
 - name: Install java on all yarn slaves
   hosts: "lp-yarn-slave"
   become: yes

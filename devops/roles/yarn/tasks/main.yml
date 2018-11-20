@@ -34,13 +34,13 @@
     line: "{{item}}"
   with_items: "{{yarn_slaves}}"
 
-# Running common tasks in slaves
-- name: Running common tasks in slaves
-  include: common.yml
-  delegate_to: "{{slave}}"
-  with_items: "{{yarn_slaves}}"
-  loop_control:
-    loop_var: slave
+# # Running common tasks in slaves
+# - name: Running common tasks in slaves
+#   include: common.yml
+#   delegate_to: "{{slave}}"
+#   with_items: "{{yarn_slaves}}"
+#   loop_control:
+#     loop_var: slave
 
 - name: Copy truncate_files.sh
   copy: 
