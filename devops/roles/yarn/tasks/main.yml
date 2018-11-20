@@ -49,7 +49,7 @@
 - name: Running common tasks in slaves
   include: common.yml
   delegate_to: "{{slave}}"
-  with_items: "{{yarn_slaves}}"
+  with_items: "{{groups['dp-yarn-slave']}}"
   loop_control:
     loop_var: slave
 
