@@ -1,5 +1,5 @@
 ---
-- hosts: yarn
+- hosts: lp-yarn
   become: yes
   vars_files:
     - "{{ secrets_path }}"
@@ -17,7 +17,7 @@
         shell: /bin/bash
 
 - name: Install samza job server
-  hosts: "yarn-master"
+  hosts: "lp-yarn-master"
   become: yes
   vars_files:
     - "{{ secrets_path }}"
@@ -27,7 +27,7 @@
     - samza-job-server
 
 - name: Install java on all yarn slaves
-  hosts: "yarn-slave"
+  hosts: "lp-yarn-slave"
   become: yes
   vars_files:
     - "{{ secrets_path }}"
