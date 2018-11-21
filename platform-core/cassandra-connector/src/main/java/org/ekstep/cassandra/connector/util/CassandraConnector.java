@@ -1,6 +1,5 @@
 package org.ekstep.cassandra.connector.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -13,21 +12,16 @@ import java.util.*;
 
 public class CassandraConnector {
 
-	/** Cassandra Cluster. */
-	private static Cluster cluster;
-
-	/** Cassandra Session. */
-	private static Session session;
-
+	/** Cassandra Session Map. */
 	private static Map<String,Session> sessionMap=new HashMap<>();
-	
-	static {
-		prepareSession("lp");
-	}
+
+    static {
+        prepareSession("lp");
+    }
 
 	/**
 	 * Provide lp Session.
-	 * 
+	 *
 	 * @return lp session.
 	 */
 	public static Session getSession() {
@@ -38,42 +32,33 @@ public class CassandraConnector {
 	 * @param sessionKey
 	 * @return
 	 */
-	public static Session getSession(String sessionKey) {
-		Session session = null;
-		if (sessionMap.containsKey(sessionKey)) {
-			session = sessionMap.get(sessionKey);
-			if (null == session || session.isClosed()) {
-				prepareSession(sessionKey);
-				session = sessionMap.get(sessionKey);
-			}
-		} else {
-			prepareSession(sessionKey);
-			session = sessionMap.get(sessionKey);
-		}
+    public static Session getSession(String sessionKey) {
+        Session session = sessionMap.containsKey(sessionKey) ? sessionMap.get(sessionKey) : null;
 
-		if (null != session)
-			return session;
-		else
-			throw new ServerException("ERR_INITIALISE_CASSANDRA_SESSION", "Error while initialising cassandra");
-	}
+        if (null == session || session.isClosed()) {
+            prepareSession(sessionKey);
+            session = sessionMap.get(sessionKey);
+        }
+        if (null == session)
+            throw new ServerException("ERR_INITIALISE_CASSANDRA_SESSION", "Error while initialising cassandra");
+        return session;
+    }
 
 	/**
 	 * @param sessionKeys
 	 */
-	private static void prepareSession(String... sessionKeys) {
-		for (String sessionKey : sessionKeys) {
-			List<String> connectionInfo = getConnectionInfo(sessionKey);
-			List<InetSocketAddress> addressList = getSocketAddress(connectionInfo);
-			try {
-				cluster = Cluster.builder().addContactPointsWithPorts(addressList).build();
-				session = cluster.connect();
-				sessionMap.put(sessionKey, session);
-				registerShutdownHook();
-			} catch (Exception e) {
-				TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
-			}
-		}
-	}
+    private static void prepareSession(String... sessionKeys) {
+        for (String sessionKey : sessionKeys) {
+            List<String> connectionInfo = getConnectionInfo(sessionKey.toLowerCase());
+            List<InetSocketAddress> addressList = getSocketAddress(connectionInfo);
+            try {
+                sessionMap.put(sessionKey.toLowerCase(), Cluster.builder().addContactPointsWithPorts(addressList).build().connect());
+                registerShutdownHook();
+            } catch (Exception e) {
+                TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
+            }
+        }
+    }
 
 	/**
 	 *
@@ -112,24 +97,23 @@ public class CassandraConnector {
 
 	/**
 	 * Close connection with the cluster.
-	 * 
+	 *
 	 */
-	public static void close() {
-		session.close();
-		cluster.close();
-	}
+    public static void close() {
+        sessionMap.entrySet().stream().forEach(stream -> stream.getValue().close());
+    }
 
 	/**
 	 * Register JVM shutdown hook to close cassandra open session.
 	 */
-	private static void registerShutdownHook() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				TelemetryManager.log("Shutting down Cassandra connector session");
-				CassandraConnector.close();
-			}
-		});
-	}
-	
+    private static void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                TelemetryManager.log("Shutting down Cassandra connector session");
+                CassandraConnector.close();
+            }
+        });
+    }
+
 }
