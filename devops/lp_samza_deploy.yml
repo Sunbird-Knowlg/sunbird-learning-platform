@@ -24,7 +24,7 @@
   hosts: "lp-yarn-master"
   become: yes
   vars_files:
-    - "{{ secrets_path }}"
+    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   vars:
     deploy_jobs: true
   roles:

@@ -2,7 +2,7 @@
 - hosts: lp-yarn
   become: yes
   vars_files:
-    - "{{ secrets_path }}"
+    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   tasks:
     - name: Create group
       group: 
@@ -20,7 +20,7 @@
   hosts: "lp-yarn-master"
   become: yes
   vars_files:
-    - "{{ secrets_path }}"
+    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   roles:
     - java
     - yarn
@@ -41,7 +41,7 @@
   hosts: "lp-yarn-slave"
   become: yes
   vars_files:
-    - "{{ secrets_path }}"
+    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   remote_user: hduser
   roles:
     - java
