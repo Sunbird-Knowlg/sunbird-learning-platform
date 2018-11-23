@@ -7,9 +7,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Property;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -36,6 +38,8 @@ import akka.dispatch.Futures;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
+
+import static java.util.stream.Collectors.toSet;
 
 public class DataNode extends AbstractNode {
 
@@ -446,7 +450,19 @@ public class DataNode extends AbstractNode {
 		}
 	}
 
+	private void validateMetadataProperties(List<MetadataDefinition> defs, List<String> messages) {
+		if (Platform.config.hasPath("node.metadata.filter") ? Platform.config.getBoolean("node.metadata.filter") : false) {
+			Set<String> properties = defs.stream().map(md -> md.getPropertyName()).collect(toSet());
+			metadata.keySet().forEach(e  -> {
+				if (!properties.contains(e) && !SystemProperties.isSystemProperty(e)) {
+					messages.add("Invalid Property : " + e);
+				}
+			});
+		}
+	}
+
 	private void validateMetadata(List<MetadataDefinition> defs, List<String> messages) {
+		validateMetadataProperties(defs, messages);
 		if (null != defs && !defs.isEmpty()) {
 			for (MetadataDefinition def : defs) {
 				String propName = def.getPropertyName();
