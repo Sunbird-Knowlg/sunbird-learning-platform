@@ -187,6 +187,25 @@ public class TaxonomyController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/{id:.+}/definition/update/{defId:.+}", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> updateDefinition(@PathVariable(value = "id") String id,
+												     @PathVariable(value = "defId") String objectType,
+													 @RequestHeader(value = "user-id") String userId,
+													 @RequestBody Map<String, Object> request) {
+		String apiId = "ekstep.definition.update";
+		TelemetryManager.log("Update Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
+		try {
+			Request req = getRequest(request);
+			Response response = taxonomyManager.updateDefinition(id, objectType, req.getRequest());
+			TelemetryManager.log("Update Definition | Response: ", response.getResult());
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Update Definition | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
 	@RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id,

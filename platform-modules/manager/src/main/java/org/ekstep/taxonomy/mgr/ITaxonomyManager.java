@@ -2,6 +2,7 @@ package org.ekstep.taxonomy.mgr;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -28,4 +29,5 @@ public interface ITaxonomyManager {
     
 	Response findAllByObjectType(String graphId, String objectType);
 
+    Response updateDefinition(String id, String objectType, Map<String, Object> request);
 }

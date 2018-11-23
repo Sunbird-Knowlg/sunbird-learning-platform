@@ -1,15 +1,15 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -17,13 +17,30 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.enums.ImportType;
 import org.ekstep.graph.importer.InputStreamValue;
 import org.ekstep.graph.importer.OutputStreamValue;
+import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.graph.model.node.MetadataDefinition;
+import org.ekstep.graph.model.node.RelationDefinition;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.ITaxonomyManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
+
 @Component
 public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager {
+
+	private ControllerUtil util = new ControllerUtil();
+	private ObjectMapper mapper = new ObjectMapper();
 
 	public static String[] taxonomyIds = { "numeracy", "literacy", "literacy_v2" };
 
@@ -165,5 +182,77 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		Response response = getResponse(request);
 		return response;
 	}
+
+	private <T> List<T> toObject(List<Map<String, Object>> list, Class<T> clazz) {
+		return Optional.ofNullable(list).
+				filter(l -> l.size() != 0).
+				map(l -> l.
+						stream().
+						filter(e -> e != null).
+						map(e -> mapper.convertValue(e, clazz)).
+						collect(toList())).
+				orElseGet(ArrayList::new);
+	}
+
+    @Override
+    public Response updateDefinition(String id, String objectType, Map<String, Object> request) {
+		if (StringUtils.isBlank(id))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+		if (StringUtils.isBlank(objectType))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_OBJECT_TYPE.name(), "Object Type is blank");
+
+		DefinitionDTO definitionDTO = util.getDefinition(id, objectType);
+		DefinitionDTO definition;
+		try {
+			definition = mapper.readValue(mapper.writeValueAsString(definitionDTO),
+					new TypeReference<DefinitionDTO>() {});
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new ServerException(TaxonomyErrorCodes.ERR_UPDATING_DEFINIITON.name(),
+					"Error while Updating Definition", e);
+		}
+
+		Map<String, Object> requestDefinition =
+				Optional.ofNullable((Map<String, Object>) request.get("definition")).
+				orElseThrow(() -> new ClientException("ERROR_INVALID_REQUEST", "Definition cannot be empty"));
+
+		List<MetadataDefinition> md =
+				toObject((List<Map<String, Object>>) requestDefinition.get("properties"), MetadataDefinition.class);
+
+		List<RelationDefinition> inRelationDefinitions =
+				toObject((List<Map<String, Object>>) requestDefinition.get("inRelations"), RelationDefinition.class);
+
+		List<RelationDefinition> outRelationDefinitions =
+				toObject((List<Map<String, Object>>) requestDefinition.get("outRelations"), RelationDefinition.class);
+
+		if (!md.isEmpty() || !inRelationDefinitions.isEmpty() || !outRelationDefinitions.isEmpty()) {
+			definition.getProperties().addAll(md);
+			definition.getInRelations().addAll(inRelationDefinitions);
+			definition.getOutRelations().addAll(outRelationDefinitions);
+
+			String updatedDefinitionJson;
+			try {
+				updatedDefinitionJson = "{\"definitionNodes\": [" + mapper.writeValueAsString(definition) + "]}";
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+				throw new ServerException(TaxonomyErrorCodes.ERR_UPDATING_DEFINIITON.name(),
+						"Error while Updating Definition", e);
+			}
+			Request req = getRequest(id, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
+			req.put(GraphEngineParams.input_stream.name(), updatedDefinitionJson);
+
+			Response response = getResponse(req);
+			if (!checkError(response)) {
+				TelemetryManager.info("Updated Definition for Object Type:: " + objectType);
+			} else {
+				TelemetryManager.error("Could No Update Definition for Object Type:: " + objectType);
+			}
+			return response;
+		} else {
+			TelemetryManager.error("Could Not Update Definition for Object Type:: " + objectType);
+			return ERROR(TaxonomyErrorCodes.ERR_UPDATING_DEFINIITON.name(), "Provide Property or Relation for Updating",
+					ResponseCode.CLIENT_ERROR);
+		}
+    }
 
 }
