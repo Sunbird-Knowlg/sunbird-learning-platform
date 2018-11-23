@@ -3,6 +3,7 @@ package org.ekstep.graph.model.node;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -451,7 +452,9 @@ public class DataNode extends AbstractNode {
 	}
 
 	private void validateMetadataProperties(List<MetadataDefinition> defs, List<String> messages) {
-		if (Platform.config.hasPath("node.metadata.filter") ? Platform.config.getBoolean("node.metadata.filter") : false) {
+	    List<String> validObjectTypes = Platform.config.hasPath("restrict.metadata.objectTypes") ?
+                Platform.config.getStringList("restrict.metadata.objectTypes") : Arrays.asList();
+		if (validObjectTypes.contains(objectType)) {
 			Set<String> properties = defs.stream().map(md -> md.getPropertyName()).collect(toSet());
 			metadata.keySet().forEach(e  -> {
 				if (!properties.contains(e) && !SystemProperties.isSystemProperty(e)) {
