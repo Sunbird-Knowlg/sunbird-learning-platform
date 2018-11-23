@@ -52,10 +52,10 @@ public abstract class BaseContentManager extends BaseManager {
 	private static final String DEFAULT_MIME_TYPE = "assets";
 
 	/** The Disk Location where the operations on file will take place. */
-	private static final String tempFileLocation = "/data/contentBundle/";
+	protected static final String tempFileLocation = "/data/contentBundle/";
 
 	/** The Default Manifest Version */
-	private static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
+	protected static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
 
 	/**
 	 * Content Image Object Type

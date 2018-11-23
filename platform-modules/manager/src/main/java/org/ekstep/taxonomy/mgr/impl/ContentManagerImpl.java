@@ -114,12 +114,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@Autowired
 	private ContentManagerReleaseDialcodeImpl contentManagerReleaseDialcode;
 
-	/** The Disk Location where the operations on file will take place. */
-	private static final String tempFileLocation = "/data/contentBundle/";
-
-	/** The Default Manifest Version */
-	private static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
-
 	private PublishManager publishManager = new PublishManager();
 
 	private List<String> contentTypeList = Arrays.asList("Story", "Worksheet", "Game", "Simulation", "Puzzle",
@@ -130,8 +124,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
 	private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
 			? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
-	private static final String DIALCODE_GENERATE_URI = Platform.config.hasPath("dialcode.api.generate.url")
-			? Platform.config.getString("dialcode.api.generate.url") : "http://localhost:8080/learning-service/v3/dialcode/generate";
 			
 	private ControllerUtil util = new ControllerUtil();
 	private CollectionStore collectionStore = new CollectionStore();
@@ -1206,13 +1198,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			else
 				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
 		}
-	}
-
-	private Response updateNode(String identifier, String objectType, Node domainNode) {
-		domainNode.setGraphId(TAXONOMY_ID);
-		domainNode.setIdentifier(identifier);
-		domainNode.setObjectType(objectType);
-		return updateDataNode(domainNode);
 	}
 
 	private List<String> getExternalPropsList(DefinitionDTO definition) {
