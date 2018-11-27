@@ -94,9 +94,11 @@ public class HttpRestUtil {
 			if (StringUtils.isNotBlank(body))
 				resp = objMapper.readValue(body, Response.class);
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			TelemetryManager.info("UnsupportedEncodingException:::::"+ e);
+			//e.printStackTrace();
 		} catch (Exception e) {
-			e.printStackTrace();
+			TelemetryManager.info("Exception:::::"+ e);
+			//e.printStackTrace();
 		}
 		return resp;
 	}
