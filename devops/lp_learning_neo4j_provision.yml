@@ -1,0 +1,25 @@
+- hosts: learning-neo4j-cluster
+  pre_tasks:
+    - name: Create learner group
+      become: yes
+      group:
+        state: present
+        name: "{{ learner_group }}"
+        system: yes
+    - name: Create learner user
+      become: yes
+      user:
+        state: present
+        name: "{{ learner_user }}"
+        comment: learner user
+        system: yes
+        createhome: yes
+        group: "{{ learner_group }}"
+    - name: Registering server_id
+      set_fact:
+        server_id: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}{{ loop.index }}{% endif %}{% endfor %}"
+  roles: 
+    - java
+    - neo4j-cluster
+    - logstash
+  

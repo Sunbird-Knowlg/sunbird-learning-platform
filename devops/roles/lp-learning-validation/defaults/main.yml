@@ -1,0 +1,3 @@
+user: learning
+service_url: "{{inventory_hostname}}:8080"
+search_service_url: "{{ groups['searchall'][0] }}:9000"
