@@ -91,7 +91,6 @@ public class HttpRestUtil {
 		Response resp = new Response();
 		try {
 			body = response.getBody();
-			TelemetryManager.info("body:::::"+ body);
 			if (StringUtils.isNotBlank(body))
 				resp = objMapper.readValue(body, Response.class);
 		} catch (UnsupportedEncodingException e) {
