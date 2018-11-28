@@ -2467,19 +2467,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		requestMap.put(ContentAPIParams.request.name(), request);
 		Map<String, String> headerParam = new HashMap<String, String>();
 		headerParam.put("X-Channel-Id", channelId);
-		TelemetryManager.info("channelId:::::"+ channelId);
-		TelemetryManager.info("dialcodeMap:::::"+ dialcodeMap);
-		TelemetryManager.info("headerParam:::::"+ headerParam);
-		TelemetryManager.info("DIALCODE_GENERATE_URI:::::"+ DIALCODE_GENERATE_URI);
 		Response generateResponse = HttpRestUtil.makePostRequest(DIALCODE_GENERATE_URI, requestMap, headerParam);
 		if (generateResponse.getResponseCode() == ResponseCode.OK) {
 			Map<String, Object> result = generateResponse.getResult();
-			TelemetryManager.info("generateResponse.getResponseCode():::::"+ generateResponse.getResponseCode());
-			TelemetryManager.info("result:::::"+ result);
-			TelemetryManager.info("result.get(dialcodes):::::"+ (List<String>)result.get(ContentAPIParams.dialcodes.name()));
-			TelemetryManager.info("result.get(count):::::"+ result.get("count"));
-			TelemetryManager.info("result.get(batchcode):::::"+ result.get("batchcode"));
-			TelemetryManager.info("result.get(publisher):::::"+ result.get("publisher"));
 			List<String> generatedDialCodes = (List<String>)result.get(ContentAPIParams.dialcodes.name());
 			if(!generatedDialCodes.isEmpty())
 				return generatedDialCodes;

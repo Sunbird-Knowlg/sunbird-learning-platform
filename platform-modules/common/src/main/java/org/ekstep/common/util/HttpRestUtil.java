@@ -96,10 +96,10 @@ public class HttpRestUtil {
 				resp = objMapper.readValue(body, Response.class);
 		} catch (UnsupportedEncodingException e) {
 			TelemetryManager.info("UnsupportedEncodingException:::::"+ e);
-			//e.printStackTrace();
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
 		} catch (Exception e) {
 			TelemetryManager.info("Exception:::::"+ e);
-			//e.printStackTrace();
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
 		}
 		return resp;
 	}
