@@ -27,6 +27,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -47,6 +48,8 @@ import java.util.stream.Collectors;
  */
 public class PublishFinalizer extends BaseFinalizer {
 
+	private VideoStreamingJobRequest streamJobRequest = new VideoStreamingJobRequest();
+	
 	private static final String TAXONOMY_ID = "domain";
 	
 	/** The Constant IDX_S3_KEY. */
@@ -214,13 +217,8 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		setPragma(node);
 
-		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
-			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, node, ExtractionType.latest);
-		}
 		
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
-			//update previewUrl for content streaming
-			updatePreviewURL(node);
 
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
@@ -315,6 +313,12 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
+			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.latest);
+		}
+
+		//update previewUrl for content streaming
+		if (BooleanUtils.isFalse(isAssetTypeContent)) {
+			updatePreviewURL(newNode);
 		}
 
 		try {
@@ -345,7 +349,13 @@ public class PublishFinalizer extends BaseFinalizer {
 		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
 
 		getResponse(request);
-
+		
+		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type")?
+				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
+		if(streamableMimeType.contains((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())))	{
+			streamJobRequest.insert(contentId, (String)node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()), (String) node.getMetadata().get(ContentWorkflowPipelineParams.channel.name()));
+		}
+		
 		if (StringUtils.equalsIgnoreCase(
 				((String) newNode.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),
 				COLLECTION_MIMETYPE)) {
@@ -420,7 +430,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					case "application/vnd.ekstep.plugin-archive":
 						break;
 					case "application/vnd.android.package-archive":
-						break;					
+						break;
 					case "assets":
 						break;
 					case "application/vnd.ekstep.ecml-archive":

@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.71</version>
+			<version>0.0.72</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -54,7 +54,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.147</version>
+			<version>0.0.156</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
