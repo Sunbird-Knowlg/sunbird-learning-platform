@@ -177,11 +177,6 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 		if (null == map)
 			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, DialCodeErrorMessage.ERR_INVALID_SEARCH_REQUEST,
 					ResponseCode.CLIENT_ERROR);
-		if (null == map.get(DialCodeEnum.publisher.name())) {
-			return ERROR(DialCodeErrorCodes.ERR_INVALID_SEARCH_REQUEST, "Publisher is mandatory to list DailCodes",
-					ResponseCode.CLIENT_ERROR);
-		}
-
 		return searchDialCode(channelId, map);
 	}
 
@@ -403,9 +398,12 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	 * @return String
 	 */
 	private String generateBatchCode(String publisher) {
-		DateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-		String date = df.format(new Date());
-		return publisher.concat(".").concat(date);
+		if(StringUtils.isNotBlank(publisher)){
+			DateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+			String date = df.format(new Date());
+			return publisher.concat(".").concat(date);
+		}
+		return null;
 	}
 
 	/**
@@ -433,21 +431,19 @@ public class DialCodeManagerImpl extends BaseManager implements IDialCodeManager
 	// TODO: Enhance DialCodeStoreUtil and Use it instead of calling
 	// CassandraStoreUtil directly.
 	private void validatePublisher(String publisherId) throws Exception {
-		if (StringUtils.isBlank(publisherId))
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_PUBLISHER,
-					DialCodeErrorMessage.ERR_INVALID_PUBLISHER, ResponseCode.CLIENT_ERROR);
-		String pubId = "";
-		try {
-			List<Row> list = publisherStore.get(DialCodeEnum.identifier.name(), publisherId);
-			Row row = list.get(0);
-			pubId = row.getString(DialCodeEnum.identifier.name());
-		} catch (Exception e) {
-			// TODO: Enhance it to Specific Error Code
+		if(StringUtils.isNotBlank(publisherId)){
+			String pubId = "";
+			try {
+				List<Row> list = publisherStore.get(DialCodeEnum.identifier.name(), publisherId);
+				Row row = list.get(0);
+				pubId = row.getString(DialCodeEnum.identifier.name());
+			} catch (Exception e) {
+				// TODO: Enhance it to Specific Error Code
+			}
+			if (!StringUtils.equals(publisherId, pubId))
+				throw new ClientException(DialCodeErrorCodes.ERR_INVALID_PUBLISHER,
+						DialCodeErrorMessage.ERR_INVALID_PUBLISHER, ResponseCode.CLIENT_ERROR);
 		}
-		if (!StringUtils.equals(publisherId, pubId))
-			throw new ClientException(DialCodeErrorCodes.ERR_INVALID_PUBLISHER,
-					DialCodeErrorMessage.ERR_INVALID_PUBLISHER, ResponseCode.CLIENT_ERROR);
-
 	}
 	
 	/**

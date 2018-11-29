@@ -108,6 +108,17 @@ public class DialCodeManagerImplTest extends CassandraTestSetup {
 	}
 
 	@Test
+	public void dialCodeTest_001() throws Exception {
+		String dialCodeGenReq = "{\"count\":1}";
+		String channelId = "channelTest";
+		Map<String, Object> requestMap = mapper.readValue(dialCodeGenReq, new TypeReference<Map<String, Object>>() {
+		});
+		Response response = dialCodeMgr.generateDialCode(requestMap, channelId);
+		assertTrue(response.getResponseCode().toString().equals("OK"));
+		assertTrue(response.getResponseCode().code() == 200);
+	}
+
+	@Test
 	public void dialCodeTest_02() throws Exception {
 		exception.expect(ClientException.class);
 		String dialCodeGenReq = "{\"count\":1,\"publisher\": \"mock_pub\"}";
@@ -172,7 +183,7 @@ public class DialCodeManagerImplTest extends CassandraTestSetup {
 		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
 	}
 
-	// List Dial Code without Publisher - CLIENT_ERROR
+	// List Dial Code without Publisher - OK
 	@Test
 	public void dialCodeTest_09() throws Exception {
 		String listReq = "{\"status\":\"Live\"}";
@@ -180,7 +191,7 @@ public class DialCodeManagerImplTest extends CassandraTestSetup {
 		Map<String, Object> requestMap = mapper.readValue(listReq, new TypeReference<Map<String, Object>>() {
 		});
 		Response response = dialCodeMgr.listDialCode(channelId, requestMap);
-		Assert.assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+		Assert.assertEquals("OK", response.getResponseCode().toString());
 	}
 
 	// Search Dial Code with null map - CLIENT_ERROR
