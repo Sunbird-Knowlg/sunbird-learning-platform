@@ -1,0 +1,42 @@
+---
+- name: Print the filename to console
+  debug:
+    var: filename
+
+- name: Delete existing file directory
+  file: name="{{learner_user_home}}/file" state=absent
+
+- name: Create file directory
+  file: name={{learner_user_home}}/file state=directory mode=755 owner="{{learner_user}}" group="{{learner_user}}"
+
+- name: Download file from azure
+  command: az storage blob download --container-name {{ secor.azure.container_name }} --name {{ filename }} --file learning-failed-events/cs_index/
+  environment:
+    AZURE_STORAGE_ACCOUNT: "{{ secor.azure.account_name }}"
+    AZURE_STORAGE_KEY: "{{ secor.azure.account_key }}"
+  async: 3600
+  poll: 10
+
+- name: Delete existing configuration files
+  file: name="{{learner_user_home}}/sync_tool" state=absent
+
+- name: Create sync_tool directory
+  file: name={{learner_user_home}}/sync_tool state=directory mode=755 owner="{{learner_user}}" group="{{learner_user}}"
+
+- name: Copy application.conf file
+  template: src=application.conf.j2 dest={{learner_user_home}}/sync_tool/application.conf
+
+- name: Copy jar file.
+  copy: src=sync-tool-0.0.1-SNAPSHOT.jar dest={{learner_user_home}}/sync_tool/
+
+- name: Run Sync tool with given command and parameters.
+  shell: "java -Dconfig.file={{learner_user_home}}/sync_tool/application.conf -jar sync-tool-0.0.1-SNAPSHOT.jar sync --type file --filepath {{learner_user_home}}/file/{{filename}}"
+  async: 3600
+  poll: 10
+  args:
+    chdir: "{{learner_user_home}}/sync_tool/"
+  register: job_status
+
+- name: Print the job status to console
+  debug:
+    var: job_status
