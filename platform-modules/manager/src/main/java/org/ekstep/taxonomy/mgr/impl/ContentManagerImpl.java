@@ -2420,11 +2420,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		List<String> dialCodes = getReservedDialCodes(node).orElseGet(ArrayList::new);
 
-		String publisher = (StringUtils.isNotBlank((String)request.get(ContentAPIParams.publisher.name()))) ? (String)request.get(ContentAPIParams.publisher.name()) : null;
-
 		reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name()) - dialCodes.size();
 		if(reqDialcodesCount > 0) {
-			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount, publisher));
+			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount, (String) request.get(ContentAPIParams.publisher.name())));
 			updateContent = true;
 		}
 		
