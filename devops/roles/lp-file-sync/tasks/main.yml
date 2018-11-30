@@ -16,6 +16,13 @@
     AZURE_STORAGE_KEY: "{{ secor.azure.account_key }}"
   async: 3600
   poll: 10
+  args:
+    chdir: "{{learner_user_home}}/file/"
+  register: download_file_job_status
+
+- name: Print the download file job status to console
+  debug:
+    var: download_file_job_status
 
 - name: Delete existing configuration files
   file: name="{{learner_user_home}}/sync_tool" state=absent
