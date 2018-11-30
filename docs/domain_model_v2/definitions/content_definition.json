@@ -2312,15 +2312,19 @@
 					"indexed": true
 				},
 				{
+					"required": false,
+					"dataType": "Multi-Select",
 					"propertyName": "dialcodeRequired",
-					"title": "dialcodeRequired",
+					"title": "Dialcode Required",
 					"description": "Is dialcode generation required or not",
 					"category": "General",
-					"dataType": "Boolean",
-					"required": false,
 					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "{'inputType': 'checkbox', 'order': 23}",
+					"range": [
+						"Yes",
+						"No"
+					],
+					"defaultValue": "No",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 23 }",
 					"indexed": true
 				}
 			],
