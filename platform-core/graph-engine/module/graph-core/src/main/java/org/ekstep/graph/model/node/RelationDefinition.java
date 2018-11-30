@@ -2,6 +2,7 @@ package org.ekstep.graph.model.node;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 public class RelationDefinition implements Serializable {
 
@@ -59,5 +60,19 @@ public class RelationDefinition implements Serializable {
 
     public void setRenderingHints(String renderingHints) {
         this.renderingHints = renderingHints;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RelationDefinition that = (RelationDefinition) o;
+        return Objects.equals(relationName, that.relationName) &&
+                Objects.equals(objectTypes, that.objectTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(relationName, objectTypes);
     }
 }

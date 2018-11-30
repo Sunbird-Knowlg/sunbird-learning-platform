@@ -1,16 +1,11 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
@@ -29,18 +24,14 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
-
 @Component
-public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager {
+public class TaxonomyManagerImpl extends BaseTaxonomyManager implements ITaxonomyManager {
 
-	private ControllerUtil util = new ControllerUtil();
-	private ObjectMapper mapper = new ObjectMapper();
+	private final ControllerUtil util = new ControllerUtil();
 
 	public static String[] taxonomyIds = { "numeracy", "literacy", "literacy_v2" };
 
@@ -183,74 +174,84 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		return response;
 	}
 
-	private <T> List<T> toObject(List<Map<String, Object>> list, Class<T> clazz) {
-		return Optional.ofNullable(list).
-				filter(l -> l.size() != 0).
-				map(l -> l.
-						stream().
-						filter(e -> e != null).
-						map(e -> mapper.convertValue(e, clazz)).
-						collect(toList())).
-				orElseGet(ArrayList::new);
+	private boolean isValidRemove(Object o) {
+		if (o instanceof MetadataDefinition) {
+			MetadataDefinition md = (MetadataDefinition) o;
+			return StringUtils.isBlank(md.getTitle()) &&
+					StringUtils.isBlank(md.getCategory());
+		} else if (o instanceof RelationDefinition) {
+			RelationDefinition rd = (RelationDefinition) o;
+			return StringUtils.isBlank(rd.getTitle());
+		}
+		return false;
+	}
+
+	private <T> List<T> updateToDefinition(List<T> l1, List<T> l2) {
+		Map<T, Integer> m = l1.isEmpty() ? null : getPositionMap(l2);
+
+		for (T e : l1) {
+			if (m.containsKey(e)) {
+				if (isValidRemove(e)) {
+					l2.remove((int) m.get(e));
+				} else {
+					l2.set(m.get(e), e);
+				}
+			} else {
+				l2.add(e);
+			}
+		}
+
+		return l1;
 	}
 
     @Override
     public Response updateDefinition(String id, String objectType, Map<String, Object> request) {
 		if (StringUtils.isBlank(id))
-			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+			throw new ClientException(
+					TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(objectType))
-			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_OBJECT_TYPE.name(), "Object Type is blank");
-
-		DefinitionDTO definitionDTO = util.getDefinition(id, objectType);
-		DefinitionDTO definition;
-		try {
-			definition = mapper.readValue(mapper.writeValueAsString(definitionDTO),
-					new TypeReference<DefinitionDTO>() {});
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new ServerException(TaxonomyErrorCodes.ERR_UPDATING_DEFINIITON.name(),
-					"Error while Updating Definition", e);
-		}
+			throw new ClientException(
+					TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_OBJECT_TYPE.name(), "Object Type is blank");
 
 		Map<String, Object> requestDefinition =
-				Optional.ofNullable((Map<String, Object>) request.get("definition")).
-				orElseThrow(() -> new ClientException("ERROR_INVALID_REQUEST", "Definition cannot be empty"));
+				Optional.ofNullable(
+					(Map<String, Object>) request.get("definition")).
+				orElseThrow(() ->
+					new ClientException("ERR_INVALID_REQUEST", "Definition cannot be empty"));
 
-		List<MetadataDefinition> md =
-				toObject((List<Map<String, Object>>) requestDefinition.get("properties"), MetadataDefinition.class);
+        DefinitionDTO definitionDTO = util.getDefinition(id, objectType);
+        DefinitionDTO definition = deepCopy(definitionDTO, DefinitionDTO.class);
 
-		List<RelationDefinition> inRelationDefinitions =
-				toObject((List<Map<String, Object>>) requestDefinition.get("inRelations"), RelationDefinition.class);
+        boolean isUpdateRequired = false;
 
-		List<RelationDefinition> outRelationDefinitions =
-				toObject((List<Map<String, Object>>) requestDefinition.get("outRelations"), RelationDefinition.class);
+        if (null != mapToListObject(requestDefinition.get("properties"),   MetadataDefinition.class,
+				(u) -> updateToDefinition(u, definition.getProperties())))
+			isUpdateRequired = true;
 
-		if (!md.isEmpty() || !inRelationDefinitions.isEmpty() || !outRelationDefinitions.isEmpty()) {
-			definition.getProperties().addAll(md);
-			definition.getInRelations().addAll(inRelationDefinitions);
-			definition.getOutRelations().addAll(outRelationDefinitions);
+		if (null != mapToListObject(requestDefinition.get("inRelations"),  RelationDefinition.class,
+				(u) -> updateToDefinition(u, definition.getInRelations())))
+			isUpdateRequired = true;
 
-			String updatedDefinitionJson;
-			try {
-				updatedDefinitionJson = "{\"definitionNodes\": [" + mapper.writeValueAsString(definition) + "]}";
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-				throw new ServerException(TaxonomyErrorCodes.ERR_UPDATING_DEFINIITON.name(),
-						"Error while Updating Definition", e);
-			}
+		if (null != mapToListObject(requestDefinition.get("outRelations"), RelationDefinition.class,
+				(u) -> updateToDefinition(u, definition.getOutRelations())))
+			isUpdateRequired = true;
+
+		if (isUpdateRequired) {
+			String updatedDefinitionJson = "{\"definitionNodes\":[" + objectToJson(definition) + "]}";
 			Request req = getRequest(id, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
 			req.put(GraphEngineParams.input_stream.name(), updatedDefinitionJson);
 
 			Response response = getResponse(req);
 			if (!checkError(response)) {
-				TelemetryManager.info("Updated Definition for Object Type:: " + objectType);
+				TelemetryManager.info("Updated Definition for Object Type: " + objectType);
 			} else {
-				TelemetryManager.error("Could No Update Definition for Object Type:: " + objectType);
+				TelemetryManager.error("Could No Update Definition for Object Type: " + objectType);
 			}
 			return response;
 		} else {
-			TelemetryManager.error("Could Not Update Definition for Object Type:: " + objectType);
-			return ERROR(TaxonomyErrorCodes.ERR_UPDATING_DEFINIITON.name(), "Provide Property or Relation for Updating",
+			TelemetryManager.error("Could Not Update Definition for Object Type: " + objectType);
+			return ERROR(TaxonomyErrorCodes.ERR_UPDATING_DEFINIITON.name(),
+					"Provide Property or Relation for Updating or Removing",
 					ResponseCode.CLIENT_ERROR);
 		}
     }
