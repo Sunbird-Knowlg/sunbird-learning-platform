@@ -2310,6 +2310,22 @@
 					"defaultValue": "",
 					"renderingHints": "{'inputType': 'text',  'order': 22}",
 					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Multi-Select",
+					"propertyName": "dialcodeRequired",
+					"title": "Dialcode Required",
+					"description": "Is dialcode generation required or not",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"Yes",
+						"No"
+					],
+					"defaultValue": "No",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 23 }",
+					"indexed": true
 				}
 			],
 			"inRelations": [

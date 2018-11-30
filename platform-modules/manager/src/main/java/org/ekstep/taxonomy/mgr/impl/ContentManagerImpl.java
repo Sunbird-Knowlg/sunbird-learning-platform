@@ -2415,10 +2415,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		validateCountForReservingDialCode(request);
 		
-		if(StringUtils.isBlank((String)request.get(ContentAPIParams.publisher.name())))
-				throw new ClientException(ContentErrorCodes.ERR_INVALID_PUBLISHER.name(), 
-						"Invalid publisher name.");
-
 		int reqDialcodesCount;
 		boolean updateContent = false;
 
@@ -2426,8 +2422,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name()) - dialCodes.size();
 		if(reqDialcodesCount > 0) {
-			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount,
-					(String)request.get(ContentAPIParams.publisher.name())));
+			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount, (String) request.get(ContentAPIParams.publisher.name())));
 			updateContent = true;
 		}
 		
