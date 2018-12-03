@@ -373,7 +373,7 @@ public class ContentV3Controller extends BaseController {
 						"Invalid pre-signed url type. It should be one of " + StringUtils.join(preSignedObjTypes, ",")), apiId, null);
 			}
 
-			response = contentManager.preSignedURL(contentId, fileName, type);
+			response = contentManager.preSignedURL(contentId, fileName, type.toLowerCase());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
