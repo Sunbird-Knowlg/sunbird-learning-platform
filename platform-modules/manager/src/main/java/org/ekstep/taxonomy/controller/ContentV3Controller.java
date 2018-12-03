@@ -1,6 +1,9 @@
 package org.ekstep.taxonomy.controller;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -26,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.ws.rs.PathParam;
+
 /**
  * The Class ContentV3Controller, is the main entry point for the High Level
  * Content Operations, mostly it holds the API Method related to Content
@@ -50,6 +55,8 @@ public class ContentV3Controller extends BaseController {
 	private String UNDERSCORE = "_";
 
 	private String DOT = ".";
+
+	private List<String> preSignedObjTypes = Arrays.asList("assets", "toc");
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
@@ -341,7 +348,7 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> map) {
+												 @RequestBody Map<String, Object> map, @PathParam(value = "type") String type) {
 		String apiId = "ekstep.learning.content.upload.url";
 		TelemetryManager.log("Upload URL content | Content Id : " + contentId);
 		Response response;
@@ -359,8 +366,14 @@ public class ContentV3Controller extends BaseController {
 				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
 						"content object is blank"), apiId, null);
 			}
+			if (StringUtils.isBlank(type)) type = "assets";
 
-			response = contentManager.preSignedURL(contentId, fileName);
+			if (!preSignedObjTypes.contains(type.toLowerCase())) {
+				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_INVALID_PRESIGNED_URL_TYPE.name(),
+						"Invalid pre-signed url type. It should be one of " + StringUtils.join(preSignedObjTypes, ",")), apiId, null);
+			}
+
+			response = contentManager.preSignedURL(contentId, fileName, type);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
