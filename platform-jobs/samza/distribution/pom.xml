@@ -40,6 +40,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
+			<artifactId>qrcode-image-generator</artifactId>
+			<version>0.0.1</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
 			<artifactId>image-tagging</artifactId>
 			<version>0.0.52</version>
 			<type>tar.gz</type>
