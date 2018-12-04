@@ -7,7 +7,7 @@
   file: name="{{learner_user_home}}/file" state=absent
 
 - name: Create file directory
-  file: name={{learner_user_home}}/file state=directory mode=755 owner="{{learner_user}}" group="{{learner_user}}"
+  file: name="{{learner_user_home}}/file" state=directory mode=755 owner="{{learner_user}}" group="{{learner_user}}"
 
 - name: Download file from blob
   command: az storage blob download --container-name {{ secor.azure.container_name }} --name {{ filename }} --file learning-failed-events/cs_index/
@@ -17,7 +17,7 @@
   async: 3600
   poll: 10
   args:
-    chdir: "{{learner_user_home}}/file/"
+    chdir: "{{learner_user_home}}/file"
   register: download_file_job_status
 
 - name: Print the download file job status to console
