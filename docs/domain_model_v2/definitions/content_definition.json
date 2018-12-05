@@ -1066,7 +1066,9 @@
 						"Plugin",
 						"LessonPlanUnit",
 						"CourseUnit",
-						"TextBookUnit"
+						"TextBookUnit",
+						"TeachingMethod",
+						"PedagogyFlow"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2313,7 +2315,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Multi-Select",
+					"dataType": "Select",
 					"propertyName": "dialcodeRequired",
 					"title": "Dialcode Required",
 					"description": "Is dialcode generation required or not",
