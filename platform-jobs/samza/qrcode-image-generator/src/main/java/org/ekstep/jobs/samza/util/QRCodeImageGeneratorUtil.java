@@ -119,11 +119,12 @@ public class QRCodeImageGeneratorUtil {
     static BitMatrix mergeMatricesOfSameWidth(BitMatrix firstMatrix, BitMatrix secondMatrix, int qrMargin, int pixelsPerBlock, int qrMarginBottom) {
         int mergedWidth = firstMatrix.getWidth();
         int mergedHeight = firstMatrix.getHeight() + secondMatrix.getHeight();
-        int removedDefaultBottomMargin = pixelsPerBlock * qrMargin;
-        BitMatrix mergedMatrix = new BitMatrix(mergedWidth, mergedHeight - removedDefaultBottomMargin + qrMarginBottom);
+        int defaultBottomMargin = pixelsPerBlock * qrMargin;
+        int marginToBeRemoved = qrMarginBottom > defaultBottomMargin ? 0 : (defaultBottomMargin-qrMarginBottom);
+        BitMatrix mergedMatrix = new BitMatrix(mergedWidth, mergedHeight - marginToBeRemoved);
 
         for (int x = 0; x < firstMatrix.getWidth(); x++) {
-            for (int y = 0; y < firstMatrix.getHeight() - removedDefaultBottomMargin + qrMarginBottom; y++) {
+            for (int y = 0; y < firstMatrix.getHeight() - marginToBeRemoved; y++) {
                 if (firstMatrix.get(x, y)) {
                     mergedMatrix.set(x, y);
                 }
@@ -132,7 +133,7 @@ public class QRCodeImageGeneratorUtil {
         for (int x = 0; x < secondMatrix.getWidth(); x++) {
             for (int y = 0; y < secondMatrix.getHeight(); y++) {
                 if (secondMatrix.get(x, y)) {
-                    mergedMatrix.set(x, y + firstMatrix.getHeight() - removedDefaultBottomMargin + qrMarginBottom);
+                    mergedMatrix.set(x, y + firstMatrix.getHeight() - marginToBeRemoved);
                 }
             }
         }
