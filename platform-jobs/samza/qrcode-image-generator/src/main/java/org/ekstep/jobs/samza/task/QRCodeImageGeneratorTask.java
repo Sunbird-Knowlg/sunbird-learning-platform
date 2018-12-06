@@ -28,9 +28,9 @@ public class QRCodeImageGeneratorTask implements StreamTask, InitableTask {
 		try {
 			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			service.initialize(config);
-			LOGGER.info("Task initialized");
+			LOGGER.info("QRCodeImageGeneratorTask:init: Task initialized");
 		} catch (Exception ex) {
-			LOGGER.error("Task initialization failed", ex);
+			LOGGER.error("QRCodeImageGeneratorTask:init: Task initialization failed", ex);
 			throw ex;
 		}
 	}
@@ -42,7 +42,7 @@ public class QRCodeImageGeneratorTask implements StreamTask, InitableTask {
 		try {
 			service.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
-			LOGGER.error("Error while processing message:",outgoingMap, e);
+			LOGGER.error("QRCodeImageGeneratorTask:process: Error while processing message:", outgoingMap, e);
 			throw e;
 		}
 	}
@@ -53,7 +53,7 @@ public class QRCodeImageGeneratorTask implements StreamTask, InitableTask {
 			return (Map<String, Object>) envelope.getMessage();
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error("Invalid message:" + envelope.getMessage(), e);
+			LOGGER.error("QRCodeImageGeneratorTask:getMessage: Invalid message = " + envelope.getMessage(), e);
 			return new HashMap<String, Object>();
 		}
 	}
