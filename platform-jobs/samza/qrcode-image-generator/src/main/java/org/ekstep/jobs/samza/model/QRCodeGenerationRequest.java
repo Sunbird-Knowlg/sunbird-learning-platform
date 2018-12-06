@@ -16,6 +16,15 @@ public class QRCodeGenerationRequest {
     private String colorModel;
     private List<String> fileName;
     private String fileFormat;
+    private int qrCodeMarginBottom;
+
+    public int getQrCodeMarginBottom() {
+        return qrCodeMarginBottom;
+    }
+
+    public void setQrCodeMarginBottom(int qrCodeMarginBottom) {
+        this.qrCodeMarginBottom = qrCodeMarginBottom;
+    }
 
     public List<String> getData() {
         return data;

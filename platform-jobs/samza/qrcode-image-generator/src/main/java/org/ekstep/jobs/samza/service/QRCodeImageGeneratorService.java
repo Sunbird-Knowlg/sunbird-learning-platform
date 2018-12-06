@@ -27,13 +27,13 @@ public class QRCodeImageGeneratorService implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		JSONUtils.loadProperties(config);
 		appConfig = config;
-		LOGGER.info("Service config initialized");
+		LOGGER.info("QRCodeImageGeneratorService:initialize: Service config initialized");
 	}
 
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-	    LOGGER.info("Processing request: "+message);
-	    LOGGER.info("Starting message processing at "+System.currentTimeMillis());
+	    LOGGER.info("QRCodeImageGeneratorService:processMessage: Processing request: "+message);
+	    LOGGER.info("QRCodeImageGeneratorService:processMessage: Starting message processing at "+System.currentTimeMillis());
 
 		String eid = (String) message.get(QRCodeImageGeneratorParams.eid.name());
 		if(!eid.equalsIgnoreCase(QRCodeImageGeneratorParams.BE_QR_IMAGE_GENERATOR.name())) {
@@ -52,18 +52,19 @@ public class QRCodeImageGeneratorService implements ISamzaService {
         List<String> dataList = new ArrayList<String>();
         List<String> textList = new ArrayList<String>();
         List<String> fileNameList = new ArrayList<String>();
+        String downloadUrl = null;
 
         for(Map<String, Object> dialCode : dialCodes) {
             if(dialCode.containsKey(QRCodeImageGeneratorParams.location.name())) {
                 try {
-                    String downloadUrl = (String) dialCode.get(QRCodeImageGeneratorParams.location.name());
+                    downloadUrl = (String) dialCode.get(QRCodeImageGeneratorParams.location.name());
                     String fileName = (String) dialCode.get(QRCodeImageGeneratorParams.id.name());
                     File fileToSave = new File(fileName+"."+imageFormat);
                     CloudStorageUtil.downloadFile(downloadUrl, fileToSave);
                     availableImages.add(fileToSave);
                     continue;
                 } catch(Exception e) {
-
+                    LOGGER.error("QRCodeImageGeneratorService:processMessage: Error while downloading image:", downloadUrl, e);
                 }
             }
 
@@ -91,7 +92,7 @@ public class QRCodeImageGeneratorService implements ISamzaService {
         for(File imageFile : availableImages) {
             imageFile.deleteOnExit();
         }
-        LOGGER.info("Message processed successfully at "+System.currentTimeMillis());
+        LOGGER.info("QRCodeImageGeneratorService:processMessage: Message processed successfully at "+System.currentTimeMillis());
 
 	}
 
@@ -109,6 +110,11 @@ public class QRCodeImageGeneratorService implements ISamzaService {
 		qrGenRequest.setFileFormat((String) config.get(QRCodeImageGeneratorParams.imageFormat.name()));
 		qrGenRequest.setColorModel((String) config.get(QRCodeImageGeneratorParams.colourModel.name()));
 		qrGenRequest.setImageBorderSize((Integer) config.get(QRCodeImageGeneratorParams.imageBorderSize.name()));
+		if(config.containsKey(QRCodeImageGeneratorParams.qrCodeMarginBottom.name())) {
+            qrGenRequest.setQrCodeMarginBottom((Integer) config.get(QRCodeImageGeneratorParams.qrCodeMarginBottom.name()));
+        } else {
+            qrGenRequest.setQrCodeMarginBottom(0);
+        }
 		return qrGenRequest;
 	}
 }
