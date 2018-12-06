@@ -578,6 +578,32 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "URL",
+					"propertyName": "previewUrl",
+					"title": "Preview Url",
+					"description": "URL to preview the content",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 6 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "URL",
+					"propertyName": "streamingUrl",
+					"title": "Streaming Url",
+					"description": "Stream url of the video content",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 6 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"propertyName": "objects",
 					"title": "Objects Used in the Content",
 					"description": "List of Objects Used in the Content",
