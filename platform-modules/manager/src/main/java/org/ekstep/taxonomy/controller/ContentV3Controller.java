@@ -56,7 +56,7 @@ public class ContentV3Controller extends BaseController {
 
 	private String DOT = ".";
 
-	private List<String> preSignedObjTypes = Arrays.asList("assets", "toc");
+	private List<String> preSignedObjTypes = Arrays.asList("assets", "artifact", "hierarchy");
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
