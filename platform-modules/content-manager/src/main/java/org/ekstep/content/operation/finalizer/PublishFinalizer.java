@@ -441,6 +441,10 @@ public class PublishFinalizer extends BaseFinalizer {
 					default:
 						String artifactUrl = (String) content.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 						content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), artifactUrl);
+						List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type")?
+								Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
+						if(!streamableMimeType.contains(mimeType))
+							content.getMetadata().put(ContentWorkflowPipelineParams.streamingUrl.name(), artifactUrl);
 						break;
 				}
 			}
@@ -452,6 +456,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			String latestFolderS3Url = contentPackageExtractionUtil.getS3URL(contentId, content, ExtractionType.latest);
 			//copy into previewUrl
 			content.getMetadata().put(ContentWorkflowPipelineParams.previewUrl.name(), latestFolderS3Url);
+			content.getMetadata().put(ContentWorkflowPipelineParams.streamingUrl.name(), latestFolderS3Url);
 		} catch (Exception e) {
 			TelemetryManager.error("Something Went Wrong While copying latest s3 folder path to preveiwUrl for the content" + contentId, e);
 		}
