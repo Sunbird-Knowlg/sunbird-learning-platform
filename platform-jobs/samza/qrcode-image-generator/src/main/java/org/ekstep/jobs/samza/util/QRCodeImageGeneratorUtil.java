@@ -20,8 +20,10 @@ import java.awt.RenderingHints;
 import java.awt.Graphics2D;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
+import java.awt.FontFormatException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -31,7 +33,7 @@ public class QRCodeImageGeneratorUtil {
 
     static QRCodeWriter qrCodeWriter = new QRCodeWriter();
 
-    public static List<File> createQRImages(QRCodeGenerationRequest qrGenRequest, Config appConfig, String container, String path) throws WriterException, IOException, NotFoundException {
+    public static List<File> createQRImages(QRCodeGenerationRequest qrGenRequest, Config appConfig, String container, String path) throws WriterException, IOException, NotFoundException, FontFormatException {
 
         List<File> fileList = new ArrayList<File>();
 
@@ -48,6 +50,7 @@ public class QRCodeImageGeneratorUtil {
         String imageFormat = qrGenRequest.getFileFormat();
         String colorModel = qrGenRequest.getColorModel();
         int borderSize = qrGenRequest.getImageBorderSize();
+        int qrMarginBottom = qrGenRequest.getQrCodeMarginBottom();
 
         for (int i = 0; i < dataList.size(); i++) {
             String data = dataList.get(i);
@@ -58,7 +61,7 @@ public class QRCodeImageGeneratorUtil {
 
             if (null != text || "" != text) {
                 BufferedImage textImage = getTextImage(text, fontName, fontSize, tracking, colorModel);
-                qrImage = addTextToBaseImage(qrImage, textImage, colorModel, qrMargin, pixelsPerBlock);
+                qrImage = addTextToBaseImage(qrImage, textImage, colorModel, qrMargin, pixelsPerBlock, qrMarginBottom);
             }
 
             if (borderSize > 0) {
@@ -73,7 +76,7 @@ public class QRCodeImageGeneratorUtil {
                 String imageDownloadUrl = CloudStorageUtil.uploadFile(appConfig, container, path, finalImageFile, true, false);
                 QRCodeCassandraConnector.updateDownloadUrl(fileName, imageDownloadUrl);
             } catch(Exception e) {
-
+                //ignore exception and proceed
             }
         }
 
@@ -81,7 +84,7 @@ public class QRCodeImageGeneratorUtil {
 
     }
 
-    static BufferedImage addTextToBaseImage(BufferedImage qrImage, BufferedImage textImage, String colorModel, int qrMargin, int pixelsPerBlock) throws NotFoundException {
+    static BufferedImage addTextToBaseImage(BufferedImage qrImage, BufferedImage textImage, String colorModel, int qrMargin, int pixelsPerBlock, int qrMarginBottom) throws NotFoundException {
         BufferedImageLuminanceSource qrSource = new BufferedImageLuminanceSource(qrImage);
         HybridBinarizer qrBinarizer = new HybridBinarizer(qrSource);
         BitMatrix qrBits = qrBinarizer.getBlackMatrix();
@@ -100,7 +103,7 @@ public class QRCodeImageGeneratorUtil {
             qrBits = tempQrMatrix;
         }
 
-        BitMatrix mergedMatrix = mergeMatricesOfSameWidth(qrBits, textBits, qrMargin, pixelsPerBlock);
+        BitMatrix mergedMatrix = mergeMatricesOfSameWidth(qrBits, textBits, qrMargin, pixelsPerBlock, qrMarginBottom);
         return getImage(mergedMatrix, colorModel);
     }
 
@@ -113,13 +116,15 @@ public class QRCodeImageGeneratorUtil {
     }
 
     //To remove extra spaces between text and qrcode, margin below qrcode is removed
-    static BitMatrix mergeMatricesOfSameWidth(BitMatrix firstMatrix, BitMatrix secondMatrix, int qrMargin, int pixelsPerBlock) {
+    static BitMatrix mergeMatricesOfSameWidth(BitMatrix firstMatrix, BitMatrix secondMatrix, int qrMargin, int pixelsPerBlock, int qrMarginBottom) {
         int mergedWidth = firstMatrix.getWidth();
         int mergedHeight = firstMatrix.getHeight() + secondMatrix.getHeight();
-        BitMatrix mergedMatrix = new BitMatrix(mergedWidth, mergedHeight - pixelsPerBlock * qrMargin);
+        int defaultBottomMargin = pixelsPerBlock * qrMargin;
+        int marginToBeRemoved = qrMarginBottom > defaultBottomMargin ? 0 : (defaultBottomMargin-qrMarginBottom);
+        BitMatrix mergedMatrix = new BitMatrix(mergedWidth, mergedHeight - marginToBeRemoved);
 
         for (int x = 0; x < firstMatrix.getWidth(); x++) {
-            for (int y = 0; y < firstMatrix.getHeight() - pixelsPerBlock * qrMargin; y++) {
+            for (int y = 0; y < firstMatrix.getHeight() - marginToBeRemoved; y++) {
                 if (firstMatrix.get(x, y)) {
                     mergedMatrix.set(x, y);
                 }
@@ -128,7 +133,7 @@ public class QRCodeImageGeneratorUtil {
         for (int x = 0; x < secondMatrix.getWidth(); x++) {
             for (int y = 0; y < secondMatrix.getHeight(); y++) {
                 if (secondMatrix.get(x, y)) {
-                    mergedMatrix.set(x, y + firstMatrix.getHeight() - pixelsPerBlock * qrMargin);
+                    mergedMatrix.set(x, y + firstMatrix.getHeight() - marginToBeRemoved);
                 }
             }
         }
@@ -212,13 +217,19 @@ public class QRCodeImageGeneratorUtil {
     }
 
     //Sample = 2A42UH , Verdana, 11, 0.1, Grayscale
-    static BufferedImage getTextImage(String text, String fontName, int fontSize, double tracking, String colorModel) {
+    static BufferedImage getTextImage(String text, String fontName, int fontSize, double tracking, String colorModel) throws IOException, FontFormatException {
 
         BufferedImage image = new BufferedImage(1, 1, getImageType(colorModel));
 
-        Font basicFont = new Font(fontName, Font.BOLD, fontSize);
+        //Font basicFont = new Font(fontName, Font.BOLD, fontSize);
+        String fontFile = "/"+fontName+".ttf";
+        InputStream fontStream = QRCodeImageGeneratorUtil.class.getResourceAsStream(fontFile);
+        Font basicFont = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+
         Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
         attributes.put(TextAttribute.TRACKING, tracking);
+        attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
+        attributes.put(TextAttribute.SIZE, fontSize);
         Font font = basicFont.deriveFont(attributes);
 
         Graphics2D graphics2d = image.createGraphics();
