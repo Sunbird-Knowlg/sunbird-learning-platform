@@ -2385,7 +2385,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				Platform.config.getInt("learnig.reserve_dialcode.max_count") : 250;
 		if(count<1 || count>maxCount)
 			throw new ClientException(ContentErrorCodes.ERR_INVALID_COUNT.name(),
-					"Invalid dialcode count range. Its hould be between 1 to " + maxCount + ".");
+					"Invalid dialcode count range. It should be between 1 to " + maxCount + ".");
 	}
 
 	/* (non-Javadoc)
