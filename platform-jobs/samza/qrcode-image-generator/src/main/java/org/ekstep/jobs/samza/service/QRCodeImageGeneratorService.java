@@ -35,6 +35,10 @@ public class QRCodeImageGeneratorService implements ISamzaService {
 	    LOGGER.info("QRCodeImageGeneratorService:processMessage: Processing request: "+message);
 	    LOGGER.info("QRCodeImageGeneratorService:processMessage: Starting message processing at "+System.currentTimeMillis());
 
+	    if(!message.containsKey(QRCodeImageGeneratorParams.eid.name())) {
+	        return;
+        }
+
 		String eid = (String) message.get(QRCodeImageGeneratorParams.eid.name());
 		if(!eid.equalsIgnoreCase(QRCodeImageGeneratorParams.BE_QR_IMAGE_GENERATOR.name())) {
             return;
