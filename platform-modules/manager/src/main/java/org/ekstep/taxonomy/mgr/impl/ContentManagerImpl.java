@@ -2254,16 +2254,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		TelemetryManager.log("Updating content node: " + contentId);
 		if (imageObjectExists || isImageObjectCreationNeeded) {
 			definition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
-			TelemetryManager.info("DIAL LINK: Fetching definition for ContentImage for content: " + contentId);
 		}
 		String passportKey = Platform.config.getString("graph.passport.key.base");
 		map.put("versionKey", passportKey);
-		TelemetryManager.info("DIAL LINK: Before Content inRelations for content: " + contentId, new HashMap<String, Object>() {{put("inRelations", graphNode.getInRelations());}});
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 		domainObj.setGraphId(TAXONOMY_ID);
 		domainObj.setIdentifier(contentId);
 		domainObj.setObjectType(objectType);
-		TelemetryManager.info("DIAL LINK: After Content inRelations for content: " + contentId, new HashMap<String, Object>() {{put("inRelations", domainObj.getInRelations());}});
 		createResponse = updateDataNode(domainObj);
 
 		return createResponse;
