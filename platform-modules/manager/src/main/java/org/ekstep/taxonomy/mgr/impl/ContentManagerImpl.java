@@ -2252,6 +2252,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return createResponse;
 
 		TelemetryManager.log("Updating content node: " + contentId);
+		if (imageObjectExists || isImageObjectCreationNeeded) {
+			definition = getDefinition(TAXONOMY_ID, CONTENT_IMAGE_OBJECT_TYPE);
+		}
 		String passportKey = Platform.config.getString("graph.passport.key.base");
 		map.put("versionKey", passportKey);
 		TelemetryManager.error("DIAL issue debugging - actual node", null, graphNode);
