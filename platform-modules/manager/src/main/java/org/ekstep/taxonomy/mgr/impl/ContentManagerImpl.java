@@ -2257,9 +2257,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		String passportKey = Platform.config.getString("graph.passport.key.base");
 		map.put("versionKey", passportKey);
-		TelemetryManager.error("DIAL issue debugging - actual node", null, graphNode);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
-		TelemetryManager.error("DIAL issue debugging - modified node", null, domainObj);
 		domainObj.setGraphId(TAXONOMY_ID);
 		domainObj.setIdentifier(contentId);
 		domainObj.setObjectType(objectType);
