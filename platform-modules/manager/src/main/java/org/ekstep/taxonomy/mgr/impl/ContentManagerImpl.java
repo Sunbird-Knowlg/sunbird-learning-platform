@@ -71,6 +71,7 @@ import org.springframework.stereotype.Component;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import org.ekstep.telemetry.handler.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -2253,7 +2254,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		TelemetryManager.log("Updating content node: " + contentId);
 		String passportKey = Platform.config.getString("graph.passport.key.base");
 		map.put("versionKey", passportKey);
+		TelemetryManager.error("DIAL issue debugging - actual node", null, graphNode);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+		TelemetryManager.error("DIAL issue debugging - modified node", null, domainObj);
 		domainObj.setGraphId(TAXONOMY_ID);
 		domainObj.setIdentifier(contentId);
 		domainObj.setObjectType(objectType);
