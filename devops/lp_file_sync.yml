@@ -2,6 +2,6 @@
   become: yes
   become_user: "{{learner_user}}"
   vars_files:
-    - "{{inventory_dir}}/secrets/lp_secrets.yml"
+    - "{{inventory_dir}}/secrets/dp_secrets.yml"
   roles:
     - lp-file-sync
