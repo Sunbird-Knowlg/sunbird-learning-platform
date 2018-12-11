@@ -1336,7 +1336,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 		}
 		idMap.put(nodeId, id);
-		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
+		Map<String, Object> metadata = Optional.ofNullable(map.get("metadata")).map(e -> (Map<String, Object>) e).orElse(new HashMap<String, Object>()) ;
+		
 		if (metadata.containsKey("dialcodes")) {
 			metadata.remove("dialcodes");
 		}
