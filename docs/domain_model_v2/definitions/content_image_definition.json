@@ -1122,7 +1122,10 @@
 						"Collection",
 						"Book",
 						"Lesson Plan",
-						"Course"
+						"Course",
+						"Theory",
+						"Worksheet",
+						"Practical"
 					],
 					"indexed": true,
 					"draft": false
@@ -1503,15 +1506,54 @@
 					"indexed": true
 				},
 				{
+					"required": false,
+					"dataType": "Term",
+					"propertyName": "difficultyLevel",
+					"title": "Difficulty Level",
+					"description": "Difficulty Level",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "TermList",
+					"propertyName": "subDomains",
+					"title": "Sub-Domain",
+					"description": "Sub-Domain",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "TermList",
+					"propertyName": "subjectCodes",
+					"title": "Subject Codes",
+					"description": "Subject Codes",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"propertyName": "domain",
 					"title": "Domain",
-					"description": "",
+					"description": "Domain",
 					"category": "General",
 					"dataType": "List",
 					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
-					"renderingHints": "",
+					"renderingHints": "{'inputType': 'select', 'order': 9}",
 					"indexed": true
 				},
 				{
@@ -2360,7 +2402,8 @@
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content"
+						"Content",
+						"ContentImage"
 					],
 					"title": "collections",
 					"description": "Which all collections is this content part of",
