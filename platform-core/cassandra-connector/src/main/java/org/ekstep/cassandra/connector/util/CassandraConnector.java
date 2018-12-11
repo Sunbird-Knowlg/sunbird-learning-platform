@@ -71,6 +71,8 @@ public class CassandraConnector {
 			connectionInfo = Arrays.asList(Platform.config.getString("cassandra.lp.connection").split(","));
 		} else if (sessionKey.equalsIgnoreCase("lpa")) {
 			connectionInfo = Arrays.asList(Platform.config.getString("cassandra.lpa.connection").split(","));
+		} else if (sessionKey.equalsIgnoreCase("sunbird")) {
+			connectionInfo = Arrays.asList(Platform.config.getString("cassandra.sunbird.connection").split(","));
 		}
 		if (null == connectionInfo || connectionInfo.isEmpty())
 			connectionInfo = new ArrayList<>(Arrays.asList("localhost:9042"));

@@ -295,7 +295,7 @@ public class ContentV2Controller extends BaseController {
 				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
 						"content object is blank"), apiId, null);
 			}
-			response = contentManager.preSignedURL(contentId, fileName);
+			response = contentManager.preSignedURL(contentId, fileName, "assets");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);

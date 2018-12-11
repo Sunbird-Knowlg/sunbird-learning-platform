@@ -1,7 +1,9 @@
 package org.ekstep.searchindex.util;
 
+import org.ekstep.common.Platform;
+
 public class CompositeSearchConstants {
-	public static String COMPOSITE_SEARCH_INDEX = "compositesearch";
+	public static String COMPOSITE_SEARCH_INDEX = Platform.config.hasPath("compositesearch.index.name") ? Platform.config.getString("compositesearch.index.name"): "compositesearch_v1";
 	public static final String OPERATION_CREATE = "CREATE";
 	public static final String OPERATION_UPDATE = "UPDATE";
 	public static final String OPERATION_DELETE = "DELETE";
@@ -56,8 +58,11 @@ public class CompositeSearchConstants {
 	public static final String CONDITION_SET_SHOULD = "should";
 	public static final String SEARCH_OPERATION_SOFT = "soft";
 	public static final String NODE_TYPE_EXTERNAL = "EXTERNAL";
+	public static final String NODE_TYPE_DIALCODE_METRICS = "DIALCODE_METRICS";
 	public static String DIAL_CODE_INDEX = "dialcode";
+	public static String DIAL_CODE_METRICS_INDEX = "dialcodemetrics";
 	public static final String DIAL_CODE_INDEX_TYPE = "dc";
+	public static final String DIAL_CODE_METRICS_INDEX_TYPE = "dcm";
 	public static final String SEARCH_OPERATION_NOT_IN_OPERATOR = "notIn";
 	public static final String SEARCH_OPERATION_NOT_IN = "NT_IN";
 	public static final String SEARCH_OPERATION_CONTAINS_OPERATOR = "contains";

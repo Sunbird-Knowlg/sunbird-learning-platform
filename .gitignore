@@ -6,6 +6,7 @@ platform-ui/node_modules
 **/target
 .cache
 .idea
+.DS_Store
 derby.log
 platform-analytics/metastore_db
 dependency-reduced-pom.xml
