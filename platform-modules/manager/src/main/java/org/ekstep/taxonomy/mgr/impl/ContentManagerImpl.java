@@ -886,6 +886,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				}
 			}
 			if (null != nodeMap && !nodeMap.isEmpty()) {
+				// Any change for the hierarchy structure of the graph should update rootNode versionKey.
+				String versionKey = "";
+				if(StringUtils.isNotBlank(rootNodeId)) {
+					Node rootNode = nodeMap.get(rootNodeId);
+					versionKey = System.currentTimeMillis() + "";
+					rootNode.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+				}
 				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
 				Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
 				request.put(GraphDACParams.nodes.name(), nodes);
@@ -895,6 +902,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					if (StringUtils.endsWithIgnoreCase(rootNodeId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 						rootNodeId = rootNodeId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
 					response.put(ContentAPIParams.content_id.name(), rootNodeId);
+					if (StringUtils.isNotBlank(versionKey))
+						response.put(GraphDACParams.versionKey.name(), versionKey);
 				}
 				if (null != newIdMap && !newIdMap.isEmpty())
 					response.put(ContentAPIParams.identifiers.name(), newIdMap);
