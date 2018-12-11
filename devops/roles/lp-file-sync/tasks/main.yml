@@ -10,7 +10,7 @@
   file: name="{{learner_user_home}}/file" state=directory mode=755 owner="{{learner_user}}" group="{{learner_user}}"
 
 - name: Download file from blob
-  command: az storage blob download --container-name {{ secor.azure.container_name }} --name {{ filename }} --file learning-failed-events/cs_index/
+  command: az storage blob download --container-name {{ secor.azure.container_name }} --name {{ filename }} --file learning-failed-events/cs_index/{{ filename }}
   environment:
     AZURE_STORAGE_ACCOUNT: "{{ secor.azure.account_name }}"
     AZURE_STORAGE_KEY: "{{ secor.azure.account_key }}"
