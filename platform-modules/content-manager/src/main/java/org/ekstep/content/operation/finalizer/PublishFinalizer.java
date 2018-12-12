@@ -349,11 +349,13 @@ public class PublishFinalizer extends BaseFinalizer {
 		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
 
 		getResponse(request);
-		
-		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type")?
+
+		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
 				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
-		if(streamableMimeType.contains((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())))	{
-			streamJobRequest.insert(contentId, (String)node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()), (String) node.getMetadata().get(ContentWorkflowPipelineParams.channel.name()));
+		if (streamableMimeType.contains((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
+			streamJobRequest.insert(contentId, (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()),
+					(String) node.getMetadata().get(ContentWorkflowPipelineParams.channel.name()),
+					String.valueOf(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())));
 		}
 		
 		if (StringUtils.equalsIgnoreCase(
