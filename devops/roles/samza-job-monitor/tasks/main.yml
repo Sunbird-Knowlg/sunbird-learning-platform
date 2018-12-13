@@ -1,0 +1,62 @@
+---
+- include_vars: "{{inventory_dir}}/secrets/{{env}}.yml"
+
+- name: Install unzip
+  apt: name=unzip state=present
+  become: yes
+
+- name: Copy and unarchive monitor code
+  unarchive: src=samza_alerts.zip dest=/opt/
+
+- name: Install bundler
+  apt: name=bundler state=present
+
+- name: Install bundler
+  command: bash -lc "bundle install"
+  args:
+    chdir: "/opt/samza_alerts"
+
+- name: change dir permisson
+  file: path=/opt/samza_alerts owner=hduser group=hadoop recurse=yes mode=0755
+
+- name: make job_alerts.rb executable
+  file: path=/opt/samza_alerts/job_alerts.rb state=touch mode=744
+
+- name: Copy file
+  template: src=samza-monitor dest=/etc/init.d/samza-monitor mode=755
+
+- name: Detect if this is a systemd based system
+  command: cat /proc/1/comm
+  register: init
+
+- set_fact: use_systemd=True
+  when: init.stdout == 'systemd'
+
+- set_fact: use_systemd=False
+  when: init.stdout != 'systemd'
+
+- name: Copy file
+  template: src=samza-monitor-systemd dest=/etc/systemd/system/samza-monitor.service mode=755
+  sudo: yes
+  when: use_systemd
+
+- command: systemctl enable samza-monitor.service
+  sudo: yes
+  ignore_errors: true
+  when: use_systemd
+
+- name: Create log directory
+  file: path=/var/log/samza-monitor state=directory owner=hduser group=hadoop recurse=yes mode=0755
+
+- name: Create log file
+  file: path=/var/log/samza-monitor/samza-monitor.log state=touch owner=hduser group=hadoop mode=0644
+
+- name: Restart samza-monitor
+  service: name=samza-monitor state=restarted
+  sudo: yes
+  when: init.stdout != 'systemd' 
+
+- name: Restart samza-monitor
+  systemd: name=samza-monitor state=restarted
+  sudo: yes
+  when: use_systemd

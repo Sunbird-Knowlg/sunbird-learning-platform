@@ -1,0 +1,5 @@
+cql_path: cqlsh
+
+content_keyspace_name: "{{ env }}_content_store"
+orchestrator_keyspace_name: "{{ env }}_script_store"
+hierarchy_keyspace_name: "{{ env }}_hierarchy_store"

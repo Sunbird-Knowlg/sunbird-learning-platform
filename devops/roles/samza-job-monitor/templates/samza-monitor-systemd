@@ -1,0 +1,14 @@
+[Unit]
+Description=samza-monitor deamon
+
+[Service]
+Type=forking
+User=root
+Group=root
+LimitNOFILE=32768
+Restart=on-failure
+ExecStart=/etc/init.d/samza-monitor start
+ExecStop=/etc/init.d/samza-monitor stop
+
+[Install]
+WantedBy=multi-user.target

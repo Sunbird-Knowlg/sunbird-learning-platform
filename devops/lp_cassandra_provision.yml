@@ -1,0 +1,14 @@
+- hosts: lp-cassandra 
+  # Install cassandra
+  become: yes
+  roles:
+    - jdk-1.8.0_121
+    - cassandra-3.7.0
+  tags: provision
+
+- hosts: lp_cassandra
+  become: yes
+  # Create Schema
+  roles:
+    - cassandra-db-update
+  tags: deploy
