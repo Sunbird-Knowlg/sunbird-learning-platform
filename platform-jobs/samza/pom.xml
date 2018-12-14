@@ -28,6 +28,7 @@
 		<module>upload-content</module>
 		<module>image-tagging</module>
 		<module>distribution</module>
+		<module>qrcode-image-generator</module>
   </modules>
 
 	<build>

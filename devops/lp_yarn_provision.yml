@@ -1,8 +1,8 @@
 ---
-- hosts: yarn
+- hosts: lp-yarn
   become: yes
   vars_files:
-    - "{{ secrets_path }}"
+    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   tasks:
     - name: Create group
       group: 
@@ -17,20 +17,31 @@
         shell: /bin/bash
 
 - name: Install samza job server
-  hosts: "yarn-master"
+  hosts: "lp-yarn-master"
   become: yes
   vars_files:
-    - "{{ secrets_path }}"
+    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   roles:
     - java
     - yarn
     - samza-job-server
 
+# # As of ansible2.5 delegation and inlcude tasks file won't work
+# # with looping. So this is a possible workaround
+# - name: Running common tasks in yarn slaves
+#   vars_files:
+#     - ./roles/yarn/defaults/main.yml
+#   hosts: "lp-yarn-slave"
+#   become: yes
+#   tasks:
+#     - include: ./roles/yarn/tasks/common.yml
+#     - include: ./roles/yarn/templates
+
 - name: Install java on all yarn slaves
-  hosts: "yarn-slave"
+  hosts: "lp-yarn-slave"
   become: yes
   vars_files:
-    - "{{ secrets_path }}"
+    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   remote_user: hduser
   roles:
     - java

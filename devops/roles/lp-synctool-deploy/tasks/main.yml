@@ -1,38 +1,25 @@
 ---
 - name: Print the command to console
-  become: yes
-  become_user: "{{learner_user}}"
   debug:
     var: command
 
 - name: Print the parameters to console
-  become: yes
-  become_user: "{{learner_user}}"
   debug:
     var: parameters
 
 - name: Delete existing configuration files
-  become: yes
-  become_user: "{{learner_user}}"
   file: name="{{learner_user_home}}/sync_tool" state=absent
 
 - name: Create directory
-  become: yes
   file: name={{learner_user_home}}/sync_tool state=directory mode=755 owner="{{learner_user}}" group="{{learner_user}}"
 
 - name: Copy application.conf file
-  become: yes
-  become_user: "{{learner_user}}"
   template: src=application.conf.j2 dest={{learner_user_home}}/sync_tool/application.conf
 
 - name: Copy jar file.
-  become: yes
-  become_user: "{{learner_user}}"
   copy: src=sync-tool-0.0.1-SNAPSHOT.jar dest={{learner_user_home}}/sync_tool/
 
 - name: Run Sync tool with given command and parameters.
-  become: yes
-  become_user: "{{learner_user}}"
   shell: "java -Dconfig.file={{learner_user_home}}/sync_tool/application.conf -jar sync-tool-0.0.1-SNAPSHOT.jar {{command}} {{parameters}}"
   async: 3600
   poll: 10
@@ -41,7 +28,5 @@
   register: job_status
 
 - name: Print the job status to console
-  become: yes
-  become_user: "{{learner_user}}"
   debug:
     var: job_status

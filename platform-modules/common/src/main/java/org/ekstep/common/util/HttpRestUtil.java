@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -94,9 +95,11 @@ public class HttpRestUtil {
 			if (StringUtils.isNotBlank(body))
 				resp = objMapper.readValue(body, Response.class);
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			TelemetryManager.info("UnsupportedEncodingException:::::"+ e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			TelemetryManager.info("Exception:::::"+ e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
 		}
 		return resp;
 	}

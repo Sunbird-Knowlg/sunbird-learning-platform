@@ -159,8 +159,8 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 	 * Invalid Publisher (No Publisher).
 	 * 
 	 * Given: Valid url,valid request body and Invalid Publisher (No Publisher).
-	 * When: Generate DIAL Code API hits. Then: 400 - Client Error . Error
-	 * Message : "Publisher is Manadatory"
+	 * When: Generate DIAL Code API hits. Then: 200 - OK
+	 * Message : "Publisher is  not Manadatory"
 	 * 
 	 */
 	@Test
@@ -168,7 +168,7 @@ public class DialCodeV3ControllerTest extends CassandraTestSetup {
 		String path = basePath + "/generate";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(generateDialCodeReqInvalidPublisher));
-		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*

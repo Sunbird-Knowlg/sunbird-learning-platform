@@ -30,17 +30,48 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerTask.class);
 	
 	private JobMetrics metrics;
-	
-	private ISamzaService service = new CompositeSearchIndexerService();
+
+	public ISamzaService getService() {
+		return service;
+	}
+
+	// private ISamzaService service = new CompositeSearchIndexerService();
+	private ISamzaService service;
 
 	private long taskWindow, updateDefinitionsCounter = 0;
-
 	private long updateDefinitionsWindow;
-
 	private List<String> graphIds;
+
+	public CompositeSearchIndexerTask(Config config, TaskContext context, ISamzaService service) throws Exception {
+		init(config, context, service);
+	}
+
+	public CompositeSearchIndexerTask() {
+
+	}
+
+	public void init(Config config, TaskContext context, ISamzaService service) throws Exception {
+		try {
+			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
+			this.service = (service == null ? new CompositeSearchIndexerService() : service);
+			this.service.initialize(config);
+			graphIds = config.getList("graph.ids");
+			LOGGER.info("Initializing Definitions");
+			getAllDefinitions(graphIds);
+			taskWindow = parseLong(config.get("task.window.ms"));
+			updateDefinitionsWindow = parseLong(config.get("definitions.update.window.ms"));
+			LOGGER.info("Task initialized");
+//			LOGGER.info("Initial Content Definition Properties Name:: " + TaskUtils.getDefinition("domain", "Content").getProperties().stream().map(MetadataDefinition::getPropertyName).collect(toList()));
+		} catch (Exception ex) {
+			LOGGER.error("Task initialization failed", ex);
+			throw ex;
+		}
+	}
 	
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
+		init(config, context, null);
+		/*
 		try {
 			metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
 			service.initialize(config);
@@ -55,6 +86,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 			LOGGER.error("Task initialization failed", ex);
 			throw ex;
 		}
+		*/
 	}
 	
 	

@@ -1,6 +1,6 @@
 - hosts: learningall
   vars_files:
-    - "{{ secrets_path }}"
+    - "{{inventory_dir}}/secrets/lp_secrets.yml"
   pre_tasks:
     - name: Registering mw_shard_id
       set_fact:
