@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.platform.domain.BaseTest;
@@ -23,8 +24,8 @@ import com.jayway.restassured.response.Response;
 import net.lingala.zip4j.core.ZipFile;
 
 /**
+ * Test Cases for Content Publish Usecase.
  * @author gauraw
- *
  */
 public class ContentPublishV3Test extends BaseTest{
 
@@ -57,7 +58,7 @@ public class ContentPublishV3Test extends BaseTest{
 		uploadContent(identifier, "/pdf.pdf");
 
 		//Publish Content
-		publishContent(identifier, null);
+		publishContent(identifier, null, true);
 		delay(15000);
 
 		//Read Content and Validate
@@ -84,7 +85,7 @@ public class ContentPublishV3Test extends BaseTest{
 
 		//publish content
 		String publishContentReq = "{\"request\": {\"content\": {\"publisher\": \"EkStep\",\"lastPublishedBy\": \"Ekstep\",\"publishChecklist\":[],\"publishComment\":\"OK\"}}}";
-		publishContent(identifier, publishContentReq);
+		publishContent(identifier, publishContentReq, true);
 		delay(20000);
 
 		//Read Content and Validate
@@ -118,7 +119,7 @@ public class ContentPublishV3Test extends BaseTest{
 		uploadContent(identifier, "/pdf.pdf");
 
 		//publish content
-		publishContent(identifier, null);
+		publishContent(identifier, null, true);
 		delay(15000);
 
 		// Get Content and Validate
@@ -151,7 +152,7 @@ public class ContentPublishV3Test extends BaseTest{
 		uploadContent(identifier, "/pdf.pdf");
 
 		//publish content
-		publishContent(identifier, null);
+		publishContent(identifier, null, true);
 		delay(15000);
 
 		// Get Content and Validate
@@ -161,17 +162,17 @@ public class ContentPublishV3Test extends BaseTest{
 		String downloadUrl = jsonResponse.get("result.content.downloadUrl");
 		String artifactUrl = jsonResponse.get("result.content.artifactUrl");
 		String previewUrl = jsonResponse.get("result.content.previewUrl");
-		String publisher = jsonResponse.get("result.content.publisher");
 		String lastPublishedBy = jsonResponse.get("result.content.lastPublishedBy");
 		String lastPublishedOn = jsonResponse.get("result.content.lastPublishedOn");
 		String pkgVersion = Float.toString(jsonResponse.get("result.content.pkgVersion"));
+		String streamingUrl = jsonResponse.get("result.content.streamingUrl");
 		assertEquals("Live", status);
 		assertEquals("Draft", prevState);
 		assertNotNull(downloadUrl);
 		assertNotNull(artifactUrl);
 		assertNotNull(lastPublishedOn);
 		assertEquals(artifactUrl, previewUrl);
-		assertEquals("EkStep", publisher);
+		assertEquals(artifactUrl, streamingUrl);
 		assertEquals("EkStep", lastPublishedBy);
 		assertEquals("1.0", pkgVersion);
 		assertTrue(validateEcarManifestMetadata(downloadUrl, "previewUrl", "artifactUrl"));
@@ -193,15 +194,15 @@ public class ContentPublishV3Test extends BaseTest{
 		//Upload Youtube Video to the Content
 		setURI();
 		given().
-				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
-				multiPart("fileUrl", "http://youtu.be/-wtIMTCHWuI").
-				when().
-				post("/content/v3/upload/" + identifier).
-				then().//log().all().
-				spec(get200ResponseSpec());
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart("fileUrl", "http://youtu.be/-wtIMTCHWuI").
+		when().
+		post("/content/v3/upload/" + identifier).
+		then().//log().all().
+		spec(get200ResponseSpec());
 
 		//publish content
-		publishContent(identifier, null);
+		publishContent(identifier, null, true);
 		delay(15000);
 
 		// Get Content and Validate
@@ -211,7 +212,6 @@ public class ContentPublishV3Test extends BaseTest{
 		String downloadUrl = jsonResponse.get("result.content.downloadUrl");
 		String artifactUrl = jsonResponse.get("result.content.artifactUrl");
 		String previewUrl = jsonResponse.get("result.content.previewUrl");
-		String publisher = jsonResponse.get("result.content.publisher");
 		String lastPublishedBy = jsonResponse.get("result.content.lastPublishedBy");
 		String lastPublishedOn = jsonResponse.get("result.content.lastPublishedOn");
 		String pkgVersion = Float.toString(jsonResponse.get("result.content.pkgVersion"));
@@ -221,7 +221,6 @@ public class ContentPublishV3Test extends BaseTest{
 		assertNotNull(artifactUrl);
 		assertNotNull(lastPublishedOn);
 		assertEquals(artifactUrl, previewUrl);
-		assertEquals("EkStep", publisher);
 		assertEquals("EkStep", lastPublishedBy);
 		assertEquals("1.0", pkgVersion);
 		assertTrue(validateEcarManifestMetadata(downloadUrl, "previewUrl", "artifactUrl"));
@@ -244,7 +243,7 @@ public class ContentPublishV3Test extends BaseTest{
 		uploadContent(identifier, "/uploadContent.zip");
 
 		//publish Content
-		publishContent(identifier, null);
+		publishContent(identifier, null, true);
 		delay(15000);
 
 		// Get Content and Validate
@@ -254,7 +253,7 @@ public class ContentPublishV3Test extends BaseTest{
 		String downloadUrl = jsonResponse.get("result.content.downloadUrl");
 		String artifactUrl = jsonResponse.get("result.content.artifactUrl");
 		String previewUrl = jsonResponse.get("result.content.previewUrl");
-		String publisher = jsonResponse.get("result.content.publisher");
+		//String publisher = jsonResponse.get("result.content.publisher");
 		String lastPublishedBy = jsonResponse.get("result.content.lastPublishedBy");
 		String lastPublishedOn = jsonResponse.get("result.content.lastPublishedOn");
 		String pkgVersion = Float.toString(jsonResponse.get("result.content.pkgVersion"));
@@ -264,7 +263,7 @@ public class ContentPublishV3Test extends BaseTest{
 		assertNotNull(artifactUrl);
 		assertNotNull(lastPublishedOn);
 		assertTrue(previewUrl.endsWith(identifier + "-latest"));
-		assertEquals("EkStep", publisher);
+		//assertEquals("EkStep", publisher);
 		assertEquals("EkStep", lastPublishedBy);
 		assertEquals("1.0", pkgVersion);
 		assertTrue(validateEcarManifestMetadata(downloadUrl, "previewUrl", "artifactUrl"));
@@ -287,7 +286,7 @@ public class ContentPublishV3Test extends BaseTest{
 		uploadContent(identifier, "/uploadHtml.zip");
 
 		//publish Content
-		publishContent(identifier, null);
+		publishContent(identifier, null, true);
 		delay(15000);
 
 		// Get Content and Validate
@@ -297,7 +296,7 @@ public class ContentPublishV3Test extends BaseTest{
 		String downloadUrl = jsonResponse.get("result.content.downloadUrl");
 		String artifactUrl = jsonResponse.get("result.content.artifactUrl");
 		String previewUrl = jsonResponse.get("result.content.previewUrl");
-		String publisher = jsonResponse.get("result.content.publisher");
+		//String publisher = jsonResponse.get("result.content.publisher");
 		String lastPublishedBy = jsonResponse.get("result.content.lastPublishedBy");
 		String lastPublishedOn = jsonResponse.get("result.content.lastPublishedOn");
 		String pkgVersion = Float.toString(jsonResponse.get("result.content.pkgVersion"));
@@ -307,7 +306,7 @@ public class ContentPublishV3Test extends BaseTest{
 		assertNotNull(artifactUrl);
 		assertNotNull(lastPublishedOn);
 		assertTrue(previewUrl.endsWith(identifier + "-latest"));
-		assertEquals("EkStep", publisher);
+		//assertEquals("EkStep", publisher);
 		assertEquals("EkStep", lastPublishedBy);
 		assertEquals("1.0", pkgVersion);
 		assertTrue(validateEcarManifestMetadata(downloadUrl, "previewUrl", "artifactUrl"));
@@ -330,7 +329,7 @@ public class ContentPublishV3Test extends BaseTest{
 		uploadContent(identifier, "/valid_h5p_content.h5p");
 
 		//publish Content
-		publishContent(identifier, null);
+		publishContent(identifier, null, true);
 		delay(15000);
 
 		// Get Content and Validate
@@ -340,7 +339,7 @@ public class ContentPublishV3Test extends BaseTest{
 		String downloadUrl = jsonResponse.get("result.content.downloadUrl");
 		String artifactUrl = jsonResponse.get("result.content.artifactUrl");
 		String previewUrl = jsonResponse.get("result.content.previewUrl");
-		String publisher = jsonResponse.get("result.content.publisher");
+		//String publisher = jsonResponse.get("result.content.publisher");
 		String lastPublishedBy = jsonResponse.get("result.content.lastPublishedBy");
 		String lastPublishedOn = jsonResponse.get("result.content.lastPublishedOn");
 		String pkgVersion = Float.toString(jsonResponse.get("result.content.pkgVersion"));
@@ -350,10 +349,84 @@ public class ContentPublishV3Test extends BaseTest{
 		assertNotNull(artifactUrl);
 		assertNotNull(lastPublishedOn);
 		assertTrue(previewUrl.endsWith(identifier + "-latest"));
-		assertEquals("EkStep", publisher);
+		//assertEquals("EkStep", publisher);
 		assertEquals("EkStep", lastPublishedBy);
 		assertEquals("1.0", pkgVersion);
 		assertTrue(validateEcarManifestMetadata(downloadUrl, "previewUrl", "artifactUrl"));
+	}
+
+	/*
+	 * Given: Publish MP4 Resource Content
+	 * When: Content Publish API Hits
+	 * Then: 200-OK, Content Should be in "Live" Status with all required metadata. ("streamingUrl" should be available after 30 min.)
+	 *
+	 */
+	@Test
+	public void publishVideoMP4ContentExpectStreamingUrlSuccess() {
+		//Create Content
+		String createVideoMP4ContentReq = "{\"request\":{\"content\":{\"name\":\"Resource Content for Video Streaming\",\"code\":\"test.resource.1\",\"mimeType\":\"video/mp4\",\"contentType\":\"Resource\"}}}";
+		String identifier = createContent(contentType, createVideoMP4ContentReq);
+
+		//Upload Content
+		uploadContent(identifier, "/small.mp4");
+
+		//publish Content
+		publishContent(identifier, null, true);
+		delay(1500000);
+
+		// Get Content and Validate
+		JsonPath jsonResponse = readContent(identifier);
+		String status = jsonResponse.get("result.content.status");
+		String prevState = jsonResponse.get("result.content.prevState");
+		String downloadUrl = jsonResponse.get("result.content.downloadUrl");
+		String artifactUrl = jsonResponse.get("result.content.artifactUrl");
+		String streamingUrl = jsonResponse.get("result.content.streamingUrl");
+		String lastPublishedOn = jsonResponse.get("result.content.lastPublishedOn");
+		String pkgVersion = Float.toString(jsonResponse.get("result.content.pkgVersion"));
+		assertEquals("Live", status);
+		assertEquals("Draft", prevState);
+		assertNotNull(downloadUrl);
+		assertNotNull(artifactUrl);
+		assertNotNull(lastPublishedOn);
+		assertTrue(streamingUrl.endsWith("(format=m3u8-aapl-v3)"));
+		assertEquals("1.0", pkgVersion);
+	}
+
+	/*
+	 * Given: Publish WEBM Resource Content
+	 * When: Content Publish API Hits
+	 * Then: 200-OK, Content Should be in "Live" Status with all required metadata. ("streamingUrl" should be available after 30 min.)
+	 *
+	 */
+	@Test
+	public void publishVideoWEBMContentExpectStreamingUrlSuccess() {
+		//Create Content
+		String createVideoMP4ContentReq = "{\"request\":{\"content\":{\"name\":\"Resource Content for Video Streaming\",\"code\":\"test.resource.1\",\"mimeType\":\"video/webm\",\"contentType\":\"Resource\"}}}";
+		String identifier = createContent(contentType, createVideoMP4ContentReq);
+
+		//Upload Content
+		uploadContent(identifier, "/small.webm");
+
+		//publish Content
+		publishContent(identifier, null, true);
+		delay(1500000);
+
+		// Get Content and Validate
+		JsonPath jsonResponse = readContent(identifier);
+		String status = jsonResponse.get("result.content.status");
+		String prevState = jsonResponse.get("result.content.prevState");
+		String downloadUrl = jsonResponse.get("result.content.downloadUrl");
+		String artifactUrl = jsonResponse.get("result.content.artifactUrl");
+		String streamingUrl = jsonResponse.get("result.content.streamingUrl");
+		String lastPublishedOn = jsonResponse.get("result.content.lastPublishedOn");
+		String pkgVersion = Float.toString(jsonResponse.get("result.content.pkgVersion"));
+		assertEquals("Live", status);
+		assertEquals("Draft", prevState);
+		assertNotNull(downloadUrl);
+		assertNotNull(artifactUrl);
+		assertNotNull(lastPublishedOn);
+		assertTrue(streamingUrl.endsWith("(format=m3u8-aapl-v3)"));
+		assertEquals("1.0", pkgVersion);
 	}
 
 	/**
@@ -404,17 +477,18 @@ public class ContentPublishV3Test extends BaseTest{
 	}
 
 	/**
-	 *
 	 * @param contentId
 	 * @param request
+	 * @param isAuthRequired
 	 */
-	private void publishContent(String contentId, String request) {
+	private void publishContent(String contentId, String request, Boolean isAuthRequired) {
 		String publishContentReq = request;
 		if (StringUtils.isBlank(request))
 			publishContentReq = "{\"request\": {\"content\": {\"publisher\": \"EkStep\",\"lastPublishedBy\": \"EkStep\",\"publishChecklist\":[\"GoodQuality\",\"CorrectConcept\"],\"publishComment\":\"OK\"}}}";
+		RequestSpecification spec = getRequestSpec(isAuthRequired);
 		setURI();
 		given().
-		spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+		spec(spec).
 		body(publishContentReq).
 		with().
 		contentType(JSON).
