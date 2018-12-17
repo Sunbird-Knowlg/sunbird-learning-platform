@@ -77,7 +77,7 @@ public class HttpDownloadUtility {
 					saveFile.mkdirs();
 				}
 				String saveFilePath = saveDir + File.separator + fileName;
-				TelemetryManager.log("Save File Path: " + saveFilePath);
+				System.out.println("Save File Path: " + saveFilePath);
 
 				// opens an output stream to save into file
 				outputStream = new FileOutputStream(saveFilePath);
@@ -116,7 +116,7 @@ public class HttpDownloadUtility {
 				}
 		}
 
-		TelemetryManager.warn("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
+		System.out.println("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
 		return null;
 	}
 

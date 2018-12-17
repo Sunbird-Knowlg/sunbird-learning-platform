@@ -260,7 +260,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				TelemetryManager.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
 			}
 			
-			TelemetryManager.info("Creating Spine ECAR For Content Id: " + node.getIdentifier());
+			System.out.println("Creating Spine ECAR For Content Id: " + node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.SPINE);
 			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null,
@@ -270,10 +270,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
 
-			TelemetryManager.log("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+			System.out.println("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
 
-			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
+			System.out.println("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 			
 			// if collection full ECAR creation disabled set spine as download url.
@@ -289,7 +289,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			File pkgFile = (File) artifact;
 			if (pkgFile.exists())
 				pkgFile.delete();
-			TelemetryManager.info("Deleting Local Artifact Package File: " + pkgFile.getAbsolutePath());
+			System.out.println("Deleting Local Artifact Package File: " + pkgFile.getAbsolutePath());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
 
 			if (StringUtils.isNotBlank(artifactUrl))
@@ -325,6 +325,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			TelemetryManager.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
+			e.printStackTrace();
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
 		}
 
@@ -340,7 +341,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setInRelations(node.getInRelations());
 		newNode.setOutRelations(node.getOutRelations());
 
-		TelemetryManager.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
+		System.out.println("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
 		Response response = migrateContentImageObjectData(contentId, newNode);
 
 		// delete image..

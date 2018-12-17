@@ -182,18 +182,24 @@ public class ContentBundle {
 		String bundleFileName = BUNDLE_PATH + File.separator + fileName;
 		String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
 		List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);
+		System.out.println("All files downloaded.");
 		try {
 			File manifestFile = new File(
 					bundlePath + File.separator + ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME);
 			createManifestFile(manifestFile, version, null, contents);
+			System.out.println("Manifest file created.");
 			if (null != downloadedFiles) {
 				if (null != manifestFile)
 					downloadedFiles.add(manifestFile);
 				try {
+					System.out.println("Before - createBundle with downloadedFies...");
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
+					System.out.println("After - createBundle with downloadedFies...");
 					String folderName = S3PropertyReader.getProperty(ECAR_FOLDER);
 					folderName = folderName + "/" + contentId;
+					System.out.println("Before - upload ECAR bundle...");
 					String[] url = CloudStore.uploadFile(folderName, contentBundle, true);
+					System.out.println("After - upload ECAR bundle...");
 					downloadedFiles.add(contentBundle);
 					return url;
 				} catch (Throwable e) {
@@ -401,6 +407,7 @@ public class ContentBundle {
 			}
 			pool.shutdown();
 		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
 			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + "Error while creating contentBundle", e);
 		}
