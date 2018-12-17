@@ -33,19 +33,7 @@ public class ContentPublishV3Test extends BaseTest{
 	private static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 	private static ObjectMapper mapper=new ObjectMapper();
 
-	/**
-	 *
-	 * @param time
-	 */
-	public void delay(long time){
-		try {
-			Thread.sleep(time);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-
+	
 	//Publish Content with Checklist & Comment
 	@Test
 	public void publishContentWithCheckListExpect200() {
@@ -426,6 +414,43 @@ public class ContentPublishV3Test extends BaseTest{
 		assertNotNull(artifactUrl);
 		assertNotNull(lastPublishedOn);
 		assertTrue(streamingUrl.endsWith("(format=m3u8-aapl-v3)"));
+		assertEquals("1.0", pkgVersion);
+	}
+
+	/*
+	 * Given: Publish MPEG Video Resource Content
+	 * When: Content Publish API Hits
+	 * Then: 200-OK, Content Should be in "Live" Status with all required metadata. ("streamingUrl" should be same as "artifactUrl")
+	 *
+	 */
+	@Test
+	public void publishVideoMPEGContentExpectStreamingUrlSuccess() {
+		//Create Content
+		String createVideoMP4ContentReq = "{\"request\":{\"content\":{\"name\":\"Resource Content for Video Streaming Test\",\"code\":\"test.resource.1\",\"mimeType\":\"video/mpeg\",\"contentType\":\"Resource\"}}}";
+		String identifier = createContent(contentType, createVideoMP4ContentReq);
+
+		//Upload Content
+		uploadContent(identifier, "/delta.mpg");
+
+		//publish Content
+		publishContent(identifier, null, true);
+		delay(15000);
+
+		// Get Content and Validate
+		JsonPath jsonResponse = readContent(identifier);
+		String status = jsonResponse.get("result.content.status");
+		String prevState = jsonResponse.get("result.content.prevState");
+		String downloadUrl = jsonResponse.get("result.content.downloadUrl");
+		String artifactUrl = jsonResponse.get("result.content.artifactUrl");
+		String streamingUrl = jsonResponse.get("result.content.streamingUrl");
+		String lastPublishedOn = jsonResponse.get("result.content.lastPublishedOn");
+		String pkgVersion = Float.toString(jsonResponse.get("result.content.pkgVersion"));
+		assertEquals(artifactUrl, streamingUrl);
+		assertEquals("Live", status);
+		assertEquals("Draft", prevState);
+		assertNotNull(downloadUrl);
+		assertNotNull(artifactUrl);
+		assertNotNull(lastPublishedOn);
 		assertEquals("1.0", pkgVersion);
 	}
 
