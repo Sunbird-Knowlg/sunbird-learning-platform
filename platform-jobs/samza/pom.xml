@@ -20,15 +20,15 @@
 	<description>This Project Contains all the backend jobs, they may be the Pipeline Consumers.</description>
 	<modules>
 		<module>common</module>
-		<module>audit-history-indexer</module>
-	    <module>audit-event-generator</module>	
-		<module>composite-search-indexer</module>
+		<!--<module>audit-history-indexer</module>-->
+	    <!--<module>audit-event-generator</module>	-->
+		<!--<module>composite-search-indexer</module>-->
 		<module>publish-pipeline</module>
-		<module>republish-pipeline</module>
-		<module>upload-content</module>
-		<module>image-tagging</module>
+		<!--<module>republish-pipeline</module>-->
+		<!--<module>upload-content</module>-->
+		<!--<module>image-tagging</module>-->
 		<module>distribution</module>
-		<module>qrcode-image-generator</module>
+		<!--<module>qrcode-image-generator</module>-->
   </modules>
 
 	<build>
