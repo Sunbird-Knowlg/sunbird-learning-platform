@@ -67,6 +67,7 @@ public class HttpDownloadUtility {
 				} else {
 					// extracts file name from URL
 					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
+					fileName = System.currentTimeMillis() + "_" + fileName;
 					TelemetryManager.log("File Name: " + fileName);
 				}
 
@@ -77,7 +78,7 @@ public class HttpDownloadUtility {
 					saveFile.mkdirs();
 				}
 				String saveFilePath = saveDir + File.separator + fileName;
-				System.out.println("Save File Path: " + saveFilePath);
+				System.out.println("For FileUrl :" + fileURL +" , Save File Path: " + saveFilePath);
 
 				// opens an output stream to save into file
 				outputStream = new FileOutputStream(saveFilePath);
