@@ -37,22 +37,22 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
-			TelemetryManager.log("Start Downloading for File: " + fileURL);
+			System.out.println("Start Downloading for File: " + fileURL);
 
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
-			TelemetryManager.log("Response Code: " + responseCode);
+			System.out.println("Response Code: " + responseCode);
 
 			// always check HTTP response code first
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				TelemetryManager.log("Response is OK.");
+				System.out.println("Response is OK.");
 
 				String fileName = "";
 				String disposition = httpConn.getHeaderField("Content-Disposition");
 				httpConn.getContentType();
 				httpConn.getContentLength();
-				TelemetryManager.log("Content Disposition: " + disposition);
+				System.out.println("Content Disposition: " + disposition);
 
 				if (disposition != null) {
 					// extracts file name from header field
@@ -94,11 +94,11 @@ public class HttpDownloadUtility {
 
 				return file;
 			} else {
-				TelemetryManager.log("No file to download. Server replied HTTP code: " + responseCode);
+				System.out.println("No file to download. Server replied HTTP code: " + responseCode);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			TelemetryManager.error("Error! While Downloading File:"+ e.getMessage(), e);
+			System.out.println("Error! While Downloading File:"+ e.getMessage()+ e);
 		} finally {
 			if (null != httpConn)
 				httpConn.disconnect();
