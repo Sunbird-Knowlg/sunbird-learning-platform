@@ -148,7 +148,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			System.out.println("Before - contentPackageExtractionUtil.uploadExtractedPackage()");
 			//upload snapshot of content into aws
-			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
+			//contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
 			System.out.println("After - contentPackageExtractionUtil.uploadExtractedPackage()");
 			
 			// Create 'ZIP' Package
