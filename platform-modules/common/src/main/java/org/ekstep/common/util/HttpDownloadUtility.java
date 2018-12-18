@@ -62,13 +62,12 @@ public class HttpDownloadUtility {
 					}*/
 					int index = disposition.indexOf("filename=");
 					if (index > 0) {
-						fileName = System.currentTimeMillis() + "_" + disposition.substring(index + 10, disposition.indexOf("\"", index+10));
+						fileName = disposition.substring(index + 10, disposition.indexOf("\"", index+10));
 						System.out.println("File Name: " + fileName);
 					}
 				} else {
 					// extracts file name from URL
 					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
-					fileName = System.currentTimeMillis() + "_" + fileName;
 					System.out.println("File Name: " + fileName);
 				}
 
@@ -92,7 +91,7 @@ public class HttpDownloadUtility {
 				inputStream.close();
 				File file = new File(saveFilePath);
 				file = Slug.createSlugFile(file);
-				TelemetryManager.log("Sliggified File Name: " + file);
+				System.out.println("Sluggified File Name: " + file.getAbsolutePath());
 
 				return file;
 			} else {
