@@ -342,6 +342,7 @@ public class ContentBundle {
 		try {
 			ExecutorService pool = Executors.newFixedThreadPool(10);
 			List<Callable<List<File>>> tasks = new ArrayList<Callable<List<File>>>(downloadUrls.size());
+
 			for (final Object val : downloadUrls.keySet()) {
 				tasks.add(new Callable<List<File>>() {
 					public List<File> call() throws Exception {
@@ -396,8 +397,12 @@ public class ContentBundle {
 				});
 			}
 			List<Future<List<File>>> results = pool.invokeAll(tasks);
+			System.out.println("Size of future results list: "+ results.size());
+			int temp = 1;
 			for (Future<List<File>> ff : results) {
-				List<File> f = ff.get(60, TimeUnit.SECONDS);
+				List<File> f = ff.get(20, TimeUnit.SECONDS);
+				System.out.println("Got the future result for "+ temp);
+				temp++;
 				if (null != f && !f.isEmpty())
 					files.addAll(f);
 			}
