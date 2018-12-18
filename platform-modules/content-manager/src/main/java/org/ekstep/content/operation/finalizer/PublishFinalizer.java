@@ -248,13 +248,14 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 				System.out.println("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			} else {
-				TelemetryManager.info("Creating Full ECAR For Content Id: " + node.getIdentifier());
+				System.out.println("Creating Full ECAR For Content Id: " + node.getIdentifier());
 				String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
 				
 				downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
 						null, EcarPackageType.FULL);
 				urlArray = contentBundle.createContentBundle(contents, bundleFileName,
 						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+				System.out.println("Full ECAR created For Content Id: " + node.getIdentifier());
 				downloadUrl = urlArray[IDX_S3_URL];
 				s3Key = urlArray[IDX_S3_KEY];
 				TelemetryManager.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
@@ -267,6 +268,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					EcarPackageType.SPINE);
 			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+			System.out.println("Spine ECAR created For Content Id: " + node.getIdentifier());
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
 
