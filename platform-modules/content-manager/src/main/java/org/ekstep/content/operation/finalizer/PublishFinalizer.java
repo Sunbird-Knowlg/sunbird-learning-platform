@@ -145,9 +145,11 @@ public class PublishFinalizer extends BaseFinalizer {
 			String ecml = getECMLString(ecrf, ecmlType);
 			// Write ECML File
 			writeECMLFile(basePath, ecml, ecmlType);
-			
+
+			System.out.println("Before - contentPackageExtractionUtil.uploadExtractedPackage()");
 			//upload snapshot of content into aws
-			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
+			//contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
+			System.out.println("After - contentPackageExtractionUtil.uploadExtractedPackage()");
 			
 			// Create 'ZIP' Package
 			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
@@ -168,8 +170,10 @@ public class PublishFinalizer extends BaseFinalizer {
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 			}
 		}
+		System.out.println("Before - createThumbnail");
 		// Download App Icon and create thumbnail
 		createThumbnail(basePath, node);
+		System.out.println("After - createThumbnail");
 
 		// Set Package Version
 		double version = 1.0;

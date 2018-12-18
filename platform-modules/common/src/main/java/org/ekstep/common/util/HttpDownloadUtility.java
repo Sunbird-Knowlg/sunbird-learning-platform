@@ -37,22 +37,22 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
-			System.out.println("Start Downloading for File: " + fileURL);
+			System.out.println("--- Start Downloading for File: " + fileURL);
 
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
-			System.out.println("Response Code: " + responseCode);
+			System.out.println("--- Response Code: " + responseCode);
 
 			// always check HTTP response code first
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				System.out.println("Response is OK.");
+				System.out.println("--- Response is OK.");
 
 				String fileName = "";
 				String disposition = httpConn.getHeaderField("Content-Disposition");
 				httpConn.getContentType();
 				httpConn.getContentLength();
-				System.out.println("Content Disposition: " + disposition);
+				System.out.println("--- Content Disposition: " + disposition);
 
 				if (disposition != null) {
 					// extracts file name from header field
@@ -62,13 +62,12 @@ public class HttpDownloadUtility {
 					}*/
 					int index = disposition.indexOf("filename=");
 					if (index > 0) {
-						fileName = System.currentTimeMillis() + "_" + disposition.substring(index + 10, disposition.indexOf("\"", index+10));
+						fileName = disposition.substring(index + 10, disposition.indexOf("\"", index+10));
 						System.out.println("File Name: " + fileName);
 					}
 				} else {
 					// extracts file name from URL
 					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
-					fileName = System.currentTimeMillis() + "_" + fileName;
 					System.out.println("File Name: " + fileName);
 				}
 
@@ -79,7 +78,7 @@ public class HttpDownloadUtility {
 					saveFile.mkdirs();
 				}
 				String saveFilePath = saveDir + File.separator + fileName;
-				System.out.println("For FileUrl :" + fileURL +" , Save File Path: " + saveFilePath);
+				System.out.println("--- FileUrl :" + fileURL +" , Save File Path: " + saveFilePath);
 
 				// opens an output stream to save into file
 				outputStream = new FileOutputStream(saveFilePath);
@@ -92,7 +91,7 @@ public class HttpDownloadUtility {
 				inputStream.close();
 				File file = new File(saveFilePath);
 				file = Slug.createSlugFile(file);
-				TelemetryManager.log("Sliggified File Name: " + file);
+				System.out.println("Sluggified File Name: " + file.getAbsolutePath());
 
 				return file;
 			} else {
