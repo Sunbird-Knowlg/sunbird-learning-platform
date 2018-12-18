@@ -37,22 +37,22 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
-			System.out.println("Start Downloading for File: " + fileURL);
+			System.out.println("--- Start Downloading for File: " + fileURL);
 
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
-			System.out.println("Response Code: " + responseCode);
+			System.out.println("--- Response Code: " + responseCode);
 
 			// always check HTTP response code first
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				System.out.println("Response is OK.");
+				System.out.println("--- Response is OK.");
 
 				String fileName = "";
 				String disposition = httpConn.getHeaderField("Content-Disposition");
 				httpConn.getContentType();
 				httpConn.getContentLength();
-				System.out.println("Content Disposition: " + disposition);
+				System.out.println("--- Content Disposition: " + disposition);
 
 				if (disposition != null) {
 					// extracts file name from header field
@@ -79,7 +79,7 @@ public class HttpDownloadUtility {
 					saveFile.mkdirs();
 				}
 				String saveFilePath = saveDir + File.separator + fileName;
-				System.out.println("For FileUrl :" + fileURL +" , Save File Path: " + saveFilePath);
+				System.out.println("--- FileUrl :" + fileURL +" , Save File Path: " + saveFilePath);
 
 				// opens an output stream to save into file
 				outputStream = new FileOutputStream(saveFilePath);
