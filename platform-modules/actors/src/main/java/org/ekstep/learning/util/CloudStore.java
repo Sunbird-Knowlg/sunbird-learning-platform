@@ -64,7 +64,7 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 			file = Slug.createSlugFile(file);
 		String container = getContainerName();
 		String objectKey = folderName + File.separator;
-		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(true), Option.empty(), Option.empty());
+		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(true), Option.empty(), Option.apply(5), 1);
 		return new String[] { objectKey, url };
 	}
 	
