@@ -340,23 +340,27 @@ public class ContentBundle {
 	private List<File> getContentBundle(final Map<Object, List<String>> downloadUrls, final String bundlePath) {
 		List<File> files = new ArrayList<File>();
 		try {
-			ExecutorService pool = Executors.newFixedThreadPool(10);
+			ExecutorService pool = Executors.newFixedThreadPool(1);
 			List<Callable<List<File>>> tasks = new ArrayList<Callable<List<File>>>(downloadUrls.size());
 
+			System.out.println("Total count of downloadUrl: " + downloadUrls.size());
 			for (final Object val : downloadUrls.keySet()) {
 				tasks.add(new Callable<List<File>>() {
 					public List<File> call() throws Exception {
+						System.out.println("call start for: " + val);
 						List<String> ids = downloadUrls.get(val);
 						List<File> files = new ArrayList<File>();
 						for (String id : ids) {
 							String destPath = bundlePath + File.separator + id;
 							createDirectoryIfNeeded(destPath);
 							if (val instanceof File) {
+								System.out.println("val is a file - Yes.");
 								File file = (File) val;
 								File newFile = new File(destPath + File.separator + file.getName());
 								FileUtils.copyFile(file, newFile);
 								files.add(newFile);
 							} else {
+								System.out.println("val is a file - No.");
 								String url = val.toString();
 								if (url.endsWith(".ecar")) {
 									File ecarFile = HttpDownloadUtility.downloadFile(url, destPath + "_ecar");
@@ -386,16 +390,21 @@ public class ContentBundle {
 										// do nothing
 									}
 								} else {
+									System.out.println("Before downloadFile for " + url);
 									File newFile = HttpDownloadUtility.downloadFile(url, destPath);
+									System.out.println("After downloadFile for " + url);
 									if (null != newFile)
 										files.add(newFile);
 								}
 							}
 						}
+						System.out.println("call end for: " + val);
+						System.out.println("Total number of files: "+ files.size());
 						return files;
 					}
 				});
 			}
+			System.out.println("Size of tasks list: "+ tasks.size());
 			List<Future<List<File>>> results = pool.invokeAll(tasks);
 			System.out.println("Size of future results list: "+ results.size());
 			int temp = 1;
