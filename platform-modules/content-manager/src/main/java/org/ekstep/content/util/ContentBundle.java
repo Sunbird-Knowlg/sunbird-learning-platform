@@ -178,24 +178,18 @@ public class ContentBundle {
 		String bundleFileName = BUNDLE_PATH + File.separator + fileName;
 		String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
 		List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);
-		System.out.println("All files downloaded.");
 		try {
 			File manifestFile = new File(
 					bundlePath + File.separator + ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME);
 			createManifestFile(manifestFile, version, null, contents);
-			System.out.println("Manifest file created.");
 			if (null != downloadedFiles) {
 				if (null != manifestFile)
 					downloadedFiles.add(manifestFile);
 				try {
-					System.out.println("Before - createBundle with downloadedFies...");
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
-					System.out.println("After - createBundle with downloadedFies...");
 					String folderName = S3PropertyReader.getProperty(ECAR_FOLDER);
 					folderName = folderName + "/" + contentId;
-					System.out.println("Before - upload ECAR bundle...");
 					String[] url = CloudStore.uploadFile(folderName, contentBundle, true);
-					System.out.println("After - upload ECAR bundle...");
 					downloadedFiles.add(contentBundle);
 					return url;
 				} catch (Throwable e) {
@@ -343,24 +337,20 @@ public class ContentBundle {
 			ExecutorService pool = Executors.newFixedThreadPool(1);
 			List<Callable<List<File>>> tasks = new ArrayList<Callable<List<File>>>(downloadUrls.size());
 
-			System.out.println("Total count of downloadUrl: " + downloadUrls.size());
 			for (final Object val : downloadUrls.keySet()) {
 				tasks.add(new Callable<List<File>>() {
 					public List<File> call() throws Exception {
-						System.out.println("call start for: " + val);
 						List<String> ids = downloadUrls.get(val);
 						List<File> files = new ArrayList<File>();
 						for (String id : ids) {
 							String destPath = bundlePath + File.separator + id;
 							createDirectoryIfNeeded(destPath);
 							if (val instanceof File) {
-								System.out.println("val is a file - Yes.");
 								File file = (File) val;
 								File newFile = new File(destPath + File.separator + file.getName());
 								FileUtils.copyFile(file, newFile);
 								files.add(newFile);
 							} else {
-								System.out.println("val is a file - No.");
 								String url = val.toString();
 								if (url.endsWith(".ecar")) {
 									File ecarFile = HttpDownloadUtility.downloadFile(url, destPath + "_ecar");
@@ -390,28 +380,19 @@ public class ContentBundle {
 										// do nothing
 									}
 								} else {
-									System.out.println("Before downloadFile for " + url);
 									File newFile = HttpDownloadUtility.downloadFile(url, destPath);
-									System.out.println("After downloadFile for " + url);
 									if (null != newFile)
 										files.add(newFile);
 								}
 							}
 						}
-						System.out.println("call end for: " + val);
-						System.out.println("Total number of files: "+ files.size());
 						return files;
 					}
 				});
 			}
-			System.out.println("Size of tasks list: "+ tasks.size());
 			List<Future<List<File>>> results = pool.invokeAll(tasks);
-			System.out.println("Size of future results list: "+ results.size());
-			int temp = 1;
 			for (Future<List<File>> ff : results) {
-				List<File> f = ff.get(20, TimeUnit.SECONDS);
-				System.out.println("Got the future result for "+ temp);
-				temp++;
+				List<File> f = ff.get(60, TimeUnit.SECONDS);
 				if (null != f && !f.isEmpty())
 					files.addAll(f);
 			}

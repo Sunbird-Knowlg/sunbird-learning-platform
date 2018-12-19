@@ -146,11 +146,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			// Write ECML File
 			writeECMLFile(basePath, ecml, ecmlType);
 
-			System.out.println("Before - contentPackageExtractionUtil.uploadExtractedPackage()");
 			//upload snapshot of content into aws
 			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
-			System.out.println("After - contentPackageExtractionUtil.uploadExtractedPackage()");
-			
+
 			// Create 'ZIP' Package
 			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
@@ -170,10 +168,8 @@ public class PublishFinalizer extends BaseFinalizer {
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 			}
 		}
-		System.out.println("Before - createThumbnail");
 		// Download App Icon and create thumbnail
 		createThumbnail(basePath, node);
-		System.out.println("After - createThumbnail");
 
 		// Set Package Version
 		double version = 1.0;
@@ -250,36 +246,36 @@ public class PublishFinalizer extends BaseFinalizer {
 			ContentBundle contentBundle = new ContentBundle();
 			
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
-				System.out.println("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
+				TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			} else {
-				System.out.println("Creating Full ECAR For Content Id: " + node.getIdentifier());
+				TelemetryManager.log("Creating Full ECAR For Content Id: " + node.getIdentifier());
 				String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
 				
 				downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
 						null, EcarPackageType.FULL);
 				urlArray = contentBundle.createContentBundle(contents, bundleFileName,
 						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
-				System.out.println("Full ECAR created For Content Id: " + node.getIdentifier());
+				TelemetryManager.log("Full ECAR created For Content Id: " + node.getIdentifier());
 				downloadUrl = urlArray[IDX_S3_URL];
 				s3Key = urlArray[IDX_S3_KEY];
 				TelemetryManager.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
 			}
-			
-			System.out.println("Creating Spine ECAR For Content Id: " + node.getIdentifier());
+
+			TelemetryManager.log("Creating Spine ECAR For Content Id: " + node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.SPINE);
 			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null,
 					EcarPackageType.SPINE);
 			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
-			System.out.println("Spine ECAR created For Content Id: " + node.getIdentifier());
+			TelemetryManager.log("Spine ECAR created For Content Id: " + node.getIdentifier());
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
 
-			System.out.println("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+			TelemetryManager.log("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
 
-			System.out.println("Adding variants to Content Id: " + node.getIdentifier());
+			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 			
 			// if collection full ECAR creation disabled set spine as download url.
@@ -295,7 +291,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			File pkgFile = (File) artifact;
 			if (pkgFile.exists())
 				pkgFile.delete();
-			System.out.println("Deleting Local Artifact Package File: " + pkgFile.getAbsolutePath());
+			TelemetryManager.log("Deleting Local Artifact Package File: " + pkgFile.getAbsolutePath());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
 
 			if (StringUtils.isNotBlank(artifactUrl))
@@ -347,7 +343,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setInRelations(node.getInRelations());
 		newNode.setOutRelations(node.getOutRelations());
 
-		System.out.println("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
+		TelemetryManager.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
 		Response response = migrateContentImageObjectData(contentId, newNode);
 
 		// delete image..

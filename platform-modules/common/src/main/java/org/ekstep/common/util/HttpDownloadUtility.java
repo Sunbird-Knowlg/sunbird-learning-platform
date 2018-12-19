@@ -37,22 +37,20 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
-			System.out.println("--- Start Downloading for File: " + fileURL);
-
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
-			System.out.println("--- Response Code: " + responseCode);
+			TelemetryManager.log("Response Code: " + responseCode);
 
 			// always check HTTP response code first
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				System.out.println("--- Response is OK.");
+				TelemetryManager.log("Response is OK.");
 
 				String fileName = "";
 				String disposition = httpConn.getHeaderField("Content-Disposition");
 				httpConn.getContentType();
 				httpConn.getContentLength();
-				System.out.println("--- Content Disposition: " + disposition);
+				TelemetryManager.log("Content Disposition: " + disposition);
 
 				if (disposition != null) {
 					// extracts file name from header field
@@ -63,12 +61,10 @@ public class HttpDownloadUtility {
 					int index = disposition.indexOf("filename=");
 					if (index > 0) {
 						fileName = disposition.substring(index + 10, disposition.indexOf("\"", index+10));
-						System.out.println("File Name: " + fileName);
 					}
 				} else {
 					// extracts file name from URL
 					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
-					System.out.println("File Name: " + fileName);
 				}
 
 				// opens input stream from the HTTP connection
@@ -78,7 +74,7 @@ public class HttpDownloadUtility {
 					saveFile.mkdirs();
 				}
 				String saveFilePath = saveDir + File.separator + fileName;
-				System.out.println("--- FileUrl :" + fileURL +" , Save File Path: " + saveFilePath);
+				TelemetryManager.log("FileUrl :" + fileURL +" , Save File Path: " + saveFilePath);
 
 				// opens an output stream to save into file
 				outputStream = new FileOutputStream(saveFilePath);
@@ -91,15 +87,15 @@ public class HttpDownloadUtility {
 				inputStream.close();
 				File file = new File(saveFilePath);
 				file = Slug.createSlugFile(file);
-				System.out.println("Sluggified File Name: " + file.getAbsolutePath());
+				TelemetryManager.log("Sluggified File Name: " + file.getAbsolutePath());
 
 				return file;
 			} else {
-				System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+				TelemetryManager.log("No file to download. Server replied HTTP code: " + responseCode);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error! While Downloading File:"+ e.getMessage()+ e);
+			TelemetryManager.error("Error! While Downloading File:"+ e.getMessage(), e);
 		} finally {
 			if (null != httpConn)
 				httpConn.disconnect();
@@ -117,7 +113,7 @@ public class HttpDownloadUtility {
 				}
 		}
 
-		System.out.println("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
+		TelemetryManager.warn("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
 		return null;
 	}
 
