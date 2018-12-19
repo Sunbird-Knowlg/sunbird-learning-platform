@@ -70,7 +70,7 @@
 	<repositories>
         <repository>
             <id>cloudStorerepo</id>
-            <url>https://oss.sonatype.org/content/repositories/orgsunbird-1019
+            <url>https://oss.sonatype.org/content/repositories/orgsunbird-1020
             </url>
         </repository>
     </repositories>
