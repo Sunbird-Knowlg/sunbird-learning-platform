@@ -2613,6 +2613,7 @@
 				},
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,
+				"allowupdate_framework": true,
 				"fields": [
 					"identifier",
 					"name",
