@@ -2396,6 +2396,18 @@
 					"defaultValue": "No",
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 23 }",
 					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "lockKey",
+					"title": "Collaborator lock key",
+					"description": "lock key id given by collaborator",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 23 }",
+					"indexed": true
 				}
 			],
 			"inRelations": [
