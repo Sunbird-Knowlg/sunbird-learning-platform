@@ -562,7 +562,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		if(StringUtils.isBlank(channelId))
-			ERROR(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), "Channel can not be blank.", ResponseCode.CLIENT_ERROR);
+			return ERROR(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), "Channel can not be blank.", ResponseCode.CLIENT_ERROR);
 		// Checking for resourceType if contentType resource
 		// validateNodeForContentType(map);
 
