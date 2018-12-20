@@ -96,6 +96,8 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private static String collectionVersion2Key = "";
 	private static String collectionContent3Id = "";
 	private static String collectionVersion3Key = "";
+	
+	private static String channelId = "in.ekstep";
 
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -197,7 +199,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response documentResponse = contentManager.create(documentContentMap);
+			Response documentResponse = contentManager.create(documentContentMap, channelId);
 			if (i == 1) {
 				contentId = (String) documentResponse.getResult().get(TestParams.node_id.name());
 				versionKey = (String) documentResponse.getResult().get(TestParams.versionKey.name());
@@ -224,7 +226,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Map<String, Object> collectionContentMap1 = mapper.readValue(createCollectionContent1,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp1 = contentManager.create(collectionContentMap1);
+		Response resp1 = contentManager.create(collectionContentMap1, channelId);
 		collectionContent1Id = (String) resp1.getResult().get(TestParams.node_id.name());
 		collectionVersion1Key = (String) resp1.getResult().get(TestParams.versionKey.name());
 
@@ -232,7 +234,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Map<String, Object> collectionContentMap2 = mapper.readValue(createCollectionContent2,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp2 = contentManager.create(collectionContentMap2);
+		Response resp2 = contentManager.create(collectionContentMap2, channelId);
 		collectionContent2Id = (String) resp2.getResult().get(TestParams.node_id.name());
 		collectionVersion2Key = (String) resp2.getResult().get(TestParams.versionKey.name());
 
@@ -240,7 +242,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Map<String, Object> collectionContentMap3 = mapper.readValue(createCollectionContent3,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response resp3 = contentManager.create(collectionContentMap3);
+		Response resp3 = contentManager.create(collectionContentMap3, channelId);
 		collectionContent3Id = (String) resp3.getResult().get(TestParams.node_id.name());
 		collectionVersion3Key = (String) resp3.getResult().get(TestParams.versionKey.name());
 	}

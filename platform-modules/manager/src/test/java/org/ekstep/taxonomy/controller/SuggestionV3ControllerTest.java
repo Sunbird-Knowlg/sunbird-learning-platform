@@ -64,6 +64,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	private static String INDEX = "test_suggestion";
 	private static String contentId = "";
 	private static String suggestionId = "";
+	private static String channelId = "in.ekstep";
 
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -91,7 +92,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 		Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Response documentResponse = contentManager.create(documentContentMap);
+		Response documentResponse = contentManager.create(documentContentMap, channelId);
 		contentId = (String) documentResponse.getResult().get(TestParams.node_id.name());
 	}
 
