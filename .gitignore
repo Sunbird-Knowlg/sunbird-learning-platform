@@ -6,6 +6,7 @@ platform-ui/node_modules
 **/target
 .cache
 .idea
+.DS_Store
 derby.log
 platform-analytics/metastore_db
 dependency-reduced-pom.xml
@@ -22,3 +23,4 @@ language-platform/module/scripts/orchestrator/node_modules/
 *.
 H5PContentWorkflowTest.java
 platform-tools/spikes/sunbird-tools/nbproject
+*.retry

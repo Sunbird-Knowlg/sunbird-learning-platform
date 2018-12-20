@@ -218,9 +218,10 @@ public interface IContentManager {
 	/**
 	 * @param contentId
 	 * @param fileName
+	 * @param type
 	 * @return
 	 */
-	Response preSignedURL(String contentId, String fileName);
+	Response preSignedURL(String contentId, String fileName, String type);
 
 	/**
 	 * @param data
@@ -266,4 +267,22 @@ public interface IContentManager {
     Response acceptFlag(String contentId) throws Exception;
 
     Response syncHierarchy(String identifier);
+    
+    /**
+     * @param contentId
+     * @param channelId
+     * @param reqObj
+     * @return
+     * @throws Exception
+     */
+    Response reserveDialCode(String contentId, String channelId, Map<String, Object> reqMap) throws Exception;
+
+	/**
+	 *
+	 * @param contentId
+	 * @param channelId
+	 * @return
+	 * @throws Exception
+	 */
+	Response releaseDialcodes(String contentId, String channelId) throws Exception;
 }

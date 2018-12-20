@@ -1,6 +1,9 @@
 package org.ekstep.taxonomy.controller;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -26,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.ws.rs.PathParam;
+
 /**
  * The Class ContentV3Controller, is the main entry point for the High Level
  * Content Operations, mostly it holds the API Method related to Content
@@ -50,6 +55,8 @@ public class ContentV3Controller extends BaseController {
 	private String UNDERSCORE = "_";
 
 	private String DOT = ".";
+
+	private List<String> preSignedObjTypes = Arrays.asList("assets", "artifact", "hierarchy");
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
@@ -341,7 +348,7 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> map) {
+												 @RequestBody Map<String, Object> map, @PathParam(value = "type") String type) {
 		String apiId = "ekstep.learning.content.upload.url";
 		TelemetryManager.log("Upload URL content | Content Id : " + contentId);
 		Response response;
@@ -359,8 +366,14 @@ public class ContentV3Controller extends BaseController {
 				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
 						"content object is blank"), apiId, null);
 			}
+			if (StringUtils.isBlank(type)) type = "assets";
 
-			response = contentManager.preSignedURL(contentId, fileName);
+			if (!preSignedObjTypes.contains(type.toLowerCase())) {
+				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_INVALID_PRESIGNED_URL_TYPE.name(),
+						"Invalid pre-signed url type. It should be one of " + StringUtils.join(preSignedObjTypes, ",")), apiId, null);
+			}
+
+			response = contentManager.preSignedURL(contentId, fileName, type.toLowerCase());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
@@ -417,6 +430,56 @@ public class ContentV3Controller extends BaseController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Linking Dial Code with Content: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	/**
+	 * Controller Method to Link QR Code (DIAL Code) with Content
+	 * 
+	 * @author amitp
+	 * @param contentId
+	 *            The Content Id for whom DIAL Codes have to be reserved           
+	 * @return
+	 */
+	@RequestMapping(value = "/dialcode/reserve/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> reserveDialCode(
+			@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
+		String apiId = "ekstep.learning.content.dialcode.reserve";
+		TelemetryManager.log("Reserve DIAL Codes | Content Id : " + contentId);
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get(ContentAPIParams.dialcodes.name());
+			Response response = contentManager.reserveDialCode(contentId, channelId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception occured while Reserving DIAL Codes with Content: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Controller method to Releases all not Linked QR Codes (DIAL Codes) from Textbook.
+	 *
+	 * @param contentId
+	 * 				The Content Id of the Textbook from which DIAL Codes have to be released
+	 * @return The Response Entity with list of Released QR Codes
+	 */
+	@RequestMapping(value="/dialcode/release/{id}", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> releaseDialcodes(@PathVariable(value="id") String contentId,
+													 @RequestHeader(value = CHANNEL_ID) String channelId) {
+		String apiId = "ekstep.learning.content.dialcode.release";
+		TelemetryManager.log("Release DIAL Codes | Content Id : " + contentId);
+		Response response;
+		try {
+			response = contentManager.releaseDialcodes(contentId, channelId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception occured while Releasing DIAL Codes with Content: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

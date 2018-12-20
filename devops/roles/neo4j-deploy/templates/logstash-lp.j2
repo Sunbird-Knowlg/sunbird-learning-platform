@@ -1,0 +1,91 @@
+
+input {
+    file {
+        type => "backend_event"    
+        path => ["/data/logs/learning_telemetry_event_mw.log"]
+    }
+    file {
+        type => "backend_event"    
+        path => ["/data/logs/language_telemetry_event_mw.log"]
+    }
+    file {
+        type => "backend_event"    
+        path => ["/data/logs/config_telemetry_event_mw.log"]
+    }
+    file {
+        type => "backend_event"    
+        path => ["/data/logs/search_telemetry_event_mw.log"]
+    }
+    file {
+        type => "backend_event"    
+        path => ["/data/logs/learning_service_mw.log"]
+    }
+    file {
+        type => "backend_event"    
+        path => ["/data/logs/language_service_mw.log"]
+    }
+    file {
+        type => "backend_event"
+        path => ["/data/logs/config_service_mw.log"]
+    }
+    file {
+        type => "backend_event"
+        path => ["/data/logs/search_service_mw.log"]
+    }
+    file {
+        type => "graph_event"    
+        path => ["/data/logs/learning_graph_event_sync.log"]
+    }
+    file {
+         type => "graph_event"    
+         path => ["/data/logs/learning_graph_event_mw.log"]
+    }
+    file {
+         type => "graph_event"
+         path => ["/data/logs/language_graph_event_mw.log"]
+    }
+    file {
+         type => "graph_event"
+         path => ["/data/logs/learning_graph_event_neo4j.log"]
+    }
+    file {
+         type => "graph_event"
+         path => ["/data/logs/language_graph_event_neo4j.log"]
+    }
+}
+
+filter {
+    grok {
+      match => [ "message",
+                "%{TIMESTAMP_ISO8601:timestamp} %{GREEDYDATA:msg}"]
+    }
+    mutate {
+        gsub => [ "message","%{timestamp}","" ]
+        strip => [ "message" ]
+    }
+}
+
+
+output {
+  if [type] == "backend_event" {
+      kafka {
+          bootstrap_servers => "{{ graphevent_kafka_url }}"
+          codec => plain {
+                format => "%{message}"
+            }
+          topic_id => "{{ backend_event_topic_id }}"
+          retries => 20
+          retry_backoff_ms => 180000
+      }
+  } else if [type] == "graph_event" {
+      kafka {
+          bootstrap_servers => "{{ graphevent_kafka_url }}"
+          codec => plain {
+                  format => "%{message}"
+            }
+          topic_id => "{{ graphevent_kafka_topic_id }}"
+          retries => 20
+          retry_backoff_ms => 180000
+      }
+  }
+}

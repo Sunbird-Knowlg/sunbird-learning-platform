@@ -1,0 +1,15 @@
+#!/bin/sh
+cd {{neo4j_home}}
+bin/neo4j-backup --from={{backup_add}} --to=/home/learning/{{graph_machine}}
+time="$(date '+%e%b%Y')"
+var="{{graph_machine}}"
+var1="_"
+var3="{{instance}}"
+time1="$(date '+%H%M%S')"
+var4=".tar.gz"
+var2="$time$var1$time1$var1$var$var1$var3$var4"
+echo "$var2"
+cd /home/learning
+tar -cvzf $var2 {{graph_machine}}
+mkdir /home/learning/backup
+mv $var2 /home/learning/backup

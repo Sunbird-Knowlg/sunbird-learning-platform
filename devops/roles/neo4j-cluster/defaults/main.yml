@@ -1,0 +1,24 @@
+learner_user: learning
+learner_user_home: /home/{{learner_user}}
+
+neo4j_dir: neo4j-learning
+neo4j_home: "{{learner_user_home}}/{{neo4j_dir}}/neo4j-enterprise-3.3.0"
+neo4j_zip: #neo4j enterprise zip file
+neo4j_enterprise: "false"
+dbms_memory_heap_initial_size: 1024
+dbms_memory_heap_max_size: 1024
+dbms_memory_pagecache_size: 2g
+dbms_backup_enabled: true
+dbms_backup_address: "0.0.0.0:7362"
+neo4j_dbms_shell_port: "1337"
+dbms_connector_bolt_address: "0.0.0.0:7687"
+dbms_connector_http_address: "0.0.0.0:7474"
+dbms_connector_https_address: "localhost:7473"
+instance: "{{env}}"
+product: lp
+
+#server_id: 1
+dbms_mode: HA
+initial_hosts: "{{groups['learning-neo4j-cluster'][0]}}:7001"
+host_coordination: "{{inventory_hostname}}:7001"
+ha_host_data: "{{inventory_hostname}}:6001"

@@ -34,7 +34,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.65</version>
+			<version>0.0.74</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>qrcode-image-generator</artifactId>
+			<version>0.0.3</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -54,7 +61,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.144</version>
+			<version>0.0.157</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

@@ -2,6 +2,8 @@ package org.ekstep.sync.tool.shell;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.ekstep.sync.tool.mgr.ISyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,25 +29,7 @@ public class SyncShellCommands implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		indexSyncManager.syncByIds(graphId, ids);
-		long endTime = System.currentTimeMillis();
-		long exeTime = endTime - startTime;
-		System.out.println("Total time of execution: " + exeTime + "ms");
-		LocalDateTime end = LocalDateTime.now();
-		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
-	}
-
-	@CliCommand(value = "syncbyfile", help = "Sync data from Neo4j to Elastic Search by Id and objectType(optional) listed in a file")
-	public void syncByFile(@CliOption(key = {
-			"graphId" }, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
-			@CliOption(key = { "filePath" }, mandatory = true, help = "File Path of the csv file") String filePath,
-			@CliOption(key = { "objectType" }, mandatory = false, help = "Object type ") String objectType)
-			throws Exception {
-
-		long startTime = System.currentTimeMillis();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime start = LocalDateTime.now();
-		indexSyncManager.syncByFile(graphId, filePath, objectType);		
+		indexSyncManager.syncByIds(graphId, new ArrayList<>(Arrays.asList(ids)));
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");

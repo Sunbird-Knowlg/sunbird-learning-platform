@@ -96,7 +96,7 @@ public class XMLContentParser {
 			plugin.setData(getDataMap(root));
 			plugin.setcData(getCData(root));
 			plugin.setManifest(
-					getContentManifest(root.getElementsByTagName(ContentWorkflowPipelineParams.manifest.name()), true));
+					getContentManifest(root, true));
 			plugin.setControllers(
 					getControllers(root.getElementsByTagName(ContentWorkflowPipelineParams.controller.name())));
 			plugin.setChildrenPlugin(getChildrenPlugins(root));
@@ -104,33 +104,38 @@ public class XMLContentParser {
 		}
 		return plugin;
 	}
-	
+
 	/**
 	 * gets the ContentManifest
 	 *
-	 * @param manfifestNodeList
-	 * gets all mediaNodes and childNodes
-	 * sets all manifestProperties
-	 * @return Manifest
+	 * @param root
+	 * @param validateMedia
+	 * @return
 	 */
-	private Manifest getContentManifest(NodeList manifestNodes, boolean validateMedia) {
-		Manifest manifest = new Manifest();
-		if (null != manifestNodes && manifestNodes.getLength() > 0) {
-			List<Media> medias = new ArrayList<Media>();
-			if (null != manifestNodes.item(0) && manifestNodes.item(0).hasChildNodes()) {
-				NodeList mediaNodes = manifestNodes.item(0).getChildNodes();
-				for (int j = 0; j < mediaNodes.getLength(); j++) {
-					if (mediaNodes.item(j).getNodeType() == Node.ELEMENT_NODE && StringUtils.equalsIgnoreCase(
-							mediaNodes.item(j).getNodeName(), ContentWorkflowPipelineParams.media.name()))
-						medias.add(getContentMedia(mediaNodes.item(j), validateMedia));
-				}
-			}
-			manifest.setId(getId(manifestNodes.item(0)));
-			manifest.setData(getDataMap(manifestNodes.item(0)));
-			manifest.setInnerText(getInnerText(manifestNodes.item(0)));
-			manifest.setcData(getCData(manifestNodes.item(0)));
-			manifest.setMedias(medias);
+	private Manifest getContentManifest(Element root, boolean validateMedia) {
+		NodeList childList = root.getChildNodes();
+		Node manifestNode = null;
+		for (int i = 0; i < childList.getLength(); i++) {
+			if (StringUtils.equals(ContentWorkflowPipelineParams.manifest.name(), childList.item(i).getNodeName()))
+				manifestNode = childList.item(i);
 		}
+
+		List<Media> medias = new ArrayList<>();
+		if (null != manifestNode && manifestNode.hasChildNodes()) {
+			NodeList mediaNodes = manifestNode.getChildNodes();
+			for (int j = 0; j < mediaNodes.getLength(); j++) {
+				if (mediaNodes.item(j).getNodeType() == Node.ELEMENT_NODE && StringUtils.equalsIgnoreCase(
+						mediaNodes.item(j).getNodeName(), ContentWorkflowPipelineParams.media.name()))
+					medias.add(getContentMedia(mediaNodes.item(j), validateMedia));
+			}
+		}
+
+		Manifest manifest = new Manifest();
+		manifest.setId(getId(manifestNode));
+		manifest.setData(getDataMap(manifestNode));
+		manifest.setInnerText(getInnerText(manifestNode));
+		manifest.setcData(getCData(manifestNode));
+		manifest.setMedias(medias);
 		return manifest;
 	}
 	
@@ -269,8 +274,7 @@ public class XMLContentParser {
 			plugin.setChildrenPlugin(getChildrenPlugins(node));
 			plugin.setControllers(getControllers(
 					((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.controller.name())));
-			plugin.setManifest(getContentManifest(
-					((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.manifest.name()), false));
+			plugin.setManifest(getContentManifest( (Element) node, false));
 			plugin.setEvents(getEvents(node));
 		}
 		return plugin;
