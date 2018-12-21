@@ -24,18 +24,6 @@
   debug:
     var: download_file_job_status
 
-- name: Delete existing configuration files
-  file: name="{{learner_user_home}}/sync_tool" state=absent
-
-- name: Create sync_tool directory
-  file: name={{learner_user_home}}/sync_tool state=directory mode=755 owner="{{learner_user}}" group="{{learner_user}}"
-
-- name: Copy application.conf file
-  template: src=application.conf.j2 dest={{learner_user_home}}/sync_tool/application.conf
-
-- name: Copy jar file.
-  copy: src=sync-tool-0.0.1-SNAPSHOT.jar dest={{learner_user_home}}/sync_tool/
-
 - name: Run Sync tool with given command and parameters.
   shell: "java -Dconfig.file=/{{learner_user_home}}/sync_tool/application.conf -jar sync-tool-0.0.1-SNAPSHOT.jar sync --graph domain --type file --filepath /{{learner_user_home}}/file/{{filename}}"
   async: 3600
