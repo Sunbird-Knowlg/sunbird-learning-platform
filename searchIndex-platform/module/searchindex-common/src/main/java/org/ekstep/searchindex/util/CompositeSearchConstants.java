@@ -3,7 +3,7 @@ package org.ekstep.searchindex.util;
 import org.ekstep.common.Platform;
 
 public class CompositeSearchConstants {
-	public static String COMPOSITE_SEARCH_INDEX = Platform.config.hasPath("compositesearch.index.name") ? Platform.config.getString("compositesearch.index.name"): "compositesearch_v1";
+	public static String COMPOSITE_SEARCH_INDEX = Platform.config.hasPath("compositesearch.index.name") ? Platform.config.getString("compositesearch.index.name"): "compositesearch";
 	public static final String OPERATION_CREATE = "CREATE";
 	public static final String OPERATION_UPDATE = "UPDATE";
 	public static final String OPERATION_DELETE = "DELETE";
