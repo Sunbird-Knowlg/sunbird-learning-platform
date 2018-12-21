@@ -3,10 +3,11 @@ package org.ekstep.platform.domain;
 import static com.jayway.restassured.RestAssured.baseURI;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-//import static com.jayway.restassured.RestAssured.basePath;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.ekstep.common.Platform;
@@ -17,6 +18,8 @@ import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.ekstep.platform.content.ContentV3API;
+import org.ekstep.platform.test.common.TestConstant;
+import org.ekstep.platform.test.common.util.AuthTokenUtil;
 
 public class BaseTest 
 {
@@ -28,8 +31,8 @@ public class BaseTest
 	public String userId = "ilimi";
 	public String channelId = "Test";
 	public String appId = "test.appId";
-	
-	public String APIToken = Platform.config.getString("ft.access_key");
+
+	public String APIToken = TestConstant.BEARER + Platform.config.getString("kp_ft_access_key");
 	public String validuserId = "functional-tests";
 	public String invalidUserId = "abc";
 
@@ -62,7 +65,7 @@ public class BaseTest
 	 */
 	public void setURI()
 	{
-		baseURI =Platform.config.getString("ft.base_uri"); 
+		baseURI = Platform.config.getString("kp_ft_base_uri");
 	}
 	
 		
@@ -101,6 +104,30 @@ public class BaseTest
 		builderreq.addHeader("fileUrl", fileUrl);
 		RequestSpecification requestSpec = builderreq.build();
 		return requestSpec;
+	}
+
+	public RequestSpecification getRequestSpec(boolean isAuthRequired) {
+		RequestSpecBuilder requestSpecBuilder = new RequestSpecBuilder();
+		requestSpecBuilder.addHeaders(getHeaders(isAuthRequired));
+		RequestSpecification requestSpecification = requestSpecBuilder.build();
+		return requestSpecification;
+	}
+
+	public Map<String, String> getHeaders(boolean isAuthRequired) {
+		Map<String, String> header = null;
+		if (isAuthRequired) {
+			header = new HashMap<String, String>() {{
+				put(TestConstant.AUTHORIZATION, APIToken);
+				put(TestConstant.USER_AUTH_TOKEN, AuthTokenUtil.getAuthToken());
+				put(TestConstant.CONTENT_TYPE, TestConstant.CONTENT_TYPE_APPLICATION_JSON);
+			}};
+		} else {
+			header = new HashMap<String, String>() {{
+				put(TestConstant.AUTHORIZATION, APIToken);
+				put(TestConstant.CONTENT_TYPE, TestConstant.CONTENT_TYPE_APPLICATION_JSON);
+			}};
+		}
+		return header;
 	}
 	
 	public RequestSpecification getRequestSpecification(String content_type,String user_id, String APIToken, String channelId, String appId)
