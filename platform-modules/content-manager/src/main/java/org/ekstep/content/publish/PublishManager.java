@@ -30,7 +30,7 @@ import scala.concurrent.Future;
 
 public class PublishManager extends BaseManager {
 
-	private static final String tempFileLocation = "/data/contentBundle/";
+	private static final String tempFileLocation = "/data/contentBundle";
 
 	private ExecutorService executor = Executors.newFixedThreadPool(4); // Parallel execution of 4 publish processes
 

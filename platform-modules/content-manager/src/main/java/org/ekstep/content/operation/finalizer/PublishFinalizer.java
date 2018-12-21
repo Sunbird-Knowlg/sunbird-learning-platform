@@ -145,10 +145,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			String ecml = getECMLString(ecrf, ecmlType);
 			// Write ECML File
 			writeECMLFile(basePath, ecml, ecmlType);
-			
+
 			//upload snapshot of content into aws
 			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
-			
+
 			// Create 'ZIP' Package
 			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
@@ -246,27 +246,29 @@ public class PublishFinalizer extends BaseFinalizer {
 			ContentBundle contentBundle = new ContentBundle();
 			
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
-				System.out.println("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
+				TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			} else {
-				TelemetryManager.info("Creating Full ECAR For Content Id: " + node.getIdentifier());
+				TelemetryManager.log("Creating Full ECAR For Content Id: " + node.getIdentifier());
 				String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
 				
 				downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
 						null, EcarPackageType.FULL);
 				urlArray = contentBundle.createContentBundle(contents, bundleFileName,
 						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+				TelemetryManager.log("Full ECAR created For Content Id: " + node.getIdentifier());
 				downloadUrl = urlArray[IDX_S3_URL];
 				s3Key = urlArray[IDX_S3_KEY];
 				TelemetryManager.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
 			}
-			
-			TelemetryManager.info("Creating Spine ECAR For Content Id: " + node.getIdentifier());
+
+			TelemetryManager.log("Creating Spine ECAR For Content Id: " + node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.SPINE);
 			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null,
 					EcarPackageType.SPINE);
 			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+			TelemetryManager.log("Spine ECAR created For Content Id: " + node.getIdentifier());
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
 
@@ -289,7 +291,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			File pkgFile = (File) artifact;
 			if (pkgFile.exists())
 				pkgFile.delete();
-			TelemetryManager.info("Deleting Local Artifact Package File: " + pkgFile.getAbsolutePath());
+			TelemetryManager.log("Deleting Local Artifact Package File: " + pkgFile.getAbsolutePath());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
 
 			if (StringUtils.isNotBlank(artifactUrl))
@@ -325,6 +327,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			TelemetryManager.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
+			e.printStackTrace();
 			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
 		}
 
@@ -340,7 +343,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setInRelations(node.getInRelations());
 		newNode.setOutRelations(node.getOutRelations());
 
-		TelemetryManager.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
+		TelemetryManager.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
 		Response response = migrateContentImageObjectData(contentId, newNode);
 
 		// delete image..

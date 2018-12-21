@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
-			<version>0.0.5</version>
+			<version>0.0.6</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.160</version>
+			<version>0.0.176</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
