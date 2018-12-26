@@ -71,7 +71,6 @@ import org.springframework.stereotype.Component;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-import org.ekstep.telemetry.handler.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -890,8 +889,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				String versionKey = "";
 				if(StringUtils.isNotBlank(rootNodeId)) {
 					Node rootNode = nodeMap.get(rootNodeId);
-					versionKey = System.currentTimeMillis() + "";
+					String lastUpdatedOn = DateUtils.formatCurrentDate();
+					versionKey = String.valueOf(DateUtils.parse(lastUpdatedOn).getTime());
 					rootNode.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+					rootNode.getMetadata().put(GraphDACParams.lastUpdatedOn.name(), lastUpdatedOn);
 				}
 				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
 				Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
