@@ -32,6 +32,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 	String requestForReview = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}";
 	private String PROCESSING = "Processing";
 	private String PENDING = "Pending";
+	private static String channelId = "in.ekstep";
 	ObjectMapper mapper = new ObjectMapper();
 	String node_id = "";
 
@@ -48,7 +49,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 	public void createEpubContent() throws Exception {
 		Map<String, Object> messageData = mapper.readValue(createEpubContent, new TypeReference<Map<String, Object>>() {
 		});
-		Response result = mgr.create(messageData);
+		Response result = mgr.create(messageData, channelId);
 		node_id = (String) result.getResult().get("node_id");
 	}
 

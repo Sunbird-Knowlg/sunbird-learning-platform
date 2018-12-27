@@ -46,6 +46,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 
 	private static String contentId = "UT_YT_01";
 	private static boolean isContentCreated = false;
+	private static String channelId = "in.ekstep";
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -74,7 +75,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 				new TypeReference<Map<String, Object>>() {
 				});
 		youtubeContentMap.put(TestParams.identifier.name(), contentId);
-		Response youtubeResponse = contentManager.create(youtubeContentMap);
+		Response youtubeResponse = contentManager.create(youtubeContentMap, channelId);
 		if ("OK".equals(youtubeResponse.getResponseCode().toString()))
 			isContentCreated = true;
 	}

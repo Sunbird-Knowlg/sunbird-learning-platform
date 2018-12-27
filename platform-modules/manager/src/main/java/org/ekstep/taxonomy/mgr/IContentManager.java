@@ -205,7 +205,7 @@ public interface IContentManager {
 	 * @return
 	 * @throws Exception
 	 */
-	Response create(Map<String, Object> map) throws Exception;
+	Response create(Map<String, Object> map, String channelId) throws Exception;
 
 	/**
 	 * @param contentId
