@@ -57,7 +57,7 @@ public class ContentV3PublishLocalTest extends CommonTestSetup{
 	private static String mimeType = "";
 	private static String cassandraScript_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
 	private static String cassandraScript_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test ( content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob, PRIMARY KEY (content_id) );";
-	
+	private static String channelId = "in.ekstep";
 	
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -128,7 +128,7 @@ public class ContentV3PublishLocalTest extends CommonTestSetup{
 			Map<String, Object> documentContentMap = mapper.readValue(createECMLContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response documentResponse = contentManager.create(documentContentMap);
+			Response documentResponse = contentManager.create(documentContentMap, channelId);
 			ecmlContentId = (String) documentResponse.getResult().get(TestParams.node_id.name());
 			//versionKey = (String) documentResponse.getResult().get(TestParams.versionKey.name());
 			return ecmlContentId;
