@@ -102,7 +102,7 @@ import static java.util.stream.Collectors.toList;
  *
  * @see IContentManager
  */
-@Component
+//@Component
 public class ContentManagerImpl extends BaseContentManager implements IContentManager {
 
 	/** The Disk Location where the operations on file will take place. */
