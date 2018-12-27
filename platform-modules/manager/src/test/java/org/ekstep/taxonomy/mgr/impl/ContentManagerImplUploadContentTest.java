@@ -42,7 +42,8 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 
 	static String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
-
+	private static String channelId = "in.ekstep";
+	
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
@@ -250,7 +251,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap1.put(TestParams.identifier.name(), "U_Document_001");
-			Response documentResponse1 = contentManager.create(documentContentMap1);
+			Response documentResponse1 = contentManager.create(documentContentMap1, channelId);
 			String documentVersionKey1 = (String) documentResponse1.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey1))
 				versionKeyMap.put("U_Document_001", documentVersionKey1);
@@ -260,7 +261,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap2.put(TestParams.identifier.name(), "U_Document_002");
-			Response documentResponse2 = contentManager.create(documentContentMap2);
+			Response documentResponse2 = contentManager.create(documentContentMap2, channelId);
 			String documentVersionKey2 = (String) documentResponse2.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey2))
 				versionKeyMap.put("U_Document_002", documentVersionKey2);
@@ -270,7 +271,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap3.put(TestParams.identifier.name(), "U_Document_003");
-			Response documentResponse3 = contentManager.create(documentContentMap3);
+			Response documentResponse3 = contentManager.create(documentContentMap3, channelId);
 			String documentVersionKey3 = (String) documentResponse3.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey3))
 				versionKeyMap.put("U_Document_003", documentVersionKey3);
@@ -280,7 +281,7 @@ public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			documentContentMap4.put(TestParams.identifier.name(), "U_Document_004");
-			Response documentResponse4 = contentManager.create(documentContentMap4);
+			Response documentResponse4 = contentManager.create(documentContentMap4, channelId);
 			String documentVersionKey4 = (String) documentResponse4.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(documentVersionKey4))
 				versionKeyMap.put("U_Document_004", documentVersionKey4);

@@ -71,7 +71,6 @@ import org.springframework.stereotype.Component;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-import org.ekstep.telemetry.handler.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -556,10 +555,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return (String) node.getMetadata().get("status");
 	}
 
-	public Response create(Map<String, Object> map) throws Exception {
+	@Override
+	public Response create(Map<String, Object> map, String channelId) throws Exception {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
+		if(StringUtils.isBlank(channelId))
+			return ERROR(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), "Channel can not be blank.", ResponseCode.CLIENT_ERROR);
 		// Checking for resourceType if contentType resource
 		// validateNodeForContentType(map);
 
@@ -890,8 +892,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				String versionKey = "";
 				if(StringUtils.isNotBlank(rootNodeId)) {
 					Node rootNode = nodeMap.get(rootNodeId);
-					versionKey = System.currentTimeMillis() + "";
+					String lastUpdatedOn = DateUtils.formatCurrentDate();
+					versionKey = String.valueOf(DateUtils.parse(lastUpdatedOn).getTime());
 					rootNode.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+					rootNode.getMetadata().put(GraphDACParams.lastUpdatedOn.name(), lastUpdatedOn);
 				}
 				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
 				Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");

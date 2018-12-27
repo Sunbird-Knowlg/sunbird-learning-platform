@@ -11,6 +11,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.mgr.impl.NodeCacheManager;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -34,6 +35,7 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 
 public class Neo4JBoltGraphOperations {
 
+	private final static String DEFAULT_CYPHER_NODE_OBJECT = "n";
 	/**
 	 * Creates the graph.
 	 *
@@ -958,15 +960,17 @@ public class Neo4JBoltGraphOperations {
 			List<Map<String, Object>> addInRelations, List<Map<String, Object>> removeInRelations) {
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		Transaction tr = null;
+		List<Record> listNode = new ArrayList<>();
 		try (Session session = driver.session()) {
 			tr = session.beginTransaction();
-			createNodes(tr, graphId, newNodes);
-			updateNodes(tr, graphId, modifiedNodes);
+			createNodes(tr, graphId, newNodes, listNode);
+			updateNodes(tr, graphId, modifiedNodes, listNode);
 			removeOutRelations(tr, graphId, removeOutRelations);
 			removeInRelations(tr, graphId, removeInRelations);
 			addOutRelations(tr, graphId, addOutRelations);
 			addInRelations(tr, graphId, addInRelations);
 			tr.success();
+			updateRedisCache(graphId, listNode);
 		} catch (Exception e) {
 			if (null != tr)
 				tr.failure();
@@ -977,24 +981,28 @@ public class Neo4JBoltGraphOperations {
 		}
 	}
 	
-	private static void createNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes) {
+	
+	
+	private static void createNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes, List<Record> listNode) {
 		if (null != nodes && !nodes.isEmpty()) {
 			TelemetryManager.info("Bulk update | Creating nodes : " + nodes.size());
-			String query = "UNWIND {batch} as row CREATE (n:" + graphId + ") SET n += row";
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("batch", nodes);
-			tr.run(query, params);
+			String query = "UNWIND {batch} as row CREATE (n:" + graphId + ") SET n += row RETURN n";
+			Map<String, Object> params = new HashMap<String, Object>(){{put("batch", nodes);}};
+			StatementResult result = tr.run(query, params);
+			if(null!=result && result.hasNext())
+				listNode.addAll(result.list());
 		}
 	}
 
-	private static void updateNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes) {
+	private static void updateNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes, List<Record> listNode) {
 		if (null != nodes && !nodes.isEmpty()) {
 			TelemetryManager.info("Bulk update | Updating nodes : " + nodes.size());
 			String query = "UNWIND {batch} as row MATCH (n:" + graphId
-					+ "{IL_UNIQUE_ID: row.IL_UNIQUE_ID}) SET n += row.metadata";
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("batch", nodes);
-			tr.run(query, params);
+					+ "{IL_UNIQUE_ID: row.IL_UNIQUE_ID}) SET n += row.metadata RETURN n";
+			Map<String, Object> params = new HashMap<String, Object>(){{put("batch", nodes);}};
+			StatementResult result = tr.run(query, params);
+			if(null!=result && result.hasNext())
+				listNode.addAll(result.list());
 		}
 	}
 
@@ -1071,6 +1079,47 @@ public class Neo4JBoltGraphOperations {
 			}
 		}
 		return relationTypeMap;
+	}
+	private static void updateRedisCache(String graphId, List<Record> listNode) {
+		if (!graphId.equalsIgnoreCase("domain"))
+			return;
+		if(!listNode.isEmpty())
+			for (Record record : listNode) {
+				try {
+					org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
+					updateRedisCache(graphId, neo4JNode);
+				} catch (Exception e) {
+					throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
+							DACErrorMessageConstants.CACHE_ERROR + " | " + e.getMessage());
+				}
+			}
+	}
+	
+	private static void updateRedisCache(String graphId, org.neo4j.driver.v1.types.Node neo4JNode){
+		String nodeId = (String) neo4JNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
+		String nodeType = (String) neo4JNode.get(SystemProperties.IL_SYS_NODE_TYPE.name()).asString();
+		
+		if (!nodeType.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name()))
+			return;
+		
+		Map<String, Object> cacheMap = new HashMap<>();
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.versionKey.name()).asString()))
+			cacheMap.put(GraphDACParams.versionKey.name(), neo4JNode.get(GraphDACParams.versionKey.name()).asString());
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.consumerId.name()).asString()))
+			cacheMap.put(GraphDACParams.consumerId.name(), neo4JNode.get(GraphDACParams.consumerId.name()).asString());
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString()))
+			cacheMap.put(GraphDACParams.lastUpdatedOn.name(),
+					neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString());
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.createdBy.name()).asString()))
+			cacheMap.put(GraphDACParams.createdBy.name(), neo4JNode.get(GraphDACParams.createdBy.name()).asString());
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.status.name()).asString()))
+			cacheMap.put(GraphDACParams.status.name(), neo4JNode.get(GraphDACParams.status.name()).asString());
+
+		if (cacheMap.size() > 0)
+			RedisStoreUtil.saveNodeProperties(graphId, nodeId, cacheMap);
+		NodeCacheManager.deleteDataNode(graphId, nodeId);
+		
+		
 	}
 
 }
