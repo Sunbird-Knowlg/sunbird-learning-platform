@@ -13,9 +13,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ReviewManager extends DummyBaseContentManager {
 
     public Response review(String contentId, Request request) throws Exception {

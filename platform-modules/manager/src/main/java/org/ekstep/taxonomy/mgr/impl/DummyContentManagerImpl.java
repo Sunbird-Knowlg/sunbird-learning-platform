@@ -27,31 +27,33 @@ import java.util.Map;
 @Component
 public class DummyContentManagerImpl extends DummyBaseContentManager implements IContentManager {
 
-	@Autowired private CreateManager createManager;
+	@Autowired private HierarchyManager hierarchyManager;
 
-	@Autowired private FindManager findManager;
-
-	@Autowired private UploadManager uploadManager;
-
-	@Autowired private ReviewManager reviewManager;
-
-	@Autowired private BundleManager bundleManager;
-
-	@Autowired private PublishMgr publishManager;
+	@Autowired private UpdateManager updateManager;
 
 	@Autowired private DialCodesManager dialCodesManager;
 
-	@Autowired private PreSignedUrlManager preSignedUrlManager;
+	private final CreateManager createManager = new CreateManager();
 
-	@Autowired private OptimizeManager optimizeManager;
+	private final FindManager findManager = new FindManager();
 
-	@Autowired private CopyManager copyManager;
+	private final UploadManager uploadManager = new UploadManager();
 
-	@Autowired private RetireManager retireManager;
+	private final ReviewManager reviewManager= new ReviewManager();
 
-	@Autowired private AcceptFlagManager acceptFlagManager;
+	private final BundleManager bundleManager = new BundleManager();
 
-	@Autowired private HierarchyManager hierarchyManager;
+	private final PublishMgr publishManager = new PublishMgr();
+
+	private final PreSignedUrlManager preSignedUrlManager= new PreSignedUrlManager();
+
+	private final OptimizeManager optimizeManager = new OptimizeManager();
+
+	private final CopyManager copyManager = new CopyManager();
+
+	private final RetireManager retireManager =  new RetireManager();
+
+	private final AcceptFlagManager acceptFlagManager = new AcceptFlagManager();
 
 	/*private BaseStorageService storageService;
 	
@@ -130,7 +132,7 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
         return this.hierarchyManager.get(contentId, mode);
 	}
 
-	public Response create(Map<String, Object> map, String channelId) {
+	public Response create(Map<String, Object> map, String channelId) throws Exception {
 		return this.createManager.create(map, channelId);
 	}
 
@@ -142,10 +144,11 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 
 	@Override
 	public Response updateAllContents(String originalId, Map<String, Object> map) throws Exception {
-		return super.updateAllContents(originalId, map);
+		return this.updateManager.updateAllContents(originalId, map);
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public Response update(String contentId, Map<String, Object> map) throws Exception {
 		return this.updateManager.update(contentId, map);
 	}

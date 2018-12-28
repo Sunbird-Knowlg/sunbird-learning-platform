@@ -6,11 +6,9 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.contentstore.CollectionStore;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 public class SyncHierarchyManager extends DummyBaseContentManager {
 
     private CollectionStore collectionStore = new CollectionStore();

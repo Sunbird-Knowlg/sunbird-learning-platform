@@ -1,6 +1,7 @@
 package org.ekstep.content.mgr.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
@@ -9,15 +10,19 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-@Component
 public class UploadManager extends DummyBaseContentManager {
+
+    @Autowired UpdateManager updateManager;
 
     public Response upload(String contentId, File uploadedFile, String mimeType) {
         boolean updateMimeType = false;
@@ -117,6 +122,13 @@ public class UploadManager extends DummyBaseContentManager {
             TelemetryManager.error(message, e);
             return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
         }
+    }
+
+    protected Response updateMimeType(String contentId, String mimeType) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("mimeType", mimeType);
+        map.put("versionKey", Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY));
+        return this.updateManager.update(contentId, map);
     }
 
 }

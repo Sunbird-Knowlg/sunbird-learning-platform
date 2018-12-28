@@ -9,10 +9,8 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +21,6 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
-@Component
 public class ReleaseDialcodesManager extends DummyBaseContentManager {
 
     public Response releaseDialCodes(String contentId, String channelId) throws Exception {

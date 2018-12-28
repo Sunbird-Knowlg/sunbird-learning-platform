@@ -13,11 +13,9 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-@Component
 public class OptimizeManager extends DummyBaseContentManager {
 
     public Response optimize(String contentId) {

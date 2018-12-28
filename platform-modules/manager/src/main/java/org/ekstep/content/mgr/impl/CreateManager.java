@@ -7,21 +7,21 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@Component
 public class CreateManager extends DummyBaseContentManager {
 
     private List<String> contentTypeList = Arrays.asList("Story", "Worksheet", "Game", "Simulation", "Puzzle",
             "Diagnostic", "ContentTemplate", "ItemTemplate");
 
-    public Response create(Map<String, Object> map, String channelId) {
-       return null;
+    public Response create(Map<String, Object> map, String channelId) throws Exception {
+        /** Implementation needs to be updated from ContentManagerImpl::create(Map, String) */
+        return new ContentManagerImpl().create(map, channelId);
     }
 
     private String getDefaultFramework() {

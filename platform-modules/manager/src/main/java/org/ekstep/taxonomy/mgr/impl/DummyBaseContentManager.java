@@ -15,11 +15,11 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.util.YouTubeDataAPIV3Service;
 import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
-import org.ekstep.content.mgr.impl.UpdateManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
@@ -39,7 +39,6 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,9 +52,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public abstract class DummyBaseContentManager extends BaseManager {
-
-	@Inject
-	protected UpdateManager updateManager;
 
 	/**
 	 * The Default 'ContentImage' Object Suffix (Content_Object_Identifier +
@@ -273,7 +269,46 @@ public abstract class DummyBaseContentManager extends BaseManager {
 	}
 
 	public Response updateAllContents(String originalId, Map<String, Object> map) throws Exception {
-		return this.updateManager.updateAllContents(originalId, map);
+		if (null == map)
+			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+
+		Map<String, Object> externalProps = new HashMap<>();
+		List<String> externalPropsList = getExternalPropsList(definition);
+		if (null != externalPropsList && !externalPropsList.isEmpty()) {
+			for (String prop : externalPropsList) {
+				if (null != map.get(prop))
+					externalProps.put(prop, map.get(prop));
+				if (equalsIgnoreCase(ContentAPIParams.screenshots.name(), prop) && null != map.get(prop)) {
+					map.put(prop, null);
+				} else {
+					map.remove(prop);
+				}
+
+			}
+		}
+
+		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		map.put("versionKey", graphPassportKey);
+		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+		Response updateResponse = updateNode(originalId, CONTENT_OBJECT_TYPE, domainObj);
+		if (checkError(updateResponse))
+			return updateResponse;
+		updateResponse.put(GraphDACParams.node_id.name(), originalId);
+
+		Response getNodeResponse = getDataNode(TAXONOMY_ID, originalId + ".img");
+		if(!checkError(getNodeResponse)){
+			Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+			updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
+		}
+
+		if (null != externalProps && !externalProps.isEmpty()) {
+			Response externalPropsResponse = updateContentProperties(originalId, externalProps);
+			if (checkError(externalPropsResponse))
+				return externalPropsResponse;
+		}
+		return updateResponse;
 	}
 
 	protected void validateContentForReservedDialcodes(Map<String, Object> metaData) {
@@ -484,13 +519,6 @@ public abstract class DummyBaseContentManager extends BaseManager {
 			res.getResult().replace("node_id", nodeId, returnNodeId);
 			return res;
 		}
-	}
-
-	protected Response updateMimeType(String contentId, String mimeType) throws Exception {
-		Map<String, Object> map = new HashMap<>();
-		map.put("mimeType", mimeType);
-		map.put("versionKey", Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY));
-		return this.updateManager.update(contentId, map);
 	}
 
     protected String getContentBody(String contentId) {
