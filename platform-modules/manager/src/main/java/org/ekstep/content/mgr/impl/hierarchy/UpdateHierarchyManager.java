@@ -23,6 +23,7 @@ import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
+@Component
 public class UpdateHierarchyManager extends DummyBaseContentManager {
 
     @SuppressWarnings("unchecked")

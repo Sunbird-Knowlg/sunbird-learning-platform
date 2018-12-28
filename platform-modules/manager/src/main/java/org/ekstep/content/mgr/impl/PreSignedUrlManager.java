@@ -10,7 +10,7 @@ import scala.Option;
 
 public class PreSignedUrlManager extends DummyBaseContentManager {
 
-    public Response get(String contentId, String fileName, String type) {
+    public Response preSignedUrl(String contentId, String fileName, String type) {
         Response contentResp = getDataNode(TAXONOMY_ID, contentId);
         if (checkError(contentResp))
             return contentResp;

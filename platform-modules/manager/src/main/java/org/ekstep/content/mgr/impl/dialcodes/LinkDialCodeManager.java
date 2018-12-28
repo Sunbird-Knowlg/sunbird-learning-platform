@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Component
 public class LinkDialCodeManager extends DummyBaseContentManager {
 
     private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";

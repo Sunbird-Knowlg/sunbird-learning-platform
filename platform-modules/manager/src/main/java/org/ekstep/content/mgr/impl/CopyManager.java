@@ -32,8 +32,7 @@ import java.util.Map;
 
 public class CopyManager extends DummyBaseContentManager {
 
-    @Autowired
-    private HierarchyManager hierarchyManager;
+    @Autowired private HierarchyManager hierarchyManager;
 
     public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
         Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);

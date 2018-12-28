@@ -67,6 +67,5 @@ public class FindManager extends DummyBaseContentManager {
         response.setParams(getSucessStatus());
         return response;
     }
-
-
+    
 }

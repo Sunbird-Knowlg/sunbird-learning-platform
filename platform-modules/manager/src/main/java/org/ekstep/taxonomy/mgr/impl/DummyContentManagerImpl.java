@@ -37,7 +37,7 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 
 	private final FindManager findManager = new FindManager();
 
-	private final UploadManager uploadManager = new UploadManager();
+	@Autowired private UploadManager uploadManager;
 
 	private final ReviewManager reviewManager= new ReviewManager();
 
@@ -108,7 +108,7 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 
 	@Override
 	public Response preSignedURL(String contentId, String fileName, String type) {
-		return this.preSignedUrlManager.get(contentId, fileName, type);
+		return this.preSignedUrlManager.preSignedUrl(contentId, fileName, type);
 	}
 
 	/*

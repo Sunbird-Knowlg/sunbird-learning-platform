@@ -4,6 +4,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.mgr.impl.dialcodes.LinkDialCodeManager;
 import org.ekstep.content.mgr.impl.dialcodes.ReleaseDialcodesManager;
 import org.ekstep.content.mgr.impl.dialcodes.ReserveDialcodesManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -11,11 +12,11 @@ import java.util.Map;
 @Component
 public class DialCodesManager {
 
-    private final LinkDialCodeManager linkDialCodeManager = new LinkDialCodeManager();
+    @Autowired private LinkDialCodeManager linkDialCodeManager;
 
-    private final ReserveDialcodesManager reserveDialcodesManager = new ReserveDialcodesManager();
+    @Autowired private ReserveDialcodesManager reserveDialcodesManager;
 
-    private final ReleaseDialcodesManager releaseDialcodesManager = new ReleaseDialcodesManager();
+    @Autowired private ReleaseDialcodesManager releaseDialcodesManager;
 
     public Response link(String channelId, Object reqObj) throws Exception {
         return this.linkDialCodeManager.linkDialCode(channelId, reqObj);

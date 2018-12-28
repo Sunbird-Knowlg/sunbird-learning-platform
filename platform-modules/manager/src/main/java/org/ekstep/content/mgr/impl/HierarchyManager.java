@@ -4,6 +4,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.mgr.impl.hierarchy.GetHierarchyManager;
 import org.ekstep.content.mgr.impl.hierarchy.SyncHierarchyManager;
 import org.ekstep.content.mgr.impl.hierarchy.UpdateHierarchyManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -11,11 +12,11 @@ import java.util.Map;
 @Component
 public class HierarchyManager {
 
-    private final GetHierarchyManager getHierarchyManager = new GetHierarchyManager();
+    @Autowired private GetHierarchyManager getHierarchyManager;
 
-    private final UpdateHierarchyManager updateHierarchyManager = new UpdateHierarchyManager();
+    @Autowired private UpdateHierarchyManager updateHierarchyManager;
 
-    private final SyncHierarchyManager syncHierarchyManager = new SyncHierarchyManager();
+    @Autowired private SyncHierarchyManager syncHierarchyManager;
 
     public Response get(String contentId, String mode) {
         return this.getHierarchyManager.getHierarchy(contentId, mode);
