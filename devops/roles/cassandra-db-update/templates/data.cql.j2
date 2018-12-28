@@ -33,3 +33,20 @@ CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.question_data (
   body blob,
   PRIMARY KEY (question_id)
 );
+
+CREATE KEYSPACE IF NOT EXISTS {{ hierarchy_keyspace_name }} WITH replication = {
+  'class': 'SimpleStrategy',
+  'replication_factor': '1'
+};
+
+CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.content_hierarchy (
+  identifier text,
+  hierarchy text,
+  PRIMARY KEY (identifier)
+);
+
+CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.framework_hierarchy (
+  identifier text,
+  hierarchy text,
+  PRIMARY KEY (identifier)
+);

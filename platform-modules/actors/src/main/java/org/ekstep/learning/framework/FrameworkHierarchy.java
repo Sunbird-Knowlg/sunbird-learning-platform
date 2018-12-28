@@ -25,8 +25,6 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 /**
  * @author pradyumna
@@ -38,6 +36,7 @@ public class FrameworkHierarchy extends BaseManager {
 			: "domain";
 
 	private ObjectMapper mapper = new ObjectMapper();
+	private FrameworkStore frameworkStore = new FrameworkStore();
 
 	/**
 	 * @param id
@@ -74,6 +73,16 @@ public class FrameworkHierarchy extends BaseManager {
 		}
 	}
 
+	/**
+	 *
+	 * @param frameworkId
+	 * @return frameworkHierarchy
+	 * @throws Exception
+	 */
+	public String getFrameworkHierarchy(String frameworkId) throws Exception{
+		return frameworkStore.getHierarchy(frameworkId);
+	}
+
 	private void pushFrameworkEvent(Node node) throws Exception {
 		Map<String, Object> frameworkDocument = new HashMap<>();
 		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
@@ -91,9 +100,7 @@ public class FrameworkHierarchy extends BaseManager {
 			if(null!=node.getMetadata().get(field))
 				frameworkDocument.put(field, node.getMetadata().get(field));
 		}
-		ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, node.getIdentifier(),
-				mapper.writeValueAsString(frameworkDocument));
+		frameworkStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
 	}
 
 	@SuppressWarnings("unchecked")

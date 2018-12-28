@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.ekstep.learning.actor;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +34,10 @@ public class FrameworkHierarchyActor extends BaseGraphManager {
 					String id = (String) request.get("identifier");
 					fwHierarchy.generateFrameworkHierarchy(id);
 					OK(parent);
+				} else if(StringUtils.equalsIgnoreCase(FrameworkHierarchyOperations.getFrameworkHierarchy.name(), methodName)){
+					String frameworkId = (String) request.get("identifier");
+					String frameworkData = fwHierarchy.getFrameworkHierarchy(frameworkId);
+					OK("framework", frameworkData, sender());
 				} else {
 					TelemetryManager.log("Unsupported operation: " + methodName);
 					throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),

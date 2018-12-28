@@ -21,19 +21,15 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
-
-import scala.concurrent.Await;
 
 /**
  * The Class <code>FrameworkManagerImpl</code> is the implementation of
@@ -104,12 +100,14 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Response response = new Response();
-		if (Platform.config.hasPath("framework.es.sync")) {
-			if (Platform.config.getBoolean("framework.es.sync")) {
+		if (Platform.config.hasPath("framework.cassandra.sync")) {
+			if (Platform.config.getBoolean("framework.cassandra.sync")) {
 				Map<String, Object> responseMap = new HashMap<>();
-				List<Object> searchResult = searchFramework(frameworkId);
-				if (null != searchResult && !searchResult.isEmpty()) {
-					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
+				Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
+				String frameworkData = (String) getHierarchyResp.get("framework");
+
+				if (StringUtils.isNotBlank(frameworkData)) {
+					Map<String, Object> framework = mapper.readValue(frameworkData, Map.class);
 					if (null != framework.get("fw_hierarchy")) {
 						Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
 								Map.class);
@@ -174,22 +172,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				}
 			});
 		}
-	}
-
-	private List<Object> searchFramework(String frameworkId) throws Exception {
-		SearchDTO searchDto = new SearchDTO();
-		searchDto.setFuzzySearch(false);
-
-		searchDto.setProperties(setSearchProperties(frameworkId));
-		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		searchDto.setFields(getFields());
-		searchDto.setLimit(1);
-
-		List<Object> searchResult = Await.result(
-				processor.processSearchQuery(searchDto, false, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false),
-				RequestRouterPool.WAIT_TIMEOUT.duration());
-
-		return searchResult;
 	}
 
 	private List<String> getFields() {
@@ -392,7 +374,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	    response.put("node_id", clonedObjectId);
 	    return response;
 	  }
-	  
+
 	@Override
 	public Response publishFramework(String frameworkId, String channelId) throws Exception {
 		if (!validateObject(channelId)) {
@@ -410,7 +392,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			return ERROR("ERR_INVALID_FRAMEOWRK_ID", "Invalid Framework Id. Framework doesn't exist.",
 					ResponseCode.CLIENT_ERROR);
 		}
-
 
 	}
 

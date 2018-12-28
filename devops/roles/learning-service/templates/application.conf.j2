@@ -197,9 +197,12 @@ language-api-url="http://{{ language_service_url }}/language-service"
 
 language.map={"Hindi":"hi", "English":"en", "Telugu":"te", "Kannada":"ka", "Tamil":"ta", "Assamese":"as", "Bengali":"bn", "Bodo":"bo", "Gujarati":"gu", "Konkani":"ko", "Malayalam":"ml", "Marathi":"mr", "Nepali":"ne", "Odia":"or", "Punjabi":"pj", "Sanskrit":"san"}
 
-#Framework get/push hierarchy into elasticsearch enable
-framework.es.sync=true
+# Enable Framework get/push hierarchy from/into cassandra
+framework.cassandra.sync=true
 framework.max_term_creation_limit=200
+
+# Enable Suggested Framework in Get Channel API.
+channel.fetch.suggested_frameworks=true
 
 # Kafka configuration details
 kafka.topics.instruction="{{ kafka_topics_instruction }}"
