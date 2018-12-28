@@ -110,4 +110,11 @@ public class RequestValidatorUtil {
         return true;
     }
 
+    public static boolean isValidRequestMapRecursive(Map m) {
+        if(getNonValidKeysFromMapRecursive(m, "").isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
 }
