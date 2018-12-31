@@ -277,7 +277,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * Then: 404 - Resource Not Found with error Message: Framework not found with id: framework Id
 	 * 
 	 */
-	//@Test
+	@Test
 	public void mockTestFrameworkReadWithInvalidFrameworkId() throws Exception {
 		String id = "ttttt1234"; // Invalid Framework Id
 		String path = BASE_PATH + "/read/" + id;
