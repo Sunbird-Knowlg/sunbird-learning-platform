@@ -1,16 +1,14 @@
 package org.ekstep.framework.controller.test;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.framework.mgr.impl.CategoryInstanceManagerImpl;
 import org.ekstep.framework.mgr.impl.CategoryManagerImpl;
 import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
-import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.framework.test.common.CommonTestSetup;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.Ignore;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -35,7 +32,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Mock Test Cases for Framework API
+ * Test Cases for Framework API
  * 
  * @author gauraw
  *
@@ -44,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
+public class FrameworkV3ControllerTest extends CommonTestSetup {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -80,10 +77,16 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 
 	private static final String listFrameworkInvalidJson = "{\"id\": \"ekstep.framework.list\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {}}";
 
+
+	private static final String SCRIPT_1 = "CREATE KEYSPACE IF NOT EXISTS hierarhcy_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
+	private static final String SCRIPT_2 = "CREATE TABLE IF NOT EXISTS hierarhcy_store_test.framework_hierarchy_test (identifier text,hierarchy text,PRIMARY KEY (identifier));";
+
+
 	@BeforeClass
 	public static void setUp() throws Exception {
 		loadDefinition("definitions/channel_definition.json", "definitions/framework_definition.json",
 				"definitions/category_definition.json", "definitions/categoryInstance_definition.json");
+		executeScript(SCRIPT_1, SCRIPT_2);
 		LearningRequestRouterPool.init();
 		createChannel();
 		createFramework();
@@ -212,7 +215,6 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	 * Then: 200 - OK, Framework details with given identifier returns.
 	 * 
 	 */
-	@Ignore
 	@Test
 	@SuppressWarnings("unchecked")
 	public void readFrameworkWithValidIdentifierExpect200() throws Exception {
@@ -226,7 +228,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		path = BASE_PATH + "/publish/" + "test_fr";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", "channelKA").contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		delay(10000);
+		delay(30000);
 		//Read Framework
 		path = BASE_PATH + "/read/" + "test_fr";
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
@@ -698,7 +700,6 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	}
 	
 	@SuppressWarnings("unchecked")
-	@Ignore
 	@Test
 	public void createFrameworkWithTranslationsExpect200() throws Exception {
 		//Create Framework
@@ -730,7 +731,6 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 	}
 	
 	@SuppressWarnings("unchecked")
-	@Ignore
 	@Test
 	public void createFrameworkWithEmptyTranslationsExpect200() throws Exception {
 		//Create Framework
@@ -743,7 +743,7 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		path = BASE_PATH + "/publish/" + "test.fr.1";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("X-Channel-Id", "channelKA").contentType(MediaType.APPLICATION_JSON));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		delay(10000);
+		delay(30000);
 		//Read Framework
 		path = BASE_PATH + "/read/" + "test.fr.1";
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON));
@@ -771,25 +771,6 @@ public class FrameworkV3ControllerTest extends GraphEngineTestSetup {
 		Response resp=getResponse(actions);
 		Assert.assertEquals(400, resp.getResponseCode().code());
 		Assert.assertEquals("ERR_INVALID_LANGUAGE_CODE", resp.getParams().getErr());
-	}
-	
-	/**
-	 * @param actions
-	 * @return
-	 */
-	private static Response getResponse(ResultActions actions) {
-		String content = null;
-		Response resp = null;
-		try {
-			content = actions.andReturn().getResponse().getContentAsString();
-			if (StringUtils.isNotBlank(content))
-				resp = mapper.readValue(content, Response.class);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return resp;
 	}
 		
 }
