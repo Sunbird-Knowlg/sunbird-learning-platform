@@ -20,14 +20,15 @@ public class TagsWorkflowTest {
 	ObjectMapper mapper = new ObjectMapper();
 	String createValidContentWithTags = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"tags\":[\"akshara\"],\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
 	String createValidContentWithKeywords = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"keywords\":[\"akshara\"],\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
-    
+	private static String channelId = "in.ekstep";
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void createContentWithTagsTest() throws Exception{
 		
 		Map<String,Object> messageData = mapper.readValue(createValidContentWithTags, new TypeReference<Map<String, Object>>() {
 		});
-		Response response = mgr.create(messageData);
+		Response response = mgr.create(messageData, channelId);
 		String node_id = (String)response.getResult().get("node_id");
 		Response resp = mgr.find(node_id, null, null);
 		Map<String,Object> content = (Map)resp.getResult().get("content");
@@ -40,7 +41,7 @@ public class TagsWorkflowTest {
 	public void createContentWithKeywords() throws Exception{
 		Map<String,Object> messageData = mapper.readValue(createValidContentWithKeywords, new TypeReference<Map<String, Object>>() {
 		});
-		Response response = mgr.create(messageData);
+		Response response = mgr.create(messageData, channelId);
 		String node_id = (String)response.getResult().get("node_id");
 		Response resp = mgr.find(node_id, null, null);
 		Map<String,Object> content = (Map)resp.getResult().get("content");

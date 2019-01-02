@@ -61,13 +61,14 @@ public class ContentV3Controller extends BaseController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
+	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap,
+			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.learning.content.create";
 		TelemetryManager.log("Executing Content Create API (Java Version) (API Version V3).", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.create(map);
+			Response response = contentManager.create(map, channelId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);

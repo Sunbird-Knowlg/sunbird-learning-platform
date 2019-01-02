@@ -21,7 +21,7 @@
 	<modules>
 		<module>common</module>
 		<module>audit-history-indexer</module>
-	    <module>audit-event-generator</module>	
+	    <module>audit-event-generator</module>
 		<module>composite-search-indexer</module>
 		<module>publish-pipeline</module>
 		<module>republish-pipeline</module>

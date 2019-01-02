@@ -28,7 +28,7 @@ public class CloudStorageUtil {
                 Some.apply(isPublic),
                 Some.apply(isDirectory),
                 Some.empty(),
-                Some.apply(retryCount));
+                Some.apply(retryCount),1);
         return url;
     }
 

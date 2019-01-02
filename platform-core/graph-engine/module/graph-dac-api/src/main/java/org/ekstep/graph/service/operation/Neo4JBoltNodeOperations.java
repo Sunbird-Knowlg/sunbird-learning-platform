@@ -225,8 +225,8 @@ public class Neo4JBoltNodeOperations {
 		}
 		TelemetryManager.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 
-		// Adding Channel and App Id
-		setRequestContextToNode(node, request);
+		// Adding Consumer and App Id
+		setRequestContextToNode(node, request, GraphDACParams.UPDATE.name());
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		TelemetryManager.log("Driver Initialised. | [Graph Id: " + graphId + "]");
@@ -536,6 +536,23 @@ public class Neo4JBoltNodeOperations {
 		return value.asObject();
 	}
 
+	private static void setRequestContextToNode(Node node, Request request, String operation) {
+		if(!StringUtils.equalsIgnoreCase(operation, GraphDACParams.UPDATE.name()))
+			setRequestContextToNode(node, request);
+		else
+			if (null != request && null != request.getContext()) {
+				String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
+				TelemetryManager.log("ConsumerId from request: " + consumerId + " for content: " + node.getIdentifier());
+				if (StringUtils.isNotBlank(consumerId))
+					node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
+
+				String appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
+				TelemetryManager.log("App Id from request: " + appId + " for content: " + node.getIdentifier());
+				if (StringUtils.isNotBlank(appId))
+					node.getMetadata().put(GraphDACParams.appId.name(), appId);
+			}
+	}
+	
 	private static void setRequestContextToNode(Node node, Request request) {
 		if (null != request && null != request.getContext()) {
 			String channel = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());

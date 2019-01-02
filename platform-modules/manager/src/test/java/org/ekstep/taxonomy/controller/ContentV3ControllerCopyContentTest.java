@@ -71,6 +71,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
 	private static String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
 	private static String topic = Platform.config.getString("kafka.topics.instruction");
+	private static String channelId = "in.ekstep";
 
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -106,7 +107,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
 					});
-			Response documentResponse = contentManager.create(documentContentMap);
+			Response documentResponse = contentManager.create(documentContentMap, channelId);
 			if (i == 1) {
 				contentId = (String) documentResponse.getResult().get(TestParams.node_id.name());
 				versionKey = (String) documentResponse.getResult().get(TestParams.versionKey.name());

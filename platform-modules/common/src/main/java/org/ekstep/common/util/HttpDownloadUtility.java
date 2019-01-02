@@ -37,8 +37,6 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
-			TelemetryManager.log("Start Downloading for File: " + fileURL);
-
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
@@ -67,7 +65,6 @@ public class HttpDownloadUtility {
 				} else {
 					// extracts file name from URL
 					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
-					TelemetryManager.log("File Name: " + fileName);
 				}
 
 				// opens input stream from the HTTP connection
@@ -77,7 +74,7 @@ public class HttpDownloadUtility {
 					saveFile.mkdirs();
 				}
 				String saveFilePath = saveDir + File.separator + fileName;
-				TelemetryManager.log("Save File Path: " + saveFilePath);
+				TelemetryManager.log("FileUrl :" + fileURL +" , Save File Path: " + saveFilePath);
 
 				// opens an output stream to save into file
 				outputStream = new FileOutputStream(saveFilePath);
@@ -90,7 +87,7 @@ public class HttpDownloadUtility {
 				inputStream.close();
 				File file = new File(saveFilePath);
 				file = Slug.createSlugFile(file);
-				TelemetryManager.log("Sliggified File Name: " + file);
+				TelemetryManager.log("Sluggified File Name: " + file.getAbsolutePath());
 
 				return file;
 			} else {
