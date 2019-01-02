@@ -1,38 +1,34 @@
-package org.ekstep.content.mgr.impl;
+package org.ekstep.content.mgr.impl.operation.event;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class AcceptFlagManager extends DummyBaseContentManager {
+@Component
+public class AcceptFlagOperation extends DummyBaseContentManager {
 
     @SuppressWarnings("unchecked")
     public Response acceptFlag(String contentId) {
-        Response response = new Response();
+        Response response;
         boolean isImageNodeExist = false;
-        String versionKey = null;
+        String versionKey;
 
-        if (StringUtils.isBlank(contentId))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
-                    "Content Id Can Not be blank.");
-        Response getResponse = getDataNode(TAXONOMY_ID, contentId);
-        if (checkError(getResponse))
-            throw new ResourceNotFoundException(TaxonomyErrorCodes.ERR_NODE_NOT_FOUND.name(),
-                    "Content Not Found With Identifier: " + contentId);
+        validateEmptyOrNullContentId(contentId);
+
+        Response getResponse = validateAndGetNodeResponseForOperation(contentId);
 
         Node node = (Node) getResponse.get(GraphDACParams.node.name());
         boolean isValidObj = StringUtils.equalsIgnoreCase(CONTENT_OBJECT_TYPE, node.getObjectType());

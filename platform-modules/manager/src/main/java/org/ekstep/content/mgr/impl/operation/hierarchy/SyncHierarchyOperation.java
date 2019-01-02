@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl.hierarchy;
+package org.ekstep.content.mgr.impl.operation.hierarchy;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class SyncHierarchyManager extends DummyBaseContentManager {
+public class SyncHierarchyOperation extends DummyBaseContentManager {
 
     private CollectionStore collectionStore = new CollectionStore();
 

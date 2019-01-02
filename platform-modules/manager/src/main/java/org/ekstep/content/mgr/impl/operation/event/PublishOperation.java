@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl;
+package org.ekstep.content.mgr.impl.operation.event;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
@@ -10,19 +10,20 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-public class PublishMgr extends DummyBaseContentManager {
+@Component
+public class PublishOperation extends DummyBaseContentManager {
 
     private PublishManager publishManager = new PublishManager();
 
     public Response publish(String contentId, Map<String, Object> requestMap) {
 
-        if (StringUtils.isBlank(contentId))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
+        validateEmptyOrNullContentId(contentId);
 
-        Response response = new Response();
+        Response response;
 
         Node node = getNodeForOperation(contentId, "publish");
         isNodeUnderProcessing(node, "Publish");

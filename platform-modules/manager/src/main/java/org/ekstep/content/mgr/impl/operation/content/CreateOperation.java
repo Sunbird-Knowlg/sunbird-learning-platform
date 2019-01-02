@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl;
+package org.ekstep.content.mgr.impl.operation.content;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -13,15 +13,16 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CreateManager extends DummyBaseContentManager {
+@Component
+public class CreateOperation extends DummyBaseContentManager {
 
     private List<String> contentTypeList = Arrays.asList("Story", "Worksheet", "Game", "Simulation", "Puzzle",
             "Diagnostic", "ContentTemplate", "ItemTemplate");
@@ -30,8 +31,8 @@ public class CreateManager extends DummyBaseContentManager {
         if (null == map)
             return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-        if(StringUtils.isBlank(channelId))
-            return ERROR(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), "Channel can not be blank.", ResponseCode.CLIENT_ERROR);
+        validateEmptyOrNullChannelId(channelId);
+
         // Checking for resourceType if contentType resource
         // validateNodeForContentType(map);
 
@@ -44,7 +45,7 @@ public class CreateManager extends DummyBaseContentManager {
 
         String mimeType = (String) map.get("mimeType");
         if (StringUtils.isNotBlank(mimeType)) {
-            if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType))
+            if (!isPluginMimeType(mimeType)/*StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType)*/)
                 map.put("osId", "org.ekstep.quiz.app");
             String contentType = (String) map.get("contentType");
             if (StringUtils.isNotBlank(contentType)) {

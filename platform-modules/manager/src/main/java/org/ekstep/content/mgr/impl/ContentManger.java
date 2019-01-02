@@ -1,0 +1,40 @@
+package org.ekstep.content.mgr.impl;
+
+import org.ekstep.common.dto.Response;
+import org.ekstep.content.mgr.impl.operation.content.CreateOperation;
+import org.ekstep.content.mgr.impl.operation.content.FindOperation;
+import org.ekstep.content.mgr.impl.operation.content.RetireOperation;
+import org.ekstep.content.mgr.impl.operation.content.UpdateOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class ContentManger {
+
+    @Autowired private CreateOperation createOperation;
+    @Autowired private FindOperation findOperation;
+    @Autowired private UpdateOperation updateOperation;
+    @Autowired private RetireOperation retireOperation;
+
+    public Response create(Map<String, Object> map, String channelId) throws Exception {
+        return this.createOperation.create(map, channelId);
+    }
+
+    public Response find(String contentId, String mode, List<String> fields) {
+        return this.findOperation.find(contentId, mode, fields);
+    }
+
+    public Response updateAllContents(String originalId, Map<String, Object> map) throws Exception {
+        return this.updateOperation.updateAllContents(originalId, map);
+    }
+
+    public Response update(String contentId, Map<String, Object> map) throws Exception {
+        return this.updateOperation.update(contentId, map);
+    }
+
+    public Response retire(String contentId) { return this.retireOperation.retire(contentId); }
+
+}

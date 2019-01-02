@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl.update;
+package org.ekstep.content.mgr.impl.operation.content.update;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class UpdateContentManager extends DummyBaseContentManager {
+public class UpdateContentOperation extends DummyBaseContentManager {
 
     @SuppressWarnings("unchecked")
     public Response update(String contentId, Map<String, Object> map) throws Exception {

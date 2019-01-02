@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl.hierarchy;
+package org.ekstep.content.mgr.impl.operation.hierarchy;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +35,7 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 @Component
-public class UpdateHierarchyManager extends DummyBaseContentManager {
+public class UpdateHierarchyOperation extends DummyBaseContentManager {
 
     @SuppressWarnings("unchecked")
     public Response updateHierarchy(Map<String, Object> data) {

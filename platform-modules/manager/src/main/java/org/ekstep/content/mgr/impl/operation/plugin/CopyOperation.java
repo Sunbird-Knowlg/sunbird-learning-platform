@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl;
+package org.ekstep.content.mgr.impl.operation.plugin;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -8,6 +8,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.content.mgr.impl.HierarchyManager;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.BaseMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.H5PMimeTypeMgrImpl;
@@ -20,6 +21,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CopyManager extends DummyBaseContentManager {
+@Component
+public class CopyOperation extends DummyBaseContentManager {
 
     @Autowired private HierarchyManager hierarchyManager;
 
@@ -38,8 +41,9 @@ public class CopyManager extends DummyBaseContentManager {
         Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);
 
         String mimeType = (String) existingNode.getMetadata().get("mimeType");
-        Map<String, String> idMap = new HashMap<>();
-        if (!StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.content-collection")) {
+        Map<String, String> idMap /*= new HashMap<>()*/;
+        if (!isCollectionMimeType(mimeType)) {
+        /*if (!StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.content-collection")) {*/
             idMap = copyContentData(existingNode, requestMap);
         } else {
             idMap = copyCollectionContent(existingNode, requestMap, mode);
@@ -55,27 +59,17 @@ public class CopyManager extends DummyBaseContentManager {
      * @param mode
      */
     private Node validateCopyContentRequest(String contentId, Map<String, Object> requestMap, String mode) {
-        if (null == requestMap)
-            throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
 
-        if (StringUtils.isBlank((String) requestMap.get("createdBy")))
-            throw new ClientException("ERR_INVALID_CREATEDBY", "Please provide valid createdBy value");
-
-        if (!validateList(requestMap.get("createdFor"))) {
-            throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid createdFor value.");
-        }
-        if (!validateList(requestMap.get("organization"))) {
-            throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid Organization value.");
-        }
+        validateOrThrowExceptionForEmptyKeys(requestMap, "Content", "createdBy", "createdFor", "organization");
 
         Node node = getContentNode(TAXONOMY_ID, contentId, mode);
         List<String> notCoppiedContent = null;
         if (Platform.config.hasPath("learning.content.type.not.copied.list")) {
             notCoppiedContent = Platform.config.getStringList("learning.content.type.not.copied.list");
         }
-        if (notCoppiedContent != null && notCoppiedContent.contains((String) node.getMetadata().get("contentType"))) {
+        if (notCoppiedContent != null && notCoppiedContent.contains(getContentTypeFrom(node)/*(String) node.getMetadata().get("contentType")*/)) {
             throw new ClientException(ContentErrorCodes.CONTENTTYPE_ASSET_CAN_NOT_COPY.name(),
-                    "ContentType " + (String) node.getMetadata().get("contentType") + " can not be coppied.");
+                    "ContentType " + getContentTypeFrom(node)/*(String) node.getMetadata().get("contentType")*/ + " can not be coppied.");
         }
 
         String status = (String) node.getMetadata().get("status");
@@ -197,14 +191,15 @@ public class CopyManager extends DummyBaseContentManager {
             String mimeType = (String) copyNode.getMetadata().get("mimeType");
             String contentType = (String) copyNode.getMetadata().get("contentType");
 
-            if (!(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", mimeType)
-                    || StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType))) {
+            if (!isEcmlMimeType(mimeType) || isCollectionMimeType(mimeType)) {
+            /*if (!(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", mimeType)
+                    || StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType))) {*/
                 IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
                 BaseMimeTypeManager baseMimeTypeManager = new BaseMimeTypeManager();
 
                 if (baseMimeTypeManager.isS3Url(artifactUrl)) {
                     File file = copyURLToFile(artifactUrl);
-                    if (StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.h5p-archive")) {
+                    if (isH5PMimeType(mimeType)) {
                         H5PMimeTypeMgrImpl h5pManager = new H5PMimeTypeMgrImpl();
                         response = h5pManager.upload(copyNode.getIdentifier(), copyNode, true, file);
                     } else {
@@ -225,7 +220,7 @@ public class CopyManager extends DummyBaseContentManager {
 
     protected File copyURLToFile(String fileUrl) {
         try {
-            String fileName = getFieNameFromURL(fileUrl);
+            String fileName = getFileNameFromURL(fileUrl);
             File file = new File(fileName);
             FileUtils.copyURLToFile(new URL(fileUrl), file);
             return file;
@@ -234,7 +229,7 @@ public class CopyManager extends DummyBaseContentManager {
         }
     }
 
-    protected String getFieNameFromURL(String fileUrl) {
+    protected String getFileNameFromURL(String fileUrl) {
         String fileName = FilenameUtils.getBaseName(fileUrl) + "_" + System.currentTimeMillis();
         if (!FilenameUtils.getExtension(fileUrl).isEmpty())
             fileName += "." + FilenameUtils.getExtension(fileUrl);

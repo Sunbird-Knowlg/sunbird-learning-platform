@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl;
+package org.ekstep.content.mgr.impl.operation.plugin;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Slug;
@@ -18,13 +18,15 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BundleManager extends DummyBaseContentManager {
+@Component
+public class BundleOperation extends DummyBaseContentManager {
 
     @SuppressWarnings("unchecked")
     public Response bundle(Request request, String version) {

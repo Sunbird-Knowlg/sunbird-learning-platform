@@ -2,7 +2,13 @@ package org.ekstep.taxonomy.mgr.impl;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.content.mgr.impl.*;
+import org.ekstep.content.mgr.impl.ContentEventManager;
+import org.ekstep.content.mgr.impl.ContentManger;
+import org.ekstep.content.mgr.impl.ContentPluginManager;
+import org.ekstep.content.mgr.impl.DialCodesManager;
+import org.ekstep.content.mgr.impl.HierarchyManager;
+import org.ekstep.content.mgr.impl.PreSignedUrlManager;
+import org.ekstep.content.mgr.impl.UploadManager;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,32 +34,13 @@ import java.util.Map;
 public class DummyContentManagerImpl extends DummyBaseContentManager implements IContentManager {
 
 	@Autowired private HierarchyManager hierarchyManager;
-
-	@Autowired private UpdateManager updateManager;
-
 	@Autowired private DialCodesManager dialCodesManager;
-
-	private final CreateManager createManager = new CreateManager();
-
-	private final FindManager findManager = new FindManager();
-
+	@Autowired private ContentManger contentManger;
 	@Autowired private UploadManager uploadManager;
+	@Autowired private ContentEventManager contentEventManager;
+	@Autowired private ContentPluginManager contentPluginManager;
 
-	private final ReviewManager reviewManager= new ReviewManager();
-
-	private final BundleManager bundleManager = new BundleManager();
-
-	private final PublishMgr publishManager = new PublishMgr();
-
-	private final PreSignedUrlManager preSignedUrlManager= new PreSignedUrlManager();
-
-	private final OptimizeManager optimizeManager = new OptimizeManager();
-
-	private final CopyManager copyManager = new CopyManager();
-
-	private final RetireManager retireManager =  new RetireManager();
-
-	private final AcceptFlagManager acceptFlagManager = new AcceptFlagManager();
+	private final PreSignedUrlManager preSignedUrlManager = new PreSignedUrlManager();
 
 	/*private BaseStorageService storageService;
 	
@@ -93,9 +80,8 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 	 * org.ekstep.taxonomy.mgr.IContentManager#bundle(org.ekstep.common.dto.
 	 * Request, java.lang.String, java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Response bundle(Request request, String version) { return this.bundleManager.bundle(request, version); }
+	public Response bundle(Request request, String version) { return this.contentPluginManager.bundle(request, version); }
 
 	/*
 	 * (non-Javadoc)
@@ -104,7 +90,7 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 	 * java.lang.String)
 	 */
 	@Override
-	public Response optimize(String contentId) { return this.optimizeManager.optimize(contentId); }
+	public Response optimize(String contentId) { return this.contentPluginManager.optimize(contentId); }
 
 	@Override
 	public Response preSignedURL(String contentId, String fileName, String type) {
@@ -119,12 +105,12 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 	 */
 	@Override
 	public Response publish(String contentId, Map<String, Object> requestMap) {
-		return this.publishManager.publish(contentId, requestMap);
+		return this.contentEventManager.publish(contentId, requestMap);
 	}
 
 	@Override
 	public Response review(String contentId, Request request) throws Exception {
-		return this.reviewManager.review(contentId, request);
+		return this.contentEventManager.review(contentId, request);
 	}
 
 	@Override
@@ -133,27 +119,24 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 	}
 
 	public Response create(Map<String, Object> map, String channelId) throws Exception {
-		return this.createManager.create(map, channelId);
+		return this.contentManger.create(map, channelId);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String contentId, String mode, List<String> fields) {
-		return this.findManager.find(contentId, mode, fields);
+		return this.contentManger.find(contentId, mode, fields);
 	}
 
 	@Override
 	public Response updateAllContents(String originalId, Map<String, Object> map) throws Exception {
-		return this.updateManager.updateAllContents(originalId, map);
+		return this.contentManger.updateAllContents(originalId, map);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Response update(String contentId, Map<String, Object> map) throws Exception {
-		return this.updateManager.update(contentId, map);
+		return this.contentManger.update(contentId, map);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Response updateHierarchy(Map<String, Object> data) {
 		return this.hierarchyManager.update(data);
@@ -173,7 +156,7 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 
 	@Override
 	public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
-		return this.copyManager.copyContent(contentId, requestMap, mode);
+		return this.contentPluginManager.copyContent(contentId, requestMap, mode);
 	}
 
     /**
@@ -181,14 +164,13 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 	 * @return
 	 */
     @Override
-	public Response retire(String contentId) { return this.retireManager.retire(contentId); }
+	public Response retire(String contentId) { return this.contentManger.retire(contentId); }
 	
 	/* (non-Javadoc)
 	 * @see org.ekstep.taxonomy.mgr.IContentManager#acceptFlag(java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Response acceptFlag(String contentId) { return this.acceptFlagManager.acceptFlag(contentId); }
+	public Response acceptFlag(String contentId) { return this.contentEventManager.acceptFlag(contentId); }
 
 
     @Override

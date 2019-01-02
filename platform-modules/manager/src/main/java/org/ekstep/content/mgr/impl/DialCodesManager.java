@@ -1,9 +1,9 @@
 package org.ekstep.content.mgr.impl;
 
 import org.ekstep.common.dto.Response;
-import org.ekstep.content.mgr.impl.dialcodes.LinkDialCodeManager;
-import org.ekstep.content.mgr.impl.dialcodes.ReleaseDialcodesManager;
-import org.ekstep.content.mgr.impl.dialcodes.ReserveDialcodesManager;
+import org.ekstep.content.mgr.impl.operation.dialcodes.LinkDialCodeOperation;
+import org.ekstep.content.mgr.impl.operation.dialcodes.ReleaseDialcodesOperation;
+import org.ekstep.content.mgr.impl.operation.dialcodes.ReserveDialcodesOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,22 +12,20 @@ import java.util.Map;
 @Component
 public class DialCodesManager {
 
-    @Autowired private LinkDialCodeManager linkDialCodeManager;
-
-    @Autowired private ReserveDialcodesManager reserveDialcodesManager;
-
-    @Autowired private ReleaseDialcodesManager releaseDialcodesManager;
+    @Autowired private LinkDialCodeOperation linkDialCodeOperation;
+    @Autowired private ReserveDialcodesOperation reserveDialcodesOperation;
+    @Autowired private ReleaseDialcodesOperation releaseDialcodesOperation;
 
     public Response link(String channelId, Object reqObj) throws Exception {
-        return this.linkDialCodeManager.linkDialCode(channelId, reqObj);
+        return this.linkDialCodeOperation.linkDialCode(channelId, reqObj);
     }
 
     public Response reserve(String contentId, String channelId, Map<String, Object> request) throws Exception {
-        return this.reserveDialcodesManager.reserveDialCode(contentId, channelId, request);
+        return this.reserveDialcodesOperation.reserveDialCode(contentId, channelId, request);
     }
 
     public Response release(String contentId, String channelId) throws Exception {
-        return this.releaseDialcodesManager.releaseDialCodes(contentId, channelId);
+        return this.releaseDialcodesOperation.releaseDialCodes(contentId, channelId);
     }
 
 }

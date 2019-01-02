@@ -1,6 +1,5 @@
-package org.ekstep.content.mgr.impl.dialcodes;
+package org.ekstep.content.mgr.impl.operation.dialcodes;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -21,21 +20,17 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ReserveDialcodesManager extends DummyBaseContentManager {
+public class ReserveDialcodesOperation extends DummyBaseContentManager {
 
     public Response reserveDialCode(String contentId, String channelId, Map<String, Object> request) throws Exception {
         if(null == request || request.isEmpty())
             throw new ClientException(ContentErrorCodes.ERR_REQUEST_BLANK.name(),
                     "Request can not be blank.");
 
-        if(StringUtils.isBlank(channelId)) {
-            throw new ClientException(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(),
-                    "Channel can not be blank.");
-        }
-        if(StringUtils.isBlank(contentId)) {
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
-                    "Content Id Can Not be blank.");
-        }
+        validateEmptyOrNullChannelId(channelId);
+
+        validateEmptyOrNullContentId(contentId);
+
         Node node = getContentNode(TAXONOMY_ID, contentId, "edit");
         Map<String, Object> metaData = node.getMetadata();
 

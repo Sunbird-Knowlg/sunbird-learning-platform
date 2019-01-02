@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl.dialcodes;
+package org.ekstep.content.mgr.impl.operation.dialcodes;
 
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class LinkDialCodeManager extends DummyBaseContentManager {
+public class LinkDialCodeOperation extends DummyBaseContentManager {
 
-    private static final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
+    private final String ERR_DIALCODE_LINK_REQUEST = "Invalid Request.";
 
-    private static final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
+    private final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
             ? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
 
 

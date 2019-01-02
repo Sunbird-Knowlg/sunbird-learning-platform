@@ -1,13 +1,11 @@
-package org.ekstep.content.mgr.impl.hierarchy;
+package org.ekstep.content.mgr.impl.operation.hierarchy;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
@@ -18,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class GetHierarchyManager extends DummyBaseContentManager {
+public class GetHierarchyOperation extends DummyBaseContentManager {
 
     public Response getHierarchy(String contentId, String mode) {
         if(StringUtils.equalsIgnoreCase("edit", mode)){
@@ -26,10 +24,9 @@ public class GetHierarchyManager extends DummyBaseContentManager {
 
             boolean fetchAll = true;
             String nodeStatus = (String) node.getMetadata().get("status");
-            if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
-                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                        "Content not found with id: " + contentId);
-            }else if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
+            validateIsNodeRetired(node.getMetadata());
+
+            if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
                 fetchAll = false;
             }
 

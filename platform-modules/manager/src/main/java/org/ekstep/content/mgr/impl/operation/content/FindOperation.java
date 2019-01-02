@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl;
+package org.ekstep.content.mgr.impl.operation.content;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.ekstep.common.dto.Response;
@@ -9,12 +9,14 @@ import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class FindManager extends DummyBaseContentManager {
+@Component
+public class FindOperation extends DummyBaseContentManager {
 
     @SuppressWarnings("unchecked")
     public Response find(String contentId, String mode, List<String> fields) {
@@ -67,5 +69,5 @@ public class FindManager extends DummyBaseContentManager {
         response.setParams(getSucessStatus());
         return response;
     }
-    
+
 }

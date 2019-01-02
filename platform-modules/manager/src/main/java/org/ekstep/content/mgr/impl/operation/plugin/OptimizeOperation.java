@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl;
+package org.ekstep.content.mgr.impl.operation.plugin;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -13,29 +13,29 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-public class OptimizeManager extends DummyBaseContentManager {
+@Component
+public class OptimizeOperation extends DummyBaseContentManager {
 
     public Response optimize(String contentId) {
 
-        if (StringUtils.isBlank(contentId))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
+        validateEmptyOrNullContentId(contentId);
 
         Response response = new Response();
         Node node = getNodeForOperation(contentId, "optimize");
 
         isNodeUnderProcessing(node, "Optimize");
 
-        String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
+        String status = getNodeStatus(node);
         TelemetryManager.log("Content Status: " + status);
-        if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status)
-                || !StringUtils.equalsIgnoreCase(ContentAPIParams.Unlisted.name(), status))
+        if (!isLiveStatus(status) || !StringUtils.equalsIgnoreCase(ContentAPIParams.Unlisted.name(), status))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
                     "UnPublished content cannot be optimized");
 
-        String downloadUrl = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
+        String downloadUrl = getDownloadUrlFrom(node);
         TelemetryManager.log("Download Url: " + downloadUrl);
         if (StringUtils.isBlank(downloadUrl))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),

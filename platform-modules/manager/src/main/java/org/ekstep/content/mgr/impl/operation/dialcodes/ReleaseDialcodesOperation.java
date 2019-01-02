@@ -1,6 +1,5 @@
-package org.ekstep.content.mgr.impl.dialcodes;
+package org.ekstep.content.mgr.impl.operation.dialcodes;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -23,16 +22,11 @@ import java.util.Set;
 import static java.util.stream.Collectors.toList;
 
 @Component
-public class ReleaseDialcodesManager extends DummyBaseContentManager {
+public class ReleaseDialcodesOperation extends DummyBaseContentManager {
 
     public Response releaseDialCodes(String contentId, String channelId) throws Exception {
-        if(StringUtils.isBlank(channelId))
-            throw new ClientException(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(),
-                    "Channel can not be blank.");
-
-        if (StringUtils.isBlank(contentId))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
-                    "Content Id Can Not be blank.");
+        validateEmptyOrNullChannelId(channelId);
+        validateEmptyOrNullContentId(contentId);
 
         Node node = getContentNode(TAXONOMY_ID, contentId, null);
 
