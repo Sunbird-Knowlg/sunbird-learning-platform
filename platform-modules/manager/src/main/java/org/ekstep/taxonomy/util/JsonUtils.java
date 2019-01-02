@@ -1,13 +1,11 @@
-package org.ekstep.taxonomy.mgr.impl;
+package org.ekstep.taxonomy.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.mgr.BaseManager;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,15 +14,15 @@ import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
-public class BaseTaxonomyManager extends BaseManager {
+public class JsonUtils {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private static ObjectMapper mapper = new ObjectMapper();
 
-    private <T> T toObject(Object o, Class<T> clazz) {
+    public static <T> T toObject(Object o, Class<T> clazz) {
         return mapper.convertValue(o, clazz);
     }
 
-    private <T> List<T> toListObject(List<Map> l, Class<T> clazz) {
+    public static <T, R> List<R> toListObject(List<T> l, Class<R> clazz) {
         return l.
                 stream().
                 filter(Objects::nonNull).
@@ -32,7 +30,7 @@ public class BaseTaxonomyManager extends BaseManager {
                 collect(toList());
     }
 
-    public <T> Optional<Object> mapToObject(Object o, Class<T> clazz) {
+    public static <T> Optional<Object> mapToObject(Object o, Class<T> clazz) {
         return Optional.ofNullable(o).
                 map(a -> {
                     if (a instanceof List) {
@@ -42,7 +40,7 @@ public class BaseTaxonomyManager extends BaseManager {
                                     map(e -> {
                                         if (e instanceof Map) {
                                             List<Map> lm = (List<Map>) l;
-                                            return toListObject(lm, clazz);
+                                            return JsonUtils.<Map, T>toListObject(lm, clazz);
                                         }
                                         return null;
                                     }).
@@ -54,15 +52,15 @@ public class BaseTaxonomyManager extends BaseManager {
                 });
     }
 
-    protected <T> List<T> mapToListObject(Object obj, Class<T> clazz,
-                                        Function<List<T>, List<T>> c) {
+    public static <T> List<T> mapToListObject(Object obj, Class<T> clazz,
+                                          Function<List<T>, List<T>> c) {
         return mapToObject(obj, clazz).
                 map(o -> (List<T>)o).
                 map(e -> c.apply(e)).
                 orElse(null);
     }
 
-    protected <T> T deepCopy(T o, Class<T> clazz) {
+    public static <T> T deepCopy(T o, Class<T> clazz) {
         try {
             return mapper.readValue(mapper.writeValueAsString(o), clazz);
         } catch (IOException e) {
@@ -72,14 +70,7 @@ public class BaseTaxonomyManager extends BaseManager {
         }
     }
 
-    protected static <T> Map<T, Integer> getPositionMap(List<T> l) {
-        Map<T, Integer> m = new HashMap<>();
-        int index = 0;
-        for (T e : l) { m.put(e, index++); }
-        return m;
-    }
-
-    public String objectToJson(Object o) {
+    public static String serialize(Object o) {
         try {
             return mapper.writeValueAsString(o);
         } catch (JsonProcessingException e) {

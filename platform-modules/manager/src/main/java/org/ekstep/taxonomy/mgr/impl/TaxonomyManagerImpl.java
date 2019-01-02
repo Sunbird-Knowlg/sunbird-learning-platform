@@ -6,6 +6,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
@@ -18,6 +19,8 @@ import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.ITaxonomyManager;
+import org.ekstep.taxonomy.util.JsonUtils;
+import org.ekstep.taxonomy.util.TaxonomyUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
@@ -28,8 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ekstep.taxonomy.util.TaxonomyUtil.getPositionMap;
+
 @Component
-public class TaxonomyManagerImpl extends BaseTaxonomyManager implements ITaxonomyManager {
+public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager {
 
 	private final ControllerUtil util = new ControllerUtil();
 
@@ -220,24 +225,24 @@ public class TaxonomyManagerImpl extends BaseTaxonomyManager implements ITaxonom
 					new ClientException("ERR_INVALID_REQUEST", "Definition cannot be empty"));
 
         DefinitionDTO definitionDTO = util.getDefinition(id, objectType);
-        DefinitionDTO definition = deepCopy(definitionDTO, DefinitionDTO.class);
+        DefinitionDTO definition = JsonUtils.deepCopy(definitionDTO, DefinitionDTO.class);
 
         boolean isUpdateRequired = false;
 
-        if (null != mapToListObject(requestDefinition.get("properties"),   MetadataDefinition.class,
+        if (null != JsonUtils.mapToListObject(requestDefinition.get("properties"),   MetadataDefinition.class,
 				(u) -> updateToDefinition(u, definition.getProperties())))
 			isUpdateRequired = true;
 
-		if (null != mapToListObject(requestDefinition.get("inRelations"),  RelationDefinition.class,
+		if (null != JsonUtils.mapToListObject(requestDefinition.get("inRelations"),  RelationDefinition.class,
 				(u) -> updateToDefinition(u, definition.getInRelations())))
 			isUpdateRequired = true;
 
-		if (null != mapToListObject(requestDefinition.get("outRelations"), RelationDefinition.class,
+		if (null != JsonUtils.mapToListObject(requestDefinition.get("outRelations"), RelationDefinition.class,
 				(u) -> updateToDefinition(u, definition.getOutRelations())))
 			isUpdateRequired = true;
 
 		if (isUpdateRequired) {
-			String updatedDefinitionJson = "{\"definitionNodes\":[" + objectToJson(definition) + "]}";
+			String updatedDefinitionJson = "{\"definitionNodes\":[" + JsonUtils.serialize(definition) + "]}";
 			Request req = getRequest(id, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
 			req.put(GraphEngineParams.input_stream.name(), updatedDefinitionJson);
 
