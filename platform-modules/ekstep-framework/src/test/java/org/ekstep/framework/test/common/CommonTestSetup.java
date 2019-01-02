@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 public class CommonTestSetup {
 
     private static ClassLoader classLoader = CommonTestSetup.class.getClassLoader();
-    private static File definitionLocation = new File(classLoader.getResource("definitions/").getFile());
     private static ObjectMapper mapper = new ObjectMapper();
     private static GraphDatabaseService graphDb = null;
 
@@ -85,7 +84,7 @@ public class CommonTestSetup {
         });
     }
 
-    private static void setupEmbeddedNeo4J() throws Exception {
+    private static void setupEmbeddedNeo4J() {
         BoltConnector bolt = new BoltConnector("0");
         graphDb = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)))

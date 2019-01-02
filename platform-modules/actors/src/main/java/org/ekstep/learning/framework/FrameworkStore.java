@@ -1,6 +1,10 @@
 package org.ekstep.learning.framework;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
@@ -38,6 +42,12 @@ public class FrameworkStore extends CassandraStore {
         nodeType = CompositeSearchConstants.NODE_TYPE_DATA;
     }
 
+    /**
+     *
+     * @param frameworkId
+     * @param hierarchy
+     * @throws IOException
+     */
     public void saveOrUpdateHierarchy(String frameworkId, Map<String, Object> hierarchy) throws IOException {
         try {
             String query = "UPDATE " + getKeyspace() + "." + getTable() + " SET hierarchy = ? WHERE identifier = ?";
@@ -52,7 +62,11 @@ public class FrameworkStore extends CassandraStore {
 
     }
 
-
+    /**
+     *
+     * @param frameworkId
+     * @return
+     */
     public String getHierarchy(String frameworkId) {
         String query = "SELECT hierarchy FROM " + getKeyspace() + "." + getTable() + " WHERE identifier=?";
 
@@ -78,6 +92,10 @@ public class FrameworkStore extends CassandraStore {
         }
     }
 
+    /**
+     *
+     * @param identifiers
+     */
     public void deleteHierarchy(List<String> identifiers) {
         String query = "DELETE FROM " + getKeyspace() + "." + getTable() + " WHERE identifier IN :ids";
         Session session = CassandraConnector.getSession();

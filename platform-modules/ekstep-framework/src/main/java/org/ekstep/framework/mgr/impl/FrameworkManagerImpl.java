@@ -165,34 +165,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		}
 	}
 
-	private List<String> getFields() {
-		List<String> fields = new ArrayList<String>();
-		DefinitionDTO definition = getDefinition(GRAPH_ID, FRAMEWORK_OBJECT_TYPE);
-		String[] fwMetadata = getFields(definition);
-		if (fwMetadata != null)
-			fields.addAll(Arrays.asList(fwMetadata));
-		fields.add("fw_hierarchy");
-		return fields;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private List<Map> setSearchProperties(String frameworkId) {
-		List<Map> properties = new ArrayList<Map>();
-		Map<String, Object> property = new HashMap<>();
-		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-		property.put("propertyName", "identifier");
-		property.put("values", frameworkId);
-		properties.add(property);
-
-		property = new HashMap<String, Object>();
-		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-		property.put("propertyName", "objectType");
-		property.put("values", "Framework");
-		properties.add(property);
-
-		return properties;
-	}
-
 	/*
 	 * Update Framework Details
 	 * 

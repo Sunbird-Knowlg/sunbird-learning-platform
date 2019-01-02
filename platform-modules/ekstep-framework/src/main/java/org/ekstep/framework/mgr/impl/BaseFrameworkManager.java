@@ -312,14 +312,10 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 	/**
-	 * validate channel Node
-	 * 
-	 * @param channelId
-	 * 
-	 * @author gauraw
-	 * 
+	 *
+	 * @param objectId
+	 * @return boolean
 	 */
-
 	protected boolean validateObject(String objectId) {
 		boolean isValidObject = false;
 
