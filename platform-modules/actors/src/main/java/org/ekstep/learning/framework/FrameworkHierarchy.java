@@ -25,6 +25,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 
 /**
  * @author pradyumna
@@ -32,11 +33,19 @@ import org.ekstep.graph.model.node.DefinitionDTO;
  */
 public class FrameworkHierarchy extends BaseManager {
 
+	private ObjectMapper mapper = new ObjectMapper();
+
 	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
 			: "domain";
 
-	private ObjectMapper mapper = new ObjectMapper();
-	private FrameworkStore frameworkStore = new FrameworkStore();
+	private static final String keyspace = Platform.config.hasPath("hierarchy.keyspace.name")
+			? Platform.config.getString("hierarchy.keyspace.name")
+			: "hierarchy_store";
+	private static final String table = Platform.config.hasPath("framework.hierarchy.table")
+			? Platform.config.getString("framework.hierarchy.table")
+			: "framework_hierarchy";
+	private static final String objectType = "Framework";
+	private HierarchyStore hierarchyStore = new HierarchyStore(keyspace, table, objectType, false);
 
 	/**
 	 * @param id
@@ -79,8 +88,8 @@ public class FrameworkHierarchy extends BaseManager {
 	 * @return frameworkHierarchy
 	 * @throws Exception
 	 */
-	public String getFrameworkHierarchy(String frameworkId) throws Exception{
-		return frameworkStore.getHierarchy(frameworkId);
+	public Map<String, Object> getFrameworkHierarchy(String frameworkId) throws Exception{
+		return hierarchyStore.getHierarchy(frameworkId);
 	}
 
 	private void pushFrameworkEvent(Node node) throws Exception {
@@ -100,7 +109,7 @@ public class FrameworkHierarchy extends BaseManager {
 			if(null!=node.getMetadata().get(field))
 				frameworkDocument.put(field, node.getMetadata().get(field));
 		}
-		frameworkStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
+		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -9,6 +9,7 @@ import com.datastax.driver.core.querybuilder.Delete;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.datastax.driver.core.querybuilder.Select.Where;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.connector.util.CassandraConnectorStoreParam;
@@ -31,6 +32,8 @@ import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
  *
  */
 public abstract class CassandraStore {
+
+	protected ObjectMapper mapper = new ObjectMapper();
 
 	private String keyspace = null;
 	private String table = null;

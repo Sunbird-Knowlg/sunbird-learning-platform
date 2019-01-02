@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -69,63 +69,44 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 	}
 
-	/*
-	 * Read framework by Id
-	 * 
-	 * @param graphId
-	 * 
+	/**
+	 * Read Framework By Id
 	 * @param frameworkId
-	 * 
+	 * @param returnCategories
+	 * @return Response
+	 * @throws Exception
 	 */
-	// TODO : Uncomment this method
-	/*
-	 * @Override public Response readFramework(String frameworkId) throws Exception
-	 * { return read(frameworkId, FRAMEWORK_OBJECT_TYPE,
-	 * FrameworkEnum.framework.name());; }
-	 */
-
-	// TODO : Delete this method and uncomment above method
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Response response = new Response();
-		if (Platform.config.hasPath("framework.cassandra.sync")) {
-			if (Platform.config.getBoolean("framework.cassandra.sync")) {
-				Map<String, Object> responseMap = new HashMap<>();
-				Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
-				String frameworkData = (String) getHierarchyResp.get("framework");
+		Map<String, Object> responseMap = new HashMap<>();
+		Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
+		Map<String, Object> framework = (Map<String, Object>) getHierarchyResp.get("framework");
 
-				if (StringUtils.isNotBlank(frameworkData)) {
-					Map<String, Object> framework = mapper.readValue(frameworkData, Map.class);
-					if (null != framework.get("fw_hierarchy")) {
-						Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
-								Map.class);
-						responseMap = framework;
-						if (null != hierarchy && !hierarchy.isEmpty()) {
-							List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
-									.get("categories");
-							if (categories != null) {
-								if (returnCategories != null && !returnCategories.isEmpty()) {
-									responseMap.put("categories",
-											categories.stream().filter(p -> returnCategories.contains(p.get("code")))
-													.collect(Collectors.toList()));
-									removeAssociations(responseMap, returnCategories);
+		if (MapUtils.isNotEmpty(framework)) {
+			if (null != framework.get("fw_hierarchy")) {
+				Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
+						Map.class);
+				responseMap = framework;
+				if (null != hierarchy && !hierarchy.isEmpty()) {
+					List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
+							.get("categories");
+					if (categories != null) {
+						if (returnCategories != null && !returnCategories.isEmpty()) {
+							responseMap.put("categories",
+									categories.stream().filter(p -> returnCategories.contains(p.get("code")))
+											.collect(Collectors.toList()));
+							removeAssociations(responseMap, returnCategories);
 
-								} else {
-									responseMap.put("categories", categories);
-								}
-							}
+						} else {
+							responseMap.put("categories", categories);
 						}
 					}
-				} else {
-					throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND",
-							"Data not found with id : " + frameworkId);
 				}
 				responseMap.remove("fw_hierarchy");
 				response.put(FrameworkEnum.framework.name(), responseMap);
 				response.setParams(getSucessStatus());
-			} else {
-				response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 			}
 		} else {
 			response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
