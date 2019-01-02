@@ -6,7 +6,6 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
