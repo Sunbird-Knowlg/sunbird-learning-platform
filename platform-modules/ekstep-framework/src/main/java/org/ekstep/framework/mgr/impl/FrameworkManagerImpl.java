@@ -2,7 +2,6 @@
 package org.ekstep.framework.mgr.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
 
 /**

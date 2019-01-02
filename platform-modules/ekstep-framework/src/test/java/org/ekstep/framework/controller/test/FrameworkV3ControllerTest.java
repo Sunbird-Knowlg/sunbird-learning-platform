@@ -9,7 +9,6 @@ import org.ekstep.framework.mgr.impl.ChannelManagerImpl;
 import org.ekstep.framework.mgr.impl.FrameworkManagerImpl;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.framework.test.common.CommonTestSetup;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -95,11 +94,6 @@ public class FrameworkV3ControllerTest extends CommonTestSetup {
 	@Before
 	public void init() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
-	}
-	
-	@AfterClass
-	public static void finish() throws Exception {
-
 	}
 	
 	private void delay(long time) {
