@@ -77,8 +77,8 @@ public class FrameworkV3ControllerTest extends CommonTestSetup {
 	private static final String listFrameworkInvalidJson = "{\"id\": \"ekstep.framework.list\",\"ver\": \"3.0\",\"ts\": \"YYYY-MM-DDThh:mm:ssZ+/-nn.nn\",\"params\": {\"did\": \"1234\",\"key\": \"1234\",\"msgid\": \"test1234\"},\"request\": {}}";
 
 
-	private static final String SCRIPT_1 = "CREATE KEYSPACE IF NOT EXISTS hierarhcy_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
-	private static final String SCRIPT_2 = "CREATE TABLE IF NOT EXISTS hierarhcy_store_test.framework_hierarchy_test (identifier text,hierarchy text,PRIMARY KEY (identifier));";
+	private static final String SCRIPT_1 = "CREATE KEYSPACE IF NOT EXISTS hierarchy_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
+	private static final String SCRIPT_2 = "CREATE TABLE IF NOT EXISTS hierarchy_store_test.framework_hierarchy_test (identifier text,hierarchy text,PRIMARY KEY (identifier));";
 
 
 	@BeforeClass
