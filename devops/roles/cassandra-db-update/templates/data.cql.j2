@@ -9,10 +9,9 @@ CREATE TABLE IF NOT EXISTS {{ content_keyspace_name }}.content_data (
   body blob,
   oldBody blob,
   stageIcons blob,
+  screenshots blob,
   PRIMARY KEY (content_id)
 );
-
-#ALTER TABLE {{ content_keyspace_name }}.content_data ADD screenshots blob IF NOT EXISTS;
 
 CREATE KEYSPACE IF NOT EXISTS {{ orchestrator_keyspace_name }} WITH replication = {
   'class': 'SimpleStrategy',
