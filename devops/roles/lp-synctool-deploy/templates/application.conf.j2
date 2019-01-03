@@ -40,8 +40,9 @@ search.fields.query=["name^100","title^100","lemma^100","code^100","tags^100","d
 search.fields.date=["lastUpdatedOn","createdOn","versionDate","lastSubmittedOn","lastPublishedOn"]
 search.batch.size=500
 search.connection.timeout=30
+search.index.name="compositesearch"
 
-nested.fields=["badgeAssertions","targets","contentCredits"]
+nested.fields=["badgeAssertions","targets"]
 channel.default="in.ekstep"
 
 # Cassandra Configurations

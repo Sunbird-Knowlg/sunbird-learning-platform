@@ -1,0 +1,10 @@
+learner_user: learning
+learner_user_home: /home/{{learner_user}}
+
+graph_passport_key: "{{ vault_graph_passport_key }}"
+learning_neo4j_bolt_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:7687
+learning_read_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:7687
+learning_write_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:7687
+environment_id: 10000000
+search_index_host: "{{ groups['composite-search-cluster'][0] }}:9200"
+instance: "{{env}}"

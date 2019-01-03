@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.taxonomy.content.common.TestParams;
-import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.mgr.IContentManager;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.AfterClass;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,9 +35,7 @@ public class ContentManagerImplTest extends CommonTestSetup {
 	@Autowired
 	private IContentManager contentManager;
 
-	@Autowired
-	private WebApplicationContext context;
-
+	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
@@ -50,6 +46,7 @@ public class ContentManagerImplTest extends CommonTestSetup {
 
 	private static String contentId = "UT_Document_001";
 	private static String versionKey = "";
+	private static String channelId = "in.ekstep";
 
 	@BeforeClass
 	public static void init() throws Exception {
@@ -79,7 +76,7 @@ public class ContentManagerImplTest extends CommonTestSetup {
 				new TypeReference<Map<String, Object>>() {
 				});
 		documentContentMap.put(TestParams.identifier.name(), contentId);
-		Response documentResponse = contentManager.create(documentContentMap);
+		Response documentResponse = contentManager.create(documentContentMap, channelId);
 		String versionKeyTemp = (String) documentResponse.getResult().get(TestParams.versionKey.name());
 		if (StringUtils.isNotBlank(versionKeyTemp))
 			versionKey = versionKeyTemp;
