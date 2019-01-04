@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import akka.pattern.Patterns;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
@@ -25,6 +26,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
@@ -41,6 +43,8 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 /**
  * @author pradyumna
@@ -308,14 +312,10 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 	/**
-	 * validate channel Node
-	 * 
-	 * @param channelId
-	 * 
-	 * @author gauraw
-	 * 
+	 *
+	 * @param objectId
+	 * @return boolean
 	 */
-
 	protected boolean validateObject(String objectId) {
 		boolean isValidObject = false;
 
@@ -499,6 +499,33 @@ public class BaseFrameworkManager extends BaseManager {
 				throw new ClientException("ERR_INVALID_LANGUAGE_CODE",
 						"Please Provide Valid Language Code For translations. Valid Language Codes are : "
 								+ LANGUAGE_CODES);
+		}
+	}
+
+	protected Response getFrameworkHierarchy(String identifier) throws Exception {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name());
+		request.setOperation(FrameworkHierarchyOperations.getFrameworkHierarchy.name());
+		request.put("identifier", identifier);
+		return makeActorRequest(request);
+	}
+
+	private Response makeActorRequest(Request request) {
+		ActorRef router = LearningRequestRouterPool.getRequestRouter();
+		try {
+			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
+			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
+			if (obj instanceof Response) {
+				Response response = (Response) obj;
+				TelemetryManager.log("Response Params: " + response.getParams() + " | Code: "
+						+ response.getResponseCode() + " | Result: " + response.getResult().keySet());
+				return response;
+			} else {
+				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error! Something went wrong while making actor call for get framework hierarchy : " + e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something Went Wrong While Processing Your Request", e);
 		}
 	}
 
