@@ -46,7 +46,7 @@ public class ChannelManagerImpl extends BaseFrameworkManager implements IChannel
 	@Override
 	public Response readChannel(String channelId) throws Exception{
 		Response response = read(channelId, CHANNEL_OBJECT_TYPE, ChannelEnum.channel.name());
-		if (Platform.config.hasPath("framework.es.sync") && Platform.config.getBoolean("framework.es.sync")) {
+		if (Platform.config.hasPath("channel.fetch.suggested_frameworks") && Platform.config.getBoolean("channel.fetch.suggested_frameworks")) {
 			Map<String, Object> responseMap = (Map<String, Object>) response.get(ChannelEnum.channel.name());
 			List<Object> frameworkList = (List<Object>) responseMap.get(ChannelEnum.frameworks.name());
 			if(null == frameworkList || frameworkList.isEmpty()) {

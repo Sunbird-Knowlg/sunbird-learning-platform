@@ -8,5 +8,5 @@ package org.ekstep.learning.framework;
  *
  */
 public enum FrameworkHierarchyOperations {
-	generateFrameworkHierarchy
+	generateFrameworkHierarchy, getFrameworkHierarchy
 }
