@@ -4,15 +4,24 @@ jobs:
     machine: true
     steps:
       - checkout
+      
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
+      
       - run: mvn clean install -DskipTests
       - run: cd searchIndex-platform/module/search-api/search-manager && mvn play2:dist
       - run: mvn clean package  -DskipTests -P samza-jobs
+      
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
+      
+      - run: sudo apt update && sudo apt install jq
+      - run: wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets[0].browser_download_url')
+      - run: find . -type f -name "jacoco.xml" -exec java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r {} --partial \;
+          
     
+ 
           
 workflows:
   version: 2.1
