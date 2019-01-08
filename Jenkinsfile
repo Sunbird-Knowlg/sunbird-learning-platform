@@ -22,13 +22,13 @@ node('build-slave') {
             }
 
             stage('Build') {
-                withMaven(options: [artifactsPublisher(), dependenciesFingerprintPublisher(includeReleaseVersions: true)], publisherStrategy: 'EXPLICIT', tempBinDir: '') {
-                sh 'mvn clean install -DskipTests'
+                withMaven(tempBinDir: '') {
+                    sh 'mvn clean install -DskipTests'
                 }
             }
 
             stage('Post-Build') {
-                withMaven(options: [artifactsPublisher(), dependenciesFingerprintPublisher(includeReleaseVersions: true)], publisherStrategy: 'EXPLICIT', tempBinDir: '') {
+                withMaven(tempBinDir: '') {
                     sh """
                         cd searchIndex-platform/module/search-api/search-manager
                         mvn play2:dist
@@ -38,7 +38,7 @@ node('build-slave') {
 
             stage('Post_Build-Action') {
                 jacoco exclusionPattern: '**/common/**,**/dto/**,**/enums/**,**/pipeline/**,**/servlet/**,**/interceptor/**,**/batch/**,**/models/**,**/model/**,**/EnrichActor*.class,**/language/controller/**,**/wordchain/**,**/importer/**,**/Base**,**/ControllerUtil**,**/Indowordnet**,**/Import**'
-            }
+            }            
         }
     }
 
