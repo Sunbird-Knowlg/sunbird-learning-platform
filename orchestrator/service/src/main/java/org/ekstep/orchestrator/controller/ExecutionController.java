@@ -42,7 +42,7 @@ public class ExecutionController extends BaseOrchestratorController {
 	
 
 	@Autowired
-	private IOrchestratorManager manage;
+	private IOrchestratorManager manager;
 
 	@Autowired
 	private Executor executor;
