@@ -40,7 +40,7 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 	@Autowired private ContentEventManager contentEventManager;
 	@Autowired private ContentPluginManager contentPluginManager;
 
-	private final PreSignedUrlManager preSignedUrlManager = new PreSignedUrlManager();
+	//private final PreSignedUrlManager preSignedUrlManager = new PreSignedUrlManager();
 
 	/*private BaseStorageService storageService;
 	
