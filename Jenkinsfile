@@ -22,16 +22,18 @@ node('build-slave') {
             }
 
             stage('Build') {
-                withMaven(tempBinDir: ''){
+                withMaven(options: [artifactsPublisher(), dependenciesFingerprintPublisher(includeReleaseVersions: true)], publisherStrategy: 'EXPLICIT', tempBinDir: '') {
                 sh 'mvn clean install -DskipTests'
                 }
             }
 
             stage('Post-Build') {
-                sh """
-                    cd searchIndex-platform/module/search-api/search-manager
-                    mvn play2:dist
-                 """
+                withMaven(options: [artifactsPublisher(), dependenciesFingerprintPublisher(includeReleaseVersions: true)], publisherStrategy: 'EXPLICIT', tempBinDir: '') {
+                    sh """
+                        cd searchIndex-platform/module/search-api/search-manager
+                        mvn play2:dist
+                     """
+                }
             }
 
             stage('Post_Build-Action') {
