@@ -22,7 +22,7 @@ node('build-slave') {
             }
 
             stage('Build') {
-                withMaven(options: [dependenciesFingerprintPublisher(includeReleaseVersions: true, includeScopeTest: true), artifactsPublisher(), jacocoPublisher(), invokerPublisher(), jgivenPublisher(), concordionPublisher()], tempBinDir: ''){
+                withMaven(tempBinDir: '.'){
                 sh 'mvn clean install -DskipTests'
                 }
             }
