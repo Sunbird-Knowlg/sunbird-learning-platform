@@ -24,7 +24,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
-				<module>searchIndex-platform</module>
+				<module>searchIndex-platfor</module>
 				<module>platform-core</module>
 				<module>platform-modules</module>
 				<module>orchestrator</module>
