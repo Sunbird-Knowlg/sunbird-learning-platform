@@ -28,8 +28,10 @@ node('build-slave') {
             }
 
             stage('Post-Build') {
-                sh 'cd searchIndex-platform/module/search-api/search-manager'
-                sh 'mvn play2:dist'
+                sh """
+                    cd searchIndex-platform/module/search-api/search-manager'
+                    mvn play2:dist
+                 """
             }
 
             stage('Post_Build-Action') {
