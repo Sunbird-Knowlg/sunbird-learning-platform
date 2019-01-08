@@ -23,7 +23,7 @@ node('build-slave') {
 
             stage('Build') {
                 sh 'mvn clean install -DskipTests'
-                withMaven(options: [dependenciesFingerprintPublisher(includeReleaseVersions: true, includeScopeTest: true), artifactsPublisher(), junitPublisher(healthScaleFactor: 1.0, keepLongStdio: true), pipelineGraphPublisher(ignoreUpstreamTriggers: true, includeReleaseVersions: true, includeScopeTest: true, lifecycleThreshold: 'install', skipDownstreamTriggers: true), jacocoPublisher(), invokerPublisher(), jgivenPublisher(), concordionPublisher(), mavenLinkerPublisher(), spotbugsPublisher(), openTasksPublisher(), findbugsPublisher()], tempBinDir: '')
+                withMaven(options: [dependenciesFingerprintPublisher(includeReleaseVersions: true, includeScopeTest: true), artifactsPublisher(), jacocoPublisher(), invokerPublisher(), jgivenPublisher(), concordionPublisher()], tempBinDir: '')
             }
 
             stage('Post-Build') {
