@@ -26,13 +26,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Test Cases for code coverage of Upload Content. This Class covers test cases
  * for both upload().
  * 
- * @see ContentManagerImpl
+ * @see OldContentManagerImpl
  * @author gauraw
  *
  */
 public class ContentManagerImplUploadContentTest extends GraphEngineTestSetup {
 
-	static ContentManagerImpl contentManager = new ContentManagerImpl();
+	static OldContentManagerImpl contentManager = new OldContentManagerImpl();
 
 	static Map<String, Object> versionKeyMap = new HashMap<String, Object>();
 

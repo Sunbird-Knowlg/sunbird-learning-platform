@@ -19,7 +19,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.ContentStoreParams;
-import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class CopyOperation extends DummyBaseContentManager {
+public class CopyOperation extends BaseContentManager {
 
     @Autowired private HierarchyManager hierarchyManager;
 

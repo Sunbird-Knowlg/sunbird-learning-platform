@@ -9,14 +9,14 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
-import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-public class GetHierarchyOperation extends DummyBaseContentManager {
+public class GetHierarchyOperation extends BaseContentManager {
 
     public Response getHierarchy(String contentId, String mode) {
         if(StringUtils.equalsIgnoreCase("edit", mode)){

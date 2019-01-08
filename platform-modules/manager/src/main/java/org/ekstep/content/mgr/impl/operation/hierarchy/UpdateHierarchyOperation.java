@@ -21,7 +21,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +35,7 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 @Component
-public class UpdateHierarchyOperation extends DummyBaseContentManager {
+public class UpdateHierarchyOperation extends BaseContentManager {
 
     @SuppressWarnings("unchecked")
     public Response updateHierarchy(Map<String, Object> data) {

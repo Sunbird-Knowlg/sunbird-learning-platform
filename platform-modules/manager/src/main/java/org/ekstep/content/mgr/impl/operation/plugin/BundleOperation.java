@@ -16,7 +16,7 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class BundleOperation extends DummyBaseContentManager {
+public class BundleOperation extends BaseContentManager {
 
     @SuppressWarnings("unchecked")
     public Response bundle(Request request, String version) {

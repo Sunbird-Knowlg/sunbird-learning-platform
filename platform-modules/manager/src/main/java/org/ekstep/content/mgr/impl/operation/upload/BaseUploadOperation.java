@@ -7,14 +7,14 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class BaseUploadOperation extends DummyBaseContentManager {
+public class BaseUploadOperation extends BaseContentManager {
 
     @Autowired private UpdateOperation updateManager;
 

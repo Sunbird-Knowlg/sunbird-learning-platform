@@ -9,12 +9,12 @@ import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
-import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReviewOperation extends DummyBaseContentManager {
+public class ReviewOperation extends BaseContentManager {
 
     public Response review(String contentId, Request request) throws Exception {
         validateEmptyOrNullContentId(contentId);

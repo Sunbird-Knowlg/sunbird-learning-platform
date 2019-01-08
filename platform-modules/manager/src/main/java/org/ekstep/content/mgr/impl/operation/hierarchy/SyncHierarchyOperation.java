@@ -5,13 +5,13 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
-import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-public class SyncHierarchyOperation extends DummyBaseContentManager {
+public class SyncHierarchyOperation extends BaseContentManager {
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
 

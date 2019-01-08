@@ -11,7 +11,7 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
-import org.ekstep.taxonomy.mgr.impl.DummyBaseContentManager;
+import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class UpdateContentOperation extends DummyBaseContentManager {
+public class UpdateContentOperation extends BaseContentManager {
 
     @SuppressWarnings("unchecked")
     public Response update(String contentId, Map<String, Object> map) throws Exception {
