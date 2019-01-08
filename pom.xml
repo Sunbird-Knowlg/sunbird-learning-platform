@@ -27,7 +27,7 @@
 				<module>searchIndex-platform</module>
 				<module>platform-core</module>
 				<module>platform-modules</module>
-				<module>orchestrator</module>
+				<module>orchestrato</module>
 				<module>platform-tools/kernel-extension</module>
 				<module>platform-tools/spikes/sync-tool</module>
 				<module>platform-tools/spikes/content-tool</module>
