@@ -6,27 +6,28 @@ jobs:
       - checkout
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
-      - run: mvn clean install #-DskipTests
+      - run: mvn clean install -DskipTests
       - run: cd searchIndex-platform/module/search-api/search-manager && mvn play2:dist
+      - run: mvn clean package  -DskipTests -P samza-jobs
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
     
-  lp-backend-build:
-    machine: true
-    steps:  
-      - checkout
-      - restore_cache:
-          key: lp-backend-dependency-cache-{{ checksum "pom.xml" }}
-      - run: mvn clean install #-DskipTests=true
-      - run: mvn clean package  #-DskipTests -P samza-jobs
-      - save_cache:
-          key: lp-backend-dependency-cache-{{ checksum "pom.xml" }}
-          paths: ~/.m2
+  #lp-backend-build:
+    #machine: true
+    #steps:  
+      #- checkout
+      #- restore_cache:
+          #key: lp-backend-dependency-cache-{{ checksum "pom.xml" }}
+      #- run: mvn clean install -DskipTests=true
+      #- run: mvn clean package  -DskipTests -P samza-jobs
+      #- save_cache:
+          #key: lp-backend-dependency-cache-{{ checksum "pom.xml" }}
+          #paths: ~/.m2
           
 workflows:
   version: 2.1
   workflow:
     jobs:
       - lp-build
-      - lp-backend-build
+      #- lp-backend-build
