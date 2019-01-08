@@ -22,7 +22,7 @@ node('build-slave') {
             }
 
             stage('Build') {
-                withMaven(tempBinDir: '.'){
+                withMaven(tempBinDir: ''){
                 sh 'mvn clean install -DskipTests'
                 }
             }
