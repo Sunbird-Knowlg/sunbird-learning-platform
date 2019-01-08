@@ -94,7 +94,7 @@ public class DummyContentManagerImpl extends DummyBaseContentManager implements 
 
 	@Override
 	public Response preSignedURL(String contentId, String fileName, String type) {
-		return this.preSignedUrlManager.preSignedUrl(contentId, fileName, type);
+		return this.contentPluginManager.preSignedUrl(contentId, fileName, type);
 	}
 
 	/*
