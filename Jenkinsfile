@@ -40,11 +40,17 @@ node('build-slave') {
                 commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                 branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
                 artifact_version = branch_name + "_" + commit_hash
-                artifact_name = "learning-service.war:" +  artifact_version
-                sh "mv platform-modules/service/target/learning-service.war platform-modules/service/target/$artifact_name"
-                archiveArtifacts artifacts: "platform-modules/service/target/$artifact_name", fingerprint: true, onlyIfSuccessful: true
-                sh """echo {\\"artifact_name\\" : \\"${artifact_name}\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+                sh """
+                        mkdir lp_artifacts
+                        cp platform-modules/service/target/learning-service.war lp_artifacts
+                        cp searchIndex-platform/module/search-api/search-manager/target/search-manager.*.zip lp_artifacts
+                        zip -r lp_artifacts_$artifact_version.zip lp_artifacts
+                        rm -rf lp_artifacts
+                    """
+                archiveArtifacts artifacts: "lp_artifacts_$artifact_name", fingerprint: true, onlyIfSuccessful: true
+                sh """echo {\\"artifact_name\\" : \\"lp_artifacts_$artifact_name\\", \\"artifact_version\\" : \\"$artifact_version\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
                 archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
+                sh "rm lp_artifacts_$artifact_version.zip"
             }
         }
     }
