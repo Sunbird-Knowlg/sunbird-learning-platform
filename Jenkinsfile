@@ -4,7 +4,7 @@ node('build-slave') {
             stage('Checkout') {
                 cleanWs()
                 def scmVars = checkout scm
-                checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
+//                checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
 
             }
 
@@ -22,14 +22,16 @@ node('build-slave') {
             }
 
             stage('Build') {
-                    sh 'mvn clean install -DskipTests'
+//                    sh 'mvn clean install -DskipTests'
+                println OK
             }
 
             stage('Post-Build') {
-                    sh """
-                        cd searchIndex-platform/module/search-api/search-manager
-                        mvn play2:dist
-                     """
+//                    sh """
+//                        cd searchIndex-platform/module/search-api/search-manager
+//                        mvn play2:dist
+//                     """
+                println OK
             }
 
             stage('Post_Build-Action') {
@@ -43,12 +45,12 @@ node('build-slave') {
                 sh """
                         mkdir lp_artifacts
                         cp platform-modules/service/target/learning-service.war lp_artifacts
-                        cp searchIndex-platform/module/search-api/search-manager/target/search-manager.*.zip lp_artifacts
+                        cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
                         zip -r lp_artifacts_$artifact_version.zip lp_artifacts
                         rm -rf lp_artifacts
                     """
-                archiveArtifacts artifacts: "lp_artifacts_$artifact_name", fingerprint: true, onlyIfSuccessful: true
-                sh """echo {\\"artifact_name\\" : \\"lp_artifacts_$artifact_name\\", \\"artifact_version\\" : \\"$artifact_version\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+                archiveArtifacts artifacts: "lp_artifacts_$artifact_version", fingerprint: true, onlyIfSuccessful: true
+                sh """echo {\\"artifact_name\\" : \\"lp_artifacts_$artifact_version\\", \\"artifact_version\\" : \\"$artifact_version\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
                 archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
                 sh "rm lp_artifacts_$artifact_version.zip"
             }
