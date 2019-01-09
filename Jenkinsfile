@@ -46,7 +46,7 @@ node('build-slave') {
                 artifact_version = branch_name + "_" + commit_hash
                 artifact_name = "learning-service.war:" +  artifact_version
                 archiveArtifacts artifacts: 'platform-modules/service/target/learning-service.war', fingerprint: true, onlyIfSuccessful: true
-                sh 'echo {\\"artifact_name\\" : \\"${artifact_name}\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json'
+                sh """echo {\\"artifact_name\\" : \\"${artifact_name}\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
                 archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             }
         }
