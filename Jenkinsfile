@@ -2,9 +2,10 @@ node('build-slave') {
     try {
         ansiColor('xterm') {
             stage('Checkout') {
-                cleanWs()
-                def scmVars = checkout scm
-                checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
+//                cleanWs()
+//                def scmVars = checkout scm
+//                checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
+                println 'OK'
 
             }
 
@@ -22,18 +23,22 @@ node('build-slave') {
             }
 
             stage('Build') {
-                    sh 'mvn clean install -DskipTests'
+//                    sh 'mvn clean install -DskipTests'
+                println 'OK'
+
             }
 
             stage('Post-Build') {
-                    sh """
-                        cd searchIndex-platform/module/search-api/search-manager
-                        mvn play2:dist
-                     """
+//                    sh """
+//                        cd searchIndex-platform/module/search-api/search-manager
+//                        mvn play2:dist
+//                     """
+                println 'OK'
             }
 
             stage('Post_Build-Action') {
-                jacoco exclusionPattern: '**/common/**,**/dto/**,**/enums/**,**/pipeline/**,**/servlet/**,**/interceptor/**,**/batch/**,**/models/**,**/model/**,**/EnrichActor*.class,**/language/controller/**,**/wordchain/**,**/importer/**,**/Base**,**/ControllerUtil**,**/Indowordnet**,**/Import**'
+//                jacoco exclusionPattern: '**/common/**,**/dto/**,**/enums/**,**/pipeline/**,**/servlet/**,**/interceptor/**,**/batch/**,**/models/**,**/model/**,**/EnrichActor*.class,**/language/controller/**,**/wordchain/**,**/importer/**,**/Base**,**/ControllerUtil**,**/Indowordnet**,**/Import**'
+                println 'OK'
             }
 
             stage('Archive artifacts'){
