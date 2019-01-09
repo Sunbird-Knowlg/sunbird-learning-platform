@@ -6,7 +6,6 @@ node('build-slave') {
                 cleanWs()
                 def scmVars = checkout scm
                 checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
-
             }
 
             stage('Pre-Build') {
@@ -42,10 +41,9 @@ node('build-slave') {
             }            
         }
     }
-
+    
     catch (err) {
         currentBuild.result = "FAILURE"
         throw err
     }
-
 }
