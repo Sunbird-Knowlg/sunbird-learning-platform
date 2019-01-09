@@ -4,7 +4,7 @@ node('build-slave') {
             stage('Checkout') {
                 cleanWs()
                 def scmVars = checkout scm
-//                checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
+                checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
 
             }
 
@@ -22,16 +22,14 @@ node('build-slave') {
             }
 
             stage('Build') {
-//                    sh 'mvn clean install -DskipTests'
-                println OK
+                    sh 'mvn clean install -DskipTests'
             }
 
             stage('Post-Build') {
-//                    sh """
-//                        cd searchIndex-platform/module/search-api/search-manager
-//                        mvn play2:dist
-//                     """
-                println OK
+                    sh """
+                        cd searchIndex-platform/module/search-api/search-manager
+                        mvn play2:dist
+                     """
             }
 
             stage('Post_Build-Action') {
