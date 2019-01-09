@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 // Enable it after adding embedded-redis. 
 @Ignore
 public class TagsWorkflowTest {
-	ContentManagerImpl mgr = new ContentManagerImpl();
+	OldContentManagerImpl mgr = new OldContentManagerImpl();
 	ObjectMapper mapper = new ObjectMapper();
 	String createValidContentWithTags = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"tags\":[\"akshara\"],\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
 	String createValidContentWithKeywords = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"keywords\":[\"akshara\"],\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
