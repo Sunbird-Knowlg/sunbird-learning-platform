@@ -1,6 +1,7 @@
 node('build-slave') {
     try {
         ansiColor('xterm') {
+            properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false]])
             stage('Checkout') {
                 cleanWs()
                 def scmVars = checkout scm
