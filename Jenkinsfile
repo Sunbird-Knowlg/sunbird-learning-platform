@@ -1,7 +1,6 @@
 node('build-slave') {
     try {
         ansiColor('xterm') {
-            properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false]])
             stage('Checkout') {
                 cleanWs()
                 def scmVars = checkout scm
@@ -38,12 +37,23 @@ node('build-slave') {
 
             stage('Post_Build-Action') {
                 jacoco exclusionPattern: '**/common/**,**/dto/**,**/enums/**,**/pipeline/**,**/servlet/**,**/interceptor/**,**/batch/**,**/models/**,**/model/**,**/EnrichActor*.class,**/language/controller/**,**/wordchain/**,**/importer/**,**/Base**,**/ControllerUtil**,**/Indowordnet**,**/Import**'
-            }            
+            }
+
+            stage('Archive artifacts'){
+                commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
+                artifact_version = branch_name + "_" commit_hash
+                artifact_name = "learning-service.war:" +  artifact_version
+                archiveArtifacts artifacts: 'platform-modules/service/target/learning-service.war', fingerprint: true, onlyIfSuccessful: true
+                sh 'echo {\\"artifact_name\\" : \\"${artifact_name}\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json'
+                archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
+            }
         }
     }
-    
+
     catch (err) {
         currentBuild.result = "FAILURE"
         throw err
     }
+
 }
