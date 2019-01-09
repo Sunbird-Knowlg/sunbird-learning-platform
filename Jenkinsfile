@@ -38,6 +38,7 @@ node('build-slave') {
                         mkdir lp_artifacts
                         cp platform-modules/service/target/learning-service.war lp_artifacts
                         cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
+                        zip -r lp_artifacts_$artifact_version lp_artifacts
                         """
             }
         }
