@@ -32,7 +32,7 @@ public class DefinitionUtil {
         generateInstructionEventMetadata(graphId, getDefinitionId(objectType), objectType, actor, context, object, edata);
         String definitionUpdateEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 
-        String topic = Platform.config.hasPath("kafka.topics.cache.update") ? Platform.config.getString("kafka.topics.cache.update") : "dev.learning.cache.update.event";
+        String topic = Platform.config.hasPath("kafka.topic.system.command") ? Platform.config.getString("kafka.topic.system.command") : "dev.system.command";
         if (StringUtils.isBlank(definitionUpdateEvent)) {
             throw new ClientException("BE_REFRESH_CACHE_EXCEPTION", "Event is not generated properly.");
         }

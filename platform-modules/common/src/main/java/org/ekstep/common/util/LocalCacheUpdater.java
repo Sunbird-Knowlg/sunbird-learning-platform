@@ -25,7 +25,7 @@ import java.util.*;
 public class LocalCacheUpdater extends Thread {
 
     private static final String BOOTSTRAP_SERVERS = Platform.config.getString("kafka.urls");
-    private static final String TOPIC_ID = Platform.config.getString("kafka.topics.cache.update");
+    private static final String TOPIC_ID = Platform.config.getString("kafka.topic.system.command");
     private static ObjectMapper mapper = new ObjectMapper();
     private static KafkaConsumer<Long, String> consumer = null;
 
