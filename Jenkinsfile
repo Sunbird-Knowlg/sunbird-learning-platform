@@ -9,18 +9,7 @@ node('build-slave') {
 
             }
 
-            stage('Pre-Build') {
-                sh """
-                java -version
-                rm -rf /data/logs/*
-                rm -rf /data/graphDB/*
-                rm -rf /data/testgraphDB/*
-                rm -rf /data/testGraphDB/*
-                vim -esnc '%s/dialcode.es_conn_info="localhost:9200"/dialcode.es_conn_info="10.6.0.11:9200"/g|:wq' platform-core/unit-tests/src/test/resources/application.conf
-                vim -esnc '%s/search.es_conn_info="localhost:9200"/search.es_conn_info="10.6.0.11:9200"/g|:wq' platform-core/unit-tests/src/test/resources/application.conf
-                vim -esnc '%s/search.es_conn_info="localhost:9200"/search.es_conn_info="10.6.0.11:9200"/g|:wq' searchIndex-platform/module/search-api/search-manager/conf/application.conf
-                """
-            }
+         
 
             stage('Build') {
 //                    sh 'mvn clean install -DskipTests'
