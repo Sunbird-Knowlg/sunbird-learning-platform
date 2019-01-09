@@ -41,7 +41,7 @@ node('build-slave') {
                                                 zip -r lp_artifacts_$artifact_version lp_artifacts
                         rm -rf lp_artifacts
                     """
-                archiveArtifacts artifacts: "lp_artifacts_$artifact_version", fingerprint: true, onlyIfSuccessful: true
+                archiveArtifacts artifacts: "lp_artifacts_$artifact_version.zip", fingerprint: true, onlyIfSuccessful: true
                 sh """echo {\\"artifact_name\\" : \\"lp_artifacts_$artifact_version.zip\\", \\"artifact_version\\" : \\"$artifact_version\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
                 archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
                 sh "rm lp_artifacts_$artifact_version.zip"
