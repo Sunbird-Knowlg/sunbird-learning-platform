@@ -1,4 +1,4 @@
-@Library('deploy-conf') _
+//@Library('deploy-conf') _
 node() {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -62,7 +62,7 @@ node() {
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
 //                    ansible_playbook_run(values)
-                    
+
                     ansiblePlaybook = "${currentWs}/devops/lp_logstash_deploy.yml"
                     ansibleExtraArgs = "--extra-vars \"remote=learningall\" --vault-password-file /home/ops/vault"
                     values.put('currentWs', currentWs)
@@ -70,6 +70,8 @@ node() {
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
 //                    ansible_playbook_run(values)
+                    archiveArtifacts artifacts: "lp_artifacts.zip:${values.artifact_version}", fingerprint: true, onlyIfSuccessful: true
+                    archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
                 }
             }
         }
