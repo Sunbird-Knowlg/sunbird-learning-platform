@@ -1,4 +1,4 @@
-@Library('deploy-conf') _
+//@Library('deploy-conf') _
 node() {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -24,8 +24,8 @@ node() {
                     Option chosen is Remote, ignoring any previously copied artifacts and new artifacts will be downloaded from remote source
                     '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
                         currentWs = sh(returnStdout: true, script: 'pwd').trim()
-                        artifact= values.artifact_name + ":" + values.artifact_version
-                        ansiblePlaybook = "${currentWs}/ansible/artifacts-download.yml"
+                        artifact = values.artifact_name + ":" + values.artifact_version
+                        ansiblePlaybook = "${currentWs}/devops/artifacts-download.yml"
                         ansibleExtraArgs = """\
                                --extra-vars "artifact=${artifact}
                                artifact_path=${currentWs}/${artifact}"
@@ -34,8 +34,19 @@ node() {
                         values.put('currentWs', currentWs)
                         values.put('ansiblePlaybook', ansiblePlaybook)
                         values.put('ansibleExtraArgs', ansibleExtraArgs)
-                        ansible_playbook_run(values)                    
+                        ansible_playbook_run(values)
                     }
+                    else{
+                        println(ANSI_BOLD + ANSI_YELLOW + '''\
+                    Option chosen is Local, using the artifacts copied 
+                    '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
+                    }
+                }
+                stage('deploy artifact'){
+                    sh """
+                       unzip ${artifact}
+                       
+                    """
                 }
             }
         }
