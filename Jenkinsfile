@@ -4,6 +4,7 @@ node('build-slave') {
         String ANSI_NORMAL = "\u001B[0m"
         String ANSI_BOLD = "\u001B[1m"
         String ANSI_RED = "\u001B[31m"
+        String ANSI_YELLOW = "\u001B[33m"
 
         if (params.size() == 0){
             properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([string(defaultValue: '', description: '<font color=teal size=2>If you want to build from a tag, specify the tag name. If this parameter is blank, latest commit hash will be used to build</font>', name: 'tag', trim: false)])])
@@ -21,9 +22,6 @@ node('build-slave') {
             stage('Checkout') {
                 cleanWs()
                 if(params.tag == ""){
-                    println(ANSI_BOLD + ANSI_YELLOW + '''\
-                    Tag not specified, using the latest commit
-                    '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
                     checkout scm
                     commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
