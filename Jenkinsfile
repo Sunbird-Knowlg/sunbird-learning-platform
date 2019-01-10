@@ -1,11 +1,42 @@
 node('build-slave') {
     try {
+        String ANSI_GREEN = "\u001B[32m"
+        String ANSI_NORMAL = "\u001B[0m"
+        String ANSI_BOLD = "\u001B[1m"
+        String ANSI_RED = "\u001B[31m"
+
+        if (params.size() == 0){
+            properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([string(defaultValue: '', description: '<font color=teal size=2>If you want to build from a tag, specify the tag name. If this parameter is blank, latest commit hash will be used to build</font>', name: 'tag', trim: false)])])
+
+            ansiColor('xterm') {
+                println (ANSI_BOLD + ANSI_GREEN + '''\
+                        First run of the job. Parameters created. Stopping the current build.
+                        Please trigger new build and provide parameters if required.
+                        '''.stripIndent().replace("\n"," ") + ANSI_NORMAL)
+            }
+            return
+        }
+
         ansiColor('xterm') {
             stage('Checkout') {
                 cleanWs()
-                def scmVars = checkout scm
-                checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
+                if(params.tag == ""){
+                    println(ANSI_BOLD + ANSI_YELLOW + '''\
+                    Tag not specified, using the latest commit
+                    '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
+                    checkout scm
+                    commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
+                    artifact_version = branch_name + "_" + commit_hash
+                }
+                else {
+                    def scmVars = checkout scm
+                    checkout scm: [$class: 'GitSCM', branches: [[name: "refs/tags/$params.tag"]],  userRemoteConfigs: [[url: scmVars.GIT_URL]]]
+                    artifact_version = params.tag
+                }
+                echo "artifact_version: "+ artifact_version
             }
+        }
 
             stage('Pre-Build') {
                 sh """
@@ -37,9 +68,6 @@ node('build-slave') {
             }
 
             stage('Archive artifacts'){
-                commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
-                artifact_version = branch_name + "_" + commit_hash
                 sh """
                         mkdir lp_artifacts
                         cp platform-modules/service/target/learning-service.war lp_artifacts
@@ -51,7 +79,6 @@ node('build-slave') {
                 archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             }
         }
-    }
 
     catch (err) {
         currentBuild.result = "FAILURE"
