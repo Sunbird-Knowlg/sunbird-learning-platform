@@ -45,8 +45,31 @@ node() {
                 stage('deploy artifact'){
                     sh """
                        unzip ${artifact}
-                       
+                       mv learning-service.war devops
                     """
+                    ansiblePlaybook = "${currentWs}/devops/lp_cassandra_db_update.yml"
+                    ansibleExtraArgs = ""
+                    values.put('currentWs', currentWs)
+                    values.put('ansiblePlaybook', ansiblePlaybook)
+                    values.put('ansibleExtraArgs', ansibleExtraArgs)
+                    println values
+//                    ansible_playbook_run(values)
+
+                    ansiblePlaybook = "${currentWs}/devops/lp_learning_deploy.yml"
+                    ansibleExtraArgs = "--vault-password-file /home/ops/vault"
+                    values.put('currentWs', currentWs)
+                    values.put('ansiblePlaybook', ansiblePlaybook)
+                    values.put('ansibleExtraArgs', ansibleExtraArgs)
+                    println values
+//                    ansible_playbook_run(values)
+                    
+                    ansiblePlaybook = "${currentWs}/devops/lp_logstash_deploy.yml"
+                    ansibleExtraArgs = "--extra-vars \"remote=learningall\" --vault-password-file /home/ops/vault"
+                    values.put('currentWs', currentWs)
+                    values.put('ansiblePlaybook', ansiblePlaybook)
+                    values.put('ansibleExtraArgs', ansibleExtraArgs)
+                    println values
+//                    ansible_playbook_run(values)
                 }
             }
         }
