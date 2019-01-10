@@ -70,6 +70,7 @@ node('build-slave') {
                         mkdir lp_artifacts
                         cp platform-modules/service/target/learning-service.war lp_artifacts
                         cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
+                        cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar lp_artifacts
                         zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
                     """
                 archiveArtifacts artifacts: "lp_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
