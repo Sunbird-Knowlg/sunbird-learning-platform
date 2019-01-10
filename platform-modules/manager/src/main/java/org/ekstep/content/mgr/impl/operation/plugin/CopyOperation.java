@@ -35,15 +35,14 @@ import java.util.Map;
 @Component
 public class CopyOperation extends BaseContentManager {
 
-    @Autowired private HierarchyManager hierarchyManager;
+    @Autowired
+    private HierarchyManager hierarchyManager;
 
     public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
         Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);
-
         String mimeType = (String) existingNode.getMetadata().get("mimeType");
-        Map<String, String> idMap /*= new HashMap<>()*/;
+        Map<String, String> idMap = new HashMap<>();
         if (!isCollectionMimeType(mimeType)) {
-        /*if (!StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.content-collection")) {*/
             idMap = copyContentData(existingNode, requestMap);
         } else {
             idMap = copyCollectionContent(existingNode, requestMap, mode);
@@ -60,16 +59,16 @@ public class CopyOperation extends BaseContentManager {
      */
     private Node validateCopyContentRequest(String contentId, Map<String, Object> requestMap, String mode) {
 
-        validateOrThrowExceptionForEmptyKeys(requestMap, "Content", "createdBy", "createdFor", "organization");
+        validateOrThrowExceptionForEmptyKeys(requestMap, "Content", "createdBy", "createdFor", "organization", "framework");
 
         Node node = getContentNode(TAXONOMY_ID, contentId, mode);
         List<String> notCoppiedContent = null;
         if (Platform.config.hasPath("learning.content.type.not.copied.list")) {
             notCoppiedContent = Platform.config.getStringList("learning.content.type.not.copied.list");
         }
-        if (notCoppiedContent != null && notCoppiedContent.contains(getContentTypeFrom(node)/*(String) node.getMetadata().get("contentType")*/)) {
+        if (notCoppiedContent != null && notCoppiedContent.contains(getContentTypeFrom(node))) {
             throw new ClientException(ContentErrorCodes.CONTENTTYPE_ASSET_CAN_NOT_COPY.name(),
-                    "ContentType " + getContentTypeFrom(node)/*(String) node.getMetadata().get("contentType")*/ + " can not be coppied.");
+                    "ContentType " + getContentTypeFrom(node) + " can not be copied.");
         }
 
         String status = (String) node.getMetadata().get("status");
@@ -87,7 +86,6 @@ public class CopyOperation extends BaseContentManager {
      * @return
      */
     protected Map<String, String> copyContentData(Node existingNode, Map<String, Object> requestMap) {
-
         Node copyNode = copyMetdata(existingNode, requestMap);
         Response response = createDataNode(copyNode);
         if (checkError(response)) {
@@ -95,7 +93,6 @@ public class CopyOperation extends BaseContentManager {
         }
         uploadArtifactUrl(existingNode, copyNode);
         uploadExternalProperties(existingNode, copyNode);
-
         Map<String, String> idMap = new HashMap<>();
         idMap.put(existingNode.getIdentifier(), copyNode.getIdentifier());
         return idMap;
@@ -115,12 +112,12 @@ public class CopyOperation extends BaseContentManager {
         copyNode.setMetadata(metaData);
         copyNode.setGraphId(existingNode.getGraphId());
 
-        copyNode.getMetadata().putAll(requestMap);
-        copyNode.getMetadata().put("status", "Draft");
         List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
         Map<String, Object> nullPropMap = new HashMap<>();
         nullPropList.forEach(i -> nullPropMap.put(i, null));
         copyNode.getMetadata().putAll(nullPropMap);
+        copyNode.getMetadata().putAll(requestMap);
+        copyNode.getMetadata().put("status", "Draft");
         copyNode.getMetadata().put("origin", existingNode.getIdentifier());
 
         List<Relation> existingNodeOutRelations = existingNode.getOutRelations();
