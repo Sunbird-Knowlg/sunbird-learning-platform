@@ -44,13 +44,13 @@ node('build-slave') {
                         mkdir lp_artifacts
                         cp platform-modules/service/target/learning-service.war lp_artifacts
                         cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
-                        zip -r lp_artifacts_${artifact_version}.zip lp_artifacts
+                        zip -r lp_artifacts.zip:${artifact_version} lp_artifacts
                         rm -rf lp_artifacts
                     """
                 archiveArtifacts artifacts: "lp_artifacts_${artifact_version}.zip", fingerprint: true, onlyIfSuccessful: true
-                sh """echo {\\"artifact_name\\" : \\"lp_artifacts_${artifact_version}.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+                sh """echo {\\"artifact_name\\" : \\"lp_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
                 archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
-                sh "rm lp_artifacts_${artifact_version}.zip"
+                sh "rm lp_artifacts.zip:${artifact_version}"
             }
         }
     }
