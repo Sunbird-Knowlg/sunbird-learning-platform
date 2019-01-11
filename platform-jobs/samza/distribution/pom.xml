@@ -27,21 +27,21 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-event-generator</artifactId>
-			<version>0.0.36</version>
+			<version>0.0.37</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.80</version>
+			<version>0.0.81</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
-			<version>0.0.9</version>
+			<version>0.0.10</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
