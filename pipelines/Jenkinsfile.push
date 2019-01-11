@@ -21,7 +21,6 @@ node() {
                 currentBuild.result = 'SUCCESS'
                 return
             }
-            println values
             currentWs = sh(returnStdout: true, script: 'pwd').trim()
             artifact= values.artifact_name + ":" + values.artifact_version
             ansiblePlaybook = "${currentWs}/devops/artifacts-upload.yml"
