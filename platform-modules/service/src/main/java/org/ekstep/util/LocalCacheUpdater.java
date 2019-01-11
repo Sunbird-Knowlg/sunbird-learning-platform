@@ -1,4 +1,4 @@
-package org.ekstep.common.util;
+package org.ekstep.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.ekstep.common.Platform;
-import org.ekstep.graph.model.cache.DefinitionCache;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.net.InetAddress;
@@ -28,6 +28,7 @@ public class LocalCacheUpdater extends Thread {
     private static final String TOPIC_ID = Platform.config.getString("kafka.topic.system.command");
     private static ObjectMapper mapper = new ObjectMapper();
     private static KafkaConsumer<Long, String> consumer = null;
+    private static ControllerUtil controllerUtil = new ControllerUtil();
 
     public static void init() {
         LocalCacheUpdater cacheUpdater = new LocalCacheUpdater();
@@ -84,7 +85,9 @@ public class LocalCacheUpdater extends Thread {
             String graphId = edata.get("graphId");
             String objectType = edata.get("objectType");
             if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(objectType)) {
-                DefinitionCache.updateDefinitionCache(graphId, objectType);
+                //TODO: Remove commented code, if actor call works
+                //DefinitionCache.updateDefinitionCache(graphId, objectType);
+                controllerUtil.updateDefinitionCache(graphId, objectType);
             } else {
                 TelemetryManager.log("Skipping Definition Update in Local Cache as graphId or objectType is Blank. Event Data :" + event);
             }

@@ -14,6 +14,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.model.cache.DefinitionCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
@@ -501,6 +502,17 @@ public class ControllerUtil extends BaseLearningManager {
 
 		}
 		return identifiers;
+	}
+
+	public Response updateDefinitionCache(String graphId, String objectType) {
+		Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "updateDefinitionCache");
+		request.put(GraphDACParams.graphId.name(), graphId);
+		request.put(GraphDACParams.objectType.name(), objectType);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			return response;
+		}
+		return null;
 	}
 
 

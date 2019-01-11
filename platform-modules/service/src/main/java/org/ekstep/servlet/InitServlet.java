@@ -5,7 +5,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.common.util.LocalCacheUpdater;
+import org.ekstep.util.LocalCacheUpdater;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;

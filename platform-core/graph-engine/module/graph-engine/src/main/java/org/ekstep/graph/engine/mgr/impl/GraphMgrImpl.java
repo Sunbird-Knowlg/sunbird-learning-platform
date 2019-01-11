@@ -20,6 +20,7 @@ import org.ekstep.graph.exception.GraphEngineErrorCodes;
 import org.ekstep.graph.exception.GraphRelationErrorCodes;
 import org.ekstep.graph.model.Graph;
 import org.ekstep.graph.model.IRelation;
+import org.ekstep.graph.model.cache.DefinitionCache;
 import org.ekstep.graph.model.relation.RelationHandler;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -250,5 +251,13 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     	} else {
     		OK(getSender());
     	}
+    }
+
+    @Override
+    public void updateDefinitionCache(Request request) {
+        Map<String, Object> req = request.getRequest();
+        String graphId = req.getOrDefault(GraphDACParams.graphId.name(), "").toString();
+        String objectType = req.getOrDefault(GraphDACParams.objectType.name(), "").toString();
+        DefinitionCache.updateDefinitionCache(graphId, objectType);
     }
 }
