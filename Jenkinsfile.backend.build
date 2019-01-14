@@ -1,3 +1,4 @@
+package Build
 node('build-slave') {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -40,17 +41,14 @@ node('build-slave') {
         }
 
         stage('Archive artifacts'){
-/*            sh """
-                        mkdir lp_artifacts
-                        cp platform-modules/service/target/learning-service.war lp_artifacts
-                        cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
-                        cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar lp_artifacts
-                        zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
+            sh """
+                        mkdir lp_backend
+                        cp platform-jobs/samza/distribution/target/distribution-*.tar.gz lp_backend
+                        zip -j lp_backend.zip:${artifact_version} lp_backend/*
                     """
-            archiveArtifacts artifacts: "lp_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
-            sh """echo {\\"artifact_name\\" : \\"lp_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
-            archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true*/
-            println 'NA'
+            archiveArtifacts artifacts: "lp_backend.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
+            sh """echo {\\"artifact_name\\" : \\"lp_backend.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+            archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
         }
     }
 
