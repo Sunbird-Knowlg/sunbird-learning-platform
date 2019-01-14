@@ -1,3 +1,4 @@
+package Build
 node('build-slave') {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -51,16 +52,15 @@ node('build-slave') {
 
 
         stage('Archive artifacts'){
-/*            sh """
-                        mkdir lp_artifacts
-                        cp platform-modules/service/target/learning-service.war lp_artifacts
-                        cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
-                        cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar lp_artifacts
-                        zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
+            sh """
+                        mkdir lp_neo4j_artifacts
+                        cp platform-tools/kernel-extension/learning-graph-extension/target/learning-graph-extension*.jar lp_neo4j_artifacts
+                        cp platform-tools/kernel-extension/custom-procedures/target/custom-procedures*.jar lp_neo4j_artifacts
+                        zip -j lp_neo4j_artifacts.zip:${artifact_version} lp_neo4j_artifacts/*
                     """
-            archiveArtifacts artifacts: "lp_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
-            sh """echo {\\"artifact_name\\" : \\"lp_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
-            archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true*/
+            archiveArtifacts artifacts: "lp_neo4j_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
+            sh """echo {\\"artifact_name\\" : \\"lp_neo4j_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+            archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             println 'NA'
         }
     }
