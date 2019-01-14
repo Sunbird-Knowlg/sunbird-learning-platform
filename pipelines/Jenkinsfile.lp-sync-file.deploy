@@ -25,7 +25,7 @@ node() {
                         name: 'artifact_version', trim: false), choice(choices: ['GitHub', 'Local'], description: '<font color=teal size=2>Choose the ansible inventory source</font>',
                         name: 'inventory_source'), string(defaultValue: "${WORKSPACE}/private/ansible/inventories/${envDir}",
                         description: '<font color=teal size=2>Please sepecify the full path to the inventory directory. The default value is $WORKSPACE/private/ansible/env. Here env is the previous directory of the job.</font>',
-                        name: 'inventory_path', trim: false), string(defaultValue: '', description: '<font color=teal size=2>enter valid filename with extention</font>', name: 'filename', trim: false])])
+                        name: 'inventory_path', trim: false), string(defaultValue: '', description: '<font color=teal size=2>enter valid filename with extention</font>', name: 'filename', trim: false)])])
                 currentBuild.result = 'SUCCESS'
                 return
             }
