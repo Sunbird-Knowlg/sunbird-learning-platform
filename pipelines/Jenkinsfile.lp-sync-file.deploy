@@ -66,8 +66,8 @@ node() {
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
 //                    ansible_playbook_run(values)
-                    archiveArtifacts artifacts: "lp_sync_file_artifacts.zip:${values.artifact_version}", fingerprint: true, onlyIfSuccessful: true
-                    archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
+                    #archiveArtifacts artifacts: "lp_synctool_artifacts.zip:${values.artifact_version}", fingerprint: true, onlyIfSuccessful: true
+                    #archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
                 }
             }
         }
