@@ -1,0 +1,5 @@
+node(){
+
+ansible_playbook_run()
+
+}
