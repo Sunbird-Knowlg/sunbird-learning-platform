@@ -1,3 +1,4 @@
+package Build
 node('build-slave') {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -21,26 +22,25 @@ node('build-slave') {
             stage('Checkout') {
                 cleanWs()
                 def scmVars = checkout scm
-                if(params.tag == ""){
+                if (params.tag == "") {
                     checkout scm: [$class: 'GitSCM', branches: [[name: scmVars.GIT_BRANCH]], extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
                     commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
                     artifact_version = branch_name + "_" + commit_hash
-                }
-                else {
+                } else {
                     checkout scm: [$class: 'GitSCM', branches: [[name: "refs/tags/$params.tag"]], extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
                     artifact_version = params.tag
                 }
-                echo "artifact_version: "+ artifact_version
+                echo "artifact_version: " + artifact_version
             }
         }
 
         stage('Pre-Build'){
                 java -version
-                rm -rf /data/logs/*
-                rm -rf /data/graphDB/*
-                rm -rf /data/testgraphDB/*
-                rm -rf /data/testGraphDB/*
+                rm -rf /data/logs/
+                rm -rf /data/graphDB/
+                rm -rf /data/testgraphDB/
+                rm -rf /data/testGraphDB/
         }
 
         stage('Build') {
@@ -48,18 +48,15 @@ node('build-slave') {
         }
 
         stage('Archive artifacts'){
-/*            sh """
-                        mkdir lp_artifacts
-                        cp platform-modules/service/target/learning-service.war lp_artifacts
-                        cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
-                        cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar lp_artifacts
-                        zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
+            sh """
+                        mkdir lp_synctool_artifacts
+                        cp platform-tools/spikes/sync-tool/target/sync-tool-0.0.1-SNAPSHOT.jar lp_synctool_artifacts
+                        zip -j lp_synctool_artifacts.zip:${artifact_version} lp_synctool_artifacts/*
                     """
-            archiveArtifacts artifacts: "lp_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
-            sh """echo {\\"artifact_name\\" : \\"lp_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
-            archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true*/
-            println 'NA'
-        }
+            archiveArtifacts artifacts: "lp_synctool_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
+            sh """echo {\\"artifact_name\\" : \\"lp_synctool_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+            archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
+         }
     }
 
     catch (err) {
