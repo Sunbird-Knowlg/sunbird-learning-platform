@@ -25,14 +25,7 @@ node() {
                         name: 'artifact_version', trim: false), choice(choices: ['GitHub', 'Local'], description: '<font color=teal size=2>Choose the ansible inventory source</font>',
                         name: 'inventory_source'), string(defaultValue: "${WORKSPACE}/private/ansible/inventories/${envDir}",
                         description: '<font color=teal size=2>Please sepecify the full path to the inventory directory. The default value is $WORKSPACE/private/ansible/env. Here env is the previous directory of the job.</font>',
-                        name: 'inventory_path', trim: false), choice(choices: ['syncbyobjecttype', 'syncbyids', 'syncbydaterange', 'sync'], description: '<font color=teal size=2>Select a command</font>', name: 'command'), string(defaultValue: '--objectType', description: '''<font color=teal size=2>It is parameter to pass with command.<br>
-                        ex:<br>
-                        --objectType Content<br>
-                        --ids do_10101010,do_20202020<br>
-                        --startDate 2018-03-01 --endDate 2018-03-31<br>
-                        --objectType Content --startDate 2018-03-01 --endDate 2018-03-31<br>
-                        --graphId en --objectType Word<br>
-                          --graph domain --objectType Channel<br></font>''', name: 'parameters', trim: false)])])
+                        name: 'inventory_path', trim: false), description: '<font color=teal size=2>enter valid filename with extention</font>', name: 'filename', trim: false])])
                 currentBuild.result = 'SUCCESS'
                 return
             }
@@ -67,13 +60,13 @@ node() {
                        unzip ${artifact}
                        mv sync-tool*.jar devops
                     """
-                    ansiblePlaybook = "${currentWs}/devops/lp_synctool_deploy.yml"
+                    ansiblePlaybook = "${currentWs}/devops/lp_file_sync.yml"
                     ansibleExtraArgs = "--extra-vars \"command=${params.command} parameters=${params.parameters}\" --vault-password-file /home/ops/vault"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
 //                    ansible_playbook_run(values)
-                    archiveArtifacts artifacts: "lp_artifacts.zip:${values.artifact_version}", fingerprint: true, onlyIfSuccessful: true
+                    archiveArtifacts artifacts: "lp_sync_file_artifacts.zip:${values.artifact_version}", fingerprint: true, onlyIfSuccessful: true
                     archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
                 }
             }
