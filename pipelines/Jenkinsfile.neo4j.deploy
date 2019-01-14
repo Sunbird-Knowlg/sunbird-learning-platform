@@ -1,3 +1,5 @@
+package Deploy
+
 @Library('deploy-conf') _
 node() {
     try {
@@ -62,7 +64,7 @@ node() {
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
 //                    ansible_playbook_run(values)
-                    archiveArtifacts artifacts: "lp_neo4j_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
+                    archiveArtifacts artifacts: "${artifact}", fingerprint: true, onlyIfSuccessful: true
                     archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
                 }
             }
