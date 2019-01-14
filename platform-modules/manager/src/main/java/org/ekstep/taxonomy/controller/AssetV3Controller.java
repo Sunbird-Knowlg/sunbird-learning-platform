@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
@@ -35,15 +36,16 @@ public class AssetV3Controller extends BaseController {
         } else throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "InvalidRequest.");
     }
 
-    @RequestMapping(value = "/license/validate", method = RequestMethod.POST)
+    @RequestMapping(value = "/url/validate", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> licenseValidate(@RequestBody Map<String, Object> requestMap) {
-        String apiId = "asset.v3.license.validate";
-        TelemetryManager.log("Validating License");
+    public ResponseEntity<Response> licenseValidate(@RequestBody Map<String, Object> requestMap,
+    		@RequestParam(value = "field", required = true) String field) {
+        String apiId = "asset.url.validate";
+        TelemetryManager.log("Validating URL against : " + field);
         Response response;
         try {
             Request request = getRequest(requestMap);
-            response = assetManager.licenseValidate(getAsset(request));
+            response = assetManager.urlValidate(getAsset(request), field);
             return getResponseEntity(response, apiId, null);
         } catch(Exception e) {
             TelemetryManager.error("Exception occured while Licesence Validation: " + e.getMessage(), e);

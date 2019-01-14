@@ -17,7 +17,7 @@ public interface IAssetManager {
      * @return
      * @throws Exception
      */
-    Response licenseValidate(Map<String, Object> asset) throws Exception;
+    Response urlValidate(Map<String, Object> asset, String fields) throws Exception;
 
     /**
      *

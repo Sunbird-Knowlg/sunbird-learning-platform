@@ -17,8 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ekstep.common.util.AssetUtil.isValidLicense;
-
 /**
  * AssetsLicenseValidatorProcessor is a Content Workflow pipeline Processor
  * Which is responsible for Validating Youtube Asset Medias and
@@ -98,7 +96,7 @@ public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
 
     private void validateLicense(String type, String src) {
         switch (type) {
-            case "youtube": if (!isValidLicense(YouTubeDataAPIV3Service.getLicense(src)))
+            case "youtube": if (!YouTubeDataAPIV3Service.isValidLicense(YouTubeDataAPIV3Service.getLicense(src)))
                                 throw new ClientException(ContentErrorCodeConstants.INVALID_YOUTUBE_MEDIA.name(), ContentErrorMessageConstants.LICENSE_NOT_SUPPORTED);
                             break;
             default       : break;
