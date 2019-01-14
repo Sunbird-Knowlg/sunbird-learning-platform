@@ -1,4 +1,3 @@
-package Build
 node('build-slave') {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -36,11 +35,13 @@ node('build-slave') {
         }
 
         stage('Pre-Build'){
+            sh """
                 java -version
-                rm -rf /data/logs/
-                rm -rf /data/graphDB/
-                rm -rf /data/testgraphDB/
-                rm -rf /data/testGraphDB/
+                rm -rf /data/logs/*
+                rm -rf /data/graphDB/*
+                rm -rf /data/testgraphDB/*
+                rm -rf /data/testGraphDB/*
+                """
         }
 
         stage('Build') {
