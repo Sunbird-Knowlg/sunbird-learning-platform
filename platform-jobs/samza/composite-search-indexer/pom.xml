@@ -7,7 +7,7 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>composite-search-indexer</artifactId>
-	<version>0.0.82</version>
+	<version>0.0.83</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.neo4j</groupId>
@@ -54,10 +54,6 @@
 			<artifactId>samza-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
 				<exclusion>
 					<groupId>io.netty</groupId>
 					<artifactId>netty-transport</artifactId>
