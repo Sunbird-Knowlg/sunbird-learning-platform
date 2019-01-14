@@ -57,12 +57,15 @@ node() {
                     println values
                     ansible_playbook_run(values)
 
+                    if (params.inventory_source == "GitHub")
+                    sh "cp private/artifacts/neo4j-*.tar.gz devops/artifacts"
+
                     ansibleExtraArgs = ""
-                    values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
 //                    ansible_playbook_run(values)
-
+                    archiveArtifacts artifacts: "lp_neo4j_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
+                    archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
                 }
             }
         }
