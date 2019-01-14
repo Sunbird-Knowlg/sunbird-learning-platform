@@ -74,6 +74,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 				process(message, collector, coordinator);
 				postProcess(message, collector, execution, maxIterations, currentIteration);
 			} else if(StringUtils.equalsIgnoreCase("definition_update", requestedJobType)){
+				System.out.println("definition_update event received for "+edata.getOrDefault("objectType","").toString());
 				String graphId = edata.getOrDefault("graphId","").toString();
 				String objectType = edata.getOrDefault("objectType","").toString();
 				controllerUtil.updateDefinitionCache(graphId, objectType);
