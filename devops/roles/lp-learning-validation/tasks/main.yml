@@ -43,7 +43,10 @@
 - name: Create content
   become: yes
   become_user: "{{user}}"
-  shell: "curl -X POST http://localhost:8080/learning-service/content/v3/create -H 'Content-Type: application/json' -H 'user-id: mahesh' -d '{\"request\": {\"content\": {\"identifier\": \"{{content_id.stdout}}\", \"name\": \"Untitled Resource\",\"code\": \"test.pdf.1\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"],\"contentType\": \"Resource\",\"resourceType\": \"Read\"}}}'"
+  shell: "curl -X POST http://localhost:8080/learning-service/content/v3/create -H 'Content-Type: application/json'
+  -H 'X-Channel-Id: sunbird'
+  -H 'user-id: system' -d '{\"request\": {\"content\": {\"identifier\": \"{{content_id.stdout}}\", \"name\": \"Untitled
+  Resource\",\"code\": \"test.pdf.1\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"],\"contentType\": \"Resource\",\"resourceType\": \"Read\"}}}'"
   register: create_result
 
 - name: Print the create content result to console

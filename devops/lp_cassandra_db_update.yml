@@ -1,4 +1,4 @@
-- hosts: lp-cassandra-new
+- hosts: lp-cassandra
   become: yes
   roles:
     - cassandra-db-update

@@ -30,7 +30,7 @@ import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.RepublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
@@ -61,7 +61,7 @@ public class RepublishPipelineService implements ISamzaService {
 
 	private ControllerUtil util = new ControllerUtil();
 
-	private CollectionStore collectionStore = null;
+	private HierarchyStore hierarchyStore = null;
 
 	private Config config = null;
 
@@ -85,7 +85,7 @@ public class RepublishPipelineService implements ISamzaService {
 		LOGGER.info("Akka actors initialized");
 		systemStream = new SystemStream("kafka", config.get("output.failed.events.topic.name"));
 		LOGGER.info("Stream initialized for Failed Events");
-		collectionStore = new CollectionStore();
+		hierarchyStore = new HierarchyStore();
 	}
 
 	@Override
@@ -312,7 +312,7 @@ public class RepublishPipelineService implements ISamzaService {
 			node.getMetadata().put(RepublishPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(RepublishPipelineParams.status.name(), RepublishPipelineParams.Failed.name());
 			util.updateNode(node);
-			collectionStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
+			hierarchyStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
 			if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
 				PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
 						e.getMessage());
