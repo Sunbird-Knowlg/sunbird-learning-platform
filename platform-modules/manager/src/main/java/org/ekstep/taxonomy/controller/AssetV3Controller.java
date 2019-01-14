@@ -36,7 +36,7 @@ public class AssetV3Controller extends BaseController {
         } else throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "InvalidRequest.");
     }
 
-    @RequestMapping(value = "/url/validate", method = RequestMethod.POST)
+    @RequestMapping(value = "/validate", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> licenseValidate(@RequestBody Map<String, Object> requestMap,
     		@RequestParam(value = "field", required = true) String field) {
