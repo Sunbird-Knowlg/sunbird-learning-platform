@@ -18,9 +18,10 @@ node() {
                 currentBuild.result = 'SUCCESS'
                 return
             }
-
+            artifact_version = sh(returnStdout: true, script: 'jq -r .artifact_version metadata.json').trim()
+            values.put('artifact_version', artifact_version)
             currentWs = sh(returnStdout: true, script: 'pwd').trim()
-            artifact= values.artifact_name + ":" + values.artifact_version
+            artifact = values.artifact_name + ":" + values.artifact_version
             ansiblePlaybook = "${currentWs}/devops/artifacts-upload.yml"
             ansibleExtraArgs = """\
                                --extra-vars "artifact=${artifact}
