@@ -60,7 +60,6 @@ node('build-slave') {
             archiveArtifacts artifacts: "lp_neo4j_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
             sh """echo {\\"artifact_name\\" : \\"lp_neo4j_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
             archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
-            println 'NA'
         }
     }
 
