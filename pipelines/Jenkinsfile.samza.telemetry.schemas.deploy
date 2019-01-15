@@ -31,6 +31,7 @@ node() {
 
             ansiColor('xterm') {
                 stage('deploy'){
+                    values = [:]
                     currentWs = sh(returnStdout: true, script: 'pwd').trim()
                     values.put('currentWs', currentWs)
                     ansiblePlaybook = "${currentWs}/devops/lp_samza_telemetry_schemas.yml"
