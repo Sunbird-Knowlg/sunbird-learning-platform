@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.util.GoogleDriveReader;
 import org.ekstep.common.util.YouTubeDataAPIV3Service;
 import org.ekstep.taxonomy.enums.AssetParams;
 import org.ekstep.taxonomy.mgr.IAssetManager;
@@ -71,9 +72,9 @@ public class AssetManagerImpl implements IAssetManager {
     private Response urlValidate(String provider, String url, String field) {
 		switch (StringUtils.lowerCase(provider)) {
 			case "youtube":
-				return validateURL(url, field);
+				//return validateURL(url, field);
 			case "googledrive":
-				throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
+				return validateURL(url, field);
 			default:
     	 		throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
 		}
@@ -86,6 +87,11 @@ public class AssetManagerImpl implements IAssetManager {
 	        boolean validLicense = YouTubeDataAPIV3Service.isValidLicense(licenseType);
 	        fieldMap.put("value", licenseType);
 	        fieldMap.put("valid", validLicense);
+		}else if(StringUtils.equalsIgnoreCase("size", field)) {
+			Long fileSize = GoogleDriveReader.getSize(url);
+	        boolean validSize = GoogleDriveReader.isValidSize(fileSize);
+	        fieldMap.put("value", fileSize);
+	        fieldMap.put("valid", validSize);
 		}else {
 			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Passed field is not supported for validation.");
 		}
