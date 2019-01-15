@@ -48,7 +48,7 @@ node() {
                        mv distribution-*.tar.gz devops
                        rm -rf devops/roles/samza-jobs/files/jobs
                        mkdir  devops/roles/samza-jobs/files/jobs
-                       tar -xvf platform-jobs/samza/distribution/target/distribution-*.tar.gz -C devops/roles/samza-jobs/files/jobs/
+                       tar -xvf distribution-*.tar.gz -C devops/roles/samza-jobs/files/jobs/
 
                     """
                     ansiblePlaybook = "${currentWs}/devops/lp_samza_deploy.yml"
