@@ -1,4 +1,3 @@
-package Deploy
 @Library('deploy-conf') _
 node() {
     try {
@@ -13,8 +12,8 @@ node() {
             properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([
                     choice(choices: ['GitHub', 'Local'], description: '<font color=teal size=2>Choose the ansible inventory source</font>', name: 'inventory_source'),
                     string(defaultValue: "${WORKSPACE}/private/ansible/inventories/${envDir}", description: '<font color=teal size=2>Please sepecify the full path to the inventory directory. The default value is $WORKSPACE/private/ansible/env. Here env is the previous directory of the job.</font>', name: 'inventory_path', trim: false),
-                    string(defaultValue: '', description: '', name: 'host', trim: false),
-                    string(defaultValue: '', description: '', name: 'version', trim: false)])])
+                    string(defaultValue: '', description: '<font color=teal size=2>Specify host to deploy</font>', name: 'host', trim: false),
+                    string(defaultValue: '', description: '<font color=teal size=2>Specify version to deploy</font>', name: 'version', trim: false)])])
             ansiColor('xterm') {
                 println (ANSI_BOLD + ANSI_GREEN + '''\
                         First run of the job. Parameters created. Stopping the current build.
@@ -32,6 +31,8 @@ node() {
 
             ansiColor('xterm') {
                 stage('deploy'){
+                    currentWs = sh(returnStdout: true, script: 'pwd').trim()
+                    values.put('currentWs', currentWs)
                     ansiblePlaybook = "${currentWs}/devops/lp_samza_telemetry_schemas.yml"
                     ansibleExtraArgs = """--extra-vars "host=${params.host} version=${params.version}"  --vault-password-file /home/ops/vault"""
                     values.put('ansiblePlaybook', ansiblePlaybook)
