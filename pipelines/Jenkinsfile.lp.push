@@ -1,3 +1,5 @@
+package Push
+
 @Library('deploy-conf') _
 node() {
     try {
@@ -32,7 +34,7 @@ node() {
             values.put('ansiblePlaybook', ansiblePlaybook)
             values.put('ansibleExtraArgs', ansibleExtraArgs)
             ansible_playbook_run(values)
-            archiveArtifacts artifacts: "lp_artifacts.zip:${values.artifact_version}", fingerprint: true, onlyIfSuccessful: true
+            archiveArtifacts artifacts: "${artifact}", fingerprint: true, onlyIfSuccessful: true
             archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             currentBuild.description = "${artifact_version}"
         }
