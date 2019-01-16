@@ -14,6 +14,7 @@ node() {
         stage('define params') {
             def values = lp_dp_params()
             if(values == "first run"){
+                envDir = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
                 properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([string(defaultValue: '',
                         description: '<font color=teal size=2>Please specify the absolute path to the job from which the metadata.json will be copied.</font>',
                         name: 'copy_metadata_from', trim: false), string(defaultValue: 'lastSuccessfulBuild',
