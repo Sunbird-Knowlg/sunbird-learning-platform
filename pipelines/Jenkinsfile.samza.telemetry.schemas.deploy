@@ -35,7 +35,7 @@ node() {
                     currentWs = sh(returnStdout: true, script: 'pwd').trim()
                     values.put('currentWs', currentWs)
                     ansiblePlaybook = "${currentWs}/devops/lp_samza_telemetry_schemas.yml"
-                    ansibleExtraArgs = """--extra-vars "host=${params.host} version=${params.version}"  --vault-password-file /home/ops/vault"""
+                    ansibleExtraArgs = "--extra-vars \"host=${params.host} version=${params.version}\"  --vault-password-file /home/ops/vault"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
