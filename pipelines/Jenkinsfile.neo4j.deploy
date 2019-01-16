@@ -70,7 +70,7 @@ node() {
                     if (params.inventory_source == "GitHub")
                         sh "cp private/artifacts/neo4j-*.tar.gz devops/artifacts"
                     else
-                        sh "cp ${neo4j_source} devops/artifacts"
+                        sh "cp ${params.neo4j_source} devops/artifacts"
 
                     ansibleExtraArgs = ""
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
