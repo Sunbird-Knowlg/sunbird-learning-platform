@@ -43,12 +43,12 @@ node('build-slave') {
 
         stage('Archive artifacts'){
             sh """
-                        mkdir lp_yarn
-                        cp platform-jobs/samza/distribution/target/distribution-*.tar.gz lp_yarn
-                        zip -j lp_yarn.zip:${artifact_version} lp_yarn/*
+                        mkdir lp_yarn_artifacts
+                        cp platform-jobs/samza/distribution/target/distribution-*.tar.gz lp_yarn_artifacts
+                        zip -j lp_yarn_artifacts.zip:${artifact_version} lp_yarn_artifacts/*
                     """
-            archiveArtifacts artifacts: "lp_yarn.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
-            sh """echo {\\"artifact_name\\" : \\"lp_yarn.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+            archiveArtifacts artifacts: "lp_yarn_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
+            sh """echo {\\"artifact_name\\" : \\"lp_yarn_artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
             archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             currentBuild.description = "${artifact_version}"
         }
