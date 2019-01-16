@@ -33,7 +33,7 @@ import com.google.api.services.youtube.model.VideoListResponse;
  * @author gauraw
  *
  */
-public class YouTubeDataAPIV3Service {
+public class YouTubeUrlUtil {
 
 	/**
 	 * Define a global instance of the HTTP transport.
@@ -72,6 +72,9 @@ public class YouTubeDataAPIV3Service {
 	 */
 	public static String getLicense(String videoUrl) {
 		String videoId = getIdFromUrl(videoUrl);
+		if(StringUtils.isBlank(videoId))
+			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_URL.name(), ERR_MSG);
+		
 		String licenceType = "";
 		try {
 			YouTube.Videos.List videosListByIdRequest = youtube.videos().list("status");

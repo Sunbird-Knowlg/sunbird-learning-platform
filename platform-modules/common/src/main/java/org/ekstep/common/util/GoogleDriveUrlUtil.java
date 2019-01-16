@@ -1,12 +1,13 @@
 package org.ekstep.common.util;
 
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
@@ -22,7 +23,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files.Get;
 import com.google.api.services.drive.model.File;
 
-public class GoogleDriveReader {
+public class GoogleDriveUrlUtil {
 
 	/**
 	 * Define a global instance of the HTTP transport.
@@ -40,18 +41,46 @@ public class GoogleDriveReader {
 			"dailyLimitExceeded", "quotaExceeded", "userRateLimitExceeded", "quotaExceeded402", "keyExpired",
 			"keyInvalid");
 	private static boolean limitExceeded = false;
-	/*private static YouTube youtube = null;
-	private static List<String> validLicenses = Platform.config.hasPath("learning.valid_license") ? 
-			Platform.config.getStringList("learning.valid_license") : Arrays.asList("creativeCommon");
-*/
 	private static Drive drive = null;
-	private static long sizeLimit = 50000000; 
+	private static long sizeLimit = Platform.config.hasPath("MAX_ASSET_FILE_SIZE_LIMIT")
+				? Platform.config.getLong("MAX_ASSET_FILE_SIZE_LIMIT") : 52428800;
 	static {
 		String driveAppName = Platform.config.hasPath("learning.content.drive.application.name")
 				? Platform.config.getString("learning.content.drive.application.name") : "google-drive-url-validation";
 		drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, null).setApplicationName(driveAppName).build();
 	}
 
+	public static Map<String, Object> getMetadata(String driveUrl){
+		String videoId = getIdFromUrl(driveUrl);
+		if(StringUtils.isBlank(videoId))
+			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_URL.name(), ERR_MSG);
+		Map<String, Object> metadata = new HashMap<>();
+		try {
+			Get getFile = drive.files().get(videoId);
+			getFile.setKey("AIzaSyDeYU2HIyS0I2J4NV72BWUPai13NE_eucE");
+			getFile.setFields("id, name, size");
+			File googleDriveFile = getFile.execute();
+			metadata.put("size", googleDriveFile.get("size"));
+			metadata.put("id", googleDriveFile.get("id"));
+			metadata.put("name", googleDriveFile.get("name"));
+		} catch (GoogleJsonResponseException ex) {
+			Map<String, Object> error = ex.getDetails().getErrors().get(0);
+			String reason = (String) error.get("reason");
+			if (errorCodes.contains(reason)) {
+				limitExceeded = true;
+				TelemetryManager
+						.log("Google Drive API Limit Exceeded. Reason is: " + reason + " | Error Details : " + ex);
+			}
+		} catch (Exception e) {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+		}
+		
+		if (limitExceeded)
+			throw new ClientException(TaxonomyErrorCodes.ERR_GOOGLE_DRIVE_SIZE_VALIDATION.name(), SERVICE_ERROR);
+		
+		return metadata;
+	}
 	/**
 	 * This Method will fetch license for given YouTube Video URL.
 	 * 
@@ -60,6 +89,8 @@ public class GoogleDriveReader {
 	 */
 	public static Long getSize(String driveUrl) {
 		String videoId = getIdFromUrl(driveUrl);
+		if(StringUtils.isBlank(videoId))
+			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_URL.name(), ERR_MSG);
 		long size = 0;
 		try {
 			Get getFile = drive.files().get(videoId);
@@ -75,8 +106,6 @@ public class GoogleDriveReader {
 				TelemetryManager
 						.log("Google Drive API Limit Exceeded. Reason is: " + reason + " | Error Details : " + ex);
 			}
-		} catch(IOException ex) { 
-			ex.printStackTrace();
 		} catch (Exception e) {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");

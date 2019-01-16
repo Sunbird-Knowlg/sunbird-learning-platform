@@ -17,7 +17,7 @@ import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.common.util.YouTubeDataAPIV3Service;
+import org.ekstep.common.util.YouTubeUrlUtil;
 import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -453,7 +453,7 @@ public abstract class BaseContentManager extends BaseManager {
                 ? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
 
         if (isValReq) {
-            String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+            String licenseType = YouTubeUrlUtil.getLicense(artifactUrl);
             if (equalsIgnoreCase("youtube", licenseType))
                 node.getMetadata().put("license", "Standard YouTube License");
             else if (equalsIgnoreCase("creativeCommon", licenseType))

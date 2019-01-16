@@ -4,13 +4,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.util.GoogleDriveReader;
-import org.ekstep.common.util.YouTubeDataAPIV3Service;
+import org.ekstep.common.mgr.IURLManager;
+import org.ekstep.common.mgr.impl.GeneralUrlManagerImpl;
+import org.ekstep.common.mgr.impl.GoogleDriveUrlManagerImpl;
+import org.ekstep.common.mgr.impl.YoutubeUrlManagerImpl;
 import org.ekstep.taxonomy.enums.AssetParams;
 import org.ekstep.taxonomy.mgr.IAssetManager;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,7 +25,10 @@ import java.util.Optional;
 @Component
 public class AssetManagerImpl implements IAssetManager {
 
-    /**
+	static IURLManager youtubeUrlManager = new YoutubeUrlManagerImpl();
+	static IURLManager googleDriveUrlManager = new GoogleDriveUrlManagerImpl();
+	static IURLManager generalUrlManager = new GeneralUrlManagerImpl();
+	/**
      * Validate License
      *
      * @param asset
@@ -34,81 +38,52 @@ public class AssetManagerImpl implements IAssetManager {
      */
    @Override
     public Response urlValidate(Map<String, Object> asset, String field) {
-        return urlValidate(getProvider(asset), getUrl(asset), field);
+	   IURLManager urlManager = getURLManager(getProvider(asset));
+	   Map<String, Object> fieldMap = urlManager.validateURL(getUrl(asset), field);
+	   Response response = new Response();
+       response.getResult().put(field, fieldMap);
+       return response;
     }
-    
+   
     /**
      * Read Url Metadata.
      *
      * @param asset
      * @return
-     * @throws Exception
      */
    @Override
    public Response metadataRead(Map<String, Object> asset) {
-       String provider = getProvider(asset);
+	   IURLManager urlManager = getURLManager(getProvider(asset));
        String url = getUrl(asset);
-       switch (StringUtils.lowerCase(provider)) {
-       case "youtube":
-    	   	return getMetadata(url);
-       case "googledrive":
-    	   throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
-       default:
- 		throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
-       }
+       Map<String, Object> metadata = urlManager.readMetadata(url);
+       Response response = new Response();
+       response.getResult().put("metadata", metadata);
+       return response;
    }
-   
     
-    public static Response getMetadata(String url) {
-		String licenseType = YouTubeDataAPIV3Service.getLicense(url);
-		Map<String, Object> metadata = new HashMap<>();
-		metadata.put("license", licenseType);
-        Response response = new Response();
-        response.getResult().put("metadata", metadata);
-        return response;
-                  
-    }
-    
-    private Response urlValidate(String provider, String url, String field) {
-		switch (StringUtils.lowerCase(provider)) {
-			case "youtube":
-				//return validateURL(url, field);
-			case "googledrive":
-				return validateURL(url, field);
-			default:
-    	 		throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
-		}
-	}
-    
-    private static Response validateURL(String url, String field) {
-		Map<String, Object> fieldMap = new HashMap<>();
-		if(StringUtils.equalsIgnoreCase("license", field)) {
-			String licenseType = YouTubeDataAPIV3Service.getLicense(url);
-	        boolean validLicense = YouTubeDataAPIV3Service.isValidLicense(licenseType);
-	        fieldMap.put("value", licenseType);
-	        fieldMap.put("valid", validLicense);
-		}else if(StringUtils.equalsIgnoreCase("size", field)) {
-			Long fileSize = GoogleDriveReader.getSize(url);
-	        boolean validSize = GoogleDriveReader.isValidSize(fileSize);
-	        fieldMap.put("value", fileSize);
-	        fieldMap.put("valid", validSize);
-		}else {
-			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Passed field is not supported for validation.");
-		}
-		Response response = new Response();
-        response.getResult().put(field, fieldMap);
-        return response;
-	}
-    
-    private String getProvider(Map<String, Object> asset) {
-        String provider = (String) asset.get(AssetParams.provider.name());
-        return Optional.ofNullable(provider).filter(StringUtils::isNotBlank).
-                orElseThrow(() -> new ClientException(ResponseCode.CLIENT_ERROR.name(), "Please specify provider"));
-    }
+   private String getProvider(Map<String, Object> asset) {
+	   String provider = (String) asset.get(AssetParams.provider.name());
+	   return Optional.ofNullable(provider).filter(StringUtils::isNotBlank).
+			   orElseThrow(() -> new ClientException(ResponseCode.CLIENT_ERROR.name(), "Please specify provider"));
+	   
+   }
 
-    private String getUrl(Map<String, Object> asset) {
-        String url = (String) asset.get(AssetParams.url.name());
-        return Optional.ofNullable(url).filter(StringUtils::isNotBlank).
-                orElseThrow(() -> new ClientException(ResponseCode.CLIENT_ERROR.name(), "Please specify url"));
-    }
+	private String getUrl(Map<String, Object> asset) {
+		String url = (String) asset.get(AssetParams.url.name());
+	    return Optional.ofNullable(url).filter(StringUtils::isNotBlank).
+	            orElseThrow(() -> new ClientException(ResponseCode.CLIENT_ERROR.name(), "Please specify url"));
+	}
+	
+	private IURLManager getURLManager(String provider) {
+	   switch (StringUtils.lowerCase(provider)) {
+	       case "youtube":
+	    	   	return youtubeUrlManager;
+	       case "googledrive":
+	    	   return googleDriveUrlManager;
+	    	   case "other":
+	    		   return generalUrlManager;
+	       default:
+	 		throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
+	   }
+	}
 }
