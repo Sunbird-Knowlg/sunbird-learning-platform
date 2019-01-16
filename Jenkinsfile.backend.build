@@ -56,7 +56,6 @@ node('build-slave') {
 
     catch (err) {
         currentBuild.result = "FAILURE"
-        currentBuild.description = "${artifact_version}"
         throw err
     }
 
