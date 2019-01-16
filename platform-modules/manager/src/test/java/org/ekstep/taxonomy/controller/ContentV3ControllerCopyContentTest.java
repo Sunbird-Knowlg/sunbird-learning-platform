@@ -16,7 +16,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.taxonomy.mgr.impl.OldContentManagerImpl;
+import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -61,7 +61,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 
 	private static final String basePath = "/content/v3/";
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static OldContentManagerImpl contentManager = new OldContentManagerImpl();
+	private static ContentManagerImpl contentManager = new ContentManagerImpl();
 	private static String contentId = "";
 	private static String contentId2 = "";
 	private static String versionKey = "";

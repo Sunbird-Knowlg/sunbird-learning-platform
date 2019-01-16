@@ -9,12 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 public class DialCodesManager {
 
-    @Autowired private LinkDialCodeOperation linkDialCodeOperation;
-    @Autowired private ReserveDialcodesOperation reserveDialcodesOperation;
-    @Autowired private ReleaseDialcodesOperation releaseDialcodesOperation;
+    private final LinkDialCodeOperation linkDialCodeOperation = new LinkDialCodeOperation();
+    private final ReserveDialcodesOperation reserveDialcodesOperation = new ReserveDialcodesOperation();
+    private final ReleaseDialcodesOperation releaseDialcodesOperation = new ReleaseDialcodesOperation();
 
     public Response link(String channelId, Object reqObj) throws Exception {
         return this.linkDialCodeOperation.linkDialCode(channelId, reqObj);

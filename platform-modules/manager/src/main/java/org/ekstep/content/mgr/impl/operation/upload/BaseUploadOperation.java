@@ -9,14 +9,13 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BaseUploadOperation extends BaseContentManager {
 
-    @Autowired private UpdateOperation updateManager;
+    private final UpdateOperation updateManager = new UpdateOperation();
 
     protected IMimeTypeManager getMimeTypeManger(String contentId, String mimeType, Node node) {
         TelemetryManager.log(

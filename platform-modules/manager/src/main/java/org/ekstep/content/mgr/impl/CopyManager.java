@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl.operation.plugin;
+package org.ekstep.content.mgr.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -32,10 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
-public class CopyOperation extends BaseContentManager {
+public class CopyManager extends BaseContentManager {
 
-    @Autowired private HierarchyManager hierarchyManager;
+   private final HierarchyManager hierarchyManager = new HierarchyManager();
 
     public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
         Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);

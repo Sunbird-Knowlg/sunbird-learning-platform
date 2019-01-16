@@ -9,7 +9,6 @@ import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.springframework.stereotype.Component;
 import scala.Option;
 
-@Component
 public class PreSignedUrlManager extends BaseContentManager {
 
     public Response preSignedUrl(String contentId, String fileName, String type) {

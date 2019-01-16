@@ -5,17 +5,14 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.mgr.impl.operation.event.AcceptFlagOperation;
 import org.ekstep.content.mgr.impl.operation.event.PublishOperation;
 import org.ekstep.content.mgr.impl.operation.event.ReviewOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 public class ContentEventManager {
 
-    @Autowired private ReviewOperation reviewOperation;
-    @Autowired private PublishOperation publishOperation;
-    @Autowired private AcceptFlagOperation acceptFlagOperation;
+    private final ReviewOperation reviewOperation = new ReviewOperation();
+    private final PublishOperation publishOperation = new PublishOperation();
+    private final AcceptFlagOperation acceptFlagOperation = new AcceptFlagOperation();
 
     public Response publish(String contentId, Map<String, Object> requestMap) {
         return this.publishOperation.publish(contentId, requestMap);

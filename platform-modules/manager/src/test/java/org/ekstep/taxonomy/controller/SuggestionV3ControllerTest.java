@@ -15,7 +15,7 @@ import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.taxonomy.enums.SuggestionConstants;
 import org.ekstep.taxonomy.mgr.ISuggestionManager;
-import org.ekstep.taxonomy.mgr.impl.OldContentManagerImpl;
+import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -87,7 +87,7 @@ public class SuggestionV3ControllerTest extends GraphEngineTestSetup {
 	}
 
 	private void createContent() throws Exception {
-		OldContentManagerImpl contentManager = new OldContentManagerImpl();
+		ContentManagerImpl contentManager = new ContentManagerImpl();
 		String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
 		Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 				new TypeReference<Map<String, Object>>() {

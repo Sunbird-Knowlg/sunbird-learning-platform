@@ -5,19 +5,16 @@ import org.ekstep.content.mgr.impl.operation.content.CreateOperation;
 import org.ekstep.content.mgr.impl.operation.content.FindOperation;
 import org.ekstep.content.mgr.impl.operation.content.RetireOperation;
 import org.ekstep.content.mgr.impl.operation.content.UpdateOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
-@Component
 public class ContentManger {
 
-    @Autowired private CreateOperation createOperation;
-    @Autowired private FindOperation findOperation;
-    @Autowired private UpdateOperation updateOperation;
-    @Autowired private RetireOperation retireOperation;
+    private final CreateOperation createOperation = new CreateOperation();
+    private final FindOperation findOperation = new FindOperation();
+    private final UpdateOperation updateOperation = new UpdateOperation();
+    private final RetireOperation retireOperation = new RetireOperation();
 
     public Response create(Map<String, Object> map, String channelId) throws Exception {
         return this.createOperation.create(map, channelId);

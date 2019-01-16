@@ -9,12 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 public class HierarchyManager {
 
-    @Autowired private GetHierarchyOperation getHierarchyOperation;
-    @Autowired private UpdateHierarchyOperation updateHierarchyOperation;
-    @Autowired private SyncHierarchyOperation syncHierarchyOperation;
+    private final GetHierarchyOperation getHierarchyOperation = new GetHierarchyOperation();
+    private final UpdateHierarchyOperation updateHierarchyOperation = new UpdateHierarchyOperation();
+    private final SyncHierarchyOperation syncHierarchyOperation = new SyncHierarchyOperation();
 
     public Response get(String contentId, String mode) {
         return this.getHierarchyOperation.getHierarchy(contentId, mode);

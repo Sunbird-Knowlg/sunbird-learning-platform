@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.taxonomy.mgr.impl.OldContentManagerImpl;
+import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 
 /**
  * The Interface IContentManager is the Contract for the operations that can be
@@ -17,7 +17,7 @@ import org.ekstep.taxonomy.mgr.impl.OldContentManagerImpl;
  * artifacts or assets to the respective Storage Space.
  * 
  * @author Azhar
- * @see OldContentManagerImpl
+ * @see ContentManagerImpl
  */
 public interface IContentManager {
 

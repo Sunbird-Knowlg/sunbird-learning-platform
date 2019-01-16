@@ -5,11 +5,12 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.mgr.impl.ContentEventManager;
 import org.ekstep.content.mgr.impl.ContentManger;
 import org.ekstep.content.mgr.impl.ContentPluginManager;
+import org.ekstep.content.mgr.impl.CopyManager;
 import org.ekstep.content.mgr.impl.DialCodesManager;
 import org.ekstep.content.mgr.impl.HierarchyManager;
+import org.ekstep.content.mgr.impl.PreSignedUrlManager;
 import org.ekstep.content.mgr.impl.UploadManager;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -32,12 +33,14 @@ import java.util.Map;
 @Component
 public class ContentManagerImpl extends BaseContentManager implements IContentManager {
 
-	@Autowired private HierarchyManager hierarchyManager;
-	@Autowired private DialCodesManager dialCodesManager;
-	@Autowired private ContentManger contentManger;
-	@Autowired private UploadManager uploadManager;
-	@Autowired private ContentEventManager contentEventManager;
-	@Autowired private ContentPluginManager contentPluginManager;
+	private final HierarchyManager hierarchyManager = new HierarchyManager();
+	private final DialCodesManager dialCodesManager = new DialCodesManager();
+	private final ContentManger contentManger = new ContentManger();
+	private final UploadManager uploadManager = new UploadManager();
+	private final ContentEventManager contentEventManager = new ContentEventManager();
+	private final ContentPluginManager contentPluginManager = new ContentPluginManager();
+	private final PreSignedUrlManager preSignedUrlManager = new PreSignedUrlManager();
+	private final CopyManager copyManager = new CopyManager();
 
 	/*
 	 * (non-Javadoc)
@@ -82,7 +85,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	@Override
 	public Response preSignedURL(String contentId, String fileName, String type) {
-		return this.contentPluginManager.preSignedUrl(contentId, fileName, type);
+		return this.preSignedUrlManager.preSignedUrl(contentId, fileName, type);
 	}
 
 	/*
@@ -144,7 +147,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	@Override
 	public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
-		return this.contentPluginManager.copyContent(contentId, requestMap, mode);
+		return this.copyManager.copyContent(contentId, requestMap, mode);
 	}
 
     /**

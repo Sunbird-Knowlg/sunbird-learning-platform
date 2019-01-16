@@ -11,11 +11,9 @@ import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 public class GetHierarchyOperation extends BaseContentManager {
 
     public Response getHierarchy(String contentId, String mode) {
