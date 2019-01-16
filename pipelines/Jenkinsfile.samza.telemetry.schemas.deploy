@@ -12,7 +12,7 @@ node() {
             properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([
                     choice(choices: ['GitHub', 'Local'], description: '<font color=teal size=2>Choose the ansible inventory source</font>', name: 'inventory_source'),
                     string(defaultValue: "${WORKSPACE}/private/ansible/inventories/${envDir}", description: '<font color=teal size=2>Please sepecify the full path to the inventory directory. The default value is $WORKSPACE/private/ansible/env. Here env is the previous directory of the job.</font>', name: 'inventory_path', trim: false),
-                    string(defaultValue: 'dp-yarn', description: '<font color=teal size=2>Please specify host to deploy. The default value is dp-yarn which needs to be changed as per inventory</font>', name: 'host', trim: false),
+                    string(defaultValue: 'dp-yarn', description: '<font color=teal size=2>Please specify host to deploy. The default value is just a placeholder which needs to be changed as per inventory.</font>', name: 'host', trim: false),
                     string(defaultValue: 'release-1.9', description: '<font color=teal size=2>Please specify version to deploy. The default value is just a placeholder which needs to be changed as per need.</font>', name: 'version', trim: false)])])
             ansiColor('xterm') {
                 println (ANSI_BOLD + ANSI_GREEN + '''\
