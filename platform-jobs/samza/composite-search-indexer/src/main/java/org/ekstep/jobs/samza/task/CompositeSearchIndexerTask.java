@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -20,6 +22,8 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.service.util.TaskUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.jobs.samza.util.SamzaCommonParams;
+import org.ekstep.learning.util.ControllerUtil;
 
 import static java.lang.Long.parseLong;
 import static java.util.stream.Collectors.toList;
@@ -41,6 +45,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 	private long taskWindow, updateDefinitionsCounter = 0;
 	private long updateDefinitionsWindow;
 	private List<String> graphIds;
+	private ControllerUtil controllerUtil = new ControllerUtil();
 
 	public CompositeSearchIndexerTask(Config config, TaskContext context, ISamzaService service) throws Exception {
 		init(config, context, service);
@@ -94,7 +99,17 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> outgoingMap = getMessage(envelope);
 		try {
-			service.processMessage(outgoingMap, metrics, collector);
+			if (outgoingMap.containsKey(SamzaCommonParams.edata.name())) {
+				Map<String, Object> edata = (Map<String, Object>) outgoingMap.getOrDefault(SamzaCommonParams.edata.name(), new HashMap<String, Object>());
+				if (MapUtils.isNotEmpty(edata) && StringUtils.equalsIgnoreCase("definition_update", edata.getOrDefault("action", "").toString())) {
+					System.out.println("definition_update event received for " + edata.getOrDefault("objectType", "").toString());
+					String graphId = edata.getOrDefault("graphId", "").toString();
+					String objectType = edata.getOrDefault("objectType", "").toString();
+					controllerUtil.updateDefinitionCache(graphId, objectType);
+				}
+			} else {
+				service.processMessage(outgoingMap, metrics, collector);
+			}
 		} catch (Exception e) {
 			metrics.incErrorCounter();
 			LOGGER.error("Error while processing message:",outgoingMap, e);
