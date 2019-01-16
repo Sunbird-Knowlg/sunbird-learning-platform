@@ -67,7 +67,6 @@ node() {
     }
     catch (err) {
         currentBuild.result = "FAILURE"
-        currentBuild.description = "${values.artifact_version}"
         throw err
     }
 }
