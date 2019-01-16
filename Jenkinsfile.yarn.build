@@ -45,10 +45,10 @@ node('build-slave') {
             sh """
                         mkdir lp_yarn
                         cp platform-jobs/samza/distribution/target/distribution-*.tar.gz lp_yarn
-                        zip -j lp_backend.zip:${artifact_version} lp_yarn/*
+                        zip -j lp_yarn.zip:${artifact_version} lp_yarn/*
                     """
             archiveArtifacts artifacts: "lp_yarn.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true
-            sh """echo {\\"artifact_name\\" : \\"lp_backend.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+            sh """echo {\\"artifact_name\\" : \\"lp_yarn.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
             archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
             currentBuild.description = "${artifact_version}"
         }
