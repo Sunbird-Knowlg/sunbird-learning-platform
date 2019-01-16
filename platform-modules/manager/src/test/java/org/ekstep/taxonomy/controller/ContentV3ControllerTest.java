@@ -25,7 +25,7 @@ import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
+import org.ekstep.taxonomy.mgr.impl.OldContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -194,7 +194,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	public static void createDocumentContent() throws Exception {
 		for (int i = 1; i <= 2; i++) {
-			ContentManagerImpl contentManager = new ContentManagerImpl();
+			OldContentManagerImpl contentManager = new OldContentManagerImpl();
 			String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Resource\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
 			Map<String, Object> documentContentMap = mapper.readValue(createDocumentContent,
 					new TypeReference<Map<String, Object>>() {
@@ -213,7 +213,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private static void uploadContent() {
 		String mimeType = "application/pdf";
 		String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
-		ContentManagerImpl contentManager = new ContentManagerImpl();
+		OldContentManagerImpl contentManager = new OldContentManagerImpl();
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
 		if ("OK".equalsIgnoreCase(responseCode))
@@ -221,7 +221,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	}
 
 	public static void createCollectionContent() throws Exception {
-		ContentManagerImpl contentManager = new ContentManagerImpl();
+		OldContentManagerImpl contentManager = new OldContentManagerImpl();
 		String createCollectionContent1 = "{\"name\": \"Collection_Content_2017_Dec_27_102\",\"code\": \"Collection_Content_2017_Dec_27_102\",\"contentType\": \"Collection\",\"mimeType\": \"application/vnd.ekstep.content-collection\"}";
 		Map<String, Object> collectionContentMap1 = mapper.readValue(createCollectionContent1,
 				new TypeReference<Map<String, Object>>() {

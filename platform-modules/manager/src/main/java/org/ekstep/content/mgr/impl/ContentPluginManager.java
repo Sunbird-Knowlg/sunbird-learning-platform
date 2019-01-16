@@ -16,6 +16,7 @@ public class ContentPluginManager {
     @Autowired private OptimizeOperation optimizeOperation;
     @Autowired private BundleOperation bundleOperation;
     @Autowired private CopyOperation copyOperation;
+    @Autowired private PreSignedUrlManager preSignedUrlManager;
 
     public Response optimize(String contentId) { return this.optimizeOperation.optimize(contentId); }
 
@@ -24,5 +25,10 @@ public class ContentPluginManager {
     public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
         return this.copyOperation.copyContent(contentId, requestMap, mode);
     }
+    
+    public Response preSignedUrl(String contentId, String fileName, String type) {
+    	return this.preSignedUrlManager.preSignedUrl(contentId, fileName, type);
+    }
+    
 
 }
