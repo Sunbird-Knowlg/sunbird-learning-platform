@@ -21,6 +21,8 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
+
 @Component
 public class ReleaseDialcodesOperation extends BaseContentManager {
 
@@ -32,25 +34,25 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
 
         validateRequest(node, channelId);
 
-        List<String> reservedDialcodes = getReservedDialCodes(node).
+        Map<String, Object> reservedDialcodeMap = getReservedDialCodes(node).
                 orElseThrow(() -> new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
                         "Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier()));
 
         Set<String> assignedDialcodes = new HashSet<>();
         populateAllAssisgnedDialcodesRecursive(node, assignedDialcodes);
 
-        List<String> releasedDialcodes = assignedDialcodes.isEmpty() ?
-                reservedDialcodes
+        List<String> reservedDialcodes = new ArrayList<>(reservedDialcodeMap.keySet());
+        List<String> releasedDialcodes = assignedDialcodes.isEmpty() ? 
+        		reservedDialcodes
                 : reservedDialcodes.stream().filter(dialcode -> !assignedDialcodes.contains(dialcode)).collect(toList());
 
         if (releasedDialcodes.isEmpty())
             throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved DIAL Codes are Utilized.");
 
-        List<String> leftReservedDialcodes = reservedDialcodes.stream().filter(dialcode -> !releasedDialcodes.contains(dialcode)).collect(toList());
-
+        releasedDialcodes.stream().forEach(dialcode -> reservedDialcodeMap.remove(dialcode));
         Map<String, Object> updateMap = new HashMap<>();
-        updateMap.put(ContentAPIParams.reservedDialcodes.name(), leftReservedDialcodes);
-
+        updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
+        
         Response response = updateAllContents(contentId, updateMap);
         if (checkError(response)) {
             return response;
