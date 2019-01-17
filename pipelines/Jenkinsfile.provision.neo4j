@@ -39,7 +39,7 @@ node() {
                 values.put('ansiblePlaybook', ansiblePlaybook)
                 values.put('ansibleExtraArgs', ansibleExtraArgs)
                 println values
-//                    ansible_playbook_run(values)
+                ansible_playbook_run(values)
 
                 if (params.inventory_source == "GitHub")
                     sh "cp private/artifacts/neo4j-*.tar.gz devops/artifacts"

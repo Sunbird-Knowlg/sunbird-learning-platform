@@ -25,7 +25,6 @@ node() {
                         name: 'inventory_source'), string(defaultValue: "$WORKSPACE/private/ansible/inventories/$envDir",
                         description: '<font color=teal size=2>Please sepecify the full path to the inventory directory. The default value is $WORKSPACE/private/ansible/env. Here env is the previous directory of the job.</font>',
                         name: 'inventory_path', trim: false), string(defaultValue: '', description: '<font color=teal size=2>If inventory_source is Local, specify full path including file name to the neo4j*.tar.gz file. If inventory_source is GitHub, place the neo4j*.tar.gz file in a directory named artifacts under root directory.</font>', name: 'neo4j_source', trim: false)])])
-
                 currentBuild.result = 'SUCCESS'
                 return
             }
