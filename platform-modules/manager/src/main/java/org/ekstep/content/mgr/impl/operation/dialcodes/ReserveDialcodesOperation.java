@@ -46,6 +46,8 @@ public class ReserveDialcodesOperation extends BaseContentManager {
         boolean updateContent = false;
         Map<String,Integer> dialCodeMap = getReservedDialCodes(node);//objectMapper.readValue(node.getMetadata().getOrDefault(ContentAPIParams.reservedDialcodes.name(),"").toString(), new TypeReference<Map<String, Integer>>() {
         //});
+        if(MapUtils.isNotEmpty(dialCodeMap))
+        		dialCodeMap = new HashMap<>();
         Integer maxIndex = (MapUtils.isNotEmpty(dialCodeMap))?Collections.max(dialCodeMap.values()):0;
         List<String> dialCodes = new ArrayList<>(dialCodeMap.keySet());
         int reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name());
