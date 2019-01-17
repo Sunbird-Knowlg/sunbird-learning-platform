@@ -2,6 +2,11 @@ package org.ekstep.taxonomy.mgr.impl;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -39,6 +44,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -80,6 +86,8 @@ public abstract class BaseContentManager extends BaseManager {
 	protected static final String CONTENT_OBJECT_TYPE = "Content";
 
 	protected static final String TAXONOMY_ID = "domain";
+
+	protected static ObjectMapper objectMapper = new ObjectMapper();
 
 	protected static final String DIALCODE_GENERATE_URI = Platform.config.hasPath("dialcode.api.generate.url")
 			? Platform.config.getString("dialcode.api.generate.url") : "http://localhost:8080/learning-service/v3/dialcode/generate";
@@ -599,13 +607,13 @@ public abstract class BaseContentManager extends BaseManager {
 					"Invalid Content Type.");
 	}
 
-	private Optional<List<String>> getList(String[] params) {
-		return ofNullable(params).filter(a -> a.length != 0).map(a -> new ArrayList<>(Arrays.asList(a)));
+	protected Map<String, Integer> getReservedDialCodes(Node node) throws JsonParseException, JsonMappingException, IOException {
+		String reservedDialcode = (String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name());
+		if(StringUtils.isNotBlank(reservedDialcode))
+			return objectMapper.readValue((String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()), new TypeReference<Map<String, Integer>>() {});
+		return null;
 	}
-
-	protected Optional<List<String>> getReservedDialCodes(Node node) {
-		return getList((String[]) node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()));
-	}
+	
 
 	protected void validateChannel(Map<String, Object> metadata, String channelId) {
 		if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))

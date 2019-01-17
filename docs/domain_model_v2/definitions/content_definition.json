@@ -2374,7 +2374,7 @@
 					"title": "Reserved Dialcodes",
 					"description": "List of reserved dialcodes for the content",
 					"category": "General",
-					"dataType": "List",
+					"dataType": "JSON",
 					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
