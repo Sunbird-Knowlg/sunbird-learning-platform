@@ -53,7 +53,10 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
 
         releasedDialcodes.stream().forEach(dialcode -> reservedDialcodeMap.remove(dialcode));
         Map<String, Object> updateMap = new HashMap<>();
-        updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
+        if(MapUtils.isEmpty(reservedDialcodeMap))
+        		updateMap.put(ContentAPIParams.reservedDialcodes.name(), null);
+        	else
+        		updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
         
         Response response = updateAllContents(contentId, updateMap);
         if (checkError(response)) {
