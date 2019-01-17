@@ -2,6 +2,7 @@ package org.ekstep.taxonomy.mgr.impl;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -80,6 +81,8 @@ public abstract class BaseContentManager extends BaseManager {
 	protected static final String CONTENT_OBJECT_TYPE = "Content";
 
 	protected static final String TAXONOMY_ID = "domain";
+
+	protected static ObjectMapper objectMapper = new ObjectMapper();
 
 	protected static final String DIALCODE_GENERATE_URI = Platform.config.hasPath("dialcode.api.generate.url")
 			? Platform.config.getString("dialcode.api.generate.url") : "http://localhost:8080/learning-service/v3/dialcode/generate";
