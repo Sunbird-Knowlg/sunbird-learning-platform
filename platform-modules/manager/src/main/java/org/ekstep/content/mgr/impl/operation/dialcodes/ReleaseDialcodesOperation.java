@@ -1,5 +1,6 @@
 package org.ekstep.content.mgr.impl.operation.dialcodes;
 
+import org.apache.commons.collections.MapUtils;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -34,9 +35,10 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
 
         validateRequest(node, channelId);
 
-        Map<String, Object> reservedDialcodeMap = getReservedDialCodes(node).
-                orElseThrow(() -> new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
-                        "Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier()));
+        Map<String, Integer> reservedDialcodeMap = getReservedDialCodes(node);
+        if(null == reservedDialcodeMap || MapUtils.isNotEmpty(reservedDialcodeMap))
+                throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
+                        "Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier());
 
         Set<String> assignedDialcodes = new HashSet<>();
         populateAllAssisgnedDialcodesRecursive(node, assignedDialcodes);

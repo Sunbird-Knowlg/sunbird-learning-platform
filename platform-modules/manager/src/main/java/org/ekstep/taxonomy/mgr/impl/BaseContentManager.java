@@ -615,9 +615,12 @@ public abstract class BaseContentManager extends BaseManager {
 		return getList((String[]) node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()));
 	}*/
 	
-	protected Optional<Map<String, Object>> getReservedDialCodes(Node node) throws JsonParseException, JsonMappingException, IOException {
-		return objectMapper.readValue((String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()), new TypeReference<Map<String, Integer>>() {
-        });
+	
+	protected Map<String, Integer> getReservedDialCodes(Node node) throws JsonParseException, JsonMappingException, IOException {
+		String reservedDialcode = (String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name());
+		if(StringUtils.isNotBlank(reservedDialcode))
+			return objectMapper.readValue((String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()), new TypeReference<Map<String, Integer>>() {});
+		return null;
 	}
 	
 
