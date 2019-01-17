@@ -607,15 +607,6 @@ public abstract class BaseContentManager extends BaseManager {
 					"Invalid Content Type.");
 	}
 
-	/*private Optional<List<String>> getList(String[] params) {
-		return ofNullable(params).filter(a -> a.length != 0).map(a -> new ArrayList<>(Arrays.asList(a)));
-	}
-
-	protected Optional<List<String>> getReservedDialCodes(Node node) {
-		return getList((String[]) node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()));
-	}*/
-	
-	
 	protected Map<String, Integer> getReservedDialCodes(Node node) throws JsonParseException, JsonMappingException, IOException {
 		String reservedDialcode = (String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name());
 		if(StringUtils.isNotBlank(reservedDialcode))

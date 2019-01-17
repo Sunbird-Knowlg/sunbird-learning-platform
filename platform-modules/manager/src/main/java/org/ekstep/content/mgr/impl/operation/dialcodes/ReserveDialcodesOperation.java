@@ -1,6 +1,5 @@
 package org.ekstep.content.mgr.impl.operation.dialcodes;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections.MapUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
@@ -16,10 +15,10 @@ import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Collections;
 
 @Component
@@ -44,12 +43,11 @@ public class ReserveDialcodesOperation extends BaseContentManager {
         validateCountForReservingDialCode(request);
 
         boolean updateContent = false;
-        Map<String,Integer> dialCodeMap = getReservedDialCodes(node);//objectMapper.readValue(node.getMetadata().getOrDefault(ContentAPIParams.reservedDialcodes.name(),"").toString(), new TypeReference<Map<String, Integer>>() {
-        //});
+        Map<String,Integer> dialCodeMap = getReservedDialCodes(node);
         if(MapUtils.isEmpty(dialCodeMap))
         		dialCodeMap = new HashMap<>();
         Integer maxIndex = (MapUtils.isNotEmpty(dialCodeMap))?Collections.max(dialCodeMap.values()):0;
-        List<String> dialCodes = new ArrayList<>(dialCodeMap.keySet());
+        Set<String> dialCodes = dialCodeMap.keySet();
         int reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name());
         if(dialCodes.size()<reqDialcodesCount) {
             List<String> newDialcodes = generateDialcode(channelId, contentId, reqDialcodesCount-dialCodes.size(), (String) request.get(ContentAPIParams.publisher.name()));

@@ -36,7 +36,7 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
         validateRequest(node, channelId);
 
         Map<String, Integer> reservedDialcodeMap = getReservedDialCodes(node);
-        if(null == reservedDialcodeMap || MapUtils.isNotEmpty(reservedDialcodeMap))
+        if(null == reservedDialcodeMap || MapUtils.isEmpty(reservedDialcodeMap))
                 throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
                         "Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier());
 
