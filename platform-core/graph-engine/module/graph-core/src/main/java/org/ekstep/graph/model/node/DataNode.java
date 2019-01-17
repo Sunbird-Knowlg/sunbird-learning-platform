@@ -3,13 +3,16 @@ package org.ekstep.graph.model.node;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Property;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -36,6 +39,8 @@ import akka.dispatch.Futures;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
+
+import static java.util.stream.Collectors.toSet;
 
 public class DataNode extends AbstractNode {
 
@@ -446,7 +451,21 @@ public class DataNode extends AbstractNode {
 		}
 	}
 
+	private void validateMetadataProperties(List<MetadataDefinition> defs, List<String> messages) {
+		List<String> invalidProps = new ArrayList<>();
+		List<String> validObjectTypes = Platform.config.hasPath("restrict.metadata.objectTypes") ?
+				Platform.config.getStringList("restrict.metadata.objectTypes") : Collections.emptyList();
+		if (validObjectTypes.contains(objectType)) {
+			Set<String> properties = defs.stream().map(MetadataDefinition::getPropertyName).collect(toSet());
+			metadata.keySet().forEach(e  -> {
+				if (!properties.contains(e) && !SystemProperties.isSystemProperty(e)) invalidProps.add(e);
+			});
+			if (!invalidProps.isEmpty()) messages.add("Invalid Properties : " + invalidProps.toString());
+		}
+	}
+
 	private void validateMetadata(List<MetadataDefinition> defs, List<String> messages) {
+		validateMetadataProperties(defs, messages);
 		if (null != defs && !defs.isEmpty()) {
 			for (MetadataDefinition def : defs) {
 				String propName = def.getPropertyName();
