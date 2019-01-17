@@ -42,6 +42,7 @@ public class GoogleDriveUrlUtil {
 			"keyInvalid");
 	private static boolean limitExceeded = false;
 	private static Drive drive = null;
+	private static final String googleDriveUrlRegEx = "[-\\w]{25,}";
 	private static long sizeLimit = Platform.config.hasPath("MAX_ASSET_FILE_SIZE_LIMIT")
 				? Platform.config.getLong("MAX_ASSET_FILE_SIZE_LIMIT") : 52428800;
 	static {
@@ -51,7 +52,7 @@ public class GoogleDriveUrlUtil {
 	}
 
 	public static Map<String, Object> getMetadata(String driveUrl){
-		String videoId = getIdFromUrl(driveUrl);
+		String videoId = getVideoLink(driveUrl);
 		if(StringUtils.isBlank(videoId))
 			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_URL.name(), ERR_MSG);
 		Map<String, Object> metadata = new HashMap<>();
@@ -88,7 +89,7 @@ public class GoogleDriveUrlUtil {
 	 * @return licenceType
 	 */
 	public static Long getSize(String driveUrl) {
-		String videoId = getIdFromUrl(driveUrl);
+		String videoId = getVideoLink(driveUrl);
 		if(StringUtils.isBlank(videoId))
 			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_URL.name(), ERR_MSG);
 		long size = 0;
@@ -123,28 +124,13 @@ public class GoogleDriveUrlUtil {
 	public static boolean isValidSize(long size) {
         return sizeLimit>=size;
     }
-	private static String getIdFromUrl(String url) {
-		String videoLink = getVideoLink(url);
-		List<String> videoIdRegex = Platform.config.getStringList("google.drive.regex.pattern");
-		
-		for (String regex : videoIdRegex) {
-			Pattern compiledPattern = Pattern.compile(regex);
-			Matcher matcher = compiledPattern.matcher(videoLink);
-			if (matcher.find()) {
-				return matcher.group(1);
-			}
-		}
-		return null;
-	}
 
 	private static String getVideoLink(String url) {
-		final String youTubeUrlRegEx = "^(https?)?(://)?(drive.)?(google.)?(com/)";
-		Pattern compiledPattern = Pattern.compile(youTubeUrlRegEx);
+		Pattern compiledPattern = Pattern.compile(googleDriveUrlRegEx);
 		Matcher matcher = compiledPattern.matcher(url);
 
-		if (matcher.find()) {
-			return url.replace(matcher.group(), "");
-		}
+		if (matcher.find())
+			return matcher.group();
 		return url;
 	}
 }
