@@ -134,6 +134,18 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{ 'order': 13 }"
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "appId",
+          "title": "App Id",
+          "description": "Id of app from which the request is made",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 14 }",
+          "indexed": true
         }
       ],
       "inRelations":[

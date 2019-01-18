@@ -120,6 +120,18 @@
                     "displayProperty": "Editable",
                     "defaultValue": "",
                     "renderingHints": "{'inputType': 'text', 'order': 8}"
+                },
+                {
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "appId",
+                    "title": "App Id",
+                    "description": "Id of app from which the request is made",
+                    "category": "General",
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'textarea', 'order': 9 }",
+                    "indexed": true
                 }
             ],
             "inRelations":

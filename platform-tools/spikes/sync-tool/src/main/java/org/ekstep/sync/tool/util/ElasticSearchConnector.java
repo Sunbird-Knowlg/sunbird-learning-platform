@@ -10,6 +10,7 @@ import javax.annotation.PreDestroy;
 import org.ekstep.common.Platform;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.jasypt.hibernate4.type.EncryptedLongAsStringType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,6 +24,7 @@ public class ElasticSearchConnector {
 		indexName = Platform.config.hasPath("search.index.name") ? Platform.config.getString("search.index.name")
 				: CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 		documentType = "_doc";
+		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 		createIndexIfNotExist();
 	}
 

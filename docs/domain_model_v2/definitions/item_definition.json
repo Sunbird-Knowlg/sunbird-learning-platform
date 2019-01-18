@@ -629,7 +629,44 @@
             "defaultValue": "MCQ",
             "renderingHints": "{'order': 28}",
             "indexed": true
-	}],
+	},
+            {
+                "required": false,
+                "dataType": "Text",
+                "propertyName": "appId",
+                "title": "App Id",
+                "description": "Id of app from which the request is made",
+                "category": "General",
+                "displayProperty": "Editable",
+                "defaultValue": "",
+                "renderingHints": "{ 'inputType': 'textarea', 'order': 29 }",
+                "indexed": true
+            },
+            {
+                "required": false,
+                "dataType": "Text",
+                "propertyName": "bloomsTaxonomyLevel",
+                "title": "bloomsTaxonomyLevel",
+                "description": "Taxnonomy Level",
+                "category": "General",
+                "displayProperty": "Editable",
+                "defaultValue": "",
+                "renderingHints": "{ 'inputType': 'textarea', 'order': 29 }",
+                "indexed": true
+            },
+            {
+                "required": false,
+                "dataType": "List",
+                "propertyName": "conceptIds",
+                "title": "conceptIds",
+                "description": "conceptIds",
+                "category": "General",
+                "displayProperty": "Editable",
+                "defaultValue": "",
+                "renderingHints": "{ 'inputType': 'textarea', 'order': 29 }",
+                "indexed": true
+            }
+        ],
         "inRelations": [],
         "outRelations": [{
             "relationName": "associatedTo",
@@ -639,7 +676,9 @@
             "required": false,
             "renderingHints": "{ 'order': 26 }"
         }],
-        "systemTags": [{
+        "systemTags":
+        [
+            {
             "name": "Numeracy",
             "description": "Domain"
         }, {

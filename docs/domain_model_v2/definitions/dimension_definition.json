@@ -212,6 +212,18 @@
           "defaultValue": "",
           "renderingHints": "{'order': 25}",
           "indexed": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "appId",
+          "title": "App Id",
+          "description": "Id of app from which the request is made",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 26 }",
+          "indexed": true
         }
       ],
       "inRelations": [

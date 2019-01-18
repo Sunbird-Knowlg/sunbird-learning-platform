@@ -370,6 +370,18 @@
           "defaultValue": "",
           "renderingHints": "{'order': 25}",
           "indexed": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "consumerId",
+          "title": "Consumer Id",
+          "description": "Id of consumer from which the request is made",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 14 }",
+          "indexed": true
         }
       ],
       "inRelations": [
@@ -425,6 +437,18 @@
             "Concept"
           ],
           "renderingHints": "{'order': 29}"
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "appId",
+          "title": "App Id",
+          "description": "Id of app from which the request is made",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 30 }",
+          "indexed": true
         }
       ],
       "systemTags": [

@@ -2408,6 +2408,66 @@
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 23 }",
 					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "consumerId",
+					"title": "Consumer ID",
+					"description": "Content consumer Id",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 25 }",
+					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "contentTypesCount",
+					"title": "Content Types Count",
+					"description": "Count of contentTypes in a collection",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 26 }",
+					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "appId",
+					"title": "App Id",
+					"description": "Id of app from which the request is made",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 27 }",
+					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "URL",
+					"propertyName": "baseUrl",
+					"title": "BaseUrl",
+					"description": "Base URL for content based on infra",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 28 }",
+					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "childNodes",
+					"title": "ChildNodes",
+					"description": "ChildNodes of a collection",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'select', 'order': 29}",
+					"indexed": true
 				}
 			],
 			"inRelations": [
