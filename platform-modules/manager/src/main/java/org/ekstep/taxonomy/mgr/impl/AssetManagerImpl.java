@@ -25,9 +25,9 @@ import java.util.Optional;
 @Component
 public class AssetManagerImpl implements IAssetManager {
 
-	static IURLManager youtubeUrlManager = new YoutubeUrlManagerImpl();
-	static IURLManager googleDriveUrlManager = new GoogleDriveUrlManagerImpl();
-	static IURLManager generalUrlManager = new GeneralUrlManagerImpl();
+	private final IURLManager youtubeUrlManager = new YoutubeUrlManagerImpl();
+	private final IURLManager googleDriveUrlManager = new GoogleDriveUrlManagerImpl();
+	private final IURLManager generalUrlManager = new GeneralUrlManagerImpl();
 	/**
      * Validate License
      *

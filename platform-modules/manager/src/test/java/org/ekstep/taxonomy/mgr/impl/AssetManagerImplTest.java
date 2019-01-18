@@ -40,6 +40,8 @@ public class AssetManagerImplTest {
 
     private final String VALID_LICENSE = "validLicense";
     private final String LICENSE = "license";
+    private final String VALUE = "value";
+    private final String VALID = "valid";
 
     private enum ErrMsg {
         INVALID_PROVIDER("Invalid Provider"),
@@ -75,8 +77,9 @@ public class AssetManagerImplTest {
         Response response = assetManager.urlValidate(asset, "license");
 
         assertEquals(ResponseCode.OK.code(), response.getResponseCode().code());
-        assertTrue( (boolean) response.getResult().get(VALID_LICENSE) );
-        assertTrue(validLicenses.contains(response.getResult().get(LICENSE)));
+        Map<String, Object> license = (Map<String, Object>)response.getResult().get(LICENSE);
+        assertTrue( (boolean)license.get(VALID) );
+        assertTrue(validLicenses.contains((String)license.get(VALUE)));
     }
 
     @Test
@@ -88,8 +91,9 @@ public class AssetManagerImplTest {
         Response response = assetManager.urlValidate(asset, "license");
 
         assertEquals(ResponseCode.OK.code(), response.getResponseCode().code());
-        assertFalse( (boolean) response.getResult().get(VALID_LICENSE) );
-        assertFalse(validLicenses.contains(response.getResult().get(LICENSE)));
+        Map<String, Object> license = (Map<String, Object>)response.getResult().get(LICENSE);
+        assertFalse( (boolean)license.get(VALID) );
+        assertFalse(validLicenses.contains((String)license.get(VALUE)));
     }
 
     @Test
