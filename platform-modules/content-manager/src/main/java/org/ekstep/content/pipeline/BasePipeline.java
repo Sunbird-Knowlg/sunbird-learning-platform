@@ -50,7 +50,7 @@ import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

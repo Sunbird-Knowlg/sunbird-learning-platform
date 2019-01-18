@@ -31,7 +31,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.BaseLearningManager;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

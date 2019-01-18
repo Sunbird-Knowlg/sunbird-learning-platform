@@ -5,7 +5,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.junit.*;
 import org.junit.runner.RunWith;

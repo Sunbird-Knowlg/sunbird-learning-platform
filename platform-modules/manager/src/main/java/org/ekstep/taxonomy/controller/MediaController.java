@@ -10,7 +10,7 @@ import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

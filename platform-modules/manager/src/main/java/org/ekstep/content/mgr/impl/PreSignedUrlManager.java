@@ -4,7 +4,7 @@ import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.springframework.stereotype.Component;
 import scala.Option;

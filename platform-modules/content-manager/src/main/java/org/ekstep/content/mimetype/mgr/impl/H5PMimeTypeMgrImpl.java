@@ -59,7 +59,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 				node.getMetadata().put("s3Key", urlArray[IDX_S3_KEY]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
 				ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-				contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, extractionBasePath, ExtractionType.snapshot, false);
+				contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, extractionBasePath, ExtractionType.snapshot, false, false);
 				response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 			}catch (IOException e) {
 				TelemetryManager.error("Error! While unzipping the content package file.", e);
@@ -152,6 +152,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 		Response response = new Response();
 		String extractionBasePath = null;
 		File h5pLibraryPackageFile = null;
+		boolean async = true;
 		try {
 			extractionBasePath = getBasePath(contentId);
 			// Download the H5P Libraries
@@ -184,7 +185,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 			// upload Extract Content Package
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, extractionBasePath, ExtractionType.snapshot,
-					false);
+					false, async);
 			response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 		} catch (IOException e) {
 			TelemetryManager.error("Error! While unzipping the content package file.", e);
@@ -199,7 +200,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 		} finally {
 			// Cleanup
 			try {
-				FileUtils.deleteDirectory(new File(extractionBasePath));
+				if (!async) FileUtils.deleteDirectory(new File(extractionBasePath));
 				h5pLibraryPackageFile.delete();
 			} catch (Exception e) {
 				TelemetryManager.error("Unable to delete H5P library directory.", e);

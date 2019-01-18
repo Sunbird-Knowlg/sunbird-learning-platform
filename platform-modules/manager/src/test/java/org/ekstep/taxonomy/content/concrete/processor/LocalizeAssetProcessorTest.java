@@ -13,7 +13,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFConversionUtility;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

@@ -10,7 +10,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.taxonomy.mgr.impl.OldContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.After;

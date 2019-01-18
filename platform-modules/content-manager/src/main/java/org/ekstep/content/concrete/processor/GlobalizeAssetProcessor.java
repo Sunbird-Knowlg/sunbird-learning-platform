@@ -14,7 +14,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;

@@ -36,7 +36,7 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**

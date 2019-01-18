@@ -147,7 +147,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			writeECMLFile(basePath, ecml, ecmlType);
 
 			//upload snapshot of content into aws
-			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
+			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true, false);
 
 			// Create 'ZIP' Package
 			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)

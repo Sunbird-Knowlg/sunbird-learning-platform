@@ -1,6 +1,12 @@
-package org.ekstep.learning.util;
+package org.ekstep.learning.util.cloud;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +55,7 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		}
 	}
 	
-	public static String[] uploadFile(String folderName, File file, boolean slugFile) throws Exception {
+	public static String[] uploadFile(String folderName, File file, boolean slugFile) {
 		if (BooleanUtils.isTrue(slugFile))
 			file = Slug.createSlugFile(file);
 		String objectKey = folderName + "/" + file.getName();
