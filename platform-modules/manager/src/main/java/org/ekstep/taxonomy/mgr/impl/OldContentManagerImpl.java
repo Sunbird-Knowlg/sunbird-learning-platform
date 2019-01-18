@@ -1955,7 +1955,7 @@ public class OldContentManagerImpl extends OldBaseContentManager implements ICon
 		Map<String, Object> nodesModified = new HashMap<>();
 		Map<String, Object> hierarchy = new HashMap<>();
 
-		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
 		Map<String, Object> nullPropMap = new HashMap<>();
 		nullPropList.forEach(i -> nullPropMap.put(i, null));
 		Map<String, Object> parentHierarchy = new HashMap<>();
@@ -2031,7 +2031,7 @@ public class OldContentManagerImpl extends OldBaseContentManager implements ICon
 
 		copyNode.getMetadata().putAll(requestMap);
 		copyNode.getMetadata().put("status", "Draft");
-		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
 		Map<String, Object> nullPropMap = new HashMap<>();
 		nullPropList.forEach(i -> nullPropMap.put(i, null));
 		copyNode.getMetadata().putAll(nullPropMap);

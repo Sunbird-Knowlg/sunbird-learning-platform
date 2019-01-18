@@ -112,7 +112,7 @@ public class CopyOperation extends BaseContentManager {
         copyNode.setMetadata(metaData);
         copyNode.setGraphId(existingNode.getGraphId());
 
-        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
         Map<String, Object> nullPropMap = new HashMap<>();
         nullPropList.forEach(i -> nullPropMap.put(i, null));
         copyNode.getMetadata().putAll(nullPropMap);
@@ -243,7 +243,7 @@ public class CopyOperation extends BaseContentManager {
         Map<String, Object> nodesModified = new HashMap<>();
         Map<String, Object> hierarchy = new HashMap<>();
 
-        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
         Map<String, Object> nullPropMap = new HashMap<>();
         nullPropList.forEach(i -> nullPropMap.put(i, null));
         Map<String, Object> parentHierarchy = new HashMap<>();
