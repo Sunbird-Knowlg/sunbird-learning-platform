@@ -8,6 +8,6 @@ import play.filters.gzip.GzipFilter
 
 class GZipFilter @Inject() extends HttpFilters {
   def filters = Seq(new GzipFilter(shouldGzip = (request, response) => {
-    request.headers.get("Accept-Encoding").exists(StringUtils.containsIgnoreCase(_, "gzip"))
+    request.headers.get("Accept-Encoding").exists(StringUtils.equalsIgnoreCase(_, "gzip"))
   }))
 }
