@@ -259,5 +259,6 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
         String graphId = req.getOrDefault(GraphDACParams.graphId.name(), "").toString();
         String objectType = req.getOrDefault(GraphDACParams.objectType.name(), "").toString();
         DefinitionCache.updateDefinitionCache(graphId, objectType);
+        OK(getSender());
     }
 }
