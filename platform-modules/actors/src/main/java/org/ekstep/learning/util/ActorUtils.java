@@ -20,7 +20,7 @@ import scala.concurrent.Future;
 import java.util.Map;
 
 /**
- * Utilities for Akka Actors
+ * Utility class for Akka Actors
  */
 public class ActorUtils {
 

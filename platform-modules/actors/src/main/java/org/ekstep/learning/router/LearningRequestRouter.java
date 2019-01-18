@@ -1,6 +1,7 @@
 package org.ekstep.learning.router;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -15,6 +16,7 @@ import org.ekstep.learning.actor.ContentStoreActor;
 import org.ekstep.learning.actor.FrameworkHierarchyActor;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
+import org.ekstep.learning.util.cloud.actor.CloudStoreAsyncActor;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
@@ -26,6 +28,10 @@ import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 import akka.routing.SmallestMailboxPool;
 import scala.concurrent.Future;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -40,6 +46,9 @@ public class LearningRequestRouter extends UntypedActor {
 
 	/** The timeout. */
 	protected long timeout = 30000;
+
+	private Set<String> asyncActors =
+			Platform.config.hasPath("async.actors") ? new HashSet<>(Platform.config.getStringList("async.actors")) : Collections.emptySet();
 
 	/*
 	 * (non-Javadoc)
@@ -60,9 +69,13 @@ public class LearningRequestRouter extends UntypedActor {
 			ActorRef parent = getSender();
 			try {
 				ActorRef actorRef = getActorFromPool(request);
-				long t = timeout;
-				Future<Object> future = Patterns.ask(actorRef, request, t);
-				handleFuture(request, future, parent);
+				if (asyncActors.contains(request.getManagerName())) {
+					actorRef.tell(request, actorRef);
+				} else {
+					long t = timeout;
+					Future<Object> future = Patterns.ask(actorRef, request, t);
+					handleFuture(request, future, parent);
+				}
 			} catch (Exception e) {
 				handleException(request, e, parent);
 			}
@@ -78,10 +91,13 @@ public class LearningRequestRouter extends UntypedActor {
 
 		Props contentStoreProps = Props.create(ContentStoreActor.class);
 		Props fwhierarchyProps = Props.create(FrameworkHierarchyActor.class);
+		Props cloudStoreAsyncProps = Props.create(CloudStoreAsyncActor.class);
 		ActorRef contentStoreActor = system.actorOf(new SmallestMailboxPool(poolSize).props(contentStoreProps));
 		ActorRef fwHierarchyActor = system.actorOf(new SmallestMailboxPool(poolSize).props(fwhierarchyProps));
+		ActorRef cloudStoreAsyncActor = system.actorOf(new SmallestMailboxPool(poolSize).props(cloudStoreAsyncProps));
 		LearningActorPool.addActorRefToPool(LearningActorNames.CONTENT_STORE_ACTOR.name(), contentStoreActor);
 		LearningActorPool.addActorRefToPool(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name(), fwHierarchyActor);
+		LearningActorPool.addActorRefToPool(LearningActorNames.CLOUD_STORE_ASYNC_ACTOR.name(), cloudStoreAsyncActor);
 	}
 
 	/**

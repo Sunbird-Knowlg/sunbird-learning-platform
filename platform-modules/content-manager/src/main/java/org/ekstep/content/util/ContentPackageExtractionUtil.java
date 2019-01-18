@@ -3,8 +3,6 @@ package org.ekstep.content.util;
 import akka.actor.ActorRef;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.async.enums.AsyncActorNames;
-import org.ekstep.async.router.AsyncRequestRouterPool;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Request;
@@ -20,6 +18,8 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.learning.util.cloud.enums.CloudStoreOperations;
 import org.ekstep.learning.util.cloud.enums.CloudStoreParams;
@@ -311,21 +311,16 @@ public class ContentPackageExtractionUtil {
 	 * @return the list
 	 */
 	private void directoryUploadAsync(File directory, String cloudFolderPath, boolean slugFile, String basePath) {
-		System.out.println("Uploading extracted folder to :: " + cloudFolderPath);
 		Request request = new Request();
-		request.setManagerName(AsyncActorNames.CloudStoreAsync.name());
+		request.setManagerName(LearningActorNames.CLOUD_STORE_ASYNC_ACTOR.name());
 		request.setOperation(CloudStoreOperations.uploadDirectory.name());
 		request.put(CloudStoreParams.file.name(), directory);
 		request.put(CloudStoreParams.folderName.name(), cloudFolderPath);
 		request.put(CloudStoreParams.slugFile.name(), slugFile);
 		request.put(CloudStoreParams.basePath.name(), basePath);
 		request.put(CloudStoreParams.deleteFile.name(), true);
-		ActorRef router = AsyncRequestRouterPool.getRequestRouter();
-        long t1 = System.currentTimeMillis();
-        System.out.println("ContentPackageExtractionUtil#directoryUploadAsync | sending for upload extracted package: " + t1);
+		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		router.tell(request, router);
-        long t2 = System.currentTimeMillis();
-        System.out.println("ContentPackageExtractionUtil#directoryUploadAsync | returning for upload extracted package: " + t2 + ", Time Difference: " + (t1-t2));
 	}
 
 	/**

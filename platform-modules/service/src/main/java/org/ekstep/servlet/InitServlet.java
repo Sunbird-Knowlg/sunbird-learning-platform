@@ -4,7 +4,6 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-import org.ekstep.async.router.AsyncRequestRouterPool;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
@@ -22,7 +21,6 @@ public class InitServlet extends HttpServlet {
         TelemetryManager.log("Initialising Request Router Pool");
         LearningRequestRouterPool.init();
         SearchRequestRouterPool.init(RequestRouterPool.getActorSystem());
-        AsyncRequestRouterPool.init();
     }
 
 }

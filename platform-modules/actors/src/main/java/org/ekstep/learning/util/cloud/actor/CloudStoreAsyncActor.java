@@ -22,7 +22,7 @@ import static org.ekstep.telemetry.logger.TelemetryManager.log;
  * @see CloudStore#uploadFile(String, File, boolean)
  * @see CloudStore#uploadDirectory(String, File, boolean)
  */
-public class CloudStoreAsync extends UntypedActor {
+public class CloudStoreAsyncActor extends UntypedActor {
 
     @Override
     public void onReceive(Object message) {
