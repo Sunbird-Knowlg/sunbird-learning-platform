@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ContentManagerImplCreateContentTest extends GraphEngineTestSetup {
 
-	static OldContentManagerImpl contentManager = new OldContentManagerImpl();
+	static ContentManagerImpl contentManager = new ContentManagerImpl();
 
 	static Map<String, Object> versionKeyMap = new HashMap<String, Object>();
 

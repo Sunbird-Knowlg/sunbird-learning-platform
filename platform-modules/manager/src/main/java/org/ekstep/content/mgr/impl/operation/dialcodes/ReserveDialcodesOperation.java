@@ -46,7 +46,7 @@ public class ReserveDialcodesOperation extends BaseContentManager {
         Map<String,Integer> dialCodeMap = getReservedDialCodes(node);
         if(MapUtils.isEmpty(dialCodeMap))
         		dialCodeMap = new HashMap<>();
-        Integer maxIndex = (MapUtils.isNotEmpty(dialCodeMap))?Collections.max(dialCodeMap.values()):0;
+        Integer maxIndex = (MapUtils.isNotEmpty(dialCodeMap))?Collections.max(dialCodeMap.values()):-1;
         Set<String> dialCodes = dialCodeMap.keySet();
         int reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name());
         if(dialCodes.size()<reqDialcodesCount) {
