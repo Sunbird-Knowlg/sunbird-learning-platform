@@ -20,8 +20,6 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
 public class CopyOperation extends BaseContentManager {
 
-    @Autowired private HierarchyManager hierarchyManager;
+    private final HierarchyManager hierarchyManager = new HierarchyManager();
 
     public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
         Node existingNode = validateCopyContentRequest(contentId, requestMap, mode);

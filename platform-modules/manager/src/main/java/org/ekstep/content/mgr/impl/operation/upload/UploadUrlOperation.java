@@ -10,9 +10,6 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class UploadUrlOperation extends BaseUploadOperation {
 
     public Response upload(String contentId, String fileUrl, String mimeType) {

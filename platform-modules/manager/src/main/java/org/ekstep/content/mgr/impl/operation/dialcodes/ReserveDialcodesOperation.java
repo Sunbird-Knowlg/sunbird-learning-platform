@@ -13,7 +13,6 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
 
-@Component
 public class ReserveDialcodesOperation extends BaseContentManager {
 
     public Response reserveDialCode(String contentId, String channelId, Map<String, Object> request) throws Exception {
