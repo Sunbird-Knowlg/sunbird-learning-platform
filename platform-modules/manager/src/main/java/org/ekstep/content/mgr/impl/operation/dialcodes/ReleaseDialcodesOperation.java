@@ -1,5 +1,6 @@
 package org.ekstep.content.mgr.impl.operation.dialcodes;
 
+import org.apache.commons.collections.MapUtils;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -10,7 +11,6 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,7 +21,8 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
-@Component
+import java.util.ArrayList;
+
 public class ReleaseDialcodesOperation extends BaseContentManager {
 
     public Response releaseDialCodes(String contentId, String channelId) throws Exception {
@@ -32,25 +33,29 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
 
         validateRequest(node, channelId);
 
-        List<String> reservedDialcodes = getReservedDialCodes(node).
-                orElseThrow(() -> new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
-                        "Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier()));
+        Map<String, Integer> reservedDialcodeMap = getReservedDialCodes(node);
+        if(null == reservedDialcodeMap || MapUtils.isEmpty(reservedDialcodeMap))
+                throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
+                        "Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier());
 
         Set<String> assignedDialcodes = new HashSet<>();
         populateAllAssisgnedDialcodesRecursive(node, assignedDialcodes);
 
-        List<String> releasedDialcodes = assignedDialcodes.isEmpty() ?
-                reservedDialcodes
+        List<String> reservedDialcodes = new ArrayList<>(reservedDialcodeMap.keySet());
+        List<String> releasedDialcodes = assignedDialcodes.isEmpty() ? 
+        		reservedDialcodes
                 : reservedDialcodes.stream().filter(dialcode -> !assignedDialcodes.contains(dialcode)).collect(toList());
 
         if (releasedDialcodes.isEmpty())
             throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved DIAL Codes are Utilized.");
 
-        List<String> leftReservedDialcodes = reservedDialcodes.stream().filter(dialcode -> !releasedDialcodes.contains(dialcode)).collect(toList());
-
+        releasedDialcodes.stream().forEach(dialcode -> reservedDialcodeMap.remove(dialcode));
         Map<String, Object> updateMap = new HashMap<>();
-        updateMap.put(ContentAPIParams.reservedDialcodes.name(), leftReservedDialcodes);
-
+        if(MapUtils.isEmpty(reservedDialcodeMap))
+        		updateMap.put(ContentAPIParams.reservedDialcodes.name(), null);
+        	else
+        		updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
+        
         Response response = updateAllContents(contentId, updateMap);
         if (checkError(response)) {
             return response;

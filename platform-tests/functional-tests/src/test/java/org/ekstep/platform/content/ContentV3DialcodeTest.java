@@ -70,7 +70,7 @@ public class ContentV3DialcodeTest extends BaseTest {
         String identifier = result[0];
         String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 50);
         Response response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
-        List<String> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
+        Map<String, Integer> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
         assertEquals(50, reservedDialcodes.size());
     }
 
@@ -95,13 +95,13 @@ public class ContentV3DialcodeTest extends BaseTest {
 
         String reserveDialcodesRequestBody = this.reserveDialcodesRequestBody.replace(COUNT, "" + 50);
         response = this.contentV3API.reserveDialcode(identifier, reserveDialcodesRequestBody, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
-        List<String> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
+        Map<String, Integer> reservedDialcodes = response.jsonPath().get("result.reservedDialcodes");
         response = this.contentV3API.read(identifier, null, getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
-        List<String> reservedDialcodesOriginalNode = response.jsonPath().get("result.content.reservedDialcodes");
+        Map<String, Integer> reservedDialcodesOriginalNode = response.jsonPath().get("result.content.reservedDialcodes");
         response = this.contentV3API.read(identifier, "edit", getRequestSpecification(contentType, validuserId, APIToken, channelId, appId), get200ResponseSpec());
-        List<String> reservedDialcodesImageNode = response.jsonPath().get("result.content.reservedDialcodes");
-        assertTrue(reservedDialcodesOriginalNode.containsAll(reservedDialcodes));
-        assertTrue(reservedDialcodesImageNode.containsAll(reservedDialcodes));
+        Map<String, Integer> reservedDialcodesImageNode = response.jsonPath().get("result.content.reservedDialcodes");
+        assertTrue(reservedDialcodesOriginalNode.keySet().containsAll(reservedDialcodes.keySet()));
+        assertTrue(reservedDialcodesImageNode.keySet().containsAll(reservedDialcodes.keySet()));
     }
 
     @Test
