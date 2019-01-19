@@ -742,8 +742,9 @@ public abstract class BaseContentManager extends BaseManager {
     public boolean validateOrThrowExceptionForEmptyKeys(Map<String, Object> requestMap,
                                                         String prefix,
                                                         List<String> keys) {
-        String errMsg = "Please provide valid value for";
+        String errMsg = "Please provide valid value for ";
         boolean flag = false;
+        List<String> notFoundKeys = null;
         for (String key : keys) {
             if (null == requestMap.get(key)) {
                 flag = true;
@@ -754,10 +755,17 @@ public abstract class BaseContentManager extends BaseManager {
             } else {
                 flag = isBlank((String) requestMap.get(key));
             }
-            if (flag)
-                errMsg = errMsg + " " + key + ",";
+            if (flag) {
+            		if(null==notFoundKeys)
+            			notFoundKeys = new ArrayList<>();
+            		notFoundKeys.add(key);
+            }
         }
-        if (isBlank(errMsg)) return true;
+        if (CollectionUtils.isEmpty(notFoundKeys)) 
+        		return true;
+        else {
+        		errMsg = errMsg + String.join(", ", notFoundKeys) + ".";
+        }
         throw new ClientException("ERR_INVALID_REQUEST", errMsg.trim().substring(0, errMsg
                 .length()-1));
     }
