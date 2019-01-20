@@ -63,10 +63,10 @@ public class CloudStoreAsyncActor extends UntypedActor {
         boolean deleteFile = false;
         try {
             folderName = (String) request.get(CloudStoreParams.folderName.name());
-            File f = (File) request.get(CloudStoreParams.file.name());
             slugFile = (boolean) request.get(CloudStoreParams.slugFile.name());
             basePath = (String) request.get(CloudStoreParams.basePath.name());
             deleteFile = (boolean) request.get(CloudStoreParams.deleteFile.name());
+            File f = new File(basePath);
             if (null == folderName || null == f || !f.exists() || StringUtils.isBlank(basePath)) {
                 TelemetryManager.error("CloudStoreAsync#upload | Invalid Request Params Found for upload request.");
                 throw new ClientException("ERR_INVALID_REQUEST_PARAM(S)",

@@ -194,6 +194,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 		} catch (ServerException e) {
 			throw e;
 		} catch (Exception e) {
+			TelemetryManager.error("H5PMimeTypeMgrImpl#uploadH5PContent | Error uploading H5P Content");
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR
 							+ " | [Something Went Wrong While Uploading the 'H5P' Content.]");

@@ -297,7 +297,7 @@ public class ContentPackageExtractionUtil {
         TelemetryManager.log("Uploading Extracted Directory to Cloud");
         TelemetryManager.log("Folder Name For Storage Space Extraction: " + cloudFolderPath);
 
-        if (async) directoryUploadAsync(directory, cloudFolderPath, slugFile, basePath);
+        if (async) directoryUploadAsync(cloudFolderPath, slugFile, basePath);
         else CloudStore.uploadDirectory(cloudFolderPath, directory, slugFile);
 	}
 
@@ -310,11 +310,10 @@ public class ContentPackageExtractionUtil {
 	 *            the Cloud folder path
 	 * @return the list
 	 */
-	private void directoryUploadAsync(File directory, String cloudFolderPath, boolean slugFile, String basePath) {
+	private void directoryUploadAsync(String cloudFolderPath, boolean slugFile, String basePath) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CLOUD_STORE_ASYNC_ACTOR.name());
 		request.setOperation(CloudStoreOperations.uploadDirectory.name());
-		request.put(CloudStoreParams.file.name(), directory);
 		request.put(CloudStoreParams.folderName.name(), cloudFolderPath);
 		request.put(CloudStoreParams.slugFile.name(), slugFile);
 		request.put(CloudStoreParams.basePath.name(), basePath);
