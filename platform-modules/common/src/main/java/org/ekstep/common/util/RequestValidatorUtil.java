@@ -136,8 +136,7 @@ public class RequestValidatorUtil {
     }
 
     public static boolean isEmptyOrNullRecursive(Number n) {
-        if (isNull(n)) return true;
-        return false;
+        return isNull(n);
     }
 
     public static boolean isEmptyOrNullRecursive(Number... n) {
