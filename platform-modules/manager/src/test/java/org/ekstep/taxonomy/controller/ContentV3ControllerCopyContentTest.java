@@ -176,13 +176,13 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	@Test
 	public void copyContentTest_02() throws Exception {
 		String reqPath = basePath + "copy/" + contentId;
-		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
+		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\",\"framework\":\"NCF\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		Response resp = getResponse(actions);
 		String errorCode = resp.getParams().getErr();
 		/*Assert.assertEquals("ERR_INVALID_CREATEDBY", errorCode);*/
-		Assert.assertEquals("ERR_CONTENT_BLANK_OBJECT", errorCode);
+		Assert.assertEquals("ERR_INVALID_REQUEST", errorCode);
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
