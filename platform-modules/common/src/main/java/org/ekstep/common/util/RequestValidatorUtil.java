@@ -26,11 +26,18 @@ public class RequestValidatorUtil {
     private static final String defaultRequestPrefix = "request";
     private static Function<String, String> prefixValidator = e -> null ==  e ?  defaultRequestPrefix : e;
 
-    public static boolean isEmptyOrNull(Object o) { return isNull(o); }
-
     public static boolean isEmptyOrNull(Object... o) {
         if (isNull(o)) return true;
-        for (Object e : o) if (isEmptyOrNull(e)) return true;
+        for (Object e : o) {
+            if (e instanceof String) return isEmptyOrNull((String) e);
+            if (e instanceof String[]) return isEmptyOrNull((String[]) e);
+            if (e instanceof Collection) return isEmptyOrNull((Collection) e);
+            if (e instanceof Collection[]) return isEmptyOrNull((Collection[]) e);
+            if (e instanceof Map) return isEmptyOrNull((Map) e);
+            if (e instanceof Map[]) return isEmptyOrNull((Map[]) e);
+            if (e instanceof Number) return isEmptyOrNull((Number) e);
+            if (e instanceof Number[]) return isEmptyOrNull((Number[]) e);
+        }
         return false;
     }
 
@@ -38,27 +45,60 @@ public class RequestValidatorUtil {
         return isBlank(s);
     }
 
+    public static boolean isEmptyOrNull(String... s) {
+        if (isNull(s)) return true;
+        for (String e : s) if (isEmptyOrNull(e)) return true;
+        return false;
+    }
+
     public static boolean isEmptyOrNull(Collection c) {
         return isNull(c) || c.isEmpty();
+    }
+
+    public static boolean isEmptyOrNull(Collection... c) {
+        if (isNull(c)) return true;
+        for (Collection e : c) if (isEmptyOrNull(e)) return true;
+        return false;
     }
 
     public static boolean isEmptyOrNull(Map m) {
         return isNull(m) || m.isEmpty();
     }
 
-    public static boolean isEmptyOrNullRecursive(Object o) {
-        if (isNull(o)) return true;
+    public static boolean isEmptyOrNull(Map... m) {
+        if (isNull(m)) return true;
+        for (Map e : m) if (isEmptyOrNull(e)) return true;
+        return false;
+    }
+
+    public static boolean isEmptyOrNull(Number n) {
+        if (isNull(n)) return true;
+        return false;
+    }
+
+    public static boolean isEmptyOrNull(Number... n) {
+        if (isNull(n)) return true;
+        for (Number e : n) if (isEmptyOrNull(e)) return true;
         return false;
     }
 
     public static boolean isEmptyOrNullRecursive(Object... o) {
         if (isNull(o)) return true;
-        for (Object e : o) if (isEmptyOrNullRecursive(e)) return true;
+        for (Object e : o) {
+            if (e instanceof String) return isEmptyOrNullRecursive((String) e);
+            if (e instanceof String[]) return isEmptyOrNullRecursive((String[]) e);
+            if (e instanceof Collection) return isEmptyOrNullRecursive((Collection) e);
+            if (e instanceof Collection[]) return isEmptyOrNullRecursive((Collection[]) e);
+            if (e instanceof Map) return isEmptyOrNullRecursive((Map) e);
+            if (e instanceof Map[]) return isEmptyOrNullRecursive((Map[]) e);
+            if (e instanceof Number) return isEmptyOrNullRecursive((Number) e);
+            if (e instanceof Number[]) return isEmptyOrNullRecursive((Number[]) e);
+        }
         return false;
     }
 
     public static boolean isEmptyOrNullRecursive(String s) {
-        return isEmptyOrNull(s);
+        return isBlank(s);
     }
 
     public static boolean isEmptyOrNullRecursive(String... s) {
@@ -66,13 +106,27 @@ public class RequestValidatorUtil {
     }
 
     public static boolean isEmptyOrNullRecursive(Collection c) {
-        if (isNull(c)) return true;
+        if (isEmptyOrNull(c)) return true;
         for (Object e : c) if (isEmptyOrNullRecursive(e)) return true;
+        return false;
+    }
+
+    public static boolean isEmptyOrNullRecursive(Collection... c) {
+        if (isNull(c)) return true;
+        for (Collection e : c) if (isEmptyOrNullRecursive(e)) return true;
         return false;
     }
 
     public static boolean isEmptyOrNullRecursive(Map m) {
         return isNull(m) || isEmptyMapRecursive(m);
+    }
+
+    public static boolean isEmptyMapRecursive(Map m) {
+        if (m.isEmpty()) return true;
+        for (Entry entry : (Set<Entry>) m.entrySet()) {
+            if (isEmptyOrNullRecursive(entry.getValue())) return true;
+        }
+        return false;
     }
 
     public static boolean isEmptyOrNullRecursive(Map... m) {
@@ -81,11 +135,14 @@ public class RequestValidatorUtil {
         return false;
     }
 
-    public static boolean isEmptyMapRecursive(Map m) {
-        if (m.isEmpty()) return true;
-        for (Entry entry : (Set<Entry>) m.entrySet()) {
-            if (isEmptyOrNullRecursive(entry.getValue())) return true;
-        }
+    public static boolean isEmptyOrNullRecursive(Number n) {
+        if (isNull(n)) return true;
+        return false;
+    }
+
+    public static boolean isEmptyOrNullRecursive(Number... n) {
+        if (isNull(n)) return true;
+        for (Number e : n) if (isEmptyOrNull(e)) return true;
         return false;
     }
 
@@ -234,7 +291,7 @@ public class RequestValidatorUtil {
 
     public static String getEmptyErrorMessageFor(List<String> emptyRequestKeys) {
         return CollectionUtils.isEmpty(emptyRequestKeys) ?
-                "" : emptyRequestKeys +  "  request key(s) are not present or having invalid value.";
+                "" : emptyRequestKeys +  " request key(s) are not present or having invalid value.";
     }
 
     public static List<String> getEmptyErrorMessagesFor(Map<String, Object> requestMap, String prefix) {
