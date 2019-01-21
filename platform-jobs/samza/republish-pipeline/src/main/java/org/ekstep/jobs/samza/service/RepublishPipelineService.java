@@ -32,8 +32,8 @@ import org.ekstep.jobs.samza.util.RepublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.learning.util.cloud.CloudStore;
 
 import java.io.File;
 import java.util.*;
