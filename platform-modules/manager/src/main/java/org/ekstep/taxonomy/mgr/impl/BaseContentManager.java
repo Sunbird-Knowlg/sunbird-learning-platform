@@ -7,6 +7,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -737,26 +739,35 @@ public abstract class BaseContentManager extends BaseManager {
 		return (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
 	}
 
-    public boolean validateOrThrowExceptionForEmptyKeys(Map<String, Object> requestMap, String prefix) {
-        String errMsg = getEmptyErrorMessageFor(requestMap, prefix);
-        if (isBlank(errMsg)) return true;
-        throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), errMsg);
-    }
-
     public boolean validateOrThrowExceptionForEmptyKeys(Map<String, Object> requestMap,
                                                         String prefix,
                                                         List<String> keys) {
-        String errMsg = getEmptyErrorMessageFor(requestMap, prefix, keys);
-        if (isBlank(errMsg)) return true;
-        throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), errMsg);
-    }
-
-    public boolean validateOrThrowExceptionForEmptyKeys(Map<String, Object> requestMap,
-                                                        String prefix,
-                                                        String... keys) {
-        String errMsg = getEmptyErrorMessageFor(requestMap, prefix, keys);
-        if (isBlank(errMsg)) return true;
-        throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), errMsg);
+        String errMsg = "Please provide valid value for ";
+        boolean flag = false;
+        List<String> notFoundKeys = null;
+        for (String key : keys) {
+            if (null == requestMap.get(key)) {
+                flag = true;
+            } else if (requestMap.get(key) instanceof Map) {
+                flag = MapUtils.isEmpty((Map) requestMap.get(key));
+            } else if (requestMap.get(key) instanceof List) {
+                flag = CollectionUtils.isEmpty((List) requestMap.get(key));
+            } else {
+                flag = isBlank((String) requestMap.get(key));
+            }
+            if (flag) {
+            		if(null==notFoundKeys)
+            			notFoundKeys = new ArrayList<>();
+            		notFoundKeys.add(key);
+            }
+        }
+        if (CollectionUtils.isEmpty(notFoundKeys)) 
+        		return true;
+        else {
+        		errMsg = errMsg + String.join(", ", notFoundKeys) + ".";
+        }
+        throw new ClientException("ERR_INVALID_REQUEST", errMsg.trim().substring(0, errMsg
+                .length()-1));
     }
 
 }
