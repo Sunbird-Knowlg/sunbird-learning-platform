@@ -11,13 +11,11 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@Component
 public class AcceptFlagOperation extends BaseContentManager {
 
     @SuppressWarnings("unchecked")

@@ -1,17 +1,14 @@
 package org.ekstep.taxonomy.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Response;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.cloud.CloudStore;
-import org.ekstep.taxonomy.mgr.impl.OldContentManagerImpl;
+import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.After;
 import org.junit.Assert;
@@ -32,8 +29,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -123,7 +122,7 @@ public class ContentV3PublishLocalTest extends CommonTestSetup{
 	
 	public static String createECMLContent() throws Exception {
 			String ecmlContentId = "";
-			OldContentManagerImpl contentManager = new OldContentManagerImpl();
+			ContentManagerImpl contentManager = new ContentManagerImpl();
 			String createECMLContent = "{ \"identifier\":\"do_13034\",\"description\":\"Test Content\", \"name\":\"Test Content\", \"contentType\":\"Story\", \"code\":\"test content\", \"mimeType\":\"application/vnd.ekstep.ecml-archive\" } ";
 			Map<String, Object> documentContentMap = mapper.readValue(createECMLContent,
 					new TypeReference<Map<String, Object>>() {

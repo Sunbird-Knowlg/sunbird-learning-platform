@@ -11,9 +11,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ReviewOperation extends BaseContentManager {
 
     public Response review(String contentId, Request request) throws Exception {

@@ -1,4 +1,4 @@
-package org.ekstep.content.mgr.impl;
+package org.ekstep.content.mgr.impl.operation.plugin;
 
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
@@ -6,11 +6,9 @@ import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.cloud.CloudStore;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
-import org.springframework.stereotype.Component;
 import scala.Option;
 
-@Component
-public class PreSignedUrlManager extends BaseContentManager {
+public class PreSignedUrlOperation extends BaseContentManager {
 
     public Response preSignedUrl(String contentId, String fileName, String type) {
         Response contentResp = getDataNode(TAXONOMY_ID, contentId);
