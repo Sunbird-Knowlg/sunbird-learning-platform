@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,8 +51,11 @@ public class CopyOperation extends BaseContentManager {
        if (null == requestMap)
             throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
 
-        validateOrThrowExceptionForEmptyKeys(requestMap, "Content", Arrays.asList("createdBy", "createdFor",
-                "organization", "framework"));
+        validateOrThrowExceptionForEmptyKeys(requestMap, "content", new LinkedHashMap() {{
+                                                                                        put("createdBy", String.class);
+                                                                                        put("createdFor", List.class);
+                                                                                        put("organization", List.class);
+                                                                                        put("framework", String.class); }});
 
         Node node = getContentNode(TAXONOMY_ID, contentId, mode);
         List<String> notCoppiedContent = null;

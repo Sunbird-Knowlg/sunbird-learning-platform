@@ -14,6 +14,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
 import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
@@ -29,6 +30,10 @@ import akka.dispatch.Futures;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.ekstep.common.util.RequestValidatorUtil.getEmptyErrorMessageFor;
+import static org.ekstep.common.util.RequestValidatorUtil.getEmptyErrorMessageRecursiveFor;
 
 public abstract class BaseManager {
 
@@ -311,6 +316,54 @@ public abstract class BaseManager {
 
 	protected boolean isEmptyOrNull(Object... o) {
 		return RequestValidatorUtil.isEmptyOrNull(o);
+	}
+
+	public boolean validateOrThrowExceptionForEmptyKeys(Map<String, Object> requestMap,
+														String prefix,
+														String... keys) {
+		String errMsg = getEmptyErrorMessageFor(requestMap, prefix, keys);
+		if (isBlank(errMsg)) return true;
+		throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_REQUEST.name(), errMsg);
+	}
+
+	public boolean validateOrThrowExceptionForEmptyKeysRecursive(Map<String, Object> requestMap,
+																 String prefix,
+																 String... keys) {
+		String errMsg = getEmptyErrorMessageRecursiveFor(requestMap, prefix, keys);
+		if (isBlank(errMsg)) return true;
+		throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_REQUEST.name(), errMsg);
+	}
+
+	public boolean validateOrThrowExceptionForEmptyKeys(Map<String, Object> requestMap,
+														String prefix,
+														List<String> keys) {
+		String errMsg = getEmptyErrorMessageFor(requestMap, prefix, keys);
+		if (isBlank(errMsg)) return true;
+		throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_REQUEST.name(), errMsg);
+	}
+
+	public boolean validateOrThrowExceptionForEmptyKeysRecursive(Map<String, Object> requestMap,
+																 String prefix,
+																 List<String> keys) {
+		String errMsg = getEmptyErrorMessageRecursiveFor(requestMap, prefix, keys);
+		if (isBlank(errMsg)) return true;
+		throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_REQUEST.name(), errMsg);
+	}
+
+	public boolean validateOrThrowExceptionForEmptyKeys(Map<String, Object> requestMap,
+														String prefix,
+														Map<String, Class> keys) {
+		String errMsg = getEmptyErrorMessageFor(requestMap, prefix, keys);
+		if (isBlank(errMsg)) return true;
+		throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_REQUEST.name(), errMsg);
+	}
+
+	public boolean validateOrThrowExceptionForEmptyKeysRecursive(Map<String, Object> requestMap,
+																 String prefix,
+																 Map<String, Class> keys) {
+		String errMsg = getEmptyErrorMessageRecursiveFor(requestMap, prefix, keys);
+		if (isBlank(errMsg)) return true;
+		throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_REQUEST.name(), errMsg);
 	}
 	
 }

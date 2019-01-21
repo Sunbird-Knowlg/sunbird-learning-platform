@@ -200,7 +200,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 		System.out.println("Response::" + actions.andReturn().getResponse().getContentAsString());
 		Response resp = getResponse(actions);
 		String errorCode = resp.getParams().getErr();
-		Assert.assertEquals("ERR_CONTENT_BLANK_OBJECT", errorCode);
+		Assert.assertEquals("ERR_INVALID_REQUEST", errorCode);
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -217,7 +217,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		Response resp = getResponse(actions);
 		String errorCode = resp.getParams().getErr();
-		Assert.assertEquals("ERR_CONTENT_BLANK_OBJECT", errorCode);
+		Assert.assertEquals("ERR_INVALID_REQUEST", errorCode);
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 

@@ -1,75 +1,90 @@
 package org.ekstep.common.util;
 
+import org.springframework.util.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.text.WordUtils.capitalize;
 
 public class RequestValidatorUtil {
 
-    private static Function<String, String> prefixValidator = e -> null ==  e ?  "REQUEST" : e;
+    private static final String defaultRequestPrefix = "request";
+    private static Function<String, String> prefixValidator = e -> null ==  e ?  defaultRequestPrefix : e;
+
+    public static boolean isEmptyOrNull(Object o) { return isNull(o); }
 
     public static boolean isEmptyOrNull(Object... o) {
-        if (Objects.isNull(o)) {
-            return true;
-        }
-        for (Object e : o) {
-            if (Objects.isNull(e)) {
-                return true;
-            }
-            if (e instanceof String) {
-                return isBlank((String) e);
-            }
-            if (e instanceof String[]) {
-                return 0 == ((String[])e).length;
-            }
-            if (e instanceof Collection) {
-                Collection c = (Collection) e;
-                if (c.isEmpty()) {
-                    return true;
-                }
-            }
-            if (e instanceof Map) {
-                Map m = (Map) e;
-                if (m.isEmpty()) {
-                    return true;
-                }
-            }
-        }
+        if (isNull(o)) return true;
+        for (Object e : o) if (isEmptyOrNull(e)) return true;
         return false;
     }
 
-    public static boolean isEmptyOrNullMapRecursive(Map m) {
-        if (m.isEmpty()) { return true; }
+    public static boolean isEmptyOrNull(String s) {
+        return isBlank(s);
+    }
+
+    public static boolean isEmptyOrNull(Collection c) {
+        return isNull(c) || c.isEmpty();
+    }
+
+    public static boolean isEmptyOrNull(Map m) {
+        return isNull(m) || m.isEmpty();
+    }
+
+    public static boolean isEmptyOrNullRecursive(Object o) {
+        if (isNull(o)) return true;
+        return false;
+    }
+
+    public static boolean isEmptyOrNullRecursive(Object... o) {
+        if (isNull(o)) return true;
+        for (Object e : o) if (isEmptyOrNullRecursive(e)) return true;
+        return false;
+    }
+
+    public static boolean isEmptyOrNullRecursive(String s) {
+        return isEmptyOrNull(s);
+    }
+
+    public static boolean isEmptyOrNullRecursive(String... s) {
+        return isEmptyOrNull(s);
+    }
+
+    public static boolean isEmptyOrNullRecursive(Collection c) {
+        if (isNull(c)) return true;
+        for (Object e : c) if (isEmptyOrNullRecursive(e)) return true;
+        return false;
+    }
+
+    public static boolean isEmptyOrNullRecursive(Map m) {
+        return isNull(m) || isEmptyMapRecursive(m);
+    }
+
+    public static boolean isEmptyOrNullRecursive(Map... m) {
+        if (isNull(m)) return true;
+        for (Map e : m) if (isEmptyOrNullRecursive(e)) return true;
+        return false;
+    }
+
+    public static boolean isEmptyMapRecursive(Map m) {
+        if (m.isEmpty()) return true;
         for (Entry entry : (Set<Entry>) m.entrySet()) {
-            if (isEmptyOrNull(entry.getValue())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isEmptyOrNullObjectForMapRecursive(Object... o) {
-        if (Objects.isNull(o)) {
-            return true;
-        }
-        for (Object e : o) {
-            if (e instanceof Map) {
-                return isEmptyOrNullMapRecursive((Map) e);
-            }
-            return isEmptyOrNull(e);
+            if (isEmptyOrNullRecursive(entry.getValue())) return true;
         }
         return false;
     }
@@ -77,7 +92,7 @@ public class RequestValidatorUtil {
     public static List getEmptyOrNullKeysFromMap(Map<String, Object> map) {
         List<String> keys = new ArrayList<>();
         if (isEmptyOrNull(map)) {
-            keys.add("REQUEST");
+            keys.add(defaultRequestPrefix);
             return keys;
         }
         for (Entry<String, Object> entry : map.entrySet()) {
@@ -90,8 +105,8 @@ public class RequestValidatorUtil {
 
     public static List<String> getEmptyOrNullKeysFromMapRecursive(Map<String, Object> requestMap, String prefix) {
         List<String> keys = new ArrayList<>();
-        if (Objects.isNull(requestMap) || requestMap.isEmpty()) {
-            keys.add("requestMap");
+        if (isNull(requestMap) || requestMap.isEmpty()) {
+            keys.add(defaultRequestPrefix);
             return keys;
         }
         for (Entry<String, Object> entry : requestMap.entrySet()) {
@@ -110,34 +125,116 @@ public class RequestValidatorUtil {
     }
 
     public static List<String> getEmptyOrNullKeysFromMapRecursive(Map<String, Object> map,
-                                                                  String prefix,
                                                                   String prefixKey,
                                                                   Set<String> keys) {
         List<String> emptyKeys = new ArrayList<>();
         if (isEmptyOrNull(map)) {
-            emptyKeys.add(prefix);
+            emptyKeys.add(prefixKey);
             return emptyKeys;
         }
         for (Entry<String, Object> entry : map.entrySet()) {
-            String updatedPrefix = prefix + "." + splitCamelCase(capitalize(entry.getKey()));
             String updatedPrefixKey = prefixKey + "." + entry.getKey();
             if (entry.getValue() instanceof Map && keys.contains(updatedPrefixKey)) {
+                keys.remove(updatedPrefixKey);
                 emptyKeys.addAll(
                         getEmptyOrNullKeysFromMapRecursive(
                                 (Map) entry.getValue(),
-                                updatedPrefix,
                                 updatedPrefixKey,
                                 keys));
             }
-            if (isEmptyOrNull(entry.getValue()) && keys.contains(updatedPrefixKey)) {
-                emptyKeys.add(updatedPrefix);
+            if (keys.contains(updatedPrefixKey)) {
+                keys.remove(updatedPrefixKey);
+                if (isEmptyOrNull(entry.getValue())) emptyKeys.add(updatedPrefixKey);
+            }
+        }
+        return emptyKeys;
+    }
+
+    public static List<String> getEmptyOrNullKeysFromMapRecursiveAnValidateInternally(Map<String, Object> map,
+                                                                                     String prefixKey,
+                                                                                     Set<String> keys) {
+        List<String> emptyKeys = new ArrayList<>();
+        if (isEmptyOrNull(map)) {
+            emptyKeys.add(prefixKey);
+            return emptyKeys;
+        }
+        for (Entry<String, Object> entry : map.entrySet()) {
+            String updatedPrefixKey = prefixKey + "." + entry.getKey();
+            if (entry.getValue() instanceof Map && keys.contains(updatedPrefixKey)) {
+                keys.remove(updatedPrefixKey);
+                emptyKeys.addAll(
+                        getEmptyOrNullKeysFromMapRecursiveAnValidateInternally(
+                                (Map) entry.getValue(),
+                                updatedPrefixKey,
+                                keys));
+            }
+            if (keys.contains(updatedPrefixKey)) {
+                keys.remove(updatedPrefixKey);
+                if (isEmptyOrNullRecursive(entry.getValue())) emptyKeys.add(updatedPrefixKey);
+            }
+        }
+        return emptyKeys;
+    }
+
+    public static List<String> getEmptyOrNullKeysFromMapRecursive(Map<String, Object> map,
+                                                                  String prefixKey,
+                                                                  Map<String, Class> keys) {
+        List<String> emptyKeys = new ArrayList<>();
+        if (isEmptyOrNull(map)) {
+            emptyKeys.add(prefixKey);
+            return emptyKeys;
+        }
+        for (Entry<String, Object> entry : map.entrySet()) {
+            String updatedPrefixKey = prefixKey + "." + entry.getKey();
+            if (keys.containsKey(updatedPrefixKey) &&
+                    keys.get(updatedPrefixKey).isAssignableFrom(entry.getValue().getClass())) {
+                keys.remove(updatedPrefixKey);
+                if (entry.getValue() instanceof Map) {
+                    emptyKeys.addAll(
+                            getEmptyOrNullKeysFromMapRecursive(
+                                    (Map) entry.getValue(),
+                                    updatedPrefixKey,
+                                    keys));
+                }
+                if (isEmptyOrNull(entry.getValue())) emptyKeys.add(updatedPrefixKey);
+            }
+        }
+        return emptyKeys;
+    }
+
+    public static List<String> getEmptyOrNullKeysFromMapRecursiveAnValidateInternally(Map<String, Object> map,
+                                                                                      String prefixKey,
+                                                                                      Map<String, Class> keys) {
+        List<String> emptyKeys = new ArrayList<>();
+        if (isEmptyOrNull(map)) {
+            emptyKeys.add(prefixKey);
+            return emptyKeys;
+        }
+        for (Entry<String, Object> entry : map.entrySet()) {
+            String updatedPrefixKey = prefixKey + "." + entry.getKey();
+            if (keys.containsKey(updatedPrefixKey) &&
+                    keys.get(updatedPrefixKey).isAssignableFrom(entry.getValue().getClass())) {
+                keys.remove(updatedPrefixKey);
+                if (entry.getValue() instanceof Map) {
+                    emptyKeys.addAll(
+                            getEmptyOrNullKeysFromMapRecursiveAnValidateInternally(
+                                    (Map) entry.getValue(),
+                                    updatedPrefixKey,
+                                    keys));
+                }
+                if (isEmptyOrNullRecursive(entry.getValue())) emptyKeys.add(updatedPrefixKey);
             }
         }
         return emptyKeys;
     }
 
     public static Stream<String> getEmptyErrorMessagesFor(List<String> emptyRequestKeys) {
-        return emptyRequestKeys.stream().map(e -> e + "  cannot be Blank or Null");
+        return emptyRequestKeys.stream().map(e -> e + " request key is not present or having invalid value.");
+    }
+
+    public static String getEmptyErrorMessageFor(List<String> emptyRequestKeys) {
+        return CollectionUtils.isEmpty(emptyRequestKeys) ?
+                "" : emptyRequestKeys +  "  request key(s) are not present or having invalid value.";
     }
 
     public static List<String> getEmptyErrorMessagesFor(Map<String, Object> requestMap, String prefix) {
@@ -145,35 +242,111 @@ public class RequestValidatorUtil {
                 collect(toList());
     }
 
-    public static String getEmptyErrorMessageFor(Map<String, Object> requestMap, String prefix) {
+    public static String getEmptyErrorMessageFor(Map<String, Object> requestMap,
+                                                 String prefix) {
         return getEmptyErrorMessagesFor(getEmptyOrNullKeysFromMapRecursive(requestMap, prefixValidator.apply(prefix))).
                 collect(joining(",\n"));
     }
 
-    public static String getEmptyErrorMessageFor(Map<String, Object> requestMap, String prefix, String[] keys) {
+    public static String getEmptyErrorMessageFor(Map<String, Object> requestMap,
+                                                 String prefix,
+                                                 String[] keys) {
         String validatedPrefix = prefixValidator.apply(prefix);
         Set<String> keySet = getKeySet(validatedPrefix, keys);
-        return getEmptyErrorMessagesFor(getEmptyOrNullKeysFromMapRecursive(requestMap,
-                                                                            validatedPrefix,
-                                                                            validatedPrefix,
-                                                                            keySet)).
-                collect(joining(",\n"));
+        return getEmptyErrorMessageFor(requestMap, validatedPrefix, keySet);
     }
 
-    public static String getEmptyErrorMessageFor(Map<String, Object> requestMap, String prefix, List<String> keys) {
+    public static String getEmptyErrorMessageFor(Map<String, Object> requestMap,
+                                                 String prefix,
+                                                 List<String> keys) {
         String validatedPrefix = prefixValidator.apply(prefix);
         Set<String> keySet = getKeySet(validatedPrefix, keys);
-        return getEmptyErrorMessagesFor(getEmptyOrNullKeysFromMapRecursive(requestMap,
+        return getEmptyErrorMessageFor(requestMap, validatedPrefix, keySet);
+    }
+
+
+    public static String getEmptyErrorMessageRecursiveFor(Map<String, Object> requestMap,
+                                                          String prefix,
+                                                          String[] keys) {
+        String validatedPrefix = prefixValidator.apply(prefix);
+        Set<String> keySet = getKeySet(validatedPrefix, keys);
+        return getEmptyErrorMessageRecursiveFor(requestMap, validatedPrefix, keySet);
+    }
+    public static String getEmptyErrorMessageFor(Map<String, Object> requestMap,
+                                                 String prefix,
+                                                 Map<String, Class> keys) {
+        String validatedPrefix = prefixValidator.apply(prefix);
+        Map<String, Class> validatorKeyMap = getKeyMap(validatedPrefix, keys);
+        return getEmptyErrorMessageFor(
+                appendNotValidatedKeysToEmptyKeys(
+                        validatorKeyMap, getEmptyOrNullKeysFromMapRecursive(requestMap,
+                                validatedPrefix,
+                                validatorKeyMap)));
+    }
+
+    public static String getEmptyErrorMessageRecursiveFor(Map<String, Object> requestMap,
+                                                          String prefix,
+                                                          Map<String, Class> keys) {
+        String validatedPrefix = prefixValidator.apply(prefix);
+        Map<String, Class> validatorKeyMap = getKeyMap(validatedPrefix, keys);
+        return getEmptyErrorMessageFor(
+                appendNotValidatedKeysToEmptyKeys(
+                        validatorKeyMap, getEmptyOrNullKeysFromMapRecursiveAnValidateInternally(
+                                requestMap,
+                                validatedPrefix,
+                                validatorKeyMap)));
+    }
+
+    public static String getEmptyErrorMessageRecursiveFor(Map<String, Object> requestMap,
+                                                 String prefix,
+                                                 List<String> keys) {
+        String validatedPrefix = prefixValidator.apply(prefix);
+        Set<String> keySet = getKeySet(validatedPrefix, keys);
+        return getEmptyErrorMessageRecursiveFor(requestMap, validatedPrefix, keySet);
+    }
+
+    private static String getEmptyErrorMessageFor(Map<String, Object> requestMap,
+                                                  String validatedPrefix,
+                                                  Set<String> validatorKeySet) {
+        return getEmptyErrorMessageFor(
+                appendNotValidatedKeysToEmptyKeys(
+                        validatorKeySet, getEmptyOrNullKeysFromMapRecursive(requestMap,
                                                                             validatedPrefix,
-                                                                            validatedPrefix,
-                                                                            keySet)).
-                collect(joining(",\n"));
+                                                                            validatorKeySet)));
+    }
+
+    private static String getEmptyErrorMessageRecursiveFor(Map<String, Object> requestMap,
+                                                           String validatedPrefix,
+                                                           Set<String> validatorKeySet) {
+        return getEmptyErrorMessageFor(
+                appendNotValidatedKeysToEmptyKeys(
+                        validatorKeySet, getEmptyOrNullKeysFromMapRecursiveAnValidateInternally(requestMap,
+                                                                                                validatedPrefix,
+                                                                                                validatorKeySet)));
+    }
+
+    private static List<String> appendNotValidatedKeysToEmptyKeys(Object keys, List<String> emptyKeys) {
+        if (keys instanceof Set || keys instanceof List) {
+            emptyKeys.addAll((Collection) keys);
+        }
+        if (keys instanceof Map) {
+            emptyKeys.addAll(((Map)keys).keySet());
+        }
+        return emptyKeys;
     }
 
     private static Set<String> getKeySet(String prefix, Object keys) {
         return getStream(keys).
                 map(e -> prefix + "." + e).
                 collect(toSet());
+    }
+
+    private static Map<String, Class> getKeyMap(String prefix, Map<String, Class> keys) {
+        return keys.entrySet().stream().
+                collect(toMap(e -> prefix + "." + e.getKey(),
+                              e -> e.getValue(),
+                              (u,v) -> u,
+                              LinkedHashMap::new));
     }
 
     private static Stream<String> getStream(Object o) {
