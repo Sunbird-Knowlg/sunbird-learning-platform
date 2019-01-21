@@ -1,13 +1,5 @@
 package org.ekstep.learning.util.cloud;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -18,8 +10,9 @@ import org.sunbird.cloud.storage.BaseStorageService;
 import org.sunbird.cloud.storage.Model.Blob;
 import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
-
 import scala.Option;
+
+import java.io.File;
 
 public class CloudStore {
 
