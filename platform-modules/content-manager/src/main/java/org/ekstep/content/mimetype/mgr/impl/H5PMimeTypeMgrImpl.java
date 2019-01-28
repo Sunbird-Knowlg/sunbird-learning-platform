@@ -59,7 +59,8 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 				node.getMetadata().put("s3Key", urlArray[IDX_S3_KEY]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
 				ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-				contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, extractionBasePath, ExtractionType.snapshot, false);
+				contentPackageExtractionUtil.uploadH5pExtractedPackage(contentId, node, extractionBasePath,
+						ExtractionType.snapshot, false);
 				response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 			}catch (IOException e) {
 				TelemetryManager.error("Error! While unzipping the content package file.", e);

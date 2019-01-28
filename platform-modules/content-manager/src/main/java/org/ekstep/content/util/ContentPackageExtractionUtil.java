@@ -268,7 +268,7 @@ public class ContentPackageExtractionUtil {
 			//Get Cloud folder
 			cloudExtractionPath = getExtractionPath(contentId, node, extractionType);
 			// Upload Directory to Cloud
-			directoryUpload(extractedDir, cloudExtractionPath, slugFile);
+			directoryH5pUpload(extractedDir, cloudExtractionPath, slugFile);
 		}  catch (Exception e) {
 			cleanUpCloudFolder(cloudExtractionPath);
 			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
@@ -419,5 +419,23 @@ public class ContentPackageExtractionUtil {
 		if (extractableMimeTypes.containsKey(mimeType))
 			isDirectory = true;
 		return CloudStore.getURI(path, Option.apply(isDirectory));
+	}
+
+
+	private void directoryH5pUpload(File directory, String cloudFolderPath, boolean slugFile) {
+		// Validating directory to be uploaded
+		if (!directory.exists())
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Extraction File cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
+		if (directory.isFile())
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Not a Directory");
+		if (directory.listFiles().length < 1)
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Atleast One file is needed for Content Package Extraction.");
+
+		TelemetryManager.log("Uploading Extracted Directory to Cloud");
+		TelemetryManager.log("Folder Name For Storage Space Extraction: " + cloudFolderPath);
+		CloudStore.uploadH5pDirectory(cloudFolderPath, directory, slugFile);
 	}
 }

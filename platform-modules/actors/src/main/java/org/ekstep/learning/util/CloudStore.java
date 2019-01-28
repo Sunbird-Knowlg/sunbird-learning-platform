@@ -14,6 +14,8 @@ import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
 
 import scala.Option;
+import scala.collection.immutable.List;
+import scala.concurrent.Future;
 
 public class CloudStore {
 
@@ -54,7 +56,8 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 			file = Slug.createSlugFile(file);
 		String objectKey = folderName + "/" + file.getName();
 		String container = getContainerName();
-		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.empty());
+		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option
+				.apply(false), Option.empty(), Option.empty(), 3);
 		return new String[] { objectKey, url};
 	}
 
@@ -64,8 +67,19 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 			file = Slug.createSlugFile(file);
 		String container = getContainerName();
 		String objectKey = folderName + File.separator;
-		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(true), Option.empty(), Option.empty());
+		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option
+				.apply(true), Option.empty(), Option.empty(), 3);
 		return new String[] { objectKey, url };
+	}
+
+
+	public static void uploadH5pDirectory(String folderName, File directory, boolean slugFile) {
+		File file = directory;
+		if (BooleanUtils.isTrue(slugFile))
+			file = Slug.createSlugFile(file);
+		String container = getContainerName();
+		String objectKey = folderName + File.separator;
+		storageService.uploadFolder(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.empty(), Option.empty(), 3);
 	}
 	
 	public static double getObjectSize(String key) throws Exception {
