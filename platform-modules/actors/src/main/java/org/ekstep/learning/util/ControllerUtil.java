@@ -14,7 +14,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
-import org.ekstep.graph.model.cache.DefinitionCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
@@ -232,7 +231,7 @@ public class ControllerUtil extends BaseLearningManager {
 	 *
 	 * @param taxonomyId
 	 *            the taxonomy id
-	 * @param node
+	 * @param nodes
 	 *            the list of nodes
 	 * 
 	 * @return the response

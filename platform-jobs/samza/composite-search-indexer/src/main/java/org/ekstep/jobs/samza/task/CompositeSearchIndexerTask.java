@@ -26,16 +26,14 @@ import org.ekstep.learning.util.ControllerUtil;
 public class CompositeSearchIndexerTask implements StreamTask, InitableTask, WindowableTask {
 	
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerTask.class);
-	
+	private ControllerUtil controllerUtil = new ControllerUtil();
+
+	private ISamzaService service;
 	private JobMetrics metrics;
 
 	public ISamzaService getService() {
 		return service;
 	}
-
-	private ISamzaService service;
-
-	private ControllerUtil controllerUtil = new ControllerUtil();
 
 	public CompositeSearchIndexerTask(Config config, TaskContext context, ISamzaService service) throws Exception {
 		init(config, context, service);

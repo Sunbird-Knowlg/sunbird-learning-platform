@@ -28,7 +28,7 @@ public class AuditEventGeneratorTask implements StreamTask, InitableTask, Window
 
 	private JobMetrics metrics;
 	ISamzaService auditEventGenerator = new AuditEventGenerator();
-	ControllerUtil controllerUtil = new ControllerUtil();
+	private ControllerUtil controllerUtil = new ControllerUtil();
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {

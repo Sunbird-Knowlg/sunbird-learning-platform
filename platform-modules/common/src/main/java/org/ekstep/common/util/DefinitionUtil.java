@@ -3,7 +3,6 @@ package org.ekstep.common.util;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.graph.model.cache.DefinitionCache;
 import org.ekstep.kafka.KafkaClient;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
