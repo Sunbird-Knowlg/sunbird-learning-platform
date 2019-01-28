@@ -1,5 +1,9 @@
 package org.ekstep.content.util;
 
+import akka.dispatch.Dispatcher;
+import akka.dispatch.ExecutionContexts;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -19,6 +23,10 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import scala.Option;
+import scala.collection.immutable.List;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.impl.ExecutionContextImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * The Class ContentPackageExtractionUtil.
@@ -252,8 +261,8 @@ public class ContentPackageExtractionUtil {
 
 
 
-	public void uploadH5pExtractedPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
-									   boolean slugFile) {
+	public Future<List<String>> uploadH5pExtractedPackage(String contentId, Node node, String basePath, ExtractionType
+	extractionType, boolean slugFile, ExecutionContext context) {
 
 		if (StringUtils.isBlank(basePath))
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
@@ -268,7 +277,7 @@ public class ContentPackageExtractionUtil {
 			//Get Cloud folder
 			cloudExtractionPath = getExtractionPath(contentId, node, extractionType);
 			// Upload Directory to Cloud
-			directoryH5pUpload(extractedDir, cloudExtractionPath, slugFile);
+			return directoryH5pUpload(extractedDir, cloudExtractionPath, slugFile, context);
 		}  catch (Exception e) {
 			cleanUpCloudFolder(cloudExtractionPath);
 			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
@@ -422,7 +431,7 @@ public class ContentPackageExtractionUtil {
 	}
 
 
-	private void directoryH5pUpload(File directory, String cloudFolderPath, boolean slugFile) {
+	private Future<List<String>> directoryH5pUpload(File directory, String cloudFolderPath, boolean slugFile, ExecutionContext context) {
 		// Validating directory to be uploaded
 		if (!directory.exists())
 			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
@@ -436,6 +445,10 @@ public class ContentPackageExtractionUtil {
 
 		TelemetryManager.log("Uploading Extracted Directory to Cloud");
 		TelemetryManager.log("Folder Name For Storage Space Extraction: " + cloudFolderPath);
-		CloudStore.uploadH5pDirectory(cloudFolderPath, directory, slugFile);
+		long startTime = System.currentTimeMillis();
+		Future<List<String>> response = CloudStore.uploadH5pDirectory(cloudFolderPath, directory, slugFile, context);
+		return response;
+
+
 	}
 }
