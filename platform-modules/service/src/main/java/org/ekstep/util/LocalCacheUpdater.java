@@ -85,8 +85,6 @@ public class LocalCacheUpdater extends Thread {
             String graphId = edata.get("graphId");
             String objectType = edata.get("objectType");
             if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(objectType)) {
-                //TODO: Remove commented code, if actor call works
-                //DefinitionCache.updateDefinitionCache(graphId, objectType);
                 controllerUtil.updateDefinitionCache(graphId, objectType);
             } else {
                 TelemetryManager.log("Skipping Definition Update in Local Cache as graphId or objectType is Blank. Event Data :" + event);

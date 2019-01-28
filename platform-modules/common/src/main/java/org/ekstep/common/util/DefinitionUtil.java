@@ -65,11 +65,6 @@ public class DefinitionUtil {
         edata.put("objectType", objectType);
     }
 
-    //TODO : Remove updateDefinitionCache()
-    public static void updateDefinitionCache(String graphId, String objectType){
-            DefinitionCache.updateDefinitionCache(graphId,objectType);
-    }
-
     private static String getDefinitionId(String objectType) {
         return "DEFINITION_NODE_" + objectType;
     }
