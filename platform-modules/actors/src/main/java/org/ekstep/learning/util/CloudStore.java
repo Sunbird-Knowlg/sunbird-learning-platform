@@ -57,7 +57,7 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		String objectKey = folderName + "/" + file.getName();
 		String container = getContainerName();
 		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option
-				.apply(false), Option.empty(), Option.empty(), 3);
+				.apply(false), Option.empty(), Option.empty(), 1);
 		return new String[] { objectKey, url};
 	}
 
@@ -68,7 +68,7 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		String container = getContainerName();
 		String objectKey = folderName + File.separator;
 		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option
-				.apply(true), Option.empty(), Option.empty(), 3);
+				.apply(true), Option.empty(), Option.empty(), 1);
 		return new String[] { objectKey, url };
 	}
 
@@ -79,7 +79,8 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 			file = Slug.createSlugFile(file);
 		String container = getContainerName();
 		String objectKey = folderName + File.separator;
-		storageService.uploadFolder(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.empty(), Option.empty(), 3);
+		storageService.uploadFolder(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.empty()
+				, Option.empty(), 1);
 	}
 	
 	public static double getObjectSize(String key) throws Exception {

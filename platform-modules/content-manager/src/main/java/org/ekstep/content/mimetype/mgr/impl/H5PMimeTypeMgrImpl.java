@@ -201,8 +201,8 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 		} finally {
 			// Cleanup
 			try {
-				FileUtils.deleteDirectory(new File(extractionBasePath));
-				h5pLibraryPackageFile.delete();
+				//FileUtils.deleteDirectory(new File(extractionBasePath));
+				//h5pLibraryPackageFile.delete();
 			} catch (Exception e) {
 				TelemetryManager.error("Unable to delete H5P library directory.", e);
 			}

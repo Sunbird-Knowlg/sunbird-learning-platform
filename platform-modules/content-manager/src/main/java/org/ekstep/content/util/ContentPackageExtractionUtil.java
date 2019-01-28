@@ -276,9 +276,9 @@ public class ContentPackageExtractionUtil {
 		} finally {
 			try {
 				TelemetryManager.log("Deleting Locally Extracted File.");
-				File dir = new File(basePath);
+				/*File dir = new File(basePath);
 				if (dir.exists())
-					dir.delete();
+					dir.delete();*/
 			} catch (SecurityException e) {
 				TelemetryManager.error("Error! While deleting the local extraction directory: " + basePath, e);
 			} catch (Exception e) {
