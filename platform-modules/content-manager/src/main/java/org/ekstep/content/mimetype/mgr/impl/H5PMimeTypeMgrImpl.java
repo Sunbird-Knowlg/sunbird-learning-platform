@@ -184,7 +184,8 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 				zipFile.delete();
 			// upload Extract Content Package
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, extractionBasePath, ExtractionType.snapshot,
+			contentPackageExtractionUtil.uploadH5pExtractedPackage(contentId, node, extractionBasePath, ExtractionType
+							.snapshot,
 					false);
 			response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 		} catch (IOException e) {
