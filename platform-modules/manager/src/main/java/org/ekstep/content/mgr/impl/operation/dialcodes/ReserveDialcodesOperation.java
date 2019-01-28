@@ -1,5 +1,6 @@
 package org.ekstep.content.mgr.impl.operation.dialcodes;
 
+import org.apache.commons.collections.MapUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -12,14 +13,13 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Collections;
 
-@Component
 public class ReserveDialcodesOperation extends BaseContentManager {
 
     public Response reserveDialCode(String contentId, String channelId, Map<String, Object> request) throws Exception {
@@ -41,31 +41,37 @@ public class ReserveDialcodesOperation extends BaseContentManager {
         validateCountForReservingDialCode(request);
 
         boolean updateContent = false;
-        List<String> dialCodes = getReservedDialCodes(node).orElseGet(ArrayList::new);
-
+        Map<String,Integer> dialCodeMap = getReservedDialCodes(node);
+        if(MapUtils.isEmpty(dialCodeMap))
+        		dialCodeMap = new HashMap<>();
+        Integer maxIndex = (MapUtils.isNotEmpty(dialCodeMap))?Collections.max(dialCodeMap.values()):-1;
+        Set<String> dialCodes = dialCodeMap.keySet();
         int reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name());
-        while(dialCodes.size()<reqDialcodesCount) {
-            dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount-dialCodes.size(), (String) request.get(ContentAPIParams.publisher.name())));
+        if(dialCodes.size()<reqDialcodesCount) {
+            List<String> newDialcodes = generateDialcode(channelId, contentId, reqDialcodesCount-dialCodes.size(), (String) request.get(ContentAPIParams.publisher.name()));
+            for(String dialcode : newDialcodes){
+                dialCodeMap.put(dialcode,++maxIndex);
+            }
             updateContent = true;
         }
 
         Response updateResponse;
         if(updateContent) {
             Map<String, Object> reqMap = new HashMap<>();
-            reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
+            reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
             updateResponse = updateAllContents(contentId, reqMap);
         }else {
             updateResponse = getClientErrorResponse();
             updateResponse.put(ContentAPIParams.messages.name(),
                     "No new DIAL Codes have been generated, as requested count is less or equal to existing reserved dialcode count.");
             updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
-            updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
+            updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
             updateResponse.put(ContentAPIParams.node_id.name(), contentId);
             return updateResponse;
         }
         if(updateResponse.getResponseCode() == ResponseCode.OK) {
             updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
-            updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
+            updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
             updateResponse.put(ContentAPIParams.node_id.name(), contentId);
             TelemetryManager.info("DIAL Codes generated and reserved.", updateResponse.getResult());
             return updateResponse;
@@ -120,7 +126,6 @@ public class ReserveDialcodesOperation extends BaseContentManager {
                         "Error During generate Dialcode. Please Try Again After Sometime!");
             }
         }
-
     }
 
 }

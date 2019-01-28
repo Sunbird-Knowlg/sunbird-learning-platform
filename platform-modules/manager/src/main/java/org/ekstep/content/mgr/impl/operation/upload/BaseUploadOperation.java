@@ -9,14 +9,13 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BaseUploadOperation extends BaseContentManager {
 
-    @Autowired private UpdateOperation updateManager;
+    private final UpdateOperation updateOperation = new UpdateOperation();
 
     protected IMimeTypeManager getMimeTypeManger(String contentId, String mimeType, Node node) {
         TelemetryManager.log(
@@ -29,7 +28,7 @@ public class BaseUploadOperation extends BaseContentManager {
         Map<String, Object> map = new HashMap<>();
         map.put("mimeType", mimeType);
         map.put("versionKey", Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY));
-        return this.updateManager.update(contentId, map);
+        return this.updateOperation.update(contentId, map);
     }
 
     protected void setMimeTypeForUpload(String mimeType, Node node) {

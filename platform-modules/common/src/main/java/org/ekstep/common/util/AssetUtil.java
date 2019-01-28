@@ -13,7 +13,7 @@ public class AssetUtil {
 
     private static List<String> validLicenses = Platform.config.hasPath("learning.valid_license") ? Platform.config.getStringList("learning.valid_license") : Arrays.asList("creativeCommon");
 
-    public static String getLicenseType(String provider, String url) {
+    /*public static String getLicenseType(String provider, String url) {
         String licenseType;
         switch (StringUtils.lowerCase(provider)) {
             case "youtube": TelemetryManager.log("Getting Youtube License");
@@ -22,10 +22,10 @@ public class AssetUtil {
             default       : throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
         }
         return licenseType;
-    }
+    }*/
 
-    public static boolean isValidLicense(String license) {
+    /*public static boolean isValidLicense(String license) {
         return validLicenses.contains(license);
-    }
+    }*/
 
 }
