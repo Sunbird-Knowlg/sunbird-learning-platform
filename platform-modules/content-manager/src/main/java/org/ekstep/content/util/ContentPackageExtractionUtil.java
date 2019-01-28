@@ -250,6 +250,43 @@ public class ContentPackageExtractionUtil {
 		}
 	}
 
+
+
+	public void uploadH5pExtractedPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
+									   boolean slugFile) {
+
+		if (StringUtils.isBlank(basePath))
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
+
+		String cloudExtractionPath = "";
+
+		try {
+
+			// Get extracted folder
+			File extractedDir = new File(basePath);
+			//Get Cloud folder
+			cloudExtractionPath = getExtractionPath(contentId, node, extractionType);
+			// Upload Directory to Cloud
+			directoryUpload(extractedDir, cloudExtractionPath, slugFile);
+		}  catch (Exception e) {
+			cleanUpCloudFolder(cloudExtractionPath);
+			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
+					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
+		} finally {
+			try {
+				TelemetryManager.log("Deleting Locally Extracted File.");
+				File dir = new File(basePath);
+				if (dir.exists())
+					dir.delete();
+			} catch (SecurityException e) {
+				TelemetryManager.error("Error! While deleting the local extraction directory: " + basePath, e);
+			} catch (Exception e) {
+				TelemetryManager.error("Error! Something Went wrong while deleting the local extraction directory: " + basePath, e);
+			}
+		}
+	}
+
 	/**
 	 * Clean up Cloud folder.
 	 *
