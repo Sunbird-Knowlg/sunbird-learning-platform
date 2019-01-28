@@ -1,0 +1,7 @@
+---
+- hosts: "{{ remote }}"
+  become: yes
+  vars_files:
+    - "{{inventory_dir}}/secrets/{{env}}.yml"
+  roles:
+    - centralised-logs
