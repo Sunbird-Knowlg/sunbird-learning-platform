@@ -11,14 +11,10 @@ node() {
             cleanWs()
             checkout scm
         }
-        stage('define params') {
-            def values = lp_dp_params()
-            if(values == "first run"){
-                currentBuild.result = 'SUCCESS'
-                return
-            }
+
             ansiColor('xterm') {
                 stage('get artifact') {
+                    def values = lp_dp_params()
                     currentWs = sh(returnStdout: true, script: 'pwd').trim()
                     artifact = values.artifact_name + ":" + values.artifact_version
                     values.put('currentWs', currentWs)
@@ -65,7 +61,6 @@ node() {
                     currentBuild.description = "${values.artifact_version}"
                 }
             }
-        }
     }
     catch (err) {
         currentBuild.result = "FAILURE"
