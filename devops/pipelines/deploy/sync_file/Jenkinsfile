@@ -1,0 +1,78 @@
+@Library('deploy-conf') _
+node() {
+    try {
+        String ANSI_GREEN = "\u001B[32m"
+        String ANSI_NORMAL = "\u001B[0m"
+        String ANSI_BOLD = "\u001B[1m"
+        String ANSI_RED = "\u001B[31m"
+        String ANSI_YELLOW = "\u001B[33m"
+
+        stage('checkout public repo') {
+            cleanWs()
+            checkout scm
+        }
+        stage('define params') {
+            def values = lp_dp_params()
+            if(values == "first run"){
+                // Override default parameters
+                envDir = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
+                properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([string(defaultValue: '',
+                        description: '<font color=teal size=2>Please specify the absolute path to the job from which the metadata.json will be copied.</font>',
+                        name: 'copy_metadata_from', trim: false), string(defaultValue: 'lastSuccessfulBuild',
+                        description: '<font color=teal size=2>Specify the build number to copy the artifact from. Default is last successful build of the job</font>',
+                        name: 'build_number', trim: false), choice(choices: ['Remote', 'Local'], description: '<font color=teal size=2>Choose the artifact source</font>',
+                        name: 'artifact_source'), string(defaultValue: '', description: '<font color=teal size=2>Specify only version, artifact name will be picked from the metadata.json file. If the value is blank, version will be picked from the metadata.json file.</font>',
+                        name: 'artifact_version', trim: false), choice(choices: ['GitHub', 'Local'], description: '<font color=teal size=2>Choose the ansible inventory source</font>',
+                        name: 'inventory_source'), string(defaultValue: "${WORKSPACE}/private/ansible/inventories/${envDir}",
+                        description: '<font color=teal size=2>Please sepecify the full path to the inventory directory. The default value is $WORKSPACE/private/ansible/env. Here env is the previous directory of the job.</font>',
+                        name: 'inventory_path', trim: false), string(defaultValue: '', description: '<font color=teal size=2>enter valid filename with extention</font>', name: 'filename', trim: false)])])
+                currentBuild.result = 'SUCCESS'
+                return
+            }
+
+            ansiColor('xterm') {
+                stage('get artifact') {
+                    currentWs = sh(returnStdout: true, script: 'pwd').trim()
+                    artifact = values.artifact_name + ":" + values.artifact_version
+                    values.put('currentWs', currentWs)
+                    if (params.artifact_source == "Remote") {
+                        println(ANSI_BOLD + ANSI_YELLOW + '''\
+                    Option chosen is Remote, ignoring any previously copied artifacts and new artifacts will be downloaded from remote source
+                    '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
+                        ansiblePlaybook = "${currentWs}/devops/artifacts-download.yml"
+                        ansibleExtraArgs = """\
+                               --extra-vars "artifact=${artifact}
+                               artifact_path=${currentWs}/${artifact}"
+                               --vault-password-file /home/ops/vault
+                               """.stripIndent().replace("\n", " ")
+                        values.put('ansiblePlaybook', ansiblePlaybook)
+                        values.put('ansibleExtraArgs', ansibleExtraArgs)
+                        ansible_playbook_run(values)
+                    }
+                    else{
+                        println(ANSI_BOLD + ANSI_YELLOW + '''\
+                    Option chosen is Local, using the artifacts copied 
+                    '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
+                    }
+                }
+                stage('deploy artifact'){
+                    sh """
+                       unzip ${artifact}
+                       mv sync-tool*.jar devops
+                    """
+                    ansiblePlaybook = "${currentWs}/devops/lp_file_sync.yml"
+                    ansibleExtraArgs = "--extra-vars \"command=${params.command} parameters=${params.parameters}\" --vault-password-file /home/ops/vault"
+                    values.put('ansiblePlaybook', ansiblePlaybook)
+                    values.put('ansibleExtraArgs', ansibleExtraArgs)
+                    println values
+//                    ansible_playbook_run(values)
+                    #archiveArtifacts artifacts: "lp_synctool_artifacts.zip:${values.artifact_version}", fingerprint: true, onlyIfSuccessful: true
+                    #archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
+                }
+            }
+        }
+    }
+    catch (err) {
+        throw err
+    }
+}
