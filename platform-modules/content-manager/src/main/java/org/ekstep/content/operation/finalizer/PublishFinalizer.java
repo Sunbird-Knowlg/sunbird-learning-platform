@@ -279,22 +279,24 @@ public class PublishFinalizer extends BaseFinalizer {
 			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 
-			TelemetryManager.log("Creating Online ECAR For Content Id: " + node.getIdentifier());
-			Map<String, Object> onlineEcarMap = new HashMap<String, Object>();
-			String onlineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.ONLINE);
-			downloadUrls = contentBundle.createContentManifestData(onlineContents, childrenIds, null,
-					EcarPackageType.ONLINE);
-			urlArray = contentBundle.createContentBundle(onlineContents, onlineEcarFileName,
-					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
-			TelemetryManager.log("Online ECAR created For Content Id: " + node.getIdentifier());
-			onlineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
-			onlineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
+				TelemetryManager.log("Creating Online ECAR For Content Id: " + node.getIdentifier());
+				Map<String, Object> onlineEcarMap = new HashMap<String, Object>();
+				String onlineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.ONLINE);
+				downloadUrls = contentBundle.createContentManifestData(onlineContents, childrenIds, null,
+						EcarPackageType.ONLINE);
+				urlArray = contentBundle.createContentBundle(onlineContents, onlineEcarFileName,
+						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+				TelemetryManager.log("Online ECAR created For Content Id: " + node.getIdentifier());
+				onlineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
+				onlineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
 
-			TelemetryManager.log("Adding Online Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
-			variants.put(ContentWorkflowPipelineParams.online.name(), onlineEcarMap);
+				TelemetryManager.log("Adding Online Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+				variants.put(ContentWorkflowPipelineParams.online.name(), onlineEcarMap);
 
-			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
-			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+				TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
+				node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+			}
 
 			// if collection full ECAR creation disabled set spine as download url.
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
