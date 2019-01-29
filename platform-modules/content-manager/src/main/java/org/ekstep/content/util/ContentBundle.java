@@ -14,11 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -338,8 +334,9 @@ public class ContentBundle {
 	private List<File> getContentBundle(final Map<Object, List<String>> downloadUrls, final String bundlePath) {
 		List<File> files = new ArrayList<File>();
 		try {
-			ExecutorService pool = Executors.newFixedThreadPool(10);
+			ExecutorService pool = Executors.newFixedThreadPool(1);
 			List<Callable<List<File>>> tasks = new ArrayList<Callable<List<File>>>(downloadUrls.size());
+
 			for (final Object val : downloadUrls.keySet()) {
 				tasks.add(new Callable<List<File>>() {
 					public List<File> call() throws Exception {
@@ -395,12 +392,13 @@ public class ContentBundle {
 			}
 			List<Future<List<File>>> results = pool.invokeAll(tasks);
 			for (Future<List<File>> ff : results) {
-				List<File> f = ff.get();
+				List<File> f = ff.get(60, TimeUnit.SECONDS);
 				if (null != f && !f.isEmpty())
 					files.addAll(f);
 			}
 			pool.shutdown();
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e ) {
+			e.printStackTrace();
 			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + "Error while creating contentBundle", e);
 		}

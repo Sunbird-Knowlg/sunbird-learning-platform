@@ -70,14 +70,6 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>cloudStorerepo</id>
-            <url>https://oss.sonatype.org/content/repositories/orgsunbird-1015
-            </url>
-        </repository>
-    </repositories>
-
     <build>
 
         <plugins>

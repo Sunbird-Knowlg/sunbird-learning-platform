@@ -71,7 +71,6 @@ import org.springframework.stereotype.Component;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-import org.ekstep.telemetry.handler.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -556,10 +555,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return (String) node.getMetadata().get("status");
 	}
 
-	public Response create(Map<String, Object> map) throws Exception {
+	@Override
+	public Response create(Map<String, Object> map, String channelId) throws Exception {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
+		if(StringUtils.isBlank(channelId))
+			return ERROR(ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name(), "Channel can not be blank.", ResponseCode.CLIENT_ERROR);
 		// Checking for resourceType if contentType resource
 		// validateNodeForContentType(map);
 
@@ -886,6 +888,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				}
 			}
 			if (null != nodeMap && !nodeMap.isEmpty()) {
+				// Any change for the hierarchy structure of the graph should update rootNode versionKey.
+				String versionKey = "";
+				if(StringUtils.isNotBlank(rootNodeId)) {
+					Node rootNode = nodeMap.get(rootNodeId);
+					String lastUpdatedOn = DateUtils.formatCurrentDate();
+					versionKey = String.valueOf(DateUtils.parse(lastUpdatedOn).getTime());
+					rootNode.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+					rootNode.getMetadata().put(GraphDACParams.lastUpdatedOn.name(), lastUpdatedOn);
+				}
 				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
 				Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
 				request.put(GraphDACParams.nodes.name(), nodes);
@@ -895,6 +906,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					if (StringUtils.endsWithIgnoreCase(rootNodeId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 						rootNodeId = rootNodeId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
 					response.put(ContentAPIParams.content_id.name(), rootNodeId);
+					if (StringUtils.isNotBlank(versionKey))
+						response.put(GraphDACParams.versionKey.name(), versionKey);
 				}
 				if (null != newIdMap && !newIdMap.isEmpty())
 					response.put(ContentAPIParams.identifiers.name(), newIdMap);
@@ -1327,7 +1340,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 		}
 		idMap.put(nodeId, id);
-		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
+		Map<String, Object> metadata = Optional.ofNullable(map.get("metadata")).map(e -> (Map<String, Object>) e).orElse(new HashMap<String, Object>()) ;
+		
 		if (metadata.containsKey("dialcodes")) {
 			metadata.remove("dialcodes");
 		}
@@ -2419,14 +2433,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		validateCountForReservingDialCode(request);
 		
-		int reqDialcodesCount;
 		boolean updateContent = false;
-
 		List<String> dialCodes = getReservedDialCodes(node).orElseGet(ArrayList::new);
 
-		reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name()) - dialCodes.size();
-		if(reqDialcodesCount > 0) {
-			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount, (String) request.get(ContentAPIParams.publisher.name())));
+		int reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name());
+		while(dialCodes.size()<reqDialcodesCount) {
+			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount-dialCodes.size(), (String) request.get(ContentAPIParams.publisher.name())));
 			updateContent = true;
 		}
 		
@@ -2467,23 +2479,23 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		Map<String, String> headerParam = new HashMap<String, String>();
 		headerParam.put("X-Channel-Id", channelId);
 		Response generateResponse = HttpRestUtil.makePostRequest(DIALCODE_GENERATE_URI, requestMap, headerParam);
-		if (generateResponse.getResponseCode() == ResponseCode.OK) {
+		if (generateResponse.getResponseCode() == ResponseCode.OK || generateResponse.getResponseCode() == ResponseCode.PARTIAL_SUCCESS) {
 			Map<String, Object> result = generateResponse.getResult();
 			List<String> generatedDialCodes = (List<String>)result.get(ContentAPIParams.dialcodes.name());
 			if(!generatedDialCodes.isEmpty())
 				return generatedDialCodes;
 			else
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+						"Dialcode generated list is empty. Please Try Again After Sometime!");
 		}else {
 			if (generateResponse.getResponseCode() == ResponseCode.CLIENT_ERROR) {
-				TelemetryManager.error("Client Error during Generate Dialcode: " + generateResponse.getParams().getErrmsg());
+				TelemetryManager.error("Client Error during Generate Dialcode: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
 				throw new ClientException(generateResponse.getParams().getErr(), generateResponse.getParams().getErrmsg());
 			}
 			else {
-				TelemetryManager.error("Server Error during Generate Dialcode: " + generateResponse.getParams().getErrmsg());
+				TelemetryManager.error("Server Error during Generate Dialcode: " + generateResponse.getParams().getErrmsg() + " :: " + generateResponse.getResult());
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-						"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+						"Error During generate Dialcode. Please Try Again After Sometime!");
 			}
 		}
 		

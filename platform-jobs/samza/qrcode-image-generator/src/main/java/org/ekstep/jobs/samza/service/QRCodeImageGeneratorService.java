@@ -1,5 +1,6 @@
 package org.ekstep.jobs.samza.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.jobs.samza.model.QRCodeGenerationRequest;
@@ -81,13 +82,18 @@ public class QRCodeImageGeneratorService implements ISamzaService {
         Map<String, String> storage = (Map<String, String>) message.get(QRCodeImageGeneratorParams.storage.name());
         String container = storage.get(QRCodeImageGeneratorParams.container.name());
         String path = storage.get(QRCodeImageGeneratorParams.path.name());
+        String zipFileName = storage.get(QRCodeImageGeneratorParams.fileName.name());
         String processId = (String) message.get(QRCodeImageGeneratorParams.processId.name());
+        if(StringUtils.isBlank(zipFileName)) {
+            zipFileName = processId;
+        }
+
 
         QRCodeGenerationRequest qrGenRequest = getQRCodeGenerationRequest(config, dataList, textList, fileNameList);
         List<File> generatedImages = QRCodeImageGeneratorUtil.createQRImages(qrGenRequest, appConfig, container, path);
 
         availableImages.addAll(generatedImages);
-        File zipFile = ZipEditorUtil.zipFiles(availableImages, processId);
+        File zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName);
 
         String zipDownloadUrl = CloudStorageUtil.uploadFile(appConfig, container, path, zipFile, true, false);
         QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
