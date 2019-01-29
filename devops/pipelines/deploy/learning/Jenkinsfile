@@ -11,14 +11,9 @@ node() {
             cleanWs()
             checkout scm
         }
-        stage('define params') {
-            def values = lp_dp_params()
-            if(values == "first run"){
-                currentBuild.result = 'SUCCESS'
-                return
-            }
             ansiColor('xterm') {
                 stage('get artifact') {
+                    def values = lp_dp_params()
                     currentWs = sh(returnStdout: true, script: 'pwd').trim()
                     artifact = values.artifact_name + ":" + values.artifact_version
                     values.put('currentWs', currentWs)
@@ -35,14 +30,13 @@ node() {
                         values.put('ansiblePlaybook', ansiblePlaybook)
                         values.put('ansibleExtraArgs', ansibleExtraArgs)
                         ansible_playbook_run(values)
-                    }
-                    else{
+                    } else {
                         println(ANSI_BOLD + ANSI_YELLOW + '''\
                     Option chosen is Local, using the artifacts copied 
                     '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
                     }
                 }
-                stage('deploy artifact'){
+                stage('deploy artifact') {
                     sh """
                        unzip ${artifact}
                        mv learning-service.war devops
@@ -72,7 +66,6 @@ node() {
                     currentBuild.description = "${values.artifact_version}"
                 }
             }
-        }
     }
     catch (err) {
         currentBuild.result = "FAILURE"
