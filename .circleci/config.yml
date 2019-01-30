@@ -15,8 +15,7 @@ jobs:
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
-      
-             
+        
 workflows:
   version: 2.1
   workflow:
