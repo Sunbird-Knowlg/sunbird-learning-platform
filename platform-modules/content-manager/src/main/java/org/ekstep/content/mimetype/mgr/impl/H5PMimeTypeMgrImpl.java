@@ -9,8 +9,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import akka.dispatch.ExecutionContexts;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +38,10 @@ import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import scala.concurrent.Await;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 
 public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
@@ -59,7 +68,9 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 				node.getMetadata().put("s3Key", urlArray[IDX_S3_KEY]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
 				ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-				contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, extractionBasePath, ExtractionType.snapshot, false);
+				ExecutionContext context = ExecutionContexts.fromExecutor(new ForkJoinPool(20));
+				contentPackageExtractionUtil.uploadH5pExtractedPackage(contentId, node, extractionBasePath,
+						ExtractionType.snapshot, false, context);
 				response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 			}catch (IOException e) {
 				TelemetryManager.error("Error! While unzipping the content package file.", e);
@@ -183,8 +194,13 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 				zipFile.delete();
 			// upload Extract Content Package
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, extractionBasePath, ExtractionType.snapshot,
-					false);
+			ExecutionContext context = ExecutionContexts.fromExecutor(new ForkJoinPool(20));
+			long startTime = System.currentTimeMillis();
+			Future<scala.collection.immutable.List<String>> futureResponse = contentPackageExtractionUtil
+					.uploadH5pExtractedPackage(contentId, node, extractionBasePath,
+					ExtractionType.snapshot, false, context);
+
+			Await.result(futureResponse, Duration.create(3, TimeUnit.MINUTES));
 			response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 		} catch (IOException e) {
 			TelemetryManager.error("Error! While unzipping the content package file.", e);

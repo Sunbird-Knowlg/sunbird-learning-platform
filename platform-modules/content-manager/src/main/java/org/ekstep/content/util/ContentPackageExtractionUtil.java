@@ -1,5 +1,9 @@
 package org.ekstep.content.util;
 
+import akka.dispatch.Dispatcher;
+import akka.dispatch.ExecutionContexts;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -19,6 +23,10 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import scala.Option;
+import scala.collection.immutable.List;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.impl.ExecutionContextImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * The Class ContentPackageExtractionUtil.
@@ -250,6 +259,43 @@ public class ContentPackageExtractionUtil {
 		}
 	}
 
+
+
+	public Future<List<String>> uploadH5pExtractedPackage(String contentId, Node node, String basePath, ExtractionType
+	extractionType, boolean slugFile, ExecutionContext context) {
+
+		if (StringUtils.isBlank(basePath))
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
+
+		String cloudExtractionPath = "";
+
+		try {
+
+			// Get extracted folder
+			File extractedDir = new File(basePath);
+			//Get Cloud folder
+			cloudExtractionPath = getExtractionPath(contentId, node, extractionType);
+			// Upload Directory to Cloud
+			return directoryH5pUpload(extractedDir, cloudExtractionPath, slugFile, context);
+		}  catch (Exception e) {
+			cleanUpCloudFolder(cloudExtractionPath);
+			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
+					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
+		} finally {
+			try {
+				TelemetryManager.log("Deleting Locally Extracted File.");
+				/*File dir = new File(basePath);
+				if (dir.exists())
+					dir.delete();*/
+			} catch (SecurityException e) {
+				TelemetryManager.error("Error! While deleting the local extraction directory: " + basePath, e);
+			} catch (Exception e) {
+				TelemetryManager.error("Error! Something Went wrong while deleting the local extraction directory: " + basePath, e);
+			}
+		}
+	}
+
 	/**
 	 * Clean up Cloud folder.
 	 *
@@ -382,5 +428,27 @@ public class ContentPackageExtractionUtil {
 		if (extractableMimeTypes.containsKey(mimeType))
 			isDirectory = true;
 		return CloudStore.getURI(path, Option.apply(isDirectory));
+	}
+
+
+	private Future<List<String>> directoryH5pUpload(File directory, String cloudFolderPath, boolean slugFile, ExecutionContext context) {
+		// Validating directory to be uploaded
+		if (!directory.exists())
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Extraction File cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
+		if (directory.isFile())
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Not a Directory");
+		if (directory.listFiles().length < 1)
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Atleast One file is needed for Content Package Extraction.");
+
+		TelemetryManager.log("Uploading Extracted Directory to Cloud");
+		TelemetryManager.log("Folder Name For Storage Space Extraction: " + cloudFolderPath);
+		long startTime = System.currentTimeMillis();
+		Future<List<String>> response = CloudStore.uploadH5pDirectory(cloudFolderPath, directory, slugFile, context);
+		return response;
+
+
 	}
 }
