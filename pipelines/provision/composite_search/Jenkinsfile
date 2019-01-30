@@ -20,7 +20,7 @@ node() {
                 jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
                 currentWs = sh(returnStdout: true, script: 'pwd').trim()
                 values.put('currentWs', currentWs)
-                ansiblePlaybook = "${currentWs}/devops/es_composite_search_cluster_setup.yml"
+                ansiblePlaybook = "${currentWs}/ansible/es_composite_search_cluster_setup.yml"
                 ansibleExtraArgs = ""
                 values.put('currentWs', currentWs)
                 values.put('env', envDir)

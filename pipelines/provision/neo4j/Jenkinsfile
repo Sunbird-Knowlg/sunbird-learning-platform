@@ -34,7 +34,7 @@ node() {
                 currentWs = sh(returnStdout: true, script: 'pwd').trim()
                 values.put('currentWs', currentWs)
 
-                ansiblePlaybook = "${currentWs}/devops/lp_learning_neo4j_provision.yml"
+                ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_provision.yml"
                 ansibleExtraArgs = "--syntax-check"
                 values.put('ansiblePlaybook', ansiblePlaybook)
                 values.put('ansibleExtraArgs', ansibleExtraArgs)
@@ -42,11 +42,11 @@ node() {
                 ansible_playbook_run(values)
 
                 if (params.inventory_source == "GitHub")
-                    sh "cp private/artifacts/neo4j-*.tar.gz devops/artifacts"
+                    sh "cp private/artifacts/neo4j-*.tar.gz ansible/artifacts"
                 else
-                    sh "cp ${params.neo4j_source} devops/artifacts"
+                    sh "cp ${params.neo4j_source} ansible/artifacts"
 
-                ansiblePlaybook = "${currentWs}/devops/lp_learning_neo4j_provision.yml"
+                ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_provision.yml"
                 ansibleExtraArgs = "--vault-password-file /home/ops/vault"
                 values.put('ansiblePlaybook', ansiblePlaybook)
                 values.put('ansibleExtraArgs', ansibleExtraArgs)

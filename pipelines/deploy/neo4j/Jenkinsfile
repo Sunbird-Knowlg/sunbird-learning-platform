@@ -22,7 +22,7 @@ node() {
                         println(ANSI_BOLD + ANSI_YELLOW + '''\
                     Option chosen is Remote, ignoring any previously copied artifacts and new artifacts will be downloaded from remote source
                     '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
-                        ansiblePlaybook = "${currentWs}/devops/artifacts-download.yml"
+                        ansiblePlaybook = "${currentWs}/ansible/artifacts-download.yml"
                         ansibleExtraArgs = """\
                                --extra-vars "artifact=${artifact}
                                artifact_path=${currentWs}/${artifact}"
@@ -40,10 +40,10 @@ node() {
                 stage('deploy artifact') {
                     sh """
                        unzip ${artifact}
-                       mv learning-graph-extension-*.jar devops
-                       mv custom-procedures*.jar devops
+                       mv learning-graph-extension-*.jar ansible
+                       mv custom-procedures*.jar ansible
                     """
-                    ansiblePlaybook = "${currentWs}/devops/lp_learning_neo4j_deploy.yml"
+                    ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_deploy.yml"
                     ansibleExtraArgs = "--syntax-check"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
@@ -51,9 +51,9 @@ node() {
                     ansible_playbook_run(values)
 
                     if (params.inventory_source == "GitHub")
-                        sh "cp private/artifacts/neo4j-*.tar.gz devops/artifacts"
+                        sh "cp private/artifacts/neo4j-*.tar.gz ansible/artifacts"
                     else
-                        sh "cp ${params.neo4j_source} devops/artifacts"
+                        sh "cp ${params.neo4j_source} ansible/artifacts"
 
                     ansibleExtraArgs = ""
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
