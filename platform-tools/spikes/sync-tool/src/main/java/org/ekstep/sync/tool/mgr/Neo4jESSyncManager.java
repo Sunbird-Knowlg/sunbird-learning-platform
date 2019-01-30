@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,12 +29,15 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.sync.tool.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static java.util.stream.Collectors.toList;
 
 @Component("neo4jESSyncManager")
 public class Neo4jESSyncManager implements ISyncManager {
@@ -140,6 +144,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 					List<Node> nodes = null;
 					try {
 						nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
+						nodes = filterDefinitionNodes(nodes);
 					}catch(ResourceNotFoundException e) {
 						System.out.println("error while fetching neo4j records for objectType="+objectType+", start="+start+",batchSize="+batchSize);
 						start += batchSize;
@@ -195,6 +200,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 						"Error: " + response.getParams().getErrmsg());
 			} else {
 				nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
+				nodes = filterDefinitionNodes(nodes, uniqueIds);
 			}
 
 			if (nodes != null && !nodes.isEmpty()) {
@@ -239,6 +245,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 					List<Node> nodes = null;
 					try {
 						nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
+						nodes = filterDefinitionNodes(nodes);
 					}catch(ResourceNotFoundException e) {
 						System.out.println("error while fetching neo4j records for objectType="+objectType+", start="+start+",batchSize="+batchSize);
 						start += batchSize;
@@ -319,6 +326,19 @@ public class Neo4jESSyncManager implements ISyncManager {
 	        .append(String.format(" %d/%d, ETA: %s", current, total, etaHms));
 
 	    System.out.print(string);
+	}
+
+	public static List<Node> filterDefinitionNodes(List<Node> nodes) {
+		return nodes.stream().filter(n -> SystemNodeTypes.DEFINITION_NODE.name().equals(n.getNodeType())).collect(toList());
+	}
+
+	public static List<Node> filterDefinitionNodes(List<Node> nodes, Collection<String> uniqueIds) {
+		return nodes.stream().filter(n -> {
+			if (SystemNodeTypes.DEFINITION_NODE.name().equals(n.getNodeType())) {
+				uniqueIds.remove(n.getIdentifier());
+				return true;
+			} else return false;
+		}).collect(toList());
 	}
 
 }
