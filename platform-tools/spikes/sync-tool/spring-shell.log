@@ -1,0 +1,91 @@
+// Learning-Platform Unknown Version log opened at 2019-01-10 07:00:07
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-10 07:11:04
+// Learning-Platform Unknown Version log opened at 2019-01-10 07:16:04
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-10 07:19:23
+// Learning-Platform Unknown Version log opened at 2019-01-10 07:19:32
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-10 07:20:37
+// Learning-Platform Unknown Version log opened at 2019-01-10 07:24:20
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-10 07:28:28
+// Learning-Platform Unknown Version log opened at 2019-01-10 07:44:20
+syncbyids --id do_31251813465120768029202
+syncbyids --id do_31251813467747123219184
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-10 07:56:13
+// Learning-Platform Unknown Version log opened at 2019-01-10 08:03:09
+syncbyids --id do_31251813467747123219184
+syncbyids --id do_31251813465120768029202
+syncbyids --id do_30013040
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-10 11:46:11
+// Learning-Platform Unknown Version log opened at 2019-01-10 16:50:19
+syncbyids --id do_30013040
+syncbyids --id do_31251813465120768029202
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-10 16:54:14
+// Learning-Platform Unknown Version log opened at 2019-01-10 18:57:59
+syncbyids --id do_31251815617258291229257
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-10 21:40:11
+// Learning-Platform Unknown Version log opened at 2019-01-16 18:08:24
+// null Unknown Version log opened at 2019-01-16 18:23:44
+// [failed] sync --graph domain
+// Learning-Platform Unknown Version log opened at 2019-01-16 18:26:47
+// [failed] sync --graph domain --objectType Concept
+// Learning-Platform Unknown Version log opened at 2019-01-16 18:28:45
+sync --graph domain --objectType Concept
+sync --graph domain --objectType Concept
+sync --graph domain --objectType Concept
+sync --graph domain --objectType Concept
+sync --graph domain --objectType Reference
+sync --graph domain --objectType Dimension
+sync --graph domain --objectType Dimension
+sync --graph domain --objectType Method
+sync --graph domain --objectType Misconception
+sync --graph domain --objectType Language
+sync --graph domain --objectType Library
+sync --graph domain --objectType Domain
+sync --graph domain --objectType Domain
+sync --graph domain --objectType Framework
+sync --graph domain --objectType CategoryInstance
+sync --graph domain --objectType Term
+sync --graph domain --objectType ContentImage
+sync --graph domain --objectType ContentImage
+// [failed] sync --graph domain --objectType ItemSet
+// [failed] sync --graph domain --objectType ItemSet
+// [failed] sync --graph domain --objectType ItemSet
+// Learning-Platform Unknown Version log opened at 2019-01-17 09:05:57
+sync --graph domain --objectType ItemSet
+// [failed] sync --graph domain --objectType Content
+// Learning-Platform Unknown Version log opened at 2019-01-17 09:54:26
+// [failed] sync --graph domain --objectType Content --limit 10
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-17 10:09:23
+// Learning-Platform Unknown Version log opened at 2019-01-17 11:15:34
+// [failed] sync --graph domain --objectType Content
+// Learning-Platform Unknown Version log opened at 2019-01-18 11:48:36
+// [failed] syncbyids --id do_30013040
+// [failed] syncbyids --id do_31251813465120768029202
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-18 11:49:29
+// Learning-Platform Unknown Version log opened at 2019-01-18 11:53:22
+syncbyids --id do_31251813467747123219184
+syncbyids --id do_31251813465120768029202
+syncbyids --id do_30013040
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-18 11:54:10
+// Learning-Platform Unknown Version log opened at 2019-01-18 11:59:49
+syncbyids --id do_31251813467747123219184
+syncbyids --id do_31251813465120768029202
+syncbyids --id do_30013040
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-18 12:00:12
+// Learning-Platform Unknown Version log opened at 2019-01-18 13:47:40
+syncbyids --id do_30013040
+syncbyids --id do_31251813465120768029202
+syncbyids --id do_31251813467747123219184
+exit
+// Learning-Platform Unknown Version log closed at 2019-01-18 13:48:27
