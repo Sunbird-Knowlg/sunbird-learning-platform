@@ -7,21 +7,6 @@ node() {
         String ANSI_RED = "\u001B[31m"
         String ANSI_YELLOW = "\u001B[33m"
 
-        if (params.size() == 0){
-            envDir = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
-            properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([
-                    choice(choices: ['GitHub', 'Local'], description: '<font color=teal size=2>Choose the ansible inventory source</font>', name: 'inventory_source'),
-                    string(defaultValue: "${WORKSPACE}/private/ansible/inventories/${envDir}", description: '<font color=teal size=2>Please sepecify the full path to the inventory directory. The default value is $WORKSPACE/private/ansible/env. Here env is the previous directory of the job.</font>', name: 'inventory_path', trim: false),
-                    string(defaultValue: '', description: '<font color=teal size=2>If inventory_source is Local, specify full path including file name to the neo4j*.tar.gz file. If inventory_source is GitHub, place the neo4j*.tar.gz file in a directory named artifacts under root directory.</font>', name: 'neo4j_source', trim: false)])])
-            ansiColor('xterm') {
-                println (ANSI_BOLD + ANSI_GREEN + '''\
-                        First run of the job. Parameters created. Stopping the current build.
-                        Please trigger new build and provide parameters if required.
-                        '''.stripIndent().replace("\n"," ") + ANSI_NORMAL)
-            }
-            currentBuild.result = 'SUCCESS'
-            return "first run"
-        }
 
         stage('checkout public repo') {
             cleanWs()
@@ -32,26 +17,32 @@ node() {
             stage('deploy'){
                 values = [:]
                 currentWs = sh(returnStdout: true, script: 'pwd').trim()
-                values.put('currentWs', currentWs)
-
+                envDir = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-3].trim()
+                module = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
+                jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
                 ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_provision.yml"
                 ansibleExtraArgs = "--syntax-check"
                 values.put('ansiblePlaybook', ansiblePlaybook)
                 values.put('ansibleExtraArgs', ansibleExtraArgs)
                 println values
                 ansible_playbook_run(values)
-
-                if (params.inventory_source == "GitHub")
-                    sh "cp private/artifacts/neo4j-*.tar.gz ansible/artifacts"
-                else
-                    sh "cp ${params.neo4j_source} ansible/artifacts"
-
+                fileExists = sh(returnStdout: true, script: "find ${currentWs} -name 'neo4j*.tar.gz'")
+                if (fileExists != "")
+        	    cp private/artifacts/neo4j*.tar.gz ansible/artifacts
+                else {
+                    println(ANSI_BOLD + ANSI_RED + "Uh Oh! Unable to find ne04j*.tar.gz. Please place this file in your private repo under artifact directory" + ANSI_NORMAL)
+                    error 'Please resolve the errors and rerun..'
+		}
                 ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_provision.yml"
                 ansibleExtraArgs = "--vault-password-file /home/ops/vault"
+                values.put('currentWs', currentWs)
+                values.put('env', envDir)
+                values.put('module', module)
+                values.put('jobName', jobName)
                 values.put('ansiblePlaybook', ansiblePlaybook)
                 values.put('ansibleExtraArgs', ansibleExtraArgs)
                 println values
-                    ansible_playbook_run(values)
+                ansible_playbook_run(values)
             }
         }
     }
