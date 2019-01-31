@@ -1,7 +1,5 @@
 ---
 - hosts: composite-search-cluster
-  vars_files:
-    - "{{inventory_dir}}/secrets.yml"
   name: Setup composite search ES cluster
   become: yes
   pre_tasks:
