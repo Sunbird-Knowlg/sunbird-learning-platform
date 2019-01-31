@@ -22,6 +22,10 @@ node() {
                 jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
                 ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_provision.yml"
                 ansibleExtraArgs = "--syntax-check"
+                values.put('currentWs', currentWs)
+                values.put('env', envDir)
+                values.put('module', module)
+                values.put('jobName', jobName)
                 values.put('ansiblePlaybook', ansiblePlaybook)
                 values.put('ansibleExtraArgs', ansibleExtraArgs)
                 println values
@@ -35,10 +39,6 @@ node() {
 		}
                 ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_provision.yml"
                 ansibleExtraArgs = "--vault-password-file /home/ops/vault"
-                values.put('currentWs', currentWs)
-                values.put('env', envDir)
-                values.put('module', module)
-                values.put('jobName', jobName)
                 values.put('ansiblePlaybook', ansiblePlaybook)
                 values.put('ansibleExtraArgs', ansibleExtraArgs)
                 println values
