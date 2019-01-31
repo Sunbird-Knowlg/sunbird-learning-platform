@@ -129,6 +129,7 @@ public class UpdateContentOperation extends BaseContentManager {
         domainObj.setGraphId(TAXONOMY_ID);
         domainObj.setIdentifier(contentId);
         domainObj.setObjectType(objectType);
+        domainObj.setInRelations(null);
         createResponse = updateDataNode(domainObj);
         checkError = checkError(createResponse);
         if (checkError)
