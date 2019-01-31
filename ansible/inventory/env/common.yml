@@ -1,0 +1,2 @@
+bootstrap_user: "deployer"
+bootstrap_key_path: "/home/jenkins/secrets/deployer_ssh_key"
