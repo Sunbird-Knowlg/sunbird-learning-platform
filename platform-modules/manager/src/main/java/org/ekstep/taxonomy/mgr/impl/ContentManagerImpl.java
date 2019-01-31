@@ -604,6 +604,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 
 			try {
+				checkChildImages(map);
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
 				node.setObjectType(CONTENT_OBJECT_TYPE);
 				node.setGraphId(TAXONOMY_ID);
@@ -830,7 +831,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return createResponse;
 
 		TelemetryManager.log("Updating content node: " + contentId);
+		checkChildImages(map);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+
 		domainObj.setGraphId(TAXONOMY_ID);
 		domainObj.setIdentifier(contentId);
 		domainObj.setObjectType(objectType);
@@ -1475,9 +1478,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
 						Map<String, Object> metadata = new HashMap<String, Object>();
 						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
-						index += 1;
 						rel.setMetadata(metadata);
 						outRelations.add(rel);
+
+						rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId + ".img");
+						metadata = new HashMap<String, Object>();
+						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+
+						rel.setMetadata(metadata);
+						outRelations.add(rel);
+
 					}
 					Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
 							null);
@@ -2630,6 +2640,26 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			populateAllAssisgnedDialcodesRecursive(childImageNode, assignedDialcodes);
 		}
 
+	}
+
+
+	private void checkChildImages(Map<String, Object> map) {
+		List<Map<String, Object>> children = (List<Map<String, Object>>) map.get("children");
+		if(CollectionUtils.isNotEmpty(children)){
+			List<String> imageIds = children.stream().map(child -> child.get("identifier") + ".img").collect(toList());
+			Request request = getRequest(TAXONOMY_ID, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
+					GraphDACParams.node_ids.name(), imageIds);
+			Response response = getResponse(request);
+			if(!checkError(response)){
+				List<Node> nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
+				if(CollectionUtils.isNotEmpty(nodes)){
+					nodes.forEach(node ->
+							children.add(new HashMap<String, Object>(){{ put("identifier", node.getIdentifier());}}));
+				}
+			}
+
+			map.put("children", children);
+		}
 	}
 
 }

@@ -361,6 +361,7 @@ public class PublishTask implements Runnable {
 					+ "]", e);
 			node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());
+			node.setInRelations(null);
 			util.updateNode(node);
 			collectionStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
 			if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
