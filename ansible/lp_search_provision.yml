@@ -1,4 +1,6 @@
 - hosts: searchall
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
   pre_tasks:
     - name: Create learner group
       become: yes

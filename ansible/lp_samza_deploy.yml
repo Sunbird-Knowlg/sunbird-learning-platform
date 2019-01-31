@@ -1,6 +1,8 @@
 ---
 - name: "Start Nodemanager on Slaves"
   hosts: "lp-yarn-slave"
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
   become: yes
   tasks:
     - name: Ensure yarn nodemanager is running
@@ -17,6 +19,8 @@
 - name: "Copy Samza jobs additional configuration to slaves"
   become: yes
   hosts: "lp-yarn-slave"
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
   roles:
     - samza-jobs-additional-config
 

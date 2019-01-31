@@ -1,5 +1,7 @@
 ---
 - hosts: processing-cluster-kafka
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
   pre_tasks:
     - name: Create ecosytem group
       become: yes

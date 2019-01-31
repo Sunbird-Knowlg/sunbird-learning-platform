@@ -1,4 +1,6 @@
 - hosts: redisall
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
   roles:
     - redis
   serial: 1
