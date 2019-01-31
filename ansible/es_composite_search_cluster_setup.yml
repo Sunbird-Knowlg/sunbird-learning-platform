@@ -1,10 +1,9 @@
 ---
 - hosts: composite-search-cluster
-  name: Setup composite search ES cluster
-  become: yes
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
-  
+  name: Setup composite search ES cluster
+  become: yes
     - name: Uncompressing and copying to system path
       unarchive:
         src: https://sunbirdpublic.blob.core.windows.net/installation/jre-8u144-linux-x64.tar.gz
@@ -20,7 +19,6 @@
       set_fact:
         es_instance_name: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}cs-node-{{ loop.index }}{% endif %}{% endfor %}"
 
-  #remote_user: ecosystem
   roles:
     - { role: es6, 
         es_config: {
