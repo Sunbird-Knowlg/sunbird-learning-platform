@@ -3,21 +3,6 @@
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
   pre_tasks:
-    - name: Create ecosytem group
-      become: yes
-      group:
-        state: present
-        name: "{{ ecosystem_group }}"
-        system: yes
-    - name: Create ecosystem user
-      become: yes
-      user:
-        state: present
-        name: "{{ ecosystem_user }}"
-        comment: ecosystem user
-        system: yes
-        createhome: yes
-        group: "{{ ecosystem_group }}"
     - service: name=monit state=stopped
       become: yes
       ignore_errors: true
