@@ -4,21 +4,7 @@
   become: yes
   vars_files:
     - "{{inventory_dir}}/secrets.yml"
-  pre_tasks:
-    - name: Create ecosystem group
-      become: yes
-      group:
-        state: present
-        name: "{{ ecosystem_group }}"
-        system: yes
-    - name: Create ecosystem user
-      become: yes
-      user:
-        state: present
-        name: "{{ ecosystem_user }}"
-        comment: ecosystem user
-        system: yes
-        createhome: yes
+  
     - name: Uncompressing and copying to system path
       unarchive:
         src: https://sunbirdpublic.blob.core.windows.net/installation/jre-8u144-linux-x64.tar.gz
@@ -34,7 +20,7 @@
       set_fact:
         es_instance_name: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}cs-node-{{ loop.index }}{% endif %}{% endfor %}"
 
-  remote_user: ecosystem
+  #remote_user: ecosystem
   roles:
     - { role: es6, 
         es_config: {
