@@ -2,6 +2,8 @@
 - hosts: processing-cluster-kafka
   remote_user: "{{ ecosystem_user }}"
   become: yes
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
   pre_tasks:
     - name: Registering kafka_id
       set_fact:

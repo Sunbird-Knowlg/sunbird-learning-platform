@@ -2,7 +2,7 @@
 - name: "LP Content-Tool Provision."
   hosts: prod-migration
   vars_files:
-       - ['{{inventory_dir}}/secrets/lp_secrets.yml', '{{inventory_dir}}/secrets/secrets.yml']
+       - ['{{inventory_dir}}/secrets.yml']
   roles:
     - java
     - lp-contenttool

@@ -1,6 +1,8 @@
 ---
 - name: "Copy validation schema files to Yarn Slaves"
   hosts: "yarn-slave"
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
   become: yes
   tasks:
    - name: cloning the telemetry schema repo

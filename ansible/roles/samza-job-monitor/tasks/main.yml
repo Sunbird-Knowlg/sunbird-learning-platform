@@ -1,5 +1,5 @@
 ---
-- include_vars: "{{inventory_dir}}/secrets/{{env}}.yml"
+- include_vars: "{{inventory_dir}}/secrets.yml"
 
 - name: Install unzip
   apt: name=unzip state=present
