@@ -18,6 +18,7 @@ node() {
                 currentWs = sh(returnStdout: true, script: 'pwd').trim()
                 envDir = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-3].trim()
                 module = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
+                jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
                 currentWs = sh(returnStdout: true, script: 'pwd').trim()
                 ansiblePlaybook = "${currentWs}/ansible/lp_yarn_provision.yml"
                 ansibleExtraArgs = "--vault-password-file /home/ops/vault"
