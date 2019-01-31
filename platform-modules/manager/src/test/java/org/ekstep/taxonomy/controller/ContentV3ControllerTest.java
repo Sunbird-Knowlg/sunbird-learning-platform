@@ -1553,7 +1553,17 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier",textbookId);
 		updateHierarchy(updateHierarchyRequestBody);
 		publish(textbookId);
-		delay(40000);
+
+		String status = "";
+		Integer counter = 0;
+		while(!"Live".equalsIgnoreCase(status) && counter<10){
+			Response resp = getContent(textbookId);
+			if("OK".equalsIgnoreCase(resp.getResponseCode().toString())){
+				status = (String)((Map<String,Object>)resp.getResult().get("content")).get("status");
+				++counter;
+				delay(20000);
+			}
+		}
 		Response response = getContent(textbookId);
 		Map<String,Object> variants = (Map<String,Object>) ((Map<String, Object>)response.getResult().get("content")).get("variants");
 		String onlineEcarUrl = (String) ((Map<String,Object>) variants.get("online")).get("ecarUrl");
