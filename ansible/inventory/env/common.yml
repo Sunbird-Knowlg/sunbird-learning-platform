@@ -1,2 +1,2 @@
-bootstrap_user: "deployer"
-bootstrap_key_path: "/home/jenkins/secrets/deployer_ssh_key"
+lp_vault_bootstrap_user: ops
+lp_vault_bootstrap_key_path: /home/jenkins/secrets/ops_ssh_key
