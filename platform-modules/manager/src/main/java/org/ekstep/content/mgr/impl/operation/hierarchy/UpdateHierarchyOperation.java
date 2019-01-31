@@ -222,9 +222,16 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                         Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
                         Map<String, Object> metadata = new HashMap<String, Object>();
                         metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
-                        index += 1;
                         rel.setMetadata(metadata);
                         outRelations.add(rel);
+
+                        rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId + ".img");
+                        metadata = new HashMap<String, Object>();
+                        metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+                        rel.setMetadata(metadata);
+                        outRelations.add(rel);
+
+                        index += 1;
                     }
                     Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
                             null);

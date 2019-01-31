@@ -75,7 +75,7 @@ public class UpdateContentOperation extends BaseContentManager {
 
             }
         }
-
+        checkChildImages(map);
         Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
         TelemetryManager.log("Graph node found: " + graphNode.getIdentifier());
         Map<String, Object> metadata = graphNode.getMetadata();

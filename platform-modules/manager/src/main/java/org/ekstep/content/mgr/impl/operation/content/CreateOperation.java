@@ -73,6 +73,7 @@ public class CreateOperation extends BaseContentManager {
             }
 
             try {
+                checkChildImages(map);
                 Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
                 node.setObjectType(CONTENT_OBJECT_TYPE);
                 node.setGraphId(TAXONOMY_ID);

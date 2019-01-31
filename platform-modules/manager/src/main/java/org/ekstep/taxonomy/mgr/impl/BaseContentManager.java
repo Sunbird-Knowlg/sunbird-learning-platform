@@ -770,4 +770,24 @@ public abstract class BaseContentManager extends BaseManager {
                 .length()-1));
     }
 
+
+    protected void checkChildImages(Map<String, Object> map) {
+        List<Map<String, Object>> children = (List<Map<String, Object>>) map.get("children");
+        if(CollectionUtils.isNotEmpty(children)){
+            List<String> imageIds = children.stream().map(child -> child.get("identifier") + ".img").collect(toList());
+            Request request = getRequest(TAXONOMY_ID, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
+                    GraphDACParams.node_ids.name(), imageIds);
+            Response response = getResponse(request);
+            if(!checkError(response)){
+                List<Node> nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
+                if(CollectionUtils.isNotEmpty(nodes)){
+                    nodes.forEach(node ->
+                            children.add(new HashMap<String, Object>(){{ put("identifier", node.getIdentifier());}}));
+                }
+            }
+
+            map.put("children", children);
+        }
+    }
+
 }
