@@ -34,7 +34,7 @@ node() {
                 if (fileExists != "")
         	    sh "cp private/artifacts/neo4j*.tar.gz ansible/artifacts"
                 else {
-                    println(ANSI_BOLD + ANSI_RED + "Uh Oh! Unable to find ne04j*.tar.gz. Please place this file in your private repo under artifact directory" + ANSI_NORMAL)
+                    println(ANSI_BOLD + ANSI_RED + "Uh Oh! Unable to find neo4j*.tar.gz. Please place this file in your private repo under artifact directory" + ANSI_NORMAL)
                     error 'Please resolve the errors and rerun..'
 		}
                 ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_provision.yml"
