@@ -1,6 +1,8 @@
 ---
 - hosts: processing-cluster-kafka
   vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  pre_tasks:
     - service: name=monit state=stopped
       become: yes
       ignore_errors: true
