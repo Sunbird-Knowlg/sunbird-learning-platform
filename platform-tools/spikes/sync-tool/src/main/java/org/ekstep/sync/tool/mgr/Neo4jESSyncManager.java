@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -36,8 +36,6 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.sync.tool.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import static java.util.stream.Collectors.toList;
 
 @Component("neo4jESSyncManager")
 public class Neo4jESSyncManager implements ISyncManager {
@@ -144,13 +142,13 @@ public class Neo4jESSyncManager implements ISyncManager {
 					List<Node> nodes = null;
 					try {
 						nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
-						nodes = filterDefinitionNodes(nodes);
 					}catch(ResourceNotFoundException e) {
 						System.out.println("error while fetching neo4j records for objectType="+objectType+", start="+start+",batchSize="+batchSize);
 						start += batchSize;
 						continue;
 					}
-					if (null != nodes && !nodes.isEmpty()) {
+					if (CollectionUtils.isNotEmpty(nodes)) {
+						filterDefinitionNodes(nodes);
 						start += batchSize;
 						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
 						esConnector.bulkImport(messages);
@@ -200,10 +198,11 @@ public class Neo4jESSyncManager implements ISyncManager {
 						"Error: " + response.getParams().getErrmsg());
 			} else {
 				nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
-				nodes = filterDefinitionNodes(nodes, uniqueIds);
 			}
 
-			if (nodes != null && !nodes.isEmpty()) {
+			if (CollectionUtils.isNotEmpty(nodes)) {
+				filterDefinitionNodes(nodes);
+				
 				errors = new HashMap<>();
 				Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
 				if (!errors.isEmpty())
@@ -245,13 +244,13 @@ public class Neo4jESSyncManager implements ISyncManager {
 					List<Node> nodes = null;
 					try {
 						nodes = util.getNodes(graphId, def.getObjectType(), start, batchSize);
-						nodes = filterDefinitionNodes(nodes);
 					}catch(ResourceNotFoundException e) {
 						System.out.println("error while fetching neo4j records for objectType="+objectType+", start="+start+",batchSize="+batchSize);
 						start += batchSize;
 						continue;
 					}
-					if (null != nodes && !nodes.isEmpty()) {
+					if (CollectionUtils.isNotEmpty(nodes)) {
+						filterDefinitionNodes(nodes);
 						start += batchSize;
 						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
 						esConnector.bulkImport(messages);
@@ -328,17 +327,8 @@ public class Neo4jESSyncManager implements ISyncManager {
 	    System.out.print(string);
 	}
 
-	public static List<Node> filterDefinitionNodes(List<Node> nodes) {
-		return nodes.stream().filter(n -> SystemNodeTypes.DEFINITION_NODE.name().equals(n.getNodeType())).collect(toList());
-	}
-
-	public static List<Node> filterDefinitionNodes(List<Node> nodes, Collection<String> uniqueIds) {
-		return nodes.stream().filter(n -> {
-			if (SystemNodeTypes.DEFINITION_NODE.name().equals(n.getNodeType())) {
-				uniqueIds.remove(n.getIdentifier());
-				return true;
-			} else return false;
-		}).collect(toList());
+	public static void filterDefinitionNodes(List<Node> nodes) {
+		nodes.removeIf(n -> SystemNodeTypes.DEFINITION_NODE.name().equals(n.getNodeType()));
 	}
 
 }
