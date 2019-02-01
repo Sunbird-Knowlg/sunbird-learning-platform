@@ -19,7 +19,7 @@ node() {
                     values.put('currentWs', currentWs)
                     if (params.artifact_source == "ArtifactRepo") {
                         println(ANSI_BOLD + ANSI_YELLOW + '''\
-                    Option chosen is Remote, ignoring any previously copied artifacts and new artifacts will be downloaded from remote source
+                    Option chosen is ArtifactRepo, ignoring any previously copied artifacts and new artifacts will be downloaded from remote source
                     '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
                         ansiblePlaybook = "${currentWs}/ansible/artifacts-download.yml"
                         ansibleExtraArgs = """\
