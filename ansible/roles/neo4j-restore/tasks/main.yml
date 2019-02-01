@@ -48,3 +48,9 @@
   args:
     chdir: "{{ neo4j_home }}"
 
+- name: delete restore directory
+  become: yes
+  file:
+    state: absent
+    path: "{{ neo4j_restore_dir }}"
+
