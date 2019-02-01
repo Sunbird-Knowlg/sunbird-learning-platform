@@ -1,18 +1,18 @@
 package org.ekstep.common.router;
 
-import java.util.concurrent.TimeUnit;
-
-import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.exception.ServerException;
-import org.ekstep.graph.engine.router.ActorBootstrap;
-import org.ekstep.graph.engine.router.RequestRouter;
-
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.routing.SmallestMailboxPool;
 import akka.util.Timeout;
+import org.ekstep.common.Platform;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.graph.engine.router.ActorBootstrap;
+import org.ekstep.graph.engine.router.RequestRouter;
 import scala.concurrent.duration.Duration;
+
+import java.util.concurrent.TimeUnit;
 
 
 public class RequestRouterPool {
@@ -21,8 +21,9 @@ public class RequestRouterPool {
     private static ActorRef actor;
     private static int count = 5;
 
-    public static long REQ_TIMEOUT = 30000;
-    public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+    public static long REQ_TIMEOUT = Platform.config.hasPath("akka.request_timeout") ? (Platform.config.getLong
+            ("akka.request_timeout") * 1000): 30000;
+    public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(REQ_TIMEOUT, TimeUnit.MILLISECONDS));
 
     static {
         system = ActorBootstrap.getActorSystem();
