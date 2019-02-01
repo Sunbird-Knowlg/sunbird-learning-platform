@@ -6,7 +6,6 @@
     - service: name=monit state=stopped
       become: yes
       ignore_errors: true
-  remote_user: "{{ ecosystem_user }}"
   become: yes
   roles:
     - java
