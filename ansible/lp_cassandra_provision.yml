@@ -1,4 +1,4 @@
-- hosts: lp-cassandra 
+- hosts: cassandra 
   # Install cassandra
   become: yes
   vars_files:
@@ -8,7 +8,7 @@
     - cassandra-3.7.0
   tags: provision
 
-- hosts: lp-cassandra
+- hosts: cassandra
   become: yes
   # Create Schema
   vars_files:
