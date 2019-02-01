@@ -30,9 +30,21 @@
   become_user: "{{learner_user}}"
   unarchive: src={{neo4j_restore_gzip_file_path}} dest={{learner_user_home}} copy=no group={{learner_user}} owner={{learner_user}}
 
-#- name: delete existing graph db
-#  become: yes
-#  file:
-#    state: absent
-#    path: "{{ path_to_neo4j_db }}/graph.db"
+- name: delete existing graph db
+  become: yes
+  file:
+    state: absent
+    path: "{{ path_to_neo4j_db }}/graph.db"
+
+- name: move graph db to database folder
+  become: yes
+  become_user: "{{learner_user}}"
+  command: mv {{learner_user_home}}/learning_graph {{path_to_neo4j_db}}/graph.db
+
+- name: Start neo4j
+  become: yes
+  become_user: "{{ learner_user }}"
+  shell:  bin/neo4j start
+  args:
+    chdir: "{{ neo4j_home }}"
 
