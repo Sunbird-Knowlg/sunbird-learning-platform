@@ -11,7 +11,7 @@ language_write_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:8687
 object_bookmark_expiry_in_seconds: 15
 environment_id: 10000000
 search_index_host: "{{ groups['composite-search-cluster'][0] }}:9200"
-cassandra_host: "{{ groups['lp-cassandra'][0] }}"   
+cassandra_host: "{{ groups['cassandra'][0] }}"   
 cassandra_port: 9042
 hierarchy_keyspace_name: "{{env}}_hierarchy_store"
 language_service_url: language_url
@@ -20,4 +20,4 @@ youtube_api_key: "{{ vault_youtube_api_key }}"
 instance: "{{env}}"
 instance_name: 
 
-cassandra_lp_connection: "{{groups['cassandra-cluster']|join(':9042,')}}:9042"
+lp_cassandra_connection: "{{groups['cassandra']|join(':9042,')}}:9042"
