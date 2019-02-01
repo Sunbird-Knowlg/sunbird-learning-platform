@@ -34,7 +34,7 @@ node() {
                     }
                     else{
                         println(ANSI_BOLD + ANSI_YELLOW + '''\
-                    Option chosen is Local, using the artifacts copied 
+                    Option chosen is JenkinsJob, using the artifacts copied 
                     '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
                     }
                 }
