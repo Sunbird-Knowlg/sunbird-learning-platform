@@ -36,17 +36,17 @@ kafka_topics_instruction: "{{env}}.learning.job.request"
 object_bookmark_expiry_in_seconds: 15
 platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
  
-graph_passport_key: "{{ vault_graph_passport_key }}"
-dial_service_authorization: "{{ vault_dial_service_authorization }}"
+graph_passport_key: "{{ lp_vault_graph_passport_key }}"
+dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
 language_service_url: language_url
 youtube_app_name: fetch-youtube-license
-youtube_api_key: "{{ vault_youtube_api_key }}"
+youtube_api_key: "{{ lp_vault_youtube_api_key }}"
  
 
 cloud_store: azure
 azure_public_container: 
 azure_account_name: 
-azure_account_key: "{{ vault_azure_storage_secret }}"
+azure_account_key: "{{ lp_vault_azure_storage_secret }}"
 
 content_media_base_url:  
 plugin_media_base_url: 
