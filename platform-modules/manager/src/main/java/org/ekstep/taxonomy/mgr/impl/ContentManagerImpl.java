@@ -837,6 +837,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		domainObj.setGraphId(TAXONOMY_ID);
 		domainObj.setIdentifier(contentId);
 		domainObj.setObjectType(objectType);
+		domainObj.setInRelations(null);
 		createResponse = updateDataNode(domainObj);
 		checkError = checkError(createResponse);
 		if (checkError)
