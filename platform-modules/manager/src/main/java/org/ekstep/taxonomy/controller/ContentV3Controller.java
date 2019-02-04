@@ -1,7 +1,6 @@
 package org.ekstep.taxonomy.controller;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -304,14 +303,15 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "mode", required = false) String mode) {
+											  @RequestParam(value = "mode", required = false) String mode,
+											  @RequestParam(value = "fields", required = false) String[] fields) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
 		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
 		try {
 			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]"
 					+ contentId);
-			response = contentManager.getHierarchy(contentId, mode);
+			response = contentManager.getHierarchy(contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);

@@ -506,8 +506,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response getHierarchy(String contentId, String mode) {
-		if(StringUtils.equalsIgnoreCase("edit", mode)){
+	public Response getHierarchy(String contentId, String mode, List<String> fields) {
+		if(StringUtils.equalsIgnoreCase("edit", mode) || CollectionUtils.isNotEmpty(fields)){
 			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
 
 			boolean fetchAll = true;
@@ -515,7 +515,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
 				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 						"Content not found with id: " + contentId);
-			}else if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
+			}else if((!(StringUtils.equalsIgnoreCase(mode, "edit")) ||!CollectionUtils.isNotEmpty(fields)) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
 				fetchAll = false;
 			}
 
@@ -2381,7 +2381,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
             return getResponse;
         } else {
             DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-            Map<String, Object> hierarchy = util.getContentHierarchyRecursive(rootNode.getGraphId(), rootNode, definition, null, true);
+			Map<String, Object> hierarchy = util.getContentHierarchyRecursive(rootNode.getGraphId(), rootNode, definition, null, true);
             collectionStore.updateContentHierarchy(identifier, hierarchy);
             return OK();
         }

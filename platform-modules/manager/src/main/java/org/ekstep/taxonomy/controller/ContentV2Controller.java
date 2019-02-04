@@ -267,7 +267,7 @@ public class ContentV2Controller extends BaseController {
 		try {
 			TelemetryManager
 					.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
-			response = contentManager.getHierarchy(contentId, mode);
+			response = contentManager.getHierarchy(contentId, mode, null);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
