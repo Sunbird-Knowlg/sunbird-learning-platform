@@ -20,8 +20,8 @@ import java.util.Properties;
 public class KafkaClient {
 
 	private final static String BOOTSTRAP_SERVERS = Platform.config.getString("kafka.urls");
-	private static Producer<Long, String> producer;
-	private static Consumer<Long, String> consumer;
+	private static Producer<String, String> producer;
+	private static Consumer<String, String> consumer;
 	
 	static {
 		loadProducerProperties();
@@ -34,7 +34,7 @@ public class KafkaClient {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaClientProducer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        producer = new KafkaProducer<Long, String>(props);
+        producer = new KafkaProducer<String, String>(props);
     }
 	
 	private static void loadConsumerProperties() {
@@ -46,21 +46,35 @@ public class KafkaClient {
 	    consumer = new KafkaConsumer<>(props);
 	}
 	
-	protected static Producer<Long, String> getProducer() {
+	protected static Producer<String, String> getProducer() {
 		return producer;
 	}
 	
-	protected static Consumer<Long, String> getConsumer() {
+	protected static Consumer<String, String> getConsumer() {
 		return consumer;
 	}
-	
+
+	public static void send(String key, String event, String topic) throws Exception {
+		boolean isTopicCheckReq = Platform.config.hasPath("kafka.topic.send.enable")? Platform.config.getBoolean("kafka.topic.send.enable"):true;
+		if (!isTopicCheckReq)
+			return;
+		if(validate(topic)) {
+			final Producer<String, String> producer = getProducer();
+			ProducerRecord<String, String> record = new ProducerRecord<String, String>(topic, key, event);
+			producer.send(record);
+		}else {
+			TelemetryManager.error("Topic id: " + topic + ", does not exists.");
+			throw new ClientException("TOPIC_NOT_EXISTS_EXCEPTION", "Topic id: " + topic + ", does not exists.");
+		}
+	}
+
 	public static void send(String event, String topic) throws Exception {
 		boolean isTopicCheckReq = Platform.config.hasPath("kafka.topic.send.enable")? Platform.config.getBoolean("kafka.topic.send.enable"):true;
 		if (!isTopicCheckReq)
 			return;
 		if(validate(topic)) {
-			final Producer<Long, String> producer = getProducer();
-			ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(topic, event);
+			final Producer<String, String> producer = getProducer();
+			ProducerRecord<String, String> record = new ProducerRecord<String, String>(topic, event);
 			producer.send(record);
 		}else {
 			TelemetryManager.error("Topic id: " + topic + ", does not exists.");
@@ -68,7 +82,7 @@ public class KafkaClient {
 		}
 	}
 	public static boolean validate(String topic) throws Exception{
-		Consumer<Long, String> consumer = getConsumer();
+		Consumer<String, String> consumer = getConsumer();
 	    Map<String, List<PartitionInfo>> topics = consumer.listTopics();
 	    return topics.keySet().contains(topic);
 	}
