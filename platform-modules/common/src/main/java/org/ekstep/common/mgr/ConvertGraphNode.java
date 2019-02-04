@@ -71,7 +71,7 @@ public class ConvertGraphNode {
 							objectType = objectType.replace("Image", "");
 							id = id.replace(".img", "");
 						}
-						list.add(new NodeDTO(id, inRel.getStartNodeName(), getDescription(inRel.getStartNodeMetadata()),
+						list.add(new NodeDTO(id, inRel.getStartNodeName(), getMetadataValue(inRel.getStartNodeMetadata(), "description"),
 								objectType, inRel.getRelationType()));
                     }
                 }
@@ -95,14 +95,14 @@ public class ConvertGraphNode {
 								objectType = objectType.replace("Image", "");
 								id = id.replace(".img", "");
 								NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
-										getDescription(outRel.getEndNodeMetadata()), outRel.getEndNodeObjectType(),
+										getMetadataValue(outRel.getEndNodeMetadata(), "description"), getMetadataValue(outRel.getEndNodeMetadata(), "visibility"), outRel.getEndNodeObjectType(),
 										outRel.getRelationType(), outRel.getMetadata());
 								list.add(child);
 							}
 
 						} else {
 							NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
-									getDescription(outRel.getEndNodeMetadata()), outRel.getEndNodeObjectType(),
+									getMetadataValue(outRel.getEndNodeMetadata(), "description"), getMetadataValue(outRel.getEndNodeMetadata(), "visibility"), outRel.getEndNodeObjectType(),
 									outRel.getRelationType(), outRel.getMetadata());
 							list.add(child);
 						}
@@ -144,9 +144,9 @@ public class ConvertGraphNode {
         return map;
     }
     
-    private static String getDescription(Map<String, Object> metadata) {
+    private static String getMetadataValue(Map<String, Object> metadata, String key) {
         if (null != metadata && !metadata.isEmpty()) {
-            return (String) metadata.get("description");
+            return (String) metadata.get(key);
         }
         return null;
     }
