@@ -1,10 +1,8 @@
 - name: Create the directory
-  become: yes
   file: path={{ cassandra_backup_dir }} state=directory recurse=yes
   
 - name: copy the backup script 
-  become: yes
-  template: src=cassandra_backup.j2  dest=/data/cassandra/backup/cassandra_backup.py mode=0755 
+  template: src=cassandra_backup.j2  dest={{ cassandra_backup_dir }}/cassandra_backup.py mode=0755 
 
 - set_fact:
     cassandra_backup_gzip_file_name: "cassandra-backup-{{ lookup('pipe', 'date +%Y%m%d') }}"
@@ -13,15 +11,14 @@
     cassandra_backup_gzip_file_path: "{{ cassandra_backup_dir }}/{{ cassandra_backup_gzip_file_name }}.tar.gz"
 
 - name: run the backup script
-  become: yes
-  shell: python cassandra_backup.py "{{ cassandra_backup_gzip_file_name }}" -d "{{ data_dir }}"
+  shell: python cassandra_backup.py {{ cassandra_backup_gzip_file_name }} -d {{ data_dir }}
   args:
-    chdir: /data/cassandra/backup
+    chdir: "{{ cassandra_backup_dir }}"
   async: 3600
   poll: 10
   
 - name: Check doc_root path
-  shell: ls -all /data/cassandra/backup/
+  shell: ls -all {{ cassandra_backup_dir }}
   register: doc_data
 
 - name: print doc_root to console
