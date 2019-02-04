@@ -1,5 +1,6 @@
 package org.ekstep.learning.util;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
@@ -24,6 +25,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -420,6 +422,7 @@ public class ControllerUtil extends BaseLearningManager {
 					childNode = getContentNode(graphId, dto.getIdentifier(), mode);
 				else
 					childNode = getContentNode(graphId, dto.getIdentifier(), null);
+
 				String nodeStatus = (String)childNode.getMetadata().get("status");
 				if((!org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) &&
 						(fetchAll || (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Live") || org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted")))) {
@@ -475,6 +478,37 @@ public class ControllerUtil extends BaseLearningManager {
 		if (org.apache.commons.lang3.StringUtils.isNotBlank(identifier))
 			imageId = identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		return imageId;
+	}
+
+
+	public Map<String, Object> getHierarchy(String graphId, String contentId, List<String> fields) {
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.name as name, ";
+		if(CollectionUtils.isNotEmpty(fields)) {
+			for(String field : fields) {
+				query += " n."+field + " as " + field + ", ";
+			}
+		}
+		query += " length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent order by depth;";
+
+		System.out.println("Query: "+ MessageFormat.format(query, graphId, contentId));
+		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
+		List<String> props = new ArrayList<String>();
+		props.add("identifier");
+		props.add("parent");
+		props.add("depth");
+		props.add("name");
+		props.addAll(fields);
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			System.out.println("List size: " + list.size());
+			return null;
+		} else {
+			throw new ServerException("", "");
+		}
 	}
 
 

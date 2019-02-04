@@ -138,6 +138,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			
 	private ControllerUtil util = new ControllerUtil();
 	private CollectionStore collectionStore = new CollectionStore();
+
+	private List<String> hierarchyFields = Arrays.asList();
 	/*private BaseStorageService storageService;
 	
 	@PostConstruct
@@ -506,22 +508,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response getHierarchy(String contentId, String mode, List<String> fields) {
-		if(StringUtils.equalsIgnoreCase("edit", mode) || CollectionUtils.isNotEmpty(fields)){
+	public Response getHierarchy(String contentId, String mode, List<String> fields) throws Exception {
+		if(StringUtils.equalsIgnoreCase("edit", mode)){
 			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
-
-			boolean fetchAll = true;
 			String nodeStatus = (String) node.getMetadata().get("status");
+
 			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
 				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 						"Content not found with id: " + contentId);
-			}else if((!(StringUtils.equalsIgnoreCase(mode, "edit")) ||!CollectionUtils.isNotEmpty(fields)) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
-				fetchAll = false;
 			}
+
+//			util.getHierarchy(TAXONOMY_ID, node.getIdentifier(), fields);
 
 			TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, fetchAll);
+			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, true);
 			Map<String, Object> dataMap = contentCleanUp(map);
 			Response response = new Response();
 			response.put("content", dataMap);

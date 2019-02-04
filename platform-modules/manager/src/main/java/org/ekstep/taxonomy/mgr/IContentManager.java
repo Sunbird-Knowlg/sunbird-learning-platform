@@ -180,7 +180,7 @@ public interface IContentManager {
 	 * @return the response contains the hierarchy of the <code>content</code>
 	 *         in its Result Set.
 	 */
-	Response getHierarchy(String contentId, String mode, List<String> fields);
+	Response getHierarchy(String contentId, String mode, List<String> fields) throws Exception;
 
 	/**
 	 * This method returns the content.
