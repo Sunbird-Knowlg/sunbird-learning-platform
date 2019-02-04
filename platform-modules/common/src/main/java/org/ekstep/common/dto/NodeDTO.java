@@ -19,13 +19,27 @@ public class NodeDTO implements Serializable {
 	private String mimeType;
 	private String visibility;
 	private Integer compatibilityLevel;
+	private Double pkgVersion;
+	private String channel;
+	private String lastPublishedBy;
+	private String versionKey;
+	private String contentType;
 
 	public NodeDTO() {
 
 	}
 	
+	public NodeDTO(String identifier, String name, String mimeType, Double pkgVersion, String channel, String lastPublishedBy, String versionKey, String contentType) {
+		super();
+		this.identifier = identifier;
+		this.name = name;
+		this.mimeType = mimeType;
+		this.pkgVersion = pkgVersion;
+		this.channel = channel;
+		this.lastPublishedBy = lastPublishedBy;
+		this.contentType = contentType;
+	}
 	
-
 	public NodeDTO(String identifier, String name, Integer depth,  String status, String mimeType, String visibility) {
 		super();
 		this.identifier = identifier;
@@ -164,6 +178,48 @@ public class NodeDTO implements Serializable {
 	public void setCompatibilityLevel(int compatibilityLevel) {
 		this.compatibilityLevel = compatibilityLevel;
 	}
-	
+
+	public void setCompatibilityLevel(Integer compatibilityLevel) {
+		this.compatibilityLevel = compatibilityLevel;
+	}
+	public Double getPkgVersion() {
+		return pkgVersion;
+	}
+
+	public void setPkgVersion(Double pkgVersion) {
+		this.pkgVersion = pkgVersion;
+	}
+
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+
+	public String getLastPublishedBy() {
+		return lastPublishedBy;
+	}
+
+	public void setLastPublishedBy(String lastPublishedBy) {
+		this.lastPublishedBy = lastPublishedBy;
+	}
+
+	public String getVersionKey() {
+		return versionKey;
+	}
+
+	public void setVersionKey(String versionKey) {
+		this.versionKey = versionKey;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
 	
 }

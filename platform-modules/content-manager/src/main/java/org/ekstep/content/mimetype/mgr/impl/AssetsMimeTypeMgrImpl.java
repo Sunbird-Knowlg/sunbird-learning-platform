@@ -40,11 +40,15 @@ import org.ekstep.telemetry.util.LogTelemetryEventUtil;
  */
 public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
-	private static String actorId = "Image Tagging Samza Job";
-	private static String actorType = "System";
+	private static final Map<String, Object> actor = new HashMap<>();
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
 	private static String action = "imagetagging";
+	
+	static {
+		actor.put("id", "Image Tagging Samza Job");
+		actor.put("type", "System");
+	}
 	/*
 	 * (non-Javadoc)
 	 *
@@ -178,29 +182,25 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	}
 	
 	private void pushInstructionEvent(Node node, String contentId) throws Exception{
-		Map<String,Object> actor = new HashMap<String,Object>();
 		Map<String,Object> context = new HashMap<String,Object>();
 		Map<String,Object> object = new HashMap<String,Object>();
 		Map<String,Object> edata = new HashMap<String,Object>();
 		
-		generateInstructionEventMetadata(actor, context, object, edata, node.getMetadata(), contentId);
+		generateInstructionEventMetadata(context, object, edata, node.getMetadata(), contentId);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		String topic = Platform.config.getString("kafka.topics.instruction");
 		if(StringUtils.isBlank(beJobRequestEvent)) {
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
 		}
 		if(StringUtils.isNotBlank(topic)) {
-			KafkaClient.send(beJobRequestEvent, topic);
+			KafkaClient.send(contentId, beJobRequestEvent, topic);
 		} else {
 			throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
 		}
 	}
 	
-	private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context, 
+	private void generateInstructionEventMetadata(Map<String,Object> context, 
 			Map<String,Object> object, Map<String,Object> edata, Map<String, Object> metadata, String contentId) {
-		
-		actor.put("id", actorId);
-		actor.put("type", actorType);
 		
 		context.put("channel", metadata.get("channel")); 
 		Map<String, Object> pdata = new HashMap<>();

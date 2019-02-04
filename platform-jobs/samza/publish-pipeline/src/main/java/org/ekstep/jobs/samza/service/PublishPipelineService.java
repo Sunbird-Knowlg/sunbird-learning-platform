@@ -157,7 +157,7 @@ public class PublishPipelineService implements ISamzaService {
 		Node node = getNode(contentId);
 		String publishType = (String) edata.get(PublishPipelineParams.publish_type.name());
 		node.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);
-		if (publishContent(node, publishType)) {
+		if (publishContent(node)) {
 			metrics.incSuccessCounter();
 			edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.SUCCESS.name());
 			LOGGER.debug("Node publish operation :: SUCCESS :: For NodeId :: " + node.getIdentifier());
@@ -193,25 +193,20 @@ public class PublishPipelineService implements ISamzaService {
 		return node;
 	}
 
-	private boolean publishContent(Node node, String publishType) throws Exception {
+	private boolean publishContent(Node node) throws Exception {
 		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
-		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
-				COLLECTION_CONTENT_MIMETYPE)) {
+		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()), COLLECTION_CONTENT_MIMETYPE) && 
+				StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.visibility.name()), "Default")) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
-			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
-			nodesToPublish.forEach(
-					nodeDTO -> publishCollectionNode(nodeDTO, (String) node.getMetadata().get("publish_type")));
 			if (!nodes.isEmpty()) {
 				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(),
 						getCompatabilityLevel(nodes));
 			}
 		}
-		Node latestNode = util.getNode("domain", node.getIdentifier());
-		latestNode.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);
-		publishNode(latestNode, (String) latestNode.getMetadata().get(PublishPipelineParams.mimeType.name()));
+		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
 		
-		Node publishedNode = getNode(latestNode.getIdentifier().replace(".img", ""));
+		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
 		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
 				PublishPipelineParams.Failed.name()))
 			return false;

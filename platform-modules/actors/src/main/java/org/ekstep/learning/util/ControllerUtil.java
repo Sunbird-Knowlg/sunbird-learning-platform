@@ -282,7 +282,9 @@ public class ControllerUtil extends BaseLearningManager {
 			imageNodeId = nodeId + ".img";
 		}
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility, s.compatibilityLevel as compatibilityLevel";
+		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, "
+				+ "s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility, "
+				+ "s.compatibilityLevel as compatibilityLevel, s.pkgVersion as pkgVersion, s.versionKey as versionKey, s.contentType as contentType";
 		String query = MessageFormat.format(queryString, nodeId) + " UNION " + MessageFormat.format(queryString, imageNodeId) + " ORDER BY depth DESC;";
         request.put(GraphDACParams.query.name(), query);
         List<String> props = new ArrayList<String>();
@@ -293,6 +295,9 @@ public class ControllerUtil extends BaseLearningManager {
         props.add("mimeType");
         props.add("compatibilityLevel");
         props.add("visibility");
+        props.add("pkgVersion");
+        props.add("versionKey");
+        props.add("contentType");
         request.put(GraphDACParams.property_keys.name(), props);
         Response response = getResponse(request);
 		if (!checkError(response)) {
@@ -310,6 +315,10 @@ public class ControllerUtil extends BaseLearningManager {
 					if(null != properties.get("compatibilityLevel"))
 						compatibilityLevel = ((Number) properties.get("compatibilityLevel")).intValue();
 					obj.setCompatibilityLevel(compatibilityLevel);
+					double pkgVersion = ((null == properties.get("pkgVersion")) ? 0d : ((Number) properties.get("pkgVersion")).doubleValue());
+					obj.setPkgVersion(pkgVersion);
+					obj.setVersionKey((String) properties.get("versionKey"));
+					obj.setContentType((String) properties.get("contentType"));
 					nodes.add(obj);
 				}
 			}
