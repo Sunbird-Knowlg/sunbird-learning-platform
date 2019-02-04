@@ -32,9 +32,9 @@
   include_role:
     name: artifacts-upload-azure
   vars:
-    artifact: {{ cassandra_backup_gzip_file_name }}
-    artifact_path: {{ cassandra_backup_gzip_file_path }}
-    artifacts_container: {{ cassandra_backup_azure_container_name }}
+    artifact: "{{ cassandra_backup_gzip_file_name }}"
+    artifact_path: "{{ cassandra_backup_gzip_file_path }}"
+    artifacts_container: "{{ cassandra_backup_azure_container_name }}"
    
 - name: clean up backup dir after upload
   file: path={{ cassandra_backup_dir }} state=absent
