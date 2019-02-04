@@ -9,7 +9,7 @@
         es_instance_name: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}cs-node-{{ loop.index }}{% endif %}{% endfor %}"
   
     - name: Install plugin
-      command: ES_PATH_CONF=/etc/elasticsearch/"{{ es_instance_name }}" /usr/share/elasticsearch/bin/elasticsearch-plugin install repository-azure
+      shell: ES_PATH_CONF=/etc/elasticsearch/"{{ es_instance_name }}" /usr/share/elasticsearch/bin/elasticsearch-plugin install repository-azure
 
     - name: add azure storage details in config file
       become: yes
