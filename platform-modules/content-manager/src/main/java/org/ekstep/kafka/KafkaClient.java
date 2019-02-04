@@ -28,20 +28,36 @@ public class KafkaClient {
 		loadConsumerProperties();
 	}
 	
-	private static void loadProducerProperties() {
+	/*private static void loadProducerProperties() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaClientProducer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         producer = new KafkaProducer<String, String>(props);
+    }*/
+	private static void loadProducerProperties() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaClientProducer");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        producer = new KafkaProducer<String, String>(props);
     }
 	
-	private static void loadConsumerProperties() {
+	/*private static void loadConsumerProperties() {
 		Properties props = new Properties();
 	    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
 	    props.put(ConsumerConfig.CLIENT_ID_CONFIG, "KafkaClientConsumer");
 	    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
+	    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+	    consumer = new KafkaConsumer<>(props);
+	}*/
+	private static void loadConsumerProperties() {
+		Properties props = new Properties();
+	    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+	    props.put(ConsumerConfig.CLIENT_ID_CONFIG, "KafkaClientConsumer");
+	    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 	    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 	    consumer = new KafkaConsumer<>(props);
 	}

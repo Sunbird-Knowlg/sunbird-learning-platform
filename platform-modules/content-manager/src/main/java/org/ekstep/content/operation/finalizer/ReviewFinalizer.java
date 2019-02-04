@@ -119,6 +119,13 @@ public class ReviewFinalizer extends BaseFinalizer {
 					}
 				});
 			}
+			try {
+				pushInstructionEvent(node, null, publishType);
+				TelemetryManager.info("Content: " + node.getIdentifier() + " pushed to kafka for publish operation.");
+			} catch (Exception e) {
+				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
+						"Error occured during content publish", e);
+			}
 			node.getMetadata().put("publish_type", publishType); //Added for executing publish operation locally
 			
 			response = new Response();
