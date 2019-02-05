@@ -563,8 +563,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 
 			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
+			long startTime = System.currentTimeMillis();
 			List<Map<String, Object>> contentList = util.getContentHierarchy(TAXONOMY_ID, node.getIdentifier(), mode);
+			System.out.println("Time to call cypher and get hierarchy list: " + (System.currentTimeMillis() - startTime));
+			startTime = System.currentTimeMillis();
 			Map<String,Object> dataMap = getHierarchyMap(contentList, definition, fields);
+			System.out.println("Time to fetchNodes and construct hierarchy: " + (System.currentTimeMillis() - startTime));
 
 			Response response = new Response();
 			response.put("content", dataMap.get("content"));
@@ -597,10 +601,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		List<String> ids = contentList.stream().map(content -> (String) content.get("identifier")).collect(Collectors
 				.toList());
 		Map<String, Object> collectionHierarchy = new HashMap<>();
+		long startTime = System.currentTimeMillis();
 		Response getList = util.getDataNodes(TAXONOMY_ID, ids);
+		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
 		if(!checkError(getList)){
 			List<Node> nodeList = (List<Node>) getList.get("node_list");
-			List<Map<String, Object>> filteredList = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
+			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
 					(n,TAXONOMY_ID, definition, fields)).map(contentMap -> {
 						contentMap.remove("collections");
 						contentMap.remove("children");
@@ -609,25 +615,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						contentMap.remove("methods");
 						contentMap.remove("libraries");
 						return contentMap;
-					}).collect(Collectors.toList());
+					}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
 
-			Map<String, Map<String, Object>> idMap = new HashMap<String, Map<String, Object>>(){{
-				contentList.forEach(m -> {
-					String parentId = (String) m.get("parent");
-					if(null == get(m.get("identifier"))){
-						List<String> parentList = new ArrayList<String>();
-						parentList.add(parentId);
-						m.put("parent", parentList);
-						put(String.valueOf(m.get("identifier")), m);
-					}
-					else {
-						((List<String>) get(m.get("identifier")).get("parent")).add(parentId);
-					}
-				});
-			}};
-			filteredList.forEach(n -> (idMap.get(n.get("identifier"))).putAll(n));
-
-			collectionHierarchy.put("content", contentCleanUp(util.constructHierarchy(new ArrayList<>(idMap.values()))));
+			contentList = contentList.stream().map(n -> { n.putAll(contentsWithMetadata.get(n.get("identifier"))); return n;}).collect(Collectors.toList());
+			startTime = System.currentTimeMillis();
+			collectionHierarchy.put("content", contentCleanUp(util.constructHierarchy(contentList)));
+			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
 		}else {
 			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
 				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());

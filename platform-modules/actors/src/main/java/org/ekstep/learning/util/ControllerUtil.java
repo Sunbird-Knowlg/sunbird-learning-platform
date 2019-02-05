@@ -237,7 +237,7 @@ public class ControllerUtil extends BaseLearningManager {
 	 *
 	 * @param taxonomyId
 	 *            the taxonomy id
-	 * @param node
+	 * @param nodes
 	 *            the list of nodes
 	 * 
 	 * @return the response
@@ -485,6 +485,7 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	public Map<String, Object> constructHierarchy(List<Map<String, Object>> list) {
+
 		Map<String, Object> hierarchy = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == 0).findFirst().get();
 		if (MapUtils.isNotEmpty(hierarchy)) {
 			int max = list.stream().map(e -> ((Number) e.get("depth")).intValue()).max(Comparator.naturalOrder()).orElse(1);
@@ -494,21 +495,19 @@ public class ControllerUtil extends BaseLearningManager {
 				Map<String, Map<String, Object>> currentLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
 						.collect(Collectors.toMap(x -> (String) x.get("identifier"), x -> x));
 
-				Map<String, Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth+1)
-						.collect(Collectors.toMap(x -> (String) x.get("identifier"), x -> x));
-				if (MapUtils.isNotEmpty(currentLevelNodes) && MapUtils.isNotEmpty(nextLevelNodes)) {
-					nextLevelNodes.values().forEach(e -> {
-								List<String> parentList = (List<String>) e.get("parent");
-								for(String parentId : parentList){
-									Map<String, Object> parent = currentLevelNodes.get(parentId);
-									if (MapUtils.isNotEmpty(parent)) {
-										List<Object> children = (List<Object>) parent.get("children");
-										if (CollectionUtils.isEmpty(children)) {
-											children = new ArrayList<Object>();
-											parent.put("children", children);
-										}
-										children.add(e);
+				List<Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth+1)
+						.collect(Collectors.toList());
+				if (MapUtils.isNotEmpty(currentLevelNodes) && CollectionUtils.isNotEmpty(nextLevelNodes)) {
+					nextLevelNodes.forEach(e -> {
+								String parentId = (String) e.get("parent");
+								Map<String, Object> parent = currentLevelNodes.get(parentId);
+								if (MapUtils.isNotEmpty(parent)) {
+									List<Object> children = (List<Object>) parent.get("children");
+									if (CollectionUtils.isEmpty(children)) {
+										children = new ArrayList<Object>();
+										parent.put("children", children);
 									}
+									children.add(e);
 								}
 							}
 					);
@@ -520,7 +519,7 @@ public class ControllerUtil extends BaseLearningManager {
 
 	public List<Map<String, Object>> getContentHierarchy(String graphId, String contentId, String mode) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]) .IL_SEQUENCE_INDEX as index order by depth,index;";
+		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.IL_FUNC_OBJECT_TYPE as objectType, s.visibility as visibility, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]) .IL_SEQUENCE_INDEX as index order by depth,index;";
 		System.out.println("Query: "+ MessageFormat.format(query, graphId, contentId));
 		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
 		List<String> props = Arrays.asList("identifier", "objectType", "visibility", "depth", "parent", "index");
@@ -552,6 +551,7 @@ public class ControllerUtil extends BaseLearningManager {
 				List<Map<String, Object>> contentList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
 						.filter(e -> !removeIds.contains(e.get("identifier")))
 						.collect(Collectors.toList());
+
 				return contentList;
 			} else {
 				// mode!=edit - remove Image Nodes.
