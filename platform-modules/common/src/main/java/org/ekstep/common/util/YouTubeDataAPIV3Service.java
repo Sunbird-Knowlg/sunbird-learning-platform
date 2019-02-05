@@ -75,7 +75,7 @@ public class YouTubeDataAPIV3Service {
 		String licenceType = "";
 		try {
 			YouTube.Videos.List videosListByIdRequest = youtube.videos().list("status");
-			String apiKey = Platform.config.getString("learning.content.youtube.apikey");
+			String apiKey = Platform.config.getString("learning_content_youtube_apikey");
 			videosListByIdRequest.setKey(apiKey);
 			videosListByIdRequest.setId(videoId);
 			VideoListResponse response = videosListByIdRequest.execute();
