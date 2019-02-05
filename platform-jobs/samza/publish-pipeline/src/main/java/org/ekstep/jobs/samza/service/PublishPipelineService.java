@@ -196,14 +196,6 @@ public class PublishPipelineService implements ISamzaService {
 	private boolean publishContent(Node node) throws Exception {
 		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
-		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()), COLLECTION_CONTENT_MIMETYPE) && 
-				StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.visibility.name()), "Default")) {
-			List<NodeDTO> nodes = util.getNodesForPublish(node);
-			if (!nodes.isEmpty()) {
-				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(),
-						getCompatabilityLevel(nodes));
-			}
-		}
 		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
 		
 		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
