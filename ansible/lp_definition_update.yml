@@ -1,0 +1,44 @@
+---
+- hosts: learningall
+  become: yes
+  tasks:
+    - name: Update definitions
+      become: yes
+      become_user: "{{learner_user}}"
+      uri:
+      url: http://localhost:8080/learning-service/taxonomy/domain/definition
+      method: "POST"
+      body: "{{ lookup('file','{{ item }}.json') }}"
+      body_format: "json"
+      HEADER_Content-Type: "application/json"
+      HEADER_user-id: "system"
+      with_items:
+        -  'content_definition'
+        -  'content_image_definition'
+        -  'item_definition'
+        -  'itemset_definition'
+        -  'api_definition'
+        -  'channel_definition'
+        -  'reference_definition'
+        -  'concept_definition'
+        -  'dimension_definition'
+        -  'domain_definition'
+        -  'library_definition'
+        -  'method_definition'
+        -  'category_definition'
+        -  'categoryInstance_definition'
+        -  'framework_definition'
+        -  'term_definition'
+        -  'misconception_definition'
+      register: definition_update_status
+      tags:
+      - update-definition
+
+    - name: Print the definition update status to console
+      become: yes
+      become_user: "{{learner_user}}"
+      debug:
+        var: definition_update_status
+      tags:
+        - update-definition
+
