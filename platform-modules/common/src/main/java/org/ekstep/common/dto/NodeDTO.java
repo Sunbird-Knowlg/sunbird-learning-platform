@@ -3,8 +3,11 @@ package org.ekstep.common.dto;
 import java.io.Serializable;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.ekstep.graph.dac.enums.SystemProperties;
 
+@JsonInclude(Include.NON_NULL)
 public class NodeDTO implements Serializable {
 
 	private static final long serialVersionUID = -3083582629330476187L;

@@ -1476,16 +1476,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 							childId = nodeForRelation.getIdentifier();
 						}
 
-						Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
 						Map<String, Object> metadata = new HashMap<String, Object>();
 						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+
+						Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
 						rel.setMetadata(metadata);
 						outRelations.add(rel);
 
 						rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId + ".img");
-						metadata = new HashMap<String, Object>();
-						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
-
 						rel.setMetadata(metadata);
 						outRelations.add(rel);
 						++index;
