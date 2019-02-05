@@ -540,14 +540,19 @@ public class PublishFinalizer extends BaseFinalizer {
 				removeExtraProperties(contentImage);
 			}
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
-			String imageBody = getContentBody(contentImageId);
-			if (StringUtils.isNotBlank(imageBody)) {
-				response = updateContentBody(contentId, getContentBody(contentImageId));
-				if (checkError(response))
-					throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
-							ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
-									+ "]");
+
+			// Don't get body in case of the content is a collection.
+			if (StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) contentImage.getMetadata().get("mimeType"))) {
+				String imageBody = getContentBody(contentImageId);
+				if (StringUtils.isNotBlank(imageBody)) {
+					response = updateContentBody(contentId, imageBody);
+					if (checkError(response))
+						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+								ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
+										+ "]");
+				}
 			}
+
 
 			TelemetryManager.log("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");
 			response = updateNode(contentImage);
