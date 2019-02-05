@@ -19,6 +19,7 @@
       with_items:
         - 'cloud.azure.storage.default.account: {{ azure_account_name }}'
         - 'cloud.azure.storage.default.key: {{ azure_account_key }}'
+      no_log: true
   
     - name: restart elasticsearch
       service: name="{{es_instance_name}}_elasticsearch" state=restarted enabled=yes
