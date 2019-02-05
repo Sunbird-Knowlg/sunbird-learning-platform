@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -113,11 +114,16 @@ public class ReviewFinalizer extends BaseFinalizer {
 					try {
 						pushInstructionEvent(node, nodeDTO, publishType);
 						TelemetryManager.info("Content: " + node.getIdentifier() + " pushed to kafka for publish operation.");
+						
 					} catch (Exception e) {
 						throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
 								"Error occured during content publish", e);
 					}
 				});
+				if (!nodes.isEmpty()) {
+					node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(),
+							getCompatabilityLevel(nodes));
+				}
 			}
 			try {
 				pushInstructionEvent(node, null, publishType);
@@ -152,6 +158,16 @@ public class ReviewFinalizer extends BaseFinalizer {
 		}
 		
 		return response;
+	}
+	
+	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
+		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare(n1.getCompatibilityLevel(),
+				n2.getCompatibilityLevel());
+		Optional<NodeDTO> maxNode = nodes.stream().max(comp);
+		if (maxNode.isPresent())
+			return maxNode.get().getCompatibilityLevel();
+		else
+			return 1;
 	}
 	
 	private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
@@ -209,13 +225,13 @@ public class ReviewFinalizer extends BaseFinalizer {
 			nodeDto = new NodeDTO(parentNode.getIdentifier(), (String)parentNode.getMetadata().get("name"), (String)parentNode.getMetadata().get("mimeType"), 
 					(Double)parentNode.getMetadata().get("pkgVersion"), (String)parentNode.getMetadata().get("channel"), 
 					(String)parentNode.getMetadata().get("lastPublishedBy"), (String)parentNode.getMetadata().get("versionKey"), 
-					(String)parentNode.getMetadata().get("contentType"));
+					(String)parentNode.getMetadata().get("contentType"), (Integer)parentNode.getMetadata().get("compatibilityLevel"));
 		}else {
 			nodeDto.setChannel((String)parentNode.getMetadata().get("channel"));
 			nodeDto.setLastPublishedBy((String)parentNode.getMetadata().get("lastPublishedBy"));
 		}
 		
-		generateInstructionEventMetadata(context, object, edata, nodeDto, contentId, publishType);
+		generateInstructionEventMetadata(context, object, edata, nodeDto, publishType);
 		String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
 		String topic = Platform.config.getString("kafka.topics.instruction");
 		if(StringUtils.isBlank(beJobRequestEvent)) {
@@ -231,7 +247,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	}
 	
 	private void generateInstructionEventMetadata(Map<String,Object> context, 
-			Map<String,Object> object, Map<String,Object> edata, NodeDTO nodeDto, String contentId, String publishType) {
+			Map<String,Object> object, Map<String,Object> edata, NodeDTO nodeDto, String publishType) {
 		
 		context.put("channel", nodeDto.getChannel()); 
 		Map<String, Object> pdata = new HashMap<>();
@@ -243,13 +259,15 @@ public class ReviewFinalizer extends BaseFinalizer {
 			context.put("env", env);
 		}
 		
-		object.put("id", contentId);
+		object.put("id", nodeDto.getIdentifier());
 		object.put("ver", nodeDto.getVersionKey());
+		object.put("parentNodeId", contentId);
 
 		Map<String, Object> instructionEventMetadata = new HashMap<>();
 		instructionEventMetadata.put("pkgVersion", nodeDto.getPkgVersion());
 		instructionEventMetadata.put("mimeType", nodeDto.getMimeType());
 		instructionEventMetadata.put("lastPublishedBy", nodeDto.getLastPublishedBy());
+		instructionEventMetadata.put("compatibilityLevel", nodeDto.getCompatibilityLevel());
 
 		edata.put("action", action);
 		edata.put("metadata", instructionEventMetadata);

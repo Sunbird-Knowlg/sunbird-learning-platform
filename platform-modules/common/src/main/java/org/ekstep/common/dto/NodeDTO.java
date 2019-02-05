@@ -32,7 +32,8 @@ public class NodeDTO implements Serializable {
 
 	}
 	
-	public NodeDTO(String identifier, String name, String mimeType, Double pkgVersion, String channel, String lastPublishedBy, String versionKey, String contentType) {
+	public NodeDTO(String identifier, String name, String mimeType, Double pkgVersion, String channel, String lastPublishedBy, 
+			String versionKey, String contentType, Integer compatibilityLevel) {
 		super();
 		this.identifier = identifier;
 		this.name = name;
@@ -41,6 +42,7 @@ public class NodeDTO implements Serializable {
 		this.channel = channel;
 		this.lastPublishedBy = lastPublishedBy;
 		this.contentType = contentType;
+		this.compatibilityLevel = compatibilityLevel;
 	}
 	
 	public NodeDTO(String identifier, String name, Integer depth,  String status, String mimeType, String visibility) {
