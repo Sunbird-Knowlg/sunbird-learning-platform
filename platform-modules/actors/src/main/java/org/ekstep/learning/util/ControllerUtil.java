@@ -1,6 +1,7 @@
 package org.ekstep.learning.util;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
@@ -483,29 +484,36 @@ public class ControllerUtil extends BaseLearningManager {
 		return imageId;
 	}
 
-	public Map<String, Object> getCollectionHierarchy(String graphId, Node node, DefinitionDTO definition,
-													  String mode, List<String> fields) {
-		Map<String, Object> collectionHierarchy = new HashMap<>();
-		List<Map<String, Object>> hierarchyMap = getContentHierarchy(graphId, node.getIdentifier(), mode);
-		List<String> ids = hierarchyMap.stream().map(content -> (String) content.get("identifier")).collect(Collectors
-				.toList());
+	public Map<String, Object> constructHierarchy(List<Map<String, Object>> list) {
+		Map<String, Object> hierarchy = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == 0).findFirst().get();
+		if (MapUtils.isNotEmpty(hierarchy)) {
+			int max = list.stream().map(e -> ((Number) e.get("depth")).intValue()).max(Comparator.naturalOrder()).orElse(1);
 
-		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes");
-		request.put("node_ids", ids);
-		Response response = getResponse(request);
-		if(!checkError(response)){
-			List<Node> nodeList = (List<Node>) response.get("node_list");
-			List<Map<String, Object>> filteredList = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
-						(n,graphId, definition, fields)).collect(Collectors.toList());
-			collectionHierarchy.put("content", filteredList);
-		}else {
-			if (response.getResponseCode() == ResponseCode.CLIENT_ERROR) {
-				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), response.getParams().getErrmsg());
-			} else {
-				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), response.getParams().getErrmsg());
+			for (int i=0; i<=max;i++) {
+				final int depth = i;
+				Map<String, Map<String, Object>> currentLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
+						.collect(Collectors.toMap(x -> (String) x.get("identifier"), x -> x));
+
+				Map<String, Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth+1)
+						.collect(Collectors.toMap(x -> (String) x.get("identifier"), x -> x));
+				if (MapUtils.isNotEmpty(currentLevelNodes) && MapUtils.isNotEmpty(nextLevelNodes)) {
+					nextLevelNodes.values().forEach(e -> {
+								String parentId = (String) e.get("parent");
+								Map<String, Object> parent = currentLevelNodes.get(parentId);
+								if (MapUtils.isNotEmpty(parent)) {
+									List<Object> children = (List<Object>) parent.get("children");
+									if (CollectionUtils.isEmpty(children)) {
+										children = new ArrayList<Object>();
+										parent.put("children", children);
+									}
+									children.add(e);
+								}
+							}
+					);
+				}
 			}
 		}
-		return collectionHierarchy;
+		return hierarchy;
 	}
 
 	public List<Map<String, Object>> getContentHierarchy(String graphId, String contentId, String mode) {
