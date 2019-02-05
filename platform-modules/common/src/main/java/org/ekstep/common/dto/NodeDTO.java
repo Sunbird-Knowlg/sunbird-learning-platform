@@ -41,6 +41,7 @@ public class NodeDTO implements Serializable {
 		this.pkgVersion = pkgVersion;
 		this.channel = channel;
 		this.lastPublishedBy = lastPublishedBy;
+		this.versionKey = versionKey;
 		this.contentType = contentType;
 		this.compatibilityLevel = compatibilityLevel;
 	}
