@@ -8,7 +8,7 @@
       uri:
       url: http://localhost:8080/learning-service/taxonomy/domain/definition
       method: "POST"
-      body: "{{ lookup('file','{{ item }}.json') }}"
+      body: "{{ lookup('file','../docs/domain_model_v2/definitions/{{ item }}.json') }}"
       body_format: "json"
       HEADER_Content-Type: "application/json"
       HEADER_user-id: "system"
