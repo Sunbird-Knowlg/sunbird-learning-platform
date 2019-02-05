@@ -90,6 +90,10 @@ public class NodeDTO implements Serializable {
 			}
 		}
 	}
+	public NodeDTO(String identifier, String name, String description, String visibility, String objectType, String relation, Map<String, Object> metadata) {
+		this(identifier, name, description, objectType, relation, metadata);
+		this.visibility = visibility;
+	}
 
 	public String getIdentifier() {
 		return identifier;

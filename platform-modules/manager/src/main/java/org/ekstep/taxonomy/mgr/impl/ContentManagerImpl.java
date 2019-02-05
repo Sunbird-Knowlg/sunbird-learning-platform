@@ -1488,6 +1488,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 						rel.setMetadata(metadata);
 						outRelations.add(rel);
+						++index;
 
 					}
 					Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),

@@ -26,3 +26,6 @@ platform-tools/spikes/sunbird-tools/nbproject
 *.retry
 *.idea*
 *.iml
+platform-tools/spikes/sync-tool/src/main/java/org/ekstep/sync/tool/util/ElasticSearchConnector.java
+platform-modules/actors/src/main/java/org/ekstep/learning/util/CloudStore.java
+platform-modules/actors/src/main/java/org/ekstep/learning/util/CloudStore.java
