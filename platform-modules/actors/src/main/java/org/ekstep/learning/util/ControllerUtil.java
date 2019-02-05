@@ -9,6 +9,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -16,6 +17,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
@@ -487,15 +489,21 @@ public class ControllerUtil extends BaseLearningManager {
 		System.out.println("Query: "+ MessageFormat.format(query, graphId, contentId));
 		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
 		List<String> props = Arrays.asList("identifier", "name", "depth", "parent", "index");
-
 		request.put(GraphDACParams.property_keys.name(), props);
 		Response response = getResponse(request);
 		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (CollectionUtils.isEmpty(list)) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "No data find for the given identifier: " + contentId.replace(".img", ""));
+			}
 			return list;
 		} else {
-			throw new ServerException("", "");
+			if (response.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), response.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), response.getParams().getErrmsg());
+			}
 		}
 	}
 
