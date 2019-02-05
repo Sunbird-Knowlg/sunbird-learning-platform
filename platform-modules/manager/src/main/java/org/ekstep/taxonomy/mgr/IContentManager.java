@@ -286,4 +286,6 @@ public interface IContentManager {
 	 * @throws Exception
 	 */
 	Response releaseDialcodes(String contentId, String channelId) throws Exception;
+
+	Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception;
 }

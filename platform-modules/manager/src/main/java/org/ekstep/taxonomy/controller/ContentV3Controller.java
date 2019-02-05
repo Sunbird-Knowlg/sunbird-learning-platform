@@ -311,7 +311,7 @@ public class ContentV3Controller extends BaseController {
 		try {
 			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]"
 					+ contentId);
-			response = contentManager.getHierarchy(contentId, mode, convertStringArrayToList(fields));
+			response = contentManager.getContentHierarchy(contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);

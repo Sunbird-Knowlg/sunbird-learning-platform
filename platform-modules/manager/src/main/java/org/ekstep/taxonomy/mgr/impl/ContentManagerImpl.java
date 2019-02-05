@@ -86,6 +86,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -522,9 +524,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 			TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-			//Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, true);
-			//Map<String, Object> dataMap = contentCleanUp(map);
-			Map<String, Object> dataMap = util.getCollectionHierarchy(TAXONOMY_ID, node, definition, mode, fields);
+			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, true);
+			Map<String, Object> dataMap = contentCleanUp(map);
 			Response response = new Response();
 			response.put("content", dataMap.get("content"));
 			response.setParams(getSucessStatus());
@@ -549,6 +550,75 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return response;
 		}
 
+	}
+
+	@Override
+	public Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception {
+		if(StringUtils.equalsIgnoreCase("edit", mode)){
+			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+			String nodeStatus = (String) node.getMetadata().get("status");
+
+			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+						"Content not found with id: " + contentId);
+			}
+
+			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
+			List<Map<String, Object>> contentList = util.getContentHierarchy(TAXONOMY_ID, node.getIdentifier(), mode);
+			Map<String,Object> dataMap = getHierarchyMap(contentList, definition, fields);
+
+			Response response = new Response();
+			response.put("content", dataMap.get("content"));
+			response.setParams(getSucessStatus());
+			return response;
+
+		} else{
+			Response hierarchyResponse = getCollectionHierarchy(contentId);
+			Response response = new Response();
+			if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
+				String cachedStatus = RedisStoreUtil.getNodeProperty(TAXONOMY_ID, contentId, "status");
+				Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+				if(StringUtils.isNotBlank(cachedStatus)){
+					hierarchy.put("status", cachedStatus);
+				} else{
+					hierarchy.put("status", getStatus(contentId, mode));
+				}
+
+				response.put("content", hierarchy);
+				response.setParams(getSucessStatus());
+			} else {
+				response = hierarchyResponse;
+			}
+			return response;
+		}
+
+	}
+
+	private Map<String,Object> getHierarchyMap(List<Map<String, Object>> contentList, DefinitionDTO definition, List<String> fields) {
+		List<String> ids = contentList.stream().map(content -> (String) content.get("identifier")).collect(Collectors
+				.toList());
+		Map<String, Object> collectionHierarchy = new HashMap<>();
+		Response getList = util.getDataNodes(TAXONOMY_ID, ids);
+		if(!checkError(getList)){
+			List<Node> nodeList = (List<Node>) getList.get("node_list");
+			List<Map<String, Object>> filteredList = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
+					(n,TAXONOMY_ID, definition, fields)).collect(Collectors.toList());
+
+			Map<String, Object> idMap = new HashMap<String, Object>(){{
+				contentList.forEach(m -> put(String.valueOf(m.get("identifier")), m));
+			}};
+
+			filteredList.forEach(n -> ((Map<String, Object>)idMap.get(n.get("identifier"))).putAll(n));
+
+			collectionHierarchy.put("content", idMap);
+		}else {
+			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
+			}
+		}
+		return null;
 	}
 
 	private String getStatus(String contentId, String mode) {
