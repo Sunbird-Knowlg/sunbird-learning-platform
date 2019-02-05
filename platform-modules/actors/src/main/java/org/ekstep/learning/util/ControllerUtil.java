@@ -492,8 +492,9 @@ public class ControllerUtil extends BaseLearningManager {
 
 			for (int i=0; i<=max;i++) {
 				final int depth = i;
-				Map<String, Map<String, Object>> currentLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
-						.collect(Collectors.toMap(x -> (String) x.get("identifier"), x -> x));
+				Map<String, Map<String, Object>> currentLevelNodes = new HashMap<>();
+				list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
+						.collect(Collectors.toList()).forEach(e -> currentLevelNodes.put((String) e.get("identifier"), e));
 
 				List<Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth+1)
 						.collect(Collectors.toList());
