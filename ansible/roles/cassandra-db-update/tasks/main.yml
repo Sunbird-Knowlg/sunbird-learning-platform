@@ -7,4 +7,4 @@
   
 - name: run cql 
   become: yes
-  shell: cqlsh -f /tmp/lp-data.cql'
+  shell: 'cqlsh -f /tmp/lp-data.cql'

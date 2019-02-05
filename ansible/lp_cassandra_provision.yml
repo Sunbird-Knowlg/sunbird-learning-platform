@@ -8,11 +8,3 @@
     - cassandra-3.7.0
   tags: provision
 
-- hosts: cassandra
-  become: yes
-  # Create Schema
-  vars_files:
-    - "{{inventory_dir}}/secrets.yml"
-  roles:
-    - cassandra-db-update
-  tags: deploy
