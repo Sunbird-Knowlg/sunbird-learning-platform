@@ -222,10 +222,13 @@ public class ReviewFinalizer extends BaseFinalizer {
 		Map<String,Object> edata = new HashMap<String,Object>();
 		
 		if(null == nodeDto) {
+			Integer compatibilityLevel = 1;
+			if(null != parentNode.getMetadata().get("compatibilityLevel"))
+				compatibilityLevel = ((Number)parentNode.getMetadata().get("compatibilityLevel")).intValue();
 			nodeDto = new NodeDTO(parentNode.getIdentifier(), (String)parentNode.getMetadata().get("name"), (String)parentNode.getMetadata().get("mimeType"), 
 					(Double)parentNode.getMetadata().get("pkgVersion"), (String)parentNode.getMetadata().get("channel"), 
 					(String)parentNode.getMetadata().get("lastPublishedBy"), (String)parentNode.getMetadata().get("versionKey"), 
-					(String)parentNode.getMetadata().get("contentType"), (Integer)parentNode.getMetadata().get("compatibilityLevel"));
+					(String)parentNode.getMetadata().get("contentType"), compatibilityLevel);
 		}else {
 			nodeDto.setChannel((String)parentNode.getMetadata().get("channel"));
 			nodeDto.setLastPublishedBy((String)parentNode.getMetadata().get("lastPublishedBy"));
