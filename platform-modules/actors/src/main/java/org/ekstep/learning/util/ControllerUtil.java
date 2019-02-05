@@ -481,31 +481,19 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 
-	public Map<String, Object> getHierarchy(String graphId, String contentId, List<String> fields) {
+	public List<Map<String, Object>> getHierarchy(String graphId, String contentId, String mode) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.name as name, ";
-		if(CollectionUtils.isNotEmpty(fields)) {
-			for(String field : fields) {
-				query += " n."+field + " as " + field + ", ";
-			}
-		}
-		query += " length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent order by depth;";
-
+		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]) .IL_SEQUENCE_INDEX as index order by depth,index;";
 		System.out.println("Query: "+ MessageFormat.format(query, graphId, contentId));
 		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
-		List<String> props = new ArrayList<String>();
-		props.add("identifier");
-		props.add("parent");
-		props.add("depth");
-		props.add("name");
-		props.addAll(fields);
+		List<String> props = Arrays.asList("identifier", "name", "depth", "parent", "index");
+
 		request.put(GraphDACParams.property_keys.name(), props);
 		Response response = getResponse(request);
 		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
-			System.out.println("List size: " + list.size());
-			return null;
+			return list;
 		} else {
 			throw new ServerException("", "");
 		}
