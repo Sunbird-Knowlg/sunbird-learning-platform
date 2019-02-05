@@ -25,6 +25,7 @@ import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.common.util.YouTubeDataAPIV3Service;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
@@ -65,7 +66,6 @@ import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.common.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 import scala.Option;
@@ -87,7 +87,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -602,15 +601,33 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if(!checkError(getList)){
 			List<Node> nodeList = (List<Node>) getList.get("node_list");
 			List<Map<String, Object>> filteredList = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
-					(n,TAXONOMY_ID, definition, fields)).collect(Collectors.toList());
+					(n,TAXONOMY_ID, definition, fields)).map(contentMap -> {
+						contentMap.remove("collections");
+						contentMap.remove("children");
+						contentMap.remove("usedByContent");
+						contentMap.remove("item_sets");
+						contentMap.remove("methods");
+						contentMap.remove("libraries");
+						return contentMap;
+					}).collect(Collectors.toList());
 
-			Map<String, Object> idMap = new HashMap<String, Object>(){{
-				contentList.forEach(m -> put(String.valueOf(m.get("identifier")), m));
+			Map<String, Map<String, Object>> idMap = new HashMap<String, Map<String, Object>>(){{
+				contentList.forEach(m -> {
+					String parentId = (String) m.get("parent");
+					if(null == get(m.get("identifier"))){
+						List<String> parentList = new ArrayList<String>();
+						parentList.add(parentId);
+						m.put("parent", parentList);
+						put(String.valueOf(m.get("identifier")), m);
+					}
+					else {
+						((List<String>) get(m.get("identifier")).get("parent")).add(parentId);
+					}
+				});
 			}};
+			filteredList.forEach(n -> (idMap.get(n.get("identifier"))).putAll(n));
 
-			filteredList.forEach(n -> ((Map<String, Object>)idMap.get(n.get("identifier"))).putAll(n));
-
-			collectionHierarchy.put("content", idMap);
+			collectionHierarchy.put("content", contentCleanUp(util.constructHierarchy(new ArrayList<>(idMap.values()))));
 		}else {
 			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
 				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
@@ -618,7 +635,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
 			}
 		}
-		return null;
+		return collectionHierarchy;
 	}
 
 	private String getStatus(String contentId, String mode) {

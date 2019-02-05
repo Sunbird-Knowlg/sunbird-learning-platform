@@ -29,7 +29,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+//import java.util.stream.Stream;
 
 
 /**
@@ -498,15 +498,17 @@ public class ControllerUtil extends BaseLearningManager {
 						.collect(Collectors.toMap(x -> (String) x.get("identifier"), x -> x));
 				if (MapUtils.isNotEmpty(currentLevelNodes) && MapUtils.isNotEmpty(nextLevelNodes)) {
 					nextLevelNodes.values().forEach(e -> {
-								String parentId = (String) e.get("parent");
-								Map<String, Object> parent = currentLevelNodes.get(parentId);
-								if (MapUtils.isNotEmpty(parent)) {
-									List<Object> children = (List<Object>) parent.get("children");
-									if (CollectionUtils.isEmpty(children)) {
-										children = new ArrayList<Object>();
-										parent.put("children", children);
+								List<String> parentList = (List<String>) e.get("parent");
+								for(String parentId : parentList){
+									Map<String, Object> parent = currentLevelNodes.get(parentId);
+									if (MapUtils.isNotEmpty(parent)) {
+										List<Object> children = (List<Object>) parent.get("children");
+										if (CollectionUtils.isEmpty(children)) {
+											children = new ArrayList<Object>();
+											parent.put("children", children);
+										}
+										children.add(e);
 									}
-									children.add(e);
 								}
 							}
 					);
@@ -537,19 +539,27 @@ public class ControllerUtil extends BaseLearningManager {
 					.map(e -> (String) e.get("identifier"))
 					.map(id -> id.endsWith(".img") ? id : id+".img")
 					.distinct().collect(Collectors.toList());
-			Stream<Map<String, Object>> listStream = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")));
+//			Stream<Map<String, Object>> listStream = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")));
 
 			// Get image nodes from the hierarchy (graph) other than root.
-			Stream<Map<String,Object>> imgList = listStream.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0);
+//			Stream<Map<String,Object>> imgList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+//					.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0);
 
 			if (StringUtils.equalsIgnoreCase("edit", mode)) {
 				// mode=edit - remove the Content which have Image Nodes.
-				List<String> removeIds = imgList.map(e -> ((String) e.get("identifier")).replace(".img", "")).collect(Collectors.toList());
-				return listStream.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
+				List<String> removeIds = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier")).replace(".img", "")).collect(Collectors.toList());
+				List<Map<String, Object>> contentList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> !removeIds.contains(e.get("identifier")))
+						.collect(Collectors.toList());
+				return contentList;
 			} else {
 				// mode!=edit - remove Image Nodes.
-				List<String> removeIds = imgList.map(e -> ((String) e.get("identifier"))).collect(Collectors.toList());
-				return listStream.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
+				List<String> removeIds = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier"))).collect(Collectors.toList());
+				List<Map<String, Object>> contentList =  list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
+				return contentList;
 			}
 
 		} else {
