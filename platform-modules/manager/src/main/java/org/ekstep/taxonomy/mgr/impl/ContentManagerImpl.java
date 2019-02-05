@@ -522,10 +522,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 			TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, true);
-			Map<String, Object> dataMap = contentCleanUp(map);
+			//Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, true);
+			//Map<String, Object> dataMap = contentCleanUp(map);
+			Map<String, Object> dataMap = util.getCollectionHierarchy(TAXONOMY_ID, node, definition, mode, fields);
 			Response response = new Response();
-			response.put("content", dataMap);
+			response.put("content", dataMap.get("content"));
 			response.setParams(getSucessStatus());
 			return response;
 		} else{

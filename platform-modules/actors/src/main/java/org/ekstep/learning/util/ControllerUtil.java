@@ -482,6 +482,30 @@ public class ControllerUtil extends BaseLearningManager {
 		return imageId;
 	}
 
+	public Map<String, Object> getCollectionHierarchy(String graphId, Node node, DefinitionDTO definition,
+													  String mode, List<String> fields) {
+		Map<String, Object> collectionHierarchy = new HashMap<>();
+		List<Map<String, Object>> hierarchyMap = getHierarchy(graphId, node.getIdentifier(), mode);
+		List<String> ids = hierarchyMap.stream().map(content -> (String) content.get("identifier")).collect(Collectors
+				.toList());
+
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes");
+		request.put("node_ids", ids);
+		Response response = getResponse(request);
+		if(!checkError(response)){
+			List<Node> nodeList = (List<Node>) response.get("node_list");
+			List<Map<String, Object>> filteredList = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
+						(n,graphId, definition, fields)).collect(Collectors.toList());
+			collectionHierarchy.put("content", filteredList);
+		}else {
+			if (response.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), response.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), response.getParams().getErrmsg());
+			}
+		}
+		return collectionHierarchy;
+	}
 
 	public List<Map<String, Object>> getHierarchy(String graphId, String contentId, String mode) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
