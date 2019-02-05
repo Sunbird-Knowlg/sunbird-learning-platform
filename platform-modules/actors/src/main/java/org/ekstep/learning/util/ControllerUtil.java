@@ -28,6 +28,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -485,7 +486,7 @@ public class ControllerUtil extends BaseLearningManager {
 	public Map<String, Object> getCollectionHierarchy(String graphId, Node node, DefinitionDTO definition,
 													  String mode, List<String> fields) {
 		Map<String, Object> collectionHierarchy = new HashMap<>();
-		List<Map<String, Object>> hierarchyMap = getHierarchy(graphId, node.getIdentifier(), mode);
+		List<Map<String, Object>> hierarchyMap = getContentHierarchy(graphId, node.getIdentifier(), mode);
 		List<String> ids = hierarchyMap.stream().map(content -> (String) content.get("identifier")).collect(Collectors
 				.toList());
 
@@ -507,12 +508,12 @@ public class ControllerUtil extends BaseLearningManager {
 		return collectionHierarchy;
 	}
 
-	public List<Map<String, Object>> getHierarchy(String graphId, String contentId, String mode) {
+	public List<Map<String, Object>> getContentHierarchy(String graphId, String contentId, String mode) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]) .IL_SEQUENCE_INDEX as index order by depth,index;";
 		System.out.println("Query: "+ MessageFormat.format(query, graphId, contentId));
 		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
-		List<String> props = Arrays.asList("identifier", "name", "depth", "parent", "index");
+		List<String> props = Arrays.asList("identifier", "objectType", "visibility", "depth", "parent", "index");
 		request.put(GraphDACParams.property_keys.name(), props);
 		Response response = getResponse(request);
 		if (!checkError(response)) {
@@ -521,7 +522,28 @@ public class ControllerUtil extends BaseLearningManager {
 			if (CollectionUtils.isEmpty(list)) {
 				throw new ResourceNotFoundException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "No data find for the given identifier: " + contentId.replace(".img", ""));
 			}
-			return list;
+
+			// Get leaf nodes(image) from the hierarchy (graph) and remove them.
+			List<String> resourceImgIds = list.stream()
+					.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && StringUtils.equalsIgnoreCase((String) e.get("visibility"), "default") && ((Number) e.get("depth")).intValue() > 0)
+					.map(e -> (String) e.get("identifier"))
+					.map(id -> id.endsWith(".img") ? id : id+".img")
+					.distinct().collect(Collectors.toList());
+			Stream<Map<String, Object>> listStream = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")));
+
+			// Get image nodes from the hierarchy (graph) other than root.
+			Stream<Map<String,Object>> imgList = listStream.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0);
+
+			if (StringUtils.equalsIgnoreCase("edit", mode)) {
+				// mode=edit - remove the Content which have Image Nodes.
+				List<String> removeIds = imgList.map(e -> ((String) e.get("identifier")).replace(".img", "")).collect(Collectors.toList());
+				return listStream.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
+			} else {
+				// mode!=edit - remove Image Nodes.
+				List<String> removeIds = imgList.map(e -> ((String) e.get("identifier"))).collect(Collectors.toList());
+				return listStream.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
+			}
+
 		} else {
 			if (response.getResponseCode() == ResponseCode.CLIENT_ERROR) {
 				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), response.getParams().getErrmsg());
