@@ -213,7 +213,7 @@ public class PublishPipelineService implements ISamzaService {
 		latestNode.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);
 		publishNode(latestNode, (String) latestNode.getMetadata().get(PublishPipelineParams.mimeType.name()));
 		
-		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
+		Node publishedNode = getNode(latestNode.getIdentifier().replace(".img", ""));
 		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
 				PublishPipelineParams.Failed.name()))
 			return false;
