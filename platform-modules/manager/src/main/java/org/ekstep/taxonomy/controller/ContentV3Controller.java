@@ -318,7 +318,7 @@ public class ContentV3Controller extends BaseController {
 				reqFields = null;
 
 			// This is to check the performance old vs new implementation.
-			if (StringUtils.equalsIgnoreCase("api", "old")) {
+			if (StringUtils.equalsIgnoreCase(api, "old")) {
 				response = contentManager.getHierarchy(contentId, mode, reqFields);
 			} else {
 				response = contentManager.getContentHierarchy(contentId, mode, reqFields);
