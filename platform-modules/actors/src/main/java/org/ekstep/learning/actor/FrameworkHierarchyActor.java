@@ -14,6 +14,8 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import akka.actor.ActorRef;
 
+import java.util.Map;
+
 /**
  * @author pradyumna
  *
@@ -37,6 +39,10 @@ public class FrameworkHierarchyActor extends BaseGraphManager {
 					String id = (String) request.get("identifier");
 					fwHierarchy.generateFrameworkHierarchy(id);
 					OK(parent);
+				} else if(StringUtils.equalsIgnoreCase(FrameworkHierarchyOperations.getFrameworkHierarchy.name(), methodName)){
+					String frameworkId = (String) request.get("identifier");
+					Map<String,Object> frameworkData = fwHierarchy.getFrameworkHierarchy(frameworkId);
+					OK("framework", frameworkData, sender());
 				} else {
 					TelemetryManager.log("Unsupported operation: " + methodName);
 					throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),
@@ -46,6 +52,6 @@ public class FrameworkHierarchyActor extends BaseGraphManager {
 		} catch (Exception e) {
 			ERROR(e.getCause(), parent);
 		}
-		
+
 	}
 }

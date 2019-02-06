@@ -26,7 +26,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -70,7 +70,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private ControllerUtil util = new ControllerUtil();
 
-	private CollectionStore collectionStore = new CollectionStore();
+	private HierarchyStore hierarchyStore = new HierarchyStore();
 
 
 	/**
@@ -381,7 +381,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishHierarchy(Node publishedNode) {
 		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
 		Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
-		collectionStore.updateContentHierarchy(publishedNode.getIdentifier(), hierarchy);
+		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
 	/**

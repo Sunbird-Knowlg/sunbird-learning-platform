@@ -58,7 +58,7 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
-import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
@@ -143,7 +143,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			? Platform.config.getString("dialcode.api.generate.url") : "http://localhost:8080/learning-service/v3/dialcode/generate";
 			
 	private ControllerUtil util = new ControllerUtil();
-	private CollectionStore collectionStore = new CollectionStore();
+	private HierarchyStore hierarchyStore = new HierarchyStore();
 	/*private BaseStorageService storageService;
 	
 	@PostConstruct
@@ -2391,7 +2391,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
         } else {
             DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
             Map<String, Object> hierarchy = util.getContentHierarchyRecursive(rootNode.getGraphId(), rootNode, definition, null, true);
-            collectionStore.updateContentHierarchy(identifier, hierarchy);
+            hierarchyStore.saveOrUpdateHierarchy(identifier, hierarchy);
             return OK();
         }
 
