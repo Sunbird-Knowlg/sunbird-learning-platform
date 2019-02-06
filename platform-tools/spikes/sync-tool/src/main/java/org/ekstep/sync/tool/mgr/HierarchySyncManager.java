@@ -68,7 +68,8 @@ public class HierarchySyncManager {
 
             for(Node node: nodes) {
                 if(!ignoredIds.contains(node.getIdentifier())){
-                    Map<String, Object> hierarchy = util.getContentHierarchyRecursive(node.getGraphId(), node, definition, null, true);
+                    Map<String, Object> hierarchy = util.getHierarchyMap(node.getGraphId(), node.getIdentifier(), definition, null,
+                            null);
                     collectionStore.updateContentHierarchy(node.getIdentifier(), hierarchy);
                     status +=1;
                 }else{
