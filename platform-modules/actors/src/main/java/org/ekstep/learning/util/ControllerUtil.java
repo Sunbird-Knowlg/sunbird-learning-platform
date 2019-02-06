@@ -532,7 +532,6 @@ public class ControllerUtil extends BaseLearningManager {
 	public List<Map<String, Object>> getContentHierarchy(String graphId, String contentId, String mode) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.IL_FUNC_OBJECT_TYPE as objectType, s.visibility as visibility, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]) .IL_SEQUENCE_INDEX as index order by depth,index;";
-		System.out.println("Query: "+ MessageFormat.format(query, graphId, contentId));
 		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
 		List<String> props = Arrays.asList("identifier", "objectType", "visibility", "depth", "parent", "index");
 		request.put(GraphDACParams.property_keys.name(), props);
@@ -590,16 +589,16 @@ public class ControllerUtil extends BaseLearningManager {
 	public Map<String,Object> getHierarchyMap(String graphId, String contentId, DefinitionDTO
 			definition,String mode, List<String> fields) {
 
-		long startTime = System.currentTimeMillis();
+//		long startTime = System.currentTimeMillis();
 		List<Map<String, Object>> contentList = getContentHierarchy(graphId, contentId, mode);
-		System.out.println("Time to call cypher and get hierarchy list: " + (System.currentTimeMillis() - startTime));
+//		System.out.println("Time to call cypher and get hierarchy list: " + (System.currentTimeMillis() - startTime));
 
 		List<String> ids = contentList.stream().map(content -> (String) content.get("identifier")).collect(Collectors
 				.toList());
 		Map<String, Object> collectionHierarchy = new HashMap<>();
-		startTime = System.currentTimeMillis();
+//		startTime = System.currentTimeMillis();
 		Response getList = getDataNodes(graphId, ids);
-		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
+//		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
 		if(!checkError(getList)){
 			List<Node> nodeList = (List<Node>) getList.get("node_list");
 			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
@@ -614,9 +613,9 @@ public class ControllerUtil extends BaseLearningManager {
 			}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
 
 			contentList = contentList.stream().map(n -> { n.putAll(contentsWithMetadata.get(n.get("identifier"))); return n;}).collect(Collectors.toList());
-			startTime = System.currentTimeMillis();
+//			startTime = System.currentTimeMillis();
 			collectionHierarchy = contentCleanUp(constructHierarchy(contentList));
-			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
+//			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
 		}else {
 			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
 				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
