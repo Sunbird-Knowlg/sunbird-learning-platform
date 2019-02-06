@@ -618,6 +618,7 @@ public class ControllerUtil extends BaseLearningManager {
 				contentMap.remove("item_sets");
 				contentMap.remove("methods");
 				contentMap.remove("libraries");
+				contentMap.remove("editorState");
 				return contentMap;
 			}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
 
