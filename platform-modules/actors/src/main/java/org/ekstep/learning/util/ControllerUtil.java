@@ -587,6 +587,47 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 
+	public Map<String,Object> getHierarchyMap(String graphId, String contentId, DefinitionDTO
+			definition,String mode, List<String> fields) {
+
+		long startTime = System.currentTimeMillis();
+		List<Map<String, Object>> contentList = getContentHierarchy(graphId, contentId, mode);
+		System.out.println("Time to call cypher and get hierarchy list: " + (System.currentTimeMillis() - startTime));
+
+		List<String> ids = contentList.stream().map(content -> (String) content.get("identifier")).collect(Collectors
+				.toList());
+		Map<String, Object> collectionHierarchy = new HashMap<>();
+		startTime = System.currentTimeMillis();
+		Response getList = getDataNodes(graphId, ids);
+		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
+		if(!checkError(getList)){
+			List<Node> nodeList = (List<Node>) getList.get("node_list");
+			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
+					(n,graphId, definition, fields)).map(contentMap -> {
+				contentMap.remove("collections");
+				contentMap.remove("children");
+				contentMap.remove("usedByContent");
+				contentMap.remove("item_sets");
+				contentMap.remove("methods");
+				contentMap.remove("libraries");
+				return contentMap;
+			}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
+
+			contentList = contentList.stream().map(n -> { n.putAll(contentsWithMetadata.get(n.get("identifier"))); return n;}).collect(Collectors.toList());
+			startTime = System.currentTimeMillis();
+			collectionHierarchy = contentCleanUp(constructHierarchy(contentList));
+			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
+		}else {
+			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
+			}
+		}
+		return collectionHierarchy;
+	}
+
+
 	public List<String> getPublishedCollections(String graphId, int offset, int limit) {
 		List<String> identifiers = new ArrayList<>();
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");

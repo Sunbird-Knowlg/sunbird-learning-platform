@@ -564,10 +564,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
 			long startTime = System.currentTimeMillis();
-			List<Map<String, Object>> contentList = util.getContentHierarchy(TAXONOMY_ID, node.getIdentifier(), mode);
-			System.out.println("Time to call cypher and get hierarchy list: " + (System.currentTimeMillis() - startTime));
-			startTime = System.currentTimeMillis();
-			Map<String,Object> dataMap = getHierarchyMap(contentList, definition, fields);
+			Map<String,Object> dataMap = util.getHierarchyMap(TAXONOMY_ID, node.getIdentifier(), definition, mode,
+					fields);
 			System.out.println("Time to fetchNodes and construct hierarchy: " + (System.currentTimeMillis() - startTime));
 
 			Response response = new Response();
@@ -597,39 +595,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	}
 
-	private Map<String,Object> getHierarchyMap(List<Map<String, Object>> contentList, DefinitionDTO definition, List<String> fields) {
-		List<String> ids = contentList.stream().map(content -> (String) content.get("identifier")).collect(Collectors
-				.toList());
-		Map<String, Object> collectionHierarchy = new HashMap<>();
-		long startTime = System.currentTimeMillis();
-		Response getList = util.getDataNodes(TAXONOMY_ID, ids);
-		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
-		if(!checkError(getList)){
-			List<Node> nodeList = (List<Node>) getList.get("node_list");
-			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
-					(n,TAXONOMY_ID, definition, fields)).map(contentMap -> {
-						contentMap.remove("collections");
-						contentMap.remove("children");
-						contentMap.remove("usedByContent");
-						contentMap.remove("item_sets");
-						contentMap.remove("methods");
-						contentMap.remove("libraries");
-						return contentMap;
-					}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
-
-			contentList = contentList.stream().map(n -> { n.putAll(contentsWithMetadata.get(n.get("identifier"))); return n;}).collect(Collectors.toList());
-			startTime = System.currentTimeMillis();
-			collectionHierarchy = contentCleanUp(util.constructHierarchy(contentList));
-			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
-		}else {
-			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
-				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
-			} else {
-				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
-			}
-		}
-		return collectionHierarchy;
-	}
 
 	private String getStatus(String contentId, String mode) {
 			Node node  = getContentNode(TAXONOMY_ID, contentId, mode);
@@ -2462,7 +2427,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
             return getResponse;
         } else {
             DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-			Map<String, Object> hierarchy = util.getContentHierarchyRecursive(rootNode.getGraphId(), rootNode, definition, null, true);
+			Map<String, Object> hierarchy = util.getHierarchyMap(rootNode.getGraphId(), rootNode.getIdentifier(), definition, null,
+					null);
             collectionStore.updateContentHierarchy(identifier, hierarchy);
             return OK();
         }
