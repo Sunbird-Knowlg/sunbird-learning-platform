@@ -176,10 +176,11 @@ public interface IContentManager {
 	 *            if edit, returns the hierarchy of the Draft version, else
 	 *            returns the hierarchy of the Live version. If Live version
 	 *            does not exist, Draft version is returned
+	 * @param fields
 	 * @return the response contains the hierarchy of the <code>content</code>
 	 *         in its Result Set.
 	 */
-	Response getHierarchy(String contentId, String mode);
+	Response getHierarchy(String contentId, String mode, List<String> fields) throws Exception;
 
 	/**
 	 * This method returns the content.
@@ -285,4 +286,6 @@ public interface IContentManager {
 	 * @throws Exception
 	 */
 	Response releaseDialcodes(String contentId, String channelId) throws Exception;
+
+	Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception;
 }

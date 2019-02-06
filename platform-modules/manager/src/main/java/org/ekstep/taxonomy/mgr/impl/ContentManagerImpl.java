@@ -25,6 +25,7 @@ import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.common.util.YouTubeDataAPIV3Service;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
@@ -65,7 +66,6 @@ import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.common.util.YouTubeDataAPIV3Service;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 import scala.Option;
@@ -86,6 +86,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -138,6 +139,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			
 	private ControllerUtil util = new ControllerUtil();
 	private CollectionStore collectionStore = new CollectionStore();
+
+	private List<String> hierarchyFields = Arrays.asList();
 	/*private BaseStorageService storageService;
 	
 	@PostConstruct
@@ -506,25 +509,24 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response getHierarchy(String contentId, String mode) {
+	public Response getHierarchy(String contentId, String mode, List<String> fields) throws Exception {
 		if(StringUtils.equalsIgnoreCase("edit", mode)){
 			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
-
-			boolean fetchAll = true;
 			String nodeStatus = (String) node.getMetadata().get("status");
+
 			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
 				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 						"Content not found with id: " + contentId);
-			}else if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
-				fetchAll = false;
 			}
+
+//			util.getHierarchy(TAXONOMY_ID, node.getIdentifier(), fields);
 
 			TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, fetchAll);
+			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, true);
 			Map<String, Object> dataMap = contentCleanUp(map);
 			Response response = new Response();
-			response.put("content", dataMap);
+			response.put("content", dataMap.get("content"));
 			response.setParams(getSucessStatus());
 			return response;
 		} else{
@@ -548,6 +550,51 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 
 	}
+
+	@Override
+	public Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception {
+		if(StringUtils.equalsIgnoreCase("edit", mode)){
+			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+			String nodeStatus = (String) node.getMetadata().get("status");
+
+			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+						"Content not found with id: " + contentId);
+			}
+
+			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
+			long startTime = System.currentTimeMillis();
+			Map<String,Object> dataMap = util.getHierarchyMap(TAXONOMY_ID, node.getIdentifier(), definition, mode,
+					fields);
+			System.out.println("Time to fetchNodes and construct hierarchy: " + (System.currentTimeMillis() - startTime));
+
+			Response response = new Response();
+			response.put("content", dataMap);
+			response.setParams(getSucessStatus());
+			return response;
+
+		} else{
+			Response hierarchyResponse = getCollectionHierarchy(contentId);
+			Response response = new Response();
+			if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
+				String cachedStatus = RedisStoreUtil.getNodeProperty(TAXONOMY_ID, contentId, "status");
+				Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+				if(StringUtils.isNotBlank(cachedStatus)){
+					hierarchy.put("status", cachedStatus);
+				} else{
+					hierarchy.put("status", getStatus(contentId, mode));
+				}
+
+				response.put("content", hierarchy);
+				response.setParams(getSucessStatus());
+			} else {
+				response = hierarchyResponse;
+			}
+			return response;
+		}
+
+	}
+
 
 	private String getStatus(String contentId, String mode) {
 			Node node  = getContentNode(TAXONOMY_ID, contentId, mode);
@@ -2380,7 +2427,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
             return getResponse;
         } else {
             DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-            Map<String, Object> hierarchy = util.getContentHierarchyRecursive(rootNode.getGraphId(), rootNode, definition, null, true);
+			Map<String, Object> hierarchy = util.getHierarchyMap(rootNode.getGraphId(), rootNode.getIdentifier(), definition, null,
+					null);
             collectionStore.updateContentHierarchy(identifier, hierarchy);
             return OK();
         }
