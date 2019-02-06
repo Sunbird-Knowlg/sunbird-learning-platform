@@ -32,9 +32,10 @@ import com.google.api.services.youtube.model.VideoListResponse;
  * @author gauraw
  *
  */
-public class YouTubeDataAPIV3Service {
+public class YouTubeUrlUtil {
 
 	/**
+	 /**
 	 * Define a global instance of the HTTP transport.
 	 */
 	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
@@ -46,14 +47,13 @@ public class YouTubeDataAPIV3Service {
 
 	private static final String ERR_MSG = "Please Provide Valid YouTube URL!";
 	private static final String SERVICE_ERROR = "Unable to Check License. Please Try Again After Sometime!";
-
 	private static final List<String> errorCodes = Arrays.asList("dailyLimitExceeded402", "limitExceeded",
 			"dailyLimitExceeded", "quotaExceeded", "userRateLimitExceeded", "quotaExceeded402", "keyExpired",
 			"keyInvalid");
-
 	private static boolean limitExceeded = false;
-
 	private static YouTube youtube = null;
+	private static List<String> validLicenses = Platform.config.hasPath("learning.valid_license") ?
+			Platform.config.getStringList("learning.valid_license") : Arrays.asList("creativeCommon");
 
 	static {
 		String youtubeAppName = Platform.config.hasPath("learning.content.youtube.application.name")
@@ -66,12 +66,15 @@ public class YouTubeDataAPIV3Service {
 
 	/**
 	 * This Method will fetch license for given YouTube Video URL.
-	 * 
+	 *
 	 * @param videoUrl
 	 * @return licenceType
 	 */
 	public static String getLicense(String videoUrl) {
 		String videoId = getIdFromUrl(videoUrl);
+		if(StringUtils.isBlank(videoId))
+			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_URL.name(), ERR_MSG);
+
 		String licenceType = "";
 		try {
 			YouTube.Videos.List videosListByIdRequest = youtube.videos().list("status");
@@ -109,6 +112,9 @@ public class YouTubeDataAPIV3Service {
 		return licenceType;
 	}
 
+	public static boolean isValidLicense(String license) {
+		return validLicenses.contains(license);
+	}
 	private static String getIdFromUrl(String url) {
 		String videoLink = getVideoLink(url);
 		List<String> videoIdRegex = Platform.config.getStringList("youtube.license.regex.pattern");

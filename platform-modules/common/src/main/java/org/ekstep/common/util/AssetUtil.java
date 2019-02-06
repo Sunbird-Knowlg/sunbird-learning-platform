@@ -17,7 +17,7 @@ public class AssetUtil {
         String licenseType;
         switch (StringUtils.lowerCase(provider)) {
             case "youtube": TelemetryManager.log("Getting Youtube License");
-                            licenseType = YouTubeDataAPIV3Service.getLicense(url);
+                            licenseType = YouTubeUrlUtil.getLicense(url);
                             break;
             default       : throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Provider");
         }

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.util.YouTubeDataAPIV3Service;
+import org.ekstep.common.util.YouTubeUrlUtil;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.content.common.TestParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Test Cases for YouTube Service
  * 
- * @see YouTubeDataAPIV3Service
+ * @see YouTubeUrlUtil
  * 
  * @author gauraw
  *
@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
+public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private IContentManager contentManager;
@@ -84,7 +84,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 	@Test
 	public void testYouTubeService_01() throws Exception {
 		String artifactUrl = "https://www.youtube.com/watch?v=owr198WQpM8";
-		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("creativeCommon", result);
 	}
 
@@ -92,7 +92,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 	@Test
 	public void testYouTubeService_02() throws Exception {
 		String artifactUrl = "https://www.youtube.com/watch?v=_UR-l3QI2nE";
-		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("youtube", result);
 	}
 
@@ -101,14 +101,14 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 	public void testYouTubeService_03() throws Exception {
 		exception.expect(ClientException.class);
 		String artifactUrl = "https://goo.gl/bVBJNK";
-		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 	}
 
 	// check license of valid youtube url.
 	@Test
 	public void testYouTubeService_04() throws Exception {
 		String artifactUrl = "http://youtu.be/-wtIMTCHWuI";
-		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("youtube", result);
 	}
 
@@ -116,7 +116,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 	@Test
 	public void testYouTubeService_05() throws Exception {
 		String artifactUrl = "http://www.youtube.com/v/-wtIMTCHWuI?version=3&autohide=1";
-		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("youtube", result);
 	}
 
@@ -124,7 +124,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 	@Test
 	public void testYouTubeService_06() throws Exception {
 		String artifactUrl = "https://www.youtube.com/embed/7IP0Ch1Va44";
-		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("youtube", result);
 	}
 
@@ -133,7 +133,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 	@Test
 	public void testYouTubeService_07() throws Exception {
 		String artifactUrl = "http://www.youtube.com/attribution_link?a=JdfC0C9V6ZI&u=%2Fwatch%3Fv%3DEhxJLojIE_o%26feature%3Dshare";
-		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("youtube", result);
 	}
 
@@ -192,7 +192,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 	@Test
 	public void testYouTubeService_11() throws Exception {
 		String artifactUrl = "https://youtu.be/WM4ys_PnrUY";
-		String result = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("youtube", result);
 	}
 }

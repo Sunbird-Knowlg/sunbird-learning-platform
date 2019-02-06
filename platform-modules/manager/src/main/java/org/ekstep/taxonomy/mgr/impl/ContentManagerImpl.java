@@ -68,7 +68,7 @@ import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.ekstep.common.util.YouTubeDataAPIV3Service;
+import org.ekstep.common.util.YouTubeUrlUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 import scala.Option;
@@ -1664,7 +1664,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				? Platform.config.getBoolean("learning.content.youtube.validate.license") : false;
 
 		if (isValReq) {
-			String licenseType = YouTubeDataAPIV3Service.getLicense(artifactUrl);
+			String licenseType = YouTubeUrlUtil.getLicense(artifactUrl);
 			if (StringUtils.equalsIgnoreCase("youtube", licenseType))
 				node.getMetadata().put("license", "Standard YouTube License");
 			else if (StringUtils.equalsIgnoreCase("creativeCommon", licenseType))

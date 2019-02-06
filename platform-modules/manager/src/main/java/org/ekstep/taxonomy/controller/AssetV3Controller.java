@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
@@ -25,25 +26,16 @@ public class AssetV3Controller extends BaseController {
     @Autowired
     private IAssetManager assetManager;
 
-    private Map<String, Object> getAsset(Request request) throws Exception {
-        Map<String, Object> requestMap = null;
-        requestMap = request.getRequest();
-        if(!requestMap.isEmpty()) {
-            Map<String, Object> asset = (Map<String, Object>) requestMap.get(AssetParams.asset.name());
-            if(null != asset && !asset.isEmpty()) return asset;
-            else throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Asset");
-        } else throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "InvalidRequest.");
-    }
-
-    @RequestMapping(value = "/license/validate", method = RequestMethod.POST)
+    @RequestMapping(value = "/validate", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> licenseValidate(@RequestBody Map<String, Object> requestMap) {
-        String apiId = "asset.v3.license.validate";
-        TelemetryManager.log("Validating License");
+    public ResponseEntity<Response> licenseValidate(@RequestBody Map<String, Object> requestMap,
+                                                    @RequestParam(value = "field", required = true) String field) {
+        String apiId = "asset.url.validate";
+        TelemetryManager.log("Validating URL against : " + field);
         Response response;
         try {
             Request request = getRequest(requestMap);
-            response = assetManager.licenseValidate(getAsset(request));
+            response = assetManager.urlValidate(getAsset(request), field);
             return getResponseEntity(response, apiId, null);
         } catch(Exception e) {
             TelemetryManager.error("Exception occured while Licesence Validation: " + e.getMessage(), e);
@@ -72,5 +64,15 @@ public class AssetV3Controller extends BaseController {
             TelemetryManager.error("Exception occured while reading Url Metadata: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
+    }
+
+    private Map<String, Object> getAsset(Request request) throws Exception {
+        Map<String, Object> requestMap = null;
+        requestMap = request.getRequest();
+        if(!requestMap.isEmpty()) {
+            Map<String, Object> asset = (Map<String, Object>) requestMap.get(AssetParams.asset.name());
+            if(null != asset && !asset.isEmpty()) return asset;
+            else throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "Invalid Asset");
+        } else throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "InvalidRequest.");
     }
 }

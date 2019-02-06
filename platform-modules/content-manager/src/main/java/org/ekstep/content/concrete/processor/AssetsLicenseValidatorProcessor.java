@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.YouTubeDataAPIV3Service;
+import org.ekstep.common.util.YouTubeUrlUtil;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
@@ -98,7 +98,7 @@ public class AssetsLicenseValidatorProcessor extends AbstractProcessor {
 
     private void validateLicense(String type, String src) {
         switch (type) {
-            case "youtube": if (!isValidLicense(YouTubeDataAPIV3Service.getLicense(src)))
+            case "youtube": if (!isValidLicense(YouTubeUrlUtil.getLicense(src)))
                                 throw new ClientException(ContentErrorCodeConstants.INVALID_YOUTUBE_MEDIA.name(), ContentErrorMessageConstants.LICENSE_NOT_SUPPORTED);
                             break;
             default       : break;

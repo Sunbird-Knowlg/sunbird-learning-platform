@@ -14,10 +14,11 @@ public interface IAssetManager {
     /**
      *
      * @param asset
+     * @param field
      * @return
      * @throws Exception
      */
-    Response licenseValidate(Map<String, Object> asset) throws Exception;
+    Response urlValidate(Map<String, Object> asset, String field) throws Exception;
 
     /**
      *

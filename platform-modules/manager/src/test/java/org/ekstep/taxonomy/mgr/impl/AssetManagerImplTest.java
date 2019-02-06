@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 
 /**
- * Unit Test Cases for {@link AssetManagerImpl#licenseValidate(Map)} and {@link AssetManagerImpl#metadataRead(Map)}
+ * Unit Test Cases for {@link IAssetManager#urlValidate(Map, String)} and {@link AssetManagerImpl#metadataRead(Map)}
  *
  * @see AssetManagerImpl
  */
@@ -72,7 +72,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), AssetParams.youtube.name());
         asset.put(AssetParams.url.name(), "https://www.youtube.com/watch?v=NpnsqOCkhIs");
 
-        Response response = assetManager.licenseValidate(asset);
+        Response response = assetManager.urlValidate(asset, "license");
 
         assertEquals(ResponseCode.OK.code(), response.getResponseCode().code());
         assertTrue( (boolean) response.getResult().get(VALID_LICENSE) );
@@ -85,7 +85,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), AssetParams.youtube.name());
         asset.put(AssetParams.url.name(), "https://www.youtube.com/watch?v=nA1Aqp0sPQo");
 
-        Response response = assetManager.licenseValidate(asset);
+        Response response = assetManager.urlValidate(asset, "license");
 
         assertEquals(ResponseCode.OK.code(), response.getResponseCode().code());
         assertFalse( (boolean) response.getResult().get(VALID_LICENSE) );
@@ -98,7 +98,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), "testProvider");
         asset.put(AssetParams.url.name(), "https://www.youtube.com/watch?v=nA1Aqp0sPQo");
         try {
-            assetManager.licenseValidate(asset);
+            assetManager.urlValidate(asset, "license");
         } catch(ClientException e) {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.INVALID_PROVIDER.value(), e.getMessage());
@@ -111,7 +111,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), "");
         asset.put(AssetParams.url.name(), "https://www.youtube.com/watch?v=nA1Aqp0sPQo");
         try {
-            assetManager.licenseValidate(asset);
+            assetManager.urlValidate(asset, "license");
         } catch (ClientException e) {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.SPECIFY_PROVIDER.value(), e.getMessage());
@@ -124,7 +124,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), AssetParams.youtube.name());
         asset.put(AssetParams.url.name(), null);
         try {
-            assetManager.licenseValidate(asset);
+            assetManager.urlValidate(asset, "license");
         } catch (ClientException e) {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.SPECIFY_URL.value(), e.getMessage());
@@ -137,7 +137,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), AssetParams.youtube.name());
         asset.put(AssetParams.url.name(), "https://www.youtube.com/watch?v=nA1Aqfdsfsdfsdfp0sPQo");
         try {
-            assetManager.licenseValidate(asset);
+            assetManager.urlValidate(asset, "license");
         } catch(ClientException e) {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.SPECIFY_VALID_YOUTUBE_URL.value(), e.getMessage());
@@ -183,7 +183,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.url.name(), "https://www.youtube.com/watch?v=nA1Aqp0sPQo");
 
         try {
-            assetManager.licenseValidate(asset);
+            assetManager.urlValidate(asset, "license");
         } catch(ClientException e) {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.INVALID_PROVIDER.value(), e.getMessage());
@@ -196,7 +196,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), "");
         asset.put(AssetParams.url.name(), "https://www.youtube.com/watch?v=nA1Aqp0sPQo");
         try {
-            assetManager.licenseValidate(asset);
+            assetManager.urlValidate(asset, "license");
         } catch (ClientException e) {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.SPECIFY_PROVIDER.value(), e.getMessage());
@@ -209,7 +209,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), AssetParams.youtube.name());
         asset.put(AssetParams.url.name(), null);
         try {
-            assetManager.licenseValidate(asset);
+            assetManager.urlValidate(asset, "license");
         } catch (ClientException e) {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.SPECIFY_URL.value(), e.getMessage());
@@ -222,7 +222,7 @@ public class AssetManagerImplTest {
         asset.put(AssetParams.provider.name(), AssetParams.youtube.name());
         asset.put(AssetParams.url.name(), "https://www.youtube.com/watch?v=nA1Aqfdsfsdfsdfp0sPQo");
         try {
-            assetManager.licenseValidate(asset);
+            assetManager.urlValidate(asset, "license");
         } catch(ClientException e) {
             assertEquals(ResponseCode.CLIENT_ERROR.code(), e.getResponseCode().code());
             assertEquals(ErrMsg.SPECIFY_VALID_YOUTUBE_URL.value(), e.getMessage());
