@@ -2079,17 +2079,17 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException("ERR_INVALID_REQUEST", "Please provide valid request");
 
 		if (StringUtils.isBlank((String) requestMap.get("createdBy")))
-			throw new ClientException("ERR_INVALID_CREATEDBY", "Please provide valid createdBy value");
+			throw new ClientException("ERR_INVALID_CREATEDBY", "Please provide valid value for createdBy");
 
 		if (!validateList(requestMap.get("createdFor"))) {
-			throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid createdFor value.");
+			throw new ClientException("ERR_INVALID_CREATEDFOR", "Please provide valid value for createdFor");
 		}
 		if (!validateList(requestMap.get("organization"))) {
-			throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid Organization value.");
+			throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid value for Organization");
 		}
 
 		if (StringUtils.isBlank((String) requestMap.get("framework")))
-			throw new ClientException("ERR_INVALID_FRAMEWORK", "Please provide valid framework value");
+			throw new ClientException("ERR_INVALID_FRAMEWORK", "Please provide valid value for framework");
 
 		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
 		List<String> notCoppiedContent = null;

@@ -79,8 +79,6 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 				"definitions/dimension_definition.json", "definitions/domain_definition.json");
 		executeScript(script_1, script_2);
 		LearningRequestRouterPool.init();
-		//startKafkaServer();
-		//createTopic(topic);
 		createDocumentContent();
 	}
 
@@ -181,8 +179,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		Response resp = getResponse(actions);
 		String errorCode = resp.getParams().getErr();
-		/*Assert.assertEquals("ERR_INVALID_CREATEDBY", errorCode);*/
-		Assert.assertEquals("ERR_INVALID_REQUEST", errorCode);
+		Assert.assertEquals("ERR_INVALID_CREATEDBY", errorCode);
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
@@ -200,7 +197,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 		System.out.println("Response::" + actions.andReturn().getResponse().getContentAsString());
 		Response resp = getResponse(actions);
 		String errorCode = resp.getParams().getErr();
-		Assert.assertEquals("ERR_CONTENT_BLANK_OBJECT", errorCode);
+		Assert.assertEquals("ERR_INVALID_CREATEDFOR", errorCode);
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
