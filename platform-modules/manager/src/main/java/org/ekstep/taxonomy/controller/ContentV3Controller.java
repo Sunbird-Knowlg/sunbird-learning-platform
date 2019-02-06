@@ -1,7 +1,6 @@
 package org.ekstep.taxonomy.controller;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -304,14 +303,27 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "mode", required = false) String mode) {
+											  @RequestParam(value = "mode", required = false) String mode,
+											  @RequestParam(value = "api", required = false) String api,
+											  @RequestParam(value = "fields", required = false) String[] fields) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
 		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
 		try {
 			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]"
 					+ contentId);
-			response = contentManager.getHierarchy(contentId, mode);
+			List<String> reqFields = convertStringArrayToList(fields);
+			// This is to support portal backward compatibility. Remove after 1.14.0 final sprint.
+			if (reqFields.size() == 1 && StringUtils.equalsIgnoreCase( reqFields.get(0), "versionKey"))
+				reqFields = null;
+
+			// This is to check the performance old vs new implementation.
+			if (StringUtils.equalsIgnoreCase(api, "old")) {
+				response = contentManager.getHierarchy(contentId, mode, reqFields);
+			} else {
+				response = contentManager.getContentHierarchy(contentId, mode, reqFields);
+			}
+
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);

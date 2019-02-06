@@ -1,5 +1,7 @@
 package org.ekstep.learning.util;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
@@ -8,6 +10,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -15,6 +18,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
@@ -24,6 +28,8 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+//import java.util.stream.Stream;
 
 
 /**
@@ -231,7 +237,7 @@ public class ControllerUtil extends BaseLearningManager {
 	 *
 	 * @param taxonomyId
 	 *            the taxonomy id
-	 * @param node
+	 * @param nodes
 	 *            the list of nodes
 	 * 
 	 * @return the response
@@ -420,6 +426,7 @@ public class ControllerUtil extends BaseLearningManager {
 					childNode = getContentNode(graphId, dto.getIdentifier(), mode);
 				else
 					childNode = getContentNode(graphId, dto.getIdentifier(), null);
+
 				String nodeStatus = (String)childNode.getMetadata().get("status");
 				if((!org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) &&
 						(fetchAll || (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Live") || org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted")))) {
@@ -475,6 +482,149 @@ public class ControllerUtil extends BaseLearningManager {
 		if (org.apache.commons.lang3.StringUtils.isNotBlank(identifier))
 			imageId = identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		return imageId;
+	}
+
+	public Map<String, Object> constructHierarchy(List<Map<String, Object>> list) {
+
+		Map<String, Object> hierarchy = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == 0).findFirst().get();
+		if (MapUtils.isNotEmpty(hierarchy)) {
+			int max = list.stream().map(e -> ((Number) e.get("depth")).intValue()).max(Comparator.naturalOrder()).orElse(1);
+
+			for (int i=0; i<=max;i++) {
+				final int depth = i;
+				Map<String, List<Map<String, Object>>> currentLevelNodes = new HashMap<>();
+				list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
+						.collect(Collectors.toList()).forEach(e -> {
+					String id = (String) e.get("identifier");
+					List<Map<String, Object>> nodes = currentLevelNodes.get(id);
+					if (CollectionUtils.isEmpty(nodes)) {
+						nodes = new ArrayList<>();
+						currentLevelNodes.put((String) e.get("identifier"), nodes);
+					}
+					nodes.add(e);
+
+				});
+
+				List<Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth+1)
+						.collect(Collectors.toList());
+				if (MapUtils.isNotEmpty(currentLevelNodes) && CollectionUtils.isNotEmpty(nextLevelNodes)) {
+					nextLevelNodes.forEach(e -> {
+								String parentId = (String) e.get("parent");
+								List<Map<String, Object>> parents = currentLevelNodes.get(parentId);
+								if (CollectionUtils.isNotEmpty(parents)) {
+									for (Map<String, Object> parent: parents) {
+										List<Object> children = (List<Object>) parent.get("children");
+										if (CollectionUtils.isEmpty(children)) {
+											children = new ArrayList<>();
+											parent.put("children", children);
+										}
+										children.add(e);
+									}
+								}
+							}
+					);
+				}
+			}
+		}
+		return hierarchy;
+	}
+
+	public List<Map<String, Object>> getContentHierarchy(String graphId, String contentId, String mode) {
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.IL_FUNC_OBJECT_TYPE as objectType, s.visibility as visibility, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]) .IL_SEQUENCE_INDEX as index order by depth,index;";
+		System.out.println("Query: "+ MessageFormat.format(query, graphId, contentId));
+		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
+		List<String> props = Arrays.asList("identifier", "objectType", "visibility", "depth", "parent", "index");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (CollectionUtils.isEmpty(list)) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "No data find for the given identifier: " + contentId.replace(".img", ""));
+			}
+			List<String> invalidStatus = Arrays.asList("Flagged", "Retired");
+			list = list.stream().filter(e -> !invalidStatus.contains(e.get("status"))).distinct().collect
+					(Collectors.toList());
+
+			// Get leaf nodes(image) from the hierarchy (graph) and remove them.
+			List<String> resourceImgIds = list.stream()
+					.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && StringUtils.equalsIgnoreCase((String) e.get("visibility"), "default") && ((Number) e.get("depth")).intValue() > 0)
+					.map(e -> (String) e.get("identifier"))
+					.map(id -> id.endsWith(".img") ? id : id+".img")
+					.distinct().collect(Collectors.toList());
+//			Stream<Map<String, Object>> listStream = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")));
+
+			// Get image nodes from the hierarchy (graph) other than root.
+//			Stream<Map<String,Object>> imgList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+//					.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0);
+
+			if (StringUtils.equalsIgnoreCase("edit", mode)) {
+				// mode=edit - remove the Content which have Image Nodes.
+				List<String> removeIds = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier")).replace(".img", "")).collect(Collectors.toList());
+				List<Map<String, Object>> contentList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> !removeIds.contains(e.get("identifier")))
+						.collect(Collectors.toList());
+
+				return contentList;
+			} else {
+				// mode!=edit - remove Image Nodes.
+				List<String> removeIds = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier"))).collect(Collectors.toList());
+				List<Map<String, Object>> contentList =  list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
+				return contentList;
+			}
+
+		} else {
+			if (response.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), response.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), response.getParams().getErrmsg());
+			}
+		}
+	}
+
+
+	public Map<String,Object> getHierarchyMap(String graphId, String contentId, DefinitionDTO
+			definition,String mode, List<String> fields) {
+
+		long startTime = System.currentTimeMillis();
+		List<Map<String, Object>> contentList = getContentHierarchy(graphId, contentId, mode);
+		System.out.println("Time to call cypher and get hierarchy list: " + (System.currentTimeMillis() - startTime));
+
+		List<String> ids = contentList.stream().map(content -> (String) content.get("identifier")).collect(Collectors
+				.toList());
+		Map<String, Object> collectionHierarchy = new HashMap<>();
+		startTime = System.currentTimeMillis();
+		Response getList = getDataNodes(graphId, ids);
+		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
+		if(!checkError(getList)){
+			List<Node> nodeList = (List<Node>) getList.get("node_list");
+			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
+					(n,graphId, definition, fields)).map(contentMap -> {
+				contentMap.remove("collections");
+				contentMap.remove("children");
+				contentMap.remove("usedByContent");
+				contentMap.remove("item_sets");
+				contentMap.remove("methods");
+				contentMap.remove("libraries");
+				return contentMap;
+			}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
+
+			contentList = contentList.stream().map(n -> { n.putAll(contentsWithMetadata.get(n.get("identifier"))); return n;}).collect(Collectors.toList());
+			startTime = System.currentTimeMillis();
+			collectionHierarchy = contentCleanUp(constructHierarchy(contentList));
+			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
+		}else {
+			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
+			}
+		}
+		return collectionHierarchy;
 	}
 
 
