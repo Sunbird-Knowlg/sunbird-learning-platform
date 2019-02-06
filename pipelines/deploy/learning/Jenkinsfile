@@ -41,12 +41,6 @@ node() {
                        unzip ${artifact}
                        mv learning-service.war ansible
                     """
-                    ansiblePlaybook = "${currentWs}/ansible/lp_cassandra_db_update.yml"
-                    ansibleExtraArgs = ""
-                    values.put('ansiblePlaybook', ansiblePlaybook)
-                    values.put('ansibleExtraArgs', ansibleExtraArgs)
-                    println values
-                    ansible_playbook_run(values)
 
                     ansiblePlaybook = "${currentWs}/ansible/lp_learning_deploy.yml"
                     ansibleExtraArgs = "--vault-password-file /home/ops/vault"

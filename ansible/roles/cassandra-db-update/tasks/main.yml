@@ -7,4 +7,4 @@
   
 - name: run cql 
   become: yes
-  raw: /bin/bash -c 'CQLSH_NO_BUNDLED=true {{cql_path}} -f /tmp/lp-data.cql'
+  shell: 'cqlsh -f /tmp/lp-data.cql'

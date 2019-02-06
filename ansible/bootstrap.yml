@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: "{{hosts}}"
   become: yes
   gather_facts: no
   vars_files:

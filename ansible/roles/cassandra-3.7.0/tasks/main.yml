@@ -13,8 +13,8 @@
 - name: export cqlsh variable
   become: yes
   lineinfile:
-    dest: /etc/bash.bashrc
-    line: 'export CQLSH_NO_BUNDLED=TRUE'
+    dest: /etc/environment
+    line: 'CQLSH_NO_BUNDLED=TRUE'
     state: present
     create: yes 
 

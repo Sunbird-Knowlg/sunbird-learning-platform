@@ -1,6 +1,8 @@
 ---
 - hosts: composite-search-cluster
   name: Setup composite search ES cluster
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
   become: yes
   pre_tasks:
     - name: Uncompressing and copying to system path
