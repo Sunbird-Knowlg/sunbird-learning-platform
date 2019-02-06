@@ -196,7 +196,22 @@ public class PublishPipelineService implements ISamzaService {
 	private boolean publishContent(Node node) throws Exception {
 		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
-		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
+		String publishType = (String)node.getMetadata().get("publishType");
+		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
+				COLLECTION_CONTENT_MIMETYPE) && StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.visibility.name()),
+						"Default")) {
+			List<NodeDTO> nodes = util.getNodesForPublish(node);
+			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
+			nodesToPublish.forEach(
+					nodeDTO -> publishCollectionNode(nodeDTO, (String) node.getMetadata().get("publish_type")));
+			if (!nodes.isEmpty()) {
+				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(),
+						getCompatabilityLevel(nodes));
+			}
+		}
+		Node latestNode = util.getNode("domain", node.getIdentifier());
+		latestNode.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);
+		publishNode(latestNode, (String) latestNode.getMetadata().get(PublishPipelineParams.mimeType.name()));
 		
 		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
 		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
@@ -260,7 +275,7 @@ public class PublishPipelineService implements ISamzaService {
 	private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
 		return dedup(nodes).stream().filter(
 				node -> StringUtils.equalsIgnoreCase(node.getMimeType(), "application/vnd.ekstep.content-collection")
-						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft"))
+						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft") || StringUtils.equalsIgnoreCase(node.getStatus(), "Failed"))
 				.filter(node -> StringUtils.equalsIgnoreCase(node.getVisibility(), "parent"))
 				.sorted(new Comparator<NodeDTO>() {
 					@Override
