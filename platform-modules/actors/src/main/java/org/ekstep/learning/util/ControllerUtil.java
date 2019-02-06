@@ -540,9 +540,9 @@ public class ControllerUtil extends BaseLearningManager {
 
 	public List<Map<String, Object>> getContentHierarchy(String graphId, String contentId, String mode) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.IL_FUNC_OBJECT_TYPE as objectType, s.visibility as visibility, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]) .IL_SEQUENCE_INDEX as index order by depth,index;";
+		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.IL_FUNC_OBJECT_TYPE as objectType, s.visibility as visibility, s.status as status, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]).IL_SEQUENCE_INDEX as index order by depth,index;";
 		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
-		List<String> props = Arrays.asList("identifier", "objectType", "visibility", "depth", "parent", "index");
+		List<String> props = Arrays.asList("identifier", "objectType", "visibility", "status", "depth", "parent", "index");
 		request.put(GraphDACParams.property_keys.name(), props);
 		Response response = getResponse(request);
 		if (!checkError(response)) {
@@ -577,9 +577,14 @@ public class ControllerUtil extends BaseLearningManager {
 
 				return contentList;
 			} else {
+				List<String> publicStatus = Arrays.asList("Live", "Unlisted");
+				Map<String, Object> root = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == 0).findFirst().get();
+				if (MapUtils.isEmpty(root) || !publicStatus.contains(root.get("status"))) {
+					throw new ResourceNotFoundException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "No data find for the given identifier: " + contentId.replace(".img", ""));
+				}
 				// mode!=edit - remove Image Nodes.
 				List<String> removeIds = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
-						.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier"))).collect(Collectors.toList());
+						.filter(e -> (!publicStatus.contains(e.get("status")) || StringUtils.equals((String) e.get("objectType"), "ContentImage")) && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier"))).collect(Collectors.toList());
 				List<Map<String, Object>> contentList =  list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
 						.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
 				return contentList;
