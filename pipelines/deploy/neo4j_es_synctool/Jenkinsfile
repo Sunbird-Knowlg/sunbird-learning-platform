@@ -43,7 +43,7 @@ node() {
                        mv sync-tool*.jar ansible
                     """
                     ansiblePlaybook = "${currentWs}/ansible/lp_synctool_deploy.yml"
-                    ansibleExtraArgs = "--extra-vars \"command=${params.command} parameters=$\"{params.parameters}\"\" --vault-password-file /home/ops/vault"
+                    ansibleExtraArgs = "--extra-vars \"command=${params.command} parameters=\'${params.parameters}\'\" --vault-password-file /home/ops/vault"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
