@@ -6,7 +6,7 @@ learning.graph_ids=["domain"]
 content.metadata.visibility.parent=["textbookunit", "courseunit", "lessonplanunit"]
 
 # Language-Service Configuration
-language.graph_ids=["as","bn","en","gu","hi","hoc","jun","ka","mai","mr","unx","or","san","sat","ta","te","urd"]
+language.graph_ids=["as","bn","en","gu","hi","hoc","jun","ka","mai","mr","unx","or","san","sat","ta","te","urd","pj"]
 
 # Redis Configuration
 redis.host="{{ redis_host }}"
@@ -19,6 +19,7 @@ orchestrator.keyspace.table="script_data"
 content.keyspace.name="{{ content_keyspace_name }}"
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
+framework.hierarchy.table="framework_hierarchy"
 cassandra.host="{{ cassandra_host }}"
 cassandra.port={{ cassandra_port }}
 
@@ -197,9 +198,11 @@ language-api-url="http://{{ language_service_url }}/language-service"
 
 language.map={"Hindi":"hi", "English":"en", "Telugu":"te", "Kannada":"ka", "Tamil":"ta", "Assamese":"as", "Bengali":"bn", "Bodo":"bo", "Gujarati":"gu", "Konkani":"ko", "Malayalam":"ml", "Marathi":"mr", "Nepali":"ne", "Odia":"or", "Punjabi":"pj", "Sanskrit":"san"}
 
-#Framework get/push hierarchy into elasticsearch enable
-framework.es.sync=true
+
 framework.max_term_creation_limit=200
+
+# Enable Suggested Framework in Get Channel API.
+channel.fetch.suggested_frameworks=true
 
 # Kafka configuration details
 kafka.topics.instruction="{{ kafka_topics_instruction }}"
@@ -217,7 +220,13 @@ telemetry.search.topn=5
 
 #Copy Content validation configuration
 learning.content.copy.invalid_status_list=["Flagged","FlagDraft","FlagReview","Retired", "Processing"]
-learning.content.copy.null_prop_list=["downloadUrl", "artifactUrl", "variants", "createdOn", "collections", "children", "lastUpdatedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "versionKey", "s3Key", "status", "pkgVersion", "toc_url", "mimeTypesCount", "contentTypesCount", "leafNodesCount", "childNodes", "prevState", "lastPublishedOn", "flagReasons", "compatibilityLevel", "size", "publishChecklist", "publishComment", "LastPublishedBy", "rejectReasons", "rejectComment", "previewUrl", "badgeAssertions", "dialcodes"]
+
+learning.content.copy.props_to_remove=["downloadUrl", "artifactUrl", "variants","createdOn", "collections", "children",
+"lastUpdatedOn", "sYS_INTERNAL_LAST_UPDATED_ON","versionKey", "s3Key", "status", "pkgVersion", "toc_url",
+"mimeTypesCount", "contentTypesCount", "leafNodesCount", "childNodes", "prevState", "lastPublishedOn", "flagReasons",
+"compatibilityLevel", "size", "publishChecklist", "publishComment", "LastPublishedBy", "rejectReasons", "rejectComment",
+ "gradeLevel", "subject", "medium", "board", "topic", "purpose", "subtopic", "attributions", "contentCredits", "owner",
+ "collaborators", "creators", "contributors", "badgeAssertions", "dialcodes", "concepts", "keywords", "reservedDialcodes", "dialcodeRequired"]
 learning.content.type.not.copied.list=["Asset"]
 
 #Youtube License Validation Regex Pattern
@@ -256,3 +265,5 @@ cassandra.lp.connection="{{ cassandra_lp_connection }}"
 cassandra.lpa.connection="{{ cassandra_lpa_connection }}"
 
 compositesearch.index.name="{{ compositesearch_index_name }}"
+
+# restrict.metadata.objectTypes=["Content", "ContentImage", "AssessmentItem", "Channel", "Framework", "Category", "CategoryInstance", "Term"]

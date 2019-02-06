@@ -2,7 +2,10 @@ package org.ekstep.taxonomy.mgr.impl;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -82,6 +85,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -122,6 +126,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private static final String CONTENT_OBJECT_TYPE = "Content";
 
 	private static final String TAXONOMY_ID = "domain";
+
+	private static ObjectMapper mapper = new ObjectMapper();
 
 	private PublishManager publishManager = new PublishManager();
 
@@ -1148,12 +1154,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	/**
 	 * Make a sync request to LearningRequestRouter
-	 *
 	 * @param request
-	 *            the request object
-	 * @param logger
-	 *            the logger object
-	 * @return the LearningActor response
+	 * @return
 	 */
 	private Response makeLearningRequest(Request request) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
@@ -1653,10 +1655,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	/**
 	 * This method will check YouTube License and Insert as Node MetaData
-	 * 
-	 * @param String
-	 * @param Node
-	 * @return
+	 * @param artifactUrl
+	 * @param node
+	 * @throws Exception
 	 */
 	private void checkYoutubeLicense(String artifactUrl, Node node) throws Exception {
 		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
@@ -1823,8 +1824,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
+	 *
 	 * @param map
-	 * @param asList
+	 * @param idList
 	 * @param graphId
 	 * @return
 	 */
@@ -1957,7 +1959,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
-	 * @param contentMap
+	 *
+	 * @param children
 	 * @param existingNode
 	 * @param idMap
 	 * @return
@@ -1986,10 +1989,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
+	 *
 	 * @param children
 	 * @param nodesModified
 	 * @param hierarchy
-	 * @param idMap
+	 * @param parentId
+	 * @param nullPropMap
 	 */
 	private void populateHierarchy(List<Map<String, Object>> children, Map<String, Object> nodesModified,
 			Map<String, Object> hierarchy, String parentId, Map<String, Object> nullPropMap) {
@@ -2041,12 +2046,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		copyNode.setMetadata(metaData);
 		copyNode.setGraphId(existingNode.getGraphId());
 
-		copyNode.getMetadata().putAll(requestMap);
-		copyNode.getMetadata().put("status", "Draft");
-		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.null_prop_list");
+		List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
 		Map<String, Object> nullPropMap = new HashMap<>();
 		nullPropList.forEach(i -> nullPropMap.put(i, null));
 		copyNode.getMetadata().putAll(nullPropMap);
+		copyNode.getMetadata().putAll(requestMap);
+		copyNode.getMetadata().put("status", "Draft");
 		copyNode.getMetadata().put("origin", existingNode.getIdentifier());
 
 		List<Relation> existingNodeOutRelations = existingNode.getOutRelations();
@@ -2082,6 +2087,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (!validateList(requestMap.get("organization"))) {
 			throw new ClientException("ERR_INVALID_ORGANIZATION", "Please provide valid Organization value.");
 		}
+
+		if (StringUtils.isBlank((String) requestMap.get("framework")))
+			throw new ClientException("ERR_INVALID_FRAMEWORK", "Please provide valid framework value");
 
 		Node node = getContentNode(TAXONOMY_ID, contentId, mode);
 		List<String> notCoppiedContent = null;
@@ -2205,14 +2213,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 		}
 	}
-    
-    /**
+
+	/**
+	 *
+	 * @param identifier
 	 * @param map
-	 * @param contentId
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	private Response updateDialCode(String identifier, Map<String, Object> map) throws Exception {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
 		String contentId=identifier;
@@ -2444,33 +2452,39 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		validateChannel(metaData, channelId);
 
 		validateCountForReservingDialCode(request);
-		
-		boolean updateContent = false;
-		List<String> dialCodes = getReservedDialCodes(node).orElseGet(ArrayList::new);
 
+		boolean updateContent = false;
+		Map<String,Integer> dialCodeMap = getReservedDialCodes(node);
+		if(MapUtils.isEmpty(dialCodeMap))
+			dialCodeMap = new HashMap<>();
+		Integer maxIndex = (MapUtils.isNotEmpty(dialCodeMap))? Collections.max(dialCodeMap.values()):-1;
+		Set<String> dialCodes = dialCodeMap.keySet();
 		int reqDialcodesCount = (Integer) request.get(ContentAPIParams.count.name());
-		while(dialCodes.size()<reqDialcodesCount) {
-			dialCodes.addAll(generateDialcode(channelId, contentId, reqDialcodesCount-dialCodes.size(), (String) request.get(ContentAPIParams.publisher.name())));
+		if(dialCodes.size()<reqDialcodesCount) {
+			List<String> newDialcodes = generateDialcode(channelId, contentId, reqDialcodesCount-dialCodes.size(), (String) request.get(ContentAPIParams.publisher.name()));
+			for(String dialcode : newDialcodes){
+				dialCodeMap.put(dialcode,++maxIndex);
+			}
 			updateContent = true;
 		}
-		
+
 		Response updateResponse;
 		if(updateContent) {
 			Map<String, Object> reqMap = new HashMap<>();
-			reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
+			reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
 			updateResponse = updateAllContents(contentId, reqMap);
 		}else {
 			updateResponse = getClientErrorResponse();
-			updateResponse.put(ContentAPIParams.messages.name(), 
+			updateResponse.put(ContentAPIParams.messages.name(),
 					"No new DIAL Codes have been generated, as requested count is less or equal to existing reserved dialcode count.");
 			updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
-			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
+			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
 			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
 			return updateResponse;
 		}
 		if(updateResponse.getResponseCode() == ResponseCode.OK) {
 			updateResponse.put(ContentAPIParams.count.name(), dialCodes.size());
-			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodes);
+			updateResponse.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
 			updateResponse.put(ContentAPIParams.node_id.name(), contentId);
 			TelemetryManager.info("DIAL Codes generated and reserved.", updateResponse.getResult());
 			return updateResponse;
@@ -2517,15 +2531,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return Optional.ofNullable(params).map(dialcodes -> new ArrayList<>(Arrays.asList(params)));
 	}
 
-	private Optional<List<String>> getReservedDialCodes(Node node) {
-		return getList((String[]) node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()));
-	}
-
-	private List<String> validateAndGetReservedDialCodes(Node node) {
-		return getReservedDialCodes(node).
-				orElseThrow(() ->
-					new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
-							"Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier()));
+	private Map<String,Integer>  getReservedDialCodes(Node node) throws IOException {
+		String reservedDialcode = (String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name());
+		if(StringUtils.isNotBlank(reservedDialcode))
+			return mapper.readValue((String)node.getMetadata().get(ContentAPIParams.reservedDialcodes.name()), new TypeReference<Map<String, Integer>>() {});
+		return null;
 	}
 
 	private boolean isContent(Node node) {
@@ -2569,22 +2579,28 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		validateRequest(node, channelId);
 
-		List<String> reservedDialcodes = validateAndGetReservedDialCodes(node);
+		Map<String, Integer> reservedDialcodeMap = getReservedDialCodes(node);
+		if(null == reservedDialcodeMap || MapUtils.isEmpty(reservedDialcodeMap))
+			throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
+					"Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier());
 
 		Set<String> assignedDialcodes = new HashSet<>();
 		populateAllAssisgnedDialcodesRecursive(node, assignedDialcodes);
 
-		List<String> releasedDialcodes = assignedDialcodes.isEmpty() ? 
-				reservedDialcodes 
+		List<String> reservedDialcodes = new ArrayList<>(reservedDialcodeMap.keySet());
+		List<String> releasedDialcodes = assignedDialcodes.isEmpty() ?
+				reservedDialcodes
 				: reservedDialcodes.stream().filter(dialcode -> !assignedDialcodes.contains(dialcode)).collect(toList());
-		
+
 		if (releasedDialcodes.isEmpty())
 			throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved DIAL Codes are Utilized.");
-		
-		List<String> leftReservedDialcodes = reservedDialcodes.stream().filter(dialcode -> !releasedDialcodes.contains(dialcode)).collect(toList());
-		
+
+		releasedDialcodes.stream().forEach(dialcode -> reservedDialcodeMap.remove(dialcode));
 		Map<String, Object> updateMap = new HashMap<>();
-		updateMap.put(ContentAPIParams.reservedDialcodes.name(), leftReservedDialcodes);
+		if(MapUtils.isEmpty(reservedDialcodeMap))
+			updateMap.put(ContentAPIParams.reservedDialcodes.name(), null);
+		else
+			updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
 
 		Response response = updateAllContents(contentId, updateMap);
 		if (checkError(response)) {
