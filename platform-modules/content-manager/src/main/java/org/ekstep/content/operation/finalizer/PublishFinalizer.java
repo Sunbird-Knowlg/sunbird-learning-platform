@@ -1,5 +1,6 @@
 package org.ekstep.content.operation.finalizer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rits.cloning.Cloner;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,8 @@ import java.util.stream.Collectors;
  * perform ContentPublishPipeline operations
  */
 public class PublishFinalizer extends BaseFinalizer {
+
+	private ObjectMapper mapper = new ObjectMapper();
 
 	private VideoStreamingJobRequest streamJobRequest = new VideoStreamingJobRequest();
 	
@@ -380,8 +383,18 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private void publishHierarchy(Node publishedNode) {
 		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
-		Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
+		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
 		collectionStore.updateContentHierarchy(publishedNode.getIdentifier(), hierarchy);
+		try {
+			Map<String, Object> hierarchyOld = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
+			System.out.println("===================================================");
+			System.out.println("Old hierarchy: " + mapper.writeValueAsString(hierarchyOld));
+			System.out.println("===================================================");
+			System.out.println("New hierarchy: " + mapper.writeValueAsString(hierarchy));
+			System.out.println("===================================================");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
