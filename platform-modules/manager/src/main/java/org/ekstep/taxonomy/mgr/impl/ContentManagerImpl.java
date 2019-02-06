@@ -2049,6 +2049,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					metadata.putAll(nullPropMap);
 					metadata.put("children", new ArrayList<>());
 					metadata.remove("identifier");
+					metadata.remove("parent");
+                    metadata.remove("index");
+                    metadata.remove("depth");
+
 
 					// TBD: Populate artifactUrl
 
