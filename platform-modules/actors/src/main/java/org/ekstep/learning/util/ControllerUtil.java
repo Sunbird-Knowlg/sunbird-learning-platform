@@ -492,23 +492,34 @@ public class ControllerUtil extends BaseLearningManager {
 
 			for (int i=0; i<=max;i++) {
 				final int depth = i;
-				Map<String, Map<String, Object>> currentLevelNodes = new HashMap<>();
+				Map<String, List<Map<String, Object>>> currentLevelNodes = new HashMap<>();
 				list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
-						.collect(Collectors.toList()).forEach(e -> currentLevelNodes.put((String) e.get("identifier"), e));
+						.collect(Collectors.toList()).forEach(e -> {
+					String id = (String) e.get("identifier");
+					List<Map<String, Object>> nodes = currentLevelNodes.get(id);
+					if (CollectionUtils.isEmpty(nodes)) {
+						nodes = new ArrayList<>();
+						currentLevelNodes.put((String) e.get("identifier"), nodes);
+					}
+					nodes.add(e);
+
+				});
 
 				List<Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth+1)
 						.collect(Collectors.toList());
 				if (MapUtils.isNotEmpty(currentLevelNodes) && CollectionUtils.isNotEmpty(nextLevelNodes)) {
 					nextLevelNodes.forEach(e -> {
 								String parentId = (String) e.get("parent");
-								Map<String, Object> parent = currentLevelNodes.get(parentId);
-								if (MapUtils.isNotEmpty(parent)) {
-									List<Object> children = (List<Object>) parent.get("children");
-									if (CollectionUtils.isEmpty(children)) {
-										children = new ArrayList<Object>();
-										parent.put("children", children);
+								List<Map<String, Object>> parents = currentLevelNodes.get(parentId);
+								if (CollectionUtils.isNotEmpty(parents)) {
+									for (Map<String, Object> parent: parents) {
+										List<Object> children = (List<Object>) parent.get("children");
+										if (CollectionUtils.isEmpty(children)) {
+											children = new ArrayList<>();
+											parent.put("children", children);
+										}
+										children.add(e);
 									}
-									children.add(e);
 								}
 							}
 					);
