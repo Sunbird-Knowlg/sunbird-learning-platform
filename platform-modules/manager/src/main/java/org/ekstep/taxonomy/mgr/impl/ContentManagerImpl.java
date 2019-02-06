@@ -571,7 +571,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			System.out.println("Time to fetchNodes and construct hierarchy: " + (System.currentTimeMillis() - startTime));
 
 			Response response = new Response();
-			response.put("content", dataMap.get("content"));
+			response.put("content", dataMap);
 			response.setParams(getSucessStatus());
 			return response;
 
@@ -619,7 +619,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 			contentList = contentList.stream().map(n -> { n.putAll(contentsWithMetadata.get(n.get("identifier"))); return n;}).collect(Collectors.toList());
 			startTime = System.currentTimeMillis();
-			collectionHierarchy.put("content", contentCleanUp(util.constructHierarchy(contentList)));
+			collectionHierarchy = contentCleanUp(util.constructHierarchy(contentList));
 			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
 		}else {
 			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {

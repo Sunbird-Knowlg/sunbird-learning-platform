@@ -543,6 +543,9 @@ public class ControllerUtil extends BaseLearningManager {
 			if (CollectionUtils.isEmpty(list)) {
 				throw new ResourceNotFoundException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "No data find for the given identifier: " + contentId.replace(".img", ""));
 			}
+			List<String> invalidStatus = Arrays.asList("Flagged", "Retired");
+			list = list.stream().filter(e -> !invalidStatus.contains(e.get("status"))).distinct().collect
+					(Collectors.toList());
 
 			// Get leaf nodes(image) from the hierarchy (graph) and remove them.
 			List<String> resourceImgIds = list.stream()
