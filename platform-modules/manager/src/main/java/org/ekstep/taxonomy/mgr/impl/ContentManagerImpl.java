@@ -86,6 +86,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -506,27 +507,71 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response getHierarchy(String contentId, String mode) {
+	public Response getHierarchy(String contentId, String mode, List<String> fields) throws Exception {
 		if(StringUtils.equalsIgnoreCase("edit", mode)){
 			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
-
-			boolean fetchAll = true;
 			String nodeStatus = (String) node.getMetadata().get("status");
+
 			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
 				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 						"Content not found with id: " + contentId);
-			}else if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
-				fetchAll = false;
 			}
+
+//			util.getHierarchy(TAXONOMY_ID, node.getIdentifier(), fields);
 
 			TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, fetchAll);
+			Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, true);
 			Map<String, Object> dataMap = contentCleanUp(map);
+			Response response = new Response();
+			response.put("content", dataMap.get("content"));
+			response.setParams(getSucessStatus());
+			return response;
+		} else{
+			Response hierarchyResponse = getCollectionHierarchy(contentId);
+			Response response = new Response();
+			if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
+				String cachedStatus = RedisStoreUtil.getNodeProperty(TAXONOMY_ID, contentId, "status");
+				Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+				if(StringUtils.isNotBlank(cachedStatus)){
+					hierarchy.put("status", cachedStatus);
+				} else{
+					hierarchy.put("status", getStatus(contentId, mode));
+				}
+
+				response.put("content", hierarchy);
+				response.setParams(getSucessStatus());
+			} else {
+				response = hierarchyResponse;
+			}
+			return response;
+		}
+
+	}
+
+
+	@Override
+	public Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception {
+		if(StringUtils.equalsIgnoreCase("edit", mode)){
+			Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+			String nodeStatus = (String) node.getMetadata().get("status");
+
+			if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+						"Content not found with id: " + contentId);
+			}
+
+			DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
+			long startTime = System.currentTimeMillis();
+			Map<String,Object> dataMap = util.getHierarchyMap(TAXONOMY_ID, node.getIdentifier(), definition, mode,
+					fields);
+			System.out.println("Time to fetchNodes and construct hierarchy: " + (System.currentTimeMillis() - startTime));
+
 			Response response = new Response();
 			response.put("content", dataMap);
 			response.setParams(getSucessStatus());
 			return response;
+
 		} else{
 			Response hierarchyResponse = getCollectionHierarchy(contentId);
 			Response response = new Response();
@@ -1143,13 +1188,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 
 	/**
-	 * Make a sync request to LearningRequestRouter
 	 *
 	 * @param request
-	 *            the request object
-	 * @param logger
-	 *            the logger object
-	 * @return the LearningActor response
+	 * @return
 	 */
 	private Response makeLearningRequest(Request request) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
@@ -1640,11 +1681,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
-	 * This method will check YouTube License and Insert as Node MetaData
-	 * 
-	 * @param String
-	 * @param Node
-	 * @return
+	 *
+	 * @param artifactUrl
+	 * @param node
+	 * @throws Exception
 	 */
 	private void checkYoutubeLicense(String artifactUrl, Node node) throws Exception {
 		Boolean isValReq = Platform.config.hasPath("learning.content.youtube.validate.license")
@@ -1811,8 +1851,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
+	 *
 	 * @param map
-	 * @param asList
+	 * @param idList
 	 * @param graphId
 	 * @return
 	 */
@@ -1932,8 +1973,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	private void copyhierarchy(Node existingNode, Map<String, String> idMap, String mode) {
 		DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-		Map<String, Object> contentMap = util.getContentHierarchyRecursive(existingNode.getGraphId(), existingNode,
-				definition, mode, true);
+		Map<String, Object> contentMap = util.getHierarchyMap(existingNode.getGraphId(), existingNode.getIdentifier(),
+				definition, mode, null);
 
 		Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
 				(List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
@@ -1945,7 +1986,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
-	 * @param contentMap
+	 *
+	 * @param children
 	 * @param existingNode
 	 * @param idMap
 	 * @return
@@ -1974,10 +2016,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	/**
+	 *
 	 * @param children
 	 * @param nodesModified
 	 * @param hierarchy
-	 * @param idMap
+	 * @param parentId
+	 * @param nullPropMap
 	 */
 	private void populateHierarchy(List<Map<String, Object>> children, Map<String, Object> nodesModified,
 			Map<String, Object> hierarchy, String parentId, Map<String, Object> nullPropMap) {
@@ -1992,6 +2036,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					metadata.putAll(nullPropMap);
 					metadata.put("children", new ArrayList<>());
 					metadata.remove("identifier");
+					metadata.remove("parent");
+					metadata.remove("index");
+					metadata.remove("depth");
 
 					// TBD: Populate artifactUrl
 
@@ -2193,10 +2240,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 		}
 	}
-    
-    /**
+
+	/**
+	 *
+	 * @param identifier
 	 * @param map
-	 * @param contentId
 	 * @return
 	 * @throws Exception
 	 */
@@ -2362,20 +2410,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 
-    @Override
-    public Response syncHierarchy(String identifier) {
-        Response getResponse = getDataNode(TAXONOMY_ID, identifier);
-        Node rootNode = (Node) getResponse.get(GraphDACParams.node.name());
-        if (checkError(getResponse)) {
-            return getResponse;
-        } else {
-            DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-            Map<String, Object> hierarchy = util.getContentHierarchyRecursive(rootNode.getGraphId(), rootNode, definition, null, true);
-            collectionStore.updateContentHierarchy(identifier, hierarchy);
-            return OK();
-        }
+	@Override
+	public Response syncHierarchy(String identifier) {
+		Response getResponse = getDataNode(TAXONOMY_ID, identifier);
+		Node rootNode = (Node) getResponse.get(GraphDACParams.node.name());
+		if (checkError(getResponse)) {
+			return getResponse;
+		} else {
+			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+			Map<String, Object> hierarchy = util.getHierarchyMap(rootNode.getGraphId(), rootNode.getIdentifier(), definition, null,
+					null);
+			collectionStore.updateContentHierarchy(identifier, hierarchy);
+			return OK();
+		}
 
-    }
+	}
 
     private void validateChannel(Map<String, Object> metadata, String channelId) {
 		if(!StringUtils.equals((String) metadata.get(ContentAPIParams.channel.name()), channelId))
