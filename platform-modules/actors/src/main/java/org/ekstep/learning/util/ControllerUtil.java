@@ -447,6 +447,7 @@ public class ControllerUtil extends BaseLearningManager {
 			if (org.apache.commons.lang3.StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
 				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
 				map.replace("identifier", identifier, newIdentifier);
+				map.replace("objectType", "ContentImage", "Content");
 			}
 		}
 		return map;
@@ -512,6 +513,7 @@ public class ControllerUtil extends BaseLearningManager {
 											children = new ArrayList<>();
 											parent.put("children", children);
 										}
+										contentCleanUp(e);
 										children.add(e);
 									}
 								}
