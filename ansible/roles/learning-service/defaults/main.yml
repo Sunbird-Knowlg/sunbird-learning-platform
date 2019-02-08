@@ -1,0 +1,62 @@
+learner_user: learning
+learner_group: learning
+learner_user_home: /home/{{learner_user}}
+tomcat_major_version: 8
+tomcat_minor_version: 0.36
+tomcat_home: "{{learner_user_home}}/apache-tomcat-{{tomcat_major_version}}.{{tomcat_minor_version}}"
+learner_service_url: "{{inventory_hostname}}:8080"
+
+instance: "{{env}}"
+instance_name: sunbird
+
+redis_host: "{{ groups['learning1'][0] }}"
+redis_port: 6379
+cassandra_host: "{{ groups['cassandra'][0] }}"   
+cassandra_port: 9042
+content_keyspace_name: "{{env}}_content_store"
+hierarchy_keyspace_name: "{{env}}_hierarchy_store"
+orchestrator_keyspace_name: "{{env}}_script_store"
+content_keyspace_table: content_data
+
+environment_id: 10000000
+
+dialcode_keyspace_name: "{{env}}_dialcode_store"
+dial_es_index_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
+audit_es_index_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
+es_index_host : "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
+
+learning_neo4j_bolt_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:7687
+language_neo4j_bolt_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:8687
+learning_read_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:7687
+learning_write_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:7687
+language_read_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:8687
+language_write_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:8687
+graphevent_kafka_url: "{{groups['processing-cluster-zookeepers']|join(':9092,')}}:9092"
+kafka_topics_instruction: "{{env}}.learning.job.request"
+object_bookmark_expiry_in_seconds: 15
+platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
+ 
+graph_passport_key: "{{ lp_vault_graph_passport_key }}"
+dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
+language_service_url: language_url
+youtube_app_name: fetch-youtube-license
+youtube_api_key: "{{ lp_vault_youtube_api_key }}"
+ 
+
+cloud_store: azure
+azure_public_container: 
+azure_account_name: 
+azure_account_key: "{{ lp_vault_azure_storage_secret }}"
+
+content_media_base_url:  
+plugin_media_base_url: 
+dial_service_search_url: 
+content_to_vec_url: 
+learning_content_h5p_library_path:
+orchestrator_url:
+
+cloud_storage_config_environment: "{{env}}" 
+
+tomcat_init_mem: -Xms1024m
+tomcat_max_mem: -Xmx4096m
+search_index_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"

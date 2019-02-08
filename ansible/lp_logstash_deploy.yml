@@ -1,0 +1,7 @@
+- hosts: "{{ remote }}"
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  roles:
+    - logstash-deploy
+  serial: 1
+  

@@ -1,0 +1,26 @@
+---
+- include: stop.yml
+  when: run_mode == 'Stop'
+  
+- name: setup group
+  group: name={{kafka_group}} system=yes
+
+- name: Setup user
+  user: name={{kafka_user}} system=yes group={{kafka_group}}
+
+- name: Install kafka
+  unarchive: 
+    remote_src: yes
+    creates: "/opt/kafka_{{kafka_scala_version}}-{{kafka_version}}" 
+    dest: /opt 
+    src: "{{apache_mirror_archive}}/kafka/{{kafka_version}}/{{kafka_tarball_name}}" 
+    owner: "{{kafka_user}}" 
+    group: "{{kafka_group}}"
+  when: not skip_install and ( run_mode == 'Install' or run_mode == 'Deploy' )
+  become: yes
+
+- include: configure.yml
+  when: run_mode == 'Configure' or run_mode == 'Deploy'
+
+- include: start.yml
+  when: run_mode == 'Start' or run_mode == 'Deploy'
