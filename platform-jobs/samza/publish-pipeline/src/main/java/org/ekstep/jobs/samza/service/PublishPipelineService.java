@@ -177,7 +177,7 @@ public class PublishPipelineService implements ISamzaService {
 		String prevState = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
 		node.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
 		node.getMetadata().put("status", "Processing");
-		node.setInRelations(null);
+
 		util.updateNode(node);
 		edata.put(PublishPipelineParams.status.name(), PublishPipelineParams.Processing.name());
 		LOGGER.debug("Node status :: Processing for NodeId :: " + node.getIdentifier());

@@ -415,11 +415,7 @@ public class ControllerUtil extends BaseLearningManager {
 		if (null != children && !children.isEmpty()) {
 			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
 			for (NodeDTO dto : children) {
-				Node childNode = null;
-				if(StringUtils.equalsIgnoreCase("Parent", dto.getVisibility()))
-					childNode = getContentNode(graphId, dto.getIdentifier(), mode);
-				else
-					childNode = getContentNode(graphId, dto.getIdentifier(), null);
+				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
 				String nodeStatus = (String)childNode.getMetadata().get("status");
 				if((!org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) &&
 						(fetchAll || (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Live") || org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted")))) {
