@@ -316,6 +316,7 @@ public class PublishPipelineService implements ISamzaService {
 					e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
+			node.setInRelations(null);
 			util.updateNode(node);
 			collectionStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
 			if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){

@@ -14,6 +14,9 @@ import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
 
 import scala.Option;
+import scala.collection.immutable.List;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
 
 public class CloudStore {
 
@@ -66,6 +69,18 @@ private static String cloudStoreType = Platform.config.getString("cloud_storage_
 		String objectKey = folderName + File.separator;
 		String url = storageService.upload(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(true), Option.empty(), Option.apply(5), 1);
 		return new String[] { objectKey, url };
+	}
+
+
+	public static Future<List<String>> uploadH5pDirectory(String folderName, File directory, boolean slugFile,
+														  ExecutionContext context) {
+		File file = directory;
+		if (BooleanUtils.isTrue(slugFile))
+			file = Slug.createSlugFile(file);
+		String container = getContainerName();
+		String objectKey = folderName + File.separator;
+		return (Future<List<String>>) storageService.uploadFolder(container, file.getAbsolutePath(), objectKey, Option.apply(false), Option
+						.empty(), Option.empty(), 1, context);
 	}
 	
 	public static double getObjectSize(String key) throws Exception {
