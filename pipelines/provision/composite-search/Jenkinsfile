@@ -32,7 +32,7 @@ node() {
                 ansible_playbook_run(values)
                 
                 ansiblePlaybook = "${currentWs}/ansible/es_azure_plugin.yml"
-                ansibleExtraArgs = "--vault-password-file /home/ops/vault"
+                ansibleExtraArgs = "--vault-password-file /run/secrets/vault-pass"
                 values.put('ansiblePlaybook', ansiblePlaybook)
                 values.put('ansibleExtraArgs', ansibleExtraArgs)
                 println values

@@ -26,7 +26,7 @@ node() {
                         ansibleExtraArgs = """\
                                --extra-vars "artifact=${artifact}
                                artifact_path=${currentWs}/${artifact}"
-                               --vault-password-file /home/ops/vault
+                               --vault-password-file /run/secrets/vault-pass
                                """.stripIndent().replace("\n", " ")
                         values.put('ansiblePlaybook', ansiblePlaybook)
                         values.put('ansibleExtraArgs', ansibleExtraArgs)
@@ -51,7 +51,7 @@ node() {
                     ansible_playbook_run(values)
 
                     ansiblePlaybook = "${currentWs}/ansible/lp_logstash_deploy.yml"
-                    ansibleExtraArgs = "--extra-vars \"remote=searchall\" --vault-password-file /home/ops/vault"
+                    ansibleExtraArgs = "--extra-vars \"remote=searchall\" --vault-password-file /run/secrets/vault-pass"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
