@@ -44,18 +44,6 @@ node() {
                        mv custom-procedures*.jar ansible
                     """
                     ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_deploy.yml"
-                    ansibleExtraArgs = "--syntax-check"
-                    values.put('ansiblePlaybook', ansiblePlaybook)
-                    values.put('ansibleExtraArgs', ansibleExtraArgs)
-                    println values
-                    ansible_playbook_run(values)
-                    fileExists = sh(returnStdout: true, script: "find ${currentWs} -name 'neo4j*.tar.gz'")
-                    if (fileExists != "")
-                       sh "cp private/artifacts/neo4j*.tar.gz ansible/artifacts"
-                    else {
-                       println(ANSI_BOLD + ANSI_RED + "Uh Oh! Unable to find neo4j*.tar.gz. Please place this file in your private repo under artifact directory" + ANSI_NORMAL)
-                       error 'Please resolve the errors and rerun..'
-                    }
                     ansibleExtraArgs = ""
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
