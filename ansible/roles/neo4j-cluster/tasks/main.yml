@@ -24,11 +24,13 @@
   become: yes
   become_user: "{{learner_user}}"
   copy: src=artifacts/{{neo4j_zip}} dest={{learner_user_home}}
+  ignore_errors: true
 
 - name: Extract archive {{neo4j_zip}}
   become: yes
   become_user: "{{learner_user}}"
   unarchive: src={{learner_user_home}}/{{neo4j_zip}} dest={{learner_user_home}}/{{neo4j_dir}} copy=no group={{learner_user}} owner={{learner_user}} creates={{ neo4j_home }}
+  ignore_errors: true
 
 - name: Change Permissions neo4j-enterprise-3.0.4 
   become: yes
