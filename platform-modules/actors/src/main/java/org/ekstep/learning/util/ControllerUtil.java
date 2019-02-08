@@ -230,16 +230,12 @@ public class ControllerUtil extends BaseLearningManager {
 	        to.setParams(from.getParams());
 	        return to;
 	    }
-	 
+
 	/**
-	 * Gets Data nodes.
 	 *
 	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param node
-	 *            the list of nodes
-	 * 
-	 * @return the response
+	 * @param nodes
+	 * @return
 	 */
 	public Response getDataNodes(String taxonomyId, List<String> nodes) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
@@ -513,7 +509,7 @@ public class ControllerUtil extends BaseLearningManager {
 											children = new ArrayList<>();
 											parent.put("children", children);
 										}
-										contentCleanUp(e);
+										//contentCleanUp(e);
 										children.add(e);
 									}
 								}
@@ -625,6 +621,7 @@ public class ControllerUtil extends BaseLearningManager {
 				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
 			}
 		}
+		hierarchyCleanUp(collectionHierarchy);
 		return collectionHierarchy;
 	}
 
@@ -656,6 +653,29 @@ public class ControllerUtil extends BaseLearningManager {
 
 		}
 		return identifiers;
+	}
+
+	private void hierarchyCleanUp(Map<String, Object> map) {
+		if (map.containsKey("identifier")) {
+			String identifier = (String) map.get("identifier");
+			String parentId = (String) map.get("parent");
+			if (org.apache.commons.lang3.StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+				map.replace("identifier", identifier, newIdentifier);
+				map.replace("objectType", "ContentImage", "Content");
+			}
+
+			if (StringUtils.isNotBlank(parentId)) {
+				String newParentId = parentId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+				map.replace("parent", parentId, newParentId);
+			}
+		}
+		List<Map<String, Object>> children = (List<Map<String, Object>>) map.get("children");
+		if(CollectionUtils.isNotEmpty(children)){
+			for(Map<String, Object> child: children)
+				hierarchyCleanUp(child);
+		}
+		//return map;
 	}
 
 
