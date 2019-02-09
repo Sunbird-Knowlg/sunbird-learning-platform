@@ -12,6 +12,6 @@
       become_user: "{{ learner_user }}"
       shell:  bin/neo4j start
       args:
-        chdir: "{{ neo4j_home }}"
+        chdir: /home/learning/neo4j-learning/neo4j-community-3.3.9
       when: "neo4j_process.stdout == '0'"
   serial: 1
