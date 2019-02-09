@@ -65,6 +65,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected String contentId;
 
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 
@@ -380,7 +381,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private void publishHierarchy(Node publishedNode) {
 		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
-		Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
+		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
 		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
@@ -543,13 +544,19 @@ public class PublishFinalizer extends BaseFinalizer {
 				removeExtraProperties(contentImage);
 			}
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
-			String imageBody = getContentBody(contentImageId);
-			if (StringUtils.isNotBlank(imageBody)) {
-				response = updateContentBody(contentId, getContentBody(contentImageId));
-				if (checkError(response))
-					throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
-							ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
-									+ "]");
+
+			// Get body only for ECML content.
+			String mimeType = (String) contentImage.getMetadata().get("mimeType");
+			if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
+				System.out.println("Fetching content body for node: "+ contentId + " :: mimeType: " + mimeType);
+				String imageBody = getContentBody(contentImageId);
+				if (StringUtils.isNotBlank(imageBody)) {
+					response = updateContentBody(contentId, imageBody);
+					if (checkError(response))
+						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+								ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
+										+ "]");
+				}
 			}
 
 			TelemetryManager.log("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");
