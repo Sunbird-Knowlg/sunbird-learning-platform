@@ -65,6 +65,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected String contentId;
 
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 
@@ -544,9 +545,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
 
-			// Don't get body in case of the content is a collection.
+			// Get body only for ECML content.
 			String mimeType = (String) contentImage.getMetadata().get("mimeType");
-			if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, mimeType)) {
+			if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
 				System.out.println("Fetching content body for node: "+ contentId + " :: mimeType: " + mimeType);
 				String imageBody = getContentBody(contentImageId);
 				if (StringUtils.isNotBlank(imageBody)) {

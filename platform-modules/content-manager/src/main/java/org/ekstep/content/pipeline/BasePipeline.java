@@ -78,7 +78,7 @@ public class BasePipeline extends BaseManager {
 
 	private static final String CONTEN_FOLDER = "cloud_storage.content.folder";
 
-	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 
 
 	/**
@@ -494,7 +494,7 @@ public class BasePipeline extends BaseManager {
 								for (Node child : nodeList) {
 									String mimeType = (String) child.getMetadata().get("mimeType");
 									String body = null;
-									if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, mimeType)) {
+									if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
 										System.out.println("BasePipeline - Fetching body for node: "+ child.getIdentifier() + " :: " + mimeType);
 										body = getContentBody(child.getIdentifier());
 									}
