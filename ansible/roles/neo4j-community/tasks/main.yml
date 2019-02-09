@@ -23,7 +23,7 @@
 - name: Download the neo4j zip file   
   become: yes
   become_user: "{{learner_user}}"
-  get_url: url=https://sunbirdpublic.blob.core.windows.net/installation/neo4j-community-3.3.9-unix.tar.gz dest={{learner_user_home}} force=no
+  get_url: url=https://https://sunbirdpublic.blob.core.windows.net/installation/neo4j-enterprise-3.3.9-unix.tar.gz dest={{learner_user_home}} force=no
 
 - name: Extract archive {{neo4j_zip}}
   become: yes
