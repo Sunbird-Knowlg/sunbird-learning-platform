@@ -545,7 +545,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
 
 			// Don't get body in case of the content is a collection.
-			if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) contentImage.getMetadata().get("mimeType"))) {
+			String mimeType = (String) contentImage.getMetadata().get("mimeType");
+			if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, mimeType)) {
+				System.out.println("Fetching content body for node: "+ contentId + " :: mimeType: " + mimeType);
 				String imageBody = getContentBody(contentImageId);
 				if (StringUtils.isNotBlank(imageBody)) {
 					response = updateContentBody(contentId, imageBody);
