@@ -28,7 +28,8 @@
 - name: Extract archive {{neo4j_zip}}
   become: yes
   become_user: "{{learner_user}}"
-  unarchive: src=neo4j-community-3.3.9-unix.tar.gz dest={{learner_user_home}}/{{neo4j_dir}} copy=no group={{learner_user}} owner={{learner_user}} creates={{ neo4j_home }}
+  #unarchive: src={{learner_user_home}}/{{neo4j_zip}} dest={{learner_user_home}}/{{neo4j_dir}} copy=no group={{learner_user}} owner={{learner_user}} creates={{ neo4j_home }}
+  shell: tar -xf /home/learning/neo4j-community-3.3.9-unix.tar.gz -C "{{learner_user_home}}/{{neo4j_dir}}"
 
 - name: Change Permissions neo4j-enterprise-3.3.9
   become: yes
