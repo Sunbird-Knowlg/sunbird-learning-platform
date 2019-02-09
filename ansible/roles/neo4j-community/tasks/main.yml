@@ -29,7 +29,14 @@
   become: yes
   become_user: "{{learner_user}}"
   #unarchive: src={{learner_user_home}}/{{neo4j_zip}} dest={{learner_user_home}}/{{neo4j_dir}} copy=no group={{learner_user}} owner={{learner_user}} creates={{ neo4j_home }}
-  shell: tar -xf /home/learning/neo4j-community-3.3.9-unix.tar.gz -C "{{learner_user_home}}/{{neo4j_dir}}"
+  shell: tar -xvf neo4j-community-3.3.9-unix.tar.gz 
+  args:
+   chdir: /home/learning
+
+- name: Rename dir
+  become: yes
+  become_user: "{{learner_user}}"
+  shell: mv /home/learning/neo4j-community-3.3.9 /home/learning/neo4j-learning
 
 - name: Change Permissions neo4j-enterprise-3.3.9
   become: yes
@@ -54,4 +61,4 @@
   become_user: "{{learner_user}}"
   template: src=neo4j-wrapper.conf.j2 dest={{ neo4j_home }}/conf/neo4j-wrapper.conf group={{learner_user}} owner={{learner_user}}
   when: dbms_mode != "ARBITER"
-  
+
