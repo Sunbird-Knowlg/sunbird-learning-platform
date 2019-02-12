@@ -101,7 +101,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response getHierarchy(String contentId, String mode) {
+	public Response getHierarchy(String contentId, String mode, List<String> fields) {
         return this.hierarchyManager.get(contentId, mode);
 	}
 
@@ -182,5 +182,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	public Response releaseDialcodes(String contentId, String channelId) throws Exception {
 	    return this.dialCodesManager.release(contentId, channelId);
 	}
+
+    @Override
+    public Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception {
+        return this.hierarchyManager.getContentHierarchy(contentId, mode, fields);
+    }
 
 }
