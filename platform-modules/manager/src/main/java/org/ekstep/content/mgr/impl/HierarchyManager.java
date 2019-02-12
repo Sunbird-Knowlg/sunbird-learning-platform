@@ -5,6 +5,7 @@ import org.ekstep.content.mgr.impl.operation.hierarchy.GetHierarchyOperation;
 import org.ekstep.content.mgr.impl.operation.hierarchy.SyncHierarchyOperation;
 import org.ekstep.content.mgr.impl.operation.hierarchy.UpdateHierarchyOperation;
 
+import java.util.List;
 import java.util.Map;
 
 public class HierarchyManager {
@@ -22,4 +23,8 @@ public class HierarchyManager {
     }
 
     public Response sync(String identifier) { return this.syncHierarchyOperation.syncHierarchy(identifier); }
+
+    public Response getContentHierarchy(String contentId, String mode, List<String> fields) {
+        return this.getHierarchyOperation.getContentHierarchy(contentId, mode, fields);
+    }
 }
