@@ -548,7 +548,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			// Get body only for ECML content.
 			String mimeType = (String) contentImage.getMetadata().get("mimeType");
 			if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
-				System.out.println("Fetching content body for node: "+ contentId + " :: mimeType: " + mimeType);
 				String imageBody = getContentBody(contentImageId);
 				if (StringUtils.isNotBlank(imageBody)) {
 					response = updateContentBody(contentId, imageBody);
