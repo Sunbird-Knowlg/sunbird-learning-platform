@@ -2408,6 +2408,19 @@
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 23 }",
 					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "badgeAssociations",
+					"title": "List of Badge Associations",
+					"description": "List of Badge Associations",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
