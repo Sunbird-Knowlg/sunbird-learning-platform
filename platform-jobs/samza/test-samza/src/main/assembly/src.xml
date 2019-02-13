@@ -65,9 +65,5 @@
 			</includes>
 			<useTransitiveFiltering>true</useTransitiveFiltering>
 		</dependencySet>
-		<dependencySet>
-            <outputDirectory>/</outputDirectory>
-            <unpack>false</unpack>
-        </dependencySet>
 	</dependencySets>
 </assembly>
