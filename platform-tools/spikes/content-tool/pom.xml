@@ -73,7 +73,7 @@
     <repositories>
         <repository>
             <id>cloud-store</id>
-            <url>https://oss.sonatype.org/content/repositories/orgsunbird-1028</url>
+            <url>https://oss.sonatype.org/content/repositories/orgsunbird-1029</url>
         </repository>
     </repositories>
 
