@@ -335,6 +335,9 @@ public class BaseFrameworkManager extends BaseManager {
 			Map<String, Object> relationMap = new HashMap<String, Object>();
 			relationMap.put("identifier", scopeId);
 			relationMap.put("relation", "hasSequenceMember");
+			if(request.containsKey("index")){
+				relationMap.put("index",request.get("index"));
+			}
 			relationList.add(relationMap);
 			/**
 			 * TODO: Get the relationTitle from definition or from the calling method. For
