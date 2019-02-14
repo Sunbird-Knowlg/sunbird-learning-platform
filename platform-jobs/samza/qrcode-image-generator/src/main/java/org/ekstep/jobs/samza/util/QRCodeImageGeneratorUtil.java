@@ -51,6 +51,7 @@ public class QRCodeImageGeneratorUtil {
         String colorModel = qrGenRequest.getColorModel();
         int borderSize = qrGenRequest.getImageBorderSize();
         int qrMarginBottom = qrGenRequest.getQrCodeMarginBottom();
+        int imageMargin = qrGenRequest.getImageMargin();
 
         for (int i = 0; i < dataList.size(); i++) {
             String data = dataList.get(i);
@@ -61,11 +62,11 @@ public class QRCodeImageGeneratorUtil {
 
             if (null != text || "" != text) {
                 BufferedImage textImage = getTextImage(text, fontName, fontSize, tracking, colorModel);
-                qrImage = addTextToBaseImage(qrImage, textImage, colorModel, qrMargin, pixelsPerBlock, qrMarginBottom);
+                qrImage = addTextToBaseImage(qrImage, textImage, colorModel, qrMargin, pixelsPerBlock, qrMarginBottom, imageMargin);
             }
 
             if (borderSize > 0) {
-                drawBorder(qrImage, borderSize);
+                drawBorder(qrImage, borderSize, imageMargin);
             }
 
             File finalImageFile = new File(fileName + "." + imageFormat);
@@ -84,7 +85,7 @@ public class QRCodeImageGeneratorUtil {
 
     }
 
-    static BufferedImage addTextToBaseImage(BufferedImage qrImage, BufferedImage textImage, String colorModel, int qrMargin, int pixelsPerBlock, int qrMarginBottom) throws NotFoundException {
+    static BufferedImage addTextToBaseImage(BufferedImage qrImage, BufferedImage textImage, String colorModel, int qrMargin, int pixelsPerBlock, int qrMarginBottom, int imageMargin) throws NotFoundException {
         BufferedImageLuminanceSource qrSource = new BufferedImageLuminanceSource(qrImage);
         HybridBinarizer qrBinarizer = new HybridBinarizer(qrSource);
         BitMatrix qrBits = qrBinarizer.getBlackMatrix();
@@ -103,7 +104,7 @@ public class QRCodeImageGeneratorUtil {
             qrBits = tempQrMatrix;
         }
 
-        BitMatrix mergedMatrix = mergeMatricesOfSameWidth(qrBits, textBits, qrMargin, pixelsPerBlock, qrMarginBottom);
+        BitMatrix mergedMatrix = mergeMatricesOfSameWidth(qrBits, textBits, qrMargin, pixelsPerBlock, qrMarginBottom, imageMargin);
         return getImage(mergedMatrix, colorModel);
     }
 
@@ -116,9 +117,11 @@ public class QRCodeImageGeneratorUtil {
     }
 
     //To remove extra spaces between text and qrcode, margin below qrcode is removed
-    static BitMatrix mergeMatricesOfSameWidth(BitMatrix firstMatrix, BitMatrix secondMatrix, int qrMargin, int pixelsPerBlock, int qrMarginBottom) {
-        int mergedWidth = firstMatrix.getWidth();
-        int mergedHeight = firstMatrix.getHeight() + secondMatrix.getHeight();
+    //Parameter, qrCodeMarginBottom, is introduced to add custom margin(in pixels) between qrcode and text
+    //Parameter, imageMargin is introduced, to add custom margin(in pixels) outside the black border of the image
+    static BitMatrix mergeMatricesOfSameWidth(BitMatrix firstMatrix, BitMatrix secondMatrix, int qrMargin, int pixelsPerBlock, int qrMarginBottom, int imageMargin) {
+        int mergedWidth = firstMatrix.getWidth() + (2 * imageMargin);
+        int mergedHeight = firstMatrix.getHeight() + secondMatrix.getHeight() + + (2 * imageMargin);
         int defaultBottomMargin = pixelsPerBlock * qrMargin;
         int marginToBeRemoved = qrMarginBottom > defaultBottomMargin ? 0 : (defaultBottomMargin-qrMarginBottom);
         BitMatrix mergedMatrix = new BitMatrix(mergedWidth, mergedHeight - marginToBeRemoved);
@@ -126,14 +129,14 @@ public class QRCodeImageGeneratorUtil {
         for (int x = 0; x < firstMatrix.getWidth(); x++) {
             for (int y = 0; y < firstMatrix.getHeight() - marginToBeRemoved; y++) {
                 if (firstMatrix.get(x, y)) {
-                    mergedMatrix.set(x, y);
+                    mergedMatrix.set(x + imageMargin, y + imageMargin);
                 }
             }
         }
         for (int x = 0; x < secondMatrix.getWidth(); x++) {
             for (int y = 0; y < secondMatrix.getHeight(); y++) {
                 if (secondMatrix.get(x, y)) {
-                    mergedMatrix.set(x, y + firstMatrix.getHeight() - marginToBeRemoved);
+                    mergedMatrix.set(x + imageMargin, y + firstMatrix.getHeight() - marginToBeRemoved + imageMargin);
                 }
             }
         }
@@ -152,12 +155,12 @@ public class QRCodeImageGeneratorUtil {
         }
     }
 
-    static void drawBorder(BufferedImage image, int borderSize) {
+    static void drawBorder(BufferedImage image, int borderSize, int imageMargin) {
         image.createGraphics();
         Graphics2D graphics = (Graphics2D) image.getGraphics();
         graphics.setColor(Color.BLACK);
         for (int i = 0; i < borderSize; i++) {
-            graphics.drawRect(i, i, image.getWidth() - 1 - (2 * i), image.getHeight() - 1 - (2 * i));
+            graphics.drawRect(i + imageMargin, i + imageMargin, image.getWidth() - 1 - (2 * i) - (2 * imageMargin), image.getHeight() - 1 - (2 * i) - (2 * imageMargin));
         }
         graphics.dispose();
     }
