@@ -123,12 +123,12 @@ public class QRCodeImageGeneratorService implements ISamzaService {
 		if(config.containsKey(QRCodeImageGeneratorParams.qrCodeMarginBottom.name())) {
             qrGenRequest.setQrCodeMarginBottom((Integer) config.get(QRCodeImageGeneratorParams.qrCodeMarginBottom.name()));
         } else {
-            qrGenRequest.setQrCodeMarginBottom(appConfig.getInt("qr_image_margin_bottom"));
+            qrGenRequest.setQrCodeMarginBottom(appConfig.getInt(QRCodeImageGeneratorParams.qr_image_margin_bottom.name()));
         }
         if(config.containsKey(QRCodeImageGeneratorParams.imageMargin.name())) {
             qrGenRequest.setImageMargin((Integer) config.get(QRCodeImageGeneratorParams.imageMargin.name()));
         } else {
-            qrGenRequest.setImageMargin(appConfig.getInt("qr_image_margin"));
+            qrGenRequest.setImageMargin(appConfig.getInt(QRCodeImageGeneratorParams.qr_image_margin.name()));
         }
 		return qrGenRequest;
 	}

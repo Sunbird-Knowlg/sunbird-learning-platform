@@ -85,7 +85,7 @@ public class QRCodeImageGeneratorUtil {
 
     }
 
-    static BufferedImage addTextToBaseImage(BufferedImage qrImage, BufferedImage textImage, String colorModel, int qrMargin, int pixelsPerBlock, int qrMarginBottom, int imageMargin) throws NotFoundException {
+    private static BufferedImage addTextToBaseImage(BufferedImage qrImage, BufferedImage textImage, String colorModel, int qrMargin, int pixelsPerBlock, int qrMarginBottom, int imageMargin) throws NotFoundException {
         BufferedImageLuminanceSource qrSource = new BufferedImageLuminanceSource(qrImage);
         HybridBinarizer qrBinarizer = new HybridBinarizer(qrSource);
         BitMatrix qrBits = qrBinarizer.getBlackMatrix();
@@ -108,7 +108,7 @@ public class QRCodeImageGeneratorUtil {
         return getImage(mergedMatrix, colorModel);
     }
 
-    static BufferedImage generateBaseImage(String data, String errorCorrectionLevel, int pixelsPerBlock, int qrMargin, String colorModel) throws WriterException {
+    private static BufferedImage generateBaseImage(String data, String errorCorrectionLevel, int pixelsPerBlock, int qrMargin, String colorModel) throws WriterException {
         Map hintsMap = getHintsMap(errorCorrectionLevel, qrMargin);
         BitMatrix defaultBitMatrix = getDefaultBitMatrix(data, hintsMap);
         BitMatrix largeBitMatrix = getBitMatrix(data, defaultBitMatrix.getWidth() * pixelsPerBlock, defaultBitMatrix.getHeight() * pixelsPerBlock, hintsMap);
@@ -119,7 +119,7 @@ public class QRCodeImageGeneratorUtil {
     //To remove extra spaces between text and qrcode, margin below qrcode is removed
     //Parameter, qrCodeMarginBottom, is introduced to add custom margin(in pixels) between qrcode and text
     //Parameter, imageMargin is introduced, to add custom margin(in pixels) outside the black border of the image
-    static BitMatrix mergeMatricesOfSameWidth(BitMatrix firstMatrix, BitMatrix secondMatrix, int qrMargin, int pixelsPerBlock, int qrMarginBottom, int imageMargin) {
+    private static BitMatrix mergeMatricesOfSameWidth(BitMatrix firstMatrix, BitMatrix secondMatrix, int qrMargin, int pixelsPerBlock, int qrMarginBottom, int imageMargin) {
         int mergedWidth = firstMatrix.getWidth() + (2 * imageMargin);
         int mergedHeight = firstMatrix.getHeight() + secondMatrix.getHeight() + (2 * imageMargin);
         int defaultBottomMargin = pixelsPerBlock * qrMargin;
@@ -143,7 +143,7 @@ public class QRCodeImageGeneratorUtil {
         return mergedMatrix;
     }
 
-    static void copyMatrixDataToBiggerMatrix(BitMatrix fromMatrix, BitMatrix toMatrix) {
+    private static void copyMatrixDataToBiggerMatrix(BitMatrix fromMatrix, BitMatrix toMatrix) {
         int widthDiff = toMatrix.getWidth() - fromMatrix.getWidth();
         int leftMargin = widthDiff / 2;
         for (int x = 0; x < fromMatrix.getWidth(); x++) {
@@ -155,7 +155,7 @@ public class QRCodeImageGeneratorUtil {
         }
     }
 
-    static void drawBorder(BufferedImage image, int borderSize, int imageMargin) {
+    private static void drawBorder(BufferedImage image, int borderSize, int imageMargin) {
         image.createGraphics();
         Graphics2D graphics = (Graphics2D) image.getGraphics();
         graphics.setColor(Color.BLACK);
@@ -165,7 +165,7 @@ public class QRCodeImageGeneratorUtil {
         graphics.dispose();
     }
 
-    static BufferedImage getImage(BitMatrix bitMatrix, String colorModel) {
+    private static BufferedImage getImage(BitMatrix bitMatrix, String colorModel) {
         int imageWidth = bitMatrix.getWidth();
         int imageHeight = bitMatrix.getHeight();
         BufferedImage image = new BufferedImage(imageWidth, imageHeight, getImageType(colorModel));
@@ -189,17 +189,17 @@ public class QRCodeImageGeneratorUtil {
         return image;
     }
 
-    static BitMatrix getBitMatrix(String data, int width, int height, Map hintsMap) throws WriterException {
+    private static BitMatrix getBitMatrix(String data, int width, int height, Map hintsMap) throws WriterException {
         BitMatrix bitMatrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, width, height, hintsMap);
         return bitMatrix;
     }
 
-    static BitMatrix getDefaultBitMatrix(String data, Map hintsMap) throws WriterException {
+    private static BitMatrix getDefaultBitMatrix(String data, Map hintsMap) throws WriterException {
         BitMatrix defaultBitMatrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, 0, 0, hintsMap);
         return defaultBitMatrix;
     }
 
-    static Map getHintsMap(String errorCorrectionLevel, int qrMargin) {
+    private static Map getHintsMap(String errorCorrectionLevel, int qrMargin) {
         Map hintsMap = new HashMap();
         switch (errorCorrectionLevel) {
             case "H":
@@ -220,7 +220,7 @@ public class QRCodeImageGeneratorUtil {
     }
 
     //Sample = 2A42UH , Verdana, 11, 0.1, Grayscale
-    static BufferedImage getTextImage(String text, String fontName, int fontSize, double tracking, String colorModel) throws IOException, FontFormatException {
+    private static BufferedImage getTextImage(String text, String fontName, int fontSize, double tracking, String colorModel) throws IOException, FontFormatException {
 
         BufferedImage image = new BufferedImage(1, 1, getImageType(colorModel));
 
@@ -261,7 +261,7 @@ public class QRCodeImageGeneratorUtil {
         return image;
     }
 
-    static int getImageType(String colorModel) {
+    private static int getImageType(String colorModel) {
         if (colorModel.equalsIgnoreCase("RGB")) {
             return BufferedImage.TYPE_INT_RGB;
         } else {
