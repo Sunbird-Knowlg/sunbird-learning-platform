@@ -121,7 +121,7 @@ public class QRCodeImageGeneratorUtil {
     //Parameter, imageMargin is introduced, to add custom margin(in pixels) outside the black border of the image
     static BitMatrix mergeMatricesOfSameWidth(BitMatrix firstMatrix, BitMatrix secondMatrix, int qrMargin, int pixelsPerBlock, int qrMarginBottom, int imageMargin) {
         int mergedWidth = firstMatrix.getWidth() + (2 * imageMargin);
-        int mergedHeight = firstMatrix.getHeight() + secondMatrix.getHeight() + + (2 * imageMargin);
+        int mergedHeight = firstMatrix.getHeight() + secondMatrix.getHeight() + (2 * imageMargin);
         int defaultBottomMargin = pixelsPerBlock * qrMargin;
         int marginToBeRemoved = qrMarginBottom > defaultBottomMargin ? 0 : (defaultBottomMargin-qrMarginBottom);
         BitMatrix mergedMatrix = new BitMatrix(mergedWidth, mergedHeight - marginToBeRemoved);
