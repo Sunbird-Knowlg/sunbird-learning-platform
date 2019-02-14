@@ -65,6 +65,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected String contentId;
 
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 
@@ -238,6 +239,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			// Cloning contents to spineContent
 			Cloner cloner = new Cloner();
 			List<Map<String, Object>> spineContents = cloner.deepClone(contents);
+			List<Map<String, Object>> onlineContents = cloner.deepClone(contents);
 
 			TelemetryManager.info("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
 			Map<String, Object> variants = new HashMap<String, Object>();
@@ -277,7 +279,26 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
-			
+
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
+				TelemetryManager.log("Creating Online ECAR For Content Id: " + node.getIdentifier());
+				Map<String, Object> onlineEcarMap = new HashMap<String, Object>();
+				String onlineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.ONLINE);
+				downloadUrls = contentBundle.createContentManifestData(onlineContents, childrenIds, null,
+						EcarPackageType.ONLINE);
+				urlArray = contentBundle.createContentBundle(onlineContents, onlineEcarFileName,
+						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+				TelemetryManager.log("Online ECAR created For Content Id: " + node.getIdentifier());
+				onlineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
+				onlineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
+
+				TelemetryManager.log("Adding Online Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+				variants.put(ContentWorkflowPipelineParams.online.name(), onlineEcarMap);
+
+				TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
+				node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+			}
+
 			// if collection full ECAR creation disabled set spine as download url.
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 				downloadUrl = urlArray[IDX_S3_URL];
@@ -380,7 +401,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private void publishHierarchy(Node publishedNode) {
 		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
-		Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
+		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
 		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
@@ -543,13 +564,18 @@ public class PublishFinalizer extends BaseFinalizer {
 				removeExtraProperties(contentImage);
 			}
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
-			String imageBody = getContentBody(contentImageId);
-			if (StringUtils.isNotBlank(imageBody)) {
-				response = updateContentBody(contentId, getContentBody(contentImageId));
-				if (checkError(response))
-					throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
-							ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
-									+ "]");
+
+			// Get body only for ECML content.
+			String mimeType = (String) contentImage.getMetadata().get("mimeType");
+			if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
+				String imageBody = getContentBody(contentImageId);
+				if (StringUtils.isNotBlank(imageBody)) {
+					response = updateContentBody(contentId, imageBody);
+					if (checkError(response))
+						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+								ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
+										+ "]");
+				}
 			}
 
 			TelemetryManager.log("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");

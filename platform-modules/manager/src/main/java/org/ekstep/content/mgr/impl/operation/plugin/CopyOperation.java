@@ -161,8 +161,8 @@ public class CopyOperation extends BaseContentManager {
     @SuppressWarnings("unchecked")
     private void copyHierarchy(Node existingNode, Map<String, String> idMap, String mode) {
         DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-        Map<String, Object> contentMap = util.getContentHierarchyRecursive(existingNode.getGraphId(), existingNode,
-                definition, mode, true);
+        Map<String, Object> contentMap = util.getHierarchyMap(existingNode.getGraphId(), existingNode.getIdentifier(),
+                definition, mode, null);
 
         Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
                 (List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
