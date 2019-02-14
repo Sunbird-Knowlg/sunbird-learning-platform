@@ -8,5 +8,5 @@ package org.ekstep.graph.engine.common;
  *
  */
 public enum TestParams {
-	graphId, successful, BOLT, node_id, versionKey, body, identifier, code, artifactUrl;
+	graphId, successful, BOLT, node_id, versionKey, body, identifier, code, artifactUrl, content_url;
 }
