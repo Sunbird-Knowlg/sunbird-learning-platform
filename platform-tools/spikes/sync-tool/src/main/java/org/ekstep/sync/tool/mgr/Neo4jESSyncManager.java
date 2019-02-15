@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -28,6 +29,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.util.ControllerUtil;
@@ -145,7 +147,8 @@ public class Neo4jESSyncManager implements ISyncManager {
 						start += batchSize;
 						continue;
 					}
-					if (null != nodes && !nodes.isEmpty()) {
+					if (CollectionUtils.isNotEmpty(nodes)) {
+						filterDefinitionNodes(nodes);
 						start += batchSize;
 						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
 						esConnector.bulkImport(messages);
@@ -197,7 +200,9 @@ public class Neo4jESSyncManager implements ISyncManager {
 				nodes = (List<Node>) response.getResult().get(GraphDACParams.node_list.name());
 			}
 
-			if (nodes != null && !nodes.isEmpty()) {
+			if (CollectionUtils.isNotEmpty(nodes)) {
+				filterDefinitionNodes(nodes);
+				
 				errors = new HashMap<>();
 				Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
 				if (!errors.isEmpty())
@@ -244,7 +249,8 @@ public class Neo4jESSyncManager implements ISyncManager {
 						start += batchSize;
 						continue;
 					}
-					if (null != nodes && !nodes.isEmpty()) {
+					if (CollectionUtils.isNotEmpty(nodes)) {
+						filterDefinitionNodes(nodes);
 						start += batchSize;
 						Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, objectType, errors);
 						esConnector.bulkImport(messages);
@@ -319,6 +325,10 @@ public class Neo4jESSyncManager implements ISyncManager {
 	        .append(String.format(" %d/%d, ETA: %s", current, total, etaHms));
 
 	    System.out.print(string);
+	}
+
+	public static void filterDefinitionNodes(List<Node> nodes) {
+		nodes.removeIf(n -> SystemNodeTypes.DEFINITION_NODE.name().equals(n.getNodeType()));
 	}
 
 }
