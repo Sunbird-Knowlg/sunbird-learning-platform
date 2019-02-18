@@ -20,14 +20,13 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
-import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -389,9 +388,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			publishHierarchy(publishedNode);
 		}
 
-		if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
-			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
-		}
 		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
