@@ -82,9 +82,11 @@ public class ContentBundle {
 	public Map<Object, List<String>> createContentManifestData(List<Map<String, Object>> contents,
 			List<String> children, String expiresOn, EcarPackageType packageType) {
 		List<String> urlFields = new ArrayList<String>();
-		urlFields.add("appIcon");
-		urlFields.add("grayScaleAppIcon");
-		urlFields.add("artifactUrl");
+		if (!EcarPackageType.ONLINE.equals(packageType)) {
+			urlFields.add("appIcon");
+			urlFields.add("grayScaleAppIcon");
+			urlFields.add("artifactUrl");
+		}
 
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
@@ -312,7 +314,7 @@ public class ContentBundle {
 		List<String> contentPackageKeys = new ArrayList<String>();
 		contentPackageKeys.add(ContentWorkflowPipelineParams.artifactUrl.name());
 		contentPackageKeys.add(ContentWorkflowPipelineParams.downloadUrl.name());
-		if (!contentPackageKeys.contains(key) || packageType != EcarPackageType.SPINE) {
+		if (!contentPackageKeys.contains(key) || packageType != EcarPackageType.SPINE || packageType != EcarPackageType.ONLINE) {
 			List<String> ids = downloadUrls.get(val);
 			if (null == ids) {
 				ids = new ArrayList<String>();

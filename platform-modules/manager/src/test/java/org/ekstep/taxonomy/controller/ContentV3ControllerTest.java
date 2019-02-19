@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 
@@ -1411,78 +1412,20 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Assert.assertEquals("CLIENT_ERROR", createResponse.getResponseCode().toString());
 	}
 
-    private String createResourceContent() throws Exception {
-	    String path = basePath + "/create";
-	    String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
-        actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
-                .header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(createDocumentContentRequestBody));
-        assertEquals(200, actions.andReturn().getResponse().getStatus());
-        return (String) getResponse(actions).getResult().get(TestParams.node_id.name());
-    }
-
-    private void retireContent(String contentId) throws Exception {
-        String path = basePath + "/retire/" + contentId;
-        actions = mockMvc.perform(MockMvcRequestBuilders.delete(path));
-        assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
-
-    private void validateRetiredNode(String contentId) throws Exception {
-        Response response = getContent(contentId);
-        assertEquals("Retired", ((Map<String, Object>) response.get("content")).get("status"));
-    }
-
-    private void uploadResourceContent(String contentId) throws Exception {
-        String uploadPath = basePath + "/upload/" + contentId;
-        File inputFile = getResourceFile("pdf.pdf");
-        FileInputStream fileStream = new FileInputStream(inputFile);
-        MockMultipartFile testFile = new MockMultipartFile("file", "pdf.pdf", "application/pdf", fileStream);
-        actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(uploadPath).file(testFile).header("user-id", "ilimi"));
-        assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
-
-    private void publish(String contentId) throws Exception {
-        String path = basePath + "/publish/" + contentId;
-        String publishReqBody = "{\"request\": {\"content\" : {\"lastPublishedBy\" : \"Ekstep\"}}}";
-        actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
-                .header("X-Channel-Id", "channelTest").content(publishReqBody));
-        System.out.print("Response::::" + actions.andReturn().getResponse().getContentAsString());
-        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
-
-    private Response getContent(String contentId) throws Exception {
-        String path = basePath + "/read/" + contentId;
-        actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA"));
-        return getResponse(actions);
-    }
-
-    private void update(String contentId) throws Exception {
-        String versionKey = (String) ((Map<String, Object>)getContent(contentId).getResult().get("content")).get("versionKey");
-        String updateReq = "{\"request\": {\"content\": {\"versionKey\": \"" + versionKey + "\",\"screenshots\": null,\"name\": \"Image Node\"}}}";
-        String path = basePath + "/update/" + contentId;
-        actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
-                .header("user-id", "ilimi").content(updateReq));
-        assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
-
-    private void review(String contentId) throws Exception {
-        String path = basePath + "/review/" + contentId;
-        String publishReqBody = "{\"request\": {\"content\" : {}}}";
-        actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
-                .header("X-Channel-Id", "channelTest").content(publishReqBody));
-        assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
 
 	@Test
 	public void retireDraftedDocumentContent() throws Exception {
-		String contentId = createResourceContent();
+		String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createDocumentContentRequestBody);
 		retireContent(contentId);
 		validateRetiredNode(contentId);
 	}
 	@Ignore
 	@Test
 	public void retirePublishedDocumentContent() throws Exception {
-		String contentId = createResourceContent();
-		uploadResourceContent(contentId);
+		String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createDocumentContentRequestBody);
+		uploadContent(contentId, "pdf.pdf","application/pdf");
 		delay(5000);
 		publish(contentId);
 		delay(5000);
@@ -1494,8 +1437,9 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	@Ignore
 	@Test
 	public void retireReviewedDocumentContent() throws Exception {
-		String contentId = createResourceContent();
-		uploadResourceContent(contentId);
+		String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createDocumentContentRequestBody);
+		uploadContent(contentId, "pdf.pdf","application/pdf");
 		delay(25000);
 		review(contentId);
 		retireContent(contentId);
@@ -1512,8 +1456,9 @@ public class ContentV3ControllerTest extends CommonTestSetup {
     }
 
     private void heirarchyUpdate(String collectionContentId) throws Exception {
-        String resourceContentId1 = createResourceContent();
-        String resourceContentId2 = createResourceContent();
+		String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
+        String resourceContentId1 = createContent(createDocumentContentRequestBody);
+        String resourceContentId2 = createContent(createDocumentContentRequestBody);
         String path = basePath + "/hierarchy/update";
         String updateHeirarchyReq = "{\"request\":{\"data\":{\"nodesModified\":{\"TestBookUnit-0111\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-0211\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-0311\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_03\",\"description\":\"TTest_Collection_TextBookUnit_03\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b82dd3aca\"}},\"TestBookUnit-0411\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_04\",\"description\":\"TTest_Collection_TextBookUnit_04\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4912-9b2b-8390b82dd3aca\"}},\"TestBookUnit-0511\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_05\",\"description\":\"TTest_Collection_TextBookUnit_05\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4912-9b2b-8390b82dd3aca\"}}},\"hierarchy\":{\"" + collectionContentId + "\":{\"name\":\"TextBook1-CreatedforRetireTesting\",\"contentType\":\"Collection\",\"children\":[\"TestBookUnit-0111\",\"TestBookUnit-0211\",\"TestBookUnit-0311\",\"TestBookUnit-0411\",\"TestBookUnit-0511\",\"" + resourceContentId1 + "\"],\"root\":true},\"TestBookUnit-0111\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 + "\"],\"root\":false},\"TestBookUnit-0211\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0311\":{\"name\":\"Test_Collection_TextBookUnit_03\",\"contentType\":\"TextBookUnit\",\"children\":[\""+ resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0411\":{\"name\":\"Test_Collection_TextBookUnit_04\",\"contentType\":\"TextBookUnit\",\"children\":[\""+ resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0511\":{\"name\":\"Test_Collection_TextBookUnit_05\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 + "\"],\"root\":false},\"" + resourceContentId1 + "\":{\"name\":\"Test_Resource_Content\",\"contentType\":\"Story\",\"children\":[],\"root\":false}}}}}";
         actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("X-Channel-Id", "channelTest")
@@ -1590,4 +1535,106 @@ public class ContentV3ControllerTest extends CommonTestSetup {
         retireContent(collectionContentId);
 		validateRetiredCollectionContent(collectionContentId);
     }
+
+    //Test case for Online Ecar generation in Textbook
+    @Test
+	public void publishTextbookExpectOnlineEcar() throws Exception {
+		//create an asset
+		String createAssetReq = "{\"request\": {\"content\": {\"name\": \"Test Asset for Unit Testing\",\"code\": \"test.asset.1\",\"mimeType\": \"image/jpg\",\"mediaType\":\"image\",\"contentType\":\"Asset\"}}}";
+		String assetId = createContent(createAssetReq);
+		String assetUrl = uploadContent(assetId,"education.jpeg","image/jpeg");
+
+		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\",\"appIcon\":\""+assetUrl+"\"}}}";
+		String textbookId = createContent(createTextbookReq);
+
+		String updateHierarchyRequestBody = "{\"request\": {\"data\": {\"nodesModified\": {\"TestBookUnit-01\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_01\",\"description\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"TestBookUnit-02\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_02\",\"description\": \"TTest_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}}},\"hierarchy\": {\"textbookIdentifier\": {\"name\": \"Test Textbook\",\"contentType\": \"TextBook\",\"children\": [\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\": true},\"TestBookUnit-01\": {\"name\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]},\"TestBookUnit-02\": {\"name\": \"Test_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]}}}}\n" +
+				"}";
+		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("appIconUrl",assetUrl);
+		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier",textbookId);
+		updateHierarchy(updateHierarchyRequestBody);
+		publish(textbookId);
+
+		String status = "";
+		Integer counter = 0;
+		while(!"Live".equalsIgnoreCase(status) && counter<10){
+			Response resp = getContent(textbookId);
+			if("OK".equalsIgnoreCase(resp.getResponseCode().toString())){
+				status = (String)((Map<String,Object>)resp.getResult().get("content")).get("status");
+				++counter;
+				delay(20000);
+			}
+		}
+		Response response = getContent(textbookId);
+		Map<String,Object> variants = (Map<String,Object>) ((Map<String, Object>)response.getResult().get("content")).get("variants");
+		String onlineEcarUrl = (String) ((Map<String,Object>) variants.get("online")).get("ecarUrl");
+		assertNotNull(onlineEcarUrl);
+	}
+
+	private String createContent(String requestBody) throws Exception {
+		String path = basePath + "/create";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(requestBody));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		return (String) getResponse(actions).getResult().get(TestParams.node_id.name());
+	}
+
+	private void retireContent(String contentId) throws Exception {
+		String path = basePath + "/retire/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.delete(path));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	private void validateRetiredNode(String contentId) throws Exception {
+		Response response = getContent(contentId);
+		assertEquals("Retired", ((Map<String, Object>) response.get("content")).get("status"));
+	}
+
+	private String uploadContent(String contentId, String fileName, String contentType) throws Exception {
+		String uploadPath = basePath + "/upload/" + contentId;
+		File inputFile = getResourceFile(fileName);
+		FileInputStream fileStream = new FileInputStream(inputFile);
+		MockMultipartFile testFile = new MockMultipartFile("file", fileName, contentType, fileStream);
+		actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(uploadPath).file(testFile).header("user-id", "ilimi"));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+		return (String) getResponse(actions).getResult().get(TestParams.content_url.name());
+	}
+
+	private void publish(String contentId) throws Exception {
+		String path = basePath + "/publish/" + contentId;
+		String publishReqBody = "{\"request\": {\"content\" : {\"lastPublishedBy\" : \"Ekstep\"}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(publishReqBody));
+		System.out.print("Response::::" + actions.andReturn().getResponse().getContentAsString());
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	private Response getContent(String contentId) throws Exception {
+		String path = basePath + "/read/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(path).contentType(MediaType.APPLICATION_JSON).header("X-Channel-Id", "channelKA"));
+		return getResponse(actions);
+	}
+
+	private void update(String contentId) throws Exception {
+		String versionKey = (String) ((Map<String, Object>)getContent(contentId).getResult().get("content")).get("versionKey");
+		String updateReq = "{\"request\": {\"content\": {\"versionKey\": \"" + versionKey + "\",\"screenshots\": null,\"name\": \"Image Node\"}}}";
+		String path = basePath + "/update/" + contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
+				.header("user-id", "ilimi").content(updateReq));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	private void review(String contentId) throws Exception {
+		String path = basePath + "/review/" + contentId;
+		String publishReqBody = "{\"request\": {\"content\" : {}}}";
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
+				.header("X-Channel-Id", "channelTest").content(publishReqBody));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
+
+	private void updateHierarchy(String requestBody) throws Exception {
+		String path = basePath + "/hierarchy/update";
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(requestBody));
+		assertEquals(200, actions.andReturn().getResponse().getStatus());
+	}
 }

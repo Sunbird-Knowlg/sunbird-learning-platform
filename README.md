@@ -13,4 +13,3 @@ The platform contains of the following projects:
 * platform-modules - Functional/Pedagogy modules to support game based learning and API
 
 
-
