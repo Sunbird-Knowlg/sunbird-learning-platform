@@ -26,15 +26,15 @@ public class ContentStore extends CassandraStore {
 
 	private static final String PROPERTY_SUFFIX = "__txt";
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static final String table = "content_data";
+
 
 	public ContentStore() {
 		super();
 		String keyspace = Platform.config.hasPath("content.keyspace.name")
 				? Platform.config.getString("content.keyspace.name")
 				: "content_store";
-		String table = Platform.config.hasPath("content.keyspace.table")
-				? Platform.config.getString("content.keyspace.table")
-				: "content_data";
+
 		boolean index = Platform.config.hasPath("content.index") ? Platform.config.getBoolean("content.index") : false;
 		String objectType = "Content";
 		initialise(keyspace, table, objectType, index);
