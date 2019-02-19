@@ -184,40 +184,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
 
-		
 		String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
-		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())
-				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())
-				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())
-				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.epub.name())
-				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.h5p.name())
-				|| StringUtils.containsIgnoreCase(mimeType, "x-url")) {
-			TelemetryManager.info("setting compatability level for youtube, pdf and doc and epub: "+ node.getIdentifier() + " as 4.");
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
-		}
-
-		if (StringUtils.equalsIgnoreCase(
-				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-				ContentWorkflowPipelineParams.Course.name())
-				|| StringUtils.equalsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-						ContentWorkflowPipelineParams.CourseUnit.name())) {
-			TelemetryManager.info("setting compatability level for course and course unit: "+ node.getIdentifier() + " as 4.");
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
-		}
-
-		if (StringUtils.equalsIgnoreCase(
-				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-				ContentWorkflowPipelineParams.LessonPlan.name())
-				|| StringUtils.equalsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-						ContentWorkflowPipelineParams.LessonPlanUnit.name())) {
-			TelemetryManager.info("setting compatability level for lesson plan and lesson plan unit: " + node.getIdentifier() + " as 4.");
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
-		}
-
+		setCoptabilityLevel(node);
 		setPragma(node);
-
 		
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 
@@ -246,57 +215,22 @@ public class PublishFinalizer extends BaseFinalizer {
 			Map<Object, List<String>> downloadUrls = null;
 			String[] urlArray = null;
 			ContentBundle contentBundle = new ContentBundle();
-			
+
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 				TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			} else {
-				TelemetryManager.log("Creating Full ECAR For Content Id: " + node.getIdentifier());
-				String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
-				
-				downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
-						null, EcarPackageType.FULL);
-				urlArray = contentBundle.createContentBundle(contents, bundleFileName,
-						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
-				TelemetryManager.log("Full ECAR created For Content Id: " + node.getIdentifier());
+				generateEcar(EcarPackageType.FULL, node, contentBundle, variants, downloadUrls, urlArray, spineContents, childrenIds);
 				downloadUrl = urlArray[IDX_S3_URL];
 				s3Key = urlArray[IDX_S3_KEY];
 				TelemetryManager.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
 			}
+			// generate spine ecar.
+			generateEcar(EcarPackageType.SPINE, node, contentBundle, variants, downloadUrls, urlArray, spineContents, childrenIds);
 
-			TelemetryManager.log("Creating Spine ECAR For Content Id: " + node.getIdentifier());
-			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
-			String spineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.SPINE);
-			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null,
-					EcarPackageType.SPINE);
-			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
-					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
-			TelemetryManager.log("Spine ECAR created For Content Id: " + node.getIdentifier());
-			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
-			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
-
-			TelemetryManager.log("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
-			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
-
-			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
-			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
-
+			// generate online ecar for textbook
+			//TODO: mimetype can be validated against a configuration.
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
-				TelemetryManager.log("Creating Online ECAR For Content Id: " + node.getIdentifier());
-				Map<String, Object> onlineEcarMap = new HashMap<String, Object>();
-				String onlineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.ONLINE);
-				downloadUrls = contentBundle.createContentManifestData(onlineContents, childrenIds, null,
-						EcarPackageType.ONLINE);
-				urlArray = contentBundle.createContentBundle(onlineContents, onlineEcarFileName,
-						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
-				TelemetryManager.log("Online ECAR created For Content Id: " + node.getIdentifier());
-				onlineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
-				onlineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
-
-				TelemetryManager.log("Adding Online Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
-				variants.put(ContentWorkflowPipelineParams.online.name(), onlineEcarMap);
-
-				TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
-				node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+				generateEcar(EcarPackageType.ONLINE, node, contentBundle, variants, downloadUrls, urlArray, onlineContents, childrenIds);
 			}
 
 			// if collection full ECAR creation disabled set spine as download url.
@@ -595,5 +529,56 @@ public class PublishFinalizer extends BaseFinalizer {
 			return "true".equalsIgnoreCase(Platform.config.getString("publish.collection.fullecar.disable"));
 		else 
 			return false;
+	}
+
+	private void generateEcar(EcarPackageType pkgType, Node node, ContentBundle contentBundle, Map<String, Object> variants,
+							  Map<Object, List<String>> downloadUrls, String[] urlArray, List<Map<String, Object>> ecarContents, List<String> childrenIds) {
+
+		TelemetryManager.log("Creating " + pkgType.toString() + " ECAR For Content Id: " + node.getIdentifier());
+		Map<String, Object> ecarMap = new HashMap<String, Object>();
+		String bundleFileName = getBundleFileName(contentId, node, pkgType);
+		downloadUrls = contentBundle.createContentManifestData(ecarContents, childrenIds, null,
+				pkgType);
+		urlArray = contentBundle.createContentBundle(ecarContents, bundleFileName,
+				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+		TelemetryManager.log(pkgType.toString() + " ECAR created For Content Id: " + node.getIdentifier());
+
+		if (!EcarPackageType.FULL.name().equalsIgnoreCase(pkgType.toString())) {
+			ecarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
+			ecarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
+
+			TelemetryManager.log("Adding " + pkgType.toString() + " Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+			variants.put(pkgType.toString().toLowerCase(), ecarMap);
+
+			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
+			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+		}
+	}
+
+	private void setCoptabilityLevel(Node node) {
+		String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
+		String contentType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name());
+		//TODO: Get all mimeType List from config.
+		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())
+				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())
+				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())
+				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.epub.name())
+				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.h5p.name())
+				|| StringUtils.containsIgnoreCase(mimeType, "x-url")) {
+			TelemetryManager.info("setting compatability level for youtube, pdf and doc and epub: " + node.getIdentifier() + " as 4.");
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
+		}
+
+		if (StringUtils.equalsIgnoreCase(contentType, ContentWorkflowPipelineParams.Course.name())
+				|| StringUtils.equalsIgnoreCase(contentType, ContentWorkflowPipelineParams.CourseUnit.name())) {
+			TelemetryManager.info("setting compatability level for course and course unit: " + node.getIdentifier() + " as 4.");
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
+		}
+
+		if (StringUtils.equalsIgnoreCase(contentType, ContentWorkflowPipelineParams.LessonPlan.name())
+				|| StringUtils.equalsIgnoreCase(contentType, ContentWorkflowPipelineParams.LessonPlanUnit.name())) {
+			TelemetryManager.info("setting compatability level for lesson plan and lesson plan unit: " + node.getIdentifier() + " as 4.");
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
+		}
 	}
 }

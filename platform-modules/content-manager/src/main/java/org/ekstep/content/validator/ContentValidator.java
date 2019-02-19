@@ -39,6 +39,7 @@ public class ContentValidator {
 	private static final String BUNDLE_PATH = "/tmp";
 
 	/** The youtubeUrl regex */
+	//TODO: Use youtube Regex from config
 	private static final String YOUTUBE_REGEX = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
 
 	/** The pdf mimeType */
@@ -50,6 +51,7 @@ public class ContentValidator {
 	private static final String EPUB_MIMETYPE = "application/epub";
 	
 	/** The allowed extensions */
+	//TODO: Get it from config.
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
 
 	static {
@@ -305,6 +307,7 @@ public class ContentValidator {
 	 * @checks ContentBody and artifact-url
 	 * @return true if the ContentNode meets all @checks else return false
 	 */
+	//TODO: Validation logic can be moved to definition
 	@CoverageIgnore
 	private boolean isAllRequiredFieldsAvailable(Node node) {
 		boolean isValid = false;
@@ -469,6 +472,7 @@ public class ContentValidator {
 	 * @return
 	 * @throws IOException
 	 */
+	//TODO: For Url Validation, File Should not be downloaded.
 	public Boolean isValidUrl(String fileURL, String mimeType) {
 		Boolean isValid = false;
 		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
