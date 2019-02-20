@@ -107,8 +107,11 @@ public class AuditHistoryIndexerService implements ISamzaService {
 		String summary = setSummaryData(transactionDataMap);
 		record.setSummary(summary);
 		String createdOn = (String) transactionDataMap.get("createdOn");
-		Date date = df.parse(createdOn);
-		record.setCreatedOn(null == date ? new Date() : date);
+		Date date = new Date();
+		if(StringUtils.isNotBlank(createdOn)){
+			date = df.parse(createdOn);
+		}
+		record.setCreatedOn(date);
 		return record;
 	}
 
