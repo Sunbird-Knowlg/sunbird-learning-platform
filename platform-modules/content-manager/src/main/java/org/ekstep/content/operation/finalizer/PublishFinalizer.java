@@ -211,32 +211,33 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			TelemetryManager.info("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
 			Map<String, Object> variants = new HashMap<String, Object>();
-			Map<Object, List<String>> downloadUrls = null;
-			String[] urlArray = null;
+
+			List<String> urlArray = new ArrayList<String>();
 			ContentBundle contentBundle = new ContentBundle();
 
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 				TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			} else {
-				generateEcar(EcarPackageType.FULL, node, contentBundle, variants, downloadUrls, urlArray, spineContents, childrenIds);
-				downloadUrl = urlArray[IDX_S3_URL];
-				s3Key = urlArray[IDX_S3_KEY];
-				TelemetryManager.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
+				generateEcar(EcarPackageType.FULL, node, contentBundle, variants, urlArray, contents, childrenIds);
+				downloadUrl = urlArray.get(IDX_S3_URL);
+				s3Key = urlArray.get(IDX_S3_KEY);
+				TelemetryManager.log("Set 'downloadUrl' and '23' i.e. Full Ecar Url and s3Key.");
 			}
 			// generate spine ecar.
-			generateEcar(EcarPackageType.SPINE, node, contentBundle, variants, downloadUrls, urlArray, spineContents, childrenIds);
-
-			// generate online ecar for textbook
-			//TODO: mimetype can be validated against a configuration.
-			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
-				generateEcar(EcarPackageType.ONLINE, node, contentBundle, variants, downloadUrls, urlArray, onlineContents, childrenIds);
-			}
+			generateEcar(EcarPackageType.SPINE, node, contentBundle, variants, urlArray, spineContents, childrenIds);
 
 			// if collection full ECAR creation disabled set spine as download url.
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
-				downloadUrl = urlArray[IDX_S3_URL];
-				s3Key = urlArray[IDX_S3_KEY];
+				downloadUrl = urlArray.get(IDX_S3_URL);
+				s3Key = urlArray.get(IDX_S3_KEY);
 			}
+
+			// generate online ecar for textbook
+			//TODO: mimeType can be validated against a configuration.
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
+				generateEcar(EcarPackageType.ONLINE, node, contentBundle, variants, urlArray, onlineContents, childrenIds);
+			}
+
 		}
 
 		// Delete local compressed artifactFile
@@ -527,21 +528,22 @@ public class PublishFinalizer extends BaseFinalizer {
 			return false;
 	}
 
-	private void generateEcar(EcarPackageType pkgType, Node node, ContentBundle contentBundle, Map<String, Object> variants,
-							  Map<Object, List<String>> downloadUrls, String[] urlArray, List<Map<String, Object>> ecarContents, List<String> childrenIds) {
+	private void generateEcar(EcarPackageType pkgType, Node node, ContentBundle contentBundle, Map<String, Object> variants, List<String> urlArray, List<Map<String, Object>> ecarContents, List<String> childrenIds) {
 
+		Map<Object, List<String>> downloadUrls = null;
 		TelemetryManager.log("Creating " + pkgType.toString() + " ECAR For Content Id: " + node.getIdentifier());
-		Map<String, Object> ecarMap = new HashMap<String, Object>();
 		String bundleFileName = getBundleFileName(contentId, node, pkgType);
 		downloadUrls = contentBundle.createContentManifestData(ecarContents, childrenIds, null,
 				pkgType);
-		urlArray = contentBundle.createContentBundle(ecarContents, bundleFileName,
-				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+		urlArray.clear();
+		urlArray.addAll(Arrays.asList(contentBundle.createContentBundle(ecarContents, bundleFileName,
+				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier())));
 		TelemetryManager.log(pkgType.toString() + " ECAR created For Content Id: " + node.getIdentifier());
 
 		if (!EcarPackageType.FULL.name().equalsIgnoreCase(pkgType.toString())) {
-			ecarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
-			ecarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
+			Map<String, Object> ecarMap = new HashMap<String, Object>();
+			ecarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray.get(IDX_S3_URL));
+			ecarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray.get(IDX_S3_KEY)));
 
 			TelemetryManager.log("Adding " + pkgType.toString() + " Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(pkgType.toString().toLowerCase(), ecarMap);
