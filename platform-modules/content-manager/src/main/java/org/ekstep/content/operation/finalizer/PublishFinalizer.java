@@ -278,6 +278,12 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+			
+			// if collection full ECAR creation disabled set spine as download url.
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
+				downloadUrl = urlArray[IDX_S3_URL];
+				s3Key = urlArray[IDX_S3_KEY];
+			}
 
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
 				TelemetryManager.log("Creating Online ECAR For Content Id: " + node.getIdentifier());
@@ -296,12 +302,6 @@ public class PublishFinalizer extends BaseFinalizer {
 
 				TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
 				node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
-			}
-
-			// if collection full ECAR creation disabled set spine as download url.
-			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
-				downloadUrl = urlArray[IDX_S3_URL];
-				s3Key = urlArray[IDX_S3_KEY];
 			}
 		}
 
