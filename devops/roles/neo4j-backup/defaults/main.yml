@@ -2,9 +2,9 @@ learner_user: learning
 learner_group: learning
 learner_user_home: /home/{{learner_user}}
 
-machine: -dev
+machine: 
 var3: "-neo4j-node1"
 var4: "_graph"
 service: learning
 graph_machine: "{{service}}{{var4}}"
-backup_add: "0.0.0.0:7362"
+backup_add="127.0.0.1:7362"
