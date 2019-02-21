@@ -1,4 +1,5 @@
 - hosts: learning-neo4j-node1
+  become: yes
   remote_user: learning
   roles:
         - neo4j-backup 
