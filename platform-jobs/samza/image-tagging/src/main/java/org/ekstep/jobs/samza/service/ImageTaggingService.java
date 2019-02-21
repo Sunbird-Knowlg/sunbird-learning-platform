@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
@@ -62,7 +61,8 @@ public class ImageTaggingService implements ISamzaService {
 				StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.status.name()))) {
 			
 			if(StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.contentType.name()), ImageWorkflowEnums.Asset.name()) &&
-					StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.mediaType.name()), ImageWorkflowEnums.image.name())){
+					(StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.mediaType.name()), ImageWorkflowEnums.image.name()) ||
+							StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.mediaType.name()), ImageWorkflowEnums.video.name()))){
 				
 				if(((Integer)edata.get(ImageWorkflowEnums.iteration.name()) == 1 && 
 						StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.status.name()), ImageWorkflowEnums.Processing.name())) || 
@@ -73,9 +73,6 @@ public class ImageTaggingService implements ISamzaService {
 				}
 			}
 		}
-		
-		
-		
 		return false;
 	}
 	@SuppressWarnings("unchecked")
@@ -97,7 +94,11 @@ public class ImageTaggingService implements ISamzaService {
 			String nodeId = (String) object.get(ImageWorkflowEnums.id.name());
 			Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
 			if ((null != node) && (node.getObjectType().equalsIgnoreCase(ImageWorkflowEnums.content.name()))){
-				imageEnrichment(node);
+				String mediaType = (String)edata.get(ImageWorkflowEnums.mediaType.name());
+				if(StringUtils.equalsIgnoreCase(mediaType, "image"))
+					imageEnrichment(node);
+				else if (StringUtils.equalsIgnoreCase(mediaType, "video"))
+					videoEnrichment(node);
 				metrics.incSuccessCounter();
 			} else {
 				metrics.incSkippedCounter();
@@ -229,4 +230,11 @@ public class ImageTaggingService implements ISamzaService {
 		}
 		return keywords;
 	}
+	
+	private void videoEnrichment(Node node) throws Exception {
+		String tempFileLocation = StringUtils.isNotBlank(this.config.get("lp.tempfile.location"))?this.config.get("lp.tempfile.location"):"/tmp";  
+		OptimizerUtil.videoEnrichment(node, tempFileLocation);
+		node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Live.name());
+		util.updateNode(node);
+    }
 }

@@ -14,5 +14,5 @@ public enum ContentAPIParams {
 	review, FILE_ERROR, SERVER_ERROR, publishStatus, isPublishOperation, url, toc_url, mimeTypesCount, 
 	contentTypesCount, leafNodesCount, pre_signed_url, url_expiry, h5p, Unlisted, childNodes, screenshots, 
 	framework, targets, TextBook, channel, reservedDialcodes, batchCode, count, publisher, dialcodes, Retired,
-	children, releasedDialcodes;
+	children, releasedDialcodes, thumbnail, duration;
 }

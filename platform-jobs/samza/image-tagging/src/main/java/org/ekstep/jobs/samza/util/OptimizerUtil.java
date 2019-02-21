@@ -1,11 +1,19 @@
 package org.ekstep.jobs.samza.util;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.lang3.StringUtils;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Java2DFrameConverter;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
@@ -22,6 +30,8 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
+import org.imgscalr.Scalr;
 
 /**
  * The Class OptimizerUtil functionality to optimiseImage operation for different resolutions.
@@ -168,4 +178,99 @@ public class OptimizerUtil {
 		}
 		return urlArray;
 	}
+	
+	/*public static void main(String[] args) throws Exception{
+		String videoUrl = "https://sunbirddev.blob.core.windows.net/sunbird-content-dev/content/do_1127037303237591041175/artifact/india-rainfall_1550748476390.mp4";
+		String tempFileLocation = "/Users/amitpriyadarshi";  
+		String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
+		File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
+		
+		FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(videoFile);
+        frameGrabber.start();
+        long numberOfFrames = frameGrabber.getLengthInFrames();
+        File thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
+        frameGrabber.stop();
+        System.out.println(thumbNail.getAbsolutePath());
+        deleteFolder(tempFolder);
+        
+	}*/
+	
+	public static void videoEnrichment(Node node, String tempFileLocation) throws Exception {
+		String videoUrl = (String) node.getMetadata().get("artifactUrl");
+		if(StringUtils.isBlank(videoUrl)) {
+			LOGGER.info("Content artifactUrl is blank.");
+			return;
+		}
+		String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
+		File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
+		
+		FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(videoFile);
+        frameGrabber.start();
+        long videoDuration = frameGrabber.getLengthInTime();
+        long numberOfFrames = frameGrabber.getLengthInFrames();
+        File thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
+        frameGrabber.stop();
+        if (thumbNail.exists()) {
+			TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
+			String[] urlArray = uploadToAWS(thumbNail, node.getIdentifier());
+			String thumbUrl = urlArray[1];
+			node.getMetadata().put(ContentAPIParams.thumbnail.name(), thumbUrl);
+			try {
+				deleteFolder(tempFolder);
+				TelemetryManager.log("Deleted local Thumbnail files");
+			} catch (Exception e) {
+				TelemetryManager.error("Error! While deleting the Thumbnail Folder: " + tempFolder, e);
+			}
+		}
+        node.getMetadata().put(ContentAPIParams.duration.name(), videoDuration);
+    }
+	
+	private static void deleteFolder(String tempFolder) {
+		File index = new File(tempFolder);
+		String[]entries = index.list();
+		for(String s: entries){
+		    File currentFile = new File(index.getPath(),s);
+		    currentFile.delete();
+		}
+	}
+	
+	private static File fetchThumbNail(String tempFolder, long numberOfFrames, FFmpegFrameGrabber frameGrabber) throws Exception {
+		BufferedImage  bufferedImage;
+		Java2DFrameConverter converter = new Java2DFrameConverter();
+		File thumbnail = null;
+		int colorCount = 0;
+		for(int i=1; i<=5;i++) {
+			File inFile = new File(tempFolder+ File.separator + System.currentTimeMillis() + ".png");
+			File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
+	        frameGrabber.setFrameNumber((int)(numberOfFrames/5)*i	);
+	        bufferedImage = converter.convert(frameGrabber.grabImage());
+	        ImageIO.write(bufferedImage, "png", inFile);
+	        generateThumbNail(inFile, outFile);
+	        int tmpColorCount = getImageColor(outFile);
+	        if(colorCount<tmpColorCount) {
+	        		colorCount = tmpColorCount;
+	        		thumbnail = outFile;
+	        }
+		}
+		return thumbnail;
+	}
+	
+	private static void generateThumbNail(File inFile, File outFile) throws Exception {
+		BufferedImage srcImage = ImageIO.read(inFile);
+        BufferedImage scaledImage = Scalr.resize(srcImage, 150);
+        ImageIO.write(scaledImage, "png", outFile);
+    }
+	
+	private static int getImageColor(File imagePath) throws Exception {
+        BufferedImage image = ImageIO.read(imagePath);
+        int colorCode=0;
+        Set<Integer> colorSet = new HashSet<>();
+        for (int r = 0; r < image.getHeight(); r += 1) {
+            for (int c = 0; c < image.getWidth(); c += 1) {
+            		colorCode = image.getRGB(c, r);
+            		colorSet.add(colorCode);
+            }
+        }
+        return colorSet.size();
+    }
 }
