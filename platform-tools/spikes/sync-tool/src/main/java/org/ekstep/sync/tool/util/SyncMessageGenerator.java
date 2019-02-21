@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -29,7 +30,7 @@ public class SyncMessageGenerator {
 			throws Exception {
 		Map<String, Object> messages = new HashMap<>();
 
-		if (StringUtils.isBlank(objectType))
+		if (StringUtils.isBlank(objectType) && CollectionUtils.isNotEmpty(nodes))
 			loadDefinitionsOf(nodes);
 
 		for (Node node : nodes) {

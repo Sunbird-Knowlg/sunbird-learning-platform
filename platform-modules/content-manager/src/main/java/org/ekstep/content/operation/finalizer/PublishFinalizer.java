@@ -20,14 +20,13 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
-import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -279,6 +278,12 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
+			
+			// if collection full ECAR creation disabled set spine as download url.
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
+				downloadUrl = urlArray[IDX_S3_URL];
+				s3Key = urlArray[IDX_S3_KEY];
+			}
 
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
 				TelemetryManager.log("Creating Online ECAR For Content Id: " + node.getIdentifier());
@@ -297,12 +302,6 @@ public class PublishFinalizer extends BaseFinalizer {
 
 				TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
 				node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
-			}
-
-			// if collection full ECAR creation disabled set spine as download url.
-			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
-				downloadUrl = urlArray[IDX_S3_URL];
-				s3Key = urlArray[IDX_S3_KEY];
 			}
 		}
 
@@ -389,9 +388,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			publishHierarchy(publishedNode);
 		}
 
-		if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
-			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
-		}
 		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());

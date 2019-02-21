@@ -17,6 +17,11 @@ public class QRCodeGenerationRequest {
     private List<String> fileName;
     private String fileFormat;
     private int qrCodeMarginBottom;
+    private int imageMargin;
+
+    public int getImageMargin() { return imageMargin; }
+
+    public void setImageMargin(int imageMargin) { this.imageMargin = imageMargin; }
 
     public int getQrCodeMarginBottom() {
         return qrCodeMarginBottom;

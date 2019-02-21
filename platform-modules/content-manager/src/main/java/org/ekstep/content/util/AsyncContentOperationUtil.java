@@ -81,7 +81,6 @@ public class AsyncContentOperationUtil {
 									ContentWorkflowPipelineParams.Failed.name());
 							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
 							updateDataNodeUtil.updateDataNode(node);
-							PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(), e.getMessage());
 						}
 					}
 						break;
