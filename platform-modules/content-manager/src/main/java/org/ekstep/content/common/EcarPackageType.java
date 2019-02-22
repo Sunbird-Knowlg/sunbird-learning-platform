@@ -1,5 +1,5 @@
 package org.ekstep.content.common;
 
 public enum EcarPackageType {
-	FULL, SPINE, OPTIMIZED
+	FULL, SPINE, OPTIMIZED, ONLINE
 }

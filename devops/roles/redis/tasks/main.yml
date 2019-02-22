@@ -37,7 +37,7 @@
 - name: start redis
   become: yes
   become_user: "{{learner_user}}"
-  shell: nohup src/redis-server --protected-mode no &
+  shell: nohup src/redis-server {{learner_user_home}}/redis-stable/redis.conf --protected-mode no &
   args:
     chdir: "{{learner_user_home}}/redis-stable/"
   async: 60

@@ -20,7 +20,8 @@ public class SyncHierarchyOperation extends BaseContentManager {
             return getResponse;
         } else {
             DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-            Map<String, Object> hierarchy = util.getContentHierarchyRecursive(rootNode.getGraphId(), rootNode, definition, null, true);
+            Map<String, Object> hierarchy = util.getHierarchyMap(rootNode.getGraphId(), rootNode.getIdentifier(), definition, null,
+                    null);
             this.hierarchyStore.saveOrUpdateHierarchy(identifier, hierarchy);
             return OK();
         }

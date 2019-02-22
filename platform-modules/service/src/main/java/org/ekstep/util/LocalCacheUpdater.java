@@ -1,5 +1,7 @@
 package org.ekstep.util;
 
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -10,8 +12,20 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Request;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.router.RequestRouterPool;
+import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.contentstore.ContentStoreOperations;
+import org.ekstep.learning.contentstore.ContentStoreParams;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -22,75 +36,26 @@ import java.util.*;
  *
  * @author Kumar Gauraw
  */
-public class LocalCacheUpdater extends Thread {
+public class LocalCacheUpdater {
 
     private static final String BOOTSTRAP_SERVERS = Platform.config.getString("kafka.urls");
     private static final String TOPIC_ID = Platform.config.getString("kafka.topic.system.command");
-    private static ObjectMapper mapper = new ObjectMapper();
     private static KafkaConsumer<Long, String> consumer = null;
-    private static ControllerUtil controllerUtil = new ControllerUtil();
 
     public static void init() {
-        LocalCacheUpdater cacheUpdater = new LocalCacheUpdater();
-        cacheUpdater.start();
-    }
-
-    public void run() {
         startConsumer();
     }
 
-    private void startConsumer() {
+    private static void startConsumer() {
         try {
             consumer = new KafkaConsumer<>(getProps());
             consumer.subscribe(Arrays.asList(TOPIC_ID));
-            while (true)
-                processEventData(consumer);
+            // actor call, scheduled every 1 minute
+            makeLearningRequest(getRequest(consumer));
         } catch (Exception ex) {
             TelemetryManager.error("Exception Occured While Subscribing to kafka topic : " + TOPIC_ID + ". Exception is : " + ex);
         } finally {
             consumer.close();
-        }
-    }
-
-    private void processEventData(KafkaConsumer<Long, String> consumer) {
-        try {
-            ConsumerRecords<Long, String> records = consumer.poll(60000);
-            for (ConsumerRecord<Long, String> record : records) {
-                Map<String, Object> event = getEventData(record);
-                if (null != event && !event.isEmpty())
-                    updateDefinitionCache(event);
-                else
-                    TelemetryManager.log("Skipping Update Local Cache Event as event is Blank.");
-            }
-            consumer.commitAsync();
-        } catch (Exception e) {
-            TelemetryManager.error("Exception Occured While Reading event from kafka topic : " + TOPIC_ID + ". Exception is : " + e);
-        }
-    }
-
-    private Map<String, Object> getEventData(ConsumerRecord<Long, String> record) {
-        try {
-            Map<String, Object> event = mapper.readValue(record.value(), new TypeReference<Map<String, Object>>() {
-            });
-            return event;
-        } catch (Exception e) {
-            TelemetryManager.error("Exception Occured While Parsing event data from kafka topic : " + TOPIC_ID + ". Exception is : " + e);
-        }
-        return null;
-    }
-
-    private void updateDefinitionCache(Map<String, Object> event) {
-        try {
-            Map<String, String> edata = (Map<String, String>) event.getOrDefault("edata", new HashMap<>());
-            String graphId = edata.get("graphId");
-            String objectType = edata.get("objectType");
-            if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(objectType)) {
-                controllerUtil.updateDefinitionCache(graphId, objectType);
-            } else {
-                TelemetryManager.log("Skipping Definition Update in Local Cache as graphId or objectType is Blank. Event Data :" + event);
-            }
-        } catch (Exception e) {
-            TelemetryManager.error("Error Occured While Updating Local Definition Cache : " + e);
         }
     }
 
@@ -114,5 +79,22 @@ public class LocalCacheUpdater extends Thread {
         return groupId;
     }
 
+    private static Request getRequest(KafkaConsumer<Long, String> consumer) {
+        Request request = new Request();
+        request.setManagerName(LearningActorNames.CACHE_UPDATE_ACTOR.name());
+        request.setOperation("update-local-cache");
+        request.put("consumer", consumer);
+        return request;
+    }
+
+    private static void makeLearningRequest(Request request) {
+        ActorRef router = LearningRequestRouterPool.getRequestRouter();
+        try {
+            router.tell(request, ActorRef.noSender());
+        } catch (Exception e) {
+            TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
+        }
+    }
 
 }
