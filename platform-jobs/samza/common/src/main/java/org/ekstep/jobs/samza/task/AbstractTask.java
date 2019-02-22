@@ -19,6 +19,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.handler.Level;
@@ -37,6 +38,8 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
     private static String startJobEventId = "JOB_START";
 	private static String endJobEventId = "JOB_END";
 	private static int MAXITERTIONCOUNT= 2;
+	private static ControllerUtil controllerUtil = new ControllerUtil();
+
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
 		metrics = new JobMetrics(context, config.get("output.metrics.job.name"), config.get("output.metrics.topic.name"));
@@ -61,17 +64,20 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
 		Map<String, Object> execution = new HashMap<>();
 		int maxIterations = getMaxIterations();
-		
 		String eid = (String) message.get(SamzaCommonParams.eid.name());
+		Map<String, Object> edata = (Map<String, Object>) message.getOrDefault(SamzaCommonParams.edata.name(), new HashMap<String,Object>());
 		if(StringUtils.equalsIgnoreCase(this.eventId, eid)) {
-			Map<String, Object> edata = (Map<String, Object>) message.get(SamzaCommonParams.edata.name());
 			String requestedJobType = (String) edata.get(SamzaCommonParams.action.name());
 			if(StringUtils.equalsIgnoreCase(this.jobType, requestedJobType)) {
 				int currentIteration = (int) edata.get(SamzaCommonParams.iteration.name());
 				preProcess(message, collector, execution, maxIterations, currentIteration);
 				process(message, collector, coordinator);
 				postProcess(message, collector, execution, maxIterations, currentIteration);
-			} else {
+			} else if(StringUtils.equalsIgnoreCase("definition_update", requestedJobType)){
+				String graphId = edata.getOrDefault("graphId","").toString();
+				String objectType = edata.getOrDefault("objectType","").toString();
+				controllerUtil.updateDefinitionCache(graphId, objectType);
+			}else{
 				//Throw exception has to be added.
 			}
 		} else {
@@ -134,7 +140,8 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	
 	private void pushEvent(Map<String, Object> message, MessageCollector collector, String topicId) throws Exception {
 		try {
-			collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), topicId), message));
+			//TODO: Fix Event Template for "START" & "END" Event and enable below line for backend telemetry.
+			//collector.send(new OutgoingMessageEnvelope(new SystemStream(SamzaCommonParams.kafka.name(), topicId), message));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

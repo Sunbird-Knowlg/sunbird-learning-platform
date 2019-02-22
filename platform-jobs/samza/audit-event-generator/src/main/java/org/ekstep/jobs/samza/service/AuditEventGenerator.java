@@ -22,6 +22,7 @@ import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
@@ -65,6 +66,8 @@ public class AuditEventGenerator implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		this.config = config;
 		JSONUtils.loadProperties(config);
+		LOGGER.info("Initializing Actor System...");
+		LearningRequestRouterPool.init();
 		systemStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
 	}
 
@@ -226,10 +229,11 @@ public class AuditEventGenerator implements ISamzaService {
 	}
 
 	/**
-	 * @param props
-	 * @param addedRelations
+	 *
+	 * @param relations
 	 * @param inRelations
 	 * @param outRelations
+	 * @return
 	 */
 	private List<String> getRelationProps(List<Map<String, Object>> relations, Map<String, String> inRelations,
 			Map<String, String> outRelations) {

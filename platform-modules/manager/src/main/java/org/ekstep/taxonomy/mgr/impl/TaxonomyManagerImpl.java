@@ -4,13 +4,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.mgr.BaseManager;
+import org.ekstep.common.util.DefinitionUtil;
 import org.ekstep.graph.common.enums.GraphEngineParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
@@ -26,6 +30,8 @@ import org.springframework.stereotype.Component;
 public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager {
 
 	public static String[] taxonomyIds = { "numeracy", "literacy", "literacy_v2" };
+	private static ObjectMapper mapper = new ObjectMapper();
+
 
 	@Override
 	public Response getSubGraph(String graphId, String id, Integer depth, List<String> relations) {
@@ -102,7 +108,20 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		TelemetryManager.log("Update Definition : " + id);
 		Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
 		request.put(GraphEngineParams.input_stream.name(), json);
-		return getResponse(request);
+		Response resp = getResponse(request);
+		if (!checkError(resp)) {
+			try {
+				Map<String, Object> definitionRequest = mapper.readValue(json, new TypeReference<Map<String, Object>>() {
+				});
+				Map<String, Object> defNode = ((List<Map<String, Object>>) definitionRequest.get("definitionNodes")).get(0);
+				String objectType = (String) defNode.get("objectType");
+				DefinitionUtil.pushUpdateInstructionEvent(id, objectType);
+			} catch (Exception e) {
+				TelemetryManager.log("Update Definition - Push Cache Update Instruction Event Failed for : " + id+". Error is :"+e.getMessage());
+				//TODO: Handle Exception . throw Server Exception
+			}
+		}
+		return resp;
 	}
 
 	@Override
