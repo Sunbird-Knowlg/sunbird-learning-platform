@@ -105,4 +105,9 @@ public class DefinitionCache extends BaseGraphManager {
 	protected void invokeMethod(Request request, ActorRef parent) {
 
 	}
+
+	public static void updateDefinitionCache(String graphId, String objectType){
+		DefinitionDTO dto = getDefinitionNodeFromGraph(graphId, objectType);
+			NodeCacheManager.saveDefinitionNode(graphId, objectType, dto);
+	}
 }
