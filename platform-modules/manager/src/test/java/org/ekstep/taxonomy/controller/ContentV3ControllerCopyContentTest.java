@@ -16,7 +16,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.engine.common.TestParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.taxonomy.mgr.impl.OldContentManagerImpl;
+import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -61,7 +61,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 
 	private static final String basePath = "/content/v3/";
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static OldContentManagerImpl contentManager = new OldContentManagerImpl();
+	private static ContentManagerImpl contentManager = new ContentManagerImpl();
 	private static String contentId = "";
 	private static String contentId2 = "";
 	private static String versionKey = "";
@@ -69,7 +69,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 
 	private static String script_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
 	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
-	private static String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
+	private static String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\",\"framework\":\"NCF\"}}}";
 	private static String topic = Platform.config.getString("kafka.topics.instruction");
 	private static String channelId = "in.ekstep";
 
@@ -176,13 +176,13 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	@Test
 	public void copyContentTest_02() throws Exception {
 		String reqPath = basePath + "copy/" + contentId;
-		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\"}}}";
+		String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\",\"framework\":\"NCF\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
 		Response resp = getResponse(actions);
 		String errorCode = resp.getParams().getErr();
 		/*Assert.assertEquals("ERR_INVALID_CREATEDBY", errorCode);*/
-		Assert.assertEquals("ERR_CONTENT_BLANK_OBJECT", errorCode);
+		Assert.assertEquals("ERR_INVALID_REQUEST", errorCode);
 		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 

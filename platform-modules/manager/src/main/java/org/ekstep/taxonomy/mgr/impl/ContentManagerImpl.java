@@ -9,7 +9,6 @@ import org.ekstep.content.mgr.impl.DialCodesManager;
 import org.ekstep.content.mgr.impl.HierarchyManager;
 import org.ekstep.content.mgr.impl.UploadManager;
 import org.ekstep.taxonomy.mgr.IContentManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -32,12 +31,12 @@ import java.util.Map;
 @Component
 public class ContentManagerImpl extends BaseContentManager implements IContentManager {
 
-	@Autowired private HierarchyManager hierarchyManager;
-	@Autowired private DialCodesManager dialCodesManager;
-	@Autowired private ContentManger contentManger;
-	@Autowired private UploadManager uploadManager;
-	@Autowired private ContentEventManager contentEventManager;
-	@Autowired private ContentPluginManager contentPluginManager;
+	private final HierarchyManager hierarchyManager = new HierarchyManager();
+	private final DialCodesManager dialCodesManager = new DialCodesManager();
+	private final ContentManger contentManger = new ContentManger();
+	private final UploadManager uploadManager = new UploadManager();
+	private final ContentEventManager contentEventManager = new ContentEventManager();
+	private final ContentPluginManager contentPluginManager = new ContentPluginManager();
 
 	/*
 	 * (non-Javadoc)
@@ -102,7 +101,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response getHierarchy(String contentId, String mode) {
+	public Response getHierarchy(String contentId, String mode, List<String> fields) {
         return this.hierarchyManager.get(contentId, mode);
 	}
 
@@ -183,5 +182,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	public Response releaseDialcodes(String contentId, String channelId) throws Exception {
 	    return this.dialCodesManager.release(contentId, channelId);
 	}
+
+    @Override
+    public Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception {
+        return this.hierarchyManager.getContentHierarchy(contentId, mode, fields);
+    }
 
 }

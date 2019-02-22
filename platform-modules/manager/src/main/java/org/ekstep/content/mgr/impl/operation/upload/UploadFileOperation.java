@@ -10,11 +10,9 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-@Component
 public class UploadFileOperation extends BaseUploadOperation {
 
     public Response upload(String contentId, File uploadedFile, String mimeType) {

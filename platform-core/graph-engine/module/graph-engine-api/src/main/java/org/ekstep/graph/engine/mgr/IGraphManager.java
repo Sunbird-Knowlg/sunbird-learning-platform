@@ -147,4 +147,11 @@ public interface IGraphManager {
      * @response - STATUS: API call status
      */
 	void bulkUpdateNodes(Request request);
+
+    /**
+     * Updates Local Definition Cache.
+     *
+     * @param request
+     */
+	void updateDefinitionCache(Request request);
 }

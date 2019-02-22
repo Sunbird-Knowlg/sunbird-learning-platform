@@ -5,18 +5,16 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.content.mgr.impl.operation.plugin.BundleOperation;
 import org.ekstep.content.mgr.impl.operation.plugin.CopyOperation;
 import org.ekstep.content.mgr.impl.operation.plugin.OptimizeOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.ekstep.content.mgr.impl.operation.plugin.PreSignedUrlOperation;
 
 import java.util.Map;
 
-@Component
 public class ContentPluginManager {
 
-    @Autowired private OptimizeOperation optimizeOperation;
-    @Autowired private BundleOperation bundleOperation;
-    @Autowired private CopyOperation copyOperation;
-    @Autowired private PreSignedUrlManager preSignedUrlManager;
+	private final OptimizeOperation optimizeOperation = new OptimizeOperation();
+    private final BundleOperation bundleOperation = new BundleOperation();
+    private final CopyOperation copyOperation = new CopyOperation();
+    private final PreSignedUrlOperation preSignedUrlOperation = new PreSignedUrlOperation();
 
     public Response optimize(String contentId) { return this.optimizeOperation.optimize(contentId); }
 
@@ -27,7 +25,7 @@ public class ContentPluginManager {
     }
     
     public Response preSignedUrl(String contentId, String fileName, String type) {
-    	return this.preSignedUrlManager.preSignedUrl(contentId, fileName, type);
+    	return this.preSignedUrlOperation.preSignedUrl(contentId, fileName, type);
     }
     
 

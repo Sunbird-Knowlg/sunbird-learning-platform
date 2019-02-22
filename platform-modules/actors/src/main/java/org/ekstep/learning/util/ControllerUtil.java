@@ -1,5 +1,7 @@
 package org.ekstep.learning.util;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
@@ -8,6 +10,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
@@ -15,6 +18,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
@@ -24,6 +28,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -34,7 +39,9 @@ import java.util.*;
  */
 public class ControllerUtil extends BaseLearningManager {
 
-	/** The logger. */
+	/**
+	 * The logger.
+	 */
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
@@ -42,10 +49,8 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Gets the node.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param contentId
-	 *            the content id
+	 * @param taxonomyId the taxonomy id
+	 * @param contentId  the content id
 	 * @return the node
 	 */
 	public Node getNode(String taxonomyId, String contentId) {
@@ -55,13 +60,16 @@ public class ControllerUtil extends BaseLearningManager {
 		Response getNodeRes = getResponse(request);
 		Response response = copyResponse(getNodeRes);
 		if (checkError(response)) {
-			if(StringUtils.endsWith(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+			if (StringUtils.endsWith(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 				return null;
 			else {
-				switch(response.getResponseCode()){
-					case RESOURCE_NOT_FOUND: throw new ResourceNotFoundException(response.getParams().getErr(), response.getParams().getErrmsg());
-					case CLIENT_ERROR: throw new ClientException(response.getParams().getErr(), response.getParams().getErrmsg());
-					default : throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+				switch (response.getResponseCode()) {
+					case RESOURCE_NOT_FOUND:
+						throw new ResourceNotFoundException(response.getParams().getErr(), response.getParams().getErrmsg());
+					case CLIENT_ERROR:
+						throw new ClientException(response.getParams().getErr(), response.getParams().getErrmsg());
+					default:
+						throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
 				}
 			}
 		}
@@ -72,8 +80,7 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Update node.
 	 *
-	 * @param node
-	 *            the node
+	 * @param node the node
 	 * @return the response
 	 */
 	public Response updateNode(Node node) {
@@ -87,10 +94,8 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Gets the definition.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param objectType
-	 *            the object type
+	 * @param taxonomyId the taxonomy id
+	 * @param objectType the object type
 	 * @return the definition
 	 */
 	public DefinitionDTO getDefinition(String taxonomyId, String objectType) {
@@ -107,8 +112,7 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Gets all the definitions
 	 *
-	 * @param taxonomyId
-	 * 				the taxonomy id
+	 * @param taxonomyId the taxonomy id
 	 * @return list of defintions
 	 */
 	public List<DefinitionDTO> getAllDefinitions(String taxonomyId) {
@@ -122,22 +126,14 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Adds out relations.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * 
-	 * @param startNodeId
-	 *            the startNodeId
-	 * 
-	 * @param endNodeIds
-	 *            the list of endNodeIds
-	 * 
-	 * @param relationType
-	 *            the relationType
-	 * 
+	 * @param taxonomyId   the taxonomy id
+	 * @param startNodeId  the startNodeId
+	 * @param endNodeIds   the list of endNodeIds
+	 * @param relationType the relationType
 	 * @return the response
 	 */
 	public Response addOutRelations(String taxonomyId, String startNodeId, List<String> endNodeIds,
-			String relationType) {
+									String relationType) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER, "addOutRelations",
 				GraphDACParams.start_node_id.name(), startNodeId);
 		request.put(GraphDACParams.relation_type.name(), relationType);
@@ -152,13 +148,9 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Gets the collection members.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param collectionId
-	 *            the collectionId
-	 * @param collectionType
-	 *            the collectionType
-	 * 
+	 * @param taxonomyId     the taxonomy id
+	 * @param collectionId   the collectionId
+	 * @param collectionType the collectionType
 	 * @return the response
 	 */
 	public Response getCollectionMembers(String taxonomyId, String collectionId, String collectionType) {
@@ -184,12 +176,12 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	public Response copyResponse(Response res) {
-        Response response = new Response();
-        response.setResponseCode(res.getResponseCode());
-        response.setParams(res.getParams());
-        return response;
-    }
-	
+		Response response = new Response();
+		response.setResponseCode(res.getResponseCode());
+		response.setParams(res.getParams());
+		return response;
+	}
+
 	public String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -220,20 +212,17 @@ public class ControllerUtil extends BaseLearningManager {
 		return response;
 	}
 
-	 public Response copyResponse(Response to, Response from) {
-	        to.setResponseCode(from.getResponseCode());
-	        to.setParams(from.getParams());
-	        return to;
-	    }
-	 
+	public Response copyResponse(Response to, Response from) {
+		to.setResponseCode(from.getResponseCode());
+		to.setParams(from.getParams());
+		return to;
+	}
+
 	/**
 	 * Gets Data nodes.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param node
-	 *            the list of nodes
-	 * 
+	 * @param taxonomyId the taxonomy id
+	 * @param nodes      the list of nodes
 	 * @return the response
 	 */
 	public Response getDataNodes(String taxonomyId, List<String> nodes) {
@@ -257,8 +246,8 @@ public class ControllerUtil extends BaseLearningManager {
 		}
 		return hirerachyRes;
 	}
-	
-	public Response createDataNode(Node node){
+
+	public Response createDataNode(Node node) {
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
 		request.put(GraphDACParams.node.name(), node);
 		Response response = getResponse(request);
@@ -267,14 +256,14 @@ public class ControllerUtil extends BaseLearningManager {
 		}
 		return null;
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	public List<NodeDTO> getNodesForPublish(Node node) {
 		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
 		String nodeId = null;
 		String imageNodeId = null;
-		if(StringUtils.endsWith(node.getIdentifier(), ".img")) {
+		if (StringUtils.endsWith(node.getIdentifier(), ".img")) {
 			imageNodeId = node.getIdentifier();
 			nodeId = node.getIdentifier().replace(".img", "");
 		} else {
@@ -284,40 +273,40 @@ public class ControllerUtil extends BaseLearningManager {
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility, s.compatibilityLevel as compatibilityLevel";
 		String query = MessageFormat.format(queryString, nodeId) + " UNION " + MessageFormat.format(queryString, imageNodeId) + " ORDER BY depth DESC;";
-        request.put(GraphDACParams.query.name(), query);
-        List<String> props = new ArrayList<String>();
-        props.add("identifier");
-        props.add("name");
-        props.add("depth");
-        props.add("status");
-        props.add("mimeType");
-        props.add("compatibilityLevel");
-        props.add("visibility");
-        request.put(GraphDACParams.property_keys.name(), props);
-        Response response = getResponse(request);
+		request.put(GraphDACParams.query.name(), query);
+		List<String> props = new ArrayList<String>();
+		props.add("identifier");
+		props.add("name");
+		props.add("depth");
+		props.add("status");
+		props.add("mimeType");
+		props.add("compatibilityLevel");
+		props.add("visibility");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
 			if (null != list && !list.isEmpty()) {
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, Object> properties = list.get(i);
-					NodeDTO obj = new NodeDTO((String)properties.get("identifier"), (String) properties.get("name"), null);
-					obj.setDepth(((Long)properties.get("depth")).intValue());
+					NodeDTO obj = new NodeDTO((String) properties.get("identifier"), (String) properties.get("name"), null);
+					obj.setDepth(((Long) properties.get("depth")).intValue());
 					obj.setStatus((String) properties.get("status"));
 					obj.setMimeType((String) properties.get("mimeType"));
 					obj.setVisibility((String) properties.get("visibility"));
 					Integer compatibilityLevel = 1;
-					if(null != properties.get("compatibilityLevel"))
+					if (null != properties.get("compatibilityLevel"))
 						compatibilityLevel = ((Number) properties.get("compatibilityLevel")).intValue();
 					obj.setCompatibilityLevel(compatibilityLevel);
 					nodes.add(obj);
 				}
 			}
 		}
-		TelemetryManager.info("Node children count:"+ nodes.size());
+		TelemetryManager.info("Node children count:" + nodes.size());
 		return nodes;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<Node> getNodes(String graphId, String objectType, int startPosition, int batchSize) {
 		SearchCriteria sc = new SearchCriteria();
@@ -336,44 +325,44 @@ public class ControllerUtil extends BaseLearningManager {
 			return nodes;
 		}
 	}
-	
+
 	public List<String> getNodesWithInDateRange(String graphId, String objectType, String startDate, String endDate) {
 
 		List<String> nodeIds = new ArrayList<>();
 		String objectTypeQuery = "";
-		if(StringUtils.isNotBlank(objectType))
-			objectTypeQuery="{IL_FUNC_OBJECT_TYPE:'"+objectType+"'}";			
+		if (StringUtils.isNotBlank(objectType))
+			objectTypeQuery = "{IL_FUNC_OBJECT_TYPE:'" + objectType + "'}";
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String queryString ="MATCH (n:{0}{1})  WITH split(left(n.lastUpdatedOn, 10), {2}) AS dd, n where {4}>=toInt(dd[0]+dd[1]+dd[2])>={3} and NOT n.IL_SYS_NODE_TYPE in [\"TAG\", \"DEFINITION_NODE\", \"ROOT_NODE\"] return n.IL_UNIQUE_ID as identifier";
+		String queryString = "MATCH (n:{0}{1})  WITH split(left(n.lastUpdatedOn, 10), {2}) AS dd, n where {4}>=toInt(dd[0]+dd[1]+dd[2])>={3} and NOT n.IL_SYS_NODE_TYPE in [\"TAG\", \"DEFINITION_NODE\", \"ROOT_NODE\"] return n.IL_UNIQUE_ID as identifier";
 		String query = MessageFormat.format(queryString, graphId, objectTypeQuery, "'-'", startDate, endDate);
-        request.put(GraphDACParams.query.name(), query);
-        List<String> props = new ArrayList<String>();
-        props.add("identifier");
-        request.put(GraphDACParams.property_keys.name(), props);
-        Response response = getResponse(request);
-        if (!checkError(response)) {
+		request.put(GraphDACParams.query.name(), query);
+		List<String> props = new ArrayList<String>();
+		props.add("identifier");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
 			if (null != list && !list.isEmpty()) {
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, Object> properties = list.get(i);
-					nodeIds.add((String)properties.get("identifier"));
+					nodeIds.add((String) properties.get("identifier"));
 				}
 			}
 		}
 		return nodeIds;
 	}
-	
+
 	public Map<String, Long> getCountByObjectType(String graphId) {
 		Map<String, Long> counts = new HashMap<String, Long>();
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;", graphId));
 		List<String> props = new ArrayList<String>();
-        props.add("objectType");
-        props.add("count");
-        request.put(GraphDACParams.property_keys.name(), props);
-        Response response = getResponse(request);
-        if (!checkError(response)) {
+		props.add("objectType");
+		props.add("count");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
 			if (null != list && !list.isEmpty()) {
@@ -382,14 +371,13 @@ public class ControllerUtil extends BaseLearningManager {
 					counts.put((String) properties.get("objectType"), (Long) properties.get("count"));
 				}
 			}
-			
-        }
+
+		}
 		return counts;
 	}
 
 
 	/**
-	 *
 	 * @param graphId
 	 * @param node
 	 * @param definition
@@ -397,7 +385,7 @@ public class ControllerUtil extends BaseLearningManager {
 	 * @return
 	 */
 	public Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
-															 String mode, boolean fetchAll) {
+															String mode, boolean fetchAll) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 
@@ -416,8 +404,8 @@ public class ControllerUtil extends BaseLearningManager {
 			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
 			for (NodeDTO dto : children) {
 				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
-				String nodeStatus = (String)childNode.getMetadata().get("status");
-				if((!org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) &&
+				String nodeStatus = (String) childNode.getMetadata().get("status");
+				if ((!org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) &&
 						(fetchAll || (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Live") || org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted")))) {
 					Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode, fetchAll);
 					childMap.put("index", dto.getIndex());
@@ -442,6 +430,7 @@ public class ControllerUtil extends BaseLearningManager {
 			if (org.apache.commons.lang3.StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
 				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
 				map.replace("identifier", identifier, newIdentifier);
+				map.replace("objectType", "ContentImage", "Content");
 			}
 		}
 		return map;
@@ -473,15 +462,168 @@ public class ControllerUtil extends BaseLearningManager {
 		return imageId;
 	}
 
+	public Map<String, Object> constructHierarchy(List<Map<String, Object>> list) {
+
+		Map<String, Object> hierarchy = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == 0).findFirst().get();
+		if (MapUtils.isNotEmpty(hierarchy)) {
+			int max = list.stream().map(e -> ((Number) e.get("depth")).intValue()).max(Comparator.naturalOrder()).orElse(1);
+
+			for (int i = 0; i <= max; i++) {
+				final int depth = i;
+				Map<String, List<Map<String, Object>>> currentLevelNodes = new HashMap<>();
+				list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
+						.collect(Collectors.toList()).forEach(e -> {
+					String id = (String) e.get("identifier");
+					List<Map<String, Object>> nodes = currentLevelNodes.get(id);
+					if (CollectionUtils.isEmpty(nodes)) {
+						nodes = new ArrayList<>();
+						currentLevelNodes.put((String) e.get("identifier"), nodes);
+					}
+					nodes.add(e);
+
+				});
+
+				List<Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth + 1)
+						.collect(Collectors.toList());
+				if (MapUtils.isNotEmpty(currentLevelNodes) && CollectionUtils.isNotEmpty(nextLevelNodes)) {
+					nextLevelNodes.forEach(e -> {
+								String parentId = (String) e.get("parent");
+								List<Map<String, Object>> parents = currentLevelNodes.get(parentId);
+								if (CollectionUtils.isNotEmpty(parents)) {
+									for (Map<String, Object> parent : parents) {
+										List<Object> children = (List<Object>) parent.get("children");
+										if (CollectionUtils.isEmpty(children)) {
+											children = new ArrayList<>();
+											parent.put("children", children);
+										}
+										//contentCleanUp(e);
+										children.add(e);
+									}
+								}
+							}
+					);
+				}
+			}
+		}
+		return hierarchy;
+	}
+
+	public List<Map<String, Object>> getContentHierarchy(String graphId, String contentId, String mode) {
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		String query = "MATCH p=(n:{0})-[r:hasSequenceMember*0..10]->(s:{0}) WHERE n.IL_UNIQUE_ID=\"{1}\" RETURN s.IL_UNIQUE_ID as identifier, s.IL_FUNC_OBJECT_TYPE as objectType, s.visibility as visibility, s.status as status, length(p) as depth, (nodes(p)[length(p)-1]).IL_UNIQUE_ID as parent, (rels(p)[length(p)-1]).IL_SEQUENCE_INDEX as index order by depth,index;";
+		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId, contentId));
+		List<String> props = Arrays.asList("identifier", "objectType", "visibility", "status", "depth", "parent", "index");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (CollectionUtils.isEmpty(list)) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "No data find for the given identifier: " + contentId.replace(".img", ""));
+			}
+			List<String> invalidStatus = Arrays.asList("Flagged", "Retired");
+			list = list.stream().filter(e -> !invalidStatus.contains(e.get("status"))).distinct().collect
+					(Collectors.toList());
+
+			// Get leaf nodes(image) from the hierarchy (graph) and remove them.
+			List<String> resourceImgIds = list.stream()
+					.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && StringUtils.equalsIgnoreCase((String) e.get("visibility"), "default") && ((Number) e.get("depth")).intValue() > 0)
+					.map(e -> (String) e.get("identifier"))
+					.map(id -> id.endsWith(".img") ? id : id + ".img")
+					.distinct().collect(Collectors.toList());
+//			Stream<Map<String, Object>> listStream = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")));
+
+			// Get image nodes from the hierarchy (graph) other than root.
+//			Stream<Map<String,Object>> imgList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+//					.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0);
+
+			if (StringUtils.equalsIgnoreCase("edit", mode)) {
+				// mode=edit - remove the Content which have Image Nodes.
+				List<String> removeIds = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier")).replace(".img", "")).collect(Collectors.toList());
+				List<Map<String, Object>> contentList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> !removeIds.contains(e.get("identifier")))
+						.collect(Collectors.toList());
+
+				return contentList;
+			} else {
+				List<String> publicStatus = Arrays.asList("Live", "Unlisted");
+				Map<String, Object> root = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == 0).findFirst().get();
+				if (MapUtils.isEmpty(root) || !publicStatus.contains(root.get("status"))) {
+					throw new ResourceNotFoundException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "No data find for the given identifier: " + contentId.replace(".img", ""));
+				}
+				// mode!=edit - remove Image Nodes.
+				List<String> removeIds = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> (!publicStatus.contains(e.get("status")) || StringUtils.equals((String) e.get("objectType"), "ContentImage")) && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier"))).collect(Collectors.toList());
+				List<Map<String, Object>> contentList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+						.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
+				return contentList;
+			}
+
+		} else {
+			if (response.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), response.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), response.getParams().getErrmsg());
+			}
+		}
+	}
+
+
+	public Map<String, Object> getHierarchyMap(String graphId, String contentId, DefinitionDTO
+			definition, String mode, List<String> fields) {
+
+//		long startTime = System.currentTimeMillis();
+		List<Map<String, Object>> contentList = getContentHierarchy(graphId, contentId, mode);
+//		System.out.println("Time to call cypher and get hierarchy list: " + (System.currentTimeMillis() - startTime));
+
+		List<String> ids = contentList.stream().map(content -> (String) content.get("identifier")).collect(Collectors
+				.toList());
+		Map<String, Object> collectionHierarchy = new HashMap<>();
+//		startTime = System.currentTimeMillis();
+		Response getList = getDataNodes(graphId, ids);
+//		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
+		if (!checkError(getList)) {
+			List<Node> nodeList = (List<Node>) getList.get("node_list");
+			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
+					(n, graphId, definition, fields)).map(contentMap -> {
+				contentMap.remove("collections");
+				contentMap.remove("children");
+				contentMap.remove("usedByContent");
+				contentMap.remove("item_sets");
+				contentMap.remove("methods");
+				contentMap.remove("libraries");
+				contentMap.remove("editorState");
+				return contentMap;
+			}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
+
+			contentList = contentList.stream().map(n -> {
+				n.putAll(contentsWithMetadata.get(n.get("identifier")));
+				return n;
+			}).collect(Collectors.toList());
+//			startTime = System.currentTimeMillis();
+			collectionHierarchy = contentCleanUp(constructHierarchy(contentList));
+//			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
+		} else {
+			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
+			}
+		}
+		hierarchyCleanUp(collectionHierarchy);
+		return collectionHierarchy;
+	}
+
 
 	public List<String> getPublishedCollections(String graphId, int offset, int limit) {
 		List<String> identifiers = new ArrayList<>();
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		String query = "MATCH (n:{0}) WHERE n.IL_FUNC_OBJECT_TYPE=\"Content\" AND n.mimeType=\"application/vnd.ekstep.content-collection\" AND n.status IN [\"Live\", \"Unlisted\", \"Flagged\"] RETURN n.IL_UNIQUE_ID as identifier";
-		if(offset > 0){
+		if (offset > 0) {
 			query += " SKIP " + offset;
 		}
-		if(limit > 0) {
+		if (limit > 0) {
 			query += " LIMIT " + limit;
 		}
 		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId));
@@ -503,6 +645,37 @@ public class ControllerUtil extends BaseLearningManager {
 		return identifiers;
 	}
 
+	public Response updateDefinitionCache(String graphId, String objectType) {
+		Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "updateDefinitionCache");
+		request.put(GraphDACParams.graphId.name(), graphId);
+		request.put(GraphDACParams.objectType.name(), objectType);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			return response;
+		}
+		return null;
+	}
+
+	private void hierarchyCleanUp (Map < String, Object > map){
+		if (map.containsKey("identifier")) {
+			String identifier = (String) map.get("identifier");
+			String parentId = (String) map.get("parent");
+			if (org.apache.commons.lang3.StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+				map.replace("identifier", identifier, newIdentifier);
+				map.replace("objectType", "ContentImage", "Content");
+			}
+
+			if (StringUtils.isNotBlank(parentId)) {
+				String newParentId = parentId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+				map.replace("parent", parentId, newParentId);
+			}
+		}
+		List<Map<String, Object>> children = (List<Map<String, Object>>) map.get("children");
+		if (CollectionUtils.isNotEmpty(children)) {
+			for (Map<String, Object> child : children)
+				hierarchyCleanUp(child);
+		}
+	}
 
 }
-

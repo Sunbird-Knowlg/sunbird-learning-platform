@@ -6,7 +6,7 @@ learning.graph_ids=["domain"]
 content.metadata.visibility.parent=["textbookunit", "courseunit", "lessonplanunit"]
 
 # Language-Service Configuration
-language.graph_ids=["as","bn","en","gu","hi","hoc","jun","ka","mai","mr","unx","or","san","sat","ta","te","urd"]
+language.graph_ids=["as","bn","en","gu","hi","hoc","jun","ka","mai","mr","unx","or","san","sat","ta","te","urd","pj"]
 
 # Redis Configuration
 redis.host="{{ redis_host }}"
@@ -206,11 +206,12 @@ channel.fetch.suggested_frameworks=true
 # Kafka configuration details
 kafka.topics.instruction="{{ kafka_topics_instruction }}"
 kafka.urls="{{ graphevent_kafka_url }}"
+kafka.topic.system.command="{{ kafka_topic_system_command }}"
 
 #Youtube Standard Licence Validation
 learning.content.youtube.validate.license=true
 learning.content.youtube.application.name="{{ youtube_app_name }}"
-learning.content.youtube.apikey="{{ youtube_api_key }}"
+learning_content_youtube_apikey="{{ youtube_api_key }}"
 
 #Telemetry pdata ID
 telemetry_env="{{ instance }}"
@@ -219,7 +220,12 @@ telemetry.search.topn=5
 
 #Copy Content validation configuration
 learning.content.copy.invalid_status_list=["Flagged","FlagDraft","FlagReview","Retired", "Processing"]
-learning.content.copy.null_prop_list=["downloadUrl", "artifactUrl", "variants", "createdOn", "collections", "children", "lastUpdatedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "versionKey", "s3Key", "status", "pkgVersion", "toc_url", "mimeTypesCount", "contentTypesCount", "leafNodesCount", "childNodes", "prevState", "lastPublishedOn", "flagReasons", "compatibilityLevel", "size", "publishChecklist", "publishComment", "LastPublishedBy", "rejectReasons", "rejectComment", "previewUrl", "badgeAssertions", "dialcodes"]
+learning.content.copy.props_to_remove=["downloadUrl", "artifactUrl", "variants","createdOn", "collections", "children",
+"lastUpdatedOn", "sYS_INTERNAL_LAST_UPDATED_ON","versionKey", "s3Key", "status", "pkgVersion", "toc_url",
+"mimeTypesCount", "contentTypesCount", "leafNodesCount", "childNodes", "prevState", "lastPublishedOn", "flagReasons",
+"compatibilityLevel", "size", "publishChecklist", "publishComment", "LastPublishedBy", "rejectReasons", "rejectComment",
+ "gradeLevel", "subject", "medium", "board", "topic", "purpose", "subtopic", "attributions", "contentCredits", "owner",
+ "collaborators", "creators", "contributors", "badgeAssertions", "dialcodes", "concepts", "keywords", "reservedDialcodes", "dialcodeRequired"]
 learning.content.type.not.copied.list=["Asset"]
 
 #Youtube License Validation Regex Pattern
@@ -258,3 +264,5 @@ cassandra.lp.connection="{{ cassandra_lp_connection }}"
 cassandra.lpa.connection="{{ cassandra_lpa_connection }}"
 
 compositesearch.index.name="{{ compositesearch_index_name }}"
+
+# restrict.metadata.objectTypes=["Content", "ContentImage", "AssessmentItem", "Channel", "Framework", "Category", "CategoryInstance", "Term"]

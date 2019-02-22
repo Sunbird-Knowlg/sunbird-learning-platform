@@ -12,6 +12,7 @@ import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
@@ -20,8 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.ekstep.jobs.samza.service.util.TaskUtils.getDefinition;
 
 /**
  * @author pradyumna
@@ -32,6 +31,7 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexer.class);
 	private ObjectMapper mapper = new ObjectMapper();
 	private List<String> nestedFields = new ArrayList<String>();
+	private ControllerUtil util = new ControllerUtil();
 
 	public CompositeSearchIndexer() {
 		setNestedFields();
@@ -178,8 +178,7 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 
 	public void processESMessage(String graphId, String objectType, String uniqueId, String messageId,
 			 Map<String, Object> message, JobMetrics metrics) throws Exception {
-
-		DefinitionDTO definitionNode = getDefinition((String) message.get("graphId"), objectType);
+		DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
 		if (null == definitionNode) {
 			LOGGER.info("Failed to fetch definition node from cache");
 			throw new PlatformException(PlatformErrorCodes.ERR_DEFINITION_NOT_FOUND.name(),
