@@ -39,7 +39,7 @@ import java.util.*;
 public class LocalCacheUpdater {
 
     private static final String BOOTSTRAP_SERVERS = Platform.config.getString("kafka.urls");
-    private static final String TOPIC_ID = Platform.config.getString("kafka.topic.system.command");
+    private static final String TOPIC_ID = Platform.config.hasPath("kafka.topic.system.command") ? Platform.config.getString("kafka.topic.system.command") : "dev.system.command";
     private static KafkaConsumer<Long, String> consumer = null;
 
     public static void init() {
