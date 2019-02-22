@@ -9,39 +9,31 @@
     <packaging>pom</packaging>
     <name>Distribution</name>
     <dependencies>
-    		<!-- Uncomment for deploying republish job -->
-		<!-- <dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>republish-pipeline</artifactId>
-			<version>0.0.7</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency> -->
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
-			<version>0.0.66</version>
+			<version>0.0.68</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-event-generator</artifactId>
-			<version>0.0.34</version>
+			<version>0.0.41</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.81</version>
+			<version>0.0.84</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>qrcode-image-generator</artifactId>
-			<version>0.0.8</version>
+			<version>0.0.12</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

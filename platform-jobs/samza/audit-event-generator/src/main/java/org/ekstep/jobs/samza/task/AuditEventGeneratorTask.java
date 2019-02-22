@@ -3,6 +3,8 @@ package org.ekstep.jobs.samza.task;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -17,6 +19,8 @@ import org.ekstep.jobs.samza.service.AuditEventGenerator;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.jobs.samza.util.SamzaCommonParams;
+import org.ekstep.learning.util.ControllerUtil;
 
 public class AuditEventGeneratorTask implements StreamTask, InitableTask, WindowableTask{
 
@@ -24,6 +28,7 @@ public class AuditEventGeneratorTask implements StreamTask, InitableTask, Window
 
 	private JobMetrics metrics;
 	ISamzaService auditEventGenerator = new AuditEventGenerator();
+	private ControllerUtil controllerUtil = new ControllerUtil();
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
@@ -43,7 +48,17 @@ public class AuditEventGeneratorTask implements StreamTask, InitableTask, Window
 			throws Exception {
 		Map<String, Object> outgoingMap = getMessage(envelope);
 		try {
-			auditEventGenerator.processMessage(outgoingMap, metrics, collector);
+			if (outgoingMap.containsKey(SamzaCommonParams.edata.name())) {
+				Map<String, Object> edata = (Map<String, Object>) outgoingMap.getOrDefault(SamzaCommonParams.edata.name(), new HashMap<String, Object>());
+				if (MapUtils.isNotEmpty(edata) && StringUtils.equalsIgnoreCase("definition_update", edata.getOrDefault("action", "").toString())) {
+					LOGGER.info("Definition Update event received for "+ edata.getOrDefault("objectType", "").toString());
+					String graphId = edata.getOrDefault("graphId", "").toString();
+					String objectType = edata.getOrDefault("objectType", "").toString();
+					controllerUtil.updateDefinitionCache(graphId, objectType);
+				}
+			} else {
+				auditEventGenerator.processMessage(outgoingMap, metrics, collector);
+			}
 		} catch (Exception e) {
 			metrics.incErrorCounter();
 			LOGGER.error("Message processing Error", e);
