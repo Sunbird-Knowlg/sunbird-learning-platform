@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
@@ -210,7 +211,7 @@ public class OptimizerUtil {
         long numberOfFrames = frameGrabber.getLengthInFrames();
         File thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
         frameGrabber.stop();
-        if (thumbNail.exists()) {
+        if (null != thumbNail && thumbNail.exists()) {
 			TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
 			String[] urlArray = uploadToAWS(thumbNail, node.getIdentifier());
 			String thumbUrl = urlArray[1];
@@ -221,8 +222,11 @@ public class OptimizerUtil {
 			} catch (Exception e) {
 				TelemetryManager.error("Error! While deleting the Thumbnail Folder: " + tempFolder, e);
 			}
+		}else {
+			LOGGER.info("Thumbnail could not be generated.");
 		}
-        node.getMetadata().put(ContentAPIParams.duration.name(), videoDuration);
+        if(videoDuration!=0)
+        		node.getMetadata().put(ContentAPIParams.duration.name(), TimeUnit.MICROSECONDS.toSeconds(videoDuration)+"");
     }
 	
 	private static void deleteFolder(String tempFolder) {
@@ -234,6 +238,14 @@ public class OptimizerUtil {
 		}
 	}
 	
+	/**
+	 * fetchThumbnail.
+	 *
+	 * @param tempFolder : Temp folder where files can be downloaded
+	 * @param numberOfFrames: Total number of frames in video file
+	 * @param frameGrabber: frameGrabber object to grab the frame
+	 * @throws Exception Signals that an exception has occurred.
+	 */
 	private static File fetchThumbNail(String tempFolder, long numberOfFrames, FFmpegFrameGrabber frameGrabber) throws Exception {
 		BufferedImage  bufferedImage;
 		Java2DFrameConverter converter = new Java2DFrameConverter();
