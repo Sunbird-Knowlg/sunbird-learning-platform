@@ -20,9 +20,7 @@ public class ContentStoreTest extends CassandraTestSetup {
 	static final String keyspace = Platform.config.hasPath("content.keyspace.name")
 			? Platform.config.getString("content.keyspace.name")
 			: "content_store";
-	static final String table = Platform.config.hasPath("content.keyspace.table")
-			? Platform.config.getString("content.keyspace.table")
-			: "content_data";
+	static final String table = "content_data";
 
 	private static String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS " + keyspace
 			+ " WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}";
