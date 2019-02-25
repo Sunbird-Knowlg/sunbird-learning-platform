@@ -1,0 +1,230 @@
+- name: Check learning-service health
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl http://{{service_url}}/learning-service/health"
+  register: learning_process
+
+- name: Print the learning-service health status to console
+  debug:
+    var: learning_process
+
+- name: Failed learning-service health check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Health check failed for learning-service"
+  when: learning_process.stdout.find('"healthy":"false"') > 0
+
+- name: Check search-service health
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl http://{{search_service_url}}/health"
+  register: search_process
+
+- name: Print the search-service health status to console
+  debug:
+    var: search_process
+
+- name: Failed search-service health check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Health check failed for search-service"
+  when: search_process.stdout.find('"healthy":"false"') > 0
+
+- name: Generare random UUID to create a content.
+  become: yes
+  become_user: "{{user}}"
+  shell: echo "test_"{{ ansible_date_time.iso8601_micro | to_uuid }}
+  register: content_id
+
+- name: Print the content ID to console
+  debug:
+    var: content_id
+
+- name: Create content
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl -X POST http://localhost:8080/learning-service/content/v3/create -H 'Content-Type: application/json'
+  -H 'X-Channel-Id: sunbird'
+  -H 'user-id: system' -d '{\"request\": {\"content\": {\"identifier\": \"{{content_id.stdout}}\", \"name\": \"Untitled
+  Resource\",\"code\": \"test.pdf.1\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"],\"contentType\": \"Resource\",\"resourceType\": \"Read\"}}}'"
+  register: create_result
+
+- name: Print the create content result to console
+  debug:
+    var: create_result
+    
+- name: Failed create content check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Content Creation Failed"
+  when: create_result.stdout.find('"status":"successful"') < 1
+  
+- name: Copy the pdf file to upload
+  become: yes
+  copy: src=test.pdf dest=/tmp/test.pdf mode=777
+  
+- name: Upload content
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl -X POST http://localhost:8080/learning-service/content/v3/upload/{{content_id.stdout}} -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' -H 'user-id: mahesh' -F file=@/tmp/test.pdf"
+  register: upload_result
+  
+- name: Print the upload content result to console
+  debug:
+    var: upload_result
+    
+- name: Failed upload content check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Content Upload failed"
+  when: upload_result.stdout.find('"status":"successful"') < 1
+  
+- name: Send content for review
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl -X POST http://localhost:8080/learning-service/content/v3/review/{{content_id.stdout}} -H 'Cache-Control: no-cache' -H 'Content-Type: application/json' -d '{ \"request\": { \"content\": { } } }'"
+  register: review_result
+  
+- name: Print the review curl result to console
+  debug:
+    var: review_result
+    
+- name: Send for review curl command failure check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Send for review failed"
+  when: review_result.stdout.find('"status":"successful"') < 1
+  
+- name: Read content and check whether it is in review status
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl http://localhost:8080/learning-service/content/v3/read/{{content_id.stdout}}"
+  register: read_result_post_review
+  
+- name: Print the read curl result post review to console
+  debug:
+    var: read_result_post_review
+  
+- name: Read content post review failure check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Read content post review failed"
+  when: read_result_post_review.stdout.find('"status":"successful"') < 1  or read_result_post_review.stdout.find('"status":"Review"') < 1
+
+- name: Publish content
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl -X POST http://localhost:8080/learning-service/content/v3/publish/{{content_id.stdout}} -H 'Content-Type: application/json' -H 'Cache-Control: no-cache' -d '{ \"request\": { \"content\": { \"publisher\": \"EkStep\", \"lastPublishedBy\": \"Ekstep\" } } }'"
+  register: publish_result
+  
+- name: Print the publish content result to console
+  debug:
+    var: publish_result
+    
+- name: Publish content failure check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Publish content failed"
+  when: publish_result.stdout.find('"status":"successful"') < 1
+  
+- name: Pause for 60 seconds to publish content
+  pause:
+     seconds: 60
+       
+- name: Read content and check whether it is in live status
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl http://localhost:8080/learning-service/content/v3/read/{{content_id.stdout}}"
+  register: read_result_post_publish
+  
+- name: Print the read curl result post publish to console
+  debug:
+    var: read_result_post_publish
+  
+- name: Read content post publish failure check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Read content post publish failed"
+  when: read_result_post_publish.stdout.find('"status":"successful"') < 1  or read_result_post_publish.stdout.find('"status":"Live"') < 1
+  
+- name: Search content
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl -X POST {{search_service_url}}/v3/search -H 'Content-Type: application/json' -H 'user-id: mahesh' -d '{ \"request\": { \"filters\": { \"identifier\": \"{{content_id.stdout}}\", \"status\": [] }, \"limit\": 5 } }'"
+  register: search_result
+  
+- name: Print the search content result to console
+  debug:
+    var: search_result
+    
+- name: Failed search content check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Search Content failed to locate the content"
+  when: search_result.stdout.find('"status":"successful"') < 1 or search_result.stdout.find('"count":1') < 1
+
+- name: Copy the image file to upload
+  become: yes
+  copy: src=sunbird-logo.png dest=/tmp/sunbird-logo.png mode=777
+
+- name: Generare random UUID to create a image asset
+  become: yes
+  become_user: "{{user}}"
+  shell: echo "testimage_"{{ ansible_date_time.iso8601_micro | to_uuid }}
+  register: image_asset_id
+
+- name: Print the image asset id to console
+  debug:
+    var: image_asset_id
+
+- name: Create image asset
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl -X POST http://localhost:8080/learning-service/content/v3/create -H 'Content-Type: application/json' -H 'user-id: mahesh' -d '{\"request\": {\"content\": {\"identifier\": \"{{image_asset_id.stdout}}\", \"code\": \"test\", \"name\": \"testasset\", \"mimeType\": \"image/jpeg\", \"mediaType\":\"image\", \"contentType\": \"Asset\", \"description\": \"test asset\"}}}'"
+  register: create_image_result
+
+- name: Print the create image result to console
+  debug:
+    var: create_image_result
+    
+- name: Failed create image content check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Image Content Creation Failed"
+  when: create_image_result.stdout.find('"status":"successful"') < 1
+
+- name: Upload Image
+  become: yes
+  become_user: "{{user}}"
+  shell: "curl -X POST http://localhost:8080/learning-service/content/v3/upload/{{image_asset_id.stdout}} -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' -H 'user-id: mahesh' -F file=@/tmp/sunbird-logo.png"
+  register: upload_image_result
+  
+- name: Print the upload image content result to console
+  debug:
+    var: upload_image_result
+    
+- name: Failed upload image content check
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Image Content Upload failed"
+  when: upload_image_result.stdout.find('"status":"successful"') < 1
+  
+- name: Pause for 60 seconds to publish image
+  pause:
+     seconds: 60
+    
+- name: Read uploaded image content
+  become: user
+  become_user: "{{user}}"
+  shell: "curl http://localhost:8080/learning-service/content/v3/read/{{image_asset_id.stdout}}"
+  register: read_image_content_result
+  
+- name: Print the read image content result to console
+  debug:
+    var: read_image_content_result
+    
+- name: Check for variants
+  become: yes
+  become_user: "{{user}}"
+  fail: msg="Variants check failed for image content"
+  when: read_image_content_result.stdout.find('"status":"successful"') < 1 or read_image_content_result.stdout.find('"variants"') < 1 or read_image_content_result.stdout.find('"status":"Live"') < 1

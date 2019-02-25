@@ -1,0 +1,27 @@
+---
+- hosts: composite-search-cluster
+  become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
+  tasks:
+    - name: Registering node name
+      set_fact:
+        es_instance_name: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}cs-node-{{ loop.index }}{% endif %}{% endfor %}"
+  
+    - name: Install plugin
+      shell: ES_PATH_CONF=/etc/elasticsearch/"{{ es_instance_name }}" /usr/share/elasticsearch/bin/elasticsearch-plugin install repository-azure
+
+    - name: add azure storage details in config file
+      become: yes
+      lineinfile:
+        dest: /etc/elasticsearch/{{ es_instance_name }}/elasticsearch.yml 
+        line: "{{ item }}"
+      with_items:
+        - 'cloud.azure.storage.default.account: {{ azure_account_name }}'
+        - 'cloud.azure.storage.default.key: {{ azure_account_key }}'
+      no_log: true
+  
+    - name: restart elasticsearch
+      service: name="{{es_instance_name}}_elasticsearch" state=restarted enabled=yes
+
+      
