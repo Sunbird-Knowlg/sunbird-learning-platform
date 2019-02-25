@@ -6,5 +6,5 @@ search_home: "{{learner_user_home}}/platform/search/search-manager"
 search_root: "{{learner_user_home}}/platform/search"
 platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
 instance: "{{env}}"
-instance_name: sunbird
+instance_name:
 compositesearch_index_name: "compositesearch"
