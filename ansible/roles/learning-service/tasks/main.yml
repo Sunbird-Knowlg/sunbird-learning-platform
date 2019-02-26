@@ -1,6 +1,6 @@
 - name: Stop tomcat
   become: yes
-  systemd: name=tomcat state=stopped
+  service: name=tomcat state=stopped
   ignore_errors: yes
 
 - name: Delete Catalina
@@ -28,7 +28,7 @@
 
 - name: Start tomcat
   become: yes
-  systemd: name=tomcat state=started
+  service: name=tomcat state=started
   delay: 10
 
 - name: Check learning-service health
