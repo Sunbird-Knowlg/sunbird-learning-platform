@@ -1,0 +1,7 @@
+- hosts: learning1
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  become: yes
+  become_user: "{{learner_user}}"
+  roles:
+    - lp-synctool-deploy

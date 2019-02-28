@@ -1,0 +1,8 @@
+---
+- file: path=/home/{{ user }}/.ssh state=directory owner={{ user }} group={{ user }}
+
+- name: Install log ssh key
+  copy: content="{{ log_ssh_key }}" dest=/home/{{ user }}/.ssh/log mode=600 owner={{ user }} group={{ user }}
+
+- name: excuting the script
+  command: 'rsync --rsync-path="mkdir -p /home/ops/{{ service }}/{{ host_ip}} && rsync" --delay-updates --compress --archive --rsh "ssh -i /home/{{ user }}/.ssh/log -o StrictHostKeyChecking=no" {{ sourcepath }} ops@{{ centralised_log_vm }}:/home/ops/{{ service }}/{{ host_ip}}/{{ app }}'

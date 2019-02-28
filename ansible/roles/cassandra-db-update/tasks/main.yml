@@ -1,0 +1,10 @@
+- name: Copy DB script
+  become: yes
+  template:
+    src: "data.cql.j2"
+    dest: "/tmp/lp-data.cql"
+    mode: 0755
+  
+- name: run cql 
+  become: yes
+  shell: 'cqlsh -f /tmp/lp-data.cql'

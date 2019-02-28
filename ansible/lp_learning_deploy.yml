@@ -1,0 +1,10 @@
+- hosts: learningall
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  pre_tasks:
+    - name: Registering mw_shard_id
+      set_fact:
+       mw_shard_id: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}{{ loop.index }}{% endif %}{% endfor %}"
+  roles:
+    - learning-service
+  serial: 1

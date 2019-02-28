@@ -1,0 +1,6 @@
+- hosts: learning-neo4j-node1
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  remote_user: learning
+  roles:
+        - neo4j-backup 
