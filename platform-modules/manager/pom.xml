@@ -236,14 +236,14 @@
 		<dependency>
 			<groupId>org.sunbird</groupId>
     		<artifactId>cloud-store-sdk</artifactId>
-    		<version>1.2.3</version>
+    		<version>1.2.4</version>
 		</dependency>
 	</dependencies>
 
 	<repositories>
 		<repository>
 			<id>cloud-store</id>
-			<url>https://oss.sonatype.org/content/repositories/orgsunbird-1029</url>
+			<url>https://oss.sonatype.org/content/repositories/orgsunbird-1030</url>
 		</repository>
 	</repositories>
 
