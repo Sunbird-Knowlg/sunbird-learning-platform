@@ -180,22 +180,6 @@ public class OptimizerUtil {
 		return urlArray;
 	}
 	
-	/*public static void main(String[] args) throws Exception{
-		String videoUrl = "https://sunbirddev.blob.core.windows.net/sunbird-content-dev/content/do_1127037303237591041175/artifact/india-rainfall_1550748476390.mp4";
-		String tempFileLocation = "/Users/amitpriyadarshi";  
-		String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
-		File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
-		
-		FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(videoFile);
-        frameGrabber.start();
-        long numberOfFrames = frameGrabber.getLengthInFrames();
-        File thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
-        frameGrabber.stop();
-        System.out.println(thumbNail.getAbsolutePath());
-        deleteFolder(tempFolder);
-        
-	}*/
-	
 	public static void videoEnrichment(Node node, String tempFileLocation) throws Exception {
 		String videoUrl = (String) node.getMetadata().get("artifactUrl");
 		if(StringUtils.isBlank(videoUrl)) {
@@ -208,6 +192,9 @@ public class OptimizerUtil {
 		FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(videoFile);
         frameGrabber.start();
         long videoDuration = frameGrabber.getLengthInTime();
+        if(videoDuration!=0)
+    			node.getMetadata().put(ContentAPIParams.duration.name(), 
+    					TimeUnit.MICROSECONDS.toSeconds(videoDuration)+"");
         long numberOfFrames = frameGrabber.getLengthInFrames();
         File thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
         frameGrabber.stop();
@@ -225,8 +212,6 @@ public class OptimizerUtil {
 		}else {
 			LOGGER.info("Thumbnail could not be generated.");
 		}
-        if(videoDuration!=0)
-        		node.getMetadata().put(ContentAPIParams.duration.name(), TimeUnit.MICROSECONDS.toSeconds(videoDuration)+"");
     }
 	
 	private static void deleteFolder(String tempFolder) {
@@ -251,10 +236,11 @@ public class OptimizerUtil {
 		Java2DFrameConverter converter = new Java2DFrameConverter();
 		File thumbnail = null;
 		int colorCount = 0;
-		for(int i=1; i<=5;i++) {
+		int numbeOfSampleThumbnails = 5;
+		for(int i=1; i<=numbeOfSampleThumbnails;i++) {
 			File inFile = new File(tempFolder+ File.separator + System.currentTimeMillis() + ".png");
 			File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
-	        frameGrabber.setFrameNumber((int)(numberOfFrames/5)*i	);
+	        frameGrabber.setFrameNumber((int)(numberOfFrames/numbeOfSampleThumbnails)*i	);
 	        bufferedImage = converter.convert(frameGrabber.grabImage());
 	        ImageIO.write(bufferedImage, "png", inFile);
 	        generateThumbNail(inFile, outFile);
