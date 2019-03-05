@@ -36,6 +36,7 @@ resourcemanager: "{{ groups['yarn-master'][0] }}"
 yarn_slaves: "{{ groups['yarn-slave']}}"
 __yarn_host__: "{{ groups['yarn-master'][0] }}"
 
+neo4j_dir: neo4j-learning
 neo4j_home: "{{learner_user_home}}/{{neo4j_dir}}/neo4j-enterprise-3.3.9"
 
 lp_bolt_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:7687
