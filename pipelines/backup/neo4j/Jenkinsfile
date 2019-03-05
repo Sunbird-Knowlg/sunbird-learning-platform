@@ -19,8 +19,8 @@ node() {
                 module = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
                 jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
                 currentWs = sh(returnStdout: true, script: 'pwd').trim()
-                ansiblePlaybook = "${currentWs}/ansible/neo4j-backup.yml"
-                ansibleExtraArgs = "--extra-vars \"remote=${params.remote} graph_machine=${params.graph_machine}\""
+                ansiblePlaybook = "${currentWs}/ansible/lp_neo4j-backup.yml"
+                ansibleExtraArgs = ""
                 values.put('currentWs', currentWs)
                 values.put('env', envDir)
                 values.put('module', module)
