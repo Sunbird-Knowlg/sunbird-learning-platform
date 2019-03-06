@@ -3,8 +3,7 @@
   vars_files:
     - ['{{inventory_dir}}/secrets.yml']
   environment:
-    AZURE_STORAGE_ACCOUNT: "{{ azure_account_name }}"
-    AZURE_STORAGE_KEY: "{{ azure_account_key }}"
-
+    AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
+    AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
   roles:
    - cassandra-restore
