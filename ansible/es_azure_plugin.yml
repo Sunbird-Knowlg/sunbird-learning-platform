@@ -17,8 +17,8 @@
         dest: /etc/elasticsearch/{{ es_instance_name }}/elasticsearch.yml 
         line: "{{ item }}"
       with_items:
-        - 'cloud.azure.storage.default.account: {{ azure_account_name }}'
-        - 'cloud.azure.storage.default.key: {{ azure_account_key }}'
+        - 'cloud.azure.storage.default.account: {{ backup_azure_storage_account_name }}'
+        - 'cloud.azure.storage.default.key: {{ backup_azure_storage_access_key }}'
       no_log: true
   
     - name: restart elasticsearch
