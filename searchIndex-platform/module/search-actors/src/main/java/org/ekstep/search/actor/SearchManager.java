@@ -208,16 +208,18 @@ public class SearchManager extends SearchBaseActor {
 			String mode = (String) req.get(CompositeSearchParams.mode.name());
 			if (null != mode && mode.equals(Modes.soft.name())
 					&& (null == softConstraints || softConstraints.isEmpty())) {
-				try {
-					Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
-					if (null != metaData.get("softConstraints")) {
-						ObjectMapper mapper = new ObjectMapper();
-						String constraintString = (String) metaData.get("softConstraints");
-						softConstraints = mapper.readValue(constraintString, Map.class);
-					}
-				} catch (Exception e) {
-					TelemetryManager.warn("Invalid soft Constraints" + e.getMessage());
-				}
+			    if (null != objectType){
+                    try {
+                        Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
+                        if (null != metaData.get("softConstraints")) {
+                            ObjectMapper mapper = new ObjectMapper();
+                            String constraintString = (String) metaData.get("softConstraints");
+                            softConstraints = mapper.readValue(constraintString, Map.class);
+                        }
+                    } catch (Exception e) {
+                        TelemetryManager.warn("Invalid soft Constraints" + e.getMessage());
+                    }
+                }
 			}
 			TelemetryManager.log("Soft Constraints with only Mode: ", softConstraints);
 			if (null != softConstraints && !softConstraints.isEmpty()) {
