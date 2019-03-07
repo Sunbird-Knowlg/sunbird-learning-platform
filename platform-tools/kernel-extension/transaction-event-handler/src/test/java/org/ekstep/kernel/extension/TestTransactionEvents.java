@@ -1,5 +1,6 @@
 package org.ekstep.kernel.extension;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.Direction;
@@ -21,13 +22,13 @@ import java.util.Set;
 public class TestTransactionEvents {
     protected final static String DB_LOCATION = "target/graph-master";
     protected final static String SERVER_ID = "1";
-    static GraphDatabaseService graphDb;
-    Label name = Label.label("domain");
-    static Set<String> tmp = new HashSet<String>();
-    static String ch="";
+    private static GraphDatabaseService graphDb;
+    private Label name = Label.label("domain");
+    private static Set<String> tmp = new HashSet<String>();
+    private static String ch="";
 
     @BeforeClass
-    public static void Before() throws InterruptedException, FileNotFoundException {
+    public static void beforeTest() throws InterruptedException, FileNotFoundException {
         GraphDatabaseBuilder builder = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder
                 (new File
@@ -65,6 +66,7 @@ public class TestTransactionEvents {
                 nodeData.setProperty("channel", "in.ekstep");
                 nodeData.setProperty("IL_SYS_NODE_TYPE", "DATA_NODE");
                 tx1.success();
+                //Assert.assert
             }
         } catch (Exception e) {
             e.printStackTrace();

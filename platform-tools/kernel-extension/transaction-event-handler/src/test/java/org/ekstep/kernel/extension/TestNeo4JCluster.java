@@ -23,13 +23,13 @@ import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 public class TestNeo4JCluster {
 	protected final static String DB_LOCATION = "target/graph-master";
 	protected final static String SERVER_ID = "1";
-	static HighlyAvailableGraphDatabase graphDb;
-	Label name = Label.label("domain");
-	static Set<String> tmp = new HashSet<String>();
-	static String ch="";
+	private static HighlyAvailableGraphDatabase graphDb;
+	private Label name = Label.label("domain");
+	private static Set<String> tmp = new HashSet<String>();
+	private static String ch="";
 
 	@BeforeClass
-	public static void Before() throws InterruptedException, FileNotFoundException {
+	public static void beforeTest() throws InterruptedException, FileNotFoundException {
 		GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(new File(DB_LOCATION));
 		builder.setConfig(ClusterSettings.server_id, SERVER_ID);
 		builder.setConfig(HaSettings.ha_server, "localhost:4001");
