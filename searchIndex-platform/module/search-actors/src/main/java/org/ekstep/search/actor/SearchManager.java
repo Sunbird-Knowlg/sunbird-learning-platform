@@ -37,7 +37,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 
 public class SearchManager extends SearchBaseActor {
-	ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = new ObjectMapper();
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
