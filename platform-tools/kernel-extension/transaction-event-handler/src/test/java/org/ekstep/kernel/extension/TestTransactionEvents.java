@@ -19,8 +19,9 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class TestTransactionEvents {
-    protected final static String DB_LOCATION = "target/graph-master";
+    protected final static String DB_LOCATION = "target/graph-master1";
     protected final static String SERVER_ID = "1";
     private static GraphDatabaseService graphDb;
     private Label name = Label.label("domain");
