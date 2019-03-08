@@ -2,6 +2,7 @@ package org.ekstep.kernel.extension;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -19,7 +20,7 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.Set;
 
-
+@Ignore
 public class TestTransactionEvents {
     protected final static String DB_LOCATION = "target/graph-master1";
     protected final static String SERVER_ID = "1";
