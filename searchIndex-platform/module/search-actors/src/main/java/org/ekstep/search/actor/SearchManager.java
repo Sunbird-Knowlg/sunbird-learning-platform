@@ -38,6 +38,7 @@ import scala.concurrent.Future;
 
 public class SearchManager extends SearchBaseActor {
 
+	private ObjectMapper mapper = new ObjectMapper();
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
@@ -207,11 +208,10 @@ public class SearchManager extends SearchBaseActor {
 
 			String mode = (String) req.get(CompositeSearchParams.mode.name());
 			if (null != mode && mode.equals(Modes.soft.name())
-					&& (null == softConstraints || softConstraints.isEmpty())) {
+					&& (null == softConstraints || softConstraints.isEmpty()) && objectType != null) {
 				try {
 					Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
 					if (null != metaData.get("softConstraints")) {
-						ObjectMapper mapper = new ObjectMapper();
 						String constraintString = (String) metaData.get("softConstraints");
 						softConstraints = mapper.readValue(constraintString, Map.class);
 					}
@@ -291,7 +291,6 @@ public class SearchManager extends SearchBaseActor {
 	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
 		Map<String, Float> weightagesMap = new HashMap<String, Float>();
-		ObjectMapper mapper = new ObjectMapper();
 		if (weightagesString != null && !weightagesString.isEmpty()) {
 			Map<String, Object> weightagesRequestMap = mapper.readValue(weightagesString,
 					new TypeReference<Map<String, Object>>() {
