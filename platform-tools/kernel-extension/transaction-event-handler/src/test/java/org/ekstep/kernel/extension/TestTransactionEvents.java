@@ -37,8 +37,8 @@ public class TestTransactionEvents {
         deleteFileContents();
     }
 
-    @org.junit.Before
-    public void afterTest() throws FileNotFoundException {
+    @org.junit.AfterClass
+    public static void afterTest() throws FileNotFoundException {
         deleteFileContents();
     }
 
@@ -51,6 +51,8 @@ public class TestTransactionEvents {
                 node.setProperty("IL_UNIQUE_ID", uniqueId);
                 node.setProperty("name", "Name_" + uniqueId);
                 tx.success();
+                File file = new File("/data/logs/test_graph_event_neo4j.log");
+                Assert.assertTrue(file.exists());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,7 +68,8 @@ public class TestTransactionEvents {
                 nodeData.setProperty("channel", "in.ekstep");
                 nodeData.setProperty("IL_SYS_NODE_TYPE", "DATA_NODE");
                 tx1.success();
-                //Assert.assert
+                File file = new File("/data/logs/test_graph_event_neo4j.log");
+                Assert.assertTrue(file.exists());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,6 +84,8 @@ public class TestTransactionEvents {
                 Node nodeData = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId);
                 nodeData.setProperty("description", "update description property");
                 tx1.success();
+                File file = new File("/data/logs/test_graph_event_neo4j.log");
+                Assert.assertTrue(file.exists());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,6 +100,8 @@ public class TestTransactionEvents {
                 Node nodeData = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId);
                 nodeData.removeProperty("channel");
                 tx1.success();
+                File file = new File("/data/logs/test_graph_event_neo4j.log");
+                Assert.assertTrue(file.exists());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,6 +116,8 @@ public class TestTransactionEvents {
                 Node nodeData = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId);
                 nodeData.delete();
                 tx1.success();
+                File file = new File("/data/logs/test_graph_event_neo4j.log");
+                Assert.assertTrue(file.exists());
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -125,6 +134,8 @@ public class TestTransactionEvents {
                 Node nodeData2 = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId2);
                 nodeData2.createRelationshipTo(nodeData1, RelationEnums.associatedTo);
                 tx1.success();
+                File file = new File("/data/logs/test_graph_event_neo4j.log");
+                Assert.assertTrue(file.exists());
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -149,6 +160,8 @@ public class TestTransactionEvents {
                 res.setProperty("description", "isParentOf");
                 tx2.success();
             }
+            File file = new File("/data/logs/test_graph_event_neo4j.log");
+            Assert.assertTrue(file.exists());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -173,6 +186,8 @@ public class TestTransactionEvents {
                 res.removeProperty("description");
                 tx.success();
             }
+            File file = new File("/data/logs/test_graph_event_neo4j.log");
+            Assert.assertTrue(file.exists());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -195,6 +210,8 @@ public class TestTransactionEvents {
                 res.delete();
                 tx.success();
             }
+            File file = new File("/data/logs/test_graph_event_neo4j.log");
+            Assert.assertTrue(file.exists());
         }catch(Exception e) {
             e.printStackTrace();
         }
