@@ -5,10 +5,10 @@
     neo4j_restore_gzip_file_path: "{{ neo4j_restore_dir }}/{{ neo4j_restore_gzip_file_name }}"
 
 - name: Download restore file from azure
-  command: az storage blob download --container-name {{ neo4j_restore_azure_container_name }} --name {{ neo4j_restore_gzip_file_name }} --file {{ neo4j_restore_gzip_file_path }}
+  command: az storage blob download --container-name {{ neo4j_backup_azure_container_name }} --name {{ neo4j_restore_gzip_file_name }} --file {{ neo4j_restore_gzip_file_path }}
   environment:
-    AZURE_STORAGE_ACCOUNT: "{{ neo4j_restore_azure_storage_account_name }}"
-    AZURE_STORAGE_KEY: "{{ neo4j_restore_azure_storage_access_key }}"
+    AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
+    AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
   async: 3600
   poll: 10
 
