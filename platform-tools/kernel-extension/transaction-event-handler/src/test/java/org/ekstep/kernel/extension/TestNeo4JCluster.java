@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.cluster.ClusterSettings;
@@ -23,13 +24,13 @@ import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 public class TestNeo4JCluster {
 	protected final static String DB_LOCATION = "target/graph-master";
 	protected final static String SERVER_ID = "1";
-	static HighlyAvailableGraphDatabase graphDb;
-	Label name = Label.label("domain");
-	static Set<String> tmp = new HashSet<String>();
-	static String ch="";
+	private static HighlyAvailableGraphDatabase graphDb;
+	private Label name = Label.label("domain");
+	private static Set<String> tmp = new HashSet<String>();
+	private static String ch="";
 
 	@BeforeClass
-	public static void Before() throws InterruptedException, FileNotFoundException {
+	public static void beforeTest() throws InterruptedException, FileNotFoundException {
 		GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(new File(DB_LOCATION));
 		builder.setConfig(ClusterSettings.server_id, SERVER_ID);
 		builder.setConfig(HaSettings.ha_server, "localhost:4001");
@@ -40,8 +41,8 @@ public class TestNeo4JCluster {
 		deleteFileContents();
 	}
 	
-	@org.junit.Before
-	public void afterTest() throws FileNotFoundException {
+	@org.junit.AfterClass
+	public static void afterTest() throws FileNotFoundException {
 		deleteFileContents();
 	}
 	
@@ -53,7 +54,9 @@ public class TestNeo4JCluster {
 				String uniqueId = "id_" + Math.random();
 				node.setProperty("IL_UNIQUE_ID", uniqueId);
 				node.setProperty("name", "Name_" + uniqueId);
-				tx.success();	
+				tx.success();
+				File file = new File("/data/logs/test_graph_event_neo4j.log");
+				Assert.assertTrue(file.exists());
 			 }
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -69,6 +72,8 @@ public class TestNeo4JCluster {
 				nodeData.setProperty("channel", "in.ekstep");
 				nodeData.setProperty("IL_SYS_NODE_TYPE", "DATA_NODE");
 				tx1.success();
+				File file = new File("/data/logs/test_graph_event_neo4j.log");
+				Assert.assertTrue(file.exists());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -83,6 +88,8 @@ public class TestNeo4JCluster {
 				Node nodeData = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId);
 				nodeData.setProperty("description", "update description property");
 				tx1.success();
+				File file = new File("/data/logs/test_graph_event_neo4j.log");
+				Assert.assertTrue(file.exists());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -97,6 +104,8 @@ public class TestNeo4JCluster {
 				Node nodeData = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId);
 				nodeData.removeProperty("channel");
 				tx1.success();
+				File file = new File("/data/logs/test_graph_event_neo4j.log");
+				Assert.assertTrue(file.exists());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -111,6 +120,8 @@ public class TestNeo4JCluster {
 				Node nodeData = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId);
 				nodeData.delete();
 				tx1.success();
+				File file = new File("/data/logs/test_graph_event_neo4j.log");
+				Assert.assertTrue(file.exists());
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -127,6 +138,8 @@ public class TestNeo4JCluster {
 					Node nodeData2 = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId2);
 					nodeData2.createRelationshipTo(nodeData1, RelationEnums.associatedTo);
 					tx1.success();
+					File file = new File("/data/logs/test_graph_event_neo4j.log");
+					Assert.assertTrue(file.exists());
 				}		
 			}catch(Exception e) {
 				e.printStackTrace();
@@ -150,7 +163,9 @@ public class TestNeo4JCluster {
 					Relationship res = nodeData2.getSingleRelationship(RelationEnums.isParentOf, Direction.OUTGOING);
 					res.setProperty("description", "isParentOf");
 					tx2.success();
-				}		
+				}
+			File file = new File("/data/logs/test_graph_event_neo4j.log");
+			Assert.assertTrue(file.exists());
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
@@ -175,6 +190,8 @@ public class TestNeo4JCluster {
 					res.removeProperty("description");
 					tx.success();
 				}
+			File file = new File("/data/logs/test_graph_event_neo4j.log");
+			Assert.assertTrue(file.exists());
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
@@ -197,6 +214,8 @@ public class TestNeo4JCluster {
 					res.delete();
 					tx.success();
 				}
+			File file = new File("/data/logs/test_graph_event_neo4j.log");
+			Assert.assertTrue(file.exists());
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
