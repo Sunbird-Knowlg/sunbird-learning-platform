@@ -305,9 +305,6 @@ public class ImageTaggingService implements ISamzaService {
 	
 	protected boolean checkError(Response response) {
 		ResponseParams params = response.getParams();
-		if (null != params && StringUtils.equals(StatusType.failed.name(), params.getStatus())) {
-			return true;
-		}
-		return false;
+		return (null != params && StringUtils.equals(StatusType.failed.name(), params.getStatus()));
 	}
 }
