@@ -15,6 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Response;
+import org.ekstep.common.dto.ResponseParams;
+import org.ekstep.common.dto.ResponseParams.StatusType;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -25,6 +30,7 @@ import org.ekstep.jobs.samza.util.OptimizerUtil;
 import org.ekstep.jobs.samza.util.VisionApi;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class ImageTaggingService implements ISamzaService {
 
@@ -110,42 +116,55 @@ public class ImageTaggingService implements ISamzaService {
 		}
 	}
 
-	private void imageEnrichment(Node node) throws Exception {
-		LOGGER.info("Processing image enrichment for node:" + node.getIdentifier());
-		Map<String, String> variantsMap = OptimizerUtil.optimizeImage(node.getIdentifier(), this.config.get("lp.tempfile.location"), node);
-		if (null == variantsMap)
-			variantsMap = new HashMap<String, String>();
-		if (StringUtils.isBlank(variantsMap.get(ImageWorkflowEnums.medium.name()))) {
-			String downloadUrl = (String) node.getMetadata().get(ImageWorkflowEnums.downloadUrl.name());
-			if (StringUtils.isNotBlank(downloadUrl)) {
-				variantsMap.put(ImageWorkflowEnums.medium.name(), downloadUrl);
-			}
-		}
-		String image_url = variantsMap.get(ImageWorkflowEnums.medium.name());
-		processImage(image_url, variantsMap, node);
-	}
-
-	private void processImage(String image_url, Map<String, String> variantsMap, Node node) {
+	private void imageEnrichment(Node node) throws Exception{
 		try {
-			String key = config.get("google.vision.tagging.enabled");
-			LOGGER.info("Fetching google.vision property from config" + key);
-			LOGGER.info("Image " + node.getIdentifier() + " channel:" + node.getMetadata().get("channel"));
-			LOGGER.info("Image " + node.getIdentifier() + " appId:" + node.getMetadata().get("appId"));
-			LOGGER.info("Image " + node.getIdentifier() + " consumerId:" + node.getMetadata().get("consumerId"));
-			if ("true".equalsIgnoreCase(key)) {
-				Node data = callVisionService(image_url, node, variantsMap);
-				data.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);
-				util.updateNode(data);
-			} else {
-				node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Live.name());
-				node.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);
-				util.updateNode(node);
+			LOGGER.info("Processing image enrichment for node:" + node.getIdentifier());
+			Map<String, String> variantsMap = OptimizerUtil.optimizeImage(node.getIdentifier(), this.config.get("lp.tempfile.location"), node);
+			if (null == variantsMap)
+				variantsMap = new HashMap<String, String>();
+			if (StringUtils.isBlank(variantsMap.get(ImageWorkflowEnums.medium.name()))) {
+				String downloadUrl = (String) node.getMetadata().get(ImageWorkflowEnums.downloadUrl.name());
+				if (StringUtils.isNotBlank(downloadUrl)) {
+					variantsMap.put(ImageWorkflowEnums.medium.name(), downloadUrl);
+				}
 			}
-		} catch (Exception e) {
-			LOGGER.error("General Security Exception" + e.getMessage(), e);
+			String image_url = variantsMap.get(ImageWorkflowEnums.medium.name());
+			processImage(image_url, variantsMap, node);
+		}catch(Exception e) {
+			LOGGER.info(
+					"Something Went Wrong While Performing Image Tagging operation. | [Content Id: "
+							+ node.getIdentifier() + "]",
+					e.getMessage());
+			node.getMetadata().put(ImageWorkflowEnums.processingError.name(), e.getMessage());
+			node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Failed.name());
+			Response res = util.updateNode(node);
+			if(checkError(res))
+				throw new ServerException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " + 
+						node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
+			throw e;
 		}
 	}
 
+	private void processImage(String image_url, Map<String, String> variantsMap, Node node) throws Exception{
+		String key = config.get("google.vision.tagging.enabled");
+		LOGGER.info("Fetching google.vision property from config" + key);
+		LOGGER.info("Image " + node.getIdentifier() + " channel:" + node.getMetadata().get("channel"));
+		LOGGER.info("Image " + node.getIdentifier() + " appId:" + node.getMetadata().get("appId"));
+		LOGGER.info("Image " + node.getIdentifier() + " consumerId:" + node.getMetadata().get("consumerId"));
+		if ("true".equalsIgnoreCase(key)) {
+			Node data = callVisionService(image_url, node, variantsMap);
+			data.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);
+		} else {
+			node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Live.name());
+			node.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);
+		}
+		Response res = util.updateNode(node);
+		if(checkError(res)) {
+			throw new ServerException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " + 
+					node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
+		}
+	}
+	
 	/**
 	 * The method callVisionService holds the logic to call the google vision API get labels and flags for a given image
 	 * and update the same on the node
@@ -231,10 +250,66 @@ public class ImageTaggingService implements ISamzaService {
 		return keywords;
 	}
 	
-	private void videoEnrichment(Node node) throws Exception {
+	private void videoEnrichment(Node node) throws Exception{
 		String tempFileLocation = StringUtils.isNotBlank(this.config.get("lp.tempfile.location"))?this.config.get("lp.tempfile.location"):"/tmp";  
-		OptimizerUtil.videoEnrichment(node, tempFileLocation);
+		String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
+		try {
+			String videoUrl = (String) node.getMetadata().get("artifactUrl");
+			if(StringUtils.isBlank(videoUrl)) {
+				LOGGER.info("Content artifactUrl is blank.");
+				throw new ClientException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Content artifactUrl is blank.");
+			}
+			processVideo(node, tempFolder, videoUrl);
+		}catch(Exception e) {
+			LOGGER.info("Something Went Wrong While Performing Image Tagging operation. | [Content Id: " + 
+					node.getIdentifier() + "]", e.getMessage());
+			node.getMetadata().put(ImageWorkflowEnums.processingError.name(), e.getMessage());
+			node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Failed.name());
+			Response res = util.updateNode(node);
+			if(checkError(res))
+				throw new ServerException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " + 
+						node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
+			throw e;
+		}finally {
+			try {
+				deleteFolder(tempFolder);
+				TelemetryManager.log("Deleted local Thumbnail files");
+			} catch (Exception e) {
+				TelemetryManager.error("Error! While deleting the Thumbnail Folder: " + tempFolder, e);
+			}
+		}
+		
+	}
+	
+	private void processVideo(Node node, String tempFolder, String videoUrl) throws Exception{
+		
+		File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
+		OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
 		node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Live.name());
-		util.updateNode(node);
-    }
+		Response res = util.updateNode(node);
+		if(checkError(res)) {
+			throw new ServerException(ImageWorkflowEnums.PROCESSING_ERROR.name(),
+					"Error! While Updating the Metadata | [Content Id: " + node.getIdentifier() + "]");
+		}
+		
+	}
+	
+	private static void deleteFolder(String tempFolder) {
+		File index = new File(tempFolder);
+		String[]entries = index.list();
+		for(String s: entries){
+		    File currentFile = new File(index.getPath(),s);
+		    currentFile.delete();
+		}
+	}
+	
+	protected boolean checkError(Response response) {
+		ResponseParams params = response.getParams();
+		if (null != params) {
+			if (StringUtils.equals(StatusType.failed.name(), params.getStatus())) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

@@ -180,14 +180,7 @@ public class OptimizerUtil {
 		return urlArray;
 	}
 	
-	public static void videoEnrichment(Node node, String tempFileLocation) throws Exception {
-		String videoUrl = (String) node.getMetadata().get("artifactUrl");
-		if(StringUtils.isBlank(videoUrl)) {
-			LOGGER.info("Content artifactUrl is blank.");
-			return;
-		}
-		String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
-		File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
+	public static void videoEnrichment(Node node, String tempFolder, File videoFile) throws Exception {
 		
 		FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(videoFile);
         frameGrabber.start();
@@ -203,25 +196,10 @@ public class OptimizerUtil {
 			String[] urlArray = uploadToAWS(thumbNail, node.getIdentifier());
 			String thumbUrl = urlArray[1];
 			node.getMetadata().put(ContentAPIParams.thumbnail.name(), thumbUrl);
-			try {
-				deleteFolder(tempFolder);
-				TelemetryManager.log("Deleted local Thumbnail files");
-			} catch (Exception e) {
-				TelemetryManager.error("Error! While deleting the Thumbnail Folder: " + tempFolder, e);
-			}
 		}else {
 			LOGGER.info("Thumbnail could not be generated.");
 		}
     }
-	
-	private static void deleteFolder(String tempFolder) {
-		File index = new File(tempFolder);
-		String[]entries = index.list();
-		for(String s: entries){
-		    File currentFile = new File(index.getPath(),s);
-		    currentFile.delete();
-		}
-	}
 	
 	/**
 	 * fetchThumbnail.
