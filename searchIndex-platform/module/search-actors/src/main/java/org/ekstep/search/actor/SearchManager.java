@@ -37,6 +37,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 
 public class SearchManager extends SearchBaseActor {
+	ObjectMapper mapper = new ObjectMapper();
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
@@ -207,19 +208,16 @@ public class SearchManager extends SearchBaseActor {
 
 			String mode = (String) req.get(CompositeSearchParams.mode.name());
 			if (null != mode && mode.equals(Modes.soft.name())
-					&& (null == softConstraints || softConstraints.isEmpty())) {
-			    if (null != objectType){
+					&& (null == softConstraints || softConstraints.isEmpty()) && objectType != null) {
                     try {
                         Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
                         if (null != metaData.get("softConstraints")) {
-                            ObjectMapper mapper = new ObjectMapper();
                             String constraintString = (String) metaData.get("softConstraints");
                             softConstraints = mapper.readValue(constraintString, Map.class);
                         }
                     } catch (Exception e) {
                         TelemetryManager.warn("Invalid soft Constraints" + e.getMessage());
                     }
-                }
 			}
 			TelemetryManager.log("Soft Constraints with only Mode: ", softConstraints);
 			if (null != softConstraints && !softConstraints.isEmpty()) {
@@ -293,7 +291,6 @@ public class SearchManager extends SearchBaseActor {
 	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
 		Map<String, Float> weightagesMap = new HashMap<String, Float>();
-		ObjectMapper mapper = new ObjectMapper();
 		if (weightagesString != null && !weightagesString.isEmpty()) {
 			Map<String, Object> weightagesRequestMap = mapper.readValue(weightagesString,
 					new TypeReference<Map<String, Object>>() {
