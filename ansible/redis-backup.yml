@@ -1,5 +1,6 @@
-- hosts: redis1
+- hosts: redisall
   become: yes
+  become_user: "{{learner_user}}"
   vars_files:
     - ['{{inventory_dir}}/secrets.yml']
   environment:
@@ -7,3 +8,4 @@
     AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
   roles:
    - redis-backup
+  run_once: true
