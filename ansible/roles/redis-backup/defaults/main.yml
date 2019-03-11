@@ -1,2 +1,2 @@
-cassandra_backup_dir: /tmp/redis-backup
-cassandra_backup_azure_container_name: redis-backup
+redis_backup_dir: /tmp/redis-backup
+redis_backup_azure_container_name: redis-backup
