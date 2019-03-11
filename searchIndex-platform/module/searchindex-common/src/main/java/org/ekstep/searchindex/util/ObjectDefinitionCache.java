@@ -135,6 +135,7 @@ public class ObjectDefinitionCache {
     		String graphId = "domain";
 		if(null == metadata){
 			getDefinitionFromGraph(objectType, graphId);
+			metadata = metadataMap.get(objectType);
 		}
 		return metadata;
 	}
