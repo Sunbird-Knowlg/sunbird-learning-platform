@@ -1,6 +1,5 @@
 - hosts: redisall
   become: yes
-  become_user: "{{learner_user}}"
   gather_facts: false
   vars_files:
     - ['{{inventory_dir}}/secrets.yml']
