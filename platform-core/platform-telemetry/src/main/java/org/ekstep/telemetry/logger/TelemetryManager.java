@@ -196,6 +196,10 @@ public class TelemetryManager {
 			if(StringUtils.isNotBlank(deviceId))
 				reqContext.put("did", deviceId);
 			appId=(String) context.get(HeaderParam.APP_ID.name());
+			if (null != context.get("objectId") && null != context.get("objectType")) {
+				reqContext.put("objectId", (String) context.get("objectId"));
+				reqContext.put("objectType", (String) context.get("objectType"));
+			}
 		}else{
 			reqContext = getContext();
 			deviceId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.DEVICE_ID.name());
