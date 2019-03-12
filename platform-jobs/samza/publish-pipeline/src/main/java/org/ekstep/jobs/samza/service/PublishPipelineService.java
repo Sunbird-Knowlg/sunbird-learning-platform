@@ -44,8 +44,6 @@ public class PublishPipelineService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
 
-	private String contentId;
-
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
@@ -224,7 +222,7 @@ public class PublishPipelineService implements ISamzaService {
 			processCollection(publishedNode);
 			LOGGER.debug("Content Enrichment done for content: " + node.getIdentifier());
 			
-			publishedNode = util.getNode("domain", contentId);
+			publishedNode = util.getNode("domain", publishedNode.getIdentifier());
 			publishHierarchy(publishedNode);
 			LOGGER.debug("Hierarchy updated for Content :: " + node.getIdentifier());
 		}
