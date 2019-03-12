@@ -95,7 +95,7 @@ public class QRCodeImageGeneratorService implements ISamzaService {
         availableImages.addAll(generatedImages);
         File zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName);
 
-        String zipDownloadUrl = CloudStorageUtil.uploadFile(container, path, zipFile, false, false);
+        String zipDownloadUrl = CloudStorageUtil.uploadFile(container, path, zipFile, false);
         QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
 
         zipFile.deleteOnExit();
