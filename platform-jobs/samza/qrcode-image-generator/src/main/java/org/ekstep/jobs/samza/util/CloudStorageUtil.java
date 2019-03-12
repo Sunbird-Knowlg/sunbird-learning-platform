@@ -46,10 +46,9 @@ public class CloudStorageUtil {
         String url = storageService.upload(container,
                 file.getAbsolutePath(),
                 objectKey,
-                Option.apply(isPublic),
                 Option.apply(isDirectory),
-                Option.empty(),
-                Option.apply(retryCount),1);
+                Option.apply(1),
+                Option.apply(retryCount),Option.empty());
         return url;
     }
 
