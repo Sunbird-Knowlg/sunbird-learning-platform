@@ -21,6 +21,7 @@ import org.ekstep.content.publish.PublishManager;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
@@ -68,7 +69,7 @@ public class PublishPipelineService implements ISamzaService {
 	private static int MAXITERTIONCOUNT = 2;
 
 	private SystemStream systemStream = null;
-
+	
 	protected int getMaxIterations() {
 		if (Platform.config.hasPath("max.iteration.count.samza.job"))
 			return Platform.config.getInt("max.iteration.count.samza.job");
@@ -222,8 +223,19 @@ public class PublishPipelineService implements ISamzaService {
 			publishedNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
 			processCollection(publishedNode);
 			LOGGER.debug("Content Enrichment done for content: " + node.getIdentifier());
+			
+			publishedNode = util.getNode("domain", contentId);
+			publishHierarchy(publishedNode);
+			LOGGER.debug("Hierarchy updated for Content :: " + node.getIdentifier());
 		}
+		
 		return published;
+	}
+	
+	private void publishHierarchy(Node publishedNode) {
+		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
+		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
+		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
 	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
