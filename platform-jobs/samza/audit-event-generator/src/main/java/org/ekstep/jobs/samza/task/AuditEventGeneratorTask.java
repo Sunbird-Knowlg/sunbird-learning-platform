@@ -51,7 +51,7 @@ public class AuditEventGeneratorTask implements StreamTask, InitableTask, Window
 			if (outgoingMap.containsKey(SamzaCommonParams.edata.name())) {
 				Map<String, Object> edata = (Map<String, Object>) outgoingMap.getOrDefault(SamzaCommonParams.edata.name(), new HashMap<String, Object>());
 				if (MapUtils.isNotEmpty(edata) && StringUtils.equalsIgnoreCase("definition_update", edata.getOrDefault("action", "").toString())) {
-					LOGGER.info("Definition Update event received for "+ edata.getOrDefault("objectType", "").toString());
+					LOGGER.info("Definition Update event received for objectType: "+ edata.getOrDefault("objectType", "").toString());
 					String graphId = edata.getOrDefault("graphId", "").toString();
 					String objectType = edata.getOrDefault("objectType", "").toString();
 					controllerUtil.updateDefinitionCache(graphId, objectType);

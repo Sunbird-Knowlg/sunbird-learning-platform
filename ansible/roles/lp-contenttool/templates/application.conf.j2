@@ -1,0 +1,25 @@
+local_extract_path="/data/logs/"
+
+source.url="{{ contenttool.source.url }}"
+source.key="Bearer {{ contenttool_source_key }}"
+
+destination.key="Bearer {{ contenttool_destination_key }}"
+destination.url="{{ contenttool.destination.url }}"
+destination.storage_type="{{ contenttool.destination.storage_type }}"
+
+azure_storage_key="{{ azure_account_name }}"
+azure_storage_secret="{{ azure_account_key }}"
+azure_storage_container="{{ azure_public_container }}"
+
+content.external_fields="body,stageIcons,screenshots"
+content.extract_mimetype="application/vnd.ekstep.h5p-archive,application/vnd.ekstep.ecml-archive,application/vnd.ekstep.html-archive"
+
+
+cloud.src.baseurl="https://ekstep-public-{{ ekstep_env_name }}.s3-ap-south-1.amazonaws.com"
+cloud.dest.baseurl="https://{{ azure_account_name }}.blob.core.windows.net/{{ azure_public_container }}"
+
+aws_storage_key=""
+aws_storage_secret=""
+aws_storage_container=""
+
+default.limit=10

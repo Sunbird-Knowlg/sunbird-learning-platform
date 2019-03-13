@@ -28,7 +28,7 @@ public class LocalCacheUpdateActor extends BaseGraphManager {
 
     private static final Integer TIME = Platform.config.hasPath("refresh.local.cache.duration.sec") ? Platform.config.getInt("refresh.local.cache.duration.sec") : 60;
     private static final FiniteDuration SCHEDULE = new FiniteDuration(TIME, TimeUnit.SECONDS);
-    private static final String TOPIC_ID = Platform.config.getString("kafka.topic.system.command");
+    private static final String TOPIC_ID = Platform.config.hasPath("kafka.topic.system.command") ? Platform.config.getString("kafka.topic.system.command") : "dev.system.command";
     private static ObjectMapper mapper = new ObjectMapper();
     private static ControllerUtil controllerUtil = new ControllerUtil();
 

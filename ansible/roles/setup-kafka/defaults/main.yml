@@ -1,0 +1,145 @@
+env: dev
+
+ingestion_kafka_topics:
+  - name: telemetry.ingest
+    num_of_partitions: 4
+    replication_factor: 1
+
+ingestion_kafka_overriden_topics:
+  - name: telemetry.ingest
+    retention_time: 604800000
+    replication_factor: 1
+
+processing_kafka_topics:
+  - name: telemetry.raw
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.valid
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.unique
+    num_of_partitions: 8
+    replication_factor: 1
+  - name: telemetry.duplicate
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: telemetry.sink
+    num_of_partitions: 8
+    replication_factor: 1
+  - name: telemetry.with_location
+    num_of_partitions: 8
+    replication_factor: 1
+  - name: telemetry.de_normalized
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.log
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: analytics.job_queue
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: learning.graph.events
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: pipeline_metrics
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: metrics
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: learning.graph.events.fail
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: analytics_metrics
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: learning.job.request 
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: learning.job.request.fail
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: learning.republish.job.request
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: telemetry.derived
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: telemetry.failed
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: telemetry.malformed
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: telemetry.extractor.failed
+    num_of_partitions: 1
+    replication_factor: 1
+  - name: telemetry.indexer.failed
+    num_of_partitions: 1
+    replication_factor: 1
+
+processing_kafka_overriden_topics:
+  - name: telemetry.raw
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.valid
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.unique
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.duplicate
+    retention_time: 86400000
+    replication_factor: 1
+  - name: telemetry.sink
+    retention_time: 259200000
+    replication_factor: 1
+  - name: telemetry.with_location
+    retention_time: 86400000
+    replication_factor: 1
+  - name: telemetry.de_normalized
+    retention_time: 86400000
+    replication_factor: 1
+  - name: telemetry.log
+    retention_time: 86400000
+    replication_factor: 1
+  - name: analytics.job_queue
+    retention_time: 86400000
+    replication_factor: 1
+  - name: learning.graph.events
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: pipeline_metrics
+    retention_time: 259200000
+    replication_factor: 1
+  - name: metrics
+    retention_time: 604800000
+    replication_factor: 1
+  - name: learning.graph.events.fail
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: analytics_metrics
+    retention_time: 86400000
+    replication_factor: 1
+  - name: learning.job.request
+    retention_time: 1209600000 
+    replication_factor: 1
+  - name: learning.job.request.fail
+    retention_time: 1296000000
+    replication_factor: 1
+  - name: telemetry.derived
+    retention_time: 259200000
+    replication_factor: 1
+  # Error/Failed Topics
+  - name: telemetry.failed
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.malformed
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.extractor.failed
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.indexer.failed
+    retention_time: 604800000
+    replication_factor: 1

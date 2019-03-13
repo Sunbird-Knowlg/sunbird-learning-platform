@@ -68,7 +68,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 			if (outgoingMap.containsKey(SamzaCommonParams.edata.name())) {
 				Map<String, Object> edata = (Map<String, Object>) outgoingMap.getOrDefault(SamzaCommonParams.edata.name(), new HashMap<String, Object>());
 				if (MapUtils.isNotEmpty(edata) && StringUtils.equalsIgnoreCase("definition_update", edata.getOrDefault("action", "").toString())) {
-					LOGGER.info("definition_update event received for " + edata.getOrDefault("objectType", "").toString());
+					LOGGER.info("definition_update event received for objectType: " + edata.getOrDefault("objectType", "").toString());
 					String graphId = edata.getOrDefault("graphId", "").toString();
 					String objectType = edata.getOrDefault("objectType", "").toString();
 					controllerUtil.updateDefinitionCache(graphId, objectType);
