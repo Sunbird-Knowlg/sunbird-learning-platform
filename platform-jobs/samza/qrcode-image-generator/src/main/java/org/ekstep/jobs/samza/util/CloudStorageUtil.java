@@ -40,16 +40,15 @@ public class CloudStorageUtil {
         }
     }
 
-    public static String uploadFile(String container, String path, File file, boolean isPublic, boolean isDirectory) {
+    public static String uploadFile(String container, String path, File file, boolean isDirectory) {
         int retryCount = Platform.config.getInt("cloud_upload_retry_count");
         String objectKey = path + file.getName();
         String url = storageService.upload(container,
                 file.getAbsolutePath(),
                 objectKey,
-                Option.apply(isPublic),
                 Option.apply(isDirectory),
-                Option.empty(),
-                Option.apply(retryCount),1);
+                Option.apply(1),
+                Option.apply(retryCount),Option.empty());
         return url;
     }
 
