@@ -1,0 +1,2 @@
+learner_user: learning
+learner_user_home: /home/{{learner_user}}

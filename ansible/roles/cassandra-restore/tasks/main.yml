@@ -1,0 +1,46 @@
+- set_fact:
+    artifact: "cassandra-backup-{{ artifact_version }}.tar.gz"
+
+- set_fact:
+    artifact_path: "/tmp/{{ artifact }}"
+    artifacts_container: "{{ cassandra_backup_azure_container_name }}"
+    cassandra_restore_dir: /tmp/cassandra_backup
+
+- name: download from azure
+  include_role:
+    name: artifacts-download-azure
+
+- name: extract the archive
+  unarchive: src=/tmp/{{ artifact }} dest=/tmp remote_src=yes
+
+- name: copy the restore script
+  template: src=cassandra_restore.j2 dest=/tmp/cassandra_restore.py mode=0755
+
+- name: Check doc_root path
+  shell: ls -all {{ cassandra_restore_dir }}
+  register: doc_data
+
+- name: print doc_root to console
+  debug:
+    var: doc_data
+
+- name: load the schema
+  shell: cqlsh -f db_schema.cql
+  args:
+    chdir: "{{ cassandra_restore_dir }}"
+  async: 3600
+  poll: 10
+  ignore_errors: yes
+
+- name: run the backup script
+  shell: python cassandra_restore.py --host $(hostname -i) cassandra_backup
+  args:
+    chdir: /tmp
+  async: 3600
+  poll: 10
+  
+- name: clean up backup dir after restore
+  file: path={{ item }} state=absent
+  with_items:
+     - "{{ artifact }}"
+     - "{{ cassandra_restore_dir }}"

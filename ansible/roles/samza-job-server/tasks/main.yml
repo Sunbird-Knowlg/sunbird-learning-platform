@@ -1,0 +1,14 @@
+- name: Create Directory for Jobs
+  file: path={{item}} owner=hduser group=hadoop recurse=yes state=directory
+  with_items:
+    - /home/hduser/samza-jobs
+  become: yes
+- name: Install python
+  apt: name=python state=present
+  become: yes
+- name: Copy init file
+  template: src=samza-job-server.sh dest=/etc/init.d/samza-job-server mode=755
+  become: yes
+- name: Start samza job server
+  service: name=samza-job-server state=restarted enabled=yes
+  become: yes

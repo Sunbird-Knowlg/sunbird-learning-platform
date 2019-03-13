@@ -26,9 +26,14 @@ public class PublishPipelineTask extends AbstractTask {
 	@Override
 	public void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		try {
-			LOGGER.info("Starting of service.processMessage...");
+			//LOGGER.info("Starting of service.processMessage...");
+			long startTime = System.currentTimeMillis();
+			LOGGER.info("Starting of service.processMessage at :: " + startTime);
 			service.processMessage(message,  metrics, collector);
-			LOGGER.info("Completed service.processMessage...");
+			//LOGGER.info("Completed service.processMessage...");
+			long endTime = System.currentTimeMillis();
+			LOGGER.info("Completed service.processMessage at :: " + endTime);
+			LOGGER.info("Total execution time to complete publish operation :: " + (endTime-startTime));
 		} catch (Exception e) {
 			metrics.incErrorCounter();
 			LOGGER.error("Message processing failed", message, e);

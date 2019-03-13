@@ -75,7 +75,8 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.size.name(), getCloudStoredFileSize(urlArray[0]));
-			if (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image")) {
+			if (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image") ||
+					StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "video")) {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
 				response = updateContentNode(contentId, node, urlArray[1]);
 				if (!checkError(response)) {

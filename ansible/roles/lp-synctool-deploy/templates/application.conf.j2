@@ -1,0 +1,53 @@
+SyncActorSystem{
+  akka {
+    actor {
+      default-dispatcher {
+          type = "Dispatcher"
+        executor = "fork-join-executor"
+        fork-join-executor {
+            parallelism-min = 1
+            parallelism-factor = 2.0
+            parallelism-max = 4
+        }
+          # Throughput for default Dispatcher, set to 1 for as fair as possible
+          throughput = 1
+      }
+    }
+  }
+}
+
+
+# Neo4j Graph Configuration
+graph.dir="/data/graphDB"
+akka.request_timeout=30
+environment.id={{ environment_id }}
+graph.passport.key.base="{{ graph_passport_key }}"
+route.domain="{{ learning_neo4j_bolt_url }}"
+route.bolt.read.domain="{{ learning_read_elb_url }}"
+route.bolt.write.domain="{{ learning_write_elb_url }}"
+route.all="{{ language_neo4j_bolt_url }}"
+route.bolt.read.all="{{ language_read_elb_url }}"
+route.bolt.write.all="{{ language_write_elb_url }}"
+platform.auth.check.enabled=false
+platform.cache.ttl=3600000
+
+telemetry_env={{instance}}
+batch.size=100
+
+# Elastic Search Configuration
+search.es_conn_info="{{ search_index_host }}"
+search.fields.query=["name^100","title^100","lemma^100","code^100","tags^100","domain","subject","description^10","keywords^25","ageGroup^10","filter^10","theme^10","genre^10","objects^25","contentType^100","language^200","teachingMode^25","skills^10","learningObjective^10","curriculum^100","gradeLevel^100","developer^100","attributions^10","owner^50","text","words","releaseNotes"]
+search.fields.date=["lastUpdatedOn","createdOn","versionDate","lastSubmittedOn","lastPublishedOn"]
+search.batch.size=500
+search.connection.timeout=30
+search.index.name="compositesearch"
+
+nested.fields=["badgeAssertions","targets","badgeAssociations"]
+channel.default="in.ekstep"
+
+# Cassandra Configurations
+hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
+content.hierarchy.table="content_hierarchy"
+cassandra.host="{{ cassandra_host }}"
+cassandra.port={{ cassandra_port }}
+cassandra.lp.connection="{{ lp_cassandra_connection }}"

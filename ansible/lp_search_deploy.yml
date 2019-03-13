@@ -1,0 +1,6 @@
+- hosts: searchall
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  roles:
+    - search-service-deploy
+  serial: 1

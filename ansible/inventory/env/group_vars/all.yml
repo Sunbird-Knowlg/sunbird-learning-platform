@@ -1,0 +1,72 @@
+###################### LP ############################
+
+
+# duplicate variable as env
+cloud_storage_config_environment: "{{env}}"
+ansible_vault_password: "{{lp_vault_ansible_vault_password}}"
+secrets_path: '{{inventory_dir}}/group_vars/common.yml'
+
+env_name: "{{ env }}"
+instance_name: "{{ env }}"
+instance: "{{ env }}"
+
+learner_user: learning
+learner_group: learning
+learner_user_home: "/home/{{ learner_user }}"
+
+## Common variables for LP
+# these  variables can be defined as {{instance}}_*
+content_keyspace_name: "{{instance}}_content_store"
+hierarchy_keyspace_name: "{{instance}}_hierarchy_store"
+orchestrator_keyspace_name: "{{instance}}_script_store"
+dialcode_keyspace_name: "{{instance}}_dialcode_store"
+
+dp_cassandra_connection: "{{ groups['dp-cassandra'][0] }}:9042"
+core_cassandra_connection: "{{groups['core-cassandra']|join(':9042,')}}:9042"
+
+
+dial_service_generate_url: "{{ekstep_domain_name}}/api/dialcode/v3/generate"
+search_service_endpoint: "{{ekstep_domain_name}}/api/search/v2/search"
+
+
+## learning service variables
+plugin_media_base_url: "{{ekstep_domain_name}}"
+content_media_base_url: "{{proto}}://{{domain_name}}"      # content_media_base_url
+dial_service_search_url: "{{ekstep_domain_name}}/api/dialcode/v3/search"   # dial_service_search_url
+resourcemanager: "{{ groups['yarn-master'][0] }}"
+yarn_slaves: "{{ groups['yarn-slave']}}"
+__yarn_host__: "{{ groups['yarn-master'][0] }}"
+
+neo4j_dir: neo4j-learning
+neo4j_home: "{{learner_user_home}}/{{neo4j_dir}}/neo4j-enterprise-3.3.9"
+
+lp_bolt_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:7687
+lp_bolt_read_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:7687
+lp_bolt_write_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:7687
+lp_url: http://{{ groups['learningall'][0] }}:8080/learning-service
+lp_tmpfile_location: /tmp
+other_bolt_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:8687
+other_bolt_read_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:8687
+other_bolt_write_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:8687
+
+
+lp_cassandra_connection: "{{groups['cassandra']|join(':9042,')}}:9042"
+cassandra_host: "{{ groups['cassandra'][0] }}"
+redis_host: "{{ groups['redis1'][0] }}"
+kafka_brokers: "{{groups['processing-cluster-kafka']|join(':9092,')}}:9092"
+zookeepers: "{{groups['processing-cluster-zookeepers']|join(':2181,')}}:2181"
+audit_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
+search_es_host: "{{ groups['composite-search-cluster']|join(':9200,')}}:9200"
+
+azure_account_key: "{{lp_vault_azure_storage_secret}}"
+azure_storage_secret: "{{lp_vault_azure_storage_secret}}"
+graph_passport_key: "{{ lp_vault_graph_passport_key }}"
+dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
+youtube_api_key: "{{ lp_vault_youtube_api_key }}"
+
+#### backup storage secret
+backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
+
+## es backup
+es_snapshot_host: "{{ groups['composite-search-cluster'][0] }}"
+snapshot_base_path: compositesearch
