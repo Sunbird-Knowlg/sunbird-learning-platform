@@ -105,7 +105,7 @@ public class QRCodeImageGeneratorService implements ISamzaService {
             }
             LOGGER.info("QRCodeImageGeneratorService:processMessage: Message processed successfully at "+System.currentTimeMillis());
         } catch (Exception e) {
-            QRCodeCassandraConnector.updatFailure((String) message.get(QRCodeImageGeneratorParams.processId.name()),
+            QRCodeCassandraConnector.updateFailure((String) message.get(QRCodeImageGeneratorParams.processId.name()),
                     e.getMessage());
             throw e;
         }

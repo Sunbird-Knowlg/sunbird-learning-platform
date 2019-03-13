@@ -15,7 +15,7 @@ public class QRCodeCassandraConnector {
         executeQuery(query);
     }
 
-    public static void updatFailure(String id, String errMsg) {
+    public static void updateFailure(String id, String errMsg) {
         String query = "update dialcodes.dialcode_batch set status=3, url='' where processid="+id;
         executeQuery(query);
     }
