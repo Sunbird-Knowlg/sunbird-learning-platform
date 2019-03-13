@@ -5,10 +5,12 @@ package org.ekstep.samza.service.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Map;
 
 import org.ekstep.jobs.samza.service.AuditEventGenerator;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,5 +35,43 @@ public class AuditEventGeneratorTest {
 		assertEquals("AUDIT", map.get("eid"));
 		assertEquals("3.0", map.get("ver"));
 		assertNotNull(map.get("edata"));
+	}
+
+	@Test
+	public void testAuditServiceExpectDurationOfStatusChange() throws Exception {
+		String event = "{\"ets\":1552464504681,\"channel\":\"in.ekstep\",\"transactionData\":{\"properties\":{\"lastStatusChangedOn\":{\"ov\":\"2019-03-13T13:25:43.129+0530\",\"nv\":\"2019-03-13T13:38:24.358+0530\"},\"lastSubmittedOn\":{\"ov\":null,\"nv\":\"2019-03-13T13:38:21.901+0530\"},\"lastUpdatedOn\":{\"ov\":\"2019-03-13T13:36:20.093+0530\",\"nv\":\"2019-03-13T13:38:24.399+0530\"},\"status\":{\"ov\":\"Draft\",\"nv\":\"Review\"},\"versionKey\":{\"ov\":\"1552464380093\",\"nv\":\"1552464504399\"}}},\"label\":\"Resource Content 1\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2019-03-13T13:38:24.680+0530\",\"objectType\":\"Content\",\"nodeUniqueId\":\"do_11271778298376192013\",\"requestId\":null,\"operationType\":\"UPDATE\",\"nodeGraphId\":590883,\"graphId\":\"domain\"}";
+		Map<String, Object> messageData = mapper.readValue(event,
+				new TypeReference<Map<String, Object>>() {
+				});
+		Map<String, Object> map = auditService.getAuditMessage(messageData);
+		assertEquals("AUDIT", map.get("eid"));
+		assertEquals("3.0", map.get("ver"));
+		assertNotNull(map.get("edata"));
+		String duration = (String) ((Map<String, Object>) map.get("edata")).get("duration");
+		assertNotNull(duration);
+		assertEquals("761", duration);
+	}
+
+	@Test
+	public void testAuditServiceForNormalUpdateExpectDurationNull() throws Exception {
+		String event = "{\"ets\":1552464380225,\"channel\":\"in.ekstep\",\"transactionData\":{\"properties\":{\"s3Key\":{\"ov\":null,\"nv\":\"content/do_11271778298376192013/artifact/pdf_1552464372724.pdf\"},\"size\":{\"ov\":null,\"nv\":433994.0},\"artifactUrl\":{\"ov\":null,\"nv\":\"https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/do_11271778298376192013/artifact/pdf_1552464372724.pdf\"},\"lastUpdatedOn\":{\"ov\":\"2019-03-13T13:25:43.129+0530\",\"nv\":\"2019-03-13T13:36:20.093+0530\"},\"versionKey\":{\"ov\":\"1552463743129\",\"nv\":\"1552464380093\"}}},\"label\":\"Resource Content 1\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2019-03-13T13:36:20.223+0530\",\"objectType\":\"Content\",\"nodeUniqueId\":\"do_11271778298376192013\",\"requestId\":null,\"operationType\":\"UPDATE\",\"nodeGraphId\":590883,\"graphId\":\"domain\"}";
+		Map<String, Object> messageData = mapper.readValue(event,
+				new TypeReference<Map<String, Object>>() {
+				});
+		Map<String, Object> map = auditService.getAuditMessage(messageData);
+		assertEquals("AUDIT", map.get("eid"));
+		assertEquals("3.0", map.get("ver"));
+		assertNotNull(map.get("edata"));
+		String duration = (String) ((Map<String, Object>) map.get("edata")).get("duration");
+		assertNull(duration);
+
+	}
+
+	@Test
+	public void testComputeDuration() {
+		String ov = "2019-03-13T13:25:43.129+0530";
+		String nv = "2019-03-13T13:38:24.358+0530";
+		long duration = auditService.computeDuration(ov, nv);
+		assertEquals(761, duration);
 	}
 }
