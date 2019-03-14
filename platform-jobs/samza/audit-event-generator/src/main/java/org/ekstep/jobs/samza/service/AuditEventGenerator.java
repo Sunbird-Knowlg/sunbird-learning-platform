@@ -50,7 +50,7 @@ public class AuditEventGenerator implements ISamzaService {
 
 	static {
 		systemPropsList = Stream.of(SystemProperties.values()).map(SystemProperties::name).collect(Collectors.toList());
-		systemPropsList.addAll(Arrays.asList("SYS_INTERNAL_LAST_UPDATED_ON", "lastUpdatedOn", "versionKey"));
+		systemPropsList.addAll(Arrays.asList("SYS_INTERNAL_LAST_UPDATED_ON", "lastUpdatedOn", "versionKey","lastStatusChangedOn"));
 	}
 
 	public AuditEventGenerator() {
@@ -155,17 +155,22 @@ public class AuditEventGenerator implements ISamzaService {
 
 		String prevStatus = "";
 		String currStatus = "";
+		String duration = "";
 		if (null != statusMap) {
 			prevStatus = (String) statusMap.get("ov");
 			currStatus = (String) statusMap.get("nv");
-		}
-		// Compute Duration for Status Change
-		String duration = "";
-		if (null != statusChangedMap) {
-			String ov = (String) statusChangedMap.get("ov");
-			String nv = (String) statusChangedMap.get("nv");
-			if (null != ov && null != nv) {
-				duration = String.valueOf(computeDuration(ov, nv));
+			// Compute Duration for Status Change
+			if (StringUtils.isNotBlank(currStatus) && StringUtils.isNotBlank(prevStatus)) {
+				if (null != statusChangedMap) {
+					String ov = (String) statusChangedMap.get("ov");
+					String nv = (String) statusChangedMap.get("nv");
+					if (null == ov) {
+						ov = (String) ((Map<String, Object>) propertyMap.get("lastUpdatedOn")).get("ov");
+					}
+					if (null != ov && null != nv) {
+						duration = String.valueOf(computeDuration(ov, nv));
+					}
+				}
 			}
 		}
 		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());

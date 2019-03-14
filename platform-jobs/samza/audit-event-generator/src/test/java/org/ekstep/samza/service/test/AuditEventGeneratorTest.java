@@ -68,6 +68,21 @@ public class AuditEventGeneratorTest {
 	}
 
 	@Test
+	public void testAuditServiceForCreateContent() throws Exception {
+		String event = "{\"ets\":1552463743219,\"channel\":\"in.ekstep\",\"transactionData\":{\"properties\":{\"ownershipType\":{\"ov\":null,\"nv\":[\"createdBy\"]},\"code\":{\"ov\":null,\"nv\":\"test.res.1\"},\"channel\":{\"ov\":null,\"nv\":\"in.ekstep\"},\"language\":{\"ov\":null,\"nv\":[\"English\"]},\"mimeType\":{\"ov\":null,\"nv\":\"application/pdf\"},\"idealScreenSize\":{\"ov\":null,\"nv\":\"normal\"},\"createdOn\":{\"ov\":null,\"nv\":\"2019-03-13T13:25:43.129+0530\"},\"contentDisposition\":{\"ov\":null,\"nv\":\"inline\"},\"lastUpdatedOn\":{\"ov\":null,\"nv\":\"2019-03-13T13:25:43.129+0530\"},\"contentEncoding\":{\"ov\":null,\"nv\":\"identity\"},\"dialcodeRequired\":{\"ov\":null,\"nv\":\"No\"},\"contentType\":{\"ov\":null,\"nv\":\"Resource\"},\"lastStatusChangedOn\":{\"ov\":null,\"nv\":\"2019-03-13T13:25:43.129+0530\"},\"audience\":{\"ov\":null,\"nv\":[\"Learner\"]},\"IL_SYS_NODE_TYPE\":{\"ov\":null,\"nv\":\"DATA_NODE\"},\"visibility\":{\"ov\":null,\"nv\":\"Default\"},\"os\":{\"ov\":null,\"nv\":[\"All\"]},\"mediaType\":{\"ov\":null,\"nv\":\"content\"},\"osId\":{\"ov\":null,\"nv\":\"org.ekstep.quiz.app\"},\"versionKey\":{\"ov\":null,\"nv\":\"1552463743129\"},\"idealScreenDensity\":{\"ov\":null,\"nv\":\"hdpi\"},\"framework\":{\"ov\":null,\"nv\":\"NCF\"},\"compatibilityLevel\":{\"ov\":null,\"nv\":1.0},\"IL_FUNC_OBJECT_TYPE\":{\"ov\":null,\"nv\":\"Content\"},\"name\":{\"ov\":null,\"nv\":\"Resource Content 1\"},\"IL_UNIQUE_ID\":{\"ov\":null,\"nv\":\"do_11271778298376192013\"},\"status\":{\"ov\":null,\"nv\":\"Draft\"}}},\"label\":\"Resource Content 1\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2019-03-13T13:25:43.218+0530\",\"objectType\":\"Content\",\"nodeUniqueId\":\"do_11271778298376192013\",\"requestId\":null,\"operationType\":\"CREATE\",\"nodeGraphId\":590883,\"graphId\":\"domain\"}";
+		Map<String, Object> messageData = mapper.readValue(event,
+				new TypeReference<Map<String, Object>>() {
+				});
+		Map<String, Object> map = auditService.getAuditMessage(messageData);
+		assertEquals("AUDIT", map.get("eid"));
+		assertEquals("3.0", map.get("ver"));
+		assertNotNull(map.get("edata"));
+		String duration = (String) ((Map<String, Object>) map.get("edata")).get("duration");
+		assertNull(duration);
+
+	}
+
+	@Test
 	public void testComputeDuration() {
 		String ov = "2019-03-13T13:25:43.129+0530";
 		String nv = "2019-03-13T13:38:24.358+0530";
