@@ -3,15 +3,11 @@ package org.ekstep.jobs.samza.util;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.HttpDownloadUtility;
 import org.sunbird.cloud.storage.BaseStorageService;
-import org.sunbird.cloud.storage.IStorageService;
 import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
 
-import org.apache.samza.config.Config;
 import scala.Option;
-import scala.Some;
 
 import java.io.File;
 import java.io.FileOutputStream;
