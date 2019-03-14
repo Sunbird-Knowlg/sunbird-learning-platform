@@ -1,11 +1,16 @@
 package org.ekstep.jobs.samza.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.util.HttpDownloadUtility;
+import org.sunbird.cloud.storage.BaseStorageService;
 import org.sunbird.cloud.storage.IStorageService;
 import org.sunbird.cloud.storage.factory.StorageConfig;
 import org.sunbird.cloud.storage.factory.StorageServiceFactory;
 
 import org.apache.samza.config.Config;
+import scala.Option;
 import scala.Some;
 
 import java.io.File;
@@ -18,17 +23,32 @@ import java.nio.channels.ReadableByteChannel;
 
 public class CloudStorageUtil {
 
-    public static String uploadFile(Config config, String container, String path, File file, boolean isPublic, boolean isDirectory) {
-        IStorageService storageService = getStorageService(config);
-        int retryCount = config.getInt("cloud_upload_retry_count");
+    private static BaseStorageService storageService = null;
+    private static String cloudStoreType = Platform.config.getString("cloud_storage_type");
+    static {
+
+        if(StringUtils.equalsIgnoreCase(cloudStoreType, "azure")) {
+            String storageKey = Platform.config.getString("azure_storage_key");
+            String storageSecret = Platform.config.getString("azure_storage_secret");
+            storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
+        }else if(StringUtils.equalsIgnoreCase(cloudStoreType, "aws")) {
+            String storageKey = Platform.config.getString("aws_storage_key");
+            String storageSecret = Platform.config.getString("aws_storage_secret");
+            storageService = StorageServiceFactory.getStorageService(new StorageConfig(cloudStoreType, storageKey, storageSecret));
+        }else {
+            throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
+        }
+    }
+
+    public static String uploadFile(String container, String path, File file, boolean isDirectory) {
+        int retryCount = Platform.config.getInt("cloud_upload_retry_count");
         String objectKey = path + file.getName();
         String url = storageService.upload(container,
                 file.getAbsolutePath(),
                 objectKey,
-                Some.apply(isPublic),
-                Some.apply(isDirectory),
-                Some.empty(),
-                Some.apply(retryCount),1);
+                Option.apply(isDirectory),
+                Option.apply(1),
+                Option.apply(retryCount),Option.empty());
         return url;
     }
 
@@ -43,22 +63,4 @@ public class CloudStorageUtil {
         readableByteChannel.close();
     }
 
-    private static IStorageService getStorageService(Config config) {
-        String storageType = config.get("cloud_storage_type");
-        String storageKey;
-        String storageSecret;
-        if (storageType.equalsIgnoreCase("azure")) {
-            storageKey = config.get("azure_storage_key");
-            storageSecret = config.get("azure_storage_secret");
-        } else if (storageType.equalsIgnoreCase("aws")) {
-            storageKey = config.get("aws_storage_key");
-            storageSecret = config.get("aws_storage_secret");
-        } else {
-            throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage");
-        }
-
-        StorageConfig storageConfig = new StorageConfig(storageType, storageKey, storageSecret);
-        IStorageService storageService = StorageServiceFactory.getStorageService(storageConfig);
-        return storageService;
-    }
 }
