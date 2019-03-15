@@ -8,7 +8,9 @@ jobs:
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
       
-      - run: mvn clean install
+      - run: mvn clean install -DskipTests
+      - run: cd searchIndex-platform/module/search-api/search-manager && mvn play2:dist
+      - run: mvn clean package  -DskipTests -P samza-jobs
       
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
