@@ -12,7 +12,6 @@ environment_id: 10000000
 search_index_host: "{{ groups['composite-search-cluster'][0] }}:9200"
 cassandra_port: 9042
 hierarchy_keyspace_name: "{{env}}_hierarchy_store"
-#language_service_url: language_url
 youtube_app_name: fetch-youtube-license
 instance: "{{env}}"
 instance_name: 

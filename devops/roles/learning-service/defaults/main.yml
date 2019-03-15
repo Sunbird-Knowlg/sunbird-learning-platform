@@ -39,7 +39,6 @@ platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
  
 graph_passport_key: "{{ vault_graph_passport_key }}"
 dial_service_authorization: "{{ vault_dial_service_authorization }}"
-language_service_url: language_url
 youtube_app_name: fetch-youtube-license
 youtube_api_key: "{{ vault_youtube_api_key }}"
  

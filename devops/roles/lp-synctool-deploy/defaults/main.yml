@@ -14,7 +14,6 @@ search_index_host: "{{ groups['composite-search-cluster'][0] }}:9200"
 cassandra_host: "{{ groups['lp-cassandra'][0] }}"   
 cassandra_port: 9042
 hierarchy_keyspace_name: "{{env}}_hierarchy_store"
-language_service_url: language_url
 youtube_app_name: fetch-youtube-license
 youtube_api_key: "{{ vault_youtube_api_key }}"
 instance: "{{env}}"
