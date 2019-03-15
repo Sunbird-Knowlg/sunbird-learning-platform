@@ -8,6 +8,7 @@ jobs:
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
       
+      - run: - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb && sudo dpkg -i --force-confnew elasticsearch-6.3.2.deb && sudo service elasticsearch restart
       - run: mvn clean install
       
       - save_cache:
