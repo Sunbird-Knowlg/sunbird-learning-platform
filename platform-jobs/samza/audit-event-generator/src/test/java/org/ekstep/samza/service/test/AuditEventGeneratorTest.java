@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNull;
 import java.util.Map;
 
 import org.ekstep.jobs.samza.service.AuditEventGenerator;
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
