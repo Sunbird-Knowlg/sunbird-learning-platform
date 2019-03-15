@@ -27,6 +27,7 @@
 		<module>image-tagging</module>
 		<module>distribution</module>
 		<module>qrcode-image-generator</module>
+		<module>content-auto-tagging</module>
   </modules>
 
 	<build>
