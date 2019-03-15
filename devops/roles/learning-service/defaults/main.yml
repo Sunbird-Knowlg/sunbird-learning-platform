@@ -52,7 +52,6 @@ azure_account_key: "{{ vault_azure_storage_secret }}"
 content_media_base_url:  
 plugin_media_base_url: 
 dial_service_search_url: 
-content_to_vec_url: 
 learning_content_h5p_library_path:
 orchestrator_url:
 
