@@ -142,7 +142,7 @@ public class AuditEventGenerator implements ISamzaService {
 		Map<String, Object> transactionData = (Map<String, Object>) message.get(GraphDACParams.transactionData.name());
 		Map<String, Object> propertyMap = (Map<String, Object>) transactionData.get(GraphDACParams.properties.name());
 		Map<String, Object> statusMap = (Map<String, Object>) propertyMap.get(GraphDACParams.status.name());
-		Map<String, Object> statusChangedMap = (Map<String, Object>) propertyMap.get("lastStatusChangedOn");
+		Map<String, Object> lastStatusChangedOn = (Map<String, Object>) propertyMap.get("lastStatusChangedOn");
 		List<Map<String, Object>> addedRelations = (List<Map<String, Object>>) transactionData
 				.get(GraphDACParams.addedRelations.name());
 		List<Map<String, Object>> removedRelations = (List<Map<String, Object>>) transactionData
@@ -161,9 +161,9 @@ public class AuditEventGenerator implements ISamzaService {
 			currStatus = (String) statusMap.get("nv");
 			// Compute Duration for Status Change
 			if (StringUtils.isNotBlank(currStatus) && StringUtils.isNotBlank(prevStatus)) {
-				if (null != statusChangedMap) {
-					String ov = (String) statusChangedMap.get("ov");
-					String nv = (String) statusChangedMap.get("nv");
+				if (null != lastStatusChangedOn) {
+					String ov = (String) lastStatusChangedOn.get("ov");
+					String nv = (String) lastStatusChangedOn.get("nv");
 					if (null == ov) {
 						ov = (String) ((Map<String, Object>) propertyMap.get("lastUpdatedOn")).get("ov");
 					}
