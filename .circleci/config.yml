@@ -12,10 +12,10 @@ jobs:
       - run: curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb && sudo dpkg -i --force-confnew elasticsearch-6.3.2.deb && sudo service elasticsearch restart
       - run: mvn install:install-file -Dfile=orchestrator/module/interpreter-api/lib/jtcl-2.7.0.jar -DgroupId=tcl.lang -DartifactId=jtcl -Dversion=2.7.0 -Dpackaging=jar
       - run: mkdir -p ~/logs/search/
-      - run: find $CIRCLE_WORKING_DIRECTORY/ -type f -name "log4j2.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/~\/logs/g'
-      - run: find $CIRCLE_WORKING_DIRECTORY/ -type f -name "logback.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/logs/g'
-      - run: find $CIRCLE_WORKING_DIRECTORY/ -type f -name "application.conf" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
-      - run: find $CIRCLE_WORKING_DIRECTORY/ -type f -name "*.java" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
+      - run: find . -type f -name "log4j2.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/~\/logs/g'
+      - run: find . -type f -name "logback.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/logs/g'
+      - run: find . -type f -name "application.conf" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
+      - run: find . -type f -name "*.java" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
       - run: sleep 10
       - run: mvn clean install
       
