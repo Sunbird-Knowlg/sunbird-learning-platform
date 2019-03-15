@@ -160,16 +160,14 @@ public class AuditEventGenerator implements ISamzaService {
 			prevStatus = (String) statusMap.get("ov");
 			currStatus = (String) statusMap.get("nv");
 			// Compute Duration for Status Change
-			if (StringUtils.isNotBlank(currStatus) && StringUtils.isNotBlank(prevStatus)) {
-				if (null != lastStatusChangedOn) {
-					String ov = (String) lastStatusChangedOn.get("ov");
-					String nv = (String) lastStatusChangedOn.get("nv");
-					if (null == ov) {
-						ov = (String) ((Map<String, Object>) propertyMap.get("lastUpdatedOn")).get("ov");
-					}
-					if (null != ov && null != nv) {
-						duration = String.valueOf(computeDuration(ov, nv));
-					}
+			if (StringUtils.isNotBlank(currStatus) && StringUtils.isNotBlank(prevStatus) && null != lastStatusChangedOn) {
+				String ov = (String) lastStatusChangedOn.get("ov");
+				String nv = (String) lastStatusChangedOn.get("nv");
+				if (null == ov) {
+					ov = (String) ((Map<String, Object>) propertyMap.get("lastUpdatedOn")).get("ov");
+				}
+				if (null != ov && null != nv) {
+					duration = String.valueOf(computeDuration(ov, nv));
 				}
 			}
 		}
