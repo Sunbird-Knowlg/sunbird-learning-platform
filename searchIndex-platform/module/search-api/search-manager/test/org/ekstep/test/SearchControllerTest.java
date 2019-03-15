@@ -3,6 +3,7 @@ package org.ekstep.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
@@ -104,6 +105,45 @@ public class SearchControllerTest extends BaseSearchControllerTest {
 			e.printStackTrace();
 		}
 	}
+
+	@Test
+	@Ignore
+	public void testSearchRequestInvalidLimitOrOffset() {
+		String json = "{ \"request\": { \"mode\":\"soft\", \"filters\":{ \"identifier\": \"do_21271205218287616012235\",\"status\": [] }, \"offset\":\"haskjdha\", \"limit\":\"100\", \"fields\": [\"identifier\", \"status\", \"objectType\"] } }";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/search").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(BAD_REQUEST, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("result"));
+			assertTrue(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	@Ignore
+	public void testSearchRequestValidLimitOffset() {
+		String json = "{ \"request\": { \"mode\":\"soft\", \"filters\":{ \"identifier\": \"do_21271205218287616012235\",\"status\": [] }, \"offset\":20, \"limit\":\"100\", \"fields\": [\"identifier\", \"status\", \"objectType\"] } }";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/search").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("result"));
+			assertTrue(contentAsString(result).contains("success"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	
 	@Test
 	public void testCountV2() {

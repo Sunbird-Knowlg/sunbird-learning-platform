@@ -124,7 +124,7 @@ public class SearchManager extends SearchBaseActor {
 			Map<String, Object> req = request.getRequest();
 			TelemetryManager.log("Search Request: ", req);
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
-			int limit = getLimitValue(req.get(CompositeSearchParams.limit.name()));
+			int limit = getIntValue(req.get(CompositeSearchParams.limit.name()));
 			Boolean fuzzySearch = (Boolean) request.get("fuzzy");
 			if (null == fuzzySearch)
 				fuzzySearch = false;
@@ -271,7 +271,7 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 
 			if (null != req.get(CompositeSearchParams.offset.name())) {
-				int offset = (Integer) req.get(CompositeSearchParams.offset.name());
+				int offset = getIntValue(req.get(CompositeSearchParams.offset.name()));
 				TelemetryManager.log("Offset: " + offset);
 				searchObj.setOffset(offset);
 			}
@@ -350,16 +350,14 @@ public class SearchManager extends SearchBaseActor {
 		return paramList;
 	}
 
-	private Integer getLimitValue(Object limit) {
-		int i = 100;
-		if (null != limit) {
-			try {
-				i = (int) limit;
-			} catch (Exception e) {
-				i = new Long(limit.toString()).intValue();
+	private Integer getIntValue(Object num) {
+		if (num instanceof String)
+			try{
+				return Integer.parseInt((String) num);
+			}catch (Exception e){
+				throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(), "Invalid Input.", e);
 			}
-		}
-		return i;
+		return ((Number)num).intValue();
 	}
 
 	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {
