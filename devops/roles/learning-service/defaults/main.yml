@@ -11,8 +11,6 @@ instance_name: sunbird
 
 redis_host: "{{ groups['learning1'][0] }}"
 redis_port: 6379
-cassandra_host: "{{ groups['lp-cassandra'][0] }}"   
-cassandra_port: 9042
 content_keyspace_name: "{{env}}_content_store"
 hierarchy_keyspace_name: "{{env}}_hierarchy_store"
 orchestrator_keyspace_name: "{{env}}_script_store"
