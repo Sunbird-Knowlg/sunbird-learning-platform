@@ -11,7 +11,6 @@ learner_service_url: "{{inventory_hostname}}:8080"
 
 redis_host: "{{ groups['learning1'][0] }}"
 redis_port: 6379
-content_keyspace_table: content_data
 
 #environment_id: 10000000
 

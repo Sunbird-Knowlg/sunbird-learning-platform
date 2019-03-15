@@ -23,7 +23,6 @@ publish_yarn_container_memory_mb: 1024
 mw_shard_id: 1
 google_vision_tagging: false
 es_port: 9200
-content_keyspace_table: content_data
 collection_fullecar_disable: true
 max_iteration_count_for_samza_job: 2
 composite_search_indexer_container_count: 1

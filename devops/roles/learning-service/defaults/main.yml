@@ -14,7 +14,6 @@ redis_port: 6379
 content_keyspace_name: "{{env}}_content_store"
 hierarchy_keyspace_name: "{{env}}_hierarchy_store"
 orchestrator_keyspace_name: "{{env}}_script_store"
-content_keyspace_table: content_data
 
 environment_id: 10000000
 
