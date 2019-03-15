@@ -35,6 +35,7 @@ dial_service_search_url: "{{ekstep_domain_name}}/api/dialcode/v3/search"   # dia
 resourcemanager: "{{ groups['yarn-master'][0] }}"
 yarn_slaves: "{{ groups['yarn-slave']}}"
 __yarn_host__: "{{ groups['yarn-master'][0] }}"
+learning_content_h5p_library_path: https://s3.ap-south-1.amazonaws.com/ekstep-public-dev/content/templates/h5p-library-latest.zip
 
 neo4j_dir: neo4j-learning
 neo4j_home: "{{learner_user_home}}/{{neo4j_dir}}/neo4j-enterprise-3.3.9"
