@@ -55,7 +55,7 @@ public class BasePlaySearchManager extends Results {
 							String correlationId = UUID.randomUUID().toString();
 							if (result instanceof Response) {
 								Response response = (Response) result;
-								if(response.getResponseCode().name() == "CLIENT_ERROR"){
+								if(response.getResponseCode().name().equals("CLIENT_ERROR")){
                                     return badRequest(getResult(response,"ekstep.composite-search.search","3.0",null, null)).as("application/json");
                                 }
 								if (checkError(response)) {
