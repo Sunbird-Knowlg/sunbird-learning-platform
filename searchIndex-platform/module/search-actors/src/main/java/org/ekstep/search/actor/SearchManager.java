@@ -350,15 +350,33 @@ public class SearchManager extends SearchBaseActor {
 		return paramList;
 	}
 
-	private Integer getIntValue(Object num) {
-		if (num instanceof String)
-			try{
-				return Integer.parseInt((String) num);
-			}catch (Exception e){
-				throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(), "Invalid Input.", e);
+//	private Integer getIntValue(Object num) {
+//		if (num instanceof String)
+//			try{
+//				return Integer.parseInt((String) num);
+//			}catch (Exception e){
+//				throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(), "Invalid Input.", e);
+//			}
+//		return ((Number)num).intValue();
+//	}
+private Integer getIntValue(Object num) {
+	int i = 100;
+	if (null != num) {
+		try {
+			i = (int) num;
+		} catch (Exception e) {
+			if(num instanceof String){
+				try{
+					return Integer.parseInt((String) num);
+				}catch (Exception ex){
+					throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(), "Invalid Input.", e);
+				}
 			}
-		return ((Number)num).intValue();
+			i = new Long(num.toString()).intValue();
+		}
 	}
+	return i;
+}
 
 	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();

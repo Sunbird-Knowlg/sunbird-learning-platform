@@ -107,7 +107,6 @@ public class SearchControllerTest extends BaseSearchControllerTest {
 	}
 
 	@Test
-	@Ignore
 	public void testSearchRequestInvalidLimitOrOffset() {
 		String json = "{ \"request\": { \"mode\":\"soft\", \"filters\":{ \"identifier\": \"do_21271205218287616012235\",\"status\": [] }, \"offset\":\"haskjdha\", \"limit\":\"100\", \"fields\": [\"identifier\", \"status\", \"objectType\"] } }";
 		try {
@@ -126,9 +125,8 @@ public class SearchControllerTest extends BaseSearchControllerTest {
 	}
 
 	@Test
-	@Ignore
 	public void testSearchRequestValidLimitOffset() {
-		String json = "{ \"request\": { \"mode\":\"soft\", \"filters\":{ \"identifier\": \"do_21271205218287616012235\",\"status\": [] }, \"offset\":20, \"limit\":\"100\", \"fields\": [\"identifier\", \"status\", \"objectType\"] } }";
+		String json = "{ \"request\": { \"mode\":\"soft\", \"filters\":{ \"identifier\": \"do_21271205218287616012235\",\"status\": [] }, \"offset\":\"20\", \"limit\":100, \"fields\": [\"identifier\", \"status\", \"objectType\"] } }";
 		try {
 			JsonNode data = mapper.readTree(json);
 			RequestBuilder req = new RequestBuilder().uri("/v3/search").method(POST).bodyJson(data);
