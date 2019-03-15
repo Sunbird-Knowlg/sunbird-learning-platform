@@ -26,7 +26,6 @@ es_port: 9200
 collection_fullecar_disable: true
 max_iteration_count_for_samza_job: 2
 composite_search_indexer_container_count: 1
-publish_invoke_web_hook: false
 compositesearch_index_name: "compositesearch"
 cloud_store: azure
 hadoop_version: 2.7.2
