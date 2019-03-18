@@ -13,6 +13,8 @@ env:
   - secure: JenKUzjlX2EPwyVeClGNsfcYi4kUHiAmjxW1gZUHrZC8BdqyVVi4spQpS5gyCV+QRc9jCK+za8h4U8iHhuUxJaTCEMU3mae1xOe7oDZGtcvH1Qn8fu9HQyQpytoM4G90hamd8D1A5cuEDT9IIUDB8mJa/9a/8eNGFSYFFcjNXxfLUm2gh8GQWMAHvJCUp2CdDoCQMQdzhInIqMiD4w1xlMn+YLLdQ7YlaD4iE+dLZDZRZTYESkeEGKfSDFSFTOG5B2ztpNtuKPJfnBr0WLahVl/EdQt2PxsXvyDITTzn3zs8OyDK9GOaajaN1em9CfnoPr8QH3/k0UYpK4QLY9TMOOpUctNBH5WHN8gC69+3biAz0OccRZe3UFmPWwceHtrzXZOG+w+q7oj0v/afgr+SAfDmJ+IbZPf9MaD5p3edYiInqMZWSG4ypFikQJX1xuaR5TZEfHSz+RnOtO4nGjMCyVzDpwE+hIy1QvQBKFBaRr/AfxB02RzxVPtl0XMVPG8REamv3LS1VY5ZMFDgq3aB554f1XXc9GdryHILDIrL4AcUNwVhaI5OxxPyYnu2ngdoveHs2nibAj9fzUGfKZDYir0znVt9OpBeha366+88Fg4XDxULtaGRI1Ew60WnbmjKGfjtssBIkFQ73wEzPvk9RdLUSUj/RAsEgGdqt93eL08=
 services:
 - redis-server
+before_script:
+  - export $TRAVIS_PULL_REQUEST= true
 before_install:
 - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb
   && sudo dpkg -i --force-confnew elasticsearch-6.3.2.deb && sudo service elasticsearch
