@@ -22,6 +22,6 @@
         server_id: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}{{ loop.index }}{% endif %}{% endfor %}"
   roles: 
     - java
-    - neo4j-community
+    - neo4j-cluster
     - logstash
   
