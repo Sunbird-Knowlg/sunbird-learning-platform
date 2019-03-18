@@ -189,7 +189,7 @@ public class TelemetryGenerator {
 		if (StringUtils.isNotBlank(prevState))
 			edata.put("prevstate", prevState);
 		if(StringUtils.isNotBlank(context.get("duration")))
-			edata.put("duration",context.get("duration"));
+			edata.put("duration",Long.valueOf(context.get("duration")));
 		if (null != cdata && !cdata.isEmpty())
 			telemetry = new Telemetry("AUDIT", actor, eventContext, edata, cdata);
 		else
