@@ -36,8 +36,6 @@ public class ResponseFilter implements Filter {
 		String requestId = getUUID();
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		ExecutionContext.setRequestId(requestId);
-		boolean isMultipart = (httpRequest.getHeader("content-type") != null
-				&& httpRequest.getHeader("content-type").indexOf("multipart/form-data") != -1);
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
 		String channelId = httpRequest.getHeader("X-Channel-Id");
 		String appId = httpRequest.getHeader("X-App-Id");
@@ -57,7 +55,7 @@ public class ResponseFilter implements Filter {
 		if (StringUtils.isNotBlank(deviceId))
 			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.DEVICE_ID.name(), deviceId);
 
-		if (!isMultipart && !path.contains("/health")) {
+		if (!path.contains("/health")) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			TelemetryManager.log("Path: " + requestWrapper.getServletPath()+ " | Remote Address: " + request.getRemoteAddr());
 
