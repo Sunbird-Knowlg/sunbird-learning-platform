@@ -209,7 +209,7 @@ public class BasePlaySearchManager extends Results {
 		int count = (response.getResult() == null ? 0 : (Integer) response.getResult().get("count"));
 		Object topN = getTopNResult(response.getResult());
 		String type = getType(filters);
-		populateObjectField(context, filters);
+		populateTargetDialObject(context, filters);
 		TelemetryManager.search(context, query, filters, sort, count, topN, type);
 	}
 
@@ -275,7 +275,7 @@ public class BasePlaySearchManager extends Results {
 	 * @param context
 	 * @param filters
 	 */
-	private void populateObjectField(Map<String, Object> context, Map<String, Object> filters) {
+	private void populateTargetDialObject(Map<String, Object> context, Map<String, Object> filters) {
 		if (MapUtils.isNotEmpty(filters) && null != filters.get("dialcodes")) {
 			List<String> dialcodes = getList(filters.get("dialcodes"));
 			if (dialcodes.size() == 1) {
