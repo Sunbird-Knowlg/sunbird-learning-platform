@@ -14,7 +14,7 @@ env:
 services:
 - redis-server
 before_script:
-  - export $TRAVIS_PULL_REQUEST= true
+  - export TRAVIS_PULL_REQUEST=true
 before_install:
 - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb
   && sudo dpkg -i --force-confnew elasticsearch-6.3.2.deb && sudo service elasticsearch
