@@ -6,7 +6,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
-import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.contentstore.ContentStore;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
 import org.ekstep.learning.contentstore.ContentStoreParams;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class ContentStoreActor extends BaseGraphManager {
 
 	private ContentStore contentStore = new ContentStore();
-	private CollectionStore collectionStore = new CollectionStore();
+	private HierarchyStore hierarchyStore = new HierarchyStore();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -64,11 +64,11 @@ public class ContentStoreActor extends BaseGraphManager {
 				OK(sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getCollectionHierarchy.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
-				Map<String, Object> hierarchy = collectionStore.getCollectionHierarchy(contentId);
+				Map<String, Object> hierarchy = hierarchyStore.getHierarchy(contentId);
 				OK(ContentStoreParams.hierarchy.name(), hierarchy, sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.deleteHierarchy.name(), operation)) {
 				List<String> identifiers = (List<String>) request.get(ContentStoreParams.content_id.name());
-				collectionStore.deleteHierarchy(identifiers);
+				hierarchyStore.deleteHierarchy(identifiers);
 				OK(sender());
 			} else {
 				TelemetryManager.log("Unsupported operation: " + operation);

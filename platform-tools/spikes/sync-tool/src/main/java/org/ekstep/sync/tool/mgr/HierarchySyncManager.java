@@ -11,7 +11,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,7 @@ public class HierarchySyncManager {
 
     private ControllerUtil util = new ControllerUtil();
 
-    private CollectionStore collectionStore = new CollectionStore();
+    private HierarchyStore hierarchyStore = new HierarchyStore();
 
     private int batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
 
@@ -68,8 +68,9 @@ public class HierarchySyncManager {
 
             for(Node node: nodes) {
                 if(!ignoredIds.contains(node.getIdentifier())){
-                    Map<String, Object> hierarchy = util.getContentHierarchyRecursive(node.getGraphId(), node, definition, null, true);
-                    collectionStore.updateContentHierarchy(node.getIdentifier(), hierarchy);
+                    Map<String, Object> hierarchy = util.getHierarchyMap(node.getGraphId(), node.getIdentifier(), definition, null,
+                            null);
+                    hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
                     status +=1;
                 }else{
                     System.out.println("ignoring ID : " + node.getIdentifier());

@@ -17,6 +17,7 @@ import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
+import org.ekstep.common.util.RequestValidatorUtil;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
@@ -306,6 +307,10 @@ public abstract class BaseManager {
 		resp.setResponseCode(ResponseCode.CLIENT_ERROR);
 		resp.setParams(respParam);
 		return resp;
+	}
+
+	protected boolean isEmptyOrNull(Object... o) {
+		return RequestValidatorUtil.isEmptyOrNull(o);
 	}
 	
 }

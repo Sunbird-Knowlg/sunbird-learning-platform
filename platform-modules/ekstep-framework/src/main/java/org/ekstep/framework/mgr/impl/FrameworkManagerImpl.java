@@ -2,38 +2,29 @@
 package org.ekstep.framework.mgr.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.searchindex.dto.SearchDTO;
-import org.ekstep.searchindex.processor.SearchProcessor;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
-
-import scala.concurrent.Await;
 
 /**
  * The Class <code>FrameworkManagerImpl</code> is the implementation of
@@ -48,13 +39,7 @@ import scala.concurrent.Await;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
-	private SearchProcessor processor = null;
 	private static ObjectMapper mapper = new ObjectMapper();
-
-	@PostConstruct
-	public void init() {
-		processor = new SearchProcessor();
-	}
 
 	/*
 	 * create framework
@@ -84,61 +69,44 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 	}
 
-	/*
-	 * Read framework by Id
-	 * 
-	 * @param graphId
-	 * 
+	/**
+	 * Read Framework By Id
 	 * @param frameworkId
-	 * 
+	 * @param returnCategories
+	 * @return Response
+	 * @throws Exception
 	 */
-	// TODO : Uncomment this method
-	/*
-	 * @Override public Response readFramework(String frameworkId) throws Exception
-	 * { return read(frameworkId, FRAMEWORK_OBJECT_TYPE,
-	 * FrameworkEnum.framework.name());; }
-	 */
-
-	// TODO : Delete this method and uncomment above method
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Response response = new Response();
-		if (Platform.config.hasPath("framework.es.sync")) {
-			if (Platform.config.getBoolean("framework.es.sync")) {
-				Map<String, Object> responseMap = new HashMap<>();
-				List<Object> searchResult = searchFramework(frameworkId);
-				if (null != searchResult && !searchResult.isEmpty()) {
-					Map<String, Object> framework = (Map<String, Object>) searchResult.get(0);
-					if (null != framework.get("fw_hierarchy")) {
-						Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
-								Map.class);
-						responseMap = framework;
-						if (null != hierarchy && !hierarchy.isEmpty()) {
-							List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
-									.get("categories");
-							if (categories != null) {
-								if (returnCategories != null && !returnCategories.isEmpty()) {
-									responseMap.put("categories",
-											categories.stream().filter(p -> returnCategories.contains(p.get("code")))
-													.collect(Collectors.toList()));
-									removeAssociations(responseMap, returnCategories);
+		Map<String, Object> responseMap = new HashMap<>();
+		Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
+		Map<String, Object> framework = (Map<String, Object>) getHierarchyResp.get("framework");
 
-								} else {
-									responseMap.put("categories", categories);
-								}
-							}
+		if (MapUtils.isNotEmpty(framework)) {
+			if (null != framework.get("fw_hierarchy")) {
+				Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
+						Map.class);
+				responseMap = framework;
+				if (null != hierarchy && !hierarchy.isEmpty()) {
+					List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
+							.get("categories");
+					if (categories != null) {
+						if (returnCategories != null && !returnCategories.isEmpty()) {
+							responseMap.put("categories",
+									categories.stream().filter(p -> returnCategories.contains(p.get("code")))
+											.collect(Collectors.toList()));
+							removeAssociations(responseMap, returnCategories);
+
+						} else {
+							responseMap.put("categories", categories);
 						}
 					}
-				} else {
-					throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND",
-							"Data not found with id : " + frameworkId);
 				}
 				responseMap.remove("fw_hierarchy");
 				response.put(FrameworkEnum.framework.name(), responseMap);
 				response.setParams(getSucessStatus());
-			} else {
-				response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 			}
 		} else {
 			response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
@@ -174,50 +142,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				}
 			});
 		}
-	}
-
-	private List<Object> searchFramework(String frameworkId) throws Exception {
-		SearchDTO searchDto = new SearchDTO();
-		searchDto.setFuzzySearch(false);
-
-		searchDto.setProperties(setSearchProperties(frameworkId));
-		searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		searchDto.setFields(getFields());
-		searchDto.setLimit(1);
-
-		List<Object> searchResult = Await.result(
-				processor.processSearchQuery(searchDto, false, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false),
-				RequestRouterPool.WAIT_TIMEOUT.duration());
-
-		return searchResult;
-	}
-
-	private List<String> getFields() {
-		List<String> fields = new ArrayList<String>();
-		DefinitionDTO definition = getDefinition(GRAPH_ID, FRAMEWORK_OBJECT_TYPE);
-		String[] fwMetadata = getFields(definition);
-		if (fwMetadata != null)
-			fields.addAll(Arrays.asList(fwMetadata));
-		fields.add("fw_hierarchy");
-		return fields;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private List<Map> setSearchProperties(String frameworkId) {
-		List<Map> properties = new ArrayList<Map>();
-		Map<String, Object> property = new HashMap<>();
-		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-		property.put("propertyName", "identifier");
-		property.put("values", frameworkId);
-		properties.add(property);
-
-		property = new HashMap<String, Object>();
-		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-		property.put("propertyName", "objectType");
-		property.put("values", "Framework");
-		properties.add(property);
-
-		return properties;
 	}
 
 	/*
@@ -392,7 +316,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	    response.put("node_id", clonedObjectId);
 	    return response;
 	  }
-	  
+
 	@Override
 	public Response publishFramework(String frameworkId, String channelId) throws Exception {
 		if (!validateObject(channelId)) {
@@ -410,7 +334,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			return ERROR("ERR_INVALID_FRAMEOWRK_ID", "Invalid Framework Id. Framework doesn't exist.",
 					ResponseCode.CLIENT_ERROR);
 		}
-
 
 	}
 

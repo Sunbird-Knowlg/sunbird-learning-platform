@@ -78,6 +78,9 @@ public class BasePipeline extends BaseManager {
 
 	private static final String CONTEN_FOLDER = "cloud_storage.content.folder";
 
+	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
+
+
 	/**
 	 * Updates the ContentNode.
 	 *
@@ -490,7 +493,12 @@ public class BasePipeline extends BaseManager {
 							for (Object obj : list) {
 								List<Node> nodeList = (List<Node>) obj;
 								for (Node child : nodeList) {
-									String body = getContentBody(child.getIdentifier());
+									String mimeType = (String) child.getMetadata().get("mimeType");
+									String body = null;
+									if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
+										System.out.println("BasePipeline - Fetching body for node: "+ child.getIdentifier() + " :: " + mimeType);
+										body = getContentBody(child.getIdentifier());
+									}
 									child.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
 									childrenNodes.add(child);
 									getContentRecursive(graphId, childrenNodes, child, nodeMap, childrenIds, ctnts,

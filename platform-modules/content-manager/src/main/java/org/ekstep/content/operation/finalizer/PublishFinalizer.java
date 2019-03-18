@@ -26,7 +26,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.learning.contentstore.CollectionStore;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -65,12 +65,13 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected String contentId;
 
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 
 	private ControllerUtil util = new ControllerUtil();
 
-	private CollectionStore collectionStore = new CollectionStore();
+	private HierarchyStore hierarchyStore = new HierarchyStore();
 
 
 	/**
@@ -380,8 +381,8 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private void publishHierarchy(Node publishedNode) {
 		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
-		Map<String, Object> hierarchy = util.getContentHierarchyRecursive(publishedNode.getGraphId(), publishedNode, definition, null, true);
-		collectionStore.updateContentHierarchy(publishedNode.getIdentifier(), hierarchy);
+		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
+		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
 	/**
@@ -540,13 +541,18 @@ public class PublishFinalizer extends BaseFinalizer {
 				removeExtraProperties(contentImage);
 			}
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
-			String imageBody = getContentBody(contentImageId);
-			if (StringUtils.isNotBlank(imageBody)) {
-				response = updateContentBody(contentId, getContentBody(contentImageId));
-				if (checkError(response))
-					throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
-							ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
-									+ "]");
+
+			// Get body only for ECML content.
+			String mimeType = (String) contentImage.getMetadata().get("mimeType");
+			if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
+				String imageBody = getContentBody(contentImageId);
+				if (StringUtils.isNotBlank(imageBody)) {
+					response = updateContentBody(contentId, imageBody);
+					if (checkError(response))
+						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+								ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
+										+ "]");
+				}
 			}
 
 			TelemetryManager.log("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");

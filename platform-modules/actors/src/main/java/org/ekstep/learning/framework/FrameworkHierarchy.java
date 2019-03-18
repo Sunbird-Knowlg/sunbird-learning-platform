@@ -25,8 +25,7 @@ import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 
 /**
  * @author pradyumna
@@ -34,10 +33,19 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
  */
 public class FrameworkHierarchy extends BaseManager {
 
+	private ObjectMapper mapper = new ObjectMapper();
+
 	protected static final String GRAPH_ID = (Platform.config.hasPath("graphId")) ? Platform.config.getString("graphId")
 			: "domain";
 
-	private ObjectMapper mapper = new ObjectMapper();
+	private static final String keyspace = Platform.config.hasPath("hierarchy.keyspace.name")
+			? Platform.config.getString("hierarchy.keyspace.name")
+			: "hierarchy_store";
+	private static final String table = Platform.config.hasPath("framework.hierarchy.table")
+			? Platform.config.getString("framework.hierarchy.table")
+			: "framework_hierarchy";
+	private static final String objectType = "Framework";
+	private HierarchyStore hierarchyStore = new HierarchyStore(keyspace, table, objectType, false);
 
 	/**
 	 * @param id
@@ -74,6 +82,16 @@ public class FrameworkHierarchy extends BaseManager {
 		}
 	}
 
+	/**
+	 *
+	 * @param frameworkId
+	 * @return frameworkHierarchy
+	 * @throws Exception
+	 */
+	public Map<String, Object> getFrameworkHierarchy(String frameworkId) throws Exception{
+		return hierarchyStore.getHierarchy(frameworkId);
+	}
+
 	private void pushFrameworkEvent(Node node) throws Exception {
 		Map<String, Object> frameworkDocument = new HashMap<>();
 		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
@@ -91,9 +109,7 @@ public class FrameworkHierarchy extends BaseManager {
 			if(null!=node.getMetadata().get(field))
 				frameworkDocument.put(field, node.getMetadata().get(field));
 		}
-		ElasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, node.getIdentifier(),
-				mapper.writeValueAsString(frameworkDocument));
+		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
 	}
 
 	@SuppressWarnings("unchecked")

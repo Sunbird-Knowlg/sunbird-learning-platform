@@ -22,8 +22,8 @@ public class RequestRouterPool {
     private static ActorRef actor;
     private static int count = 5;
 
-    public static long REQ_TIMEOUT = Platform.config.hasPath("akka.request_timeout") ?
-            (Platform.config.getLong("akka.request_timeout") * 1000): 30000;
+    public static long REQ_TIMEOUT = Platform.config.hasPath("akka.request_timeout")? (Platform.config.getLong
+            ("akka.request_timeout") * 1000): 30000;
     public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(REQ_TIMEOUT, TimeUnit.MILLISECONDS));
 
     static {
