@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -454,7 +455,7 @@ public class DataNode extends AbstractNode {
 	private void validateMetadataProperties(List<MetadataDefinition> defs, List<String> messages) {
 		List<String> invalidProps = new ArrayList<>();
 		List<String> validObjectTypes = Platform.config.hasPath("restrict.metadata.objectTypes") ?
-				Platform.config.getStringList("restrict.metadata.objectTypes") : Collections.emptyList();
+				Arrays.asList(Platform.config.getString("restrict.metadata.objectTypes").split(",")) : Collections.emptyList();
 		if (validObjectTypes.contains(objectType)) {
 			Set<String> properties = defs.stream().map(MetadataDefinition::getPropertyName).collect(toSet());
 			metadata.keySet().forEach(e  -> {
