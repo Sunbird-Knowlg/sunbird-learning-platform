@@ -6,6 +6,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
@@ -38,6 +39,7 @@ public class RetireOperation extends BaseContentManager {
         populateIdsToRetire(node, identifiers);
         Map<String, Object> params = new HashMap<>();
         params.put("status", "Retired");
+        params.put("lastStatusChangedOn", DateUtils.formatCurrentDate());
         if(identifiers.isEmpty()) {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(),
                     "Content is already Retired.");
