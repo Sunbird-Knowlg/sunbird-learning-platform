@@ -39,7 +39,8 @@ public class SyncMessageGenerator {
 
 		for (Node node : nodes) {
 			//Create List of metadata which should be indexed, if objectType is enabled for metadata filtration.
-			List<String> objectTypeList = Platform.config.hasPath("filter.metadata.objectTypes") ? Arrays.asList(Platform.config.getString("filter.metadata.objectTypes").split(",")) : Collections.emptyList();
+			List<String> objectTypeList = Platform.config.hasPath("restrict.metadata.objectTypes")
+					? Arrays.asList(Platform.config.getString("restrict.metadata.objectTypes").split(",")) : Collections.emptyList();
 			if (objectTypeList.contains(node.getObjectType())){
 				indexablePropslist = getIndexableProperties((Map<String, Object>) definitionObjectMap.get(node.getObjectType()));
 			}
