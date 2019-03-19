@@ -66,8 +66,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 
-	private static final List<String> COMPATIBILITY_MIMETYPE_LIST = Arrays.asList("video/x-youtube","application/pdf","application/msword","application/epub","application/vnd.ekstep.h5p-archive","text/x-url");
-	private static final List<String> COMPATIBILITY_CONTENTTYPE_LIST = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
+	private static final List<String> level4MimeTypes = Arrays.asList("video/x-youtube","application/pdf","application/msword","application/epub","application/vnd.ekstep.h5p-archive","text/x-url");
+	private static final List<String> level4ContentTypes = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 
@@ -552,8 +552,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private void setCompatibilityLevel(Node node) {
-		if (COMPATIBILITY_MIMETYPE_LIST.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.mimeType.name(), "").toString())
-				|| COMPATIBILITY_CONTENTTYPE_LIST.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.contentType.name(), "").toString())) {
+		if (level4MimeTypes.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.mimeType.name(), "").toString())
+				|| level4ContentTypes.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.contentType.name(), "").toString())) {
 			TelemetryManager.info("setting compatibility level for content id : " + node.getIdentifier() + " as 4.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		}
