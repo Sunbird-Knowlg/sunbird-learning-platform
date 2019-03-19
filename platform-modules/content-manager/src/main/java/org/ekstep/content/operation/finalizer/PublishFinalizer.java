@@ -65,6 +65,9 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
+
+	private static final List<String> COMPATIBILITY_MIMETYPE_LIST = Arrays.asList("video/x-youtube","application/pdf","application/msword","application/epub","application/vnd.ekstep.h5p-archive","text/x-url");
+	private static final List<String> COMPATIBILITY_CONTENTTYPE_LIST = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 
@@ -554,28 +557,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private void setCoptabilityLevel(Node node) {
-		String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
-		String contentType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name());
-		//TODO: Get all mimeType List from config.
-		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())
-				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())
-				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())
-				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.epub.name())
-				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.h5p.name())
-				|| StringUtils.containsIgnoreCase(mimeType, "x-url")) {
-			TelemetryManager.info("setting compatability level for youtube, pdf and doc and epub: " + node.getIdentifier() + " as 4.");
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
-		}
-
-		if (StringUtils.equalsIgnoreCase(contentType, ContentWorkflowPipelineParams.Course.name())
-				|| StringUtils.equalsIgnoreCase(contentType, ContentWorkflowPipelineParams.CourseUnit.name())) {
-			TelemetryManager.info("setting compatability level for course and course unit: " + node.getIdentifier() + " as 4.");
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
-		}
-
-		if (StringUtils.equalsIgnoreCase(contentType, ContentWorkflowPipelineParams.LessonPlan.name())
-				|| StringUtils.equalsIgnoreCase(contentType, ContentWorkflowPipelineParams.LessonPlanUnit.name())) {
-			TelemetryManager.info("setting compatability level for lesson plan and lesson plan unit: " + node.getIdentifier() + " as 4.");
+		if (COMPATIBILITY_MIMETYPE_LIST.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.mimeType.name(), "").toString())
+				|| COMPATIBILITY_MIMETYPE_LIST.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.contentType.name(), "").toString())) {
+			TelemetryManager.info("setting compatibility level for content id : " + node.getIdentifier() + " as 4.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		}
 	}
