@@ -162,6 +162,10 @@ public class TelemetryGenerator {
         } else {
             telemetry = new Telemetry("SEARCH", actor, eventContext, edata);
         }
+		if (null != context.get("objectId") && null != context.get("objectType")) {
+			Target object = new Target(context.get("objectId"), context.get("objectType"));
+			telemetry.setObject(object);
+		}
         return getTelemetry(telemetry);
     }
 
@@ -184,6 +188,8 @@ public class TelemetryGenerator {
 			edata.put("state", state);
 		if (StringUtils.isNotBlank(prevState))
 			edata.put("prevstate", prevState);
+		if(StringUtils.isNotBlank(context.get("duration")))
+			edata.put("duration",Long.valueOf(context.get("duration")));
 		if (null != cdata && !cdata.isEmpty())
 			telemetry = new Telemetry("AUDIT", actor, eventContext, edata, cdata);
 		else
