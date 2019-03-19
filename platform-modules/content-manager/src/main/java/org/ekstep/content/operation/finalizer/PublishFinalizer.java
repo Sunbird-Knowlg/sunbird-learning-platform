@@ -187,7 +187,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
 
 		String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
-		setCoptabilityLevel(node);
+		setCompatibilityLevel(node);
 		setPragma(node);
 		
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
@@ -556,9 +556,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 
-	private void setCoptabilityLevel(Node node) {
+	private void setCompatibilityLevel(Node node) {
 		if (COMPATIBILITY_MIMETYPE_LIST.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.mimeType.name(), "").toString())
-				|| COMPATIBILITY_MIMETYPE_LIST.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.contentType.name(), "").toString())) {
+				|| COMPATIBILITY_CONTENTTYPE_LIST.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.contentType.name(), "").toString())) {
 			TelemetryManager.info("setting compatibility level for content id : " + node.getIdentifier() + " as 4.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		}
