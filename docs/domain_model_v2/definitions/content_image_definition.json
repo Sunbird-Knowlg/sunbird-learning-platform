@@ -2617,6 +2617,18 @@
 					"defaultValue": "",
 					"renderingHints": "",
 					"indexed": true
+				},
+				{
+					"propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
+					"title": "SYS_INTERNAL_LAST_UPDATED_ON",
+					"description": "It is a System Property",
+					"category": "Technical",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": false
 				}
 			],
 			"inRelations": [
