@@ -210,6 +210,19 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "contentCredits",
+					"title": "List of Content Credits",
+					"description": "List of Content Credits",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 9 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"required": true,
 					"dataType": "Select",
 					"propertyName": "mimeType",
@@ -565,6 +578,32 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "URL",
+					"propertyName": "previewUrl",
+					"title": "Preview Url",
+					"description": "URL to preview the content",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 6 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "URL",
+					"propertyName": "streamingUrl",
+					"title": "Streaming Url",
+					"description": "Stream url of the video content",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 6 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"propertyName": "objects",
 					"title": "Objects Used in the Content",
 					"description": "List of Objects Used in the Content",
@@ -775,6 +814,32 @@
 					"propertyName": "collaborators",
 					"title": "Collaborators",
 					"description": "List of Collaborators",
+					"category": "Ownership",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "creators",
+					"title": "Creators",
+					"description": "List of primary contributors",
+					"category": "Ownership",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "contributors",
+					"title": "Contributors",
+					"description": "List of secondary contributors",
 					"category": "Ownership",
 					"displayProperty": "Editable",
 					"defaultValue": "",
@@ -1027,7 +1092,9 @@
 						"Plugin",
 						"LessonPlanUnit",
 						"CourseUnit",
-						"TextBookUnit"
+						"TextBookUnit",
+						"TeachingMethod",
+						"PedagogyFlow"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -1055,7 +1122,10 @@
 						"Collection",
 						"Book",
 						"Lesson Plan",
-						"Course"
+						"Course",
+						"Theory",
+						"Worksheet",
+						"Practical"
 					],
 					"indexed": true,
 					"draft": false
@@ -1436,6 +1506,45 @@
 					"indexed": true
 				},
 				{
+					"required": false,
+					"dataType": "Term",
+					"propertyName": "difficultyLevel",
+					"title": "Difficulty Level",
+					"description": "Difficulty Level",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "TermList",
+					"propertyName": "subDomains",
+					"title": "Sub-Domain",
+					"description": "Sub-Domain",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "TermList",
+					"propertyName": "subjectCodes",
+					"title": "Subject Codes",
+					"description": "Subject Codes",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"propertyName": "domain",
 					"title": "Domain",
 					"description": "Domain",
@@ -1444,7 +1553,7 @@
 					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
-					"renderingHints": "",
+					"renderingHints": "{'inputType': 'select', 'order': 9}",
 					"indexed": true
 				},
 				{
@@ -2073,6 +2182,58 @@
 					"draft": false
 				},
 				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "me_hierarchyLevel",
+					"title": "Hierarchy Level",
+					"description": "Hierarchy Level of the content",
+					"category": "Measured",
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{}",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "me_totalDialcodeAttached",
+					"title": "Total DialCode Attached",
+					"description": "Total Number of DialCode Attached with the content",
+					"category": "Measured",
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{}",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "me_totalDialcodeLinkedToContent",
+					"title": "Total DialCode Linked",
+					"description": "Total Number of DialCode Linked with the content",
+					"category": "Measured",
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{}",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "me_totalDialcode",
+					"title": "Total DialCode",
+					"description": "Total Number of DialCode",
+					"category": "Measured",
+					"displayProperty": "Readonly",
+					"defaultValue": "",
+					"renderingHints": "{}",
+					"indexed": true,
+					"draft": false
+				},
+				{
 					"propertyName": "flagReasons",
 					"title": "Flag Reasons",
 					"description": "Reason for Flagging the Content",
@@ -2216,7 +2377,7 @@
 					"defaultValue": "",
 					"renderingHints": "{'inputType': 'text', 'order': 18}",
 					"indexed": true
-         },
+				},
 				{
 					"required": false,
 					"dataType": "Number",
@@ -2259,13 +2420,259 @@
 					"renderingHints": "{ 'inputType': 'textarea', 'order': 21 }",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"propertyName": "reservedDialcodes",
+					"title": "Reserved Dialcodes",
+					"description": "List of reserved dialcodes for the content",
+					"category": "General",
+					"dataType": "JSON",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text',  'order': 22}",
+					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Select",
+					"propertyName": "dialcodeRequired",
+					"title": "Dialcode Required",
+					"description": "Is dialcode generation required or not",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": [
+						"Yes",
+						"No"
+					],
+					"defaultValue": "No",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 23 }",
+					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "lockKey",
+					"title": "Collaborator lock key",
+					"description": "lock key id given by collaborator",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 23 }",
+					"indexed": true
+				},
+				{
+					"required": false,
+					"dataType": "JSON",
+					"propertyName": "badgeAssociations",
+					"title": "List of Badge Associations",
+					"description": "List of Badge Associations",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"propertyName": "channel",
+					"title": "Channel",
+					"description": "Channel Id of Content",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 3}",
+					"indexed": true
+				},
+				{
+					"propertyName": "framework",
+					"title": "Framework",
+					"description": "Framework Id of Content",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 4}",
+					"indexed": true
+				},
+				{
+					"propertyName": "lastStatusChangedOn",
+					"title": "lastStatusChangedOn",
+					"description": "Timestamp of last status update",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "uploadError",
+					"title": "uploadError",
+					"description": "Error Message During Upload Operation",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "appId",
+					"title": "appId",
+					"description": "appId",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "s3Key",
+					"title": "s3Key",
+					"description": "Cloud Storage Path for Content",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "consumerId",
+					"title": "consumerId",
+					"description": "Consumer Id",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "organisation",
+					"title": "Array of org names (partner names)",
+					"description": "Array of organisation names (partner names)",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "nodeType",
+					"title": "Node Type",
+					"description": "Type of Node. e.g: Data Node, Definition Node, etc",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "prevState",
+					"title": "Previous State",
+					"description": "Previous Status of the Content",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "publishError",
+					"title": "Publish Error",
+					"description": "Error Occurred While Publish",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "publish_type",
+					"title": "publish_type",
+					"description": "publish_type",
+					"category": "Technical",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "ownedBy",
+					"title": "Owned By",
+					"description": "Owned By",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "toc_url",
+					"title": "toc_url",
+					"description": "toc_url",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
+					"title": "SYS_INTERNAL_LAST_UPDATED_ON",
+					"description": "It is a System Property",
+					"category": "Technical",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": false
+				},
+				{
+					"propertyName": "sYS_INTERNAL_LAST_UPDATED_ON",
+					"title": "sYS_INTERNAL_LAST_UPDATED_ON",
+					"description": "It is a System Property",
+					"category": "Technical",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": false
 				}
 			],
 			"inRelations": [
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content"
+						"Content",
+						"ContentImage"
 					],
 					"title": "collections",
 					"description": "Which all collections is this content part of",
@@ -2290,6 +2697,16 @@
 					],
 					"title": "concepts",
 					"description": "Micro-concepts associated with this content",
+					"required": false,
+					"renderingHints": "{ 'order': 26 }"
+				},
+				{
+					"relationName": "associatedTo",
+					"objectTypes": [
+						"AssessmentItem"
+					],
+					"title": "questions",
+					"description": "Assessment items associated with this content",
 					"required": false,
 					"renderingHints": "{ 'order': 26 }"
 				},
@@ -2326,7 +2743,8 @@
 				{
 					"relationName": "hasSequenceMember",
 					"objectTypes": [
-						"Content"
+						"Content",
+						"ContentImage"
 					],
 					"title": "children",
 					"description": "Child content items (in sorted order) in case of collections like Textbooks",
@@ -2464,6 +2882,7 @@
 				},
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,
+				"allowupdate_framework": true,
 				"fields": [
 					"identifier",
 					"name",
@@ -2521,6 +2940,10 @@
 					"me_totalSideloads",
 					"me_totalRatings",
 					"me_totalComments",
+					"me_totalDialcode",
+					"me_totalDialcodeLinkedToContent",
+					"me_totalDialcodeAttached",
+					"me_hierarchyLevel",
 					"popularity",
 					"versionKey",
 					"variants",
@@ -2534,7 +2957,15 @@
 					"contentEncoding",
 					"contentDisposition",
 					"config",
-					"ownershipType"
+					"ownershipType",
+					"channel",
+					"framework",
+					"lastStatusChangedOn",
+					"uploadError",
+					"appId",
+					"s3Key",
+					"consumerId",
+					"organisation"
 				]
 			}
 		}
