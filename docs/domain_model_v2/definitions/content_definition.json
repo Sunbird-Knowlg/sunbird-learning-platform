@@ -2647,7 +2647,7 @@
 					"title": "isNew",
 					"description": "toBeRemoved",
 					"category": "General",
-					"dataType": "Text",
+					"dataType": "Boolean",
 					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
