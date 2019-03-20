@@ -2497,6 +2497,78 @@
 					"defaultValue": "",
 					"renderingHints": "{'inputType': 'text', 'order': 4}",
 					"indexed": true
+				},
+				{
+					"propertyName": "lastStatusChangedOn",
+					"title": "lastStatusChangedOn",
+					"description": "Timestamp of last status update",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "uploadError",
+					"title": "uploadError",
+					"description": "Error Message During Upload Operation",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "appId",
+					"title": "appId",
+					"description": "appId",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "s3Key",
+					"title": "s3Key",
+					"description": "Cloud Storage Path for Content",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "consumerId",
+					"title": "consumerId",
+					"description": "Consumer Id",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "organisation",
+					"title": "Array of org names (partner names)",
+					"description": "Array of organisation names (partner names)",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
 				}
 			],
 			"inRelations": [
@@ -2789,7 +2861,15 @@
 					"contentEncoding",
 					"contentDisposition",
 					"config",
-					"ownershipType"
+					"ownershipType",
+					"channel",
+					"framework",
+					"lastStatusChangedOn",
+					"uploadError",
+					"appId",
+					"s3Key",
+					"consumerId",
+					"organisation"
 				]
 			}
 		}
