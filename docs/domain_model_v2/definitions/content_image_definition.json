@@ -2653,6 +2653,18 @@
 					"defaultValue": "",
 					"renderingHints": "",
 					"indexed": false
+				},
+				{
+					"propertyName": "isNew",
+					"title": "isNew",
+					"description": "toBeRemoved",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
 				}
 			],
 			"inRelations": [

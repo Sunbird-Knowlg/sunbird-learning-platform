@@ -2642,6 +2642,18 @@
 					"renderingHints": "",
 					"indexed": true
 				},
+				{
+					"propertyName": "isNew",
+					"title": "isNew",
+					"description": "toBeRemoved",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
                 {
                   "propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
                   "title": "SYS_INTERNAL_LAST_UPDATED_ON",
