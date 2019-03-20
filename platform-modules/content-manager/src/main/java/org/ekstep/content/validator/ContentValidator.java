@@ -9,12 +9,17 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.GetRequest;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.MiddlewareException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.common.util.HttpDownloadUtility;
@@ -53,6 +58,8 @@ public class ContentValidator {
 	/** The allowed extensions */
 	//TODO: Get it from config.
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
+
+	private static Tika tika = new Tika();
 
 	static {
 		allowed_file_extensions.add("doc");
@@ -206,7 +213,6 @@ public class ContentValidator {
 		boolean isValidMimeType = false;
 		if (file.exists()) {
 			TelemetryManager.log("Validating File For MimeType: " + file.getName());
-			Tika tika = new Tika();
 			String mimeType = tika.detect(file);
 			isValidMimeType = StringUtils.equalsIgnoreCase(DEF_CONTENT_PACKAGE_MIME_TYPE, mimeType);
 		}
@@ -472,15 +478,31 @@ public class ContentValidator {
 	 * @return
 	 * @throws IOException
 	 */
-	//TODO: For Url Validation, File Should not be downloaded.
 	public Boolean isValidUrl(String fileURL, String mimeType) {
-		Boolean isValid = false;
-		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
-		if (exceptionChecks(mimeType, file)) {
-			FileUtils.deleteFile(file);
-			return true;
+		try {
+			HttpResponse<String> httpResponse = Unirest.head(fileURL).asString();
+			if(200 != httpResponse.getStatus()){
+				TelemetryManager.error("Content Validator : Invalid URL : " + fileURL + " does not exist");
+				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+						ContentErrorMessageConstants.FILE_DOES_NOT_EXIST);
+			}
+			String urlMimeType = httpResponse.getHeaders().get("Content-Type").get(0);
+			if(!StringUtils.equalsIgnoreCase(mimeType, urlMimeType)) {
+				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
+			}
+		} catch (UnirestException ue){
+			TelemetryManager.error("Content Validator : Error while Fetching the file : " + fileURL , ue);
+			throw new ServerException(ContentErrorCodes.INVALID_FILE.name(), ue.getMessage(), ue);
+		} catch (Exception e) {
+			if(e instanceof ClientException)
+				throw e;
+			else{
+				TelemetryManager.error("Content Validator : Error while Fetching the file : " + fileURL ,	e);
+				throw new ServerException(ContentErrorCodes.INVALID_FILE.name(), e.getMessage(), e);
+			}
 		}
-		return isValid;
+		return true;
 	}
 
 	public Boolean exceptionChecks(String mimeType, File file) {
