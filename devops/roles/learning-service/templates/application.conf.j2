@@ -20,8 +20,6 @@ content.keyspace.name="{{ content_keyspace_name }}"
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
 framework.hierarchy.table="framework_hierarchy"
-cassandra.host="{{ cassandra_host }}"
-cassandra.port={{ cassandra_port }}
 
 dialcode.keyspace.name="{{ dialcode_keyspace_name }}"
 dialcode.keyspace.table="dial_code"
@@ -111,9 +109,6 @@ LanguageActorSystem {
   }
 }
 
-# Orchestrator Configuration
-env="{{ orchestrator_url }}"
-
 #Current environment
 cloud_storage.env = "{{ cloud_storage_config_environment }}"
 
@@ -139,9 +134,6 @@ dist.directory = "/data/tmp/dist/"
 output.zipfile = "/data/tmp/story.zip"
 source.folder  = "/data/tmp/temp2/"
 save.directory = "/data/tmp/temp/"
-
-# Content 2 vec analytics URL
-CONTENT_TO_VEC_URL="{{ content_to_vec_url }}"
 
 # FOR CONTENT WORKFLOW PIPELINE (CWP)
 
