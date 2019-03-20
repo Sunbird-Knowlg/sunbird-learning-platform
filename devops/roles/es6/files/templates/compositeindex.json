@@ -4158,7 +4158,7 @@
           "analyzer": "cs_index_analyzer",
           "search_analyzer": "cs_search_analyzer"
         },
-        "sYS_INTERNAL_LAST_UPDATED_ON": {
+        "SYS_INTERNAL_LAST_UPDATED_ON": {
           "type": "date",
           "fields": {
             "raw": {

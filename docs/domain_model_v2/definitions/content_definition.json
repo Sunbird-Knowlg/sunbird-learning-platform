@@ -2653,19 +2653,7 @@
                   "defaultValue": "",
                   "renderingHints": "",
                   "indexed": false
-                },
-				{
-					"propertyName": "sYS_INTERNAL_LAST_UPDATED_ON",
-					"title": "sYS_INTERNAL_LAST_UPDATED_ON",
-					"description": "It is a System Property",
-					"category": "Technical",
-					"dataType": "Text",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": false
-				}
+                }
 			],
 			"inRelations": [
 				{
