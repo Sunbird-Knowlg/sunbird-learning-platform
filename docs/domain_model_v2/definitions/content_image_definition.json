@@ -2605,6 +2605,18 @@
 					"defaultValue": "",
 					"renderingHints": "",
 					"indexed": true
+				},
+				{
+					"propertyName": "publish_type",
+					"title": "publish_type",
+					"description": "publish_type",
+					"category": "Technical",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
 				}
 			],
 			"inRelations": [
