@@ -493,50 +493,6 @@ public abstract class BaseContentManager extends BaseManager {
         return true;
     }
 
-    /**
-     * @param children
-     * @param nodesModified
-     * @param hierarchy
-     * @param nullPropMap
-     */
-    protected void populateHierarchy(List<Map<String, Object>> children, Map<String, Object> nodesModified,
-                                     Map<String, Object> hierarchy, String parentId, Map<String, Object> nullPropMap) {
-        if (null != children && !children.isEmpty()) {
-            for (Map<String, Object> child : children) {
-                String id = (String) child.get("identifier");
-                if (equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
-                    // NodesModified and hierarchy
-                    id = UUID.randomUUID().toString();
-                    Map<String, Object> metadata = new HashMap<>();
-                    metadata.putAll(child);
-                    metadata.putAll(nullPropMap);
-                    metadata.put("children", new ArrayList<>());
-                    metadata.remove("identifier");
-                    metadata.remove("parent");
-                    metadata.remove("index");
-                    metadata.remove("depth");
-
-                    // TBD: Populate artifactUrl
-
-                    Map<String, Object> modifiedNode = new HashMap<>();
-                    modifiedNode.put("metadata", metadata);
-                    modifiedNode.put("root", false);
-                    modifiedNode.put("isNew", true);
-                    nodesModified.put(id, modifiedNode);
-                }
-                Map<String, Object> parentHierarchy = new HashMap<>();
-                parentHierarchy.put("children", new ArrayList<>());
-                parentHierarchy.put("root", false);
-                parentHierarchy.put("contentType", child.get("contentType"));
-                hierarchy.put(id, parentHierarchy);
-                ((List) ((Map<String, Object>) hierarchy.get(parentId)).get("children")).add(id);
-
-                populateHierarchy((List<Map<String, Object>>) child.get("children"), nodesModified, hierarchy, id,
-                        nullPropMap);
-            }
-        }
-    }
-
 	protected Response updateContentProperties(String contentId, Map<String, Object> properties) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
