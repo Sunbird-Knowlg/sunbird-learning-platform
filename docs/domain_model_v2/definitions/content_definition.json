@@ -2630,6 +2630,18 @@
 					"renderingHints": "",
 					"indexed": true
 				},
+				{
+					"propertyName": "toc_url",
+					"title": "toc_url",
+					"description": "toc_url",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
                 {
                   "propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
                   "title": "SYS_INTERNAL_LAST_UPDATED_ON",
@@ -2641,7 +2653,19 @@
                   "defaultValue": "",
                   "renderingHints": "",
                   "indexed": false
-                }
+                },
+				{
+					"propertyName": "sYS_INTERNAL_LAST_UPDATED_ON",
+					"title": "sYS_INTERNAL_LAST_UPDATED_ON",
+					"description": "It is a System Property",
+					"category": "Technical",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": false
+				}
 			],
 			"inRelations": [
 				{
