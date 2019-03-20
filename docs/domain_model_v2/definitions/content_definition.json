@@ -2569,6 +2569,42 @@
 					"defaultValue": "",
 					"renderingHints": "",
 					"indexed": true
+				},
+				{
+					"propertyName": "nodeType",
+					"title": "Node Type",
+					"description": "Type of Node. e.g: Data Node, Definition Node, etc",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "prevState",
+					"title": "Previous State",
+					"description": "Previous Status of the Content",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "publishError",
+					"title": "Publish Error",
+					"description": "Error Occurred While Publish",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
 				}
 			],
 			"inRelations": [
