@@ -1,5 +1,23 @@
 package org.ekstep.content.validator;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.content.common.AssetsMimeTypeMap;
+import org.ekstep.content.common.ContentErrorMessageConstants;
+import org.ekstep.content.enums.ContentErrorCodeConstants;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.telemetry.logger.TelemetryManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -8,28 +26,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.GetRequest;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.Tika;
-import org.ekstep.common.Platform;
-import org.ekstep.common.dto.CoverageIgnore;
-import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.exception.MiddlewareException;
-import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.optimizr.FileUtils;
-import org.ekstep.common.util.HttpDownloadUtility;
-import org.ekstep.content.common.AssetsMimeTypeMap;
-import org.ekstep.content.common.ContentErrorMessageConstants;
-import org.ekstep.content.enums.ContentErrorCodeConstants;
-import org.ekstep.content.enums.ContentWorkflowPipelineParams;
-import org.ekstep.graph.dac.model.Node;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class ContentValidator, mainly used for validating ContentNode and
@@ -491,16 +487,14 @@ public class ContentValidator {
 				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
 						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
 			}
+		} catch(ClientException ce) {
+			throw ce;
 		} catch (UnirestException ue){
 			TelemetryManager.error("Content Validator : Error while Fetching the file : " + fileURL , ue);
 			throw new ServerException(ContentErrorCodes.INVALID_FILE.name(), ue.getMessage(), ue);
 		} catch (Exception e) {
-			if(e instanceof ClientException)
-				throw e;
-			else{
 				TelemetryManager.error("Content Validator : Error while Fetching the file : " + fileURL ,	e);
 				throw new ServerException(ContentErrorCodes.INVALID_FILE.name(), e.getMessage(), e);
-			}
 		}
 		return true;
 	}
