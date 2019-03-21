@@ -59,7 +59,7 @@ public class BasePlaySearchManager extends Results {
 							if (result instanceof Response) {
 								Response response = (Response) result;
 								if(response.getResponseCode().name().equals("CLIENT_ERROR")){
-                                    return badRequest(getResult(response,"ekstep.composite-search.search","3.0",null, null)).as("application/json");
+                                    return badRequest(getResult(response,request.getId(), request.getVer(), null, correlationId)).as("application/json");
                                 }
 								if (checkError(response)) {
 									String errMsg = getMessage(response);
