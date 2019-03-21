@@ -15,6 +15,11 @@ public class QRCodeCassandraConnector {
         executeQuery(query);
     }
 
+    public static void updateFailure(String id, String errMsg) {
+        String query = "update dialcodes.dialcode_batch set status=3, url='' where processid="+id;
+        executeQuery(query);
+    }
+
     private static void executeQuery(String query) {
         Session session = CassandraConnector.getSession("sunbird");
         session.execute(query);

@@ -68,7 +68,7 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	private static String versionKey2 = "";
 
 	private static String script_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
-	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
+	private static String script_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data (content_id text, last_updated_on timestamp,body blob,oldBody blob,stageIcons blob,PRIMARY KEY (content_id));";
 	private static String copyContentReq = "{\"request\": {\"content\":{\"name\" : \"CopyContent001\",\"createdBy\":\"testUser\",\"createdFor\": [\"Ekstep\"],\"organization\": [\"ekstep\"],\"description\":\"copy content\",\"framework\":\"NCF\"}}}";
 	private static String topic = Platform.config.getString("kafka.topics.instruction");
 	private static String channelId = "in.ekstep";
@@ -160,6 +160,11 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void copyContentTest_01() throws Exception {
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(basePath + "read/" + contentId + "?mode=edit")
+				.contentType(MediaType.APPLICATION_JSON));
+		Response readResp = getResponse(actions);
+		String  createdOn = (String) ((Map<String, Object>) readResp.getResult().get("content")).get("createdOn");
+
 		String reqPath = basePath + "copy/" + contentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(reqPath).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(copyContentReq));
@@ -167,6 +172,14 @@ public class ContentV3ControllerCopyContentTest extends CommonTestSetup {
 		String id = (String) ((Map<String, Object>) resp.getResult().get("node_id")).get(contentId);
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		Assert.assertNotEquals(id, contentId);
+
+		actions = mockMvc.perform(MockMvcRequestBuilders.get(basePath + "read/" + id + "?mode=edit").contentType
+				(MediaType.APPLICATION_JSON));
+		Response readCopyResp = getResponse(actions);
+		String  createdOnCopy = (String) ((Map<String, Object>) readCopyResp.getResult().get("content")).get("createdOn");
+        System.out.println("Original CreatedOn : " + createdOn);
+        System.out.println("Copied  CreatedOn : " + createdOnCopy);
+		Assert.assertNotEquals(createdOn, createdOnCopy);
 	}
 
 	/*
