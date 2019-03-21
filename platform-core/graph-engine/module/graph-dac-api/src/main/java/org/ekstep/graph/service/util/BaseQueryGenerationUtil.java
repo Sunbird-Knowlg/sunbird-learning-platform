@@ -232,6 +232,7 @@ public class BaseQueryGenerationUtil {
 			// Adding 'createdOn' Property
 			if (BooleanUtils.isFalse(isUpdateOnly)) {
 				query.append(AuditProperties.createdOn.name() + ":  { AP_" + AuditProperties.createdOn.name() + " }, ");
+				query.append(AuditProperties.lastStatusChangedOn.name() + ":  { AP_" + AuditProperties.createdOn.name() + " }, ");
 				if(node.getMetadata().containsKey(AuditProperties.createdOn.name()))
 					paramValuesMap.put("AP_" + AuditProperties.createdOn.name(), node.getMetadata().get(AuditProperties.createdOn.name()));
 				else paramValuesMap.put("AP_" + AuditProperties.createdOn.name(), date);

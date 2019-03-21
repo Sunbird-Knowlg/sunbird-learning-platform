@@ -29,6 +29,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class CopyOperation extends BaseContentManager {
 
@@ -100,14 +103,10 @@ public class CopyOperation extends BaseContentManager {
         Node copyNode = new Node(newId, existingNode.getNodeType(), existingNode.getObjectType());
         Map<String, Object> metaData = new HashMap<>();
         metaData.putAll(existingNode.getMetadata());
-
+        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
+        nullPropList.forEach(prop -> metaData.remove(prop));
         copyNode.setMetadata(metaData);
         copyNode.setGraphId(existingNode.getGraphId());
-
-        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
-        Map<String, Object> nullPropMap = new HashMap<>();
-        nullPropList.forEach(i -> nullPropMap.put(i, null));
-        copyNode.getMetadata().putAll(nullPropMap);
         copyNode.getMetadata().putAll(requestMap);
         copyNode.getMetadata().put("status", "Draft");
         copyNode.getMetadata().put("origin", existingNode.getIdentifier());
@@ -235,15 +234,12 @@ public class CopyOperation extends BaseContentManager {
         Map<String, Object> nodesModified = new HashMap<>();
         Map<String, Object> hierarchy = new HashMap<>();
 
-        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
-        Map<String, Object> nullPropMap = new HashMap<>();
-        nullPropList.forEach(i -> nullPropMap.put(i, null));
         Map<String, Object> parentHierarchy = new HashMap<>();
         parentHierarchy.put("children", new ArrayList<>());
         parentHierarchy.put("root", true);
         parentHierarchy.put("contentType", existingNode.getMetadata().get("contentType"));
         hierarchy.put(idMap.get(existingNode.getIdentifier()), parentHierarchy);
-        populateHierarchy(children, nodesModified, hierarchy, idMap.get(existingNode.getIdentifier()), nullPropMap);
+        populateHierarchy(children, nodesModified, hierarchy, idMap.get(existingNode.getIdentifier()));
 
         Map<String, Object> data = new HashMap<>();
         data.put("nodesModified", nodesModified);
@@ -251,6 +247,50 @@ public class CopyOperation extends BaseContentManager {
 
         return data;
 
+    }
+
+    /**
+     * @param children
+     * @param nodesModified
+     * @param hierarchy
+     * @param nullPropMap
+     */
+    private void populateHierarchy(List<Map<String, Object>> children, Map<String, Object> nodesModified,
+                                     Map<String, Object> hierarchy, String parentId) {
+        List<String> nullPropList = Platform.config.getStringList("learning.content.copy.props_to_remove");
+        if (null != children && !children.isEmpty()) {
+            for (Map<String, Object> child : children) {
+                String id = (String) child.get("identifier");
+                if (equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+                    // NodesModified and hierarchy
+                    id = UUID.randomUUID().toString();
+                    Map<String, Object> metadata = new HashMap<>();
+                    metadata.putAll(child);
+                    nullPropList.forEach(prop -> metadata.remove(prop));
+                    metadata.put("children", new ArrayList<>());
+                    metadata.remove("identifier");
+                    metadata.remove("parent");
+                    metadata.remove("index");
+                    metadata.remove("depth");
+
+                    // TBD: Populate artifactUrl
+
+                    Map<String, Object> modifiedNode = new HashMap<>();
+                    modifiedNode.put("metadata", metadata);
+                    modifiedNode.put("root", false);
+                    modifiedNode.put("isNew", true);
+                    nodesModified.put(id, modifiedNode);
+                }
+                Map<String, Object> parentHierarchy = new HashMap<>();
+                parentHierarchy.put("children", new ArrayList<>());
+                parentHierarchy.put("root", false);
+                parentHierarchy.put("contentType", child.get("contentType"));
+                hierarchy.put(id, parentHierarchy);
+                ((List) ((Map<String, Object>) hierarchy.get(parentId)).get("children")).add(id);
+
+                populateHierarchy((List<Map<String, Object>>) child.get("children"), nodesModified, hierarchy, id);
+            }
+        }
     }
 
 }

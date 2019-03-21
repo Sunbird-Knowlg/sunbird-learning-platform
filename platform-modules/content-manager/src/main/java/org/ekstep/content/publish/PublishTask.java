@@ -11,6 +11,7 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
@@ -79,7 +80,17 @@ public class PublishTask implements Runnable {
 			publishedNode.getMetadata().put("versionKey", versionKey);
 			processCollection(publishedNode);
 			TelemetryManager.log("Content enrichment done for content: " + node.getIdentifier());
+			
+			publishedNode = util.getNode("domain", contentId);
+			publishHierarchy(publishedNode);
+			TelemetryManager.log("Hierarchy updated for Content :: " + node.getIdentifier());
 		}
+	}
+	
+	private void publishHierarchy(Node publishedNode) {
+		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
+		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
+		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
 	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap) throws Exception {

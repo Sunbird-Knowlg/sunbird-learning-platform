@@ -27,6 +27,7 @@ public class Telemetry {
 	private Map<String, Object> edata;
 	private List<Map<String, Object>> cdata;
 	private List<String> tags;
+	private Long syncts = ets;
 
 	/**
 	 * @param eid
@@ -44,6 +45,7 @@ public class Telemetry {
 		this.actor = actor;
 		this.context = context;
 		this.edata = edata;
+		this.syncts = ets;
 	}
 
 	/**
@@ -226,4 +228,17 @@ public class Telemetry {
 		this.cdata = cdata;
 	}
 
+	/**
+	 * @return Long
+	 */
+	public Long getSyncts() {
+		return syncts;
+	}
+
+	/**
+	 * @param syncts
+	 */
+	public void setSyncts(Long syncts) {
+		this.syncts = syncts;
+	}
 }
