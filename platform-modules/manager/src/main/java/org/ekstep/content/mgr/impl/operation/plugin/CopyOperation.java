@@ -173,36 +173,42 @@ public class CopyOperation extends BaseContentManager {
     }
 
     private void uploadArtifactUrl(Node existingNode, Node copyNode) {
-        String artifactUrl = (String) existingNode.getMetadata().get("artifactUrl");
-        if (StringUtils.isNotBlank(artifactUrl)) {
-            Response response = null;
-            String mimeType = (String) copyNode.getMetadata().get("mimeType");
-            String contentType = (String) copyNode.getMetadata().get("contentType");
+        File file = null;
+        try {
+            String artifactUrl = (String) existingNode.getMetadata().get("artifactUrl");
+            if (StringUtils.isNotBlank(artifactUrl)) {
+                Response response = null;
+                String mimeType = (String) copyNode.getMetadata().get("mimeType");
+                String contentType = (String) copyNode.getMetadata().get("contentType");
 
-            if (!isEcmlMimeType(mimeType) || isCollectionMimeType(mimeType)) {
+                if (!isEcmlMimeType(mimeType) || isCollectionMimeType(mimeType)) {
             /*if (!(StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", mimeType)
                     || StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType))) {*/
-                IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
-                BaseMimeTypeManager baseMimeTypeManager = new BaseMimeTypeManager();
+                    IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
+                    BaseMimeTypeManager baseMimeTypeManager = new BaseMimeTypeManager();
 
-                if (baseMimeTypeManager.isS3Url(artifactUrl)) {
-                    File file = copyURLToFile(artifactUrl);
-                    if (isH5PMimeType(mimeType)) {
-                        H5PMimeTypeMgrImpl h5pManager = new H5PMimeTypeMgrImpl();
-                        response = h5pManager.upload(copyNode.getIdentifier(), copyNode, true, file);
+                    if (baseMimeTypeManager.isS3Url(artifactUrl)) {
+                        file = copyURLToFile(artifactUrl);
+                        if (isH5PMimeType(mimeType)) {
+                            H5PMimeTypeMgrImpl h5pManager = new H5PMimeTypeMgrImpl();
+                            response = h5pManager.upload(copyNode.getIdentifier(), copyNode, true, file);
+                        } else {
+                            response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
+                        }
+
                     } else {
-                        response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, file, false);
+                        response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, artifactUrl);
                     }
 
-                } else {
-                    response = mimeTypeManager.upload(copyNode.getIdentifier(), copyNode, artifactUrl);
+                    if (null == response || checkError(response)) {
+                        throw new ClientException("ARTIFACT_NOT_COPIED", "ArtifactUrl not coppied.");
+                    }
                 }
 
-                if (null == response || checkError(response)) {
-                    throw new ClientException("ARTIFACT_NOT_COPIED", "ArtifactUrl not coppied.");
-                }
             }
-
+        } finally {
+            if(null != file)
+                file.delete();
         }
     }
 
