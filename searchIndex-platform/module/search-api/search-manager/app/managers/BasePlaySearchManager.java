@@ -58,6 +58,9 @@ public class BasePlaySearchManager extends Results {
 							String correlationId = UUID.randomUUID().toString();
 							if (result instanceof Response) {
 								Response response = (Response) result;
+								if(response.getResponseCode().name().equals("CLIENT_ERROR")){
+                                    return badRequest(getResult(response,request.getId(), request.getVer(), null, correlationId)).as("application/json");
+                                }
 								if (checkError(response)) {
 									String errMsg = getMessage(response);
 									return notFound(getErrorMsg(errMsg)).as("application/json");
