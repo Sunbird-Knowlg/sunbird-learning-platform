@@ -2641,7 +2641,7 @@
 					"defaultValue": "",
 					"renderingHints": "",
 					"indexed": true
-				}
+				},
 				{
 					"propertyName": "toc_url",
 					"title": "toc_url",
