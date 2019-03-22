@@ -2678,6 +2678,18 @@
 					"renderingHints": "",
 					"indexed": true
 				},
+				{
+					"propertyName": "showNotification",
+					"title": "showNotification",
+					"description": "toBeRemoved",
+					"category": "Technical",
+					"dataType": "Boolean",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
                 {
                   "propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
                   "title": "SYS_INTERNAL_LAST_UPDATED_ON",
