@@ -2631,6 +2631,18 @@
 					"indexed": true
 				},
 				{
+					"propertyName": "purpose",
+					"title": "Purpose",
+					"description": "Purpose of the Content",
+					"category": "General",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				}
+				{
 					"propertyName": "toc_url",
 					"title": "toc_url",
 					"description": "toc_url",
