@@ -1,5 +1,8 @@
 package org.ekstep.cassandra.connector.util;
 
+import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.QueryOptions;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -48,11 +51,17 @@ public class CassandraConnector {
 	 * @param sessionKeys
 	 */
     private static void prepareSession(String... sessionKeys) {
+		ConsistencyLevel consistencyLevel = getConsistencyLevel();
         for (String sessionKey : sessionKeys) {
             List<String> connectionInfo = getConnectionInfo(sessionKey.toLowerCase());
             List<InetSocketAddress> addressList = getSocketAddress(connectionInfo);
             try {
-                sessionMap.put(sessionKey.toLowerCase(), Cluster.builder().addContactPointsWithPorts(addressList).build().connect());
+				if (null != consistencyLevel) {
+					sessionMap.put(sessionKey.toLowerCase(), Cluster.builder().addContactPointsWithPorts(addressList).withQueryOptions(new QueryOptions().setConsistencyLevel(consistencyLevel)).build().connect());
+				} else {
+					sessionMap.put(sessionKey.toLowerCase(), Cluster.builder().addContactPointsWithPorts(addressList).build().connect());
+				}
+
                 registerShutdownHook();
             } catch (Exception e) {
                 TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
@@ -117,5 +126,17 @@ public class CassandraConnector {
             }
         });
     }
+
+	/**
+	 * This Method Returns the value of Consistency Level for Multi Node/DC Cassandra Cluster.
+	 * @return ConsistencyLevel
+	 */
+	private static ConsistencyLevel getConsistencyLevel() {
+		String consistencyLevel = Platform.config.hasPath("cassandra.consistency.level") ?
+				Platform.config.getString("cassandra.consistency.level") : null;
+		if (StringUtils.isNotBlank(consistencyLevel))
+			return ConsistencyLevel.valueOf(consistencyLevel.toUpperCase());
+		return null;
+	}
 
 }
