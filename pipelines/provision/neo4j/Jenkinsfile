@@ -30,6 +30,7 @@ node() {
                 values.put('ansibleExtraArgs', ansibleExtraArgs)
                 println values
                 ansible_playbook_run(values)
+                git lfs pull origin
                 fileExists = sh(returnStdout: true, script: "find ${currentWs} -name 'neo4j*.tar.gz'")
                 if (fileExists != "")
         	    sh "cp private/artifacts/neo4j*.tar.gz ansible/artifacts"
