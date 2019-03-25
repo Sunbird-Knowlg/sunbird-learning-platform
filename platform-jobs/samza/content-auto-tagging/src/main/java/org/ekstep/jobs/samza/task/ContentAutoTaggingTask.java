@@ -15,6 +15,7 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ContentAutoTaggingService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.DaggitServiceClient;
 import org.ekstep.jobs.samza.util.JobLogger;
 
 
@@ -23,20 +24,30 @@ public class ContentAutoTaggingTask implements StreamTask, InitableTask, Windowa
 	private static JobLogger LOGGER = new JobLogger(ContentAutoTaggingTask.class);
 
 	private ContentAutoTaggingService service;
-	private JobMetrics metrics;
+	public JobMetrics metrics;
 	private ContentAutoTaggingConfig config;
+	private DaggitServiceClient serviceClient;
 
 	public ContentAutoTaggingTask() {}
 
-	public ContentAutoTaggingTask(Config config, TaskContext context, ContentAutoTaggingService service) throws Exception {
-		init(config, context);
+	public ContentAutoTaggingTask(Config config, TaskContext context, DaggitServiceClient client, ContentAutoTaggingService service) throws Exception {
+		init(config, context, client);
 	}
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
+		init(config, context, serviceClient);
+	}
+
+	public void init(Config config, TaskContext context, DaggitServiceClient client) throws Exception {
 		this.config = new ContentAutoTaggingConfig(config);
+		this.serviceClient =
+				client == null ?
+						new DaggitServiceClient(this.config.getAPIEndPoint())
+						: client;
+
 		this.metrics = new JobMetrics(context, this.config.getJobName(), this.config.getMetricsTopic());
-		this.service = new ContentAutoTaggingService(this.config);
+		this.service = new ContentAutoTaggingService(this.config, this.serviceClient);
 		LOGGER.info("ContentAutoTagging Task initialized");
 	}
 	

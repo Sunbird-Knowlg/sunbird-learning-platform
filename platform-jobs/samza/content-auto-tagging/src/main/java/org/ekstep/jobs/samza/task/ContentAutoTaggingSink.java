@@ -2,6 +2,7 @@ package org.ekstep.jobs.samza.task;
 
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import java.util.Map;
 
 public class ContentAutoTaggingSink {
 
@@ -14,5 +15,15 @@ public class ContentAutoTaggingSink {
         this.metrics = metrics;
         this.config = config;
     }
+
+    public void success() { metrics.incSuccessCounter(); }
+
+    public void failed() {
+        metrics.incFailedCounter();
+    }
+
+    public void error() { metrics.incErrorCounter(); }
+
+    public void skip() { metrics.incSkippedCounter(); }
 
 }
