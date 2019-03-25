@@ -18,9 +18,9 @@ public class CassandraConnector {
 	/** Cassandra Session Map. */
 	private static Map<String,Session> sessionMap=new HashMap<>();
 
-    static {
-        prepareSession("lp");
-    }
+	static {
+		prepareSession("lp", getConsistencyLevel("lp"));
+	}
 
 	/**
 	 * Provide lp Session.
@@ -35,39 +35,39 @@ public class CassandraConnector {
 	 * @param sessionKey
 	 * @return
 	 */
-    public static Session getSession(String sessionKey) {
-        Session session = sessionMap.containsKey(sessionKey) ? sessionMap.get(sessionKey) : null;
+	public static Session getSession(String sessionKey) {
+		Session session = sessionMap.containsKey(sessionKey) ? sessionMap.get(sessionKey) : null;
 
-        if (null == session || session.isClosed()) {
-            prepareSession(sessionKey);
-            session = sessionMap.get(sessionKey);
-        }
-        if (null == session)
-            throw new ServerException("ERR_INITIALISE_CASSANDRA_SESSION", "Error while initialising cassandra");
-        return session;
-    }
+		if (null == session || session.isClosed()) {
+			ConsistencyLevel level = getConsistencyLevel(sessionKey);
+			prepareSession(sessionKey, level);
+			session = sessionMap.get(sessionKey);
+		}
+		if (null == session)
+			throw new ServerException("ERR_INITIALISE_CASSANDRA_SESSION", "Error while initialising cassandra");
+		return session;
+	}
 
 	/**
-	 * @param sessionKeys
+	 *
+	 * @param sessionKey
+	 * @param level
 	 */
-    private static void prepareSession(String... sessionKeys) {
-		ConsistencyLevel consistencyLevel = getConsistencyLevel();
-        for (String sessionKey : sessionKeys) {
-            List<String> connectionInfo = getConnectionInfo(sessionKey.toLowerCase());
-            List<InetSocketAddress> addressList = getSocketAddress(connectionInfo);
-            try {
-				if (null != consistencyLevel) {
-					sessionMap.put(sessionKey.toLowerCase(), Cluster.builder().addContactPointsWithPorts(addressList).withQueryOptions(new QueryOptions().setConsistencyLevel(consistencyLevel)).build().connect());
-				} else {
-					sessionMap.put(sessionKey.toLowerCase(), Cluster.builder().addContactPointsWithPorts(addressList).build().connect());
-				}
+	private static void prepareSession(String sessionKey, ConsistencyLevel level) {
+		List<String> connectionInfo = getConnectionInfo(sessionKey.toLowerCase());
+		List<InetSocketAddress> addressList = getSocketAddress(connectionInfo);
+		try {
+			if (null != level) {
+				sessionMap.put(sessionKey.toLowerCase(), Cluster.builder().addContactPointsWithPorts(addressList).withQueryOptions(new QueryOptions().setConsistencyLevel(level)).build().connect());
+			} else {
+				sessionMap.put(sessionKey.toLowerCase(), Cluster.builder().addContactPointsWithPorts(addressList).build().connect());
+			}
 
-                registerShutdownHook();
-            } catch (Exception e) {
-                TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
-            }
-        }
-    }
+			registerShutdownHook();
+		} catch (Exception e) {
+			TelemetryManager.error("Error! While Loading Cassandra Properties." + e.getMessage(), e);
+		}
+	}
 
 	/**
 	 *
@@ -131,9 +131,10 @@ public class CassandraConnector {
 	 * This Method Returns the value of Consistency Level for Multi Node/DC Cassandra Cluster.
 	 * @return ConsistencyLevel
 	 */
-	private static ConsistencyLevel getConsistencyLevel() {
-		String consistencyLevel = Platform.config.hasPath("cassandra.consistency.level") ?
-				Platform.config.getString("cassandra.consistency.level") : null;
+	private static ConsistencyLevel getConsistencyLevel(String clusterName) {
+		String key = "cassandra." + clusterName + ".consistency.level";
+		String consistencyLevel = Platform.config.hasPath(key) ?
+				Platform.config.getString(key) : null;
 		if (StringUtils.isNotBlank(consistencyLevel))
 			return ConsistencyLevel.valueOf(consistencyLevel.toUpperCase());
 		return null;
