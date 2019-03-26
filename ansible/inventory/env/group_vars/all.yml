@@ -37,7 +37,6 @@ yarn_slaves: "{{ groups['yarn-slave']}}"
 __yarn_host__: "{{ groups['yarn-master'][0] }}"
 
 neo4j_dir: neo4j-learning
-neo4j_home: "{{learner_user_home}}/{{neo4j_dir}}/neo4j-enterprise-3.3.9"
 
 lp_bolt_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:7687
 lp_bolt_read_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:7687
@@ -66,5 +65,6 @@ youtube_api_key: "{{ lp_vault_youtube_api_key }}"
 #### backup storage secret
 backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 
-
-
+#artfiact upload download
+artifact_azure_account_name: "{{lp_vault_azure_storage_secret}}"
+artifact_azure_account_key: "{{azure_account_name}}"
