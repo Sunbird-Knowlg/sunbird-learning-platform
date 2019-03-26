@@ -2691,6 +2691,54 @@
 					"indexed": true
 				},
 				{
+					"propertyName": "mimeTypesCount",
+					"title": "mimeTypesCount",
+					"description": "toBeRemoved",
+					"category": "General",
+					"dataType": "JSON",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "contentTypesCount",
+					"title": "contentTypesCount",
+					"description": "toBeRemoved",
+					"category": "General",
+					"dataType": "JSON",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "childNodes",
+					"title": "childNodes",
+					"description": "toBeRemoved",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "leafNodesCount",
+					"title": "leafNodesCount",
+					"description": "toBeRemoved",
+					"category": "General",
+					"dataType": "Number",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
 					"propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
 					"title": "SYS_INTERNAL_LAST_UPDATED_ON",
 					"description": "It is a System Property",
