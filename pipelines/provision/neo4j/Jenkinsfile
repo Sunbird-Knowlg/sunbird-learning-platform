@@ -20,7 +20,9 @@ node() {
                 envDir = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-3].trim()
                 module = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
                 jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
+		dir('private'){
                 checkout scm: [$class: 'GitSCM', branches: [[name: private_repo_branch]], extensions: [[$class: 'GitLFSPull'], [$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true]], userRemoteConfigs: [[credentialsId: private_repo_credentials, url: private_repo_url]]]
+		}
                 fileExists = sh(returnStdout: true, script: "find ${currentWs} -name 'neo4j*.tar.gz'")
                   if (fileExists != "")
                       sh "cp private/artifacts/neo4j*.tar.gz ansible/artifacts"
