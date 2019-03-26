@@ -66,5 +66,9 @@ youtube_api_key: "{{ lp_vault_youtube_api_key }}"
 backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 
 #artfiact upload download
-artifact_azure_account_name: "{{lp_vault_azure_storage_secret}}"
-artifact_azure_account_key: "{{azure_account_name}}"
+artifact_azure_account_name: "{{azure_account_name}}"
+artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"
+
+
+
+
