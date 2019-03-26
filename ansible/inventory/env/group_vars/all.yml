@@ -77,7 +77,3 @@ snapshot_base_path: compositesearch
 #artfiact upload download
 artifact_azure_account_name: "{{azure_account_name}}"
 artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"
-
-
-
-
