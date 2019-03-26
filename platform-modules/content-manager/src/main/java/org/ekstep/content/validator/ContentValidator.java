@@ -478,7 +478,8 @@ public class ContentValidator {
 		try {
 			HttpResponse<String> httpResponse = Unirest.head(fileURL).asString();
 			if(200 != httpResponse.getStatus()){
-				TelemetryManager.error("Content Validator : Invalid URL : " + fileURL + " does not exist");
+				TelemetryManager.error("Content Validator : Invalid URL : " + fileURL + " does not exist with status " +
+                        ": "  + httpResponse.getStatus() + " and headers : " +  httpResponse.getHeaders().toString());
 				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
 						ContentErrorMessageConstants.FILE_DOES_NOT_EXIST);
 			}
