@@ -6,11 +6,11 @@ jobs:
       - checkout
       - run: sleep 60
       - run: sudo apt-get update && sudo apt-get -y install redis-server
-      - run: sudo curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb
-      - run: sudo dpkg -i --force-confnew elasticsearch-6.3.2.deb
-      - run: sudo service elasticsearch restart
-      - run: sleep 30
-      - run: sudo service elasticsearch status
+      - run: curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb
+      - run: dpkg -i --force-confnew elasticsearch-6.3.2.deb
+      - run: service elasticsearch restart
+      #- run: sleep 30
+      - run: service elasticsearch status
       - run: mvn install:install-file -Dfile=./orchestrator/module/interpreter-api/lib/jtcl-2.7.0.jar -DgroupId=tcl.lang -DartifactId=jtcl -Dversion=2.7.0 -Dpackaging=jar
       - run:
           name: Create required directories
