@@ -74,3 +74,7 @@ backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 ## es backup
 es_snapshot_host: "{{ groups['composite-search-cluster'][0] }}"
 snapshot_base_path: compositesearch
+
+#artfiact upload download
+artifact_azure_account_name: "{{lp_vault_azure_storage_secret}}"
+artifact_azure_account_key: "{{azure_account_name}}"
