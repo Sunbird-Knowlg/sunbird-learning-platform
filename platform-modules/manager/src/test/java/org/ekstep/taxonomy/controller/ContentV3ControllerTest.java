@@ -30,6 +30,7 @@ import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -1569,6 +1570,45 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		String onlineEcarUrl = (String) ((Map<String,Object>) variants.get("online")).get("ecarUrl");
 		assertNotNull(onlineEcarUrl);
 	}
+
+	//Test case to validate Whether Textbook Id is mandatory field in update hierarchy or not
+	@Test
+	public void updateHierarchyWithoutRootNodeExpectClientError() throws Exception {
+		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\"}}}";
+		String textbookId = createContent(createTextbookReq);
+
+		String updateHierarchyRequestBody = "{\"request\": {\"data\": {\"nodesModified\": {\"TestBookUnit-01\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_01\",\"description\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\"}},\"TestBookUnit-02\": {\"isNew\": true,\"root\": false,\"metadata\": {\"mimeType\": \"application/vnd.ekstep.content-collection\",\"keywords\": [],\"name\": \"Test_Collection_TextBookUnit_02\",\"description\": \"TTest_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"appIcon\":\"appIconUrl\"}}},\"hierarchy\": {\"textbookIdentifier\": {\"name\": \"Test Textbook\",\"contentType\": \"TextBook\",\"children\": [\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\": false},\"TestBookUnit-01\": {\"name\": \"Test_Collection_TextBookUnit_01\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]},\"TestBookUnit-02\": {\"name\": \"Test_Collection_TextBookUnit_02\",\"contentType\": \"TextBookUnit\",\"root\": false,\"children\":[]}}}}}";
+		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier", textbookId);
+
+		String path = basePath + "/hierarchy/update";
+		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(updateHierarchyRequestBody));
+		Response response = getResponse(actions);
+
+		assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+        assertEquals("failed", response.getParams().getStatus());
+		assertEquals("ERR_INVALID_ROOT_ID", response.getParams().getErr());
+		assertEquals("Please Provide Valid Root Node Identifier", response.getParams().getErrmsg());
+	}
+
+    //Test case to validate Whether Textbook Id is mandatory field in update hierarchy or not
+    @Test
+    public void updateHierarchyWithRootNodeInNodesModifiedExpect200() throws Exception {
+        String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\"}}}";
+        String textbookId = createContent(createTextbookReq);
+
+        String updateHierarchyRequestBody = "{\"request\":{\"data\":{\"nodesModified\":{\"TestBookUnit-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\"}},\"TestBookUnit-02\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"textbookIdentifier\":{\"name\":\"Test Textbook\",\"contentType\":\"TextBook\",\"isNew\":false,\"root\":true}},\"hierarchy\":{\"textbookIdentifier\":{\"name\":\"Test Textbook\",\"contentType\":\"TextBook\",\"children\":[\"TestBookUnit-01\",\"TestBookUnit-02\"]},\"TestBookUnit-01\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"root\":false,\"children\":[]},\"TestBookUnit-02\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"root\":false,\"children\":[]}}}}}";
+        updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier", textbookId);
+
+        String path = basePath + "/hierarchy/update";
+        actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+                .header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(updateHierarchyRequestBody));
+        Response response = getResponse(actions);
+
+        assertEquals("OK", response.getResponseCode().toString());
+        assertEquals("successful", response.getParams().getStatus());
+        Assert.assertNotNull(response.getResult());
+    }
 
 	private String createContent(String requestBody) throws Exception {
 		String path = basePath + "/create";
