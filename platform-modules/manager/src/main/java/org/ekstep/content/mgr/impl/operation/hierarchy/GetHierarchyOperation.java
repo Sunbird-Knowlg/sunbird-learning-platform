@@ -3,6 +3,7 @@ package org.ekstep.content.mgr.impl.operation.hierarchy;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
@@ -18,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 public class GetHierarchyOperation extends BaseContentManager {
+
+    private static final String COLLECTION_MIME_TYPE = "application/vnd.ekstep.content-collection";
 
     public Response getHierarchy(String contentId, String mode) {
         if(StringUtils.equalsIgnoreCase("edit", mode)){
@@ -75,14 +78,20 @@ public class GetHierarchyOperation extends BaseContentManager {
         return (String) node.getMetadata().get("status");
     }
 
-    public Response getContentHierarchy(String contentId, String mode, List<String> fields) {
+    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields) {
+        String id = getNodeIdToBeFetched(contentId, bookMarkId);
         if(StringUtils.equalsIgnoreCase("edit", mode)){
-            Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+            Node node = getContentNode(TAXONOMY_ID, id, mode);
             String nodeStatus = (String) node.getMetadata().get("status");
 
             if(StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) {
                 throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                        "Content not found with id: " + contentId);
+                        "Content not found with id: " + id);
+            }
+
+            if(!StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, (String) node.getMetadata().get("mimeType"))) {
+                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(),
+                        "Requested ID is not of collection mimeType : " + id);
             }
 
             DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
@@ -107,13 +116,35 @@ public class GetHierarchyOperation extends BaseContentManager {
                 } else{
                     hierarchy.put("status", getStatus(contentId, mode));
                 }
-
-                response.put("content", hierarchy);
+                Map<String, Object> responseHierarchy = hierarchy;
+                if(!StringUtils.equalsIgnoreCase(id, contentId))
+                    responseHierarchy = getPublishedBookMark(hierarchy, id);
+                response.put("content", responseHierarchy);
                 response.setParams(getSucessStatus());
             } else {
                 response = hierarchyResponse;
             }
             return response;
         }
+    }
+
+    private String getNodeIdToBeFetched(String contentId, String bookMarkId) {
+        if(StringUtils.isBlank(contentId) || StringUtils.isBlank(bookMarkId))
+            throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Requested ID is null or empty");
+        return StringUtils.equalsIgnoreCase(contentId, bookMarkId) ? contentId : bookMarkId;
+    }
+
+    private Map<String, Object> getPublishedBookMark(Map<String, Object> data, String bookMarkId) {
+        List<Object> children = (List<Object>) data.get("children");
+        if (null != children && !children.isEmpty()) {
+            for (Object child : children) {
+                Map<String, Object> childMap = (Map<String, Object>) child;
+                if(StringUtils.equalsIgnoreCase(bookMarkId, (String) childMap.get("identifier")))
+                    return childMap;
+                getPublishedBookMark(childMap, bookMarkId);
+            }
+        }
+        throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+                    "Content not found with id: " + bookMarkId);
     }
 }
