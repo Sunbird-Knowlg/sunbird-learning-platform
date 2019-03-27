@@ -5,27 +5,24 @@ jobs:
     steps:
       - checkout
       - run: bash vmsetup.sh
-      # - run: sudo apt-get update && sudo apt-get -y install redis-server
-      # - run: curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb && sudo dpkg -i --force-confnew elasticsearch-6.3.2.deb && sudo service elasticsearch start
-      # - run: sudo service elasticsearch status
-      # - run: mvn install:install-file -Dfile=./orchestrator/module/interpreter-api/lib/jtcl-2.7.0.jar -DgroupId=tcl.lang -DartifactId=jtcl -Dversion=2.7.0 -Dpackaging=jar
-      # - run:
-      #     name: Create required directories
-      #     command: mkdir -p ~/logs/search/
-      #               && find ./ -type f -name "log4j2.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/~\/logs/g'
-      #               && find ./ -type f -name "logback.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/logs/g'
-      #               && find ./ -type f -name "application.conf" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
-      #               && find ./ -type f -name "*.java" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
-      #
-      # - restore_cache:
-      #     key: lp-dependency-cache-{{ checksum "pom.xml" }}
-      #
-      # - run: mvn clean install
-      #
-      #
-      # - save_cache:
-      #     key: lp-dependency-cache-{{ checksum "pom.xml" }}
-      #     paths: ~/.m2
+      - run: mvn install:install-file -Dfile=./orchestrator/module/interpreter-api/lib/jtcl-2.7.0.jar -DgroupId=tcl.lang -DartifactId=jtcl -Dversion=2.7.0 -Dpackaging=jar
+      - run:
+          name: Create required directories
+          command: mkdir -p ~/logs/search/
+                    && find ./ -type f -name "log4j2.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/~\/logs/g'
+                    && find ./ -type f -name "logback.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/logs/g'
+                    && find ./ -type f -name "application.conf" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
+                    && find ./ -type f -name "*.java" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
+
+      - restore_cache:
+          key: lp-dependency-cache-{{ checksum "pom.xml" }}
+
+      - run: mvn clean install
+
+
+      - save_cache:
+          key: lp-dependency-cache-{{ checksum "pom.xml" }}
+          paths: ~/.m2
         
 workflows:
   version: 2.1
