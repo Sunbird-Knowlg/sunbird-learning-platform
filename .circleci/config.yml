@@ -7,25 +7,13 @@ jobs:
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
       - run: bash vmsetup.sh
-      #- run: sudo service elasticsearch status
-      #- run: mvn install:install-file -Dfile=./orchestrator/module/interpreter-api/lib/jtcl-2.7.0.jar -DgroupId=tcl.lang -DartifactId=jtcl -Dversion=2.7.0 -Dpackaging=jar
-      #- run:
-          #name: Create required directories
-          #command: mkdir -p ~/logs/search/
-                    #&& find ./ -type f -name "log4j2.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/~\/logs/g'
-                    #&& find ./ -type f -name "logback.xml" -print0 | xargs -0 sed -i -e 's/\/data\/logs/logs/g'
-                    #&& find ./ -type f -name "application.conf" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
-                    #&& find ./ -type f -name "*.java" -print0 | xargs -0 sed -i -e 's/\/data\//~\//g'
-
-      #- restore_cache:
-          #key: lp-dependency-cache-{{ checksum "pom.xml" }}
-
-      #- run: mvn clean install
-
 
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
+      
+      - run: wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets[0].browser_download_url')
+      - run: find . -name jacoco.xml | awk '{print "java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r " $0 " --partial"}' | bash
         
 workflows:
   version: 2.1
