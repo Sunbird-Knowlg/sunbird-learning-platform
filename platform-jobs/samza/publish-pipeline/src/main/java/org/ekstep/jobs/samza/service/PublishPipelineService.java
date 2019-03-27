@@ -1,6 +1,9 @@
 package org.ekstep.jobs.samza.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -11,6 +14,7 @@ import org.ekstep.common.Slug;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -298,8 +302,25 @@ public class PublishPipelineService implements ISamzaService {
 			graphNode.getMetadata().put("publish_type", publishType);
 		}
 		publishNode(graphNode, node.getMimeType());
+		updateLeafNodeCount(node.getIdentifier().replace(".img", ""));
 	}
-
+	
+	private void updateLeafNodeCount(String contentId) {
+		Node graphNode = util.getNode("domain", contentId);
+		try {
+			enrichCollection(graphNode);
+			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+			graphNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
+			Response response = util.updateNode(graphNode);
+			if(!response.getResponseCode().equals(ResponseCode.OK.name())) {
+				LOGGER.debug("leafNodesCount could not be updated for content :: " + contentId + 
+						"Error:: " + response.getParams().getErrmsg());
+			}
+		} catch (Exception e) {
+			LOGGER.error("leafNodesCount could not be updated for content :: " + contentId, e);
+		}
+	}
+	
 	private void publishNode(Node node, String mimeType) {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
@@ -402,7 +423,7 @@ public class PublishPipelineService implements ISamzaService {
 
 		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.visibility.name()),
 				PublishPipelineParams.Default.name())) {
-			processCollectionForTOC(node);
+			enrichCollection(node);
 		}
 
 		util.updateNode(node);
@@ -538,54 +559,67 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		return dataMap;
 	}
-
+	
 	@SuppressWarnings("unchecked")
-	public void processCollectionForTOC(Node node) throws Exception {
+	public void enrichCollection(Node node) throws Exception {
 
 		String contentId = node.getIdentifier();
 		LOGGER.info("Processing Collection Content :" + contentId);
 		Response response = util.getHirerachy(contentId);
 		if (null != response && null != response.getResult()) {
 			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
-			Map<String, Object> mimeTypeMap = new HashMap<>();
-			Map<String, Object> contentTypeMap = new HashMap<>();
-
+			if(MapUtils.isEmpty(content))
+				return;
 			int leafCount = 0;
-			getTypeCount(content, "mimeType", mimeTypeMap);
-			getTypeCount(content, "contentType", contentTypeMap);
-			content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
-			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			leafCount = getLeafNodeCount(content, leafCount);
 			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			
+			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get("visibility"), ContentAPIParams.Parent.name()))
+				return;
+			
+			Map<String, Object> mimeTypeMap = new HashMap<>();
+			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
+			
+			getTypeCount(content, "mimeType", mimeTypeMap);
+			getTypeCount(content, "contentType", contentTypeMap);
+			
+			content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			content.put(ContentAPIParams.childNodes.name(), childNodes);
-			LOGGER.info("Write hirerachy to JSON File :" + contentId);
-			String data = mapper.writeValueAsString(content);
-			File file = new File(getBasePath(contentId) + "TOC.json");
-			try {
-				FileUtils.writeStringToFile(file, data);
-				if (file.exists()) {
-					LOGGER.info("Upload File to cloud storage :" + file.getName());
-					//String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(contentId), file);
-					String[] uploadedFileUrl = CloudStore.uploadFile(getAWSPath(contentId), file, true);
-					if (null != uploadedFileUrl && uploadedFileUrl.length > 1) {
-						String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
-						LOGGER.info("Update cloud storage url to node" + url);
-						node.getMetadata().put(ContentAPIParams.toc_url.name(), url);
-					}
-					FileUtils.deleteDirectory(file.getParentFile());
-					LOGGER.info("Deleting Uploaded files");
-				}
-			} catch (Exception e) {
-				LOGGER.error("Error while uploading file ", e);
-			}
+			
+			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
 			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
-			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
 	}
-
+	
+	
+	public String generateTOC(Node node, Map<String, Object> content) throws JsonProcessingException {
+		LOGGER.info("Write hirerachy to JSON File :" + node.getIdentifier());
+		String data = mapper.writeValueAsString(content);
+		File file = new File(getBasePath(node.getIdentifier()) + "TOC.json");
+		String url = null;
+		try {
+			FileUtils.writeStringToFile(file, data);
+			if (file.exists()) {
+				LOGGER.info("Upload File to cloud storage :" + file.getName());
+				String[] uploadedFileUrl = CloudStore.uploadFile(getAWSPath(node.getIdentifier()), file, true);
+				if (null != uploadedFileUrl && uploadedFileUrl.length > 1) {
+					url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
+					LOGGER.info("Update cloud storage url to node" + url);
+				}
+				FileUtils.deleteDirectory(file.getParentFile());
+				LOGGER.info("Deleting Uploaded files");
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error while uploading file ", e);
+		}
+		return url;
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void getTypeCount(Map<String, Object> data, String type, Map<String, Object> typeMap) {
 		List<Object> children = (List<Object>) data.get("children");
