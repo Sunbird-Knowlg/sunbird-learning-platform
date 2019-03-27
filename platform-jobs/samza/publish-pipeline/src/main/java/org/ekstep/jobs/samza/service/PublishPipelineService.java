@@ -1,6 +1,8 @@
 package org.ekstep.jobs.samza.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -11,6 +13,7 @@ import org.ekstep.common.Slug;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -298,6 +301,26 @@ public class PublishPipelineService implements ISamzaService {
 			graphNode.getMetadata().put("publish_type", publishType);
 		}
 		publishNode(graphNode, node.getMimeType());
+		updateLeafNodeCount(node.getIdentifier().replace(".img", ""));
+	}
+	
+	private void updateLeafNodeCount(String contentid) {
+		Node graphNode = util.getNode("domain", contentid);
+		String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		graphNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
+		Response response = util.getHirerachy(contentid);
+		if (null != response && null != response.getResult()) {
+			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
+			if(MapUtils.isNotEmpty(content)) {
+				int leafCount = 0;
+				leafCount = getLeafNodeCount(content, leafCount);
+				graphNode.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+				response = util.updateNode(graphNode);
+				if(!response.getResponseCode().equals(ResponseCode.OK.name())) {
+					LOGGER.debug("leafNodesCount could not be updated for content :: " + contentid);
+				}
+			}
+		}
 	}
 
 	private void publishNode(Node node, String mimeType) {
