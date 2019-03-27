@@ -5,6 +5,7 @@ jobs:
     steps:
       - checkout
       - run: bash vmsetup.sh
+      - run: sudo service elasticsearch status
       - run: mvn install:install-file -Dfile=./orchestrator/module/interpreter-api/lib/jtcl-2.7.0.jar -DgroupId=tcl.lang -DartifactId=jtcl -Dversion=2.7.0 -Dpackaging=jar
       - run:
           name: Create required directories
