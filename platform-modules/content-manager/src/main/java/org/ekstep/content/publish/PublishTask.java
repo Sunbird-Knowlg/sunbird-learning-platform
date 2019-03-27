@@ -290,7 +290,7 @@ public class PublishTask implements Runnable {
 				return;
 			int leafCount = 0;
 			leafCount = getLeafNodeCount(content, leafCount);
-			content.put(ContentAPIParams.leafNodesCount.name(), getLeafNodeCount(content, leafCount));
+			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get("visibility"), ContentAPIParams.Parent.name()))
