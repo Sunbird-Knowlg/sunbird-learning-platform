@@ -1,5 +1,6 @@
 #!/bin/bash
-sleep 20
+sudo ps -ef | grep apt
+sudo ps -ef | grep dpkg
 sudo apt update
 sudo apt install redis-server -y
 curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb
