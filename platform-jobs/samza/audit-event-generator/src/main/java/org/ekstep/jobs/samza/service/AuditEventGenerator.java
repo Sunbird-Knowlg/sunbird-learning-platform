@@ -90,7 +90,7 @@ public class AuditEventGenerator implements ISamzaService {
 		try {
 			Map<String, Object> auditMap = getAuditMessage(message);
 			String objectType = (String) ((Map<String, Object>) auditMap.get("object")).get("type");
-			if (null != objectType) {
+			if (StringUtils.isNotBlank(objectType)) {
 				collector.send(new OutgoingMessageEnvelope(systemStream, auditMap));
 				LOGGER.info("Telemetry Audit Message Successfully Sent for : "
 						+ (String) ((Map<String, Object>) auditMap.get("object")).get("id"));
