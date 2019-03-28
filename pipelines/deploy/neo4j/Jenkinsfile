@@ -49,7 +49,7 @@ node() {
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
                     ansible_playbook_run(values)
-                    ansibleExtraArgs = "-vault-password-file /var/lib/jenkins/secrets/vault-pass"
+                    ansibleExtraArgs = "--vault-password-file /var/lib/jenkins/secrets/vault-pass"
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
                     ansible_playbook_run(values)
