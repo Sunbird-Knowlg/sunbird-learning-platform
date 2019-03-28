@@ -68,6 +68,7 @@ dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
 youtube_api_key: "{{ lp_vault_youtube_api_key }}"
 
 #### backup storage secret
+backup_azure_storage_account_name: "{{azure_account_name}}"
 backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 
 ## es backup
