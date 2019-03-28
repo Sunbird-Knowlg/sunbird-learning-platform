@@ -8,10 +8,12 @@ public class ContentAutoTaggingConfig {
 
     private String metricsTopic;
     private String apiEndPoint;
+    private String daggitExperimentName;
 
     public ContentAutoTaggingConfig(Config config) {
         this.metricsTopic = config.get("output.metrics.topic.name");
         this.apiEndPoint = config.get("daggit.api.endpoint");
+        this.daggitExperimentName = config.getOrDefault("daggit.experiment.name", "diksha_content_keyword_tagging");
     }
 
     public String getJobName() {
@@ -24,5 +26,9 @@ public class ContentAutoTaggingConfig {
 
     public String getAPIEndPoint() {
         return apiEndPoint;
+    }
+
+    public String getExperimentName() {
+        return daggitExperimentName;
     }
 }

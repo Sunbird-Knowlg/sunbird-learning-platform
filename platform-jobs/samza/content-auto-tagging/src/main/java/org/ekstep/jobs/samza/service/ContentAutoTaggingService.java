@@ -46,6 +46,7 @@ public class ContentAutoTaggingService {
         }
         catch (Exception e) {
             LOGGER.info("Exception: "+ e.getMessage());
+            e.printStackTrace();
             sink.error();
         }
     }

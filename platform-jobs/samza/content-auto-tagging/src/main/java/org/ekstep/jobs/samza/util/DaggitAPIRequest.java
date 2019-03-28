@@ -9,9 +9,11 @@ public class DaggitAPIRequest {
     public static final String REQUEST_ID = "unique API ID";
     public static final String VERSION = "1.0";
     private final String identifier;
+    private final String experimentName;
 
-    public DaggitAPIRequest(String identifier) {
+    public DaggitAPIRequest(String identifier, String experimentName) {
         this.identifier = identifier;
+        this.experimentName = experimentName;
     }
 
     public HashMap<String, Object> toMap() {
@@ -20,6 +22,7 @@ public class DaggitAPIRequest {
         m.put("ts", new Date().toString());
         m.put("ver", VERSION);
         m.put("request", getRequest());
+        m.put("experiment_name", experimentName);
         m.put("params", new HashMap<String, String>());
 
         return m;

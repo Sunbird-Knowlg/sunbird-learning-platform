@@ -2,6 +2,7 @@ package org.ekstep.jobs.samza.task;
 
 import java.util.Map;
 
+import com.google.gson.Gson;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -43,7 +44,7 @@ public class ContentAutoTaggingTask implements StreamTask, InitableTask, Windowa
 		this.config = new ContentAutoTaggingConfig(config);
 		this.serviceClient =
 				client == null ?
-						new DaggitServiceClient(this.config.getAPIEndPoint())
+						new DaggitServiceClient(this.config.getAPIEndPoint(), this.config.getExperimentName())
 						: client;
 
 		this.metrics = new JobMetrics(context, this.config.getJobName(), this.config.getMetricsTopic());
@@ -64,7 +65,8 @@ public class ContentAutoTaggingTask implements StreamTask, InitableTask, Windowa
 	@Override
 	public void window(MessageCollector collector, TaskCoordinator coordinator) {
 		Map<String, Object> event = metrics.collect();
-		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", config.getMetricsTopic()), event));
+		String strEvent = new Gson().toJson(event, Map.class);
+		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", config.getMetricsTopic()), strEvent));
 		metrics.clear();
 	}
 }
