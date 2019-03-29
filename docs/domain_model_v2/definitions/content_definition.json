@@ -2707,7 +2707,7 @@
 					"title": "contentTypesCount",
 					"description": "toBeRemoved",
 					"category": "General",
-					"dataType": "JSON",
+					"dataType": "Text",
 					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
