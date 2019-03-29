@@ -41,6 +41,7 @@ import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -611,11 +612,16 @@ public class PublishPipelineService implements ISamzaService {
 					url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
 					LOGGER.info("Update cloud storage url to node" + url);
 				}
-				FileUtils.deleteDirectory(file.getParentFile());
-				LOGGER.info("Deleting Uploaded files");
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error while uploading file ", e);
+		}finally {
+			try {
+				LOGGER.info("Deleting Uploaded files");
+				FileUtils.deleteDirectory(file.getParentFile());
+			} catch (IOException e) {
+				LOGGER.error("Error while deleting file ", e);
+			}
 		}
 		return url;
 	}
