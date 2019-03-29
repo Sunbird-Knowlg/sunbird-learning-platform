@@ -25,7 +25,7 @@ public class ContentAutoTaggingTask implements StreamTask, InitableTask, Windowa
 	private static JobLogger LOGGER = new JobLogger(ContentAutoTaggingTask.class);
 
 	private ContentAutoTaggingService service;
-	public JobMetrics metrics;
+	private JobMetrics metrics;
 	private ContentAutoTaggingConfig config;
 	private DaggitServiceClient serviceClient;
 
