@@ -1,5 +1,7 @@
 package org.ekstep.content.mgr.impl.operation.hierarchy;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -17,6 +19,7 @@ import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GetHierarchyOperation extends BaseContentManager {
 
@@ -117,8 +120,13 @@ public class GetHierarchyOperation extends BaseContentManager {
                     hierarchy.put("status", getStatus(contentId, mode));
                 }
                 Map<String, Object> responseHierarchy = hierarchy;
-                if(!StringUtils.equalsIgnoreCase(id, contentId))
-                    responseHierarchy = getPublishedBookMark(hierarchy, id);
+                if(!StringUtils.equalsIgnoreCase(id, contentId)) {
+                    responseHierarchy = getPublishedBookMark((List<Map<String, Object>>) hierarchy.get("children"), id);
+                    if(MapUtils.isEmpty(responseHierarchy)){
+                        throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+                                "Content not found with id: " + id);
+                    }
+                }
                 response.put("content", responseHierarchy);
                 response.setParams(getSucessStatus());
             } else {
@@ -134,17 +142,24 @@ public class GetHierarchyOperation extends BaseContentManager {
         return StringUtils.equalsIgnoreCase(contentId, bookMarkId) ? contentId : bookMarkId;
     }
 
-    private Map<String, Object> getPublishedBookMark(Map<String, Object> data, String bookMarkId) {
-        List<Object> children = (List<Object>) data.get("children");
-        if (null != children && !children.isEmpty()) {
-            for (Object child : children) {
-                Map<String, Object> childMap = (Map<String, Object>) child;
-                if(StringUtils.equalsIgnoreCase(bookMarkId, (String) childMap.get("identifier")))
-                    return childMap;
-                getPublishedBookMark(childMap, bookMarkId);
+
+
+    private static Map<String,Object> getPublishedBookMark(List<Map<String, Object>> children, String bookMarkId) {
+        if(CollectionUtils.isNotEmpty(children)){
+            List<Map<String ,Object>> response = children.stream().filter(child -> StringUtils.equalsIgnoreCase
+                    (bookMarkId, (String)
+                    child.get("identifier"))).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(response))
+                return response.get(0);
+            else{
+                List<Map<String, Object>> nextChildren = children.stream().flatMap(child -> ((List<Map<String,
+                        Object>>)child.get("children")).stream()).collect(Collectors.toList());
+
+                return getPublishedBookMark(nextChildren, bookMarkId);
             }
+
         }
-        throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                    "Content not found with id: " + bookMarkId);
+        return null;
+
     }
 }
