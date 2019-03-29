@@ -30,11 +30,14 @@ public class ContentAutoTaggingService {
             if(operationType.equals("CREATE")) {
                 String contentId = event.getContentId();
                 DaggitAPIResponse response = client.submit(contentId);
-                if(response.successful())
+                if(response.successful()) {
+                    LOGGER.info("Successfully submitted request");
                     sink.success();
-                else
+                }
+                else {
                     LOGGER.info("Submit API call failed");
                     sink.failed();
+                }
             }
 
             else

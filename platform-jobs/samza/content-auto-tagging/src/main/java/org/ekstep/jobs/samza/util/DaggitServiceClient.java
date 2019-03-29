@@ -7,6 +7,7 @@ import java.io.IOException;
 
 public class DaggitServiceClient {
 
+    private static JobLogger LOGGER = new JobLogger(DaggitServiceClient.class);
     private final String apiEndPoint;
     private final String experimentName;
     private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
@@ -23,10 +24,10 @@ public class DaggitServiceClient {
                 .url(apiEndPoint)
                 .post(RequestBody.create(JSON_MEDIA_TYPE, body))
                 .build();
-        System.out.println("Request: " + request);
+        LOGGER.info("Request URI: " + request + "Request Body: " + body);
         Response response = new OkHttpClient().newCall(request).execute();
-        System.out.println("Response: " + response);
         String responseBody = response.body().string();
+        LOGGER.info("Response Body: " + responseBody);
         return new Gson().fromJson(responseBody, DaggitAPIResponse.class);
     }
 }

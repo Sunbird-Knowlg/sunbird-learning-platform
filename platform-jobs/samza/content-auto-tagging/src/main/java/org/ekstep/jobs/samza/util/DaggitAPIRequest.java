@@ -22,7 +22,6 @@ public class DaggitAPIRequest {
         m.put("ts", new Date().toString());
         m.put("ver", VERSION);
         m.put("request", getRequest());
-        m.put("experiment_name", experimentName);
         m.put("params", new HashMap<String, String>());
 
         return m;
@@ -37,6 +36,7 @@ public class DaggitAPIRequest {
         content.add(identifierMap);
         input.put("content", content);
         request.put("input", input);
+        request.put("experiment_name", experimentName);
         return request;
     }
 }
