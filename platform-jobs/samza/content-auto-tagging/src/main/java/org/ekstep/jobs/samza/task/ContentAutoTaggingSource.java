@@ -16,7 +16,6 @@ public class ContentAutoTaggingSource {
     @SuppressWarnings("unchecked")
     private Map<String, Object> getMap() {
         String message = (String) envelope.getMessage();
-        System.out.println("incoming message: " + message);
         return (Map<String, Object>) new Gson().fromJson(message, Map.class);
     }
 
