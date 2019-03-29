@@ -298,6 +298,11 @@ public class PublishPipelineService implements ISamzaService {
 			graphNode.getMetadata().put("publish_type", publishType);
 		}
 		publishNode(graphNode, node.getMimeType());
+		
+		String identifier = graphNode.getIdentifier().replace(".img", "");
+		graphNode = util.getNode("domain", identifier);
+		publishHierarchy(graphNode);
+		LOGGER.debug("Hierarchy updated for Collection Unit :: " + identifier);
 	}
 
 	private void publishNode(Node node, String mimeType) {
