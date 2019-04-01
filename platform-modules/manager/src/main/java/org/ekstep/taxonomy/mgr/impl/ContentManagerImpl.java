@@ -184,8 +184,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
     @Override
-    public Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception {
-        return this.hierarchyManager.getContentHierarchy(contentId, mode, fields);
+    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields) throws
+			Exception {
+        return this.hierarchyManager.getContentHierarchy(contentId, bookMarkId, mode, fields);
     }
 
 }
