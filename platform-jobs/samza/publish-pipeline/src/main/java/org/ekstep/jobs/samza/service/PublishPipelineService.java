@@ -330,7 +330,6 @@ public class PublishPipelineService implements ISamzaService {
 					e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
-			node.setInRelations(null);
 			util.updateNode(node);
 			hierarchyStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
 		} finally {

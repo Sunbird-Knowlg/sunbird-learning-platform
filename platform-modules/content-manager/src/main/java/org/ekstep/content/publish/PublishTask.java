@@ -380,7 +380,6 @@ public class PublishTask implements Runnable {
 					+ "]", e);
 			node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());
-			node.setInRelations(null);
 			util.updateNode(node);
 			hierarchyStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
 		}
