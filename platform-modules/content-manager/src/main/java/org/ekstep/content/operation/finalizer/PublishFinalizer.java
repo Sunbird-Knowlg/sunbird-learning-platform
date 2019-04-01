@@ -389,6 +389,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Response response = getDataNode(TAXONOMY_ID, identifier);
 		if (!checkError(response)) {
 			Node node = (Node) response.get(GraphDACParams.node.name());
+			node.setInRelations(null);
 			Response updateResp = updateNode(node);
 			if (!checkError(updateResp)) {
 				return (String) updateResp.get(GraphDACParams.versionKey.name());
@@ -530,12 +531,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.publish_type.name(), null);
 			if (null != dbNode) {
-				contentImage.setInRelations(dbNode.getInRelations());
+				contentImage.setInRelations(null);
 				contentImage.setOutRelations(dbNode.getOutRelations());
-				if(null == contentImage.getInRelations()) 
-					contentImage.setInRelations(new ArrayList<>());
-				if(null == contentImage.getOutRelations())
-					contentImage.setOutRelations(new ArrayList<>());
 				removeExtraProperties(contentImage);
 			}
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
