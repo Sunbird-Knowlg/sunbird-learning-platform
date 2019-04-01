@@ -7,12 +7,18 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>image-tagging</artifactId>
-	<version>0.0.71</version>
+	<version>0.0.72</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>platform-dac</artifactId>
 			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j-1.2-api</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>

@@ -79,6 +79,8 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                     Node rootNode = nodeMap.get(rootNodeId);
                     versionKey = System.currentTimeMillis() + "";
                     rootNode.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+                } else {
+                    throw new ClientException("ERR_INVALID_ROOT_ID", "Please Provide Valid Root Node Identifier");
                 }
                 List<Node> nodes = new ArrayList<Node>(nodeMap.values());
                 Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
