@@ -285,5 +285,15 @@ public interface IContentManager {
 	 */
 	Response releaseDialcodes(String contentId, String channelId) throws Exception;
 
-	Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception;
+	/**
+	 *
+	 * @param contentId
+	 * @param bookMarkId
+	 * @param mode
+	 * @param fields
+	 * @return
+	 * @throws Exception
+	 */
+	Response getContentHierarchy(String contentId, String bookMarkId,  String mode, List<String> fields) throws
+			Exception;
 }

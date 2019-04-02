@@ -275,6 +275,7 @@ public class BasePlaySearchManager extends Results {
 	}
 
 	/**
+	 * This method populates Target Object field for DIAL Scan.
 	 * @param context
 	 * @param filters
 	 */
