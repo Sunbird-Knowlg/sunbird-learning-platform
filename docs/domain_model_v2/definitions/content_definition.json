@@ -2513,7 +2513,7 @@
 				{
 					"propertyName": "uploadError",
 					"title": "uploadError",
-					"description": "Error Message During Upload Operation",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2525,7 +2525,7 @@
 				{
 					"propertyName": "appId",
 					"title": "appId",
-					"description": "appId",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2537,7 +2537,7 @@
 				{
 					"propertyName": "s3Key",
 					"title": "s3Key",
-					"description": "Cloud Storage Path for Content",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2549,7 +2549,7 @@
 				{
 					"propertyName": "consumerId",
 					"title": "consumerId",
-					"description": "Consumer Id",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2561,7 +2561,7 @@
 				{
 					"propertyName": "organisation",
 					"title": "Array of org names (partner names)",
-					"description": "Array of organisation names (partner names)",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "List",
 					"required": false,
@@ -2573,7 +2573,7 @@
 				{
 					"propertyName": "nodeType",
 					"title": "Node Type",
-					"description": "Type of Node. e.g: Data Node, Definition Node, etc",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2585,7 +2585,7 @@
 				{
 					"propertyName": "prevState",
 					"title": "Previous State",
-					"description": "Previous Status of the Content",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2597,7 +2597,7 @@
 				{
 					"propertyName": "publishError",
 					"title": "Publish Error",
-					"description": "Error Occurred While Publish",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2609,7 +2609,7 @@
 				{
 					"propertyName": "publish_type",
 					"title": "publish_type",
-					"description": "publish_type",
+					"description": "R1.15",
 					"category": "Technical",
 					"dataType": "Text",
 					"required": false,
@@ -2621,7 +2621,7 @@
 				{
 					"propertyName": "ownedBy",
 					"title": "Owned By",
-					"description": "Owned By",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2633,7 +2633,7 @@
 				{
 					"propertyName": "purpose",
 					"title": "Purpose",
-					"description": "Purpose of the Content",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2645,7 +2645,7 @@
 				{
 					"propertyName": "toc_url",
 					"title": "toc_url",
-					"description": "toc_url",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2657,7 +2657,7 @@
 				{
 					"propertyName": "isNew",
 					"title": "isNew",
-					"description": "toBeRemoved",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Boolean",
 					"required": false,
@@ -2669,7 +2669,7 @@
 				{
 					"propertyName": "reviewError",
 					"title": "reviewError",
-					"description": "toBeRemoved",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2681,7 +2681,7 @@
 				{
 					"propertyName": "showNotification",
 					"title": "showNotification",
-					"description": "toBeRemoved",
+					"description": "R1.15",
 					"category": "Technical",
 					"dataType": "Boolean",
 					"required": false,
@@ -2693,7 +2693,7 @@
 				{
 					"propertyName": "mimeTypesCount",
 					"title": "mimeTypesCount",
-					"description": "toBeRemoved",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2705,7 +2705,7 @@
 				{
 					"propertyName": "contentTypesCount",
 					"title": "contentTypesCount",
-					"description": "toBeRemoved",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2717,7 +2717,7 @@
 				{
 					"propertyName": "childNodes",
 					"title": "childNodes",
-					"description": "toBeRemoved",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "List",
 					"required": false,
@@ -2729,7 +2729,7 @@
 				{
 					"propertyName": "leafNodesCount",
 					"title": "leafNodesCount",
-					"description": "toBeRemoved",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Number",
 					"required": false,
@@ -2741,7 +2741,7 @@
 				{
 					"propertyName": "year",
 					"title": "year",
-					"description": "toBeRemoved",
+					"description": "R1.15",
 					"category": "General",
 					"dataType": "Text",
 					"required": false,
@@ -2753,7 +2753,7 @@
                 {
                   "propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
                   "title": "SYS_INTERNAL_LAST_UPDATED_ON",
-                  "description": "It is a System Property",
+                  "description": "R1.15",
                   "category": "Technical",
                   "dataType": "Text",
                   "required": false,
