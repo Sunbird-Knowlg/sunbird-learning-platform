@@ -12,15 +12,16 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class Producer {
 
-	public Producer(String id, String ver) {
-		super();
-		this.id = id;
-		this.ver = ver;
-	}
-
 	String id;
 	String pid;
 	String ver;
+
+	public Producer(String id, String pid, String ver) {
+		super();
+		this.id = id;
+		this.pid = pid;
+		this.ver = ver;
+	}
 
 	/**
 	 * @return the id

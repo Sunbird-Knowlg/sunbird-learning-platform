@@ -1,9 +1,12 @@
 package org.ekstep.content.publish;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
@@ -260,7 +263,7 @@ public class PublishTask implements Runnable {
 		}
 		
 		if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get("visibility"), "Default")) {
-			//processCollectionForTOC(node);
+			enrichCollection(node);
 		}
 		
 		util.updateNode(node);
@@ -270,6 +273,98 @@ public class PublishTask implements Runnable {
 				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
 				if (!concepts.isEmpty()) {
 					util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
+				}
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void enrichCollection(Node node) throws Exception {
+
+		String contentId = node.getIdentifier();
+		TelemetryManager.info("Processing Collection Content :" + contentId);
+		Response response = util.getHirerachy(contentId);
+		if (null != response && null != response.getResult()) {
+			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
+			if(MapUtils.isEmpty(content))
+				return;
+			int leafCount = 0;
+			leafCount = getLeafNodeCount(content, leafCount);
+			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			
+			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get("visibility"), ContentAPIParams.Parent.name()))
+				return;
+			
+			Map<String, Object> mimeTypeMap = new HashMap<>();
+			Map<String, Object> contentTypeMap = new HashMap<>();
+			List<String> childNodes = getChildNode(content);
+			
+			getTypeCount(content, "mimeType", mimeTypeMap);
+			getTypeCount(content, "contentType", contentTypeMap);
+			
+			content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+			content.put(ContentAPIParams.childNodes.name(), childNodes);
+			
+			//node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
+			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Integer getLeafNodeCount(Map<String, Object> data, int leafCount) {
+		List<Object> children = (List<Object>) data.get("children");
+		if (null != children && !children.isEmpty()) {
+			for (Object child : children) {
+				Map<String, Object> childMap = (Map<String, Object>) child;
+				int lc = 0;
+				lc = getLeafNodeCount(childMap, lc);
+				leafCount = leafCount + lc;
+			}
+		} else {
+			if (!COLLECTION_CONTENT_MIMETYPE.equals(data.get(ContentAPIParams.mimeType.name())))
+				leafCount++;
+		}
+		return leafCount;
+	}
+	
+	private List<String> getChildNode(Map<String, Object> data) {
+		Set<String> childrenSet = new HashSet<>();
+		getChildNode(data, childrenSet);
+		return new ArrayList<>(childrenSet);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void getChildNode(Map<String, Object> data, Set<String> childrenSet) {
+		List<Object> children = (List<Object>) data.get("children");
+		if (null != children && !children.isEmpty()) {
+			for (Object child : children) {
+				Map<String, Object> childMap = (Map<String, Object>) child;
+				childrenSet.add((String) childMap.get("identifier"));
+				getChildNode(childMap, childrenSet);
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void getTypeCount(Map<String, Object> data, String type, Map<String, Object> typeMap) {
+		List<Object> children = (List<Object>) data.get("children");
+		if (null != children && !children.isEmpty()) {
+			for (Object child : children) {
+				Map<String, Object> childMap = (Map<String, Object>) child;
+				String typeValue = childMap.get(type).toString();
+				if (typeMap.containsKey(typeValue)) {
+					int count = (int) typeMap.get(typeValue);
+					count++;
+					typeMap.put(typeValue, count);
+				} else {
+					typeMap.put(typeValue, 1);
+				}
+				if (childMap.containsKey("children")) {
+					getTypeCount(childMap, type, typeMap);
 				}
 			}
 		}
@@ -360,6 +455,23 @@ public class PublishTask implements Runnable {
 			graphNode.getMetadata().put("publish_type", publishType);
 		}
 		publishNode(graphNode, node.getMimeType());
+		updateLeafNodeCount(node.getIdentifier().replace(".img", ""));
+	}
+	
+	private void updateLeafNodeCount(String contentId) {
+		Node graphNode = util.getNode("domain", contentId);
+		try {
+			enrichCollection(graphNode);
+			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+			graphNode.getMetadata().put(ContentAPIParams.versionKey.name(), versionKey);
+			Response response = util.updateNode(graphNode);
+			if(!response.getResponseCode().equals(ResponseCode.OK.name())) {
+				TelemetryManager.info("leafNodesCount could not be updated for content :: " + contentId + 
+						"Error:: " + response.getParams().getErrmsg());
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("leafNodesCount could not be updated for content :: " + contentId, e);
+		}
 	}
 
 	private void publishNode(Node node, String mimeType) {
