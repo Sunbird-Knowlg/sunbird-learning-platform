@@ -78,6 +78,8 @@ public class TelemetryAccessEventUtil {
 					context.put("uid", request.getParams().getUid());
 				}
 			}
+			if (StringUtils.isNotBlank((String) data.get(HeaderParam.APP_ID.name())))
+				context.put(HeaderParam.APP_ID.name(), (String) data.get(HeaderParam.APP_ID.name()));
 			TelemetryManager.access(context, params);
 		}
 

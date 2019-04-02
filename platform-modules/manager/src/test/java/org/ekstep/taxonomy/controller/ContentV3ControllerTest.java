@@ -30,7 +30,6 @@ import org.ekstep.taxonomy.mgr.impl.ContentManagerImpl;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -415,7 +414,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 
 	@Test
 	public void testGetHeirarchyWithFailedResp() throws Exception {
-		String path = basePath + "/hierarchy/do_11257769111443865611";
+		String path = basePath + "/hierarchy/do_abc";
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
 		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
