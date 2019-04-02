@@ -173,7 +173,7 @@ public class CopyOperation extends BaseContentManager {
     }
 
     private void uploadArtifactUrl(Node existingNode, Node copyNode) {
-        File file = null;
+        File file =null;
         try {
             String artifactUrl = (String) existingNode.getMetadata().get("artifactUrl");
             if (StringUtils.isNotBlank(artifactUrl)) {
@@ -207,7 +207,7 @@ public class CopyOperation extends BaseContentManager {
 
             }
         } finally {
-            if(null != file)
+            if(null != file && file.exists())
                 file.delete();
         }
     }

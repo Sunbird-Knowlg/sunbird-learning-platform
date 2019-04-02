@@ -11,8 +11,6 @@ learner_service_url: "{{inventory_hostname}}:8080"
 
 redis_host: "{{ groups['learning1'][0] }}"
 redis_port: 6379
-cassandra_port: 9042
-content_keyspace_table: content_data
 
 #environment_id: 10000000
 
@@ -32,7 +30,6 @@ kafka_topic_system_command: "{{env}}.system.command"
 object_bookmark_expiry_in_seconds: 15
 platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
  
-#language_service_url: language_url
 youtube_app_name: fetch-youtube-license
  
 
