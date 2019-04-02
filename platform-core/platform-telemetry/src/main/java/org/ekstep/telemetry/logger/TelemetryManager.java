@@ -1,6 +1,5 @@
 package org.ekstep.telemetry.logger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -192,10 +191,10 @@ public class TelemetryManager {
 			reqContext.put(TelemetryParams.ACTOR.name(),(String) context.get(TelemetryParams.ACTOR.name()));
 			reqContext.put(TelemetryParams.ENV.name(),(String) context.get(TelemetryParams.ENV.name()));
 			reqContext.put(TelemetryParams.CHANNEL.name(),(String) context.get(HeaderParam.CHANNEL_ID.name()));
+			reqContext.put(TelemetryParams.APP_ID.name(),(String) context.get(HeaderParam.APP_ID.name()));
 			deviceId = (String) context.get(HeaderParam.DEVICE_ID.name());
 			if(StringUtils.isNotBlank(deviceId))
 				reqContext.put("did", deviceId);
-			appId=(String) context.get(HeaderParam.APP_ID.name());
 			if (null != context.get("objectId") && null != context.get("objectType")) {
 				reqContext.put("objectId", (String) context.get("objectId"));
 				reqContext.put("objectType", (String) context.get("objectType"));
@@ -206,27 +205,19 @@ public class TelemetryManager {
 			if(StringUtils.isNotBlank(deviceId))
 				reqContext.put("did", deviceId);
 			appId=(String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.APP_ID.name());
+			if(StringUtils.isNotBlank(appId))
+				reqContext.put(TelemetryParams.APP_ID.name(), appId);
 		}
 
-		List<Map<String, Object>> cData = null;
-		if (StringUtils.isNotBlank(appId)) {
-			cData = new ArrayList<Map<String, Object>>();
-			Map<String, Object> data = new HashMap<String, Object>();
-			data.put("id", appId);
-			data.put("type", "appId");
-			cData.add(data);
-		}
-		String event = TelemetryGenerator.search(reqContext, query, filters, sort, cData, size, topN, type);
+		String event = TelemetryGenerator.search(reqContext, query, filters, sort, null, size, topN, type);
 		telemetryHandler.send(event, Level.INFO, true);
 	}
 
 	/**
 	 * To log exception with message and params for user specified log level as a
 	 * telemetry event.
-	 * 
 	 * @param message
-	 * @param data
-	 * @param e
+	 * @param params
 	 * @param logLevel
 	 */
 	private static void log(String message, Map<String, Object> params, String logLevel) {
