@@ -11,12 +11,9 @@ instance_name: sunbird
 
 redis_host: "{{ groups['learning1'][0] }}"
 redis_port: 6379
-cassandra_host: "{{ groups['lp-cassandra'][0] }}"   
-cassandra_port: 9042
 content_keyspace_name: "{{env}}_content_store"
 hierarchy_keyspace_name: "{{env}}_hierarchy_store"
 orchestrator_keyspace_name: "{{env}}_script_store"
-content_keyspace_table: content_data
 
 environment_id: 10000000
 
@@ -33,12 +30,12 @@ language_read_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:8687
 language_write_elb_url: bolt://{{ groups['learning-neo4j-node1'][0] }}:8687
 graphevent_kafka_url: "{{groups['processing-cluster-zookeepers']|join(':9092,')}}:9092"
 kafka_topics_instruction: "{{env}}.learning.job.request"
+kafka_topic_system_command: "{{env}}.system.command"
 object_bookmark_expiry_in_seconds: 15
 platform_api_url: "http://{{ groups['learning1'][0] }}:8080/learning-service"
  
 graph_passport_key: "{{ vault_graph_passport_key }}"
 dial_service_authorization: "{{ vault_dial_service_authorization }}"
-language_service_url: language_url
 youtube_app_name: fetch-youtube-license
 youtube_api_key: "{{ vault_youtube_api_key }}"
  
@@ -51,9 +48,7 @@ azure_account_key: "{{ vault_azure_storage_secret }}"
 content_media_base_url:  
 plugin_media_base_url: 
 dial_service_search_url: 
-content_to_vec_url: 
 learning_content_h5p_library_path:
-orchestrator_url:
 
 cloud_storage_config_environment: "{{env}}" 
 

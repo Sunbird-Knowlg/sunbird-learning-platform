@@ -18,10 +18,10 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
-import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
@@ -43,8 +43,6 @@ import java.util.stream.Stream;
 public class PublishPipelineService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
-
-	private String contentId;
 
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
@@ -69,7 +67,7 @@ public class PublishPipelineService implements ISamzaService {
 	private static int MAXITERTIONCOUNT = 2;
 
 	private SystemStream systemStream = null;
-
+	
 	protected int getMaxIterations() {
 		if (Platform.config.hasPath("max.iteration.count.samza.job"))
 			return Platform.config.getInt("max.iteration.count.samza.job");
@@ -223,8 +221,19 @@ public class PublishPipelineService implements ISamzaService {
 			publishedNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
 			processCollection(publishedNode);
 			LOGGER.debug("Content Enrichment done for content: " + node.getIdentifier());
+			
+			publishedNode = util.getNode("domain", publishedNode.getIdentifier());
+			publishHierarchy(publishedNode);
+			LOGGER.debug("Hierarchy updated for Content :: " + node.getIdentifier());
 		}
+		
 		return published;
+	}
+	
+	private void publishHierarchy(Node publishedNode) {
+		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
+		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
+		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
 	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
@@ -289,6 +298,11 @@ public class PublishPipelineService implements ISamzaService {
 			graphNode.getMetadata().put("publish_type", publishType);
 		}
 		publishNode(graphNode, node.getMimeType());
+		
+		String identifier = graphNode.getIdentifier().replace(".img", "");
+		graphNode = util.getNode("domain", identifier);
+		publishHierarchy(graphNode);
+		LOGGER.debug("Hierarchy updated for Collection Unit :: " + identifier);
 	}
 
 	private void publishNode(Node node, String mimeType) {
@@ -316,13 +330,8 @@ public class PublishPipelineService implements ISamzaService {
 					e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Failed.name());
-			node.setInRelations(null);
 			util.updateNode(node);
 			hierarchyStore.deleteHierarchy(Arrays.asList(node.getIdentifier()));
-			if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
-				PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
-						e.getMessage());
-			}
 		} finally {
 			try {
 				FileUtils.deleteDirectory(new File(basePath.replace(nodeId, "")));

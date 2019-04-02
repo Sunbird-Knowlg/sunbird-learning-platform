@@ -1,0 +1,47 @@
+- name: delete learning_graph or language_graph
+  #become: yes
+  file: path={{learner_user_home}}/{{graph_machine}} state=absent
+  
+- name: create directory
+  #become: yes
+  file: path={{learner_user_home}}/{{graph_machine}} state=directory owner={{ learner_user }} group={{ learner_user }} recurse=yes
+  
+- name: copy template of scripthell script to stop service
+  #become: yes
+  template: src=backup_script.j2 dest={{learner_user_home}}/backup_script.sh  mode=777 owner={{ learner_user }} group={{ learner_user }}  
+
+- name: run script
+  #become: yes
+  #become_user: learning
+  command: "{{learner_user_home}}/backup_script.sh"
+
+- name: ls backup directory
+  #become: yes
+  #become_user: "{{ learner_user }}"
+  command: ls {{learner_user_home}}/backup/
+  register: var1
+
+- name: debugging variable
+  debug:
+    var: var1.stdout
+
+- name: Ensure azure blob storage container exists
+  command: az storage container create  --name {{ neo4j_backup_azure_container_name }}
+  ignore_errors: true
+  #environment:
+  #  AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
+  #  AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
+
+- name: Upload to azure blob storage
+  command: "az storage blob upload --name {{ var1.stdout }} --file /home/learning/backup/{{ var1.stdout }} --container-name {{ neo4j_backup_azure_container_name }}"
+  #environment:
+  #  AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
+  #  AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
+  async: 3600
+  poll: 10
+
+- name: clean up backup dir after upload
+  file: path={{learner_user_home}}/backup state=absent
+
+
+  

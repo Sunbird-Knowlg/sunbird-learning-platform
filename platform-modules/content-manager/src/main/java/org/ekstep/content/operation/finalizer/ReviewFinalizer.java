@@ -119,7 +119,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 			Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 			newNode.setGraphId(node.getGraphId());
 			newNode.setMetadata(node.getMetadata());
-			newNode.setInRelations(null);
+
 			response = updateContentNode(contentId, newNode, null);
 		}
 		

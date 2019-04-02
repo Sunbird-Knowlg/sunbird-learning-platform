@@ -1,6 +1,15 @@
 package org.ekstep.content.operation.finalizer;
 
-import com.rits.cloning.Cloner;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -20,26 +29,14 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
-import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
-import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
-import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.rits.cloning.Cloner;
 
 /**
  * The Class BundleFinalizer, extends BaseFinalizer which mainly holds common
@@ -68,11 +65,6 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-
-	private ControllerUtil util = new ControllerUtil();
-
-	private HierarchyStore hierarchyStore = new HierarchyStore();
-
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -239,6 +231,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			// Cloning contents to spineContent
 			Cloner cloner = new Cloner();
 			List<Map<String, Object>> spineContents = cloner.deepClone(contents);
+			List<Map<String, Object>> onlineContents = cloner.deepClone(contents);
 
 			TelemetryManager.info("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
 			Map<String, Object> variants = new HashMap<String, Object>();
@@ -283,6 +276,25 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 				downloadUrl = urlArray[IDX_S3_URL];
 				s3Key = urlArray[IDX_S3_KEY];
+			}
+
+			if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
+				TelemetryManager.log("Creating Online ECAR For Content Id: " + node.getIdentifier());
+				Map<String, Object> onlineEcarMap = new HashMap<String, Object>();
+				String onlineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.ONLINE);
+				downloadUrls = contentBundle.createContentManifestData(onlineContents, childrenIds, null,
+						EcarPackageType.ONLINE);
+				urlArray = contentBundle.createContentBundle(onlineContents, onlineEcarFileName,
+						ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+				TelemetryManager.log("Online ECAR created For Content Id: " + node.getIdentifier());
+				onlineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
+				onlineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(urlArray[IDX_S3_KEY]));
+
+				TelemetryManager.log("Adding Online Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+				variants.put(ContentWorkflowPipelineParams.online.name(), onlineEcarMap);
+
+				TelemetryManager.log("Adding variants to Content Id: " + node.getIdentifier());
+				node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 			}
 		}
 
@@ -362,27 +374,10 @@ public class PublishFinalizer extends BaseFinalizer {
 					String.valueOf(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())));
 		}
 		
-		if (StringUtils.equalsIgnoreCase(
-				((String) newNode.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),
-				COLLECTION_MIMETYPE)) {
-			Node publishedNode = util.getNode(TAXONOMY_ID, contentId);
-			publishHierarchy(publishedNode);
-		}
-
-		if(Platform.config.hasPath("content.publish.invoke_web_hook") && StringUtils.equalsIgnoreCase("true",Platform.config.getString("content.publish.invoke_web_hook"))){
-			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
-		}
 		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		return response;
-	}
-
-
-	private void publishHierarchy(Node publishedNode) {
-		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
-		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
-		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
 	/**
@@ -394,7 +389,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		Response response = getDataNode(TAXONOMY_ID, identifier);
 		if (!checkError(response)) {
 			Node node = (Node) response.get(GraphDACParams.node.name());
-			node.setInRelations(null);
 			Response updateResp = updateNode(node);
 			if (!checkError(updateResp)) {
 				return (String) updateResp.get(GraphDACParams.versionKey.name());
@@ -536,8 +530,12 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.publish_type.name(), null);
 			if (null != dbNode) {
-				contentImage.setInRelations(null);
+				contentImage.setInRelations(dbNode.getInRelations());
 				contentImage.setOutRelations(dbNode.getOutRelations());
+				if(null == contentImage.getInRelations()) 
+					contentImage.setInRelations(new ArrayList<>());
+				if(null == contentImage.getOutRelations())
+					contentImage.setOutRelations(new ArrayList<>());
 				removeExtraProperties(contentImage);
 			}
 			TelemetryManager.info("Migrating the Content Body. | [Content Id: " + contentId + "]");

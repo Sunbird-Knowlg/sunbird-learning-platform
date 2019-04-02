@@ -56,7 +56,7 @@ public class ContentV3PublishLocalTest extends CommonTestSetup{
 	private static String contentId = ""; 
 	private static String mimeType = "";
 	private static String cassandraScript_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
-	private static String cassandraScript_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data_test ( content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob, PRIMARY KEY (content_id) );";
+	private static String cassandraScript_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data ( content_id text, last_updated_on timestamp, body blob, oldBody blob, stageIcons blob, PRIMARY KEY (content_id) );";
 	private static String channelId = "in.ekstep";
 	
 	@BeforeClass

@@ -42,12 +42,10 @@ search.batch.size=500
 search.connection.timeout=30
 search.index.name="compositesearch"
 
-nested.fields=["badgeAssertions","targets"]
+nested.fields=["badgeAssertions","targets","badgeAssociations"]
 channel.default="in.ekstep"
 
 # Cassandra Configurations
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
-cassandra.host="{{ cassandra_host }}"
-cassandra.port={{ cassandra_port }}
 cassandra.lp.connection="{{ cassandra_lp_connection }}"

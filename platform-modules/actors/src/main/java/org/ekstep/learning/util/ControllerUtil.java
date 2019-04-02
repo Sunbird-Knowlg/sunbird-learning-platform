@@ -39,7 +39,9 @@ import java.util.stream.Collectors;
  */
 public class ControllerUtil extends BaseLearningManager {
 
-	/** The logger. */
+	/**
+	 * The logger.
+	 */
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
@@ -47,10 +49,8 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Gets the node.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param contentId
-	 *            the content id
+	 * @param taxonomyId the taxonomy id
+	 * @param contentId  the content id
 	 * @return the node
 	 */
 	public Node getNode(String taxonomyId, String contentId) {
@@ -60,13 +60,16 @@ public class ControllerUtil extends BaseLearningManager {
 		Response getNodeRes = getResponse(request);
 		Response response = copyResponse(getNodeRes);
 		if (checkError(response)) {
-			if(StringUtils.endsWith(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+			if (StringUtils.endsWith(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 				return null;
 			else {
-				switch(response.getResponseCode()){
-					case RESOURCE_NOT_FOUND: throw new ResourceNotFoundException(response.getParams().getErr(), response.getParams().getErrmsg());
-					case CLIENT_ERROR: throw new ClientException(response.getParams().getErr(), response.getParams().getErrmsg());
-					default : throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+				switch (response.getResponseCode()) {
+					case RESOURCE_NOT_FOUND:
+						throw new ResourceNotFoundException(response.getParams().getErr(), response.getParams().getErrmsg());
+					case CLIENT_ERROR:
+						throw new ClientException(response.getParams().getErr(), response.getParams().getErrmsg());
+					default:
+						throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
 				}
 			}
 		}
@@ -77,8 +80,7 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Update node.
 	 *
-	 * @param node
-	 *            the node
+	 * @param node the node
 	 * @return the response
 	 */
 	public Response updateNode(Node node) {
@@ -92,10 +94,8 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Gets the definition.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param objectType
-	 *            the object type
+	 * @param taxonomyId the taxonomy id
+	 * @param objectType the object type
 	 * @return the definition
 	 */
 	public DefinitionDTO getDefinition(String taxonomyId, String objectType) {
@@ -112,8 +112,7 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Gets all the definitions
 	 *
-	 * @param taxonomyId
-	 * 				the taxonomy id
+	 * @param taxonomyId the taxonomy id
 	 * @return list of defintions
 	 */
 	public List<DefinitionDTO> getAllDefinitions(String taxonomyId) {
@@ -127,22 +126,14 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Adds out relations.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * 
-	 * @param startNodeId
-	 *            the startNodeId
-	 * 
-	 * @param endNodeIds
-	 *            the list of endNodeIds
-	 * 
-	 * @param relationType
-	 *            the relationType
-	 * 
+	 * @param taxonomyId   the taxonomy id
+	 * @param startNodeId  the startNodeId
+	 * @param endNodeIds   the list of endNodeIds
+	 * @param relationType the relationType
 	 * @return the response
 	 */
 	public Response addOutRelations(String taxonomyId, String startNodeId, List<String> endNodeIds,
-			String relationType) {
+									String relationType) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER, "addOutRelations",
 				GraphDACParams.start_node_id.name(), startNodeId);
 		request.put(GraphDACParams.relation_type.name(), relationType);
@@ -157,13 +148,9 @@ public class ControllerUtil extends BaseLearningManager {
 	/**
 	 * Gets the collection members.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param collectionId
-	 *            the collectionId
-	 * @param collectionType
-	 *            the collectionType
-	 * 
+	 * @param taxonomyId     the taxonomy id
+	 * @param collectionId   the collectionId
+	 * @param collectionType the collectionType
 	 * @return the response
 	 */
 	public Response getCollectionMembers(String taxonomyId, String collectionId, String collectionType) {
@@ -189,12 +176,12 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	public Response copyResponse(Response res) {
-        Response response = new Response();
-        response.setResponseCode(res.getResponseCode());
-        response.setParams(res.getParams());
-        return response;
-    }
-	
+		Response response = new Response();
+		response.setResponseCode(res.getResponseCode());
+		response.setParams(res.getParams());
+		return response;
+	}
+
 	public String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -225,20 +212,17 @@ public class ControllerUtil extends BaseLearningManager {
 		return response;
 	}
 
-	 public Response copyResponse(Response to, Response from) {
-	        to.setResponseCode(from.getResponseCode());
-	        to.setParams(from.getParams());
-	        return to;
-	    }
-	 
+	public Response copyResponse(Response to, Response from) {
+		to.setResponseCode(from.getResponseCode());
+		to.setParams(from.getParams());
+		return to;
+	}
+
 	/**
 	 * Gets Data nodes.
 	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param node
-	 *            the list of nodes
-	 * 
+	 * @param taxonomyId the taxonomy id
+	 * @param nodes      the list of nodes
 	 * @return the response
 	 */
 	public Response getDataNodes(String taxonomyId, List<String> nodes) {
@@ -252,7 +236,7 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	public Response getHirerachy(String identifier) {
-		String url = Platform.config.getString("platform-api-url") + "/content/v3/hierarchy/" + identifier;
+		String url = Platform.config.getString("platform-api-url") + "/content/v3/hierarchy/" + identifier + "?mode=edit";
 		Response hirerachyRes = null;
 		try {
 			String result = HTTPUtil.makeGetRequest(url);
@@ -262,8 +246,8 @@ public class ControllerUtil extends BaseLearningManager {
 		}
 		return hirerachyRes;
 	}
-	
-	public Response createDataNode(Node node){
+
+	public Response createDataNode(Node node) {
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
 		request.put(GraphDACParams.node.name(), node);
 		Response response = getResponse(request);
@@ -272,14 +256,14 @@ public class ControllerUtil extends BaseLearningManager {
 		}
 		return null;
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	public List<NodeDTO> getNodesForPublish(Node node) {
 		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
 		String nodeId = null;
 		String imageNodeId = null;
-		if(StringUtils.endsWith(node.getIdentifier(), ".img")) {
+		if (StringUtils.endsWith(node.getIdentifier(), ".img")) {
 			imageNodeId = node.getIdentifier();
 			nodeId = node.getIdentifier().replace(".img", "");
 		} else {
@@ -289,40 +273,40 @@ public class ControllerUtil extends BaseLearningManager {
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility, s.compatibilityLevel as compatibilityLevel";
 		String query = MessageFormat.format(queryString, nodeId) + " UNION " + MessageFormat.format(queryString, imageNodeId) + " ORDER BY depth DESC;";
-        request.put(GraphDACParams.query.name(), query);
-        List<String> props = new ArrayList<String>();
-        props.add("identifier");
-        props.add("name");
-        props.add("depth");
-        props.add("status");
-        props.add("mimeType");
-        props.add("compatibilityLevel");
-        props.add("visibility");
-        request.put(GraphDACParams.property_keys.name(), props);
-        Response response = getResponse(request);
+		request.put(GraphDACParams.query.name(), query);
+		List<String> props = new ArrayList<String>();
+		props.add("identifier");
+		props.add("name");
+		props.add("depth");
+		props.add("status");
+		props.add("mimeType");
+		props.add("compatibilityLevel");
+		props.add("visibility");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
 			if (null != list && !list.isEmpty()) {
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, Object> properties = list.get(i);
-					NodeDTO obj = new NodeDTO((String)properties.get("identifier"), (String) properties.get("name"), null);
-					obj.setDepth(((Long)properties.get("depth")).intValue());
+					NodeDTO obj = new NodeDTO((String) properties.get("identifier"), (String) properties.get("name"), null);
+					obj.setDepth(((Long) properties.get("depth")).intValue());
 					obj.setStatus((String) properties.get("status"));
 					obj.setMimeType((String) properties.get("mimeType"));
 					obj.setVisibility((String) properties.get("visibility"));
 					Integer compatibilityLevel = 1;
-					if(null != properties.get("compatibilityLevel"))
+					if (null != properties.get("compatibilityLevel"))
 						compatibilityLevel = ((Number) properties.get("compatibilityLevel")).intValue();
 					obj.setCompatibilityLevel(compatibilityLevel);
 					nodes.add(obj);
 				}
 			}
 		}
-		TelemetryManager.info("Node children count:"+ nodes.size());
+		TelemetryManager.info("Node children count:" + nodes.size());
 		return nodes;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<Node> getNodes(String graphId, String objectType, int startPosition, int batchSize) {
 		SearchCriteria sc = new SearchCriteria();
@@ -341,44 +325,44 @@ public class ControllerUtil extends BaseLearningManager {
 			return nodes;
 		}
 	}
-	
+
 	public List<String> getNodesWithInDateRange(String graphId, String objectType, String startDate, String endDate) {
 
 		List<String> nodeIds = new ArrayList<>();
 		String objectTypeQuery = "";
-		if(StringUtils.isNotBlank(objectType))
-			objectTypeQuery="{IL_FUNC_OBJECT_TYPE:'"+objectType+"'}";			
+		if (StringUtils.isNotBlank(objectType))
+			objectTypeQuery = "{IL_FUNC_OBJECT_TYPE:'" + objectType + "'}";
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String queryString ="MATCH (n:{0}{1})  WITH split(left(n.lastUpdatedOn, 10), {2}) AS dd, n where {4}>=toInt(dd[0]+dd[1]+dd[2])>={3} and NOT n.IL_SYS_NODE_TYPE in [\"TAG\", \"DEFINITION_NODE\", \"ROOT_NODE\"] return n.IL_UNIQUE_ID as identifier";
+		String queryString = "MATCH (n:{0}{1})  WITH split(left(n.lastUpdatedOn, 10), {2}) AS dd, n where {4}>=toInt(dd[0]+dd[1]+dd[2])>={3} and NOT n.IL_SYS_NODE_TYPE in [\"TAG\", \"DEFINITION_NODE\", \"ROOT_NODE\"] return n.IL_UNIQUE_ID as identifier";
 		String query = MessageFormat.format(queryString, graphId, objectTypeQuery, "'-'", startDate, endDate);
-        request.put(GraphDACParams.query.name(), query);
-        List<String> props = new ArrayList<String>();
-        props.add("identifier");
-        request.put(GraphDACParams.property_keys.name(), props);
-        Response response = getResponse(request);
-        if (!checkError(response)) {
+		request.put(GraphDACParams.query.name(), query);
+		List<String> props = new ArrayList<String>();
+		props.add("identifier");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
 			if (null != list && !list.isEmpty()) {
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, Object> properties = list.get(i);
-					nodeIds.add((String)properties.get("identifier"));
+					nodeIds.add((String) properties.get("identifier"));
 				}
 			}
 		}
 		return nodeIds;
 	}
-	
+
 	public Map<String, Long> getCountByObjectType(String graphId) {
 		Map<String, Long> counts = new HashMap<String, Long>();
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		request.put(GraphDACParams.query.name(), MessageFormat.format("MATCH (n:{0}) WHERE EXISTS(n.IL_FUNC_OBJECT_TYPE) RETURN n.IL_FUNC_OBJECT_TYPE AS objectType, COUNT(n) AS count;", graphId));
 		List<String> props = new ArrayList<String>();
-        props.add("objectType");
-        props.add("count");
-        request.put(GraphDACParams.property_keys.name(), props);
-        Response response = getResponse(request);
-        if (!checkError(response)) {
+		props.add("objectType");
+		props.add("count");
+		request.put(GraphDACParams.property_keys.name(), props);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
 			if (null != list && !list.isEmpty()) {
@@ -387,14 +371,13 @@ public class ControllerUtil extends BaseLearningManager {
 					counts.put((String) properties.get("objectType"), (Long) properties.get("count"));
 				}
 			}
-			
-        }
+
+		}
 		return counts;
 	}
 
 
 	/**
-	 *
 	 * @param graphId
 	 * @param node
 	 * @param definition
@@ -402,7 +385,7 @@ public class ControllerUtil extends BaseLearningManager {
 	 * @return
 	 */
 	public Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
-															 String mode, boolean fetchAll) {
+															String mode, boolean fetchAll) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 
@@ -420,13 +403,9 @@ public class ControllerUtil extends BaseLearningManager {
 		if (null != children && !children.isEmpty()) {
 			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
 			for (NodeDTO dto : children) {
-				Node childNode = null;
-				if(StringUtils.equalsIgnoreCase("Parent", dto.getVisibility()))
-					childNode = getContentNode(graphId, dto.getIdentifier(), mode);
-				else
-					childNode = getContentNode(graphId, dto.getIdentifier(), null);
-				String nodeStatus = (String)childNode.getMetadata().get("status");
-				if((!org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) &&
+				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
+				String nodeStatus = (String) childNode.getMetadata().get("status");
+				if ((!org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Retired")) &&
 						(fetchAll || (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Live") || org.apache.commons.lang3.StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted")))) {
 					Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode, fetchAll);
 					childMap.put("index", dto.getIndex());
@@ -489,7 +468,7 @@ public class ControllerUtil extends BaseLearningManager {
 		if (MapUtils.isNotEmpty(hierarchy)) {
 			int max = list.stream().map(e -> ((Number) e.get("depth")).intValue()).max(Comparator.naturalOrder()).orElse(1);
 
-			for (int i=0; i<=max;i++) {
+			for (int i = 0; i <= max; i++) {
 				final int depth = i;
 				Map<String, List<Map<String, Object>>> currentLevelNodes = new HashMap<>();
 				list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth)
@@ -504,14 +483,14 @@ public class ControllerUtil extends BaseLearningManager {
 
 				});
 
-				List<Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth+1)
+				List<Map<String, Object>> nextLevelNodes = list.stream().filter(e -> ((Number) e.get("depth")).intValue() == depth + 1)
 						.collect(Collectors.toList());
 				if (MapUtils.isNotEmpty(currentLevelNodes) && CollectionUtils.isNotEmpty(nextLevelNodes)) {
 					nextLevelNodes.forEach(e -> {
 								String parentId = (String) e.get("parent");
 								List<Map<String, Object>> parents = currentLevelNodes.get(parentId);
 								if (CollectionUtils.isNotEmpty(parents)) {
-									for (Map<String, Object> parent: parents) {
+									for (Map<String, Object> parent : parents) {
 										List<Object> children = (List<Object>) parent.get("children");
 										if (CollectionUtils.isEmpty(children)) {
 											children = new ArrayList<>();
@@ -550,7 +529,7 @@ public class ControllerUtil extends BaseLearningManager {
 			List<String> resourceImgIds = list.stream()
 					.filter(e -> StringUtils.equals((String) e.get("objectType"), "ContentImage") && StringUtils.equalsIgnoreCase((String) e.get("visibility"), "default") && ((Number) e.get("depth")).intValue() > 0)
 					.map(e -> (String) e.get("identifier"))
-					.map(id -> id.endsWith(".img") ? id : id+".img")
+					.map(id -> id.endsWith(".img") ? id : id + ".img")
 					.distinct().collect(Collectors.toList());
 //			Stream<Map<String, Object>> listStream = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")));
 
@@ -576,7 +555,7 @@ public class ControllerUtil extends BaseLearningManager {
 				// mode!=edit - remove Image Nodes.
 				List<String> removeIds = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
 						.filter(e -> (!publicStatus.contains(e.get("status")) || StringUtils.equals((String) e.get("objectType"), "ContentImage")) && ((Number) e.get("depth")).intValue() > 0).map(e -> ((String) e.get("identifier"))).collect(Collectors.toList());
-				List<Map<String, Object>> contentList =  list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
+				List<Map<String, Object>> contentList = list.stream().filter(e -> !resourceImgIds.contains((String) e.get("identifier")))
 						.filter(e -> !removeIds.contains(e.get("identifier"))).collect(Collectors.toList());
 				return contentList;
 			}
@@ -591,8 +570,8 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 
-	public Map<String,Object> getHierarchyMap(String graphId, String contentId, DefinitionDTO
-			definition,String mode, List<String> fields) {
+	public Map<String, Object> getHierarchyMap(String graphId, String contentId, DefinitionDTO
+			definition, String mode, List<String> fields) {
 
 //		long startTime = System.currentTimeMillis();
 		List<Map<String, Object>> contentList = getContentHierarchy(graphId, contentId, mode);
@@ -604,10 +583,10 @@ public class ControllerUtil extends BaseLearningManager {
 //		startTime = System.currentTimeMillis();
 		Response getList = getDataNodes(graphId, ids);
 //		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
-		if(!checkError(getList)){
+		if (!checkError(getList)) {
 			List<Node> nodeList = (List<Node>) getList.get("node_list");
 			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
-					(n,graphId, definition, fields)).map(contentMap -> {
+					(n, graphId, definition, fields)).map(contentMap -> {
 				contentMap.remove("collections");
 				contentMap.remove("children");
 				contentMap.remove("usedByContent");
@@ -618,11 +597,14 @@ public class ControllerUtil extends BaseLearningManager {
 				return contentMap;
 			}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
 
-			contentList = contentList.stream().map(n -> { n.putAll(contentsWithMetadata.get(n.get("identifier"))); return n;}).collect(Collectors.toList());
+			contentList = contentList.stream().map(n -> {
+				n.putAll(contentsWithMetadata.get(n.get("identifier")));
+				return n;
+			}).collect(Collectors.toList());
 //			startTime = System.currentTimeMillis();
 			collectionHierarchy = contentCleanUp(constructHierarchy(contentList));
 //			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
-		}else {
+		} else {
 			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
 				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
 			} else {
@@ -638,10 +620,10 @@ public class ControllerUtil extends BaseLearningManager {
 		List<String> identifiers = new ArrayList<>();
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
 		String query = "MATCH (n:{0}) WHERE n.IL_FUNC_OBJECT_TYPE=\"Content\" AND n.mimeType=\"application/vnd.ekstep.content-collection\" AND n.status IN [\"Live\", \"Unlisted\", \"Flagged\"] RETURN n.IL_UNIQUE_ID as identifier";
-		if(offset > 0){
+		if (offset > 0) {
 			query += " SKIP " + offset;
 		}
-		if(limit > 0) {
+		if (limit > 0) {
 			query += " LIMIT " + limit;
 		}
 		request.put(GraphDACParams.query.name(), MessageFormat.format(query, graphId));
@@ -663,7 +645,18 @@ public class ControllerUtil extends BaseLearningManager {
 		return identifiers;
 	}
 
-	private void hierarchyCleanUp(Map<String, Object> map) {
+	public Response updateDefinitionCache(String graphId, String objectType) {
+		Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "updateDefinitionCache");
+		request.put(GraphDACParams.graphId.name(), graphId);
+		request.put(GraphDACParams.objectType.name(), objectType);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			return response;
+		}
+		return null;
+	}
+
+	private void hierarchyCleanUp (Map < String, Object > map){
 		if (map.containsKey("identifier")) {
 			String identifier = (String) map.get("identifier");
 			String parentId = (String) map.get("parent");
@@ -679,13 +672,10 @@ public class ControllerUtil extends BaseLearningManager {
 			}
 		}
 		List<Map<String, Object>> children = (List<Map<String, Object>>) map.get("children");
-		if(CollectionUtils.isNotEmpty(children)){
-			for(Map<String, Object> child: children)
+		if (CollectionUtils.isNotEmpty(children)) {
+			for (Map<String, Object> child : children)
 				hierarchyCleanUp(child);
 		}
-		//return map;
 	}
 
-
 }
-

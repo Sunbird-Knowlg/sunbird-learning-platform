@@ -95,8 +95,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			String messageId = (String) message.get("mid");
 			switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_SET:
-				case CompositeSearchConstants.NODE_TYPE_DATA:
-				case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
+				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					csIndexer.processESMessage(graphId, objectType, uniqueId, messageId, message, metrics);
 					break;
 				}
@@ -108,6 +107,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 					dcMetricsIndexer.upsertDocument(uniqueId, message);
 					break;
 				}
+				default: break;
 			}
 		}
 	}
