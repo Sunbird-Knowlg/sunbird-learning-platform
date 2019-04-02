@@ -1,6 +1,7 @@
 package org.ekstep.common.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.telemetry.util.TelemetryAccessEventUtil;
@@ -51,6 +52,7 @@ public class AccessEventGenerator extends TelemetryAccessEventUtil {
 			data.put("X-Session-ID", requestWrapper.getHeader("X-Session-ID"));
 			data.put("X-Consumer-ID", requestWrapper.getHeader("X-Consumer-ID"));
 			data.put("X-Device-ID", requestWrapper.getHeader("X-Device-ID"));
+			data.put(HeaderParam.APP_ID.name(), requestWrapper.getHeader("X-App-Id"));
 			data.put("X-Authenticated-Userid", requestWrapper.getHeader("X-Authenticated-Userid"));
 			writeTelemetryEventLog(data);
 		} catch (IOException e) {
