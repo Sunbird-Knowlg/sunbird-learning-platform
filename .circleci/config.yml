@@ -6,7 +6,13 @@ jobs:
       - checkout
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
-      - run: bash vmsetup.sh
+      - run: 
+          name: Setting up VM for build
+          command: bash vmsetup.sh
+
+      - run:
+          name: Execute build
+          command: mvn clean install
 
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
