@@ -484,7 +484,9 @@ public class ContentValidator {
 						ContentErrorMessageConstants.FILE_DOES_NOT_EXIST);
 			}
 			String urlMimeType = httpResponse.getHeaders().get("Content-Type").get(0);
-			if(!StringUtils.equalsIgnoreCase(mimeType, urlMimeType)) {
+			if(!StringUtils.startsWith(urlMimeType, mimeType)) {
+				TelemetryManager.error("Content Validator : Invalid MimeType : " + fileURL + " with status " +
+						": "  + httpResponse.getStatus() + " and headers : " +  httpResponse.getHeaders().toString());
 				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
 						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
 			}
