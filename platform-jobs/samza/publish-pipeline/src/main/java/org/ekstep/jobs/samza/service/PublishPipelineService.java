@@ -304,6 +304,11 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		publishNode(graphNode, node.getMimeType());
 		updateLeafNodeCount(node.getIdentifier().replace(".img", ""));
+		
+		String identifier = graphNode.getIdentifier().replace(".img", "");
+		graphNode = util.getNode("domain", identifier);
+		publishHierarchy(graphNode);
+		LOGGER.debug("Hierarchy updated for Collection Unit :: " + identifier);
 	}
 	
 	private void updateLeafNodeCount(String contentId) {
