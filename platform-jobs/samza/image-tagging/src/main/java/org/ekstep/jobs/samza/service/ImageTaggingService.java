@@ -28,11 +28,13 @@ import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.OptimizerUtil;
 import org.ekstep.jobs.samza.util.VisionApi;
+import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class ImageTaggingService implements ISamzaService {
+	private VideoStreamingJobRequest streamJobRequest = new VideoStreamingJobRequest();
 
 	private Config config = null;
 
@@ -254,12 +256,18 @@ public class ImageTaggingService implements ISamzaService {
 		String tempFileLocation = StringUtils.isNotBlank(this.config.get("lp.tempfile.location"))?this.config.get("lp.tempfile.location"):"/tmp";  
 		String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
 		try {
-			String videoUrl = (String) node.getMetadata().get("artifactUrl");
+			String videoUrl = (String) node.getMetadata().get(ImageWorkflowEnums.artifactUrl.name());
 			if(StringUtils.isBlank(videoUrl)) {
 				LOGGER.info("Content artifactUrl is blank.");
 				throw new ClientException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Content artifactUrl is blank.");
 			}
 			processVideo(node, tempFolder, videoUrl);
+			List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
+					Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
+			if (streamableMimeType.contains((String) node.getMetadata().get(ImageWorkflowEnums.mimeType.name()))) {
+				streamJobRequest.insert(node.getIdentifier(), videoUrl,
+						(String) node.getMetadata().get(ImageWorkflowEnums.channel.name()), "1.0");
+			}
 		}catch(Exception e) {
 			LOGGER.info("Something Went Wrong While Performing Image Tagging operation. | [Content Id: " + 
 					node.getIdentifier() + "]", e.getMessage());
