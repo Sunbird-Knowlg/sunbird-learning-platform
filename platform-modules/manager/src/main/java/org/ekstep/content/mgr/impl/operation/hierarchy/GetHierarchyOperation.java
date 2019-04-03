@@ -8,7 +8,6 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -20,12 +19,54 @@ import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GetHierarchyOperation extends BaseContentManager {
+
+
+    public Response getHierarchy(String contentId, String mode) {
+        if(StringUtils.equalsIgnoreCase("edit", mode)){
+            Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+
+            boolean fetchAll = true;
+            String nodeStatus = (String) node.getMetadata().get("status");
+            validateIsNodeRetired(node.getMetadata());
+
+            if(!(StringUtils.equalsIgnoreCase(mode, "edit")) && (StringUtils.equalsIgnoreCase(nodeStatus, "Live") || StringUtils.equalsIgnoreCase(nodeStatus, "Unlisted"))) {
+                fetchAll = false;
+            }
+
+            TelemetryManager.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
+            DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
+            Map<String, Object> map = util.getContentHierarchyRecursive(TAXONOMY_ID, node, definition, mode, true);
+            Map<String, Object> dataMap = contentCleanUp(map);
+            Response response = new Response();
+            response.put("content", dataMap);
+            response.setParams(getSucessStatus());
+            return response;
+        } else{
+            Response hierarchyResponse = getCollectionHierarchy(contentId);
+            Response response = new Response();
+            if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
+                String cachedStatus = RedisStoreUtil.getNodeProperty(TAXONOMY_ID, contentId, "status");
+                Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+                if(StringUtils.isNotBlank(cachedStatus)){
+                    hierarchy.put("status", cachedStatus);
+                } else{
+                    hierarchy.put("status", getStatus(contentId, mode));
+                }
+
+                response.put("content", hierarchy);
+                response.setParams(getSucessStatus());
+            } else {
+                response = hierarchyResponse;
+            }
+            return response;
+        }
+    }
 
     private static final String COLLECTION_MIME_TYPE = "application/vnd.ekstep.content-collection";
 
@@ -98,7 +139,7 @@ public class GetHierarchyOperation extends BaseContentManager {
             return response;
 
         } else{
-            Response hierarchyResponse = getCollectionHierarchy(contentId);
+            Response hierarchyResponse = getContentProperties(contentId, Arrays.asList("body"));
             Response response = new Response();
             if(!checkError(hierarchyResponse) && (null != hierarchyResponse.getResult().get("hierarchy"))){
                 String cachedStatus = RedisStoreUtil.getNodeProperty(TAXONOMY_ID, contentId, "status");
