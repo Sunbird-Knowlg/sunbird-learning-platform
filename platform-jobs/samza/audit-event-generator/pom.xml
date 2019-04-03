@@ -8,12 +8,18 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>audit-event-generator</artifactId>
-  <version>0.0.43</version>
+  <version>0.0.45</version>
   <dependencies>
   	<dependency>
 		<groupId>org.ekstep</groupId>
 		<artifactId>platform-dac</artifactId>
 		<version>1.0-SNAPSHOT</version>
+		<exclusions>
+			<exclusion>
+				<artifactId>log4j-1.2-api</artifactId>
+				<groupId>org.apache.logging.log4j</groupId>
+			</exclusion>
+		</exclusions>
 	</dependency>
 	<dependency>
 		<groupId>org.ekstep</groupId>

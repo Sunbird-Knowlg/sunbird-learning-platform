@@ -1,6 +1,8 @@
 package org.ekstep.sync.tool.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,22 +25,33 @@ public class SyncMessageGenerator {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	public static Map<String, Map<String, String>> definitionMap = new HashMap<>();
+	private static Map<String, Object> definitionObjectMap = new HashMap<>();
 	private static ControllerUtil util = new ControllerUtil();
 	private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType, Map<String, String> errors)
 			throws Exception {
 		Map<String, Object> messages = new HashMap<>();
+		List<String> indexablePropslist = null;
 
 		if (StringUtils.isBlank(objectType) && CollectionUtils.isNotEmpty(nodes))
 			loadDefinitionsOf(nodes);
 
 		for (Node node : nodes) {
+			//Create List of metadata which should be indexed, if objectType is enabled for metadata filtration.
+			List<String> objectTypeList = Platform.config.hasPath("restrict.metadata.objectTypes")
+					? Arrays.asList(Platform.config.getString("restrict.metadata.objectTypes").split(",")) : Collections.emptyList();
+			if (objectTypeList.contains(node.getObjectType())){
+				indexablePropslist = getIndexableProperties((Map<String, Object>) definitionObjectMap.get(node.getObjectType()));
+			}
+
 			try {
 				Map<String, String> relationMap = definitionMap.get(node.getObjectType());
 				if (relationMap != null) {
 					Map<String, Object> nodeMap = getMessage(node);
 					Map<String, Object>  message = getJSONMessage(nodeMap, relationMap);
+					if (null != indexablePropslist && !indexablePropslist.isEmpty())
+						filterIndexableProps(message, indexablePropslist);
 					messages.put(node.getIdentifier(), message);
 				}
 			} catch (Exception e) {
@@ -178,6 +191,7 @@ public class SyncMessageGenerator {
 						Map<String, Object> definition = mapper.convertValue(def,
 								new TypeReference<Map<String, Object>>() {
 								});
+						definitionObjectMap.put(objectType, definition);
 						Map<String, String> relationMap = GraphUtil.getRelationMap(objectType, definition);
 						definitionMap.put(objectType, relationMap);
 					}
@@ -186,5 +200,29 @@ public class SyncMessageGenerator {
 				}
 			});
 		}
+	}
+
+	/**
+	 * @param definition
+	 * @return
+	 */
+	private static List<String> getIndexableProperties(Map<String, Object> definition) {
+		List<String> propsList = new ArrayList<>();
+		List<Map<String, Object>> properties = (List<Map<String, Object>>) definition.get("properties");
+		for (Map<String, Object> property : properties) {
+			if ((Boolean) property.get("indexed")) {
+				propsList.add((String) property.get("propertyName"));
+			}
+		}
+		return propsList;
+	}
+
+	/**
+	 *
+	 * @param documentMap
+	 * @param indexablePropsList
+	 */
+	private static void filterIndexableProps(Map<String, Object> documentMap, final List<String> indexablePropsList) {
+		documentMap.keySet().removeIf(propKey -> !indexablePropsList.contains(propKey));
 	}
 }

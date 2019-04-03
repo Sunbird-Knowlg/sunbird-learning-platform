@@ -7,4 +7,4 @@
   become: yes
   become_user: "{{ learner_user }}"
   roles:
-    - neo4j-backup 
+    - neo4j-backup

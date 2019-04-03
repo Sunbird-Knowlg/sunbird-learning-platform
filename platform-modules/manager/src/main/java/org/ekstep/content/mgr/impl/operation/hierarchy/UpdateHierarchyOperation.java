@@ -79,6 +79,8 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                     Node rootNode = nodeMap.get(rootNodeId);
                     versionKey = System.currentTimeMillis() + "";
                     rootNode.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+                } else {
+                    throw new ClientException("ERR_INVALID_ROOT_ID", "Please Provide Valid Root Node Identifier");
                 }
                 List<Node> nodes = new ArrayList<Node>(nodeMap.values());
                 Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
@@ -157,6 +159,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             metadata.put("status", "Draft");
             metadata.put(GraphDACParams.versionKey.name(), System.currentTimeMillis() + "");
             metadata.put(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
+            metadata.put(AuditProperties.lastStatusChangedOn.name(), DateUtils.formatCurrentDate());
             Boolean root = (Boolean) map.get("root");
             if (BooleanUtils.isNotTrue(root))
                 metadata.put("visibility", "Parent");
