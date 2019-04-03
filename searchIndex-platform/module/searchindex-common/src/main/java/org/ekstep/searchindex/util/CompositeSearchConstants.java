@@ -19,7 +19,7 @@ public class CompositeSearchConstants {
 	public static final String NODE_TYPE_DATA = "DATA_NODE";
 	public static final String NODE_TYPE_SET = "SET";
 	public static final String NODE_TYPE_ROOT = "ROOT_NODE";
-	public static final String COMPOSITE_SEARCH_INDEX_TYPE = "cs";
+	public static final String COMPOSITE_SEARCH_INDEX_TYPE = "_doc";
 	public static final String INDEX_FIELD_TAGS = "tags";
 	public static final String NODE_TYPE_DEFINITION = "DEFINITION_NODE";
 	public static final String SEARCH_OPERATION_LESS_THAN = "<";
