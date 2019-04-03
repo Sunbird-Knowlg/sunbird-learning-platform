@@ -26,9 +26,9 @@
 
 - name: Upload to azure blob storage
   command: "az storage blob upload --name {{ redis_backup_file_name }} --file {{ redis_backup_file_path }} --container-name {{ redis_backup_azure_container_name }}"
-  #environment:
-  #  AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
-  #  AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
+  environment:
+    AZURE_STORAGE_ACCOUNT: "{{ backup_azure_storage_account_name }}"
+    AZURE_STORAGE_KEY: "{{ backup_azure_storage_access_key }}"
   async: 3600
   poll: 10
    
