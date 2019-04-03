@@ -6,15 +6,24 @@ jobs:
       - checkout
       - restore_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
-      - run: bash vmsetup.sh
+      - run: 
+          name: Setup VM and Build
+          command: bash vmsetup.sh
+      - run:
+          name: Download codacy coverage jar file.
+          command: wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets[0].browser_download_url')
+
+      - run:
+          name: Push coverage report to Codacy - Partial
+          command: find . -name jacoco.xml | awk '{print "java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r " $0 " --partial"}' | bash
+
+      - run:
+          name: Push coverage report to Codacy - Final
+          command: java -jar ~/codacy-coverage-reporter-assembly-latest.jar final
 
       - save_cache:
           key: lp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
-      
-      - run: wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets[0].browser_download_url')
-      - run: find . -name jacoco.xml | awk '{print "java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r " $0 " --partial"}' | bash
-      - run: java -jar ~/codacy-coverage-reporter-assembly-latest.jar final
         
 workflows:
   version: 2.1
