@@ -1,9 +1,8 @@
 package org.ekstep.sync.tool.util;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
@@ -54,9 +53,8 @@ public class ElasticSearchConnector {
 	 * @param fileName
 	 * @return
 	 */
-	private static File getResourceFile(String fileName) {
-		File file = new File(ElasticSearchConnector.class.getResource("/" + fileName).getFile());
-		return file;
+	private InputStream getResourceFile(String fileName) {
+        return getClass().getClassLoader().getResourceAsStream(fileName);
 	}
 
 	/**
@@ -65,7 +63,7 @@ public class ElasticSearchConnector {
 	 * @return
 	 */
 	private String getESIndexConfig(String propertyName) {
-		try (FileReader reader = new FileReader(getResourceFile(propertyName + ".json"))) {
+		try (InputStreamReader reader = new InputStreamReader(getResourceFile(propertyName + ".json"))) {
 			Object obj = gson.fromJson(reader, Object.class);
 			return gson.toJson(obj);
 		} catch (Exception e) {
