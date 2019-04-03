@@ -28,6 +28,7 @@ public class SyncMessageGenerator {
 	private static Map<String, Object> definitionObjectMap = new HashMap<>();
 	private static ControllerUtil util = new ControllerUtil();
 	private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
+	private static List<String> ALLOWED_SYSTEM_PROPS = Arrays.asList("IL_FUNC_OBJECT_TYPE", "IL_SYS_NODE_TYPE", "IL_UNIQUE_ID", "SYS_INTERNAL_LAST_UPDATED_ON");
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType, Map<String, String> errors)
 			throws Exception {
@@ -214,6 +215,7 @@ public class SyncMessageGenerator {
 				propsList.add((String) property.get("propertyName"));
 			}
 		}
+		propsList.addAll(ALLOWED_SYSTEM_PROPS);
 		return propsList;
 	}
 

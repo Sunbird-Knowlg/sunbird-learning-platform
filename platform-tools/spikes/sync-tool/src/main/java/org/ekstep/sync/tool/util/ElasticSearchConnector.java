@@ -1,12 +1,16 @@
 package org.ekstep.sync.tool.util;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.google.gson.Gson;
 import org.ekstep.common.Platform;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -17,12 +21,13 @@ public class ElasticSearchConnector {
 
 	private static String indexName;
 	private static String documentType;
+	private static Gson gson = new Gson();
 
 	@PostConstruct
 	private void init() throws Exception {
 		indexName = Platform.config.hasPath("search.index.name") ? Platform.config.getString("search.index.name")
 				: CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
-		documentType = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.index.name")
+		documentType = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type")
 				: CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
 		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 		createIndexIfNotExist();
@@ -33,13 +38,7 @@ public class ElasticSearchConnector {
 	}
 	
 	public void createIndexIfNotExist() throws IOException {
-		String settings = "{\"max_ngram_diff\":\"29\",\"mapping\":{\"total_fields\":{\"limit\":\"1500\"}},\"analysis\":{\"filter\":{\"mynGram\":{\"token_chars\":[\"letter\",\"digit\",\"whitespace\",\"punctuation\",\"symbol\"],\"min_gram\":\"1\",\"type\":\"nGram\",\"max_gram\":\"30\"}},\"analyzer\":{\"cs_index_analyzer\":{\"filter\":[\"lowercase\",\"mynGram\"],\"type\":\"custom\",\"tokenizer\":\"standard\"},\"keylower\":{\"filter\":\"lowercase\",\"tokenizer\":\"keyword\"},\"cs_search_analyzer\":{\"filter\":[\"standard\",\"lowercase\"],\"type\":\"custom\",\"tokenizer\":\"standard\"}}}}";
-		if (Platform.config.hasPath("search.settings"))
-			settings = Platform.config.getString("search.settings");
-		String mappings = "{\"dynamic_templates\":[{\"nested\":{\"match_mapping_type\":\"object\",\"mapping\":{\"type\":\"nested\",\"fields\":{\"type\":\"nested\"}}}},{\"longs\":{\"match_mapping_type\":\"long\",\"mapping\":{\"type\":\"long\",\"fields\":{\"raw\":{\"type\":\"long\"}}}}},{\"booleans\":{\"match_mapping_type\":\"boolean\",\"mapping\":{\"type\":\"boolean\",\"fields\":{\"raw\":{\"type\":\"boolean\"}}}}},{\"doubles\":{\"match_mapping_type\":\"double\",\"mapping\":{\"type\":\"double\",\"fields\":{\"raw\":{\"type\":\"double\"}}}}},{\"dates\":{\"match_mapping_type\":\"date\",\"mapping\":{\"type\":\"date\",\"fields\":{\"raw\":{\"type\":\"date\"}}}}},{\"strings\":{\"match_mapping_type\":\"string\",\"mapping\":{\"type\":\"text\",\"copy_to\":\"all_fields\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":true,\"analyzer\":\"keylower\"}}}}}],\"properties\":{\"fw_hierarchy\":{\"type\":\"text\",\"index\":false},\"screenshots\":{\"type\":\"text\",\"index\":false},\"body\":{\"type\":\"text\",\"index\":false},\"appIcon\":{\"type\":\"text\",\"index\":false},\"all_fields\":{\"type\":\"text\",\"analyzer\":\"cs_index_analyzer\",\"search_analyzer\":\"cs_search_analyzer\",\"fields\":{\"raw\":{\"type\":\"text\",\"fielddata\":true,\"analyzer\":\"keylower\"}}}}}";
-		if (Platform.config.hasPath("search.mappings"))
-			mappings = Platform.config.getString("search.mappings");
-		ElasticSearchUtil.addIndex(indexName, documentType, settings, mappings);
+		ElasticSearchUtil.addIndex(indexName, documentType, getESIndexConfig("settings"), getESIndexConfig("mappings"));
 	}
 
 	public void bulkImport(Map<String, Object> messages) throws Exception {
@@ -48,5 +47,30 @@ public class ElasticSearchConnector {
 	
 	public void bulkImportAutoID(List<Map<String, Object>> messages) throws Exception {
 		ElasticSearchUtil.bulkIndexWithAutoGenerateIndexId(indexName, documentType, messages);
+	}
+
+	/**
+	 *
+	 * @param fileName
+	 * @return
+	 */
+	private static File getResourceFile(String fileName) {
+		File file = new File(ElasticSearchConnector.class.getResource("/" + fileName).getFile());
+		return file;
+	}
+
+	/**
+	 *
+	 * @param propertyName
+	 * @return
+	 */
+	private String getESIndexConfig(String propertyName) {
+		try (FileReader reader = new FileReader(getResourceFile(propertyName + ".json"))) {
+			Object obj = gson.fromJson(reader, Object.class);
+			return gson.toJson(obj);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
