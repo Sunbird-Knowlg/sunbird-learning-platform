@@ -168,7 +168,7 @@ public class ContentValidatorTest {
 
     @Test
     public void testValidEpubUrl() {
-        Boolean isValid = validator.isValidUrl("https://ekstep-public-qa.s3-ap-south-1.amazonaws.com/assets/do_2125047986412257281104/metamorphosis-jackson.epub",
+        Boolean isValid = validator.isValidUrl("https://ntpstagingall.blob.core.windows.net/ntp-content-staging/content/do_11273189844413644811/artifact/index.epub",
                 "application/epub");
         assertEquals(true, isValid);
     }

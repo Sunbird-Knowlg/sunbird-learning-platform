@@ -26,12 +26,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TelemetryGenerator {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static String environment = Platform.config.hasPath("telemetry_env")?Platform.config.getString("telemetry_env"):"dev";
-	private static String installationId=Platform.config.hasPath("installation.id")?Platform.config.getString("installation.id"):"ekstep";
-	private static Producer producer = new Producer(environment + "." + installationId + ".learning.platform", "1.0");
+	private static final String ENVIRONMENT = Platform.config.hasPath("telemetry_env")?Platform.config.getString("telemetry_env"):"dev";
+	private static final String INSTALLATION_ID = Platform.config.hasPath("installation.id")?Platform.config.getString("installation.id"):"ekstep";
+	private static final String DEFAULT_PRODUCER_ID = ENVIRONMENT + "." + INSTALLATION_ID + ".learning.platform";
+	private static final String PRODUCER_VERSION = "1.0";
+	private static String PRODUCER_PID = "";
 
 	public static void setComponent(String component) {
-		producer.setPid(component);
+		PRODUCER_PID = component;
 	}
 
 	/**
@@ -224,7 +226,7 @@ public class TelemetryGenerator {
 	private static Context getContext(Map<String, String> context) {
 		String channel = (String) context.get(TelemetryParams.CHANNEL.name());
 		String env = context.get(TelemetryParams.ENV.name());
-		Context eventContext = new Context(channel, env, producer);
+		Context eventContext = new Context(channel, env, getProducer(context));
 		String sid = context.get("sid");
 		if (StringUtils.isNotBlank(sid))
 			eventContext.setSid(sid);
@@ -233,6 +235,19 @@ public class TelemetryGenerator {
 			eventContext.setDid(did);
 
 		return eventContext;
+	}
+
+	/**
+	 * This Method Returns Producer Object for Telemetry Event.
+	 * @param context
+	 * @return Producer
+	 */
+	private static Producer getProducer(Map<String, String> context) {
+		String appId = context.get(TelemetryParams.APP_ID.name());
+		if (StringUtils.isNotBlank(appId))
+			return new Producer(appId, PRODUCER_PID, PRODUCER_VERSION);
+		else
+			return new Producer(DEFAULT_PRODUCER_ID, PRODUCER_PID, PRODUCER_VERSION);
 	}
 
 	private static List<Map<String, Object>> getParamsList(Map<String, Object> params) {
