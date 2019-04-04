@@ -330,16 +330,18 @@ public class BasePlaySearchManager extends Results {
 	 */
 	private static Integer getCount(Map<String, Object> filters, Response response) {
 		Integer count = 0;
-		if (MapUtils.isEmpty(response.getResult()))
+		List<Map<String, Object>> contents = (List<Map<String, Object>>) response.getResult().get("results");
+		if (null == contents || contents.isEmpty()) {
 			return count;
+		}
 		if (isDIALScan(filters)) {
-			List<Map<String, Object>> contents = (List<Map<String, Object>>) response.getResult().get("content");
 			count = Collections.max(contents.stream().filter(content -> (null != content.get("leafNodesCount"))).map(content ->
 					((Number) content.get("leafNodesCount")).intValue()
 			).collect(Collectors.toList()));
 		} else {
 			count = (Integer) response.getResult().get("count");
 		}
+
 		return count;
 	}
 
