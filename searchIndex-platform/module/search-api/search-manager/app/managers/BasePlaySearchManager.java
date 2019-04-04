@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -209,7 +210,7 @@ public class BasePlaySearchManager extends Results {
 				? (Map<String, Object>) request.get(CompositeSearchParams.filters.name()) : new HashMap();
 		Object sort = (null != request.get(CompositeSearchParams.sort_by.name()))
 				? request.get(CompositeSearchParams.sort_by.name()) : new HashMap();
-		int count = (response.getResult() == null ? 0 : (Integer) response.getResult().get("count"));
+		int count = getCount(filters, response);
 		Object topN = getTopNResult(response.getResult());
 		String type = getType(filters);
 		populateTargetDialObject(context, filters);
@@ -307,4 +308,39 @@ public class BasePlaySearchManager extends Results {
 		}
 		return paramList;
 	}
+
+	/**
+	 * This Method Checks Whether Search Request is from DIAL Scan Or Not.
+	 * @param filters
+	 * @return Boolean
+	 */
+	private static Boolean isDIALScan(Map<String, Object> filters) {
+		if (MapUtils.isNotEmpty(filters) && null != filters.get("dialcodes")) {
+			List<String> dialcodes = getList(filters.get("dialcodes"));
+			return (dialcodes.size() == 1) ? true : false;
+		}
+		return false;
+	}
+
+	/**
+	 * This Method Returns Total Number of Content Found in Search
+	 * @param filters
+	 * @param response
+	 * @return
+	 */
+	private static Integer getCount(Map<String, Object> filters, Response response) {
+		Integer count = 0;
+		if (MapUtils.isEmpty(response.getResult()))
+			return count;
+		if (isDIALScan(filters)) {
+			List<Map<String, Object>> contents = (List<Map<String, Object>>) response.getResult().get("content");
+			count = Collections.max(contents.stream().filter(content -> (null != content.get("leafNodesCount"))).map(content ->
+					((Number) content.get("leafNodesCount")).intValue()
+			).collect(Collectors.toList()));
+		} else {
+			count = (Integer) response.getResult().get("count");
+		}
+		return count;
+	}
+
 }
