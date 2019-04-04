@@ -329,17 +329,26 @@ public class BasePlaySearchManager extends Results {
 	 * @return
 	 */
 	private static Integer getCount(Map<String, Object> filters, Response response) {
+		System.out.println("Filters : " + filters);
+		System.out.println("Result : " + response.getResult());
 		Integer count = 0;
-		if (MapUtils.isEmpty(response.getResult()))
+		List<Map<String, Object>> contents = (List<Map<String, Object>>) response.getResult().get("results");
+		if (null == contents || contents.isEmpty()) {
 			return count;
-		if (isDIALScan(filters)) {
-			List<Map<String, Object>> contents = (List<Map<String, Object>>) response.getResult().get("content");
-			count = Collections.max(contents.stream().filter(content -> (null != content.get("leafNodesCount"))).map(content ->
-					((Number) content.get("leafNodesCount")).intValue()
-			).collect(Collectors.toList()));
-		} else {
-			count = (Integer) response.getResult().get("count");
 		}
+		try {
+			if (isDIALScan(filters)) {
+				count = Collections.max(contents.stream().filter(content -> (null != content.get("leafNodesCount"))).map(content ->
+						((Number) content.get("leafNodesCount")).intValue()
+				).collect(Collectors.toList()));
+			} else {
+				count = (Integer) response.getResult().get("count");
+			}
+		} catch (Exception e) {
+			System.out.println("Exception occured :" + e.getMessage());
+			e.printStackTrace();
+		}
+
 		return count;
 	}
 
