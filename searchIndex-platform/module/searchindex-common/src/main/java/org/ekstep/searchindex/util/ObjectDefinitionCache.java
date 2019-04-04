@@ -131,13 +131,12 @@ public class ObjectDefinitionCache {
     
     @SuppressWarnings("unchecked")
 	public static Map<String, Object> getMetaData(String objectType) throws Exception {
-    	Map<String, Object> metadata = null;
-		String graphId = "domain";
-		metadata = metadataMap.get(objectType);
+    		Map<String, Object> metadata = metadataMap.get(objectType);
+    		String graphId = "domain";
 		if(null == metadata){
 			getDefinitionFromGraph(objectType, graphId);
+			metadata = metadataMap.get(objectType);
 		}
-		metadata = metadataMap.get(objectType);
 		return metadata;
 	}
 }

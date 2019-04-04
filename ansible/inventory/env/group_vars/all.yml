@@ -14,6 +14,10 @@ learner_user: learning
 learner_group: learning
 learner_user_home: "/home/{{ learner_user }}"
 
+#artifact upload
+artifact_azure_account_name: "{{lp_artifact_azure_account_name}}"
+artifact_azure_account_key: "{{lp_vault_artifact_azure_account_key}}"
+
 ## Common variables for LP
 # these  variables can be defined as {{instance}}_*
 content_keyspace_name: "{{instance}}_content_store"
@@ -38,7 +42,6 @@ yarn_slaves: "{{ groups['yarn-slave']}}"
 __yarn_host__: "{{ groups['yarn-master'][0] }}"
 
 neo4j_dir: neo4j-learning
-neo4j_home: "{{learner_user_home}}/{{neo4j_dir}}/neo4j-enterprise-3.3.9"
 
 lp_bolt_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:7687
 lp_bolt_read_url: bolt://{{ groups['learning-neo4j-cluster'][0] }}:7687
@@ -65,8 +68,13 @@ dial_service_authorization: "{{ lp_vault_dial_service_authorization }}"
 youtube_api_key: "{{ lp_vault_youtube_api_key }}"
 
 #### backup storage secret
+backup_azure_storage_account_name: "{{azure_account_name}}"
 backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 
 ## es backup
 es_snapshot_host: "{{ groups['composite-search-cluster'][0] }}"
 snapshot_base_path: compositesearch
+
+#artfiact upload download
+artifact_azure_account_name: "{{azure_account_name}}"
+artifact_azure_account_key: "{{lp_vault_azure_storage_secret}}"

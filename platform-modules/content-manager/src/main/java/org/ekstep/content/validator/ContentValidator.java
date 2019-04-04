@@ -1,5 +1,24 @@
 package org.ekstep.content.validator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
+import org.ekstep.common.Platform;
+import org.ekstep.common.dto.CoverageIgnore;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.content.common.AssetsMimeTypeMap;
+import org.ekstep.content.common.ContentErrorMessageConstants;
+import org.ekstep.content.enums.ContentErrorCodeConstants;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.graph.dac.model.Node;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.telemetry.logger.TelemetryManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -8,23 +27,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.Tika;
-import org.ekstep.common.Platform;
-import org.ekstep.common.dto.CoverageIgnore;
-import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.optimizr.FileUtils;
-import org.ekstep.common.util.HttpDownloadUtility;
-import org.ekstep.content.common.AssetsMimeTypeMap;
-import org.ekstep.content.common.ContentErrorMessageConstants;
-import org.ekstep.content.enums.ContentErrorCodeConstants;
-import org.ekstep.content.enums.ContentWorkflowPipelineParams;
-import org.ekstep.graph.dac.model.Node;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.telemetry.logger.TelemetryManager;
 
 /**
  * The Class ContentValidator, mainly used for validating ContentNode and
@@ -39,6 +41,7 @@ public class ContentValidator {
 	private static final String BUNDLE_PATH = "/tmp";
 
 	/** The youtubeUrl regex */
+	//TODO: Use youtube Regex from config
 	private static final String YOUTUBE_REGEX = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
 
 	/** The pdf mimeType */
@@ -50,7 +53,10 @@ public class ContentValidator {
 	private static final String EPUB_MIMETYPE = "application/epub";
 	
 	/** The allowed extensions */
+	//TODO: Get it from config.
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
+
+	private static Tika tika = new Tika();
 
 	static {
 		allowed_file_extensions.add("doc");
@@ -204,7 +210,6 @@ public class ContentValidator {
 		boolean isValidMimeType = false;
 		if (file.exists()) {
 			TelemetryManager.log("Validating File For MimeType: " + file.getName());
-			Tika tika = new Tika();
 			String mimeType = tika.detect(file);
 			isValidMimeType = StringUtils.equalsIgnoreCase(DEF_CONTENT_PACKAGE_MIME_TYPE, mimeType);
 		}
@@ -305,6 +310,7 @@ public class ContentValidator {
 	 * @checks ContentBody and artifact-url
 	 * @return true if the ContentNode meets all @checks else return false
 	 */
+	//TODO: Validation logic can be moved to definition
 	@CoverageIgnore
 	private boolean isAllRequiredFieldsAvailable(Node node) {
 		boolean isValid = false;
@@ -470,13 +476,31 @@ public class ContentValidator {
 	 * @throws IOException
 	 */
 	public Boolean isValidUrl(String fileURL, String mimeType) {
-		Boolean isValid = false;
-		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
-		if (exceptionChecks(mimeType, file)) {
-			FileUtils.deleteFile(file);
-			return true;
+		try {
+			HttpResponse<String> httpResponse = Unirest.head(fileURL).asString();
+			if(200 != httpResponse.getStatus()){
+				TelemetryManager.error("Content Validator : Invalid URL : " + fileURL + " with http response " +
+                        ": "  + new ObjectMapper().writeValueAsString(httpResponse));
+				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+						ContentErrorMessageConstants.FILE_DOES_NOT_EXIST);
+			}
+			String urlMimeType = httpResponse.getHeaders().get("Content-Type").get(0);
+			if(!StringUtils.startsWith(urlMimeType, mimeType)) {
+				TelemetryManager.error("Content Validator : Invalid MimeType : " + fileURL + " with http response " +
+						": "  + new ObjectMapper().writeValueAsString(httpResponse));
+				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
+			}
+		} catch(ClientException ce) {
+			throw ce;
+		} catch (UnirestException ue){
+			TelemetryManager.error("Content Validator : Error while Fetching the file : " + fileURL , ue);
+			throw new ServerException(ContentErrorCodes.INVALID_FILE.name(), ue.getMessage(), ue);
+		} catch (Exception e) {
+				TelemetryManager.error("Content Validator : Error while Fetching the file : " + fileURL ,	e);
+				throw new ServerException(ContentErrorCodes.INVALID_FILE.name(), e.getMessage(), e);
 		}
-		return isValid;
+		return true;
 	}
 
 	public Boolean exceptionChecks(String mimeType, File file) {

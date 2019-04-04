@@ -20,8 +20,6 @@ content.keyspace.name="{{ content_keyspace_name }}"
 hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
 framework.hierarchy.table="framework_hierarchy"
-cassandra.host="{{ cassandra_host }}"
-cassandra.port={{ cassandra_port }}
 
 dialcode.keyspace.name="{{ dialcode_keyspace_name }}"
 dialcode.keyspace.table="dial_code"
@@ -111,8 +109,7 @@ LanguageActorSystem {
   }
 }
 
-# Orchestrator Configuration
-env="{{ orchestrator_url }}"
+env= ""
 
 #Current environment
 cloud_storage.env = "{{ cloud_storage_config_environment }}"
@@ -139,9 +136,6 @@ dist.directory = "/data/tmp/dist/"
 output.zipfile = "/data/tmp/story.zip"
 source.folder  = "/data/tmp/temp2/"
 save.directory = "/data/tmp/temp/"
-
-# Content 2 vec analytics URL
-CONTENT_TO_VEC_URL="{{ content_to_vec_url }}"
 
 # FOR CONTENT WORKFLOW PIPELINE (CWP)
 
@@ -219,9 +213,9 @@ telemetry.search.topn=5
 #Copy Content validation configuration
 learning.content.copy.invalid_status_list=["Flagged","FlagDraft","FlagReview","Retired", "Processing"]
 learning.content.copy.props_to_remove=["downloadUrl", "artifactUrl", "variants","createdOn", "collections", "children",
-"lastUpdatedOn", "sYS_INTERNAL_LAST_UPDATED_ON","versionKey", "s3Key", "status", "pkgVersion", "toc_url",
+"lastUpdatedOn", "SYS_INTERNAL_LAST_UPDATED_ON","versionKey", "s3Key", "status", "pkgVersion", "toc_url",
 "mimeTypesCount", "contentTypesCount", "leafNodesCount", "childNodes", "prevState", "lastPublishedOn", "flagReasons",
-"compatibilityLevel", "size", "publishChecklist", "publishComment", "LastPublishedBy", "rejectReasons", "rejectComment",
+"compatibilityLevel", "size", "publishChecklist", "publishComment", "lastPublishedBy", "rejectReasons", "rejectComment",
  "gradeLevel", "subject", "medium", "board", "topic", "purpose", "subtopic", "attributions", "contentCredits", "owner",
  "collaborators", "creators", "contributors", "badgeAssertions", "dialcodes", "concepts", "keywords", "reservedDialcodes", "dialcodeRequired"]
 learning.content.type.not.copied.list=["Asset"]
@@ -263,4 +257,7 @@ cassandra.lpa.connection="{{ dp_cassandra_connection }}"
 
 compositesearch.index.name="{{ compositesearch_index_name }}"
 
-# restrict.metadata.objectTypes=["Content", "ContentImage", "AssessmentItem", "Channel", "Framework", "Category", "CategoryInstance", "Term"]
+restrict.metadata.objectTypes="Content,ContentImage"
+
+# Consistency Level for Multi Node Cassandra cluster
+cassandra.lp.consistency.level=QUORUM

@@ -28,7 +28,6 @@
 		<module>actors</module>
 		<module>content-manager</module>
 		<module>ekstep-framework</module>
-		<module>ekstep-dialcode</module>
 	</modules>
 
 	<dependencies>

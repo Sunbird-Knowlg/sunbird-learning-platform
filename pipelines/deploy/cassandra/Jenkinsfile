@@ -21,7 +21,7 @@ node() {
                 currentWs = sh(returnStdout: true, script: 'pwd').trim()
                 
                 ansiblePlaybook = "${currentWs}/ansible/lp_cassandra_db_update.yml"
-                ansibleExtraArgs = ""
+                ansibleExtraArgs = "--vault-password-file /var/lib/jenkins/secrets/vault-pass"
                 values.put('currentWs', currentWs)
                 values.put('env', envDir)
                 values.put('module', module)

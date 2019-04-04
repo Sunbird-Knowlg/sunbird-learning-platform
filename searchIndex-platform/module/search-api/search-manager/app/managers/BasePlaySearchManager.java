@@ -9,7 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,6 +58,9 @@ public class BasePlaySearchManager extends Results {
 							String correlationId = UUID.randomUUID().toString();
 							if (result instanceof Response) {
 								Response response = (Response) result;
+								if(response.getResponseCode().name().equals("CLIENT_ERROR")){
+                                    return badRequest(getResult(response,request.getId(), request.getVer(), null, correlationId)).as("application/json");
+                                }
 								if (checkError(response)) {
 									String errMsg = getMessage(response);
 									return notFound(getErrorMsg(errMsg)).as("application/json");
@@ -206,6 +212,7 @@ public class BasePlaySearchManager extends Results {
 		int count = (response.getResult() == null ? 0 : (Integer) response.getResult().get("count"));
 		Object topN = getTopNResult(response.getResult());
 		String type = getType(filters);
+		populateTargetDialObject(context, filters);
 		TelemetryManager.search(context, query, filters, sort, count, topN, type);
 	}
 
@@ -265,5 +272,39 @@ public class BasePlaySearchManager extends Results {
 			return "Something went wrong in server while processing the request";
 		}
 		
+	}
+
+	/**
+	 * This method populates Target Object field for DIAL Scan.
+	 * @param context
+	 * @param filters
+	 */
+	private void populateTargetDialObject(Map<String, Object> context, Map<String, Object> filters) {
+		if (MapUtils.isNotEmpty(filters) && null != filters.get("dialcodes")) {
+			List<String> dialcodes = getList(filters.get("dialcodes"));
+			if (dialcodes.size() == 1) {
+				context.put("objectId", dialcodes.get(0));
+				context.put("objectType", "DialCode");
+			}
+		}
+	}
+
+	/**
+	 * @param param
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected static List<String> getList(Object param) {
+		List<String> paramList = null;
+		try {
+			paramList = (List<String>) param;
+		} catch (Exception e) {
+			String str = (String) param;
+			paramList = Arrays.asList(str);
+		}
+		if (null != paramList) {
+			paramList = paramList.stream().filter(x -> StringUtils.isNotBlank(x) && !StringUtils.equals(" ", x)).collect(Collectors.toList());
+		}
+		return paramList;
 	}
 }

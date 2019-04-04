@@ -40,7 +40,8 @@ public abstract class CassandraStore {
 	private boolean index = false;
 	private String objectType = null;
 	protected String nodeType = CassandraStoreParams.EXTERNAL.name();
-	private String DEFAULT_CHANNEL_ID = Platform.config.getString("channel.default");
+	private String DEFAULT_CHANNEL_ID = Platform.config.hasPath("channel.default")?
+			Platform.config.getString("channel.default"):"in.ekstep";
 
 	protected void initialise(String keyspace, String table, String objectType) {
 		initialise(keyspace, table, objectType, false);

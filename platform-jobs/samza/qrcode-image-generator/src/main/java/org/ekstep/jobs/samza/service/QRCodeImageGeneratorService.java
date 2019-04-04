@@ -33,77 +33,82 @@ public class QRCodeImageGeneratorService implements ISamzaService {
 
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-	    LOGGER.info("QRCodeImageGeneratorService:processMessage: Processing request: "+message);
-	    LOGGER.info("QRCodeImageGeneratorService:processMessage: Starting message processing at "+System.currentTimeMillis());
+	    try{
+            LOGGER.info("QRCodeImageGeneratorService:processMessage: Processing request: "+message);
+            LOGGER.info("QRCodeImageGeneratorService:processMessage: Starting message processing at "+System.currentTimeMillis());
 
-	    if(!message.containsKey(QRCodeImageGeneratorParams.eid.name())) {
-	        return;
-        }
-
-		String eid = (String) message.get(QRCodeImageGeneratorParams.eid.name());
-		if(!eid.equalsIgnoreCase(QRCodeImageGeneratorParams.BE_QR_IMAGE_GENERATOR.name())) {
-            return;
-		}
-
-        List<Map<String,Object>> dialCodes = (List<Map<String,Object>>) message.get(QRCodeImageGeneratorParams.dialcodes.name());
-		if(null == dialCodes || dialCodes.size()==0) {
-		    return;
-        }
-
-        Map<String, Object> config = (Map<String, Object>) message.get(QRCodeImageGeneratorParams.config.name());
-		String imageFormat = (String) config.get(QRCodeImageGeneratorParams.imageFormat.name());
-
-        List<File> availableImages = new ArrayList<File>();
-        List<String> dataList = new ArrayList<String>();
-        List<String> textList = new ArrayList<String>();
-        List<String> fileNameList = new ArrayList<String>();
-        String downloadUrl = null;
-
-        for(Map<String, Object> dialCode : dialCodes) {
-            if(dialCode.containsKey(QRCodeImageGeneratorParams.location.name())) {
-                try {
-                    downloadUrl = (String) dialCode.get(QRCodeImageGeneratorParams.location.name());
-                    String fileName = (String) dialCode.get(QRCodeImageGeneratorParams.id.name());
-                    File fileToSave = new File(fileName+"."+imageFormat);
-                    CloudStorageUtil.downloadFile(downloadUrl, fileToSave);
-                    availableImages.add(fileToSave);
-                    continue;
-                } catch(Exception e) {
-                    LOGGER.error("QRCodeImageGeneratorService:processMessage: Error while downloading image:", downloadUrl, e);
-                }
+            if(!message.containsKey(QRCodeImageGeneratorParams.eid.name())) {
+                return;
             }
 
-            dataList.add((String)dialCode.get(QRCodeImageGeneratorParams.data.name()));
-            textList.add((String)dialCode.get(QRCodeImageGeneratorParams.text.name()));
-            fileNameList.add((String)dialCode.get(QRCodeImageGeneratorParams.id.name()));
+            String eid = (String) message.get(QRCodeImageGeneratorParams.eid.name());
+            if(!eid.equalsIgnoreCase(QRCodeImageGeneratorParams.BE_QR_IMAGE_GENERATOR.name())) {
+                return;
+            }
 
+            List<Map<String,Object>> dialCodes = (List<Map<String,Object>>) message.get(QRCodeImageGeneratorParams.dialcodes.name());
+            if(null == dialCodes || dialCodes.size()==0) {
+                return;
+            }
+
+            Map<String, Object> config = (Map<String, Object>) message.get(QRCodeImageGeneratorParams.config.name());
+            String imageFormat = (String) config.get(QRCodeImageGeneratorParams.imageFormat.name());
+
+            List<File> availableImages = new ArrayList<File>();
+            List<String> dataList = new ArrayList<String>();
+            List<String> textList = new ArrayList<String>();
+            List<String> fileNameList = new ArrayList<String>();
+            String downloadUrl = null;
+
+            for(Map<String, Object> dialCode : dialCodes) {
+                if(dialCode.containsKey(QRCodeImageGeneratorParams.location.name())) {
+                    try {
+                        downloadUrl = (String) dialCode.get(QRCodeImageGeneratorParams.location.name());
+                        String fileName = (String) dialCode.get(QRCodeImageGeneratorParams.id.name());
+                        File fileToSave = new File(fileName+"."+imageFormat);
+                        CloudStorageUtil.downloadFile(downloadUrl, fileToSave);
+                        availableImages.add(fileToSave);
+                        continue;
+                    } catch(Exception e) {
+                        LOGGER.error("QRCodeImageGeneratorService:processMessage: Error while downloading image:", downloadUrl, e);
+                    }
+                }
+
+                dataList.add((String)dialCode.get(QRCodeImageGeneratorParams.data.name()));
+                textList.add((String)dialCode.get(QRCodeImageGeneratorParams.text.name()));
+                fileNameList.add((String)dialCode.get(QRCodeImageGeneratorParams.id.name()));
+
+            }
+
+            Map<String, String> storage = (Map<String, String>) message.get(QRCodeImageGeneratorParams.storage.name());
+            String container = storage.get(QRCodeImageGeneratorParams.container.name());
+            String path = storage.get(QRCodeImageGeneratorParams.path.name());
+            String zipFileName = storage.get(QRCodeImageGeneratorParams.fileName.name());
+            String processId = (String) message.get(QRCodeImageGeneratorParams.processId.name());
+            if(StringUtils.isBlank(zipFileName)) {
+                zipFileName = processId;
+            }
+
+
+            QRCodeGenerationRequest qrGenRequest = getQRCodeGenerationRequest(config, dataList, textList, fileNameList);
+            List<File> generatedImages = QRCodeImageGeneratorUtil.createQRImages(qrGenRequest, appConfig, container, path);
+
+            availableImages.addAll(generatedImages);
+            File zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName);
+
+            String zipDownloadUrl = CloudStorageUtil.uploadFile(container, path, zipFile, false);
+            QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
+
+            zipFile.deleteOnExit();
+            for(File imageFile : availableImages) {
+                imageFile.deleteOnExit();
+            }
+            LOGGER.info("QRCodeImageGeneratorService:processMessage: Message processed successfully at "+System.currentTimeMillis());
+        } catch (Exception e) {
+            QRCodeCassandraConnector.updateFailure((String) message.get(QRCodeImageGeneratorParams.processId.name()),
+                    e.getMessage());
+            throw e;
         }
-
-        Map<String, String> storage = (Map<String, String>) message.get(QRCodeImageGeneratorParams.storage.name());
-        String container = storage.get(QRCodeImageGeneratorParams.container.name());
-        String path = storage.get(QRCodeImageGeneratorParams.path.name());
-        String zipFileName = storage.get(QRCodeImageGeneratorParams.fileName.name());
-        String processId = (String) message.get(QRCodeImageGeneratorParams.processId.name());
-        if(StringUtils.isBlank(zipFileName)) {
-            zipFileName = processId;
-        }
-
-
-        QRCodeGenerationRequest qrGenRequest = getQRCodeGenerationRequest(config, dataList, textList, fileNameList);
-        List<File> generatedImages = QRCodeImageGeneratorUtil.createQRImages(qrGenRequest, appConfig, container, path);
-
-        availableImages.addAll(generatedImages);
-        File zipFile = ZipEditorUtil.zipFiles(availableImages, zipFileName);
-
-        String zipDownloadUrl = CloudStorageUtil.uploadFile(appConfig, container, path, zipFile, true, false);
-        QRCodeCassandraConnector.updateDownloadZIPUrl(processId, zipDownloadUrl);
-
-        zipFile.deleteOnExit();
-        for(File imageFile : availableImages) {
-            imageFile.deleteOnExit();
-        }
-        LOGGER.info("QRCodeImageGeneratorService:processMessage: Message processed successfully at "+System.currentTimeMillis());
-
 	}
 
 	private QRCodeGenerationRequest getQRCodeGenerationRequest(Map<String, Object> config, List<String> dataList, List<String> textList, List<String> fileNameList) {
