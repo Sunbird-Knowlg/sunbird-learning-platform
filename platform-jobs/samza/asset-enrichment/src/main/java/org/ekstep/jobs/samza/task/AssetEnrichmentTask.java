@@ -11,8 +11,8 @@ import org.ekstep.jobs.samza.service.AssetEnrichmentService;
 import org.ekstep.jobs.samza.util.JobLogger;
 public class AssetEnrichmentTask extends AbstractTask{
 	
-	static JobLogger LOGGER = new JobLogger(AssetEnrichmentTask.class);
-	ISamzaService service = new AssetEnrichmentService();
+	private static JobLogger LOGGER = new JobLogger(AssetEnrichmentTask.class);
+	private  ISamzaService service = new AssetEnrichmentService();
 
 	public AssetEnrichmentTask() {
 
