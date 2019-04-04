@@ -18,9 +18,10 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
-import java.io.File;
-import java.io.FileReader;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -257,9 +258,8 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 	 * @param fileName
 	 * @return
 	 */
-	private static File getResourceFile(String fileName) {
-		File file = new File(CompositeSearchIndexer.class.getResource("/" + fileName).getFile());
-		return file;
+	private InputStream getResourceFile(String fileName) {
+		return getClass().getClassLoader().getResourceAsStream(fileName);
 	}
 
 	/**
@@ -268,11 +268,11 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 	 * @return
 	 */
 	private String getESIndexConfig(String propertyName) {
-		try (FileReader reader = new FileReader(getResourceFile(propertyName + ".json"))) {
+		try (InputStreamReader reader = new InputStreamReader(getResourceFile(propertyName + ".json"))) {
 			Object obj = gson.fromJson(reader, Object.class);
 			return gson.toJson(obj);
 		} catch (Exception e) {
-			LOGGER.error("Error Occured while reading elasticsearch index configuration: ",e.getMessage(), e);
+			LOGGER.error("Error Occured while Reading ES Index Configuration : "+e.getMessage(),e);
 		}
 		return null;
 	}
