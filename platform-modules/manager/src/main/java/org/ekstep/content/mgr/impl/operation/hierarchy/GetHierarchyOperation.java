@@ -41,79 +41,75 @@ public class GetHierarchyOperation extends BaseContentManager {
     /**
      * Get Collection Hierarchy
      *
-     * @param contentId
-     * @param bookMarkId
+     * @param rootId
+     * @param bookmarkId
      * @param mode
      * @param fields
      * @return
      */
-    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields) {
-        // Check bookMarkId is same as contentId
-        String id = getNodeIdToBeFetched(contentId, bookMarkId);
+    public Response getContentHierarchy(String rootId, String bookmarkId, String mode, List<String> fields) {
+        // Check bookmarkId is same as rootId
+        if (StringUtils.isBlank(rootId))
+            throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Requested ID is null or empty");
 
         if (StringUtils.equalsIgnoreCase("edit", mode)) {
-            return getUnPublishedHierarchy(id, mode, fields);
+            return getUnPublishedHierarchy(rootId, bookmarkId, fields);
         } else {
-            return getPublishedHierarchy(id);
+            return getPublishedHierarchy(rootId, bookmarkId);
         }
     }
 
     /**
      * Get Hierarchy for Unpublished Collections
      *
-     * @param bookMarkId
-     * @param mode
+     * @param rootId
+     * @param bookmarkId
      * @param fields
      * @return
      */
-    private Response getUnPublishedHierarchy(String bookMarkId, String mode, List<String> fields) {
-        // Fetch collection root node from neo4j
-        Node node = getContentNode(TAXONOMY_ID, bookMarkId, mode);
-        /*
-         * If Node exists, get Hierarchy from cassandra.
-         * check cassandra response. If ok, return hierarchy.
-         * else get hierarchy from neo4j and asynchronously migrate hierarchy and cleanUp neo4j
-         */
-        if(null != node){
-            if(!StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, (String) node.getMetadata().get("mimeType")))
-                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(),
-                        "Requested ID is not of collection mimeType : " + bookMarkId);
+    private Response getUnPublishedHierarchy(String rootId, String bookmarkId, List<String> fields) {
+        String mode = "edit";
+        Node rootNode = getContentNode(TAXONOMY_ID, rootId, mode);
 
-            Response hierarchyResponse = getCollectionHierarchy(bookMarkId + IMAGE_SUFFIX);
-            DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-            Map<String, Object> dataMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, fields);
+        if(null != rootNode) {
+            if(!StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, (String) rootNode.getMetadata().get("mimeType")))
+                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given content id is not of collection : " + rootId);
+
+            Response hierarchyResponse = getCollectionHierarchy(rootId + IMAGE_SUFFIX);
+            DefinitionDTO definition = getDefinition(TAXONOMY_ID, rootNode.getObjectType());
+            Map<String, Object> dataMap = ConvertGraphNode.convertGraphNode(rootNode, TAXONOMY_ID, definition, fields);
             if(!checkError(hierarchyResponse)) {
                 Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
                 dataMap.put("children", hierarchy.get("children"));
             } else {
-                dataMap = util.getHierarchyMap(TAXONOMY_ID, node.getIdentifier(), definition, mode,
-                        fields);
-                createCollectionHierarchy(node.getIdentifier());
+                dataMap = util.getHierarchyMap(TAXONOMY_ID, rootNode.getIdentifier(), definition, mode,null);
+                generateMigrationInstructionEvent(rootNode.getIdentifier());
             }
             return OK("content", dataMap);
-        }
-        /*
-         * Search for rootID from ES.
-         * fetch collectionHierarchy from cassandra, filter for bookMarkId and return the response.
-         */
-        else {
-            String rootId = searchRootId(bookMarkId);
-            if(StringUtils.isNotBlank(rootId)){
-                Response hierarchyResponse = getCollectionHierarchy(rootId + IMAGE_SUFFIX);
-                if(checkError(hierarchyResponse)){
-                    return hierarchyResponse;
-                } else {
-                    Map<String, Object> hierarchy = filterBookMark((List<Map<String, Object>>) ((Map<String, Object>) hierarchyResponse.getResult().get
-                            ("hierarchy")).get("children"), bookMarkId);
-                    if (MapUtils.isNotEmpty(hierarchy))
-                        return OK("content", hierarchy);
-                    else
-                        throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                                "Content not found with id: " + bookMarkId);
-                }
+        } else {
+            if (StringUtils.isNotBlank(bookmarkId)) {
+                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given content id is not of root collection : " + rootId);
             } else {
-                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                        "Content not found with id: " + bookMarkId);
+                bookmarkId = rootId;
+                rootId = searchRootId(bookmarkId);
+                if(StringUtils.isNotBlank(rootId)) {
+                    Response hierarchyResponse = getCollectionHierarchy(rootId + IMAGE_SUFFIX);
+                    if(checkError(hierarchyResponse)){
+                        return hierarchyResponse;
+                    } else {
+                        Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+                        List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
+                        Map<String, Object> hierarchy = filterBookmark(rootChildren, bookmarkId);
+                        if (MapUtils.isNotEmpty(hierarchy)) {
+                            generateMigrationInstructionEvent(rootId);
+                            return OK("content", hierarchy);
+                        } else {
+                            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
+                        }
+                    }
+                } else {
+                    throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
+                }
             }
         }
 
@@ -122,39 +118,28 @@ public class GetHierarchyOperation extends BaseContentManager {
     /**
      * Get Hierarchy for Published Collection
      *
-     * @param bookMarkId
+     * @param rootId
+     * @param bookmarkId
      * @return
      */
-    private Response getPublishedHierarchy(String bookMarkId) {
-        Map<String, Object> hierarchy;
-        // Get live content hierarchy of bookMarkId
-        Response hierarchyResponse = getCollectionHierarchy(bookMarkId);
-
-        /* If hierarchy exists, return hierarchy
-         *   Else search ES for rootID and fetch hierarchy for root ID and filter for bookMarkID
-         */
-        if (!checkError(hierarchyResponse)) {
-            hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
-            return OK("content", hierarchy);
-        }
-        /*
-         * Search for rootID from ES.
-         * fetch collectionHierarchy from cassandra, filter for bookMarkId and return the response.
-         */
-        else {
-            String rootId = searchRootId(bookMarkId);
-            if (StringUtils.isNotBlank(rootId)) {
-                Response rootResp = getCollectionHierarchy(rootId);
-                hierarchy = filterBookMark((List<Map<String, Object>>) ((Map<String, Object>) rootResp.getResult().get
-                        ("hierarchy")).get("children"), bookMarkId);
-                if (MapUtils.isNotEmpty(hierarchy))
-                    return OK("content", hierarchy);
-                else
-                    throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                            "Content not found with id: " + bookMarkId);
+    private Response getPublishedHierarchy(String rootId, String bookmarkId) {
+        Response rootResponse = getCollectionHierarchy(rootId);
+        if (!checkError(rootResponse)) {
+            Map<String, Object> rootHierarchy = (Map<String, Object>) rootResponse.getResult().get("hierarchy");
+            return getHierarchyResponse(rootHierarchy, bookmarkId);
+        } else {
+            if (StringUtils.isBlank(bookmarkId)) {
+                bookmarkId = rootId;
+                rootId = searchRootId(bookmarkId);
+                if (StringUtils.isNotBlank(rootId)) {
+                    rootResponse = getCollectionHierarchy(rootId);
+                    Map<String, Object> rootHierarchy = (Map<String, Object>) rootResponse.getResult().get("hierarchy");
+                    return getHierarchyResponse(rootHierarchy, bookmarkId);
+                } else {
+                    throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
+                }
             } else {
-                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                        "Content not found with id: " + bookMarkId);
+                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given collection root object ID is invalid: " + rootId);
             }
         }
     }
@@ -202,19 +187,19 @@ public class GetHierarchyOperation extends BaseContentManager {
 
     }
 
-    /**
-     * Validate and return bookMarkId
-     *
-     * @param contentId
-     * @param bookMarkId
-     * @return
-     */
-    private String getNodeIdToBeFetched(String contentId, String bookMarkId) {
-        if (StringUtils.isBlank(contentId) || StringUtils.isBlank(bookMarkId))
-            throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Requested ID is null or empty");
-        return StringUtils.equalsIgnoreCase(contentId, bookMarkId) ? contentId : bookMarkId;
+    private Response getHierarchyResponse(Map<String, Object> hierarchy, String bookmarkId) {
+        if (StringUtils.isBlank(bookmarkId)) {
+            return OK("content", hierarchy);
+        } else {
+            List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) hierarchy.get("children");
+            hierarchy = filterBookmark(rootChildren, bookmarkId);
+            if (MapUtils.isNotEmpty(hierarchy)) {
+                return OK("content", hierarchy);
+            } else {
+                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
+            }
+        }
     }
-
 
     /**
      * Filter and return bookMark Hierarchy
@@ -223,7 +208,7 @@ public class GetHierarchyOperation extends BaseContentManager {
      * @param bookMarkId
      * @return
      */
-    private static Map<String, Object> filterBookMark(List<Map<String, Object>> children, String bookMarkId) {
+    private static Map<String, Object> filterBookmark(List<Map<String, Object>> children, String bookMarkId) {
         if (CollectionUtils.isNotEmpty(children)) {
             List<Map<String, Object>> response = children.stream().filter(child -> StringUtils.equalsIgnoreCase
                     (bookMarkId, (String)
@@ -234,7 +219,7 @@ public class GetHierarchyOperation extends BaseContentManager {
                 List<Map<String, Object>> nextChildren = children.stream().flatMap(child -> ((List<Map<String,
                         Object>>) child.get("children")).stream()).collect(Collectors.toList());
 
-                return filterBookMark(nextChildren, bookMarkId);
+                return filterBookmark(nextChildren, bookMarkId);
             }
 
         }
@@ -262,7 +247,8 @@ public class GetHierarchyOperation extends BaseContentManager {
      *
      * @param identifier
      */
-    private void createCollectionHierarchy(String identifier) {
+    private void generateMigrationInstructionEvent(String identifier) {
+        System.out.println("Migration should be triggered for content: " + identifier);
     }
 
 
