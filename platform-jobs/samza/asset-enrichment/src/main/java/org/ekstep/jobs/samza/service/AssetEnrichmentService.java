@@ -23,7 +23,7 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.ImageWorkflowEnums;
+import org.ekstep.jobs.samza.util.AssetEnrichmentEnums;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.OptimizerUtil;
@@ -33,24 +33,33 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-public class ImageTaggingService implements ISamzaService {
+public class AssetEnrichmentService implements ISamzaService {
 	private VideoStreamingJobRequest streamJobRequest = new VideoStreamingJobRequest();
 
 	private Config config = null;
 
 	private ControllerUtil util = new ControllerUtil();
 
-	static JobLogger LOGGER = new JobLogger(ImageTaggingService.class);
+	private static JobLogger LOGGER = new JobLogger(AssetEnrichmentService.class);
 
 	private static int MAXITERTIONCOUNT= 2;
-	
+
+	public AssetEnrichmentService(){
+
+	}
+
+	public AssetEnrichmentService(ControllerUtil controllerUtil, VideoStreamingJobRequest videoStreamingJobRequest) {
+		util = controllerUtil;
+		streamJobRequest = videoStreamingJobRequest;
+	}
+
 	protected int getMaxIterations() {
-		if(Platform.config.hasPath("max.iteration.count.samza.job")) 
+		if(Platform.config.hasPath("max.iteration.count.samza.job"))
 			return Platform.config.getInt("max.iteration.count.samza.job");
-		else 
+		else
 			return MAXITERTIONCOUNT;
 	}
-	
+
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
@@ -59,24 +68,24 @@ public class ImageTaggingService implements ISamzaService {
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");
 	}
-	
+
 	private boolean validateObject(Map<String, Object> edata) {
-		
-		if (null == edata) 
+
+		if (null == edata)
 			return false;
-		if(StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.contentType.name())) && 
-				StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.mediaType.name())) &&
-				StringUtils.isNotBlank((String)edata.get(ImageWorkflowEnums.status.name()))) {
-			
-			if(StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.contentType.name()), ImageWorkflowEnums.Asset.name()) &&
-					(StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.mediaType.name()), ImageWorkflowEnums.image.name()) ||
-							StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.mediaType.name()), ImageWorkflowEnums.video.name()))){
-				
-				if(((Integer)edata.get(ImageWorkflowEnums.iteration.name()) == 1 && 
-						StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.status.name()), ImageWorkflowEnums.Processing.name())) || 
-						((Integer)edata.get(ImageWorkflowEnums.iteration.name()) > 1 && 
-						(Integer)edata.get(ImageWorkflowEnums.iteration.name()) <= getMaxIterations() && 
-						StringUtils.equalsIgnoreCase((String)edata.get(ImageWorkflowEnums.status.name()), ImageWorkflowEnums.FAILED.name()))) {
+		if(StringUtils.isNotBlank((String)edata.get(AssetEnrichmentEnums.contentType.name())) &&
+				StringUtils.isNotBlank((String)edata.get(AssetEnrichmentEnums.mediaType.name())) &&
+				StringUtils.isNotBlank((String)edata.get(AssetEnrichmentEnums.status.name()))) {
+
+			if(StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.contentType.name()), AssetEnrichmentEnums.Asset.name()) &&
+					(StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.mediaType.name()), AssetEnrichmentEnums.image.name()) ||
+							StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.mediaType.name()), AssetEnrichmentEnums.video.name()))){
+
+				if(((Integer)edata.get(AssetEnrichmentEnums.iteration.name()) == 1 &&
+						StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.status.name()), AssetEnrichmentEnums.Processing.name())) ||
+						((Integer)edata.get(AssetEnrichmentEnums.iteration.name()) > 1 &&
+						(Integer)edata.get(AssetEnrichmentEnums.iteration.name()) <= getMaxIterations() &&
+						StringUtils.equalsIgnoreCase((String)edata.get(AssetEnrichmentEnums.status.name()), AssetEnrichmentEnums.FAILED.name()))) {
 					return true;
 				}
 			}
@@ -86,23 +95,24 @@ public class ImageTaggingService implements ISamzaService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
+		System.out.println(message);
 		if(null == message) {
-			LOGGER.info("Ignoring the message because it is not valid for imagetagging.");
+			LOGGER.info("Ignoring the message because it is not valid for assetenrichment.");
 			metrics.incSkippedCounter();
 			return;
 		}
-		Map<String, Object> edata = (Map<String, Object>) message.get(ImageWorkflowEnums.edata.name());
-		Map<String, Object> object = (Map<String, Object>) message.get(ImageWorkflowEnums.object.name());
-		
+		Map<String, Object> edata = (Map<String, Object>) message.get(AssetEnrichmentEnums.edata.name());
+		Map<String, Object> object = (Map<String, Object>) message.get(AssetEnrichmentEnums.object.name());
+
 		if (!validateObject(edata) || null == object) {
-			LOGGER.info("Ignoring the message because it is not valid for imagetagging.");
+			LOGGER.info("Ignoring the message because it is not valid for assetenrichment.");
 			return;
 		}
 		try {
-			String nodeId = (String) object.get(ImageWorkflowEnums.id.name());
-			Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
-			if ((null != node) && (node.getObjectType().equalsIgnoreCase(ImageWorkflowEnums.content.name()))){
-				String mediaType = (String)edata.get(ImageWorkflowEnums.mediaType.name());
+			String nodeId = (String) object.get(AssetEnrichmentEnums.id.name());
+			Node node = util.getNode(AssetEnrichmentEnums.domain.name(), nodeId);
+			if ((null != node) && (node.getObjectType().equalsIgnoreCase(AssetEnrichmentEnums.content.name()))){
+				String mediaType = (String)edata.get(AssetEnrichmentEnums.mediaType.name());
 				if(StringUtils.equalsIgnoreCase(mediaType, "image"))
 					imageEnrichment(node);
 				else if (StringUtils.equalsIgnoreCase(mediaType, "video"))
@@ -114,7 +124,7 @@ public class ImageTaggingService implements ISamzaService {
 		} catch (Exception e) {
 			LOGGER.error("Error while processing message", message, e);
 			metrics.incErrorCounter();
-			edata.put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.FAILED.name());
+			edata.put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.FAILED.name());
 		}
 	}
 
@@ -124,24 +134,24 @@ public class ImageTaggingService implements ISamzaService {
 			Map<String, String> variantsMap = OptimizerUtil.optimizeImage(node.getIdentifier(), this.config.get("lp.tempfile.location"), node);
 			if (null == variantsMap)
 				variantsMap = new HashMap<String, String>();
-			if (StringUtils.isBlank(variantsMap.get(ImageWorkflowEnums.medium.name()))) {
-				String downloadUrl = (String) node.getMetadata().get(ImageWorkflowEnums.downloadUrl.name());
+			if (StringUtils.isBlank(variantsMap.get(AssetEnrichmentEnums.medium.name()))) {
+				String downloadUrl = (String) node.getMetadata().get(AssetEnrichmentEnums.downloadUrl.name());
 				if (StringUtils.isNotBlank(downloadUrl)) {
-					variantsMap.put(ImageWorkflowEnums.medium.name(), downloadUrl);
+					variantsMap.put(AssetEnrichmentEnums.medium.name(), downloadUrl);
 				}
 			}
-			String image_url = variantsMap.get(ImageWorkflowEnums.medium.name());
+			String image_url = variantsMap.get(AssetEnrichmentEnums.medium.name());
 			processImage(image_url, variantsMap, node);
 		}catch(Exception e) {
 			LOGGER.info(
-					"Something Went Wrong While Performing Image Tagging operation. | [Content Id: "
+					"Something Went Wrong While Performing Asset Enrichment operation. | [Content Id: "
 							+ node.getIdentifier() + "]",
 					e.getMessage());
-			node.getMetadata().put(ImageWorkflowEnums.processingError.name(), e.getMessage());
-			node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Failed.name());
+			node.getMetadata().put(AssetEnrichmentEnums.processingError.name(), e.getMessage());
+			node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Failed.name());
 			Response res = util.updateNode(node);
 			if(checkError(res))
-				throw new ServerException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " + 
+				throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " +
 						node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
 			throw e;
 		}
@@ -155,22 +165,22 @@ public class ImageTaggingService implements ISamzaService {
 		LOGGER.info("Image " + node.getIdentifier() + " consumerId:" + node.getMetadata().get("consumerId"));
 		if ("true".equalsIgnoreCase(key)) {
 			Node data = callVisionService(image_url, node, variantsMap);
-			data.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);
+			data.getMetadata().put(AssetEnrichmentEnums.variants.name(), variantsMap);
 		} else {
-			node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Live.name());
-			node.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);
+			node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
+			node.getMetadata().put(AssetEnrichmentEnums.variants.name(), variantsMap);
 		}
 		Response res = util.updateNode(node);
 		if(checkError(res)) {
-			throw new ServerException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " + 
+			throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " +
 					node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
 		}
 	}
-	
+
 	/**
 	 * The method callVisionService holds the logic to call the google vision API get labels and flags for a given image
 	 * and update the same on the node
-	 * 
+	 *
 	 * @param image
 	 * @param node
 	 * @param variantsMap
@@ -191,34 +201,34 @@ public class ImageTaggingService implements ISamzaService {
 		}
 		try {
 			List<String> node_keywords = new ArrayList<String>();
-			if (null != node.getMetadata().get(ImageWorkflowEnums.keywords.name())) {
-				Object object = node.getMetadata().get(ImageWorkflowEnums.keywords.name());
+			if (null != node.getMetadata().get(AssetEnrichmentEnums.keywords.name())) {
+				Object object = node.getMetadata().get(AssetEnrichmentEnums.keywords.name());
 				if (object instanceof String[]) {
-					String[] stringArray = (String[]) node.getMetadata().get(ImageWorkflowEnums.keywords.name());
+					String[] stringArray = (String[]) node.getMetadata().get(AssetEnrichmentEnums.keywords.name());
 					List keywords = Arrays.asList(stringArray);
 					node_keywords = setKeywords(keywords, labels);
 				}
 				if (object instanceof String) {
-					String keyword = (String) node.getMetadata().get(ImageWorkflowEnums.keywords.name());
+					String keyword = (String) node.getMetadata().get(AssetEnrichmentEnums.keywords.name());
 					node_keywords.add(keyword);
 					node_keywords = setKeywords(node_keywords, labels);
 				}
 			}
 			if (!node_keywords.isEmpty()) {
-				node.getMetadata().put(ImageWorkflowEnums.keywords.name(), node_keywords);
+				node.getMetadata().put(AssetEnrichmentEnums.keywords.name(), node_keywords);
 			}
-			node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Live.name());
+			node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
 			List<String> flaggedByList = new ArrayList<>();
-			if (null != node.getMetadata().get(ImageWorkflowEnums.flaggedBy.name())) {
-				flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get(ImageWorkflowEnums.flaggedBy.name()));
+			if (null != node.getMetadata().get(AssetEnrichmentEnums.flaggedBy.name())) {
+				flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get(AssetEnrichmentEnums.flaggedBy.name()));
 			}
 			if (null != flags && (!flags.isEmpty())) {
-				node.getMetadata().put(ImageWorkflowEnums.flags.name(), flags);
-				flaggedByList.add(ImageWorkflowEnums.Ekstep.name());
-				node.getMetadata().put(ImageWorkflowEnums.flaggedBy.name(), flaggedByList);
-				node.getMetadata().put(ImageWorkflowEnums.versionKey.name(), node.getMetadata().get(ImageWorkflowEnums.versionKey.name()));
-				node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Flagged.name());
-				node.getMetadata().put(ImageWorkflowEnums.lastFlaggedOn.name(), new Date().toString());
+				node.getMetadata().put(AssetEnrichmentEnums.flags.name(), flags);
+				flaggedByList.add(AssetEnrichmentEnums.Ekstep.name());
+				node.getMetadata().put(AssetEnrichmentEnums.flaggedBy.name(), flaggedByList);
+				node.getMetadata().put(AssetEnrichmentEnums.versionKey.name(), node.getMetadata().get(AssetEnrichmentEnums.versionKey.name()));
+				node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Flagged.name());
+				node.getMetadata().put(AssetEnrichmentEnums.lastFlaggedOn.name(), new Date().toString());
 			}
 		} catch (Exception e) {
 			LOGGER.error("General Security Exception" + e.getMessage(), e);
@@ -228,11 +238,11 @@ public class ImageTaggingService implements ISamzaService {
 
 	/**
 	 * This method holds logic to set keywords from Vision API with existing keywords from the node
-	 * 
+	 *
 	 * @param keywords The keywords
-	 * 
+	 *
 	 * @param labels The labels
-	 * 
+	 *
 	 * @return List of keywords
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -251,31 +261,26 @@ public class ImageTaggingService implements ISamzaService {
 		}
 		return keywords;
 	}
-	
+
 	private void videoEnrichment(Node node) throws Exception{
-		String tempFileLocation = StringUtils.isNotBlank(this.config.get("lp.tempfile.location"))?this.config.get("lp.tempfile.location"):"/tmp";  
+		String tempFileLocation = StringUtils.isNotBlank(this.config.get("lp.tempfile.location"))?this.config.get("lp.tempfile.location"):"/tmp";
 		String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
 		try {
-			String videoUrl = (String) node.getMetadata().get(ImageWorkflowEnums.artifactUrl.name());
+			String videoUrl = (String) node.getMetadata().get(AssetEnrichmentEnums.artifactUrl.name());
 			if(StringUtils.isBlank(videoUrl)) {
 				LOGGER.info("Content artifactUrl is blank.");
-				throw new ClientException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Content artifactUrl is blank.");
+				throw new ClientException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Content artifactUrl is blank.");
 			}
 			processVideo(node, tempFolder, videoUrl);
-			List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
-					Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
-			if (streamableMimeType.contains((String) node.getMetadata().get(ImageWorkflowEnums.mimeType.name()))) {
-				streamJobRequest.insert(node.getIdentifier(), videoUrl,
-						(String) node.getMetadata().get(ImageWorkflowEnums.channel.name()), "1.0");
-			}
+			pushStreamingUrlRequest (node,videoUrl);
 		}catch(Exception e) {
-			LOGGER.info("Something Went Wrong While Performing Image Tagging operation. | [Content Id: " + 
+			LOGGER.info("Something Went Wrong While Performing Asset Enrichment operation. | [Content Id: " +
 					node.getIdentifier() + "]", e.getMessage());
-			node.getMetadata().put(ImageWorkflowEnums.processingError.name(), e.getMessage());
-			node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Failed.name());
+			node.getMetadata().put(AssetEnrichmentEnums.processingError.name(), e.getMessage());
+			node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Failed.name());
 			Response res = util.updateNode(node);
 			if(checkError(res))
-				throw new ServerException(ImageWorkflowEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " + 
+				throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " +
 						node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
 			throw e;
 		}finally {
@@ -286,22 +291,31 @@ public class ImageTaggingService implements ISamzaService {
 				TelemetryManager.error("Error! While deleting the Thumbnail Folder: " + tempFolder, e);
 			}
 		}
-		
+
 	}
-	
+
 	private void processVideo(Node node, String tempFolder, String videoUrl) throws Exception{
-		
+
 		File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
 		OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
-		node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Live.name());
+		node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
 		Response res = util.updateNode(node);
 		if(checkError(res)) {
-			throw new ServerException(ImageWorkflowEnums.PROCESSING_ERROR.name(),
+			throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(),
 					"Error! While Updating the Metadata | [Content Id: " + node.getIdentifier() + "]");
 		}
-		
+
 	}
-	
+
+	public void pushStreamingUrlRequest(Node node, String videoUrl) {
+        List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
+                Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
+        if (streamableMimeType.contains((String) node.getMetadata().get(AssetEnrichmentEnums.mimeType.name()))) {
+            streamJobRequest.insert(node.getIdentifier(), videoUrl,
+                    (String) node.getMetadata().get(AssetEnrichmentEnums.channel.name()), "1.0");
+        }
+    }
+
 	private static void deleteFolder(String tempFolder) {
 		File index = new File(tempFolder);
 		String[]entries = index.list();
@@ -310,7 +324,7 @@ public class ImageTaggingService implements ISamzaService {
 		    currentFile.delete();
 		}
 	}
-	
+
 	protected boolean checkError(Response response) {
 		ResponseParams params = response.getParams();
 		return (null != params && StringUtils.equals(StatusType.failed.name(), params.getStatus()));

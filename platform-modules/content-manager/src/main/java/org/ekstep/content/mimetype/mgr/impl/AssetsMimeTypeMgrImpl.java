@@ -40,11 +40,11 @@ import org.ekstep.telemetry.util.LogTelemetryEventUtil;
  */
 public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
-	private static String actorId = "Image Tagging Samza Job";
+	private static String actorId = "Asset Enrichment Samza Job";
 	private static String actorType = "System";
 	private static String pdataId = "org.ekstep.platform";
 	private static String pdataVersion = "1.0";
-	private static String action = "imagetagging";
+	private static String action = "assetenrichment";
 	/*
 	 * (non-Javadoc)
 	 *

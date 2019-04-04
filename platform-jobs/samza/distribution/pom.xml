@@ -39,7 +39,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>image-tagging</artifactId>
+			<artifactId>asset-enrichment</artifactId>
 			<version>0.0.73</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
