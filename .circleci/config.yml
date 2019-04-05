@@ -10,7 +10,7 @@ jobs:
           name: Setup VM and Build
           command: bash vmsetup.sh
           
-      - run: find . -type f -name "jacoco.xml" -exec bash -c 'dir=$(basename $(dirname $(dirname $(dirname $(dirname $0))))); mkdir -p /tmp/reports/$dir; cp $0 /tmp/reports/$dir' {} \;
+      - run: find . -type f -name "jacoco.xml" -exec bash -c 'dir=$(basename $(dirname $(dirname $(dirname $(dirname $0))))); mkdir -p /tmp/coverage_reports/$dir; cp $0 /tmp/coverage_reports/$dir' {} \;
       
       - store_artifacts:
           path: /tmp/coverage_reports
