@@ -2,10 +2,15 @@ package org.ekstep.samza.jobs.test.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import org.apache.samza.config.Config;
 import org.apache.samza.metrics.Counter;
 import org.apache.samza.metrics.MetricsRegistry;
@@ -14,6 +19,7 @@ import org.apache.samza.system.SystemStreamPartition;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskContext;
 import org.apache.samza.task.TaskCoordinator;
+import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.service.AssetEnrichmentService;
 import org.ekstep.jobs.samza.task.AssetEnrichmentTask;
@@ -34,16 +40,16 @@ public class AssetEnrichmentServiceTest {
     private SystemStreamPartition streamMock;
     private AssetEnrichmentService assetEnrichmentServiceMock;
     private AssetEnrichmentService assetEnrichmentService;
-    VideoStreamingJobRequest jobRequest;
-    ControllerUtil controllerUtil;
-    AssetEnrichmentTask assetEnrichmentTask;
-    private static final String SUCCESS_TOPIC = "telemetry.with_location";
-    private static final String FAILED_TOPIC = "telemetry.failed";
-    private static final String MALFORMED_TOPIC = "telemetry.malformed";
+    private VideoStreamingJobRequest jobRequest;
+    private ControllerUtil controllerUtil;
+    private AssetEnrichmentTask assetEnrichmentTask;
+
+    private static Session session;
 
 
     @BeforeClass
     public static void initialize() throws InterruptedException {
+        session = CassandraConnector.getSession("lp");
     }
 
     @SuppressWarnings("unchecked")
@@ -57,14 +63,8 @@ public class AssetEnrichmentServiceTest {
         envelopeMock = mock(IncomingMessageEnvelope.class);
         configMock = Mockito.mock(Config.class);
         streamMock = mock(SystemStreamPartition.class);
-        jobRequest = new VideoStreamingJobRequest();
+        jobRequest = mock(VideoStreamingJobRequest.class);
         controllerUtil = new ControllerUtil();
-
-        stub(configMock.get("output.success.topic.name", SUCCESS_TOPIC)).toReturn(SUCCESS_TOPIC);
-        stub(configMock.get("output.failed.topic.name", FAILED_TOPIC)).toReturn(FAILED_TOPIC);
-        stub(configMock.get("output.malformed.topic.name", MALFORMED_TOPIC)).toReturn(MALFORMED_TOPIC);
-        stub(configMock.get("channel.default","in.ekstep")).toReturn("in.ekstep");
-        stub(configMock.get("cassandra.lp.connection","localhost:9042")).toReturn("localhost:9042");
 
         stub(envelopeMock.getSystemStreamPartition()).toReturn(streamMock);
         stub(metricsRegistry.newCounter(anyString(), anyString())).toReturn(counter);
@@ -73,7 +73,7 @@ public class AssetEnrichmentServiceTest {
         stub(configMock.get("task.window.ms")).toReturn("10");
         stub(configMock.get("definitions.update.window.ms")).toReturn("20");
 
-        assetEnrichmentService = Mockito.spy(new AssetEnrichmentService(controllerUtil,jobRequest));
+        assetEnrichmentService = Mockito.spy(new AssetEnrichmentService(controllerUtil, jobRequest));
         doNothing().when(assetEnrichmentService).initialize(configMock);
         assetEnrichmentTask = new AssetEnrichmentTask(configMock, contextMock);
 
@@ -89,23 +89,29 @@ public class AssetEnrichmentServiceTest {
 
     }
 
-    @Test
-    public void pushStreamingUrlSuccessTest() {
-        stub(envelopeMock.getMessage()).toReturn(MessageEvents.getMap(MessageEvents.SUCCESS_UPLOAD_STREAMURL_EVENT));
-        try{
-            assetEnrichmentTask.process(envelopeMock, collectorMock, coordinatorMock);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-
-    }
-
+    @Ignore
     @Test
     public void pushStreamUrlSuccess() {
-        Node expectedNode = controllerUtil.getNode("domain","do_112732688163201024117");
+        Node expectedNode = controllerUtil.getNode("domain", "do_112732688163201024117");
+        assertEquals(expectedNode.getMetadata().get("status"), "Live");
         String videoUrl = (String) expectedNode.getMetadata().get(AssetEnrichmentEnums.artifactUrl.name());
         assetEnrichmentService.pushStreamingUrlRequest(expectedNode, videoUrl);
+        ResultSet result = session.execute("SELECT * FROM platform_db.job_request WHERE request_id = '" + expectedNode.getIdentifier() + "_1.0' ALLOW FILTERING;");
+        Row row = result.one();
+        assertNotNull(row);
+        assertEquals(row.get("location", String.class), (String) expectedNode.getMetadata().get("artifactUrl"));
+    }
+
+    @Ignore
+    @Test
+    public void pushStreamUrlFailure() {
+        Node expectedNode = controllerUtil.getNode("domain", "do_11273262441237708812");
+        assertEquals(expectedNode.getMetadata().get("status"), "Processing");
+        String videoUrl = (String) expectedNode.getMetadata().get(AssetEnrichmentEnums.artifactUrl.name());
+        assetEnrichmentService.pushStreamingUrlRequest(expectedNode, videoUrl);
+        ResultSet result = session.execute("SELECT * FROM platform_db.job_request WHERE request_id = '" + expectedNode.getIdentifier() + "_1.0' ALLOW FILTERING;");
+        assertNull(result.one());
+
     }
 
 
