@@ -104,7 +104,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 		return response;
 	}
-	
+
 	@Override
 	public Response upload(String contentId, Node node, String fileUrl) {
 		File file = null;
@@ -114,9 +114,16 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), fileUrl);
 			node.getMetadata().put(ContentAPIParams.size.name(), getFileSize(file));
 			Response response;
-			if (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image")) {
+			if (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image") ||
+					StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "video")) {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
 				response = updateContentNode(node.getIdentifier(), node, fileUrl);
+				if (!checkError(response)) {
+					pushInstructionEvent(node, contentId);
+				}else {
+					throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
+							"Error occured during content Upload");
+				}
 			} else {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 				response = updateContentNode(contentId, node, fileUrl);
@@ -125,6 +132,13 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			return response;
 		} catch (IOException e) {
 			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "fileUrl is invalid.");
+		} catch (ClientException e) {
+			throw e;
+		} catch (ServerException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ServerException(ContentAPIParams.SERVER_ERROR.name(),
+					"Error! Something went Wrong While Uploading an Asset. | [Node Id: " + node.getIdentifier() + "]");
 		} finally {
 			if (null != file && file.exists()) file.delete();
 		}
