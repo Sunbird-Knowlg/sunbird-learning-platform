@@ -14,18 +14,6 @@ public class AssetEnrichmentTask extends AbstractTask{
 	private static JobLogger LOGGER = new JobLogger(AssetEnrichmentTask.class);
 	private  ISamzaService service = new AssetEnrichmentService();
 
-	public AssetEnrichmentTask() {
-
-	}
-
-	public AssetEnrichmentTask(Config config, TaskContext context) {
-		try {
-			init(config, context);
-		} catch (Exception e) {
-			LOGGER.error("Exception unhandled", e);
-		}
-	}
-	
 	public ISamzaService initialize() throws Exception {
 		LOGGER.info("Task initialized");
 		this.jobType = "assetenrichment";

@@ -44,15 +44,6 @@ public class AssetEnrichmentService implements ISamzaService {
 
 	private static int MAXITERTIONCOUNT= 2;
 
-	public AssetEnrichmentService(){
-
-	}
-
-	public AssetEnrichmentService(ControllerUtil controllerUtil, VideoStreamingJobRequest videoStreamingJobRequest) {
-		util = controllerUtil;
-		streamJobRequest = videoStreamingJobRequest;
-	}
-
 	protected int getMaxIterations() {
 		if(Platform.config.hasPath("max.iteration.count.samza.job"))
 			return Platform.config.getInt("max.iteration.count.samza.job");
