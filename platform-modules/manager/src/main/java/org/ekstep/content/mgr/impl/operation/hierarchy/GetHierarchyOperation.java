@@ -21,6 +21,7 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 import org.elasticsearch.action.search.SearchResponse;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -80,10 +81,34 @@ public class GetHierarchyOperation extends BaseContentManager {
             Map<String, Object> dataMap = ConvertGraphNode.convertGraphNode(rootNode, TAXONOMY_ID, definition, fields);
             if(!checkError(hierarchyResponse)) {
                 Map<String, Object> hierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
-                dataMap.put("children", hierarchy.get("children"));
+                List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchy.get("children");
+                if (StringUtils.isNotBlank(bookmarkId)) {
+                    dataMap = filterBookmark(children, bookmarkId);
+                    if (MapUtils.isEmpty(dataMap)) {
+                        throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
+                    }
+                } else {
+                    dataMap.put("children", children);
+                }
+
             } else {
                 dataMap = util.getHierarchyMap(TAXONOMY_ID, rootNode.getIdentifier(), definition, mode,null);
-                generateMigrationInstructionEvent(rootNode.getIdentifier());
+                String visibility = (String) rootNode.getMetadata().get("visibility");
+                if (StringUtils.isNotBlank(bookmarkId)) {
+                    List<Map<String, Object>> children = (List<Map<String, Object>>) dataMap.get("children");
+                    dataMap = filterBookmark(children, bookmarkId);
+                    if (MapUtils.isEmpty(dataMap)) {
+                        throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
+                    }
+                }
+                if (StringUtils.equalsIgnoreCase("Parent", visibility)) {
+                    String actualRootId = searchRootId(rootId);
+                    if (StringUtils.isNotBlank(actualRootId)) {
+                        generateMigrationInstructionEvent(actualRootId);
+                    } else {
+                        TelemetryManager.info("Root id not found for content id: "+ rootId + " for collection migration.");
+                    }
+                }
             }
             return OK("content", dataMap);
         } else {
@@ -156,9 +181,11 @@ public class GetHierarchyOperation extends BaseContentManager {
             searchDto.setFuzzySearch(false);
             searchDto.setProperties(setSearchProperties(bookMarkId));
             searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-            searchDto.setFields(Arrays.asList("identifier"));
+            List<String> fields = new ArrayList<>();
+            fields.add("identifier");
+            searchDto.setFields(fields);
             Future<SearchResponse> searchResp = processor.processSearchQueryWithSearchResult(searchDto, false,
-                    CompositeSearchConstants.DIAL_CODE_INDEX, true);
+                    CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false);
             SearchResponse searchResponse = Await.result(searchResp, RequestRouterPool.WAIT_TIMEOUT.duration());
             List<Object> searchResult = ElasticSearchUtil.getDocumentsFromHits(searchResponse.getHits());
             if (CollectionUtils.isNotEmpty(searchResult))
@@ -166,7 +193,7 @@ public class GetHierarchyOperation extends BaseContentManager {
             else
                 return null;
         } catch (Exception e) {
-            throw new ServerException(ContentErrorCodes.ERR_CONTENT_SEARCH_ERROR.name(), "Error while searching bookMarkId",
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_SEARCH_ERROR.name(), "Error while searching bookmarkId",
                     e);
         }
     }
@@ -216,8 +243,11 @@ public class GetHierarchyOperation extends BaseContentManager {
             if (CollectionUtils.isNotEmpty(response))
                 return response.get(0);
             else {
-                List<Map<String, Object>> nextChildren = children.stream().flatMap(child -> ((List<Map<String,
-                        Object>>) child.get("children")).stream()).collect(Collectors.toList());
+                ;
+                List<Map<String, Object>> nextChildren = children.stream()
+                        .map(child -> (List<Map<String, Object>>) child.get("children"))
+                        .filter(f -> CollectionUtils.isNotEmpty(f)).flatMap(f -> f.stream())
+                        .collect(Collectors.toList());
 
                 return filterBookmark(nextChildren, bookMarkId);
             }

@@ -302,7 +302,7 @@ public class ContentV3Controller extends BaseController {
 			// This is to support portal backward compatibility. Remove after 1.14.0 final sprint.
 			if (reqFields.size() == 1 && StringUtils.equalsIgnoreCase( reqFields.get(0), "versionKey"))
 				reqFields = null;
-			response = contentManager.getContentHierarchy(contentId, contentId, mode, reqFields);
+			response = contentManager.getContentHierarchy(contentId, null, mode, reqFields);
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -317,13 +317,13 @@ public class ContentV3Controller extends BaseController {
 	 * @param contentId
 	 *            The Content Id whose hierarchy needs to be fetched
 	 *
-	 * @param bookMarkId The BookMarkId for the which the hierarchy is to be fetched.
+	 * @param bookmarkId The BookMarkId for the which the hierarchy is to be fetched.
 	 * @return The Response entity with Content hierarchy in the result set
 	 */
-	@RequestMapping(value = "/hierarchy/{id:.+}/{bookMarkId:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/hierarchy/{id:.+}/{bookmarkId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
-											  @PathVariable(value = "bookMarkId") String bookMarkId,
+											  @PathVariable(value = "bookmarkId") String bookmarkId,
 											  @RequestParam(value = "mode", required = false) String mode,
 											  @RequestParam(value = "fields", required = false) String[] fields) {
 		String apiId = "ekstep.learning.content.hierarchy";
@@ -333,7 +333,7 @@ public class ContentV3Controller extends BaseController {
 			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]"
 					+ contentId);
 			List<String> reqFields = convertStringArrayToList(fields);
-			response = contentManager.getContentHierarchy(contentId, bookMarkId, mode, reqFields);
+			response = contentManager.getContentHierarchy(contentId, bookmarkId, mode, reqFields);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
