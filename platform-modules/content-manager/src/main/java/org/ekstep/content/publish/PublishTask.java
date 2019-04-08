@@ -1,5 +1,6 @@
 package org.ekstep.content.publish;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -21,10 +22,12 @@ import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +42,8 @@ public class PublishTask implements Runnable {
 	private Map<String, Object> parameterMap;
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 	private static final String COLLECTION_CONTENT_MIMETYPE = "application/vnd.ekstep.content-collection";
+	/** The SimpleDateformatter. */
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	private ControllerUtil util = new ControllerUtil();
 	private HierarchyStore hierarchyStore = new HierarchyStore();
 
@@ -61,20 +66,10 @@ public class PublishTask implements Runnable {
 	// TODO: add try catch here.
 	private void publishContent(Node node) throws Exception{
 		TelemetryManager.info("Publish processing start for content" + node.getIdentifier());
-		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"), COLLECTION_CONTENT_MIMETYPE)) {
-			List<NodeDTO> nodes = util.getNodesForPublish(node);
-			if (!nodes.isEmpty()) {
-				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), getCompatabilityLevel(nodes));
-			}
-			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
-			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
-			
-		}
-		Node graphNode = util.getNode("domain", node.getIdentifier());
-		publishNode(graphNode, (String) graphNode.getMetadata().get("mimeType"));
+		publishNode(node, (String) node.getMetadata().get("mimeType"));
 		TelemetryManager.info("Publish processing done for content: "+ node.getIdentifier());
 		
-		TelemetryManager.info("Content enrichment start for content: " + node.getIdentifier());
+		/*TelemetryManager.info("Content enrichment start for content: " + node.getIdentifier());
 		
 		String nodeId = node.getIdentifier().replace(".img", "");
 		Node publishedNode = util.getNode("domain", nodeId);
@@ -87,7 +82,57 @@ public class PublishTask implements Runnable {
 			publishedNode = util.getNode("domain", contentId);
 			publishHierarchy(publishedNode);
 			TelemetryManager.log("Hierarchy updated for Content :: " + node.getIdentifier());
+		}*/
+	}
+	
+	private Map<String, Object> getHierarchy(Node node) {
+		String identifier = StringUtils.endsWith(node.getIdentifier(), ".img") ? 
+				node.getIdentifier() : node.getIdentifier() + ".img";
+		return hierarchyStore.getHierarchy(identifier);
+	}
+	
+	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {
+		if(CollectionUtils.isNotEmpty(children)) {
+			for(Map<String, Object> child : children) {
+				if(StringUtils.equalsIgnoreCase("Parent", 
+						(String)child.get("visibility"))){
+					//set child metadata -- compatibilityLevel, appIcon, posterImage, lastPublishedOn, pkgVersion, status
+					populatePublishMetadata(child, node);
+					updateHierarchyMetadata((List<Map<String,Object>>)child.get("children"), node);
+				}
+			}
 		}
+	}
+	
+	private void populatePublishMetadata(Map<String, Object> content, Node node) {
+		content.put("compatibilityLevel", null != content.get("compatibilityLevel") ? 
+				((Number) content.get("compatibilityLevel")).intValue() : 1);
+		//TODO:  For appIcon, posterImage and screenshot createThumbNail method has to be implemented.
+		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
+		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()));
+		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content, 0));
+		
+		String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
+		content.put(ContentWorkflowPipelineParams.status.name(), 
+				ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType) ?
+						ContentWorkflowPipelineParams.Unlisted.name() :
+							ContentWorkflowPipelineParams.Live.name());
+		
+	}
+	
+	protected static String formatCurrentDate() {
+		return format(new Date());
+	}
+
+	protected static String format(Date date) {
+		if (null != date) {
+			try {
+				return sdf.format(date);
+			} catch (Exception e) {
+				TelemetryManager.error("Error! While Converting the Date Format."+ date, e);
+			}
+		}
+		return null;
 	}
 	
 	private void publishHierarchy(Node publishedNode) {

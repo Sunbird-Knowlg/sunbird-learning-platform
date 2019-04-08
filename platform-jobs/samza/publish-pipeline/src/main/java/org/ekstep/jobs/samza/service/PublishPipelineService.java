@@ -3,7 +3,8 @@ package org.ekstep.jobs.samza.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -11,10 +12,8 @@ import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
-import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -39,11 +38,12 @@ import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class PublishPipelineService implements ISamzaService {
 
@@ -72,6 +72,9 @@ public class PublishPipelineService implements ISamzaService {
 	private static int MAXITERTIONCOUNT = 2;
 
 	private SystemStream systemStream = null;
+	
+	/** The SimpleDateformatter. */
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	
 	protected int getMaxIterations() {
 		if (Platform.config.hasPath("max.iteration.count.samza.job"))
@@ -199,7 +202,7 @@ public class PublishPipelineService implements ISamzaService {
 	private boolean publishContent(Node node, String publishType) throws Exception {
 		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
-		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
+		/*if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
 				COLLECTION_CONTENT_MIMETYPE)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
@@ -209,12 +212,19 @@ public class PublishPipelineService implements ISamzaService {
 				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(),
 						getCompatabilityLevel(nodes));
 			}
+		}*/
+		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
+				COLLECTION_CONTENT_MIMETYPE)) {
+			Map<String, Object> collectionHierarchy = getHierarchy(node);
+			if(MapUtils.isNotEmpty(collectionHierarchy)) {
+				updateHierarchyMetadata((List<Map<String,Object>>)collectionHierarchy.get(PublishPipelineParams.children.name()), node);
+			}
 		}
-		Node latestNode = util.getNode("domain", node.getIdentifier());
-		latestNode.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);
-		publishNode(latestNode, (String) latestNode.getMetadata().get(PublishPipelineParams.mimeType.name()));
+		/*Node latestNode = util.getNode("domain", node.getIdentifier());
+		latestNode.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);*/
+		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
 		
-		Node publishedNode = getNode(latestNode.getIdentifier().replace(".img", ""));
+		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
 		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
 				PublishPipelineParams.Failed.name()))
 			return false;
@@ -234,6 +244,57 @@ public class PublishPipelineService implements ISamzaService {
 		
 		return published;
 	}
+	private Map<String, Object> getHierarchy(Node node) {
+		String identifier = StringUtils.endsWith(node.getIdentifier(), ".img") ? 
+				node.getIdentifier() : node.getIdentifier() + ".img";
+		return hierarchyStore.getHierarchy(identifier);
+	}
+	
+	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {
+		if(CollectionUtils.isNotEmpty(children)) {
+			for(Map<String, Object> child : children) {
+				if(StringUtils.equalsIgnoreCase(PublishPipelineParams.Parent.name(), 
+						(String)child.get(PublishPipelineParams.visibility.name()))){
+					//set child metadata -- compatibilityLevel, appIcon, posterImage, lastPublishedOn, pkgVersion, status
+					populatePublishMetadata(child, node);
+					updateHierarchyMetadata((List<Map<String,Object>>)child.get(PublishPipelineParams.children.name()), node);
+				}
+			}
+		}
+	}
+	
+	private void populatePublishMetadata(Map<String, Object> content, Node node) {
+		content.put("compatibilityLevel", null != content.get("compatibilityLevel") ? 
+				((Number) content.get("compatibilityLevel")).intValue() : 1);
+		//TODO:  For appIcon, posterImage and screenshot createThumbNail method has to be implemented.
+		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
+		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()));
+		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content, 0));
+		
+		String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
+		content.put(ContentWorkflowPipelineParams.status.name(), 
+				ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType) ?
+						ContentWorkflowPipelineParams.Unlisted.name() :
+							ContentWorkflowPipelineParams.Live.name());
+		
+	}
+	
+	protected static String formatCurrentDate() {
+		return format(new Date());
+	}
+
+	protected static String format(Date date) {
+		if (null != date) {
+			try {
+				return sdf.format(date);
+			} catch (Exception e) {
+				TelemetryManager.error("Error! While Converting the Date Format."+ date, e);
+			}
+		}
+		return null;
+	}
+
+	
 	
 	private void publishHierarchy(Node publishedNode) {
 		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
@@ -241,7 +302,7 @@ public class PublishPipelineService implements ISamzaService {
 		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
 	}
 
-	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
+	/*private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
 		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare(n1.getCompatibilityLevel(),
 				n2.getCompatibilityLevel());
 		Optional<NodeDTO> maxNode = nodes.stream().max(comp);
@@ -249,9 +310,9 @@ public class PublishPipelineService implements ISamzaService {
 			return maxNode.get().getCompatibilityLevel();
 		else
 			return 1;
-	}
+	}*/
 
-	private List<NodeDTO> dedup(List<NodeDTO> nodes) {
+	/*private List<NodeDTO> dedup(List<NodeDTO> nodes) {
 		List<String> ids = new ArrayList<String>();
 		List<String> addedIds = new ArrayList<String>();
 		List<NodeDTO> list = new ArrayList<NodeDTO>();
@@ -274,17 +335,17 @@ public class PublishPipelineService implements ISamzaService {
 			}
 		}
 		return list;
-	}
+	}*/
 
-	private boolean isImageNode(String identifier) {
+	/*private boolean isImageNode(String identifier) {
 		return StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
 	}
 
 	private String getImageNodeID(String identifier) {
 		return identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-	}
+	}*/
 
-	private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
+	/*private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
 		return dedup(nodes).stream().filter(
 				node -> StringUtils.equalsIgnoreCase(node.getMimeType(), "application/vnd.ekstep.content-collection")
 						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft"))
@@ -295,9 +356,9 @@ public class PublishPipelineService implements ISamzaService {
 						return o2.getDepth().compareTo(o1.getDepth());
 					}
 				});
-	}
+	}*/
 
-	private void publishCollectionNode(NodeDTO node, String publishType) {
+	/*private void publishCollectionNode(NodeDTO node, String publishType) {
 		Node graphNode = util.getNode("domain", node.getIdentifier());
 		if (StringUtils.isNotEmpty(publishType)) {
 			graphNode.getMetadata().put("publish_type", publishType);
@@ -309,9 +370,9 @@ public class PublishPipelineService implements ISamzaService {
 		graphNode = util.getNode("domain", identifier);
 		publishHierarchy(graphNode);
 		LOGGER.debug("Hierarchy updated for Collection Unit :: " + identifier);
-	}
+	}*/
 	
-	private void updateLeafNodeCount(String contentId) {
+	/*private void updateLeafNodeCount(String contentId) {
 		Node graphNode = util.getNode("domain", contentId);
 		try {
 			enrichCollection(graphNode);
@@ -325,7 +386,7 @@ public class PublishPipelineService implements ISamzaService {
 		} catch (Exception e) {
 			LOGGER.error("leafNodesCount could not be updated for content :: " + contentId, e);
 		}
-	}
+	}*/
 	
 	private void publishNode(Node node, String mimeType) {
 		if (null == node)

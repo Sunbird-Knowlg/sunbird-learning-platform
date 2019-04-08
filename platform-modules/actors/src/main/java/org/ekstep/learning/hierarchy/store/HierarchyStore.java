@@ -56,7 +56,7 @@ public class HierarchyStore extends CassandraStore {
     }
 
 
-    public Map<String, Object> getHierarchy(String contentId) throws IOException {
+    public Map<String, Object> getHierarchy(String contentId){
         String query = "SELECT hierarchy FROM " + getKeyspace() + "." + getTable() + " WHERE identifier=?";
 
         Session session = CassandraConnector.getSession();

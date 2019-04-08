@@ -1,15 +1,21 @@
 package org.ekstep.content.operation.finalizer;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -30,12 +36,21 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
+import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rits.cloning.Cloner;
 
 /**
@@ -63,11 +78,15 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
+	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
 
 	private static final List<String> level4MimeTypes = Arrays.asList("video/x-youtube","application/pdf","application/msword","application/epub","application/vnd.ekstep.h5p-archive","text/x-url");
 	private static final List<String> level4ContentTypes = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
 	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+	private HierarchyStore hierarchyStore = new HierarchyStore();
+	private ControllerUtil util = new ControllerUtil();
+	private static ObjectMapper mapper = new ObjectMapper();
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -106,7 +125,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	 *            Populate Fields and Update Node
 	 * @return the response
 	 */
-	public Response finalize(Map<String, Object> parameterMap) {
+	/*public Response finalize(Map<String, Object> parameterMap) {
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
 		// Output only ECML format
@@ -308,10 +327,258 @@ public class PublishFinalizer extends BaseFinalizer {
 					String.valueOf(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())));
 		}
 		
+		if (StringUtils.equalsIgnoreCase((String) newNode.getMetadata().get("mimeType"),
+				COLLECTION_MIMETYPE)) {
+			Map<String, Object> collectionHierarchy = getHierarchy(newNode);
+			if(MapUtils.isNotEmpty(collectionHierarchy)) {
+				updateHierarchyMetadata((List<Map<String,Object>>)collectionHierarchy.get("children"), newNode);
+			}
+			publishHierarchy(newNode, collectionHierarchy);
+			
+		}
+		
 		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		return response;
+	}*/
+	
+	public Response finalize(Map<String, Object> parameterMap) {
+		
+		String artifactUrl = null;
+		File packageFile=null;
+		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
+
+		if (null == node)
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
+		
+		if (node.getIdentifier().endsWith(".img")) {
+			String updatedVersion = preUpdateNode(node.getIdentifier());
+			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
+		}
+		node.setIdentifier(contentId);
+		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
+		
+		//Need to be moved
+		boolean isAssetTypeContent = StringUtils.equalsIgnoreCase(
+				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+				ContentWorkflowPipelineParams.Asset.name());
+		
+		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
+		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
+		
+		if (BooleanUtils.isTrue(isCompressionApplied)) {
+			Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
+			
+			if (null == ecrf)
+				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+						ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
+			
+			// Output only ECML format
+			String ecmlType = ContentWorkflowPipelineParams.ecml.name();
+			
+			// Get Content String
+			String ecml = getECMLString(ecrf, ecmlType);
+			// Write ECML File
+			writeECMLFile(basePath, ecml, ecmlType);
+
+			//upload snapshot of content into aws
+			contentPackageExtractionUtil.uploadExtractedPackage(contentId, node, basePath, ExtractionType.snapshot, true);
+
+			// Create 'ZIP' Package
+			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
+					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
+					+ ContentConfigurationConstants.DEFAULT_ZIP_EXTENSION;
+			TelemetryManager.info("Zip file name: " + zipFileName);
+			createZipPackage(basePath, zipFileName);
+			// Upload Package
+			packageFile = new File(zipFileName);
+			if (packageFile.exists()) {
+				// Upload to S3
+				String folderName = S3PropertyReader.getProperty(ARTEFACT_FOLDER);
+				String[] urlArray = uploadToAWS(packageFile, getUploadFolderName(contentId, folderName));
+				if (null != urlArray && urlArray.length >= 2)
+					artifactUrl = urlArray[IDX_S3_URL];
+
+				// Set artifact file For Node
+				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
+			}
+		}
+		// Download App Icon and create thumbnail
+		createThumbnail(basePath, node);
+		
+		
+		// Set Package Version
+		double version = 1.0;
+		if (null != node && null != node.getMetadata()
+				&& null != node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()))
+			version = getDoubleValue(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())) + 1;
+		node.getMetadata().put(ContentWorkflowPipelineParams.pkgVersion.name(), version);
+		node.getMetadata().put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
+		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
+
+		setCompatibilityLevel(node);
+		setPragma(node);
+		
+		String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
+		node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+				StringUtils.equalsIgnoreCase(publishType, ContentWorkflowPipelineParams.Unlisted.name())?
+						ContentWorkflowPipelineParams.Unlisted.name(): ContentWorkflowPipelineParams.Live.name());
+		
+		processForEcar(node);
+
+		
+		// Delete local compressed artifactFile
+		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
+		if (null != artifact && artifact instanceof File) {
+			File pkgFile = (File) artifact;
+			if (pkgFile.exists())
+				pkgFile.delete();
+			TelemetryManager.log("Deleting Local Artifact Package File: " + pkgFile.getAbsolutePath());
+			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
+
+			if (StringUtils.isNotBlank(artifactUrl))
+				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
+		}
+		
+		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
+			TelemetryManager.log("Enriching content: " + node.getIdentifier());
+			try {
+				processCollection(node);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			TelemetryManager.log("Enrichment done for content: " + node.getIdentifier());
+		}
+		
+		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+		newNode.setGraphId(node.getGraphId());
+		newNode.setMetadata(node.getMetadata());
+		newNode.setTags(node.getTags());
+
+		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
+			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
+			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.latest);
+		}
+
+		//update previewUrl for content streaming
+		updatePreviewURL(newNode);
+		
+		try {
+			TelemetryManager.log("Deleting the temporary folder: " + basePath);
+			delete(new File(basePath));
+		} catch (Exception e) {
+			e.printStackTrace();
+			TelemetryManager.error("Error deleting the temporary folder: " + basePath, e);
+		}
+		
+		// Setting default version key for internal node update
+		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		newNode.getMetadata().put(GraphDACParams.versionKey.name(), graphPassportKey);
+
+		// Setting the Status of Content Image Node as 'Retired' since it's a
+		// last Node Update in Publishing
+		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+				ContentWorkflowPipelineParams.Retired.name());
+
+		newNode.setInRelations(node.getInRelations());
+		newNode.setOutRelations(node.getOutRelations());
+
+		TelemetryManager.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
+		Response response = migrateContentImageObjectData(contentId, newNode);
+
+		// delete image..
+		Request request = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER,
+				"deleteDataNode");
+		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
+
+		getResponse(request);
+		
+		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
+				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
+		if (streamableMimeType.contains((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
+			streamJobRequest.insert(contentId, (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()),
+					(String) node.getMetadata().get(ContentWorkflowPipelineParams.channel.name()),
+					String.valueOf(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())));
+		}
+
+		if (StringUtils.equalsIgnoreCase((String) newNode.getMetadata().get("mimeType"),
+				COLLECTION_MIMETYPE)) {
+			Node publishedNode = util.getNode(ContentWorkflowPipelineParams.domain.name(), newNode.getIdentifier());
+			Map<String, Object> collectionHierarchy = getHierarchy(publishedNode);
+			if(MapUtils.isNotEmpty(collectionHierarchy)) {
+				List<Map<String,Object>> children = (List<Map<String,Object>>)collectionHierarchy.get("children");
+				updateHierarchyMetadata(children, publishedNode);
+				publishHierarchy(publishedNode, children);
+			}
+		}
+		TelemetryManager.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
+				ContentWorkflowPipelineParams.Processing.name());
+		return response;
+	}
+	
+	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
+		Map<String, Object> collectionHierarchy  = new HashMap<>();
+		collectionHierarchy.putAll(node.getMetadata());
+		collectionHierarchy.put("children", childrenList);
+		collectionHierarchy.put("identifier", node.getIdentifier());
+		collectionHierarchy.put("objectType", node.getObjectType());
+		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), collectionHierarchy);
+	}
+	
+	private Map<String, Object> getHierarchy(Node node) {
+		String identifier = StringUtils.endsWith(node.getIdentifier(), ".img") ? 
+				node.getIdentifier() : node.getIdentifier() + ".img";
+		return hierarchyStore.getHierarchy(identifier);
+	}
+	
+	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {
+		if(CollectionUtils.isNotEmpty(children)) {
+			for(Map<String, Object> child : children) {
+				if(StringUtils.equalsIgnoreCase("Parent", 
+						(String)child.get("visibility"))){
+					//set child metadata -- compatibilityLevel, appIcon, posterImage, lastPublishedOn, pkgVersion, status
+					populatePublishMetadata(child, node);
+					updateHierarchyMetadata((List<Map<String,Object>>)child.get("children"), node);
+				}
+			}
+		}
+	}
+	
+	private void populatePublishMetadata(Map<String, Object> content, Node node) {
+		content.put("compatibilityLevel", null != content.get("compatibilityLevel") ? 
+				((Number) content.get("compatibilityLevel")).intValue() : 1);
+		//TODO:  For appIcon, posterImage and screenshot createThumbNail method has to be implemented.
+		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastPublishedOn.name()));
+		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()));
+		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content, 0));
+		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
+		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
+		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
+		content.put(ContentWorkflowPipelineParams.variants.name(), node.getMetadata().get(ContentWorkflowPipelineParams.variants.name()));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Integer getLeafNodeCount(Map<String, Object> data, int leafCount) {
+		List<Object> children = (List<Object>) data.get("children");
+		if (null != children && !children.isEmpty()) {
+			for (Object child : children) {
+				Map<String, Object> childMap = (Map<String, Object>) child;
+				int lc = 0;
+				lc = getLeafNodeCount(childMap, lc);
+				leafCount = leafCount + lc;
+			}
+		} else {
+			if (!COLLECTION_MIMETYPE.equals(data.get(ContentAPIParams.mimeType.name())))
+				leafCount++;
+		}
+		return leafCount;
 	}
 
 	/**
@@ -536,5 +803,346 @@ public class PublishFinalizer extends BaseFinalizer {
 			TelemetryManager.info("setting compatibility level for content id : " + node.getIdentifier() + " as 4.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		}
+	}
+	
+	private void processForEcar(Node node) {
+		List<Node> nodes = new ArrayList<Node>();
+		String downloadUrl = null;
+		String s3Key = null;
+		String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
+		nodes.add(node);
+		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
+		List<String> childrenIds = new ArrayList<String>();
+		getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
+
+		// Cloning contents to spineContent
+		Cloner cloner = new Cloner();
+		List<Map<String, Object>> spineContents = cloner.deepClone(contents);
+		List<Map<String, Object>> onlineContents = cloner.deepClone(contents);
+
+		TelemetryManager.info("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
+		ContentBundle contentBundle = new ContentBundle();
+		// ECARs Generation - START
+		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), new HashMap<String, Object>());
+		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
+			TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
+		} else {
+			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds);
+			downloadUrl = fullECARURL.get(IDX_S3_URL);
+			s3Key = fullECARURL.get(IDX_S3_KEY);
+		}
+		// Generate spine ECAR.
+		List<String> spineECARUrl = generateEcar(EcarPackageType.SPINE, node, contentBundle, spineContents, childrenIds);
+
+		// if collection full ECAR creation disabled set spine as download url.
+		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
+			downloadUrl = spineECARUrl.get(IDX_S3_URL);
+			s3Key = spineECARUrl.get(IDX_S3_KEY);
+		}
+
+		// generate online ECAR for Collection
+		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
+			generateEcar(EcarPackageType.ONLINE, node, contentBundle, onlineContents, childrenIds);
+		}
+		// ECAR generation - END
+		
+		// Populate Fields and Update Node
+		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
+		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
+		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getCloudStorageFileSize(s3Key));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void processCollection(Node node) throws Exception {
+
+		String graphId = node.getGraphId();
+		String contentId = node.getIdentifier();
+		Map<String, Object> dataMap = null;
+		dataMap = processChildren(node, graphId, dataMap);
+		TelemetryManager.log("Children nodes process for collection - " + contentId);
+		if (null != dataMap) {
+			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
+					continue;
+				} else if ("subject".equalsIgnoreCase(entry.getKey())) {
+					Set<Object> subject = (HashSet<Object>) entry.getValue();
+					if (null != subject.iterator().next()) {
+						node.getMetadata().put(entry.getKey(), (String) subject.iterator().next());
+					}
+				} else if ("medium".equalsIgnoreCase(entry.getKey())) {
+					Set<Object> medium = (HashSet<Object>) entry.getValue();
+					if (null != medium.iterator().next()) {
+						node.getMetadata().put(entry.getKey(), (String) medium.iterator().next());
+					}
+				} else {
+					Set<String> valueSet = (HashSet<String>) entry.getValue();
+					String[] value = valueSet.toArray(new String[valueSet.size()]);
+					node.getMetadata().put(entry.getKey(), value);
+				}
+			}
+			Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
+			if (null != keywords && !keywords.isEmpty()) {
+				if (null != node.getMetadata().get("keywords")) {
+					Object object = node.getMetadata().get("keywords");
+					if (object instanceof String[]) {
+						String[] stringArray = (String[]) node.getMetadata().get("keywords");
+						keywords.addAll(Arrays.asList(stringArray));
+					} else if (object instanceof String) {
+						String keyword = (String) node.getMetadata().get("keywords");
+						keywords.add(keyword);
+					}
+				}
+				List<String> keywordsList = new ArrayList<>();
+				keywordsList.addAll(keywords);
+				node.getMetadata().put("keywords", keywordsList);
+			}
+		}
+
+		enrichCollection(node);
+		
+		util.updateNode(node);
+		if (null != dataMap) {
+			if (null != dataMap.get("concepts")) {
+				List<String> concepts = new ArrayList<>();
+				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
+				if (!concepts.isEmpty()) {
+					util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
+				}
+			}
+		}
+	}
+	
+	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap)
+			throws Exception {
+		List<String> children;
+		children = getChildren(node);
+		if (!children.isEmpty()) {
+			dataMap = new HashMap<String, Object>();
+			for (String child : children) {
+				Node childNode = util.getNode(graphId, child);
+				dataMap = mergeMap(dataMap, processChild(childNode));
+				processChildren(childNode, graphId, dataMap);
+			}
+		}
+		return dataMap;
+	}
+
+	private List<String> getChildren(Node node) throws Exception {
+		List<String> children = new ArrayList<>();
+		if (null != node.getOutRelations()) {
+			for (Relation rel : node.getOutRelations()) {
+				if (ContentWorkflowPipelineParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
+					children.add(rel.getEndNodeId());
+				}
+			}
+		}
+		return children;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void enrichCollection(Node node) throws Exception {
+
+		String contentId = node.getIdentifier();
+		TelemetryManager.info("Processing Collection Content :" + contentId);
+		Response response = util.getHirerachy(contentId);
+		if (null != response && null != response.getResult()) {
+			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
+			if(MapUtils.isEmpty(content))
+				return;
+			int leafCount = 0;
+			leafCount = getLeafNodeCount(content, leafCount);
+			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			
+			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get("visibility"), ContentAPIParams.Parent.name()))
+				return;
+			
+			Map<String, Object> mimeTypeMap = new HashMap<>();
+			Map<String, Object> contentTypeMap = new HashMap<>();
+			List<String> childNodes = getChildNode(content);
+			
+			getTypeCount(content, "mimeType", mimeTypeMap);
+			getTypeCount(content, "contentType", contentTypeMap);
+			
+			content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+			content.put(ContentAPIParams.childNodes.name(), childNodes);
+			
+			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
+			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
+		}
+	}
+	private Map<String, Object> processChild(Node node) throws Exception {
+
+		Map<String, Object> result = new HashMap<>();
+		Set<Object> language = new HashSet<Object>();
+		Set<Object> concepts = new HashSet<Object>();
+		Set<Object> domain = new HashSet<Object>();
+		Set<Object> grade = new HashSet<Object>();
+		Set<Object> age = new HashSet<Object>();
+		Set<Object> medium = new HashSet<Object>();
+		Set<Object> subject = new HashSet<Object>();
+		Set<Object> genre = new HashSet<Object>();
+		Set<Object> theme = new HashSet<Object>();
+		Set<Object> keywords = new HashSet<Object>();
+		if (null != node.getMetadata().get("language")) {
+			String[] langData = (String[]) node.getMetadata().get("language");
+			language = new HashSet<Object>(Arrays.asList(langData));
+			result.put("language", language);
+		}
+		if (null != node.getMetadata().get(ContentWorkflowPipelineParams.domain.name())) {
+			String[] domainData = (String[]) node.getMetadata().get(ContentWorkflowPipelineParams.domain.name());
+			domain = new HashSet<Object>(Arrays.asList(domainData));
+			result.put(ContentWorkflowPipelineParams.domain.name(), domain);
+		}
+		if (null != node.getMetadata().get(ContentWorkflowPipelineParams.gradeLevel.name())) {
+			String[] gradeData = (String[]) node.getMetadata().get(ContentWorkflowPipelineParams.gradeLevel.name());
+			grade = new HashSet<Object>(Arrays.asList(gradeData));
+			result.put(ContentWorkflowPipelineParams.gradeLevel.name(), grade);
+		}
+		if (null != node.getMetadata().get(ContentWorkflowPipelineParams.ageGroup.name())) {
+			String[] ageData = (String[]) node.getMetadata().get(ContentWorkflowPipelineParams.ageGroup.name());
+			age = new HashSet<Object>(Arrays.asList(ageData));
+			result.put(ContentWorkflowPipelineParams.ageGroup.name(), age);
+		}
+		if (null != node.getMetadata().get(ContentWorkflowPipelineParams.medium.name())) {
+			String mediumData = (String) node.getMetadata().get(ContentWorkflowPipelineParams.medium.name());
+			medium = new HashSet<Object>(Arrays.asList(mediumData));
+			result.put(ContentWorkflowPipelineParams.medium.name(), medium);
+		}
+		if (null != node.getMetadata().get(ContentWorkflowPipelineParams.subject.name())) {
+			String subjectData = (String) node.getMetadata().get(ContentWorkflowPipelineParams.subject.name());
+			subject = new HashSet<Object>(Arrays.asList(subjectData));
+			result.put(ContentWorkflowPipelineParams.subject.name(), subject);
+		}
+		if (null != node.getMetadata().get(ContentWorkflowPipelineParams.genre.name())) {
+			String[] genreData = (String[]) node.getMetadata().get(ContentWorkflowPipelineParams.genre.name());
+			genre = new HashSet<Object>(Arrays.asList(genreData));
+			result.put(ContentWorkflowPipelineParams.genre.name(), genre);
+		}
+		if (null != node.getMetadata().get(ContentWorkflowPipelineParams.theme.name())) {
+			String[] themeData = (String[]) node.getMetadata().get(ContentWorkflowPipelineParams.theme.name());
+			theme = new HashSet<Object>(Arrays.asList(themeData));
+			result.put(ContentWorkflowPipelineParams.theme.name(), theme);
+		}
+		if (null != node.getMetadata().get(ContentWorkflowPipelineParams.keywords.name())) {
+			String[] keyData = (String[]) node.getMetadata().get(ContentWorkflowPipelineParams.keywords.name());
+			keywords = new HashSet<Object>(Arrays.asList(keyData));
+			result.put(ContentWorkflowPipelineParams.keywords.name(), keywords);
+		}
+		for (Relation rel : node.getOutRelations()) {
+			if ("Concept".equalsIgnoreCase(rel.getEndNodeObjectType())) {
+				TelemetryManager.info("EndNodeId as Concept ->" + rel.getEndNodeId());
+				concepts.add(rel.getEndNodeId());
+			}
+		}
+		if (null != concepts && !concepts.isEmpty()) {
+			result.put(ContentWorkflowPipelineParams.concepts.name(), concepts);
+		}
+		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap)
+			throws Exception {
+		if (dataMap.isEmpty()) {
+			dataMap.putAll(childDataMap);
+		} else {
+			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+				Set<Object> value = new HashSet<Object>();
+				if (childDataMap.containsKey(entry.getKey())) {
+					value.addAll((Collection<? extends Object>) childDataMap.get(entry.getKey()));
+				}
+				value.addAll((Collection<? extends Object>) entry.getValue());
+				dataMap.replace(entry.getKey(), value);
+			}
+			if (!dataMap.keySet().containsAll(childDataMap.keySet())) {
+				for (Map.Entry<String, Object> entry : childDataMap.entrySet()) {
+					if (!dataMap.containsKey(entry.getKey())) {
+						dataMap.put(entry.getKey(), entry.getValue());
+					}
+				}
+			}
+		}
+		return dataMap;
+	}
+	
+	private List<String> getChildNode(Map<String, Object> data) {
+		Set<String> childrenSet = new HashSet<>();
+		getChildNode(data, childrenSet);
+		return new ArrayList<>(childrenSet);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void getChildNode(Map<String, Object> data, Set<String> childrenSet) {
+		List<Object> children = (List<Object>) data.get("children");
+		if (null != children && !children.isEmpty()) {
+			for (Object child : children) {
+				Map<String, Object> childMap = (Map<String, Object>) child;
+				childrenSet.add((String) childMap.get("identifier"));
+				getChildNode(childMap, childrenSet);
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void getTypeCount(Map<String, Object> data, String type, Map<String, Object> typeMap) {
+		List<Object> children = (List<Object>) data.get("children");
+		if (null != children && !children.isEmpty()) {
+			for (Object child : children) {
+				Map<String, Object> childMap = (Map<String, Object>) child;
+				String typeValue = childMap.get(type).toString();
+				if (typeMap.containsKey(typeValue)) {
+					int count = (int) typeMap.get(typeValue);
+					count++;
+					typeMap.put(typeValue, count);
+				} else {
+					typeMap.put(typeValue, 1);
+				}
+				if (childMap.containsKey("children")) {
+					getTypeCount(childMap, type, typeMap);
+				}
+			}
+		}
+
+	}
+	
+	public String generateTOC(Node node, Map<String, Object> content) throws JsonProcessingException {
+		TelemetryManager.info("Write hirerachy to JSON File :" + node.getIdentifier());
+		String data = mapper.writeValueAsString(content);
+		File file = new File(getBasePath(node.getIdentifier()) + "TOC.json");
+		String url = null;
+		try {
+			FileUtils.writeStringToFile(file, data);
+			if (file.exists()) {
+				TelemetryManager.info("Upload File to cloud storage :" + file.getName());
+				String[] uploadedFileUrl = CloudStore.uploadFile(getAWSPath(node.getIdentifier()), file, true);
+				if (null != uploadedFileUrl && uploadedFileUrl.length > 1) {
+					url = uploadedFileUrl[IDX_S3_URL];
+					TelemetryManager.info("Update cloud storage url to node" + url);
+				}
+			}
+		} catch (Exception e) {
+			TelemetryManager.error("Error while uploading file ", e);
+		}finally {
+			try {
+				TelemetryManager.info("Deleting Uploaded files");
+				FileUtils.deleteDirectory(file.getParentFile());
+			} catch (IOException e) {
+				TelemetryManager.error("Error while deleting file ", e);
+			}
+		}
+		return url;
+	}
+	
+	private String getAWSPath(String identifier) {
+		String folderName = S3PropertyReader.getProperty(CONTENT_FOLDER);
+		if (!StringUtils.isBlank(folderName)) {
+			folderName = folderName + File.separator + Slug.makeSlug(identifier, true) + File.separator
+					+ S3PropertyReader.getProperty(ARTEFACT_FOLDER);
+		}
+		return folderName;
 	}
 }
