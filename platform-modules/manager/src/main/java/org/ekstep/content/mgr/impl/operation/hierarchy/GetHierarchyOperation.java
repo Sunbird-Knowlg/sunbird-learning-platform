@@ -76,6 +76,9 @@ public class GetHierarchyOperation extends BaseContentManager {
             if(!StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, (String) rootNode.getMetadata().get("mimeType")))
                 throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given content id is not of collection : " + rootId);
 
+            if(!StringUtils.equalsIgnoreCase("Retired", (String) rootNode.getMetadata().get("status")))
+                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + rootId);
+
             Response hierarchyResponse = getCollectionHierarchy(rootId + IMAGE_SUFFIX);
             DefinitionDTO definition = getDefinition(TAXONOMY_ID, rootNode.getObjectType());
             Map<String, Object> dataMap = ConvertGraphNode.convertGraphNode(rootNode, TAXONOMY_ID, definition, fields);
@@ -255,21 +258,6 @@ public class GetHierarchyOperation extends BaseContentManager {
         }
         return null;
 
-    }
-
-    /**
-     * Cassandra call to fetch hierarchy data
-     *
-     * @param contentId
-     * @return
-     */
-    private Response getCollectionHierarchy(String contentId) {
-        Request request = new Request();
-        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
-        request.setOperation(ContentStoreOperations.getCollectionHierarchy.name());
-        request.put(ContentStoreParams.content_id.name(), contentId);
-        Response response = makeLearningRequest(request);
-        return response;
     }
 
     /**
