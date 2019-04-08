@@ -47,6 +47,7 @@ public class VideoStreamingJobRequest extends CassandraStore {
         BoundStatement boundStatement = new BoundStatement(statement);
         session.execute(boundStatement.bind(requestId, requestData, artifactUrl));
         } catch (Exception e) {
+        		e.printStackTrace();
             throw new ServerException("ERR_VIDEO_STREAMING_REQUEST","Error while pushing video streaming job request",e);
         }
     }
