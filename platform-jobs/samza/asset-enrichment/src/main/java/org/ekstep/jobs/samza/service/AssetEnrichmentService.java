@@ -34,7 +34,7 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class AssetEnrichmentService implements ISamzaService {
-	private VideoStreamingJobRequest streamJobRequest = new VideoStreamingJobRequest();
+	private VideoStreamingJobRequest streamJobRequest = null;
 
 	private Config config = null;
 
@@ -58,6 +58,7 @@ public class AssetEnrichmentService implements ISamzaService {
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");
+		streamJobRequest = new VideoStreamingJobRequest();
 	}
 
 	private boolean validateObject(Map<String, Object> edata) {
