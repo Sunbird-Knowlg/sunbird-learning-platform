@@ -570,7 +570,7 @@ public class PublishPipelineService implements ISamzaService {
 	public void enrichCollection(Node node) throws Exception {
 
 		String contentId = node.getIdentifier();
-		LOGGER.info("Processing Collection Content :" + contentId);
+		LOGGER.info("Processing collection content for enrichment :" + contentId);
 		Response response = util.getHirerachy(contentId);
 		if (null != response && null != response.getResult()) {
 			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
@@ -580,7 +580,7 @@ public class PublishPipelineService implements ISamzaService {
 			leafCount = getLeafNodeCount(content, leafCount);
 			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
-			
+			LOGGER.info("Updated leafNodesCount for content id: " + contentId + " :: " + leafCount);
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get("visibility"), ContentAPIParams.Parent.name()))
 				return;
 			
@@ -599,6 +599,9 @@ public class PublishPipelineService implements ISamzaService {
 			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
+			LOGGER.info("Updated toc_url, mimeTypesCount, contentTypesCount, childNodes.");
+		} else {
+			LOGGER.info("Get hierarchy response is null for content id: "+ contentId + " :: " + response);
 		}
 	}
 	
