@@ -3,12 +3,12 @@ package org.ekstep.learning.contentstore;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
 import org.ekstep.cassandra.store.CassandraStore;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +16,7 @@ import java.util.Map;
 public class VideoStreamingJobRequest extends CassandraStore {
 
     private ObjectMapper mapper = new ObjectMapper();
+
 
     public VideoStreamingJobRequest() {
         super();
@@ -47,7 +48,7 @@ public class VideoStreamingJobRequest extends CassandraStore {
         BoundStatement boundStatement = new BoundStatement(statement);
         session.execute(boundStatement.bind(requestId, requestData, artifactUrl));
         } catch (Exception e) {
-        		e.printStackTrace();
+            TelemetryManager.error("Error while pushing video streaming job request", e);
             throw new ServerException("ERR_VIDEO_STREAMING_REQUEST","Error while pushing video streaming job request",e);
         }
     }
