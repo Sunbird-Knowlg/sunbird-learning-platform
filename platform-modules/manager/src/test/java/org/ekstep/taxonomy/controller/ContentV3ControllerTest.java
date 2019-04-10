@@ -56,6 +56,7 @@ import org.springframework.web.context.WebApplicationContext;
  *
  */
 
+@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
