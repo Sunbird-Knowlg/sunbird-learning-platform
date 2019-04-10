@@ -39,8 +39,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>image-tagging</artifactId>
-			<version>0.0.72</version>
+			<artifactId>asset-enrichment</artifactId>
+			<version>0.0.75</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 			<exclusions>
