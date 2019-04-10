@@ -66,7 +66,12 @@ public abstract class BaseManager {
 	}
 
 	public Response getResponse(Request request) {
-		ActorRef router = RequestRouterPool.getRequestRouter();
+		return getResponse(request, null);
+	}
+
+	public Response getResponse(Request request, ActorRef router) {
+		if (null == router)
+			router = RequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
@@ -79,6 +84,7 @@ public abstract class BaseManager {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
+			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
