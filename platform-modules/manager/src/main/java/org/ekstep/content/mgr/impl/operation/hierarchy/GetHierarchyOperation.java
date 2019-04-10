@@ -3,6 +3,7 @@ package org.ekstep.content.mgr.impl.operation.hierarchy;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -12,6 +13,7 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.contentstore.ContentStoreOperations;
@@ -22,6 +24,7 @@ import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 import org.elasticsearch.action.search.SearchResponse;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -246,7 +249,6 @@ public class GetHierarchyOperation extends BaseContentManager {
             if (CollectionUtils.isNotEmpty(response))
                 return response.get(0);
             else {
-                ;
                 List<Map<String, Object>> nextChildren = children.stream()
                         .map(child -> (List<Map<String, Object>>) child.get("children"))
                         .filter(f -> CollectionUtils.isNotEmpty(f)).flatMap(f -> f.stream())
@@ -267,6 +269,52 @@ public class GetHierarchyOperation extends BaseContentManager {
      */
     private void generateMigrationInstructionEvent(String identifier) {
         System.out.println("Migration should be triggered for content: " + identifier);
+        try {
+            pushInstructionEvent(identifier);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void pushInstructionEvent(String contentId) throws Exception {
+        Map<String,Object> actor = new HashMap<String,Object>();
+        Map<String,Object> context = new HashMap<String,Object>();
+        Map<String,Object> object = new HashMap<String,Object>();
+        Map<String,Object> edata = new HashMap<String,Object>();
+
+        generateInstructionEventMetadata(actor, context, object, edata, contentId);
+        String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+        String topic = Platform.config.getString("kafka.topics.instruction");
+        if(StringUtils.isBlank(beJobRequestEvent)) {
+            throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+        }
+        if(StringUtils.isNotBlank(topic)) {
+            KafkaClient.send(beJobRequestEvent, topic);
+        } else {
+            throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
+        }
+    }
+
+    private void generateInstructionEventMetadata(Map<String,Object> actor, Map<String,Object> context,
+                                                  Map<String,Object> object, Map<String,Object> edata, String contentId) {
+
+        actor.put("id", "Collection Migration Samza Job");
+        actor.put("type", "System");
+
+        Map<String, Object> pdata = new HashMap<>();
+        pdata.put("id", "org.ekstep.platform");
+        pdata.put("ver", "1.0");
+        context.put("pdata", pdata);
+        if (Platform.config.hasPath("cloud_storage.env")) {
+            String env = Platform.config.getString("cloud_storage.env");
+            context.put("env", env);
+        }
+
+        object.put("id", contentId);
+        object.put("type", "content");
+
+        edata.put("action", "collection-migration");
+        edata.put("contentType", "TextBook");
     }
 
 
