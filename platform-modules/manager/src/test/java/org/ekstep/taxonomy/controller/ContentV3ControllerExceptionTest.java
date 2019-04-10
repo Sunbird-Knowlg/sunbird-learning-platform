@@ -3,10 +3,9 @@
  */
 package org.ekstep.taxonomy.controller;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.test.common.CommonTestSetup;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +29,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentV3ControllerExceptionTest {
+public class ContentV3ControllerExceptionTest extends CommonTestSetup {
 
-	/** The context. */
+		/** The context. */
 	@Autowired
 	private WebApplicationContext context;
 
@@ -45,6 +44,19 @@ public class ContentV3ControllerExceptionTest {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	private static String createDocumentContent = "{\"request\": {\"content\": {\"name\": \"Test Contnet\",\"code\": \"test_code\",\"contentType\": \"Story\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+	private static final String SCRIPT_1 = "CREATE KEYSPACE IF NOT EXISTS content_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
+	private static final String SCRIPT_2 = "CREATE TABLE IF NOT EXISTS content_store_test.content_data (content_id text, last_updated_on timestamp,body blob,oldBody blob,screenshots blob,stageIcons blob,PRIMARY KEY (content_id));";
+	private static final String SCRIPT_3 = "CREATE KEYSPACE IF NOT EXISTS hierarchy_store_test WITH replication = {'class': 'SimpleStrategy','replication_factor': '1'};";
+	private static final String SCRIPT_4 = "CREATE TABLE IF NOT EXISTS hierarchy_store_test.content_hierarchy_test (identifier text, hierarchy text, PRIMARY KEY (identifier));";
+
+
+	@BeforeClass
+	public static void setup() throws Exception {
+		loadDefinition("definitions/content_definition.json","definitions/content_image_definition.json", "definitions/concept_definition.json",
+				"definitions/dimension_definition.json", "definitions/domain_definition.json");
+		executeScript(SCRIPT_1, SCRIPT_2, SCRIPT_3, SCRIPT_4);
+		LearningRequestRouterPool.init();
+	}
 
 	@Before
 	public void init() throws Exception {
@@ -61,7 +73,8 @@ public class ContentV3ControllerExceptionTest {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(createDocumentContent));
-		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
+		System.out.println("testContentV3ControllerExp_01: "+  actions.andReturn().getResponse().getContentAsString());
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*
@@ -87,7 +100,8 @@ public class ContentV3ControllerExceptionTest {
 		String updateDocumentContent = "{\"request\": {\"content\": {\"name\": \"Updated Test Contnet\",\"versionKey\": \"1234\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(updateDocumentContent));
-		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
+		System.out.println("testContentV3ControllerExp_03: "+  actions.andReturn().getResponse().getContentAsString());
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
 }
