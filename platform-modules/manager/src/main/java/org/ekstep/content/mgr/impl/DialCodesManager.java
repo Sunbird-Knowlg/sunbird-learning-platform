@@ -13,8 +13,8 @@ public class DialCodesManager {
     private final ReserveDialcodesOperation reserveDialcodesOperation = new ReserveDialcodesOperation();
     private final ReleaseDialcodesOperation releaseDialcodesOperation = new ReleaseDialcodesOperation();
 
-    public Response link(String channelId, Object reqObj) throws Exception {
-        return this.linkDialCodeOperation.linkDialCode(channelId, reqObj);
+    public Response link(String channelId, Object reqObj, String mode, String contentId) throws Exception {
+        return this.linkDialCodeOperation.linkDialCode(channelId, reqObj, mode, contentId);
     }
 
     public Response reserve(String contentId, String channelId, Map<String, Object> request) throws Exception {

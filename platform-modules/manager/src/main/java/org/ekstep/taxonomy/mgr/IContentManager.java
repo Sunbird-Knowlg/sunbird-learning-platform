@@ -239,10 +239,12 @@ public interface IContentManager {
 	/**
 	 * @param channelId
 	 * @param reqObj
+	 * @param mode
+	 * @param contentId
 	 * @return
 	 * @throws Exception
 	 */
-	Response linkDialCode(String channelId, Object reqObj) throws Exception;
+	Response linkDialCode(String channelId, Object reqObj, String mode, String contentId) throws Exception;
 
 	/**
 	 * @param contentId

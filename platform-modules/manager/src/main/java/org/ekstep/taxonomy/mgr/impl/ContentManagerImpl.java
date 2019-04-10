@@ -137,8 +137,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.util.List)
 	 */
 	@Override
-	public Response linkDialCode(String channelId, Object reqObj) throws Exception {
-		return this.dialCodesManager.link(channelId, reqObj);
+	public Response linkDialCode(String channelId, Object reqObj, String mode, String contentId) throws Exception {
+		return this.dialCodesManager.link(channelId, reqObj, mode, contentId);
 	}
 
 	@Override

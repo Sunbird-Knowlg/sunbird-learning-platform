@@ -457,7 +457,7 @@ public class ContentV3Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Object reqObj = request.get("content");
-			Response response = contentManager.linkDialCode(channelId, reqObj);
+			Response response = contentManager.linkDialCode(channelId, reqObj, null, null);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Linking Dial Code with Content: " + e.getMessage(), e);
