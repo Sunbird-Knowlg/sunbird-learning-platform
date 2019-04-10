@@ -146,7 +146,6 @@ public class UpdateHierarchyOperation extends BaseContentManager {
         Map<String, Node> nodeMap = new HashMap<>();
         nodeMap.put(rootId, getContentNode(TAXONOMY_ID, rootId, "edit"));
         if (MapUtils.isNotEmpty(hierarchyResponse)) {
-            nodeMap = new HashMap<>();
             List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchyResponse
                     .get("children");
             getNodeMap(children, nodeMap, definition);
@@ -157,19 +156,22 @@ public class UpdateHierarchyOperation extends BaseContentManager {
 
     private void getNodeMap(List<Map<String, Object>> children, Map<String, Node> nodeMap, DefinitionDTO definition) {
         if (CollectionUtils.isNotEmpty(children)) {
-            children.stream().forEach(child -> {
-                getNodeMap((List<Map<String, Object>>) child.get("children"), nodeMap, definition);
+            children.forEach(child -> {
                 Node node = null;
                 try {
                     if(StringUtils.equalsIgnoreCase("Default", (String) child.get("visibility"))) {
                         node = getContentNode(TAXONOMY_ID, (String) child.get("identifier"), null);
                     }else {
-                        node = ConvertToGraphNode.convertToGraphNode(child, definition, null);
+                        Map<String, Object> childData = new HashMap<>();
+                        childData.putAll(child);
+                        childData.remove("children");
+                        node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
                     }
                     nodeMap.put(node.getIdentifier(), node);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                getNodeMap((List<Map<String, Object>>) child.get("children"), nodeMap, definition);
             });
         }
     }
@@ -207,7 +209,6 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                                       Map<String, RelationDefinition> inRelDefMap, Map<String, RelationDefinition> outRelDefMap) {
         String nodeId = entry.getKey();
         String id = nodeId;
-        String objectType = CONTENT_OBJECT_TYPE;
         Node tmpnode = null;
         Map<String, Object> map = (Map<String, Object>) entry.getValue();
         Boolean isNew = (Boolean) map.get("isNew");
@@ -218,7 +219,6 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             tmpnode = nodeMap.get(id);
             if (null != tmpnode && StringUtils.isNotBlank(tmpnode.getIdentifier())) {
                 id = tmpnode.getIdentifier();
-                objectType = tmpnode.getObjectType();
             } else {
                 throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
                         "Content not found with identifier: " + id);
@@ -231,10 +231,9 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             metadata.remove("dialcodes");
         }
         metadata.put("identifier", id);
-        metadata.put("objectType", objectType);
+        metadata.put("objectType", CONTENT_OBJECT_TYPE);
         if (BooleanUtils.isTrue(isNew)) {
             metadata.put("code", nodeId);
-            metadata.put("status", "Draft");
             metadata.put(GraphDACParams.versionKey.name(), System.currentTimeMillis() + "");
             metadata.put(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
             metadata.put(AuditProperties.lastStatusChangedOn.name(), DateUtils.formatCurrentDate());
@@ -242,16 +241,22 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             if (BooleanUtils.isNotTrue(root))
                 metadata.put("visibility", "Parent");
         }
+        metadata.put("status", "Draft");
         metadata.put(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
         Response validateNodeResponse = validateNode(TAXONOMY_ID, nodeId, metadata, tmpnode, definition);
         if (checkError(validateNodeResponse))
             return validateNodeResponse;
         try {
-            Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
-            node.setGraphId(TAXONOMY_ID);
-            node.setNodeType(SystemNodeTypes.DATA_NODE.name());
-            getRelationsToBeDeleted(node, metadata, inRelDefMap, outRelDefMap);
-            nodeMap.put(id, node);
+            if(null != tmpnode) {
+                tmpnode.getMetadata().putAll(metadata);
+                nodeMap.put(id, tmpnode);
+            } else {
+                Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
+                node.setGraphId(TAXONOMY_ID);
+                node.setNodeType(SystemNodeTypes.DATA_NODE.name());
+                getRelationsToBeDeleted(node, metadata, inRelDefMap, outRelDefMap);
+                nodeMap.put(id, node);
+            }
         } catch (Exception e) {
             throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
         }
