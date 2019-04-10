@@ -76,7 +76,7 @@ public class GetHierarchyOperation extends BaseContentManager {
             if(!StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, (String) rootNode.getMetadata().get("mimeType")))
                 throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given content id is not of collection : " + rootId);
 
-            if(!StringUtils.equalsIgnoreCase("Retired", (String) rootNode.getMetadata().get("status")))
+            if(StringUtils.equalsIgnoreCase("Retired", (String) rootNode.getMetadata().get("status")))
                 throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + rootId);
 
             Response hierarchyResponse = getCollectionHierarchy(rootId + IMAGE_SUFFIX);
