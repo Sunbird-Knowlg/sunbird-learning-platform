@@ -667,4 +667,37 @@ public class ElasticSearchUtil {
 			}
 	}
 
+	/**
+	 * This method perform delete operation in bulk using document ids.
+	 *
+	 * @param indexName
+	 * @param documentType
+	 * @param identifiers
+	 * @throws Exception
+	 */
+	public static void bulkDeleteDocumentById(String indexName, String documentType, List<String> identifiers) throws Exception {
+		if (isIndexExists(indexName)) {
+			if (null != identifiers && !identifiers.isEmpty()) {
+				int count = 0;
+				BulkRequest request = new BulkRequest();
+				for (String documentId : identifiers) {
+					count++;
+					request.add(new DeleteRequest(indexName, documentType, documentId));
+					if (count % BATCH_SIZE == 0 || (count % BATCH_SIZE < BATCH_SIZE && count == identifiers.size())) {
+						BulkResponse bulkResponse = getClient(indexName).bulk(request);
+						//TODO: Iterate through response and retry in case of failure.
+						if (bulkResponse.hasFailures()) {
+							//TODO: Retry once
+							System.out.println("Bulk Delete Error : " + bulkResponse.buildFailureMessage());
+							TelemetryManager
+									.log("Error Occured While Deleting Elasticsearch Documents in Bulk : " + bulkResponse.buildFailureMessage());
+						}
+					}
+				}
+			}
+		} else {
+			//TODO: throw server exception
+		}
+	}
+
 }
