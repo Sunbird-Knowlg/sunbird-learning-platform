@@ -5,19 +5,19 @@ import java.util.Map;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.TaskCoordinator;
 import org.ekstep.jobs.samza.service.ISamzaService;
-import org.ekstep.jobs.samza.service.ImageTaggingService;
+import org.ekstep.jobs.samza.service.AssetEnrichmentService;
 import org.ekstep.jobs.samza.util.JobLogger;
-public class ImageTaggingTask extends AbstractTask{
+public class AssetEnrichmentTask extends AbstractTask{
 	
-	static JobLogger LOGGER = new JobLogger(ImageTaggingTask.class);
-	ISamzaService service = new ImageTaggingService();
-	
+	private static JobLogger LOGGER = new JobLogger(AssetEnrichmentTask.class);
+	private  ISamzaService service = new AssetEnrichmentService();
+
 	public ISamzaService initialize() throws Exception {
 		LOGGER.info("Task initialized");
-		this.jobType = "imagetagging";
-		this.jobStartMessage = "Started processing of imagetagging samza job";
-		this.jobEndMessage = "Imagetagging job processing complete";
-		this.jobClass = "org.ekstep.jobs.samza.task.ImageTaggingTask";
+		this.jobType = "assetenrichment";
+		this.jobStartMessage = "Started processing of asset enrichment samza job";
+		this.jobEndMessage = "asset enrichment job processing complete";
+		this.jobClass = "org.ekstep.jobs.samza.task.AssetEnrichmentTask";
 		return service;
 	}
 
@@ -32,12 +32,4 @@ public class ImageTaggingTask extends AbstractTask{
 			LOGGER.error("Message processing failed", message, e);
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-
 }
