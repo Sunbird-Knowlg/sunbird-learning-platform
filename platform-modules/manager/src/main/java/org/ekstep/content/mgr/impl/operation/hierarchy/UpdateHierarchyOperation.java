@@ -172,7 +172,6 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                     e.printStackTrace();
                 }
                 getNodeMap((List<Map<String, Object>>) child.get("children"), nodeMap, definition);
-
             });
         }
     }
@@ -258,7 +257,6 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                 getRelationsToBeDeleted(node, metadata, inRelDefMap, outRelDefMap);
                 nodeMap.put(id, node);
             }
-
         } catch (Exception e) {
             throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
         }
