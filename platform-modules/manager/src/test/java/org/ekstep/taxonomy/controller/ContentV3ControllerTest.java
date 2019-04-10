@@ -365,6 +365,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
 		System.out.println("testContentV3Controller_08: "+  actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		
 	}
 
 	/*
