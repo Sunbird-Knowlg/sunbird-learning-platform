@@ -114,6 +114,8 @@ public class GetHierarchyOperation extends BaseContentManager {
                     } else {
                         TelemetryManager.info("Root id not found for content id: "+ rootId + " for collection migration.");
                     }
+                } else {
+                    generateMigrationInstructionEvent(rootId);
                 }
             }
             return OK("content", dataMap);

@@ -364,7 +364,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		String path = basePath + "/hierarchy/" + collectionContent3Id + "?mode=edit";
 		actions = mockMvc.perform(MockMvcRequestBuilders.get(path));
 		System.out.println("testContentV3Controller_08: "+  actions.andReturn().getResponse().getContentAsString());
-//		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*
