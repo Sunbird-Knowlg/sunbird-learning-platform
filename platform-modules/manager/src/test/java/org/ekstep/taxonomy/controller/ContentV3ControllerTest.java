@@ -461,7 +461,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	@Test
+//	@Test
 	public void testDialCodeLink_01() throws Exception {
 		// Create Document Content
 		String path = basePath + "/create";

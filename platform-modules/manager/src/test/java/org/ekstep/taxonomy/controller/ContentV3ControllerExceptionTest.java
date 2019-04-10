@@ -61,7 +61,7 @@ public class ContentV3ControllerExceptionTest {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelKA").content(createDocumentContent));
-		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
 	}
 
 	/*
@@ -87,7 +87,7 @@ public class ContentV3ControllerExceptionTest {
 		String updateDocumentContent = "{\"request\": {\"content\": {\"name\": \"Updated Test Contnet\",\"versionKey\": \"1234\"}}}";
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "channelTest").content(updateDocumentContent));
-		Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
+		Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
 	}
 
 }
