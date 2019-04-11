@@ -56,7 +56,7 @@ public class HierarchyStore extends CassandraStore {
     }
 
 
-    public Map<String, Object> getHierarchy(String contentId) throws IOException {
+    public Map<String, Object> getHierarchy(String contentId) {
         String query = "SELECT hierarchy FROM " + getKeyspace() + "." + getTable() + " WHERE identifier=?";
 
         Session session = CassandraConnector.getSession();
@@ -69,7 +69,7 @@ public class HierarchyStore extends CassandraStore {
                 String value = row.getString("hierarchy");
                 return mapper.readValue(value, Map.class);
             } else {
-                throw new ResourceNotFoundException(ResponseCode.RESOURCE_NOT_FOUND.name(), "Resource not found : " + contentId);
+               return null;
             }
         } catch (ResourceNotFoundException re) {
             throw re;

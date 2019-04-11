@@ -100,11 +100,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return this.contentEventManager.review(contentId, request);
 	}
 
-	@Override
-	public Response getHierarchy(String contentId, String mode, List<String> fields) {
-        return this.hierarchyManager.get(contentId, mode);
-	}
-
 	public Response create(Map<String, Object> map, String channelId) throws Exception {
 		return this.contentManger.create(map, channelId);
 	}

@@ -729,4 +729,20 @@ public abstract class BaseContentManager extends BaseManager {
                 .length()-1));
     }
 
+
+    /**
+     * Cassandra call to fetch hierarchy data
+     *
+     * @param contentId
+     * @return
+     */
+    protected Response getCollectionHierarchy(String contentId) {
+        Request request = new Request();
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+        request.setOperation(ContentStoreOperations.getCollectionHierarchy.name());
+        request.put(ContentStoreParams.content_id.name(), contentId);
+        Response response = makeLearningRequest(request);
+        return response;
+    }
+
 }
