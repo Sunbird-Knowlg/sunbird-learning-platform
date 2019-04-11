@@ -1,18 +1,21 @@
 package org.ekstep.content.mgr.impl.operation.dialcodes;
 
+
+import org.codehaus.jackson.type.TypeReference;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.ekstep.common.dto.NodeDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
-import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.common.util.RequestValidatorUtil;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,15 +25,24 @@ import java.util.Set;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
-public class ReleaseDialcodesOperation extends BaseContentManager {
+public class ReleaseDialcodesOperation extends  BaseContentManager {
+    private HierarchyStore hierarchyStore = new HierarchyStore();
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    public ReleaseDialcodesOperation() {
+
+    }
+    public ReleaseDialcodesOperation(HierarchyStore hierarchyStore) {
+        this.hierarchyStore = hierarchyStore;
+    }
+
 
     public Response releaseDialCodes(String contentId, String channelId) throws Exception {
-        validateEmptyOrNullChannelId(channelId);
-        validateEmptyOrNullContentId(contentId);
-
+        validateEmptyOrNull(channelId, "Channel", ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name());
+        validateEmptyOrNull(channelId, "Content Object Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
         Node node = getContentNode(TAXONOMY_ID, contentId, null);
-
         validateRequest(node, channelId);
 
         Map<String, Integer> reservedDialcodeMap = getReservedDialCodes(node);
@@ -38,13 +50,18 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
                 throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
                         "Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier());
 
-        Set<String> assignedDialcodes = new HashSet<>();
-        populateAllAssisgnedDialcodesRecursive(node, assignedDialcodes);
-
+        System.out.println(reservedDialcodeMap);
+        Map<String,Object> hierarchyMap = hierarchyStore.getHierarchy(contentId);
+        System.out.println(hierarchyMap);
+        List<Map<String,Object>> childrenMaps = mapper.convertValue(hierarchyMap.get("children"),new TypeReference<List<Map<String,Object>>>(){});
+        childrenMaps.forEach(map -> System.out.println(map));
+        Set assignedDialCodes = new HashSet();
+        populateAssignedDialCodes(childrenMaps,assignedDialCodes);
+        System.out.println(assignedDialCodes);
         List<String> reservedDialcodes = new ArrayList<>(reservedDialcodeMap.keySet());
-        List<String> releasedDialcodes = assignedDialcodes.isEmpty() ? 
+        List<String> releasedDialcodes = assignedDialCodes.isEmpty() ?
         		reservedDialcodes
-                : reservedDialcodes.stream().filter(dialcode -> !assignedDialcodes.contains(dialcode)).collect(toList());
+                : reservedDialcodes.stream().filter(dialcode -> !assignedDialCodes.contains(dialcode)).collect(toList());
 
         if (releasedDialcodes.isEmpty())
             throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved DIAL Codes are Utilized.");
@@ -55,7 +72,7 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
         		updateMap.put(ContentAPIParams.reservedDialcodes.name(), null);
         	else
         		updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
-        
+
         Response response = updateAllContents(contentId, updateMap);
         if (checkError(response)) {
             return response;
@@ -68,6 +85,13 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
         }
     }
 
+    private void validateEmptyOrNull(Object contentValue, String contentName, String contentErrorCode) {
+        if(RequestValidatorUtil.isEmptyOrNull(contentValue)) {
+            throw new ClientException(contentErrorCode,
+                    contentName +" can not be blank or null");
+        }
+    }
+
     private void validateRequest(Node node, String channelId) {
         Map<String, Object> metadata = node.getMetadata();
 
@@ -77,27 +101,29 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
         validateIsNodeRetired(metadata);
     }
 
-    private void populateAllAssisgnedDialcodesRecursive(Node node, Set<String> assignedDialcodes) {
-        DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
-
-        getDialcodes(node).ifPresent(dialcodes -> assignedDialcodes.addAll(Arrays.asList(dialcodes)));
-
-        getChildren(node, definition).ifPresent(childrens ->
-                childrens.
-                        stream().
-                        map(NodeDTO::getIdentifier).
-                        forEach(childIdentifier -> {
-                            Node childNode = getContentNode(TAXONOMY_ID, childIdentifier, null);
-                            if (isNodeVisibilityParent(childNode))
-                                populateAllAssisgnedDialcodesRecursive(childNode, assignedDialcodes);
-                        }));
-
-        Response response = getDataNode(TAXONOMY_ID, node.getIdentifier() + ".img");
-        if (!checkError(response)) {
-            Node childImageNode = (Node) response.get(GraphDACParams.node.name());
-            populateAllAssisgnedDialcodesRecursive(childImageNode, assignedDialcodes);
+    private  void populateAssignedDialCodes(List<Map<String, Object>> children, Set<String> assignedDialcodes) {
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.forEach(child ->{
+                assignedDialcodes.addAll(getDialCodes(child));
+                if(child.containsKey("children")){
+                    populateAssignedDialCodes((List<Map<String,Object>>)child.get("children"),assignedDialcodes);
+                } else {
+                    assignedDialcodes.addAll(getDialCodes (child));
+                }
+            });
         }
-
     }
+
+    public List<String> getDialCodes(Map<String,Object> childMap) {
+        if(childMap.containsKey("dialcodes") && !childMap.get("visibility").toString().equals("Default")) {
+            return ((List<String>) childMap.get("dialcodes")).stream().filter(f -> StringUtils.isNotBlank(f)).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
+
+
+
+
 
 }
