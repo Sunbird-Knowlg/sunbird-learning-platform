@@ -74,7 +74,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
             updateDialCodeToContents(requestMap, resultMap);
         }
 
-        if (isCollectionImageReq)
+        if (isCollectionMode && isCollectionImageReq)
             updateDataNode(contentId, new HashMap<String, Object>(), "collection");
 
         Response resp = prepareResponse(resultMap);
@@ -283,31 +283,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
         Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
         List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
 
-        if (CollectionUtils.isNotEmpty(rootChildren)) {
-            rootChildren.forEach(child -> {
-                try {
-                    if(requestMap.containsKey((String) child.get(ContentAPIParams.identifier.name())) && StringUtils.equalsIgnoreCase("Default", (String) child.get(ContentAPIParams.visibility.name()))) {
-                        resultMap.get("invalidContentList").add((String) child.get(ContentAPIParams.identifier.name()));
-                        requestMap.remove((String) child.get(ContentAPIParams.identifier.name()));
-                    }else if(requestMap.containsKey((String) child.get(ContentAPIParams.identifier.name())) && StringUtils.equalsIgnoreCase("Parent", (String) child.get(ContentAPIParams.visibility.name()))){
-                        // TODO: Generate Audit History Here.
-                        if (!requestMap.get((String) child.get(ContentAPIParams.identifier.name())).isEmpty())
-                            child.put(DialCodeEnum.dialcodes.name(), requestMap.get((String) child.get(ContentAPIParams.identifier.name())));
-                        else
-                            child.remove(DialCodeEnum.dialcodes.name());
-
-                        requestMap.remove((String) child.get(ContentAPIParams.identifier.name()));
-                    }
-                } catch (Exception e) {
-                    TelemetryManager.error("Error Occured while linking DIAL Code to Units of Root Node :"+rootNodeId,e);
-                    throw new ServerException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
-                            "Something Went Wrong While Linking DIAL Code for Root Node: [" + rootNodeId + "]");
-                }
-            });
-        }else {
-            throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
-                    "No Children Found for Root Node : [" + rootNodeId + "]");
-        }
+        updateCollectionUnits(rootNodeId, rootChildren, requestMap, resultMap);
 
         //update cassandra
         Response response = updateCollectionHierarchy(getImageId(rootNodeId),rootHierarchy);
@@ -315,7 +291,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
             resultMap.get("updateSuccessList").addAll(requestMap.keySet());
         else
             resultMap.get("updateFailedList").addAll(requestMap.keySet());
-        
+
     }
 
     /**
@@ -366,7 +342,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
                 graphNode.setGraphId(TAXONOMY_ID);
                 createResponse = createDataNode(graphNode);
                 checkError = checkError(createResponse);
-                if (!checkError && StringUtils.equalsIgnoreCase("collection", mode)) {
+                if (!checkError && !StringUtils.equalsIgnoreCase("collection", mode)) {
                     TelemetryManager.log("Updating external props for: " + contentImageId);
                     Response bodyResponse = getContentProperties(contentId, externalPropsList);
                     checkError = checkError(bodyResponse);
@@ -403,6 +379,32 @@ public class LinkDialCodeOperation extends BaseContentManager {
         createResponse = updateDataNode(domainObj);
 
         return createResponse;
+    }
+
+    private void updateCollectionUnits(String rootNodeId, List<Map<String, Object>> children, Map<String, List<String>> requestMap, Map<String, Set<String>> resultMap){
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.forEach(child -> {
+                try {
+                    if(requestMap.containsKey((String) child.get(ContentAPIParams.identifier.name())) && StringUtils.equalsIgnoreCase("Default", (String) child.get(ContentAPIParams.visibility.name()))) {
+                        resultMap.get("invalidContentList").add((String) child.get(ContentAPIParams.identifier.name()));
+                        requestMap.remove((String) child.get(ContentAPIParams.identifier.name()));
+                    }else if(requestMap.containsKey((String) child.get(ContentAPIParams.identifier.name())) && StringUtils.equalsIgnoreCase("Parent", (String) child.get(ContentAPIParams.visibility.name()))){
+                        // TODO: Generate Audit History Here.
+                        if (!requestMap.get((String) child.get(ContentAPIParams.identifier.name())).isEmpty())
+                            child.put(DialCodeEnum.dialcodes.name(), requestMap.get((String) child.get(ContentAPIParams.identifier.name())));
+                        else
+                            child.remove(DialCodeEnum.dialcodes.name());
+
+                        requestMap.remove((String) child.get(ContentAPIParams.identifier.name()));
+                    }
+                } catch (Exception e) {
+                    TelemetryManager.error("Error Occured while linking DIAL Code to Units of Root Node :"+rootNodeId,e);
+                    throw new ServerException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
+                            "Something Went Wrong While Linking DIAL Code for Root Node: [" + rootNodeId + "]");
+                }
+                updateCollectionUnits(rootNodeId, (List<Map<String, Object>>) child.get(ContentAPIParams.children.name()), requestMap, resultMap);
+            });
+        }
     }
 
     /**
