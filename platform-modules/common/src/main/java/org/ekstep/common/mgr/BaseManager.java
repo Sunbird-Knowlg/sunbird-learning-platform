@@ -156,7 +156,7 @@ public abstract class BaseManager {
 		return setContext(request, graphId, manager, operation);
 	}
 
-	protected Request getRequest(String graphId, String manager, String operation, String paramName, Object vo) {
+	public Request getRequest(String graphId, String manager, String operation, String paramName, Object vo) {
 		Request request = getRequest(graphId, manager, operation);
 		request.put(paramName, vo);
 		return request;
@@ -191,7 +191,7 @@ public abstract class BaseManager {
 		return response;
 	}
 
-	protected boolean checkError(Response response) {
+	public boolean checkError(Response response) {
 		ResponseParams params = response.getParams();
 		if (null != params) {
 			if (StringUtils.equals(StatusType.failed.name(), params.getStatus())) {
@@ -318,5 +318,5 @@ public abstract class BaseManager {
 	protected boolean isEmptyOrNull(Object... o) {
 		return RequestValidatorUtil.isEmptyOrNull(o);
 	}
-	
+
 }

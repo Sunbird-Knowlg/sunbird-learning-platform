@@ -703,7 +703,7 @@ public abstract class BaseContentManager extends BaseManager {
      * @param contentId
      * @return
      */
-    protected Response getCollectionHierarchy(String contentId) {
+    public Response getCollectionHierarchy(String contentId) {
         Request request = new Request();
         request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
         request.setOperation(ContentStoreOperations.getCollectionHierarchy.name());
