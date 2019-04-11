@@ -111,10 +111,18 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             nodeMap, Map<String, List<String>> hierarchy, List<String> childNodes) {
         int index =1;
         for(String childId: childrenIds) {
-            if(null ==  nodeMap.get(childId).getMetadata().get("depth")) {
+            if(null != nodeMap.get(childId) && null ==  nodeMap.get(childId).getMetadata().get("depth")) {
                 nodeMap.get(childId).getMetadata().put("depth", depth);
                 nodeMap.get(childId).getMetadata().put("parent", parent);
                 nodeMap.get(childId).getMetadata().put("index", index);
+            } else {
+                Node node = getContentNode(TAXONOMY_ID, childId, null);
+                if(null != node) {
+                    node.getMetadata().put("depth", depth);
+                    node.getMetadata().put("parent", parent);
+                    node.getMetadata().put("index", index);
+                    nodeMap.put(childId, node);
+                }
             }
             childNodes.add(childId);
             index +=1;
