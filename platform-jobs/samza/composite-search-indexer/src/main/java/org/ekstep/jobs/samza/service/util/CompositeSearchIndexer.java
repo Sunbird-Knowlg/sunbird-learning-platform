@@ -65,6 +65,18 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
 	}
 
+	private Map<String, Object> getIndexDocument(String id) throws Exception {
+		Map<String, Object> indexDocument = new HashMap<String, Object>();
+		String documentJson = ElasticSearchUtil.getDocumentAsStringById(
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+		if (documentJson != null && !documentJson.isEmpty()) {
+			indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
+			});
+		}
+		return indexDocument;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Map<String, Object> getIndexDocument(Map<String, Object> message,
 												 Map<String, String> relationMap, boolean updateRequest, List<String> indexableProps) throws Exception {
@@ -214,8 +226,15 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 			break;
 		}
 		case CompositeSearchConstants.OPERATION_DELETE: {
-			ElasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
+			String id = (String) message.get("nodeUniqueId");
+			Map<String, Object> indexDocument = getIndexDocument(id);
+			String visibility = (String) indexDocument.get("visibility");
+			if (StringUtils.equalsIgnoreCase("Parent", visibility)) {
+				LOGGER.info("Not deleting the document (visibility: Parent) with ID:" + id);
+			} else {
+				ElasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
+			}
 			break;
 		}
 		}
