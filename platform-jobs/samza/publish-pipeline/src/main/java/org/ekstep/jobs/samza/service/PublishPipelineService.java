@@ -1,31 +1,19 @@
 package org.ekstep.jobs.samza.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
-import org.ekstep.common.Slug;
-import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
-import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.dac.model.Relation;
-import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
 import org.ekstep.jobs.samza.exception.PlatformException;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -33,31 +21,18 @@ import org.ekstep.jobs.samza.util.FailedEventsUtil;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
-import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PublishPipelineService implements ISamzaService {
 
-	static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
-
-	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
-
-	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
-
-	private static final String ARTEFACT_FOLDER = "cloud_storage.artefact.folder";
-
-	private static final String COLLECTION_CONTENT_MIMETYPE = "application/vnd.ekstep.content-collection";
-
-	private static ObjectMapper mapper = new ObjectMapper();
+	private static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
 
 	private Map<String, Object> parameterMap = new HashMap<String, Object>();
 
@@ -73,7 +48,6 @@ public class PublishPipelineService implements ISamzaService {
 
 	private SystemStream systemStream = null;
 	
-	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	
 	protected int getMaxIterations() {
@@ -202,81 +176,14 @@ public class PublishPipelineService implements ISamzaService {
 	private boolean publishContent(Node node, String publishType) throws Exception {
 		boolean published = true;
 		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
-		/*if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
-				COLLECTION_CONTENT_MIMETYPE)) {
-			List<NodeDTO> nodes = util.getNodesForPublish(node);
-			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
-			nodesToPublish.forEach(
-					nodeDTO -> publishCollectionNode(nodeDTO, (String) node.getMetadata().get("publish_type")));
-			if (!nodes.isEmpty()) {
-				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(),
-						getCompatabilityLevel(nodes));
-			}
-		}*/
-		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()),
-				COLLECTION_CONTENT_MIMETYPE)) {
-			Map<String, Object> collectionHierarchy = getHierarchy(node);
-			if(MapUtils.isNotEmpty(collectionHierarchy)) {
-				updateHierarchyMetadata((List<Map<String,Object>>)collectionHierarchy.get(PublishPipelineParams.children.name()), node);
-			}
-		}
-		/*Node latestNode = util.getNode("domain", node.getIdentifier());
-		latestNode.getMetadata().put(PublishPipelineParams.publish_type.name(), publishType);*/
 		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
 		
 		Node publishedNode = getNode(node.getIdentifier().replace(".img", ""));
 		if (StringUtils.equalsIgnoreCase((String) publishedNode.getMetadata().get(PublishPipelineParams.status.name()),
 				PublishPipelineParams.Failed.name()))
 			return false;
-
-		if (StringUtils.equalsIgnoreCase(
-				((String) publishedNode.getMetadata().get(PublishPipelineParams.mimeType.name())),
-				COLLECTION_CONTENT_MIMETYPE)) {
-			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-			publishedNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
-			processCollection(publishedNode);
-			LOGGER.debug("Content Enrichment done for content: " + node.getIdentifier());
-			
-			publishedNode = util.getNode("domain", publishedNode.getIdentifier());
-			publishHierarchy(publishedNode);
-			LOGGER.debug("Hierarchy updated for Content :: " + node.getIdentifier());
-		}
 		
 		return published;
-	}
-	private Map<String, Object> getHierarchy(Node node) {
-		String identifier = StringUtils.endsWith(node.getIdentifier(), ".img") ? 
-				node.getIdentifier() : node.getIdentifier() + ".img";
-		return hierarchyStore.getHierarchy(identifier);
-	}
-	
-	private void updateHierarchyMetadata(List<Map<String, Object>> children, Node node) {
-		if(CollectionUtils.isNotEmpty(children)) {
-			for(Map<String, Object> child : children) {
-				if(StringUtils.equalsIgnoreCase(PublishPipelineParams.Parent.name(), 
-						(String)child.get(PublishPipelineParams.visibility.name()))){
-					//set child metadata -- compatibilityLevel, appIcon, posterImage, lastPublishedOn, pkgVersion, status
-					populatePublishMetadata(child, node);
-					updateHierarchyMetadata((List<Map<String,Object>>)child.get(PublishPipelineParams.children.name()), node);
-				}
-			}
-		}
-	}
-	
-	private void populatePublishMetadata(Map<String, Object> content, Node node) {
-		content.put("compatibilityLevel", null != content.get("compatibilityLevel") ? 
-				((Number) content.get("compatibilityLevel")).intValue() : 1);
-		//TODO:  For appIcon, posterImage and screenshot createThumbNail method has to be implemented.
-		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
-		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()));
-		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content, 0));
-		
-		String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
-		content.put(ContentWorkflowPipelineParams.status.name(), 
-				ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType) ?
-						ContentWorkflowPipelineParams.Unlisted.name() :
-							ContentWorkflowPipelineParams.Live.name());
-		
 	}
 	
 	protected static String formatCurrentDate() {
@@ -294,100 +201,6 @@ public class PublishPipelineService implements ISamzaService {
 		return null;
 	}
 
-	
-	
-	private void publishHierarchy(Node publishedNode) {
-		DefinitionDTO definition = util.getDefinition(publishedNode.getGraphId(), publishedNode.getObjectType());
-		Map<String, Object> hierarchy = util.getHierarchyMap(publishedNode.getGraphId(), publishedNode.getIdentifier(), definition, null, null);
-		hierarchyStore.saveOrUpdateHierarchy(publishedNode.getIdentifier(), hierarchy);
-	}
-
-	/*private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
-		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare(n1.getCompatibilityLevel(),
-				n2.getCompatibilityLevel());
-		Optional<NodeDTO> maxNode = nodes.stream().max(comp);
-		if (maxNode.isPresent())
-			return maxNode.get().getCompatibilityLevel();
-		else
-			return 1;
-	}*/
-
-	/*private List<NodeDTO> dedup(List<NodeDTO> nodes) {
-		List<String> ids = new ArrayList<String>();
-		List<String> addedIds = new ArrayList<String>();
-		List<NodeDTO> list = new ArrayList<NodeDTO>();
-		for (NodeDTO node : nodes) {
-			if (isImageNode(node.getIdentifier()) && !ids.contains(node.getIdentifier())) {
-				ids.add(node.getIdentifier());
-			}
-		}
-		for (NodeDTO node : nodes) {
-			if (!ids.contains(node.getIdentifier()) && !ids.contains(getImageNodeID(node.getIdentifier()))) {
-				ids.add(node.getIdentifier());
-			}
-		}
-
-		for (NodeDTO node : nodes) {
-			if (ids.contains(node.getIdentifier()) && !addedIds.contains(node.getIdentifier())
-					&& !addedIds.contains(getImageNodeID(node.getIdentifier()))) {
-				list.add(node);
-				addedIds.add(node.getIdentifier());
-			}
-		}
-		return list;
-	}*/
-
-	/*private boolean isImageNode(String identifier) {
-		return StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
-	}
-
-	private String getImageNodeID(String identifier) {
-		return identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-	}*/
-
-	/*private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
-		return dedup(nodes).stream().filter(
-				node -> StringUtils.equalsIgnoreCase(node.getMimeType(), "application/vnd.ekstep.content-collection")
-						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft"))
-				.filter(node -> StringUtils.equalsIgnoreCase(node.getVisibility(), "parent"))
-				.sorted(new Comparator<NodeDTO>() {
-					@Override
-					public int compare(NodeDTO o1, NodeDTO o2) {
-						return o2.getDepth().compareTo(o1.getDepth());
-					}
-				});
-	}*/
-
-	/*private void publishCollectionNode(NodeDTO node, String publishType) {
-		Node graphNode = util.getNode("domain", node.getIdentifier());
-		if (StringUtils.isNotEmpty(publishType)) {
-			graphNode.getMetadata().put("publish_type", publishType);
-		}
-		publishNode(graphNode, node.getMimeType());
-		updateLeafNodeCount(node.getIdentifier().replace(".img", ""));
-		
-		String identifier = graphNode.getIdentifier().replace(".img", "");
-		graphNode = util.getNode("domain", identifier);
-		publishHierarchy(graphNode);
-		LOGGER.debug("Hierarchy updated for Collection Unit :: " + identifier);
-	}*/
-	
-	/*private void updateLeafNodeCount(String contentId) {
-		Node graphNode = util.getNode("domain", contentId);
-		try {
-			enrichCollection(graphNode);
-			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-			graphNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
-			Response response = util.updateNode(graphNode);
-			if(!response.getResponseCode().equals(ResponseCode.OK.name())) {
-				LOGGER.debug("leafNodesCount could not be updated for content :: " + contentId + 
-						"Error:: " + response.getParams().getErrmsg());
-			}
-		} catch (Exception e) {
-			LOGGER.error("leafNodesCount could not be updated for content :: " + contentId, e);
-		}
-	}*/
-	
 	private void publishNode(Node node, String mimeType) {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
@@ -433,339 +246,13 @@ public class PublishPipelineService implements ISamzaService {
 	}
 
 	private boolean validateObject(Map<String, Object> edata) {
-
-		if (!StringUtils.equalsIgnoreCase((String) edata.get(PublishPipelineParams.contentType.name()),
-				PublishPipelineParams.Asset.name())) {
-			if (((Integer) edata.get(PublishPipelineParams.iteration.name()) <= getMaxIterations()))
-				return true;
-		}
-		return false;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void processCollection(Node node) throws Exception {
-
-		String graphId = node.getGraphId();
-		String contentId = node.getIdentifier();
-		Map<String, Object> dataMap = null;
-		dataMap = processChildren(node, graphId, dataMap);
-		LOGGER.debug("Children nodes process for collection - " + contentId);
-		if (null != dataMap) {
-			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
-				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
-					continue;
-				} else if ("subject".equalsIgnoreCase(entry.getKey())) {
-					Set<Object> subject = (HashSet<Object>) entry.getValue();
-					if (null != subject.iterator().next()) {
-						node.getMetadata().put(entry.getKey(), (String) subject.iterator().next());
-					}
-				} else if ("medium".equalsIgnoreCase(entry.getKey())) {
-					Set<Object> medium = (HashSet<Object>) entry.getValue();
-					if (null != medium.iterator().next()) {
-						node.getMetadata().put(entry.getKey(), (String) medium.iterator().next());
-					}
-				} else {
-					Set<String> valueSet = (HashSet<String>) entry.getValue();
-					String[] value = valueSet.toArray(new String[valueSet.size()]);
-					node.getMetadata().put(entry.getKey(), value);
-				}
-			}
-			Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
-			if (null != keywords && !keywords.isEmpty()) {
-				if (null != node.getMetadata().get("keywords")) {
-					Object object = node.getMetadata().get("keywords");
-					if (object instanceof String[]) {
-						String[] stringArray = (String[]) node.getMetadata().get("keywords");
-						keywords.addAll(Arrays.asList(stringArray));
-					} else if (object instanceof String) {
-						String keyword = (String) node.getMetadata().get("keywords");
-						keywords.add(keyword);
-					}
-				}
-				List<String> keywordsList = new ArrayList<>();
-				keywordsList.addAll(keywords);
-				node.getMetadata().put("keywords", keywordsList);
-			}
-		}
-
-		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.visibility.name()),
-				PublishPipelineParams.Default.name())) {
-			enrichCollection(node);
-		}
-
-		util.updateNode(node);
-		if (null != dataMap) {
-			if (null != dataMap.get("concepts")) {
-				List<String> concepts = new ArrayList<>();
-				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
-				if (!concepts.isEmpty()) {
-					util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
-				}
-			}
-		}
-	}
-
-	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap)
-			throws Exception {
-		List<String> children;
-		children = getChildren(node);
-		if (!children.isEmpty()) {
-			dataMap = new HashMap<String, Object>();
-			for (String child : children) {
-				Node childNode = util.getNode(graphId, child);
-				dataMap = mergeMap(dataMap, processChild(childNode));
-				processChildren(childNode, graphId, dataMap);
-			}
-		}
-		return dataMap;
-	}
-
-	private List<String> getChildren(Node node) throws Exception {
-		List<String> children = new ArrayList<>();
-		if (null != node.getOutRelations()) {
-			for (Relation rel : node.getOutRelations()) {
-				if (PublishPipelineParams.content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
-					children.add(rel.getEndNodeId());
-				}
-			}
-		}
-		return children;
-	}
-
-	private Map<String, Object> processChild(Node node) throws Exception {
-
-		Map<String, Object> result = new HashMap<>();
-		Set<Object> language = new HashSet<Object>();
-		Set<Object> concepts = new HashSet<Object>();
-		Set<Object> domain = new HashSet<Object>();
-		Set<Object> grade = new HashSet<Object>();
-		Set<Object> age = new HashSet<Object>();
-		Set<Object> medium = new HashSet<Object>();
-		Set<Object> subject = new HashSet<Object>();
-		Set<Object> genre = new HashSet<Object>();
-		Set<Object> theme = new HashSet<Object>();
-		Set<Object> keywords = new HashSet<Object>();
-		if (null != node.getMetadata().get("language")) {
-			String[] langData = (String[]) node.getMetadata().get("language");
-			language = new HashSet<Object>(Arrays.asList(langData));
-			result.put("language", language);
-		}
-		if (null != node.getMetadata().get(PublishPipelineParams.domain.name())) {
-			String[] domainData = (String[]) node.getMetadata().get(PublishPipelineParams.domain.name());
-			domain = new HashSet<Object>(Arrays.asList(domainData));
-			result.put("domain", domain);
-		}
-		if (null != node.getMetadata().get(PublishPipelineParams.gradeLevel.name())) {
-			String[] gradeData = (String[]) node.getMetadata().get(PublishPipelineParams.gradeLevel.name());
-			grade = new HashSet<Object>(Arrays.asList(gradeData));
-			result.put("gradeLevel", grade);
-		}
-		if (null != node.getMetadata().get(PublishPipelineParams.ageGroup.name())) {
-			String[] ageData = (String[]) node.getMetadata().get(PublishPipelineParams.ageGroup.name());
-			age = new HashSet<Object>(Arrays.asList(ageData));
-			result.put(PublishPipelineParams.ageGroup.name(), age);
-		}
-		if (null != node.getMetadata().get(PublishPipelineParams.medium.name())) {
-			String mediumData = (String) node.getMetadata().get(PublishPipelineParams.medium.name());
-			medium = new HashSet<Object>(Arrays.asList(mediumData));
-			result.put(PublishPipelineParams.medium.name(), medium);
-		}
-		if (null != node.getMetadata().get(PublishPipelineParams.subject.name())) {
-			String subjectData = (String) node.getMetadata().get(PublishPipelineParams.subject.name());
-			subject = new HashSet<Object>(Arrays.asList(subjectData));
-			result.put(PublishPipelineParams.subject.name(), subject);
-		}
-		if (null != node.getMetadata().get(PublishPipelineParams.genre.name())) {
-			String[] genreData = (String[]) node.getMetadata().get(PublishPipelineParams.genre.name());
-			genre = new HashSet<Object>(Arrays.asList(genreData));
-			result.put(PublishPipelineParams.genre.name(), genre);
-		}
-		if (null != node.getMetadata().get(PublishPipelineParams.theme.name())) {
-			String[] themeData = (String[]) node.getMetadata().get(PublishPipelineParams.theme.name());
-			theme = new HashSet<Object>(Arrays.asList(themeData));
-			result.put(PublishPipelineParams.theme.name(), theme);
-		}
-		if (null != node.getMetadata().get(PublishPipelineParams.keywords.name())) {
-			String[] keyData = (String[]) node.getMetadata().get(PublishPipelineParams.keywords.name());
-			keywords = new HashSet<Object>(Arrays.asList(keyData));
-			result.put(PublishPipelineParams.keywords.name(), keywords);
-		}
-		for (Relation rel : node.getOutRelations()) {
-			if ("Concept".equalsIgnoreCase(rel.getEndNodeObjectType())) {
-				LOGGER.info("EndNodeId as Concept ->" + rel.getEndNodeId());
-				concepts.add(rel.getEndNodeId());
-			}
-		}
-		if (null != concepts && !concepts.isEmpty()) {
-			result.put(PublishPipelineParams.concepts.name(), concepts);
-		}
-		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap)
-			throws Exception {
-		if (dataMap.isEmpty()) {
-			dataMap.putAll(childDataMap);
-		} else {
-			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
-				Set<Object> value = new HashSet<Object>();
-				if (childDataMap.containsKey(entry.getKey())) {
-					value.addAll((Collection<? extends Object>) childDataMap.get(entry.getKey()));
-				}
-				value.addAll((Collection<? extends Object>) entry.getValue());
-				dataMap.replace(entry.getKey(), value);
-			}
-			if (!dataMap.keySet().containsAll(childDataMap.keySet())) {
-				for (Map.Entry<String, Object> entry : childDataMap.entrySet()) {
-					if (!dataMap.containsKey(entry.getKey())) {
-						dataMap.put(entry.getKey(), entry.getValue());
-					}
-				}
-			}
-		}
-		return dataMap;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void enrichCollection(Node node) throws Exception {
-
-		String contentId = node.getIdentifier();
-		LOGGER.info("Processing collection content for enrichment :" + contentId);
-		Response response = util.getHirerachy(contentId);
-		if (null != response && null != response.getResult()) {
-			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
-			if(MapUtils.isEmpty(content))
-				return;
-			int leafCount = 0;
-			leafCount = getLeafNodeCount(content, leafCount);
-			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
-			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
-			LOGGER.info("Updated leafNodesCount for content id: " + contentId + " :: " + leafCount);
-			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get("visibility"), ContentAPIParams.Parent.name()))
-				return;
-			
-			Map<String, Object> mimeTypeMap = new HashMap<>();
-			Map<String, Object> contentTypeMap = new HashMap<>();
-			List<String> childNodes = getChildNode(content);
-			
-			getTypeCount(content, "mimeType", mimeTypeMap);
-			getTypeCount(content, "contentType", contentTypeMap);
-			
-			content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
-			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
-			content.put(ContentAPIParams.childNodes.name(), childNodes);
-			
-			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
-			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
-			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
-			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
-			LOGGER.info("Updated toc_url, mimeTypesCount, contentTypesCount, childNodes.");
-		} else {
-			LOGGER.info("Get hierarchy response is null for content id: "+ contentId + " :: " + response);
-		}
-	}
-	
-	
-	public String generateTOC(Node node, Map<String, Object> content) throws JsonProcessingException {
-		LOGGER.info("Write hirerachy to JSON File :" + node.getIdentifier());
-		String data = mapper.writeValueAsString(content);
-		File file = new File(getBasePath(node.getIdentifier()) + "TOC.json");
-		String url = null;
-		try {
-			FileUtils.writeStringToFile(file, data);
-			if (file.exists()) {
-				LOGGER.info("Upload File to cloud storage :" + file.getName());
-				String[] uploadedFileUrl = CloudStore.uploadFile(getAWSPath(node.getIdentifier()), file, true);
-				if (null != uploadedFileUrl && uploadedFileUrl.length > 1) {
-					url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
-					LOGGER.info("Update cloud storage url to node" + url);
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error while uploading file ", e);
-		}finally {
-			try {
-				LOGGER.info("Deleting Uploaded files");
-				FileUtils.deleteDirectory(file.getParentFile());
-			} catch (IOException e) {
-				LOGGER.error("Error while deleting file ", e);
-			}
-		}
-		return url;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void getTypeCount(Map<String, Object> data, String type, Map<String, Object> typeMap) {
-		List<Object> children = (List<Object>) data.get("children");
-		if (null != children && !children.isEmpty()) {
-			for (Object child : children) {
-				Map<String, Object> childMap = (Map<String, Object>) child;
-				String typeValue = childMap.get(type).toString();
-				if (typeMap.containsKey(typeValue)) {
-					int count = (int) typeMap.get(typeValue);
-					count++;
-					typeMap.put(typeValue, count);
-				} else {
-					typeMap.put(typeValue, 1);
-				}
-				if (childMap.containsKey("children")) {
-					getTypeCount(childMap, type, typeMap);
-				}
-			}
-		}
-
-	}
-
-	@SuppressWarnings("unchecked")
-	private Integer getLeafNodeCount(Map<String, Object> data, int leafCount) {
-		List<Object> children = (List<Object>) data.get("children");
-		if (null != children && !children.isEmpty()) {
-			for (Object child : children) {
-				Map<String, Object> childMap = (Map<String, Object>) child;
-				int lc = 0;
-				lc = getLeafNodeCount(childMap, lc);
-				leafCount = leafCount + lc;
-			}
-		} else {
-			if (!COLLECTION_CONTENT_MIMETYPE.equals(data.get(PublishPipelineParams.mimeType.name())))
-				leafCount++;
-		}
-		return leafCount;
-	}
-
-	private List<String> getChildNode(Map<String, Object> data) {
-		Set<String> childrenSet = new HashSet<>();
-		getChildNode(data, childrenSet);
-		return new ArrayList<>(childrenSet);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void getChildNode(Map<String, Object> data, Set<String> childrenSet) {
-		List<Object> children = (List<Object>) data.get("children");
-		if (null != children && !children.isEmpty()) {
-			for (Object child : children) {
-				Map<String, Object> childMap = (Map<String, Object>) child;
-				childrenSet.add((String) childMap.get("identifier"));
-				getChildNode(childMap, childrenSet);
-			}
-		}
-	}
-
-	private String getBasePath(String contentId) {
-		String path = "";
-		if (!StringUtils.isBlank(contentId))
-			path = this.config.get("lp.tempfile.location") + File.separator + System.currentTimeMillis()
-					+ ContentAPIParams._temp.name() + File.separator + contentId;
-		return path;
-	}
-
-	private String getAWSPath(String identifier) {
-		String folderName = S3PropertyReader.getProperty(CONTENT_FOLDER);
-		if (!StringUtils.isBlank(folderName)) {
-			folderName = folderName + File.separator + Slug.makeSlug(identifier, true) + File.separator
-					+ S3PropertyReader.getProperty(ARTEFACT_FOLDER);
-		}
-		return folderName;
-	}
+        String action = (String) edata.get("action");
+        String contentType = (String) edata.get(PublishPipelineParams.contentType.name());
+        Integer iteration = (Integer) edata.get(PublishPipelineParams.iteration.name());
+        if (StringUtils.equalsIgnoreCase("publish", action) && (!StringUtils.equalsIgnoreCase(contentType,
+                PublishPipelineParams.Asset.name())) &&  (iteration <= getMaxIterations())) {
+                return true;
+        }
+        return false;
+    }	
 }
