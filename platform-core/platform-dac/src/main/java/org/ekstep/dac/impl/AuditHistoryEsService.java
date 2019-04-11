@@ -50,9 +50,6 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 
 	/** The Object mapper */
 	private ObjectMapper objectMapper = null;
-
-	/** The Logger */
-	
 	
 	/** This is the init method for the AuditHistoryEsService */
 	public AuditHistoryEsService() {
