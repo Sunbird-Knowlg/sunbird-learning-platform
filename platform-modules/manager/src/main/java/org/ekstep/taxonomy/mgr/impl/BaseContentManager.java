@@ -99,6 +99,11 @@ public abstract class BaseContentManager extends BaseManager {
 
     protected ControllerUtil util = new ControllerUtil();
 
+    protected static final String COLLECTION_MIME_TYPE = "application/vnd.ekstep.content-collection";
+
+    protected static final Integer DEFAULT_CONTENT_VERSION = 1;
+    protected static final Integer DEFAULT_COLLECTION_VERSION = 2;
+
 	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
 			return identifier.replace(".img", "");
@@ -281,6 +286,7 @@ public abstract class BaseContentManager extends BaseManager {
                 map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.online.name());
             else
                 map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
+
         }
     }
 

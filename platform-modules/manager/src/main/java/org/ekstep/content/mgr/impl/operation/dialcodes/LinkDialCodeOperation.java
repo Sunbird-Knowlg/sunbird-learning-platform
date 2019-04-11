@@ -1,5 +1,6 @@
 package org.ekstep.content.mgr.impl.operation.dialcodes;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -34,13 +35,19 @@ public class LinkDialCodeOperation extends BaseContentManager {
             ? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
 
 
-    public Response linkDialCode(String channelId, Object reqObj) throws Exception {
+    public Response linkDialCode(String channelId, Object reqObj, String mode, String contentId) throws Exception {
+
         List<String> dialcodeList = new ArrayList<String>();
         List<String> contentList = new ArrayList<String>();
         Map<String, Set<String>> resultMap = initializeResultMap();
         List<Map<String, Object>> reqList = getRequestList(reqObj);
-
+        //TODO: Validation logic need to be change for restricting dialcode with mode=collection
+        // All Units should have unique dialcodes.
         validateDialCodeLinkRequest(channelId, reqList);
+        //TODO: Implementation need to be done.s
+        if(StringUtils.isNotBlank(mode) && StringUtils.equalsIgnoreCase("collection",mode) && StringUtils.isNotBlank(contentId)){
+            return getSuccessResponse();
+        }
 
         for (Map<String, Object> map : reqList) {
             Object dialObj = map.get(DialCodeEnum.dialcode.name());
