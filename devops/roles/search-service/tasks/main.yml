@@ -1,5 +1,0 @@
-- name: Setup LP search as service
-  become: yes
-  become_user: "{{learner_user}}"
-  template: src=servicify-process.j2 dest={{ service_path }}/{{ script_name }} mode=755 owner={{ learner_user }} group={{ learner_user }}
-
