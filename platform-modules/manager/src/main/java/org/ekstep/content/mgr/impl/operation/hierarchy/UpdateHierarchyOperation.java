@@ -193,7 +193,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                     }
                     nodeMap.put(node.getIdentifier(), node);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    TelemetryManager.error("UpdateHierarchyOperation.getNodeMap() :: Error which converting to nodeMap ", e);
                 }
                 getNodeMap((List<Map<String, Object>>) child.get(ContentAPIParams.children.name()), nodeMap, definition);
             });
