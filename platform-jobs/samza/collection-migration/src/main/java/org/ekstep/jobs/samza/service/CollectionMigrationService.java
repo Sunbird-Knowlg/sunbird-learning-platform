@@ -1,6 +1,5 @@
 package org.ekstep.jobs.samza.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -150,18 +149,12 @@ public class CollectionMigrationService implements ISamzaService {
 		Map<String, Object> metadata = (Map<String, Object>) node.getMetadata();
 		String visibility = (String) metadata.get("visibility");
 		String mimeType = (String) metadata.get("mimeType");
-		if (StringUtils.equalsIgnoreCase("Default", visibility) && StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType))
-			return true;
-		else
-			return false;
+		return (StringUtils.equalsIgnoreCase("Default", visibility) && StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType));
 	}
 
 	private boolean validateEdata(Map<String, Object> edata) {
 		String action = (String) edata.get("action");
-		if (StringUtils.equalsIgnoreCase("collection-migration", action)) {
-			return true;
-		}
-		return false;
+		return (StringUtils.equalsIgnoreCase("collection-migration", action));
 	}
 
 	private Node getNode(String nodeId) {
