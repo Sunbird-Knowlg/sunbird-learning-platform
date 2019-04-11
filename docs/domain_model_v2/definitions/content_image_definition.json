@@ -2761,6 +2761,34 @@
 					"defaultValue": "",
 					"renderingHints": "",
 					"indexed": false
+				},
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "assets",
+					"title": "Assets",
+					"description": "R1.15-List of Asset ids used in ecml content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "version",
+					"title": "Schema Version",
+					"description": "Schema version of the content with which it is created or updated",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "1",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
