@@ -3,7 +3,7 @@
   
 
 - set_fact:
-    redis_backup_file_name: "redis-backup-{{ lookup('pipe', 'date +%Y%m%d') }}.rdb"
+    redis_backup_file_name: "redis-backup-{{ lookup('pipe', 'date +%Y-%m-%d-%T') }}.rdb"
  
 - set_fact:
     redis_backup_file_path: "{{ redis_backup_dir }}/{{ redis_backup_file_name }}"

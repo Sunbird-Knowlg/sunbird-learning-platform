@@ -239,7 +239,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		
 		Map<String,Object> collectionHierarchy = getHierarchy(node);
-		List<Map<String, Object>> children = (List<Map<String,Object>>)collectionHierarchy.get("children");
+		List<Map<String, Object>> children = null;
+		if(MapUtils.isNotEmpty(collectionHierarchy))
+			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
 		
 		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
 			TelemetryManager.log("Collection processing started for content: " + node.getIdentifier());

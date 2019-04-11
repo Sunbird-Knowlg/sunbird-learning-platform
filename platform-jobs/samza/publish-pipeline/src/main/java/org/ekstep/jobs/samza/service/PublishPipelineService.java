@@ -33,7 +33,7 @@ import java.util.*;
 public class PublishPipelineService implements ISamzaService {
 
 	private static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
-
+	
 	private Map<String, Object> parameterMap = new HashMap<String, Object>();
 
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
