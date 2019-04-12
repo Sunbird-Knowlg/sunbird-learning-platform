@@ -1,4 +1,0 @@
-- hosts: learning-neo4j-cluster
-  roles: 
-    - neo4j-deploy
-  
