@@ -14,10 +14,6 @@ public class HierarchyManager {
     private final UpdateHierarchyOperation updateHierarchyOperation = new UpdateHierarchyOperation();
     private final SyncHierarchyOperation syncHierarchyOperation = new SyncHierarchyOperation();
 
-    public Response get(String contentId, String mode) {
-        return this.getHierarchyOperation.getHierarchy(contentId, mode);
-    }
-
     public Response update(Map<String, Object> data) {
         return this.updateHierarchyOperation.updateHierarchy(data);
     }
