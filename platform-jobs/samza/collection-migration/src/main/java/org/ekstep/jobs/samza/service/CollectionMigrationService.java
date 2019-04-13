@@ -36,6 +36,7 @@ public class CollectionMigrationService implements ISamzaService {
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 	private static JobLogger LOGGER = new JobLogger(CollectionMigrationService.class);
 	private Config config = null;
+	private ObjectMapper mapper = new ObjectMapper();
 	private SystemStream systemStream = null;
 	private ControllerUtil util = new ControllerUtil();
 	private HierarchyStore hierarchyStore = null;
@@ -102,6 +103,13 @@ public class CollectionMigrationService implements ISamzaService {
 						}
 
 						if (collectionIds.size() > 0) {
+							List<String> liveIds = new ArrayList<>();
+							for (String id: collectionIds) {
+								if (StringUtils.endsWith(id, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+									liveIds.add(id.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, ""));
+								}
+							}
+							collectionIds.addAll(liveIds);
 							List<Response> delResponses = collectionIds.stream()
 									.map(id -> {
 										return util.deleteNode("domain", id);
@@ -120,7 +128,7 @@ public class CollectionMigrationService implements ISamzaService {
 							Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(nodeId);
 							if (MapUtils.isNotEmpty(liveHierarchy)) {
 								List<Map<String, Object>> leafNodes = getLeafNodes(liveHierarchy, 0);
-								LOGGER.info("Total leaf nodes to create relation with root node are " + leafNodes.size());
+								LOGGER.info("Total leaf nodes to create relation with root node are " + mapper.writeValueAsString(leafNodes));
 								if (leafNodes.size() > 0) {
 									Node liveNode = util.getNode("domain", nodeId);
 									List<Relation> relations = getRelations(nodeId, leafNodes);
@@ -137,7 +145,6 @@ public class CollectionMigrationService implements ISamzaService {
 										migrationSuccess = false;
 										LOGGER.info("Failed to update relations in new format.");
 									}
-
 								}
 							} else {
 								LOGGER.info("Content Live node hierarchy is empty so, not creating relations for content: "+ nodeId);
