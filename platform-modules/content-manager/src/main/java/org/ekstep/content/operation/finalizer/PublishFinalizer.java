@@ -42,6 +42,7 @@ import org.ekstep.content.util.GraphUtil;
 import org.ekstep.content.util.SyncMessageGenerator;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
@@ -751,41 +752,67 @@ public class PublishFinalizer extends BaseFinalizer {
 				List<String> concepts = new ArrayList<>();
 				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
 				if (!concepts.isEmpty()) {
-					List<Relation> conceptsRel = new ArrayList<>();
+					List<Relation> relations = new ArrayList<>();
 					for(String concept : concepts) {
-						conceptsRel.add(new Relation(StringUtils.replace(contentId, ".img", ""), RelationTypes.ASSOCIATED_TO.relationName(), concept));
+						relations.add(new Relation(StringUtils.replace(contentId, ".img", ""), RelationTypes.ASSOCIATED_TO.relationName(), concept));
 					}
-					node.setOutRelations(conceptsRel);
+					List<Relation> existingRelations = node.getOutRelations();
+					if (CollectionUtils.isNotEmpty(existingRelations)) {
+						relations.addAll(existingRelations);
+					}
+					node.setOutRelations(relations);
 				}
 			}
 		}
 	}
 	private void addResourceToCollection(Node node, List<Map<String, Object>> children) {
-		Set<String> resources = addResourceToCollection(children);
-		if (!resources.isEmpty()) {
-			List<Relation> childrenRel = new ArrayList<>();
-			for(String resource : resources) {
-				childrenRel.add(new Relation(StringUtils.replace(node.getIdentifier(), ".img", ""), RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), resource));
+		List<Map<String, Object>> leafNodes = getLeafNodes(children, 1);
+		if (CollectionUtils.isNotEmpty(leafNodes)) {
+			List<Relation> relations = new ArrayList<>();
+			for(Map<String, Object> leafNode : leafNodes) {
+
+				String id = (String) leafNode.get("identifier");
+				int index = 1;
+				Number num = (Number) leafNode.get("index");
+				if (num != null) {
+					index = num.intValue();
+				}
+				Relation rel = new Relation(node.getIdentifier(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), id);
+				Map<String, Object> metadata = new HashMap<>();
+				metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+				metadata.put("depth", leafNode.get("depth"));
+				rel.setMetadata(metadata);
+				relations.add(rel);
 			}
-			node.setOutRelations(childrenRel);
+			List<Relation> existingRelations = node.getOutRelations();
+			if (CollectionUtils.isNotEmpty(existingRelations)) {
+				relations.addAll(existingRelations);
+			}
+			node.setOutRelations(relations);
 		}
 		
 	}
 	
-	private Set<String> addResourceToCollection(List<Map<String, Object>> children) {
-		Set<String> resource = null;
-		if(null != children && !children.isEmpty()) {
-			resource = new HashSet();
+	private List<Map<String, Object>> getLeafNodes(List<Map<String, Object>> children, int depth) {
+		List<Map<String, Object>> leafNodes = new ArrayList<>();
+		if(CollectionUtils.isNotEmpty(children)) {
+			int index = 1;
 			for(Map<String, Object> child : children) {
-				if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), ContentWorkflowPipelineParams.Parent.name())) {
-					resource.addAll(addResourceToCollection((List<Map<String,Object>>)child.get("children")));
+				String visibility = (String) child.get(ContentWorkflowPipelineParams.visibility.name());
+				if(StringUtils.equalsIgnoreCase(visibility, ContentWorkflowPipelineParams.Parent.name())) {
+					List<Map<String,Object>> nextChildren = (List<Map<String,Object>>)child.get("children");
+					int nextDepth = depth + 1;
+					List<Map<String, Object>> nextLevelLeafNodes = getLeafNodes(nextChildren, nextDepth);
+					leafNodes.addAll(nextLevelLeafNodes);
 				}else {
-					resource.add((String)child.get("identifier"));
+					child.put("index", index);
+					child.put("depth", depth);
+					leafNodes.add(child);
+					index++;
 				}
 			}
 		}
-		
-		return resource;
+		return leafNodes;
 	}
 	
 	

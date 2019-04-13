@@ -38,7 +38,6 @@ public class CollectionMigrationService implements ISamzaService {
 	private Config config = null;
 	private SystemStream systemStream = null;
 	private ControllerUtil util = new ControllerUtil();
-//	private ObjectMapper mapper = new ObjectMapper();
 	private HierarchyStore hierarchyStore = null;
 
 	public void initialize(Config config) throws Exception {

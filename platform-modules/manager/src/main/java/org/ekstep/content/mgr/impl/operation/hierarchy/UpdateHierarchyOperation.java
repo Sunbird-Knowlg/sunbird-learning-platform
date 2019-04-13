@@ -40,7 +40,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
     private HierarchyStore hierarchyStore = new HierarchyStore();
 
     public Response updateHierarchy(Map<String, Object> data) {
-        if (MapUtils.isEmpty(data) && MapUtils.isEmpty((Map<String, Object>) data.get("nodesModified"))) {
+        if (MapUtils.isEmpty(data)) {
             throw new ClientException("ERR_INVALID_HIERARCHY_DATA", "Hierarchy data is empty");
         } else {
             Map<String, Object> nodesModified = (Map<String, Object>) data.get(ContentAPIParams.nodesModified.name());
@@ -152,8 +152,10 @@ public class UpdateHierarchyOperation extends BaseContentManager {
     private void updateNodesModified(Map<String, Object> nodesModified, Map<String, String> idMap, Map<String, Node>
             nodeMap, DefinitionDTO definition, Map<String, RelationDefinition> inRelDefMap, Map<String,
             RelationDefinition> outRelDefMap, String rootId) {
-        nodeMap.get(rootId).getMetadata().putAll((Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
-                .get("metadata"));
+        if(MapUtils.isNotEmpty((Map<String, Object>)nodesModified.get(rootId))){
+            nodeMap.get(rootId).getMetadata().putAll((Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
+                    .get("metadata"));
+        }
         nodesModified.remove(rootId);
         nodesModified.entrySet().forEach(entry -> {
             Map<String, Object> map = (Map<String, Object>) entry.getValue();
