@@ -12,7 +12,10 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.graph.dac.enums.RelationTypes;
+import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.jobs.samza.exception.PlatformErrorCodes;
@@ -63,6 +66,7 @@ public class CollectionMigrationService implements ISamzaService {
 			return;
 		}
 		try {
+			boolean migrationSuccess = true;
 			String nodeId = (String) object.get("id");
 			if (StringUtils.isNotBlank(nodeId)) {
 				Node node = getNode(nodeId);
@@ -98,36 +102,62 @@ public class CollectionMigrationService implements ISamzaService {
 							LOGGER.info("SKIPPED CASSANDRA SAVE: Hierarchy already exists for image content: " + rootImgId);
 						}
 
-						if (rootId.endsWith(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
-							System.out.println("Relations migration required for Content ID: " + nodeId);
-							Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(nodeId);
-							if (MapUtils.isNotEmpty(liveHierarchy)) {
-								List<Map<String, Object>> leafNodes = getLeafNodes(liveHierarchy);
-								LOGGER.info("Total leaf nodes to create relation with root node are " + leafNodes.size());
-								// TODO: create relations.
-							} else {
-								LOGGER.info("Content Live node hierarchy is empty so, not creating relations for content: "+ nodeId);
-							}
-						}
-
 						if (collectionIds.size() > 0) {
 							List<Response> delResponses = collectionIds.stream()
 									.map(id -> {
 										return util.deleteNode("domain", id);
 									}).collect(Collectors.toList());
-
 							LOGGER.info("Nodes delete status: " + new ObjectMapper().writeValueAsString(delResponses));
+							List<Response> failed = delResponses.stream()
+									.filter(res -> res.getResponseCode() != ResponseCode.OK)
+									.collect(Collectors.toList());
+							if (failed.size() > 0) {
+								migrationSuccess = false;
+							}
 						}
 
-						LOGGER.info("Updating the node version to 2 for collection ID: " + node.getIdentifier());
-						node.getMetadata().put("version", 2);
-						Response response = util.updateNode(node);
-						if (!util.checkError(response)) {
-							LOGGER.info("Updated the node version to 2 for collection ID: " + node.getIdentifier());
-						} else {
-							LOGGER.error("Failed to update the node version to 2 for collection ID: " + node.getIdentifier() + " with error: " + response.getParams().getErrmsg(), response.getResult(), null);
+						if (rootId.endsWith(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+							System.out.println("Relations migration required for Content ID: " + nodeId);
+							Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(nodeId);
+							if (MapUtils.isNotEmpty(liveHierarchy)) {
+								List<Map<String, Object>> leafNodes = getLeafNodes(liveHierarchy, 0);
+								LOGGER.info("Total leaf nodes to create relation with root node are " + leafNodes.size());
+								if (leafNodes.size() > 0) {
+									Node liveNode = util.getNode("domain", nodeId);
+									List<Relation> relations = getRelations(nodeId, leafNodes);
+									List<Relation> outRelations = liveNode.getOutRelations();
+									if (CollectionUtils.isNotEmpty(outRelations)) {
+										relations.addAll(outRelations);
+									}
+									liveNode.setOutRelations(relations);
+									Response response = util.updateNode(liveNode);
+									if (!util.checkError(response)) {
+										LOGGER.info("Updated the collection with new format of relations...");
+									} else {
+										migrationSuccess = false;
+										LOGGER.info("Failed to update relations in new format.");
+									}
+
+								}
+							} else {
+								LOGGER.info("Content Live node hierarchy is empty so, not creating relations for content: "+ nodeId);
+							}
 						}
-						LOGGER.info("Migration completed for collection ID: " + node.getIdentifier());
+
+						if (migrationSuccess) {
+							LOGGER.info("Updating the node version to 2 for collection ID: " + node.getIdentifier());
+							node.getMetadata().put("version", 2);
+							Response response = util.updateNode(node);
+							if (!util.checkError(response)) {
+								LOGGER.info("Updated the node version to 2 for collection ID: " + node.getIdentifier());
+							} else {
+								LOGGER.error("Failed to update the node version to 2 for collection ID: " + node.getIdentifier() + " with error: " + response.getParams().getErrmsg(), response.getResult(), null);
+							}
+							LOGGER.info("Migration completed for collection ID: " + node.getIdentifier());
+						} else {
+							LOGGER.info("Migration failed for collection ID: " + node.getIdentifier() + ". Please check the above logs for more details.");
+						}
+
 					} else {
 						LOGGER.info("There is no hierarchy data for the content ID: " + node.getIdentifier());
 					}
@@ -146,7 +176,7 @@ public class CollectionMigrationService implements ISamzaService {
 		}
 	}
 
-	private List<Map<String, Object>> getLeafNodes(Map<String, Object> hierarchy) {
+	private List<Map<String, Object>> getLeafNodes(Map<String, Object> hierarchy, int depth) {
 		List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchy.get("children");
 		List<Map<String, Object>> leafNodes = new ArrayList<>();
 		if (CollectionUtils.isNotEmpty(children)) {
@@ -154,16 +184,36 @@ public class CollectionMigrationService implements ISamzaService {
 			for (Map<String, Object> child : children) {
 				String visibility = (String) child.get("visibility");
 				if (StringUtils.equalsIgnoreCase("Parent", visibility)) {
-					List<Map<String, Object>> nextLevelLeafNodes = getLeafNodes(child);
+					int currentDepth = depth + 1;
+					List<Map<String, Object>> nextLevelLeafNodes = getLeafNodes(child, currentDepth);
 					leafNodes.addAll(nextLevelLeafNodes);
 				} else {
 					child.put("index", index);
+					child.put("depth", depth);
 					leafNodes.add(child);
-					index ++;
+					index++;
 				}
 			}
 		}
 		return leafNodes;
+	}
+
+	private List<Relation> getRelations(String rootId, List<Map<String, Object>> leafNodes) {
+		List<Relation> relations = new ArrayList<>();
+		for (Map<String, Object> leafNode : leafNodes) {
+			String id = (String) leafNode.get("identifier");
+			int index = 1;
+			Number num = (Number) leafNode.get("index");
+			if (num != null) {
+				index = num.intValue();
+			}
+			Relation rel = new Relation(rootId, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), id);
+			Map<String, Object> metadata = new HashMap<>();
+			metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+			metadata.put("depth", leafNode.get("depth"));
+			rel.setMetadata(metadata);
+		}
+		return relations;
 	}
 
 	private void updateAndGetCollectionsInHierarchy(List<Map<String, Object>> children, List<String> collectionIds) {
