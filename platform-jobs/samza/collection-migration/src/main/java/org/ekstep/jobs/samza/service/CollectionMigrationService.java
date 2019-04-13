@@ -128,7 +128,7 @@ public class CollectionMigrationService implements ISamzaService {
 							Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(nodeId);
 							if (MapUtils.isNotEmpty(liveHierarchy)) {
 								List<Map<String, Object>> leafNodes = getLeafNodes(liveHierarchy, 0);
-								LOGGER.info("Total leaf nodes to create relation with root node are " + mapper.writeValueAsString(leafNodes));
+								LOGGER.info("Total leaf nodes to create relation with root node are " + leafNodes.size());
 								if (leafNodes.size() > 0) {
 									Node liveNode = util.getNode("domain", nodeId);
 									List<Relation> relations = getRelations(nodeId, leafNodes);
@@ -139,6 +139,7 @@ public class CollectionMigrationService implements ISamzaService {
 									LOGGER.info("Updating out relations with " + new ObjectMapper().writeValueAsString(relations));
 									liveNode.setOutRelations(relations);
 									Response response = util.updateNode(liveNode);
+									LOGGER.info("Relations update response: " + mapper.writeValueAsString(response));
 									if (!util.checkError(response)) {
 										LOGGER.info("Updated the collection with new format of relations...");
 									} else {
@@ -220,6 +221,7 @@ public class CollectionMigrationService implements ISamzaService {
 			metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
 			metadata.put("depth", leafNode.get("depth"));
 			rel.setMetadata(metadata);
+			relations.add(rel);
 		}
 		return relations;
 	}
