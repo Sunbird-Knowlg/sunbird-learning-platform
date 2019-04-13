@@ -773,9 +773,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private Set<String> addResourceToCollection(List<Map<String, Object>> children) {
-		Set<String> resource = null;
+		Set<String> resource = new HashSet();
 		if(null != children && !children.isEmpty()) {
-			resource = new HashSet();
 			for(Map<String, Object> child : children) {
 				if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), ContentWorkflowPipelineParams.Parent.name())) {
 					resource.addAll(addResourceToCollection((List<Map<String,Object>>)child.get("children")));
