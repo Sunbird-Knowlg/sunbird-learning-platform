@@ -43,7 +43,7 @@ public class CreateOperation extends BaseContentManager {
 
         String mimeType = (String) map.get("mimeType");
         if (StringUtils.isNotBlank(mimeType)) {
-            if (!isPluginMimeType(mimeType)/*StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType)*/)
+            if (!isPluginMimeType(mimeType))
                 map.put("osId", "org.ekstep.quiz.app");
             String contentType = (String) map.get("contentType");
             if (StringUtils.isNotBlank(contentType)) {
@@ -61,6 +61,13 @@ public class CreateOperation extends BaseContentManager {
             }
 
             updateDefaultValuesByMimeType(map, mimeType);
+
+            if (StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, mimeType)) {
+                map.put("version", DEFAULT_COLLECTION_VERSION);
+            } else {
+                map.put("version", DEFAULT_CONTENT_VERSION);
+            }
+
 
             Map<String, Object> externalProps = new HashMap<String, Object>();
             List<String> externalPropsList = getExternalPropsList(definition);

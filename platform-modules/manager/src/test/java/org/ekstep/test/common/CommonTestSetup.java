@@ -203,4 +203,16 @@ public class CommonTestSetup {
 		}
 		return resp;
 	}
+
+	/**
+	 *
+	 * @param millis
+	 */
+	public void delay(long millis){
+		try {
+			Thread.sleep(millis);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

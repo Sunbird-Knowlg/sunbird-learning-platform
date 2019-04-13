@@ -432,7 +432,6 @@ public class BasePipeline extends BaseManager {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void getContentRecursive(String graphId, List<Node> childrenNodes, Node node, Map<String, Node> nodeMap,
 			List<String> childrenIds, List<Map<String, Object>> ctnts, boolean onlyLive) {
 		if (!nodeMap.containsKey(node.getIdentifier())) {
@@ -447,66 +446,19 @@ public class BasePipeline extends BaseManager {
 				metadata.putAll(node.getMetadata());
 				metadata.put(ContentWorkflowPipelineParams.identifier.name(), node.getIdentifier());
 				metadata.put(ContentWorkflowPipelineParams.objectType.name(), node.getObjectType());
-				//metadata.put(ContentWorkflowPipelineParams.subject.name(), node.getGraphId());
 				metadata.remove(ContentWorkflowPipelineParams.body.name());
 				metadata.remove(ContentWorkflowPipelineParams.editorState.name());
 				if (null != node.getTags() && !node.getTags().isEmpty())
 					 metadata.put(ContentWorkflowPipelineParams.tags.name(), node.getTags());
-				List<String> searchIds = new ArrayList<String>();
-				if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
-					List<NodeDTO> children = new ArrayList<NodeDTO>();
-					List<NodeDTO> preRequisites = new ArrayList<NodeDTO>();
-					for (Relation rel : node.getOutRelations()) {
-						if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
-								rel.getRelationType())
-								&& StringUtils.equalsIgnoreCase(node.getObjectType(), rel.getEndNodeObjectType())) {
-							childrenIds.add(rel.getEndNodeId());
-							if (!nodeMap.containsKey(rel.getEndNodeId())) {
-								searchIds.add(rel.getEndNodeId());
-							}
-							children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
-									rel.getEndNodeObjectType(), rel.getRelationType(), rel.getMetadata()));
-						} else if (StringUtils.equalsIgnoreCase(RelationTypes.PRE_REQUISITE.relationName(),
-								rel.getRelationType())
-								&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(),
-										rel.getEndNodeObjectType())) {
-							childrenIds.add(rel.getEndNodeId());
-							preRequisites.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
-									rel.getEndNodeObjectType(), rel.getRelationType(), rel.getMetadata()));
-						}
-					}
-					if (!children.isEmpty())
-						metadata.put(ContentWorkflowPipelineParams.children.name(), children);
-					if (!preRequisites.isEmpty())
-						metadata.put(ContentWorkflowPipelineParams.pre_requisites.name(), preRequisites);
-				}
+				
 				ctnts.add(metadata);
-				if (!searchIds.isEmpty()) {
-					Response searchRes = searchNodes(graphId, searchIds);
-					if (checkError(searchRes)) {
-						throw new ServerException(ContentErrorCodeConstants.SEARCH_ERROR.name(),
-								getErrorMessage(searchRes));
-					} else {
-						List<Object> list = (List<Object>) searchRes.get(ContentWorkflowPipelineParams.contents.name());
-						if (null != list && !list.isEmpty()) {
-							for (Object obj : list) {
-								List<Node> nodeList = (List<Node>) obj;
-								for (Node child : nodeList) {
-									String mimeType = (String) child.getMetadata().get("mimeType");
-									String body = null;
-									if (StringUtils.equalsIgnoreCase(ECML_MIMETYPE, mimeType)) {
-										System.out.println("BasePipeline - Fetching body for node: "+ child.getIdentifier() + " :: " + mimeType);
-										body = getContentBody(child.getIdentifier());
-									}
-									child.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
-									childrenNodes.add(child);
-									getContentRecursive(graphId, childrenNodes, child, nodeMap, childrenIds, ctnts,
-											onlyLive);
-								}
-							}
-						}
-					}
-				}
+				if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.visibility), ContentWorkflowPipelineParams.Parent.name()))
+					childrenIds.add(node.getIdentifier());
+				
+				
+				
+				
+				
 			}
 		}
 	}
