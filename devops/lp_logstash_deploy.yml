@@ -1,5 +1,0 @@
-- hosts: "{{ remote }}"
-  roles:
-    - logstash-deploy
-  serial: 1
-  

@@ -1,7 +1,5 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,7 +21,6 @@ import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
-import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.util.YouTubeUrlUtil;
 import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
@@ -43,8 +40,6 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,13 +48,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.ekstep.common.util.RequestValidatorUtil.getEmptyErrorMessageFor;
 
 public abstract class BaseContentManager extends BaseManager {
 
@@ -98,6 +91,11 @@ public abstract class BaseContentManager extends BaseManager {
 	protected List<String> reviewStatus = Arrays.asList("Review", "FlagReview");
 
     protected ControllerUtil util = new ControllerUtil();
+
+    protected static final String COLLECTION_MIME_TYPE = "application/vnd.ekstep.content-collection";
+
+    protected static final Integer DEFAULT_CONTENT_VERSION = 1;
+    protected static final Integer DEFAULT_COLLECTION_VERSION = 2;
 
 	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
@@ -281,6 +279,7 @@ public abstract class BaseContentManager extends BaseManager {
                 map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.online.name());
             else
                 map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
+
         }
     }
 
@@ -454,8 +453,8 @@ public abstract class BaseContentManager extends BaseManager {
     /**
      * This method will check YouTube License and Insert as Node MetaData
      *
-     * @param String
-     * @param Node
+     * @param artifactUrl
+     * @param node
      * @return
      */
     protected void checkYoutubeLicense(String artifactUrl, Node node) {
@@ -499,7 +498,7 @@ public abstract class BaseContentManager extends BaseManager {
 		request.setOperation(ContentStoreOperations.updateContentProperties.name());
 		request.put(ContentStoreParams.content_id.name(), contentId);
 		request.put(ContentStoreParams.properties.name(), properties);
-		Response response = makeLearningRequest(request);
+		Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
 		return response;
 	}
 
@@ -509,7 +508,7 @@ public abstract class BaseContentManager extends BaseManager {
         request.setOperation(ContentStoreOperations.getContentProperties.name());
         request.put(ContentStoreParams.content_id.name(), contentId);
         request.put(ContentStoreParams.properties.name(), properties);
-        Response response = makeLearningRequest(request);
+        Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
         return response;
     }
 
@@ -518,7 +517,7 @@ public abstract class BaseContentManager extends BaseManager {
         request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
         request.setOperation(ContentStoreOperations.getContentBody.name());
         request.put(ContentStoreParams.content_id.name(), contentId);
-        Response response = makeLearningRequest(request);
+        Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
         String body = (String) response.get(ContentStoreParams.body.name());
         return body;
     }
@@ -528,34 +527,8 @@ public abstract class BaseContentManager extends BaseManager {
         request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
         request.setOperation(ContentStoreOperations.deleteHierarchy.name());
         request.put(ContentStoreParams.content_id.name(), identifiers);
-        Response response = makeLearningRequest(request);
+        Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
         return response;
-    }
-
-    /**
-     * Make a sync request to LearningRequestRouter
-     *
-     * @param request
-     *            the request object
-     * @return the LearningActor response
-     */
-    protected Response makeLearningRequest(Request request) {
-        ActorRef router = LearningRequestRouterPool.getRequestRouter();
-        try {
-            Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
-            Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
-            if (obj instanceof Response) {
-                Response response = (Response) obj;
-                TelemetryManager.log("Response Params: " + response.getParams() + " | Code: "
-                        + response.getResponseCode() + " | Result: " + response.getResult().keySet());
-                return response;
-            } else {
-                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
-            }
-        } catch (Exception e) {
-            TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
-            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
-        }
     }
 
 	protected void validateContentForReservedDialcodes(Map<String, Object> metaData) {
@@ -727,6 +700,38 @@ public abstract class BaseContentManager extends BaseManager {
         }
         throw new ClientException("ERR_INVALID_REQUEST", errMsg.trim().substring(0, errMsg
                 .length()-1));
+    }
+
+
+    /**
+     * Cassandra call to fetch hierarchy data
+     *
+     * @param contentId
+     * @return
+     */
+    public Response getCollectionHierarchy(String contentId) {
+        Request request = new Request();
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+        request.setOperation(ContentStoreOperations.getCollectionHierarchy.name());
+        request.put(ContentStoreParams.content_id.name(), contentId);
+        Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
+        return response;
+    }
+
+    /**
+     * This method save or update content hierarchy into cassandra.
+     * @param contentId
+     * @param hierarchy
+     * @return
+     */
+    protected Response updateCollectionHierarchy(String contentId, Map<String, Object> hierarchy) {
+        Request request = new Request();
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+        request.setOperation(ContentStoreOperations.saveOrUpdateHierarchy.name());
+        request.put(ContentStoreParams.content_id.name(), contentId);
+        request.put(ContentStoreParams.hierarchy.name(), hierarchy);
+        Response response = makeLearningRequest(request);
+        return response;
     }
 
 }

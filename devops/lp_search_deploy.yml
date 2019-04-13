@@ -1,4 +1,0 @@
-- hosts: searchall
-  roles:
-    - search-service-deploy
-  serial: 1

@@ -1,26 +1,27 @@
 package org.ekstep.content.mgr.impl.operation.hierarchy;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.Identifier;
 import org.ekstep.graph.dac.enums.AuditProperties;
 import org.ekstep.graph.dac.enums.GraphDACParams;
-import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
-import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -30,79 +31,199 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 public class UpdateHierarchyOperation extends BaseContentManager {
 
-    @SuppressWarnings("unchecked")
+    private HierarchyStore hierarchyStore = new HierarchyStore();
+
     public Response updateHierarchy(Map<String, Object> data) {
-        String graphId = TAXONOMY_ID;
-        if (null != data && !data.isEmpty()) {
-            Map<String, Object> modifiedNodes = (Map<String, Object>) data.get("nodesModified");
-            Map<String, Object> hierarchy = (Map<String, Object>) data.get("hierarchy");
-            Map<String, String> idMap = new HashMap<String, String>();
-            Map<String, String> newIdMap = new HashMap<String, String>();
-            Map<String, Node> nodeMap = new HashMap<String, Node>();
-            String rootNodeId = null;
-            if (null != modifiedNodes && !modifiedNodes.isEmpty()) {
-                DefinitionDTO definition = getDefinition(graphId, CONTENT_OBJECT_TYPE);
-                Map<String, RelationDefinition> inRelDefMap = new HashMap<String, RelationDefinition>();
-                Map<String, RelationDefinition> outRelDefMap = new HashMap<String, RelationDefinition>();
-                getRelationDefMaps(definition, inRelDefMap, outRelDefMap);
-                for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
-                    Map<String, Object> map = (Map<String, Object>) entry.getValue();
-                    Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition,
-                            inRelDefMap, outRelDefMap);
-                    if (null != nodeResponse)
-                        return nodeResponse;
-                    Boolean root = (Boolean) map.get("root");
-                    if (BooleanUtils.isTrue(root))
-                        rootNodeId = idMap.get(entry.getKey());
-                }
-            }
-            if (null != hierarchy && !hierarchy.isEmpty()) {
-                for (Entry<String, Object> entry : hierarchy.entrySet()) {
-                    updateNodeHierarchyRelations(graphId, entry, idMap, nodeMap);
-                    if (StringUtils.isBlank(rootNodeId)) {
-                        Map<String, Object> map = (Map<String, Object>) entry.getValue();
-                        Boolean root = (Boolean) map.get("root");
-                        if (BooleanUtils.isTrue(root))
-                            rootNodeId = idMap.get(entry.getKey());
-                    }
-                }
-            }
-            if (null != nodeMap && !nodeMap.isEmpty()) {
-                // Any change for the hierarchy structure of the graph should update rootNode versionKey.
-                String versionKey = "";
-                if(StringUtils.isNotBlank(rootNodeId)) {
-                    Node rootNode = nodeMap.get(rootNodeId);
-                    versionKey = System.currentTimeMillis() + "";
-                    rootNode.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
-                } else {
-                    throw new ClientException("ERR_INVALID_ROOT_ID", "Please Provide Valid Root Node Identifier");
-                }
-                List<Node> nodes = new ArrayList<Node>(nodeMap.values());
-                Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
-                request.put(GraphDACParams.nodes.name(), nodes);
-                TelemetryManager.log("Sending bulk update request | Total nodes: " + nodes.size());
-                Response response = getResponse(request);
-                if (StringUtils.isNotBlank(rootNodeId)) {
-                    if (StringUtils.endsWithIgnoreCase(rootNodeId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
-                        rootNodeId = rootNodeId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
-                    response.put(ContentAPIParams.content_id.name(), rootNodeId);
-                    if (StringUtils.isNotBlank(versionKey))
-                        response.put(GraphDACParams.versionKey.name(), versionKey);
-                }
-                if (null != newIdMap && !newIdMap.isEmpty())
-                    response.put(ContentAPIParams.identifiers.name(), newIdMap);
-                return response;
-            }
-        } else {
+        if (MapUtils.isEmpty(data) && MapUtils.isEmpty((Map<String, Object>) data.get("nodesModified"))) {
             throw new ClientException("ERR_INVALID_HIERARCHY_DATA", "Hierarchy data is empty");
+        } else {
+            Map<String, Object> nodesModified = (Map<String, Object>) data.get(ContentAPIParams.nodesModified.name());
+            Map<String, Object> hierarchyData = (Map<String, Object>) data.get(ContentAPIParams.hierarchy.name());
+            String rootId = getRootId(nodesModified);
+            Map<String, String> idMap = new HashMap<>();
+            Map<String, Object> hierarchyResponse = hierarchyStore.getHierarchy(rootId +DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
+
+            Response response = getUpdatedHierarchy(rootId, nodesModified, hierarchyData,
+                    hierarchyResponse,
+                    idMap);
+            return response;
         }
-        return new Response();
+
     }
+
+    private Response getUpdatedHierarchy(String rootId, Map<String, Object> nodesModified, Map<String, Object>
+            hierarchyData,
+                                                    Map<String, Object> hierarchyResponse, Map<String, String> idMap) {
+        DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
+        Map<String, Node> nodeMap = getNodeMapFromHierarchy(hierarchyResponse, definition, rootId);
+        Map<String, RelationDefinition> inRelDefMap = new HashMap<>();
+        Map<String, RelationDefinition> outRelDefMap = new HashMap<>();
+        getRelationDefMaps(definition, inRelDefMap, outRelDefMap);
+        updateNodesModified(nodesModified, idMap, nodeMap, definition, inRelDefMap, outRelDefMap, rootId);
+        List<Map<String, Object>> children = prepareHierarchy(nodeMap, rootId, hierarchyData,
+                definition, idMap);
+
+        Map<String, Object> data = new HashMap<String, Object>() {{
+            put(ContentAPIParams.identifier.name(), rootId);
+            put(ContentAPIParams.children.name(), children);
+        }};
+
+        Response rootNodeResponse = updateDataNode(nodeMap.get(rootId));
+        if(checkError(rootNodeResponse)) {
+            return rootNodeResponse;
+        }
+        hierarchyStore.saveOrUpdateHierarchy(rootId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, data);
+        Response response = OK();
+        response.put(ContentAPIParams.content_id.name(), rootId);
+        response.put(ContentAPIParams.identifiers.name(), idMap);
+
+        return response;
+    }
+
+    private List<Map<String,Object>> prepareHierarchy(Map<String, Node> nodeMap, String rootId, Map<String, Object> hierarchyData, DefinitionDTO definition, Map<String, String> idMap) {
+
+        if(MapUtils.isNotEmpty(hierarchyData)) {
+            Map<String, List<String>> childIdMap = hierarchyData.keySet().stream().collect(Collectors.toMap((key)
+                    -> ((null != idMap.get(key) ? idMap.get(key) : key))
+            ,(key) ->  ((List<String>) ((Map<String, Object>)hierarchyData.get(key)).get("children")).stream().map
+                                (id -> (null != idMap.get(id) ? idMap.get(id) : id)).collect(toList())));
+
+            List<String> childNodes = new ArrayList<>();
+            updateDepthIndexParent(childIdMap.get(rootId), 1, rootId, nodeMap, childIdMap, childNodes);
+            nodeMap.get(rootId).getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
+        }
+        nodeMap.get(rootId).getMetadata().put(ContentAPIParams.depth.name(), 0);
+        Map<String, Object> collectionHierarchy = util.constructHierarchy(getContentList(nodeMap, definition));
+        util.hierarchyCleanUp(collectionHierarchy);
+        return (List<Map<String, Object>>) collectionHierarchy.get(ContentAPIParams.children.name());
+    }
+
+    private List<Map<String,Object>> getContentList(Map<String, Node> nodeMap, DefinitionDTO definition) {
+       return  nodeMap.keySet().stream().map(key -> {
+           Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(nodeMap.get(key), TAXONOMY_ID,
+                definition, null);
+           contentMap.remove("collections");
+           contentMap.remove("children");
+           contentMap.remove("usedByContent");
+           contentMap.remove("item_sets");
+           contentMap.remove("methods");
+           contentMap.remove("libraries");
+           contentMap.remove("editorState");
+           String id = (String) contentMap.get(ContentAPIParams.identifier.name());
+           contentMap.put(ContentAPIParams.identifier.name(), id.replace(".img",""));
+           return contentMap;
+       }).collect(toList());
+    }
+
+    private void updateDepthIndexParent(List<String> childrenIds, int depth, String parent, Map<String, Node>
+            nodeMap, Map<String, List<String>> hierarchy, List<String> childNodes) {
+        int index =1;
+        for(String childId: childrenIds) {
+            if(null != nodeMap.get(childId) && null ==  nodeMap.get(childId).getMetadata().get(ContentAPIParams.depth.name())) {
+                nodeMap.get(childId).getMetadata().put(ContentAPIParams.depth.name(), depth);
+                nodeMap.get(childId).getMetadata().put(ContentAPIParams.parent.name(), parent);
+                nodeMap.get(childId).getMetadata().put(ContentAPIParams.index.name(), index);
+            } else {
+                Node node = getContentNode(TAXONOMY_ID, childId, null);
+                if(null != node) {
+                    node.getMetadata().put(ContentAPIParams.depth.name(), depth);
+                    node.getMetadata().put(ContentAPIParams.parent.name(), parent);
+                    node.getMetadata().put(ContentAPIParams.index.name(), index);
+                    nodeMap.put(childId, node);
+                }
+            }
+            childNodes.add(childId);
+            index +=1;
+
+            if (CollectionUtils.isNotEmpty(hierarchy.get(childId))) {
+                updateDepthIndexParent(hierarchy.get(childId), (((Integer) nodeMap.get(childId).getMetadata().get(ContentAPIParams.depth.name())) + 1),
+                        childId, nodeMap, hierarchy, childNodes);
+            }
+        }
+
+    }
+
+    private void updateNodesModified(Map<String, Object> nodesModified, Map<String, String> idMap, Map<String, Node>
+            nodeMap, DefinitionDTO definition, Map<String, RelationDefinition> inRelDefMap, Map<String,
+            RelationDefinition> outRelDefMap, String rootId) {
+        nodeMap.get(rootId).getMetadata().putAll((Map<String, Object>) ((Map<String, Object>)nodesModified.get(rootId))
+                .get("metadata"));
+        nodesModified.remove(rootId);
+        nodesModified.entrySet().forEach(entry -> {
+            Map<String, Object> map = (Map<String, Object>) entry.getValue();
+            createNodeObject(entry, idMap, nodeMap, new HashMap<>(), definition,
+                    inRelDefMap, outRelDefMap);
+        });
+    }
+
+
+    private Map<String, Node> getNodeMapFromHierarchy(Map<String, Object> hierarchyResponse, DefinitionDTO definition, String
+            rootId) {
+        Map<String, Node> nodeMap = new HashMap<>();
+        Node rootNode = getNodeForOperation(rootId, "update");
+        if(!StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE , (String) rootNode.getMetadata().get(ContentAPIParams
+                .mimeType.name()))) {
+            TelemetryManager.error("UpdateHierarchyOperation.getNodeMapFromHierarchy() :: invalid mimeType for root " +
+                    "id : " + rootId);
+            throw new ClientException("ERR_INVALID_ROOT_ID", "Invalid MimeType for Root Node Identifier  : " + rootId);
+        }
+
+        if(null == rootNode.getMetadata().get("version") || ((Number)rootNode.getMetadata().get("version")).intValue() < 2) {
+            TelemetryManager.error("UpdateHierarchyOperation.getNodeMapFromHierarchy() :: invalid content version for root " +
+                    "id : " + rootId);
+            throw new ClientException("ERR_INVALID_ROOT_ID", "The collection version is not up to date " + rootId);
+        }
+
+        rootNode.getMetadata().put(ContentAPIParams.version.name(), DEFAULT_COLLECTION_VERSION);
+        nodeMap.put(rootId, rootNode);
+        if (MapUtils.isNotEmpty(hierarchyResponse)) {
+            List<Map<String, Object>> children = (List<Map<String, Object>>) hierarchyResponse
+                    .get("children");
+            getNodeMap(children, nodeMap, definition);
+            return nodeMap;
+        }
+        return nodeMap;
+    }
+
+    private void getNodeMap(List<Map<String, Object>> children, Map<String, Node> nodeMap, DefinitionDTO definition) {
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.forEach(child -> {
+                Node node = null;
+                try {
+                    if(StringUtils.equalsIgnoreCase("Default", (String) child.get(ContentAPIParams.visibility.name()))) {
+                        node = getContentNode(TAXONOMY_ID, (String) child.get(ContentAPIParams.identifier.name()), null);
+                        node.getMetadata().put(ContentAPIParams.depth.name(), child.get(ContentAPIParams.depth.name()));
+                        node.getMetadata().put(ContentAPIParams.parent.name(), child.get(ContentAPIParams.parent.name()));
+                        node.getMetadata().put(ContentAPIParams.index.name(), child.get(ContentAPIParams.index.name()));
+                    }else {
+                        Map<String, Object> childData = new HashMap<>();
+                        childData.putAll(child);
+                        childData.remove(ContentAPIParams.children.name());
+                        node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+                    }
+                    nodeMap.put(node.getIdentifier(), node);
+                } catch (Exception e) {
+                    TelemetryManager.error("UpdateHierarchyOperation.getNodeMap() :: Error which converting to nodeMap ", e);
+                }
+                getNodeMap((List<Map<String, Object>>) child.get(ContentAPIParams.children.name()), nodeMap, definition);
+            });
+        }
+    }
+
+    private String getRootId(Map<String, Object> nodesModified) {
+        String rootId = nodesModified.keySet().stream().filter(key -> BooleanUtils.isTrue((Boolean) ((Map<String,
+                Object>) nodesModified.get(key)).get(ContentAPIParams.root.name()))).findFirst().orElse(null);
+        if (StringUtils.isBlank(rootId))
+            throw new ClientException("ERR_INVALID_ROOT_ID", "Please Provide Valid Root Node Identifier");
+        return rootId;
+    }
+
 
     private void getRelationDefMaps(DefinitionDTO definition, Map<String, RelationDefinition> inRelDefMap,
                                     Map<String, RelationDefinition> outRelDefMap) {
@@ -123,124 +244,61 @@ public class UpdateHierarchyOperation extends BaseContentManager {
     }
 
     @SuppressWarnings("unchecked")
-    private Response createNodeObject(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
+    private Response createNodeObject(Entry<String, Object> entry, Map<String, String> idMap,
                                       Map<String, Node> nodeMap, Map<String, String> newIdMap, DefinitionDTO definition,
                                       Map<String, RelationDefinition> inRelDefMap, Map<String, RelationDefinition> outRelDefMap) {
         String nodeId = entry.getKey();
         String id = nodeId;
-        String objectType = CONTENT_OBJECT_TYPE;
         Node tmpnode = null;
         Map<String, Object> map = (Map<String, Object>) entry.getValue();
-        Boolean isNew = (Boolean) map.get("isNew");
-        if (BooleanUtils.isTrue(isNew)) {
-            id = Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp());
+        if (BooleanUtils.isTrue((Boolean) map.get(ContentAPIParams.isNew.name()))) {
+            id = Identifier.getIdentifier(TAXONOMY_ID, Identifier.getUniqueIdFromTimestamp());
             newIdMap.put(nodeId, id);
         } else {
-            tmpnode = getNodeForOperation(id, "create");
+            tmpnode = nodeMap.get(id);
             if (null != tmpnode && StringUtils.isNotBlank(tmpnode.getIdentifier())) {
                 id = tmpnode.getIdentifier();
-                objectType = tmpnode.getObjectType();
             } else {
                 throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
                         "Content not found with identifier: " + id);
             }
         }
         idMap.put(nodeId, id);
-        Map<String, Object> metadata = Optional.ofNullable(map.get("metadata")).map(e -> (Map<String, Object>) e).orElse(new HashMap<String, Object>()) ;
+        Map<String, Object> metadata = Optional.ofNullable(map.get(ContentAPIParams.metadata.name())).map(e -> (Map<String, Object>) e).orElse(new HashMap<String, Object>());
 
-        if (metadata.containsKey("dialcodes")) {
-            metadata.remove("dialcodes");
+        if (metadata.containsKey(ContentAPIParams.dialcodes.name())) {
+            metadata.remove(ContentAPIParams.dialcodes.name());
         }
-        metadata.put("identifier", id);
-        metadata.put("objectType", objectType);
-        if (BooleanUtils.isTrue(isNew)) {
-            metadata.put("isNew", true);
-            metadata.put("code", nodeId);
-            metadata.put("status", "Draft");
+        metadata.put(ContentAPIParams.identifier.name(), id);
+        metadata.put(ContentAPIParams.objectType.name(), CONTENT_OBJECT_TYPE);
+        if (BooleanUtils.isTrue((Boolean) map.get(ContentAPIParams.isNew.name()))) {
+            metadata.put(ContentAPIParams.code.name(), nodeId);
             metadata.put(GraphDACParams.versionKey.name(), System.currentTimeMillis() + "");
             metadata.put(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
             metadata.put(AuditProperties.lastStatusChangedOn.name(), DateUtils.formatCurrentDate());
-            Boolean root = (Boolean) map.get("root");
-            if (BooleanUtils.isNotTrue(root))
-                metadata.put("visibility", "Parent");
+            if (BooleanUtils.isNotTrue((Boolean) map.get(ContentAPIParams.root.name())))
+                metadata.put(ContentAPIParams.visibility.name(), "Parent");
         }
+        metadata.put(ContentAPIParams.status.name(), "Draft");
         metadata.put(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
-        Response validateNodeResponse = validateNode(graphId, nodeId, metadata, tmpnode, definition);
+        Response validateNodeResponse = validateNode(TAXONOMY_ID, nodeId, metadata, tmpnode, definition);
         if (checkError(validateNodeResponse))
             return validateNodeResponse;
         try {
-            Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
-            node.setGraphId(graphId);
-            node.setNodeType(SystemNodeTypes.DATA_NODE.name());
-            getRelationsToBeDeleted(node, metadata, inRelDefMap, outRelDefMap);
-            nodeMap.put(id, node);
+            if(null != tmpnode) {
+                tmpnode.getMetadata().putAll(metadata);
+                nodeMap.put(id, tmpnode);
+            } else {
+                Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
+                node.setGraphId(TAXONOMY_ID);
+                node.setNodeType(SystemNodeTypes.DATA_NODE.name());
+                getRelationsToBeDeleted(node, metadata, inRelDefMap, outRelDefMap);
+                nodeMap.put(id, node);
+            }
         } catch (Exception e) {
             throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
         }
         return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void updateNodeHierarchyRelations(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
-                                              Map<String, Node> nodeMap) {
-        String nodeId = entry.getKey();
-        String id = idMap.get(nodeId);
-        if (StringUtils.isBlank(id)) {
-            Map<String, Object> map = (Map<String, Object>) entry.getValue();
-            Boolean root = (Boolean) map.get("root");
-            Node tmpnode = getNodeForUpdateHierarchy(graphId, nodeId, "update", root);
-            if (null != tmpnode) {
-                id = tmpnode.getIdentifier();
-                tmpnode.setOutRelations(null);
-                tmpnode.setInRelations(null);
-                String visibility = (String) tmpnode.getMetadata().get("visibility");
-                if (StringUtils.equalsIgnoreCase("Parent", visibility) || BooleanUtils.isTrue(root)) {
-                    idMap.put(nodeId, id);
-                    nodeMap.put(id, tmpnode);
-                }
-            } else {
-                throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
-                        "Content not found with identifier: " + id);
-            }
-        }
-        if (StringUtils.isNotBlank(id)) {
-            Node node = nodeMap.get(id);
-            if (null != node) {
-                Map<String, Object> map = (Map<String, Object>) entry.getValue();
-                List<String> children = (List<String>) map.get("children");
-                children = children.stream().distinct().collect(toList());
-                if (null != children) {
-                    List<Relation> outRelations = node.getOutRelations();
-                    if (null == outRelations)
-                        outRelations = new ArrayList<Relation>();
-                    int index = 1;
-                    for (String childId : children) {
-                        if (idMap.containsKey(childId)) {
-                            childId = idMap.get(childId);
-                        } else {
-                            Node nodeForRelation = getNodeForUpdateHierarchy(graphId, childId, "update", false);
-                            childId = nodeForRelation.getIdentifier();
-                        }
-
-                        Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
-                        Map<String, Object> metadata = new HashMap<String, Object>();
-                        metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
-                        index += 1;
-                        rel.setMetadata(metadata);
-                        outRelations.add(rel);
-                    }
-                    Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
-                            null);
-                    dummyContentRelation.setEndNodeObjectType(CONTENT_OBJECT_TYPE);
-                    outRelations.add(dummyContentRelation);
-                    Relation dummyContentImageRelation = new Relation(id,
-                            RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
-                    dummyContentImageRelation.setEndNodeObjectType(CONTENT_IMAGE_OBJECT_TYPE);
-                    outRelations.add(dummyContentImageRelation);
-                    node.setOutRelations(outRelations);
-                }
-            }
-        }
     }
 
     private Response validateNode(String graphId, String nodeId, Map<String, Object> metadata, Node tmpnode,
@@ -270,6 +328,10 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             node.setInRelations(tmpnode.getInRelations());
         if (null == node.getOutRelations())
             node.setOutRelations(tmpnode.getOutRelations());
+
+        node.getMetadata().remove(ContentAPIParams.depth.name());
+        node.getMetadata().remove(ContentAPIParams.parent.name());
+        node.getMetadata().remove(ContentAPIParams.index.name());
         Request request = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         request.put(GraphDACParams.node.name(), node);
         Response response = getResponse(request);
@@ -315,29 +377,4 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                 node.setOutRelations(outRelations);
         }
     }
-
-    // Method is introduced to decide whether image node should be created for
-    // the content or not.
-    private Node getNodeForUpdateHierarchy(String taxonomyId, String contentId, String operation, boolean isRoot) {
-        Response response;
-        if (isRoot)
-            return getNodeForOperation(contentId, operation);
-        else {
-            response = getDataNode(taxonomyId, contentId);
-
-            TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
-            if (checkError(response)) {
-                throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-                        "Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
-            } else {
-                Node node = (Node) response.get(GraphDACParams.node.name());
-                if ("Parent".equalsIgnoreCase(node.getMetadata().get("visibility").toString())) {
-                    return getNodeForOperation(contentId, operation);
-                } else {
-                    return node;
-                }
-            }
-        }
-    }
-
 }
