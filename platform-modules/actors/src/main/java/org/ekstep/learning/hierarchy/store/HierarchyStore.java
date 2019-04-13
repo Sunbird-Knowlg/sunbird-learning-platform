@@ -55,7 +55,6 @@ public class HierarchyStore extends CassandraStore {
 
     }
 
-
     public Map<String, Object> getHierarchy(String contentId) {
         String query = "SELECT hierarchy FROM " + getKeyspace() + "." + getTable() + " WHERE identifier=?";
 
@@ -75,8 +74,6 @@ public class HierarchyStore extends CassandraStore {
             TelemetryManager.error("Error! Executing get collection hierarchy: " + e.getMessage(), e);
             throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
                     "Error fetching hierarchy from hierarchy Store.", e);
-
-
         }
     }
 

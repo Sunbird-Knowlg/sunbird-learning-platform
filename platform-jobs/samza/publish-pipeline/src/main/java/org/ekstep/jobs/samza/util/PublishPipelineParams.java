@@ -7,5 +7,5 @@ public enum PublishPipelineParams {
 	transactionData,properties, Flagged, FlagDraft, domain, FlagReview, data, eid, id, ecmlType,
 	node, Processing, Draft, edata, eks, content, mimeType, publish, Failed, publishError, body, Collection,
 	gradeLevel, ageGroup, medium, subject, genre, theme, keywords, concepts, visibility, channel, Default, versionKey, 
-	BE_JOB_REQUEST, Content, cid, object, Pending, FAILED, SUCCESS, iteration, publish_type, kafka;
+	BE_JOB_REQUEST, Content, cid, object, Pending, FAILED, SUCCESS, iteration, publish_type, kafka, Parent, children;
 }
