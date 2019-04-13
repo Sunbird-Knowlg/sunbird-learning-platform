@@ -36,6 +36,7 @@ public class CollectionMigrationService implements ISamzaService {
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 	private static JobLogger LOGGER = new JobLogger(CollectionMigrationService.class);
 	private Config config = null;
+	private ObjectMapper mapper = new ObjectMapper();
 	private SystemStream systemStream = null;
 	private ControllerUtil util = new ControllerUtil();
 	private HierarchyStore hierarchyStore = null;
@@ -102,6 +103,13 @@ public class CollectionMigrationService implements ISamzaService {
 						}
 
 						if (collectionIds.size() > 0) {
+							List<String> liveIds = new ArrayList<>();
+							for (String id: collectionIds) {
+								if (StringUtils.endsWith(id, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+									liveIds.add(id.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, ""));
+								}
+							}
+							collectionIds.addAll(liveIds);
 							List<Response> delResponses = collectionIds.stream()
 									.map(id -> {
 										return util.deleteNode("domain", id);
@@ -128,15 +136,16 @@ public class CollectionMigrationService implements ISamzaService {
 									if (CollectionUtils.isNotEmpty(outRelations)) {
 										relations.addAll(outRelations);
 									}
+									LOGGER.info("Updating out relations with " + new ObjectMapper().writeValueAsString(relations));
 									liveNode.setOutRelations(relations);
 									Response response = util.updateNode(liveNode);
+									LOGGER.info("Relations update response: " + mapper.writeValueAsString(response));
 									if (!util.checkError(response)) {
 										LOGGER.info("Updated the collection with new format of relations...");
 									} else {
 										migrationSuccess = false;
 										LOGGER.info("Failed to update relations in new format.");
 									}
-
 								}
 							} else {
 								LOGGER.info("Content Live node hierarchy is empty so, not creating relations for content: "+ nodeId);
@@ -212,6 +221,7 @@ public class CollectionMigrationService implements ISamzaService {
 			metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
 			metadata.put("depth", leafNode.get("depth"));
 			rel.setMetadata(metadata);
+			relations.add(rel);
 		}
 		return relations;
 	}
