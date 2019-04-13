@@ -1,7 +1,0 @@
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-<configuration>
-    <property>
-      <name>fs.http.impl</name>
-      <value>org.apache.samza.util.hadoop.HttpFileSystem</value>
-    </property>
-</configuration>
