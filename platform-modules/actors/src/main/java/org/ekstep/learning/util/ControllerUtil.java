@@ -656,7 +656,7 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 
-	private void hierarchyCleanUp (Map < String, Object > map){
+	public void hierarchyCleanUp (Map < String, Object > map){
 		if (map.containsKey("identifier")) {
 			String identifier = (String) map.get("identifier");
 			String parentId = (String) map.get("parent");
