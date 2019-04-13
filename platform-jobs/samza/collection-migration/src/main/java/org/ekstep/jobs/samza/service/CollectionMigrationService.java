@@ -146,6 +146,7 @@ public class CollectionMigrationService implements ISamzaService {
 
 						if (migrationSuccess) {
 							LOGGER.info("Updating the node version to 2 for collection ID: " + node.getIdentifier());
+							node = getNode(nodeId);
 							node.getMetadata().put("version", 2);
 							Response response = util.updateNode(node);
 							if (!util.checkError(response)) {
