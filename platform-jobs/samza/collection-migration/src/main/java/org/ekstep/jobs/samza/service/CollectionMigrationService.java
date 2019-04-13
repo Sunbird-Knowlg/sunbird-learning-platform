@@ -146,18 +146,19 @@ public class CollectionMigrationService implements ISamzaService {
 
 						if (migrationSuccess) {
 							LOGGER.info("Updating the node version to 2 for collection ID: " + node.getIdentifier());
+							node = getNode(nodeId);
 							node.getMetadata().put("version", 2);
 							Response response = util.updateNode(node);
 							if (!util.checkError(response)) {
 								LOGGER.info("Updated the node version to 2 for collection ID: " + node.getIdentifier());
+								LOGGER.info("Migration completed for collection ID: " + node.getIdentifier());
 							} else {
 								LOGGER.error("Failed to update the node version to 2 for collection ID: " + node.getIdentifier() + " with error: " + response.getParams().getErrmsg(), response.getResult(), null);
+								LOGGER.info("Migration failed for collection ID: " + node.getIdentifier() + ". Please check the above logs for more details.");
 							}
-							LOGGER.info("Migration completed for collection ID: " + node.getIdentifier());
 						} else {
 							LOGGER.info("Migration failed for collection ID: " + node.getIdentifier() + ". Please check the above logs for more details.");
 						}
-
 					} else {
 						LOGGER.info("There is no hierarchy data for the content ID: " + node.getIdentifier());
 					}

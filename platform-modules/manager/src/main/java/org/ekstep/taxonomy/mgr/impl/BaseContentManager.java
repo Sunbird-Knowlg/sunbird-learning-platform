@@ -730,7 +730,7 @@ public abstract class BaseContentManager extends BaseManager {
         request.setOperation(ContentStoreOperations.saveOrUpdateHierarchy.name());
         request.put(ContentStoreParams.content_id.name(), contentId);
         request.put(ContentStoreParams.hierarchy.name(), hierarchy);
-        Response response = makeLearningRequest(request);
+        Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
         return response;
     }
 
