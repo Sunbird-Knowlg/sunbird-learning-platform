@@ -1,6 +1,7 @@
 package org.ekstep.content.mgr.impl.operation.dialcodes;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
@@ -62,14 +63,17 @@ public class LinkDialCodeOperation extends BaseContentManager {
         }
         validateDialCodeLinkRequest(channelId, reqList);
         prepareRequestMap(reqList, requestMap);
-        System.out.println("request Map: " + requestMap);
 
         if (isCollectionMode) {
             if (requestMap.containsKey(contentId)) {
-                updateDialCodeToContents(requestMap, resultMap);
+                Map<String, List<String>> req = new HashMap<String, List<String>>(){{
+                    put(contentId, requestMap.get(contentId));
+                }};
+                updateDialCodeToContents(req, resultMap);
+                requestMap.remove(contentId);
                 isCollectionImageReq = false;
-            } else
-                updateDialCodeToCollection(contentId, requestMap, resultMap);
+            }
+            updateDialCodeToCollection(contentId, requestMap, resultMap);
         } else {
             updateDialCodeToContents(requestMap, resultMap);
         }
@@ -284,7 +288,8 @@ public class LinkDialCodeOperation extends BaseContentManager {
         List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
 
         updateCollectionUnits(rootNodeId, rootChildren, requestMap, resultMap);
-
+        if(MapUtils.isNotEmpty(requestMap))
+            resultMap.get("invalidContentList").addAll(requestMap.keySet());
         //update cassandra
         Response response = updateCollectionHierarchy(getImageId(rootNodeId),rootHierarchy);
         if (!checkError(response))
@@ -385,17 +390,20 @@ public class LinkDialCodeOperation extends BaseContentManager {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
                 try {
-                    if(requestMap.containsKey((String) child.get(ContentAPIParams.identifier.name())) && StringUtils.equalsIgnoreCase("Default", (String) child.get(ContentAPIParams.visibility.name()))) {
-                        resultMap.get("invalidContentList").add((String) child.get(ContentAPIParams.identifier.name()));
-                        requestMap.remove((String) child.get(ContentAPIParams.identifier.name()));
-                    }else if(requestMap.containsKey((String) child.get(ContentAPIParams.identifier.name())) && StringUtils.equalsIgnoreCase("Parent", (String) child.get(ContentAPIParams.visibility.name()))){
+                    String childId = (String)child.get(ContentAPIParams.identifier.name());
+                    String visibility = (String)child.get(ContentAPIParams.visibility.name());
+                    if(requestMap.containsKey(childId) && StringUtils.equalsIgnoreCase("Default", visibility)) {
+                        resultMap.get("invalidContentList").add(childId);
+                        requestMap.remove(childId);
+                    }else if(requestMap.containsKey(childId) && StringUtils.equalsIgnoreCase("Parent", visibility)){
                         // TODO: Generate Audit History Here.
-                        if (!requestMap.get((String) child.get(ContentAPIParams.identifier.name())).isEmpty())
-                            child.put(DialCodeEnum.dialcodes.name(), requestMap.get((String) child.get(ContentAPIParams.identifier.name())));
+                        if (!requestMap.get(childId).isEmpty())
+                            child.put(DialCodeEnum.dialcodes.name(), requestMap.get(childId));
                         else
                             child.remove(DialCodeEnum.dialcodes.name());
 
-                        requestMap.remove((String) child.get(ContentAPIParams.identifier.name()));
+                        requestMap.remove(childId);
+                        resultMap.get("updateSuccessList").add(childId);
                     }
                 } catch (Exception e) {
                     TelemetryManager.error("Error Occured while linking DIAL Code to Units of Root Node :"+rootNodeId,e);
