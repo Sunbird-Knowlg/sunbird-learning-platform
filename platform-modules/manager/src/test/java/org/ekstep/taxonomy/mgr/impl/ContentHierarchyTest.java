@@ -83,6 +83,21 @@ public class ContentHierarchyTest extends CommonTestSetup {
         Assert.assertNotNull(resultSet.one().getString("hierarchy"));
     }
 
+    @Test
+    public void testUpdateHierarchyWithoutRootModified() throws IOException {
+        String requestStr = "{\"nodesModified\":{\"TestBookUnit-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-01-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01_01\",\"description\":\"TTest_Collection_TextBookUnit_01_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-02\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-02-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02_01\",\"description\":\"TTest_Collection_TextBookUnit_02_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}}},\"hierarchy\":{\"do_11273401693397811211\":{\"name\":\"Test TextBook\",\"contentType\":\"Collection\",\"children\":[\"TestBookUnit-01\",\"TestBookUnit-02\"],\"root\":true},\"TestBookUnit-01\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"children\":[\"TestBookUnit-01-01\"],\"root\":false},\"TestBookUnit-02\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"children\":[],\"root\":false}},\"lastUpdatedBy\":\"ecff2373-6c52-4956-b103-a9741eae16f0\"}";
+        Map<String, Object> request = mapper.readValue(requestStr, Map.class);
+        Response response = manager.update(request);
+        Assert.assertEquals(ResponseCode.OK, response.getResponseCode());
+        Assert.assertNotNull(response.getResult());
+
+        String selectQuery = "SELECT * from hierarchy_store_test.content_hierarchy_test where " +
+                "identifier='do_11273401693397811211.img'";
+        session = CassandraConnector.getSession();
+        ResultSet resultSet = session.execute(selectQuery);
+        Assert.assertNotNull(resultSet.one().getString("hierarchy"));
+    }
+
     /*@Test
     public void testReadValidCollection() {
         String contentId = "";
