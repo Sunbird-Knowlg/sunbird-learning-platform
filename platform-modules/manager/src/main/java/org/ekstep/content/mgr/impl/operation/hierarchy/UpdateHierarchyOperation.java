@@ -45,6 +45,9 @@ public class UpdateHierarchyOperation extends BaseContentManager {
         } else {
             Map<String, Object> nodesModified = (Map<String, Object>) data.get(ContentAPIParams.nodesModified.name());
             Map<String, Object> hierarchyData = (Map<String, Object>) data.get(ContentAPIParams.hierarchy.name());
+            if(MapUtils.isEmpty(nodesModified) && MapUtils.isEmpty(hierarchyData))
+                throw new ClientException("ERR_INVALID_HIERARCHY_DATA", "Hierarchy data is empty");
+
             String rootId = getRootId(nodesModified, hierarchyData);
             Map<String, String> idMap = new HashMap<>();
             Map<String, Object> hierarchyResponse = hierarchyStore.getHierarchy(rootId +DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
@@ -99,7 +102,9 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             nodeMap.get(rootId).getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
         }
         nodeMap.get(rootId).getMetadata().put(ContentAPIParams.depth.name(), 0);
-        Map<String, Object> collectionHierarchy = util.constructHierarchy(getContentList(nodeMap, definition));
+        List<Map<String,Object>> contentList = getContentList(nodeMap, definition);
+        List<Map<String,Object>> filteredContentList = contentList.stream().filter(content -> (null != content.get("depth"))).collect(toList());
+        Map<String, Object> collectionHierarchy = util.constructHierarchy(filteredContentList);
         util.hierarchyCleanUp(collectionHierarchy);
         return (List<Map<String, Object>>) collectionHierarchy.get(ContentAPIParams.children.name());
     }
@@ -125,7 +130,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             nodeMap, Map<String, List<String>> hierarchy, List<String> childNodes) {
         int index =1;
         for(String childId: childrenIds) {
-            if(null != nodeMap.get(childId) && null ==  nodeMap.get(childId).getMetadata().get(ContentAPIParams.depth.name())) {
+            if(null != nodeMap.get(childId) && StringUtils.equalsIgnoreCase("Parent", (String) nodeMap.get(childId).getMetadata().get(ContentAPIParams.visibility.name()))) {
                 nodeMap.get(childId).getMetadata().put(ContentAPIParams.depth.name(), depth);
                 nodeMap.get(childId).getMetadata().put(ContentAPIParams.parent.name(), parent);
                 nodeMap.get(childId).getMetadata().put(ContentAPIParams.index.name(), index);
@@ -222,13 +227,13 @@ public class UpdateHierarchyOperation extends BaseContentManager {
         String rootId = nodesModified.keySet().stream().filter(key -> BooleanUtils.isTrue((Boolean) ((Map<String,
                 Object>) nodesModified.get(key)).get(ContentAPIParams.root.name()))).findFirst().orElse(null);
 
-        if (StringUtils.isBlank(rootId) && MapUtils.isNotEmpty(hierarchyData)){
-            rootId = hierarchyData.keySet().stream().filter(key -> BooleanUtils.isTrue((Boolean) ((Map<String,
-                    Object>) hierarchyData.get(key)).get(ContentAPIParams.root.name()))).findFirst().orElse(null);
+        if (StringUtils.isBlank(rootId)){
+            if(MapUtils.isNotEmpty(hierarchyData)){
+                rootId = hierarchyData.keySet().stream().filter(key -> BooleanUtils.isTrue((Boolean) ((Map<String,
+                        Object>) hierarchyData.get(key)).get(ContentAPIParams.root.name()))).findFirst().orElse(null);
+            }
             if (StringUtils.isBlank(rootId))
                 throw new ClientException("ERR_INVALID_ROOT_ID", "Please Provide Valid Root Node Identifier");
-        } else {
-            throw new ClientException("ERR_INVALID_ROOT_ID", "Please Provide Valid Root Node Identifier");
         }
         return rootId;
     }
