@@ -2775,18 +2775,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "version",
-					"title": "Schema Version",
-					"description": "R1.15-Schema version of the content with which it is created or updated",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
 					"propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
 					"title": "SYS_INTERNAL_LAST_UPDATED_ON",
 					"description": "R1.15",
