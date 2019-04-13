@@ -128,6 +128,7 @@ public class CollectionMigrationService implements ISamzaService {
 									if (CollectionUtils.isNotEmpty(outRelations)) {
 										relations.addAll(outRelations);
 									}
+									LOGGER.info("Updating out relations with " + new ObjectMapper().writeValueAsString(relations));
 									liveNode.setOutRelations(relations);
 									Response response = util.updateNode(liveNode);
 									if (!util.checkError(response)) {
