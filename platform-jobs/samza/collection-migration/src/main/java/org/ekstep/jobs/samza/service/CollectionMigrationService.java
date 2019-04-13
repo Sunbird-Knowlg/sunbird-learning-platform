@@ -110,7 +110,7 @@ public class CollectionMigrationService implements ISamzaService {
 								}
 							}
 							collectionIds.addAll(liveIds);
-							List<Response> delResponses = collectionIds.stream()
+							List<Response> delResponses = collectionIds.stream().distinct()
 									.map(id -> {
 										return util.deleteNode("domain", id);
 									}).collect(Collectors.toList());
