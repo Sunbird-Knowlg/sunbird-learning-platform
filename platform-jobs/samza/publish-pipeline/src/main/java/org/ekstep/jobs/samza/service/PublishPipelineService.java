@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 
 public class PublishPipelineService implements ISamzaService {
 
-	static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
+	private static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
 
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
