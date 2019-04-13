@@ -123,14 +123,15 @@ public class CollectionMigrationService implements ISamzaService {
 							}
 						}
 
-						if (rootId.endsWith(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+						Node liveNode = util.getNode("domain", nodeId);
+						String status = (String) liveNode.getMetadata().get("status");
+						if (Arrays.asList("Live", "Unlisted").contains(status)) {
 							System.out.println("Relations migration required for Content ID: " + nodeId);
 							Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(nodeId);
 							if (MapUtils.isNotEmpty(liveHierarchy)) {
 								List<Map<String, Object>> leafNodes = getLeafNodes(liveHierarchy, 0);
 								LOGGER.info("Total leaf nodes to create relation with root node are " + leafNodes.size());
 								if (leafNodes.size() > 0) {
-									Node liveNode = util.getNode("domain", nodeId);
 									List<Relation> relations = getRelations(nodeId, leafNodes);
 									List<Relation> outRelations = liveNode.getOutRelations();
 									if (CollectionUtils.isNotEmpty(outRelations)) {
