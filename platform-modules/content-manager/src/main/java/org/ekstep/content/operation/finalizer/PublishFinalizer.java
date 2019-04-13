@@ -700,7 +700,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void processCollection(Node node, List<Map<String, Object>> children){
+	private void processCollection(Node node, List<Map<String, Object>> children) {
 
 		String contentId = node.getIdentifier();
 		Map<String, Object> dataMap = null;
@@ -745,27 +745,26 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		enrichCollection(node, children);
-		
+
 		addResourceToCollection(node, children);
-		
-		if (MapUtils.isNotEmpty(dataMap)) {
-			if (null != dataMap.get("concepts")) {
-				List<String> concepts = new ArrayList<>();
-				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
-				if (!concepts.isEmpty()) {
-					List<Relation> relations = new ArrayList<>();
-					for(String concept : concepts) {
-						relations.add(new Relation(StringUtils.replace(contentId, ".img", ""), RelationTypes.ASSOCIATED_TO.relationName(), concept));
-					}
-					List<Relation> existingRelations = node.getOutRelations();
-					if (CollectionUtils.isNotEmpty(existingRelations)) {
-						relations.addAll(existingRelations);
-					}
-					node.setOutRelations(relations);
+
+		if (MapUtils.isNotEmpty(dataMap) && null != dataMap.get("concepts")) {
+			List<String> concepts = new ArrayList<>();
+			concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
+			if (!concepts.isEmpty()) {
+				List<Relation> relations = new ArrayList<>();
+				for (String concept : concepts) {
+					relations.add(new Relation(StringUtils.replace(contentId, ".img", ""), RelationTypes.ASSOCIATED_TO.relationName(), concept));
 				}
+				List<Relation> existingRelations = node.getOutRelations();
+				if (CollectionUtils.isNotEmpty(existingRelations)) {
+					relations.addAll(existingRelations);
+				}
+				node.setOutRelations(relations);
 			}
 		}
 	}
+
 	private void addResourceToCollection(Node node, List<Map<String, Object>> children) {
 		List<Map<String, Object>> leafNodes = getLeafNodes(children, 1);
 		if (CollectionUtils.isNotEmpty(leafNodes)) {
