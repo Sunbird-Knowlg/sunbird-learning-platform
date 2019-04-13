@@ -1007,7 +1007,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		TelemetryManager.info("Write hirerachy to JSON File :" + node.getIdentifier());
 		String url = null;
 		String data = null;
-		File file = new File(getBasePath(node.getIdentifier()) + "TOC.json");
+		File file = new File(getTOCBasePath(node.getIdentifier()) + "_toc.json");
 		
 		try {
 			data = mapper.writeValueAsString(content);
@@ -1033,6 +1033,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 		}
 		return url;
+	}
+
+	private String getTOCBasePath(String contentId) {
+		String path = "";
+		if (!StringUtils.isBlank(contentId))
+			//TODO: Get the configuration of tmp file location from publish Pipeline
+			path = "/tmp" + File.separator + System.currentTimeMillis()
+					+ ContentAPIParams._temp.name() + File.separator + contentId;
+		return path;
 	}
 	
 	private String getAWSPath(String identifier) {
