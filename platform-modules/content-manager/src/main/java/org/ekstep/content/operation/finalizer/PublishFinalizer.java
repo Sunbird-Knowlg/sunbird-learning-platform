@@ -594,6 +594,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			TelemetryManager.log("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");
 			response = updateNode(contentImage);
 			if (checkError(response))
+				TelemetryManager.error(response.getParams().getErrmsg() + " :: " + response.getParams().getErr() + " :: " + response.getResult());
 				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 						ContentErrorMessageConstants.CONTENT_IMAGE_MIGRATION_ERROR + " | [Content Id: " + contentId
 								+ "]");

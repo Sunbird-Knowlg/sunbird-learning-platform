@@ -27,7 +27,7 @@ public class SyncMessageGenerator {
 	public static Map<String, Map<String, String>> definitionMap = new HashMap<>();
 	private static Map<String, Object> definitionObjectMap = new HashMap<>();
 	private static ControllerUtil util = new ControllerUtil();
-	private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
+	private static List<String> nestedFields = Arrays.asList(Platform.config.getString("content.nested.fields").split(","));
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors){
 		Map<String, Object> messages = new HashMap<>();

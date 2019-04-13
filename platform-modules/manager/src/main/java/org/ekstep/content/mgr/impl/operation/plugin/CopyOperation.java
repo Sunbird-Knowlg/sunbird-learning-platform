@@ -159,9 +159,11 @@ public class CopyOperation extends BaseContentManager {
      */
     @SuppressWarnings("unchecked")
     private void copyHierarchy(Node existingNode, Map<String, String> idMap, String mode) {
-        DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-        Map<String, Object> contentMap = util.getHierarchyMap(existingNode.getGraphId(), existingNode.getIdentifier(),
-                definition, mode, null);
+        Response readResponse = hierarchyManager.getContentHierarchy(existingNode.getIdentifier(), null, mode, null);
+        if(checkError(readResponse)) {
+            throw new ServerException(readResponse.getParams().getErr(), readResponse.getParams().getErrmsg());
+        }
+        Map<String, Object> contentMap = (Map<String, Object>) readResponse.getResult().get("content");
 
         Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
                 (List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
@@ -259,7 +261,6 @@ public class CopyOperation extends BaseContentManager {
      * @param children
      * @param nodesModified
      * @param hierarchy
-     * @param nullPropMap
      */
     private void populateHierarchy(List<Map<String, Object>> children, Map<String, Object> nodesModified,
                                      Map<String, Object> hierarchy, String parentId) {
