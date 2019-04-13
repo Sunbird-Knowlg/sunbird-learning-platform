@@ -59,7 +59,7 @@ public class RetireOperation extends BaseContentManager {
         if (checkError(response)) {
             return response;
         } else {
-            if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
+            if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType) && StringUtils.equalsIgnoreCase("Live", status)) {
                 // Delete Units from ES
                 Response hierarchyResponse = getCollectionHierarchy(contentId);
                 if (checkError(hierarchyResponse)) {
