@@ -89,6 +89,10 @@ public class GetHierarchyOperation extends BaseContentManager {
                         throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
                     }
                 } else {
+                    Number version = (Number) dataMap.get("version");
+                    if (version == null || version.intValue() < 2) {
+                        generateMigrationInstructionEvent(rootId);
+                    }
                     dataMap.put("children", children);
                 }
 
