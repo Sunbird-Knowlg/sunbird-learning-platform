@@ -20,6 +20,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 public class SyncMessageGenerator {
 
@@ -27,14 +28,15 @@ public class SyncMessageGenerator {
 	public static Map<String, Map<String, String>> definitionMap = new HashMap<>();
 	private static Map<String, Object> definitionObjectMap = new HashMap<>();
 	private static ControllerUtil util = new ControllerUtil();
+	private static final String TAXONOMY_ID = "domain";
 	private static List<String> nestedFields = Arrays.asList(Platform.config.getString("content.nested.fields").split(","));
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors){
 		Map<String, Object> messages = new HashMap<>();
 		List<String> indexablePropslist = null;
 
-		if (StringUtils.isBlank(objectType) && CollectionUtils.isNotEmpty(nodes))
-			loadDefinitionsOf(nodes);
+		if (StringUtils.isNotBlank(objectType))
+			loadDefinitionsOf(objectType);
 
 		for (Node node : nodes) {
 			//Create List of metadata which should be indexed, if objectType is enabled for metadata filtration.
@@ -177,15 +179,12 @@ public class SyncMessageGenerator {
 		}
 		return "";
 	}
-
-	private static void loadDefinitionsOf(List<Node> nodes) {
-		List<String> objectTypes = GraphUtil.getAllObjectTypes(nodes);
-		String graphId = (nodes.get(0) != null) ? nodes.get(0).getGraphId() : "";
-		if (!definitionMap.keySet().containsAll(objectTypes)) {
-			objectTypes.removeAll(definitionMap.keySet());
-			objectTypes.forEach(objectType -> {
+	
+	private static void loadDefinitionsOf(String objectType) {
+		if (!definitionMap.keySet().contains(objectType)) {
+			
 				try {
-					DefinitionDTO def = util.getDefinition(graphId, objectType);
+					DefinitionDTO def = util.getDefinition(TAXONOMY_ID, objectType);
 					if (def != null) {
 						Map<String, Object> definition = mapper.convertValue(def,
 								new TypeReference<Map<String, Object>>() {
@@ -195,11 +194,12 @@ public class SyncMessageGenerator {
 						definitionMap.put(objectType, relationMap);
 					}
 				} catch (Exception e) {
-					System.out.println(e);
+					TelemetryManager.error("Error in loading definition object for: " + objectType);
 				}
-			});
+		
 		}
 	}
+	
 
 	/**
 	 * @param definition
