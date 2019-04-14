@@ -40,6 +40,7 @@ public class CollectionMigrationService implements ISamzaService {
 	private SystemStream systemStream = null;
 	private ControllerUtil util = new ControllerUtil();
 	private HierarchyStore hierarchyStore = null;
+	private List<String> publishedStatus = Arrays.asList("Live", "Unlisted");
 
 	public void initialize(Config config) throws Exception {
 		this.config = config;
@@ -71,47 +72,67 @@ public class CollectionMigrationService implements ISamzaService {
 			if (StringUtils.isNotBlank(nodeId)) {
 				Node node = getNode(nodeId);
 				if (null != node && validNode(node)) {
-
 					Number version = (Number) node.getMetadata().get("version");
 					if (version != null && version.intValue() >= 2) {
 						LOGGER.info("Migration is already completed for Content ID: " + node.getIdentifier() + ". So, skipping this message.");
 						return;
 					}
+
+					List<String> idsToDelete = new ArrayList<>();
 					LOGGER.info("Initializing migration for collection ID: " + node.getIdentifier());
-					LOGGER.info("Fetching hierarchy from Neo4J DB.");
-					String rootId = node.getIdentifier();
-					String rootImgId = (rootId.endsWith(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) ? rootId : rootId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-					DefinitionDTO definition = getDefinition("domain", node.getObjectType());
-					Map<String, Object> rootHierarchy = util.getHierarchyMap("domain", rootId, definition, "edit",null);
-					LOGGER.info("Got hierarchy data from Neo4J DB.");
-					if (MapUtils.isNotEmpty(rootHierarchy)) {
-						List<Map<String, Object>> children = (List<Map<String, Object>>) rootHierarchy.get("children");
-						List<String> collectionIds = new ArrayList<>();
-						updateAndGetCollectionsInHierarchy(children, collectionIds);
-						LOGGER.info("Total number of collections to delete: " + collectionIds.size());
-						Map<String, Object> hierarchy = new HashMap<>();
-						hierarchy.put("identifier", rootHierarchy.get("identifier"));
-						hierarchy.put("children", children);
+					DefinitionDTO definition = getDefinition("domain", "Content");
+
+					// Live Collection Node hierarchy validation and identifying nodes to delete.
+					Node liveNode = util.getNode("domain", nodeId);
+					String status = (String) liveNode.getMetadata().get("status");
+					if (publishedStatus.contains(status)) {
+						Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(nodeId);
+						if (MapUtils.isEmpty(liveHierarchy)) {
+							LOGGER.info("LIVE MIGRATION: Hierarchy not available for Live Collection. Migrating: " + liveNode.getIdentifier());
+							liveHierarchy = util.getHierarchyMap(liveNode.getGraphId(), nodeId, definition, null, null);
+							this.hierarchyStore.saveOrUpdateHierarchy(nodeId, liveHierarchy);
+							LOGGER.info("LIVE MIGRATION: completed for Live Collection: " + nodeId);
+						} else {
+							LOGGER.info("Hierarchy available for Live Collection: " + liveNode.getIdentifier());
+						}
+						List<Map<String, Object>> children = (List<Map<String, Object>>) liveHierarchy.get("children");
+						getCollectionIdsToDelete(children, idsToDelete);
+					}
+
+
+					// Edit Node data structure migration and identifying nodes to delete.
+					LOGGER.info("Fetching hierarchy from Neo4J DB for Collection: " + node.getIdentifier());
+					Map<String, Object> editHierarchy = util.getHierarchyMap("domain", node.getIdentifier(), definition, "edit",null);
+					LOGGER.info("Got hierarchy data from Neo4J DB for Collection: " + node.getIdentifier());
+					if (MapUtils.isNotEmpty(editHierarchy)) {
+						String nodeImgId = nodeId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+						List<Map<String, Object>> children = (List<Map<String, Object>>) editHierarchy.get("children");
+						getCollectionIdsToDelete(children, idsToDelete);
 						LOGGER.info("Check for image node hierarchy already exist or not.");
-						Map<String, Object> imgHierarchy = hierarchyStore.getHierarchy(rootImgId);
-						if (MapUtils.isEmpty(imgHierarchy)) {
+						if (MapUtils.isEmpty(hierarchyStore.getHierarchy(nodeImgId))) {
 							LOGGER.info("Saving hierarchy to Cassandra.");
-							hierarchyStore.saveOrUpdateHierarchy(rootImgId, hierarchy);
+							updateCollectionsInHierarchy(children);
+							Map<String, Object> hierarchy = new HashMap<>();
+							hierarchy.put("identifier", nodeId);
+							hierarchy.put("children", children);
+							hierarchyStore.saveOrUpdateHierarchy(nodeImgId, hierarchy);
 							LOGGER.info("Saved hierarchy to Cassandra.");
 						} else {
-							LOGGER.info("SKIPPED CASSANDRA SAVE: Hierarchy already exists for image content: " + rootImgId);
+							LOGGER.info("SKIPPED CASSANDRA SAVE: Hierarchy already exists for image content: " + nodeImgId);
 						}
 
-						if (collectionIds.size() > 0) {
+						// Deleting all the collection nodes with visibility: Parent.
+						LOGGER.info("Total number of collections to delete: " + idsToDelete.size());
+						if (idsToDelete.size() > 0) {
 							List<String> liveIds = new ArrayList<>();
-							for (String id: collectionIds) {
+							for (String id: idsToDelete) {
 								if (StringUtils.endsWith(id, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
 									liveIds.add(id.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, ""));
 								}
 							}
-							collectionIds.addAll(liveIds);
-							LOGGER.info("Nodes to delete: " + mapper.writeValueAsString(collectionIds));
-							List<Response> delResponses = collectionIds.stream().distinct()
+							idsToDelete.addAll(liveIds);
+							LOGGER.info("Nodes to delete: " + mapper.writeValueAsString(idsToDelete));
+							List<Response> delResponses = idsToDelete.stream().distinct()
 									.map(id -> {
 										return util.deleteNode("domain", id);
 									}).collect(Collectors.toList());
@@ -124,9 +145,12 @@ public class CollectionMigrationService implements ISamzaService {
 							}
 						}
 
-						Node liveNode = util.getNode("domain", nodeId);
-						String status = (String) liveNode.getMetadata().get("status");
-						if (Arrays.asList("Live", "Unlisted").contains(status)) {
+
+						// Relations update for Live Node.
+						version = (Number) liveNode.getMetadata().get("version");
+						LOGGER.info("Live collection node version: " + version);
+						if (publishedStatus.contains(status) && (version == null || version.intValue() < 2)) {
+							liveNode = util.getNode("domain", nodeId);
 							System.out.println("Relations migration required for Content ID: " + nodeId);
 							Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(nodeId);
 							if (MapUtils.isNotEmpty(liveHierarchy)) {
@@ -180,7 +204,7 @@ public class CollectionMigrationService implements ISamzaService {
 					metrics.incSkippedCounter();
 					FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
 							PlatformErrorCodes.PROCESSING_ERROR.name(), new ServerException("ERR_COLLECTION_MIGRATION", "Please check neo4j connection or identifier to migrate."));
-					LOGGER.info("Invalid Node Object. Unable to process the event", message);
+					LOGGER.info("Invalid Node Object. It is not a collection. Unable to process the event", message);
 				}
 			} else {
 				metrics.incSkippedCounter();
@@ -244,11 +268,30 @@ public class CollectionMigrationService implements ISamzaService {
 		return relations;
 	}
 
-	private void updateAndGetCollectionsInHierarchy(List<Map<String, Object>> children, List<String> collectionIds) {
+	private void getCollectionIdsToDelete(List<Map<String, Object>> children, List<String> idsToDelete) {
 		if (CollectionUtils.isNotEmpty(children)) {
 			children = children.stream().map(child ->  {
 				if (StringUtils.equalsIgnoreCase((String) child.get("mimeType"), "application/vnd.ekstep.content-collection") && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "Parent")) {
-					collectionIds.add((String) child.get("identifier"));
+					idsToDelete.add((String) child.get("identifier"));
+				}
+				return child;
+			}).collect(Collectors.toList());
+			List<Map<String, Object>> nextChildren = children.stream()
+					.map(child -> (List<Map<String, Object>>) child.get("children"))
+					.filter(f -> CollectionUtils.isNotEmpty(f)).flatMap(f -> f.stream())
+					.collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(nextChildren)) {
+				getCollectionIdsToDelete(nextChildren, idsToDelete);
+			}
+		} else {
+			LOGGER.info("Children is empty: "+ children);
+		}
+	}
+
+	private void updateCollectionsInHierarchy(List<Map<String, Object>> children) {
+		if (CollectionUtils.isNotEmpty(children)) {
+			children = children.stream().map(child ->  {
+				if (StringUtils.equalsIgnoreCase((String) child.get("mimeType"), "application/vnd.ekstep.content-collection") && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "Parent")) {
 					String id = ((String) child.get("identifier")).replaceAll(".img", "");
 					child.put("status", "Draft");
 					child.put("objectType", "Content");
@@ -261,7 +304,7 @@ public class CollectionMigrationService implements ISamzaService {
 					.filter(f -> CollectionUtils.isNotEmpty(f)).flatMap(f -> f.stream())
 					.collect(Collectors.toList());
 			if (CollectionUtils.isNotEmpty(nextChildren)) {
-				updateAndGetCollectionsInHierarchy(nextChildren, collectionIds);
+				updateCollectionsInHierarchy(nextChildren);
 			}
 		} else {
 			LOGGER.info("Children is empty: "+ children);
