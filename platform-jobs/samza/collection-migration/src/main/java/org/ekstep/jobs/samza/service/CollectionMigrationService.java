@@ -139,19 +139,21 @@ public class CollectionMigrationService implements ISamzaService {
 									}
 									LOGGER.info("Updating out relations with " + new ObjectMapper().writeValueAsString(relations));
 									liveNode.setOutRelations(relations);
-									liveNode.getMetadata().put("version", 2);
-									Response response = util.updateNode(liveNode);
-									LOGGER.info("Relations update response: " + mapper.writeValueAsString(response));
-									if (!util.checkError(response)) {
-										LOGGER.info("Updated the collection with new format of relations...");
-									} else {
-										migrationSuccess = false;
-										LOGGER.info("Failed to update relations in new format.");
-									}
+								}
+								liveNode.getMetadata().put("version", 2);
+								Response response = util.updateNode(liveNode);
+								LOGGER.info("Relations update response: " + mapper.writeValueAsString(response));
+								if (!util.checkError(response)) {
+									LOGGER.info("Updated the collection with new format of relations...");
+								} else {
+									migrationSuccess = false;
+									LOGGER.info("Failed to update relations in new format.");
 								}
 							} else {
 								LOGGER.info("Content Live node hierarchy is empty so, not creating relations for content: "+ nodeId);
 							}
+						} else {
+							LOGGER.info("Content doesn't have Live or Unlisted node to migrate relations.");
 						}
 
 						if (migrationSuccess) {
