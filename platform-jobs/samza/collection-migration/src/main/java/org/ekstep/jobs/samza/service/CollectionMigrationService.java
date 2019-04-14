@@ -110,6 +110,7 @@ public class CollectionMigrationService implements ISamzaService {
 								}
 							}
 							collectionIds.addAll(liveIds);
+							LOGGER.info("Nodes to delete: " + mapper.writeValueAsString(collectionIds));
 							List<Response> delResponses = collectionIds.stream().distinct()
 									.map(id -> {
 										return util.deleteNode("domain", id);
@@ -135,7 +136,16 @@ public class CollectionMigrationService implements ISamzaService {
 									List<Relation> relations = getRelations(nodeId, leafNodes);
 									List<Relation> outRelations = liveNode.getOutRelations();
 									if (CollectionUtils.isNotEmpty(outRelations)) {
-										relations.addAll(outRelations);
+										List<Relation> filteredRels = outRelations.stream().filter(relation -> {
+											Map<String, Object> metadata = relation.getEndNodeMetadata();
+											if (MapUtils.isNotEmpty(metadata)) {
+												String visibility = (String) metadata.get("visibility");
+												return (!StringUtils.equalsIgnoreCase("Parent", visibility));
+											} else {
+												return true;
+											}
+										}).collect(Collectors.toList());
+										relations.addAll(filteredRels);
 									}
 									LOGGER.info("Updating out relations with " + new ObjectMapper().writeValueAsString(relations));
 									liveNode.setOutRelations(relations);
