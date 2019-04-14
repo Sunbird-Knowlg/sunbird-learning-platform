@@ -110,6 +110,7 @@ public class CollectionMigrationService implements ISamzaService {
 								}
 							}
 							collectionIds.addAll(liveIds);
+							LOGGER.info("Nodes to delete: " + mapper.writeValueAsString(collectionIds));
 							List<Response> delResponses = collectionIds.stream().distinct()
 									.map(id -> {
 										return util.deleteNode("domain", id);
@@ -135,36 +136,40 @@ public class CollectionMigrationService implements ISamzaService {
 									List<Relation> relations = getRelations(nodeId, leafNodes);
 									List<Relation> outRelations = liveNode.getOutRelations();
 									if (CollectionUtils.isNotEmpty(outRelations)) {
-										relations.addAll(outRelations);
+										List<Relation> filteredRels = outRelations.stream().filter(relation -> {
+											Map<String, Object> metadata = relation.getEndNodeMetadata();
+											if (MapUtils.isNotEmpty(metadata)) {
+												String visibility = (String) metadata.get("visibility");
+												return (!StringUtils.equalsIgnoreCase("Parent", visibility));
+											} else {
+												return true;
+											}
+										}).collect(Collectors.toList());
+										relations.addAll(filteredRels);
 									}
 									LOGGER.info("Updating out relations with " + new ObjectMapper().writeValueAsString(relations));
 									liveNode.setOutRelations(relations);
-									Response response = util.updateNode(liveNode);
-									LOGGER.info("Relations update response: " + mapper.writeValueAsString(response));
-									if (!util.checkError(response)) {
-										LOGGER.info("Updated the collection with new format of relations...");
-									} else {
-										migrationSuccess = false;
-										LOGGER.info("Failed to update relations in new format.");
-									}
+								}
+								liveNode.getMetadata().put("version", 2);
+								Response response = util.updateNode(liveNode);
+								LOGGER.info("Relations update response: " + mapper.writeValueAsString(response));
+								if (!util.checkError(response)) {
+									LOGGER.info("Updated the collection with new format of relations...");
+								} else {
+									migrationSuccess = false;
+									LOGGER.info("Failed to update relations in new format.");
 								}
 							} else {
 								LOGGER.info("Content Live node hierarchy is empty so, not creating relations for content: "+ nodeId);
 							}
+						} else {
+							LOGGER.info("Content doesn't have Live or Unlisted node to migrate relations.");
 						}
 
 						if (migrationSuccess) {
 							LOGGER.info("Updating the node version to 2 for collection ID: " + node.getIdentifier());
 							node = getNode(nodeId);
-							node.getMetadata().put("version", 2);
-							Response response = util.updateNode(node);
-							if (!util.checkError(response)) {
-								LOGGER.info("Updated the node version to 2 for collection ID: " + node.getIdentifier());
-								LOGGER.info("Migration completed for collection ID: " + node.getIdentifier());
-							} else {
-								LOGGER.error("Failed to update the node version to 2 for collection ID: " + node.getIdentifier() + " with error: " + response.getParams().getErrmsg(), response.getResult(), null);
-								LOGGER.info("Migration failed for collection ID: " + node.getIdentifier() + ". Please check the above logs for more details.");
-							}
+							updateNodeVersion(node);
 						} else {
 							LOGGER.info("Migration failed for collection ID: " + node.getIdentifier() + ". Please check the above logs for more details.");
 						}
@@ -183,6 +188,18 @@ public class CollectionMigrationService implements ISamzaService {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void updateNodeVersion(Node node) throws Exception {
+		node.getMetadata().put("version", 2);
+		Response response = util.updateNode(node);
+		if (!util.checkError(response)) {
+			LOGGER.info("Updated the node version to 2 for collection ID: " + node.getIdentifier());
+			LOGGER.info("Migration completed for collection ID: " + node.getIdentifier());
+		} else {
+			LOGGER.error("Failed to update the node version to 2 for collection ID: " + node.getIdentifier() + " with error: " + response.getParams().getErrmsg(), response.getResult(), null);
+			LOGGER.info("Migration failed for collection ID: " + node.getIdentifier() + ". Please check the above logs for more details.");
 		}
 	}
 
