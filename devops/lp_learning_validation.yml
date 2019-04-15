@@ -1,6 +1,0 @@
-- hosts: learningall
-  vars_files:
-       - "{{inventory_dir}}/secrets/lp_secrets.yml"
-  roles:
-    - lp-learning-validation
-  serial: 1
