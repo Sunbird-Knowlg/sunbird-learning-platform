@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -89,23 +87,18 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 	private static final String ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive";
 	private static final String CONTENT_FOLDER = "cloud_storage.content.folder";
+	private static final List<String> LEVEL4_MIME_TYPES = Arrays.asList("video/x-youtube","application/pdf","application/msword","application/epub","application/vnd.ekstep.h5p-archive","text/x-url");
+	private static final List<String> LEVEL4_CONTENT_TYPES = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
+	private static final String  ES_INDEX_NAME = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
+	private static final String DOCUMENT_TYPE = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type") : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
 
-	private static final List<String> level4MimeTypes = Arrays.asList("video/x-youtube","application/pdf","application/msword","application/epub","application/vnd.ekstep.h5p-archive","text/x-url");
-	private static final List<String> level4ContentTypes = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
-	
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+	private static ObjectMapper mapper = new ObjectMapper();
 	private HierarchyStore hierarchyStore = new HierarchyStore();
 	private ControllerUtil util = new ControllerUtil();
-	private static ObjectMapper mapper = new ObjectMapper();
-	private static String indexName;
-	private static String documentType;
-	
-	@PostConstruct
-	private void init() throws Exception {
-		indexName = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
-		documentType = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type")
-				: CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
-		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
+
+	static {
+		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
 	}
 
 	/**
@@ -343,9 +336,9 @@ public class PublishFinalizer extends BaseFinalizer {
 				if(MapUtils.isNotEmpty(messages)) {
 					try {
 						TelemetryManager.info("messages:: " + messages);
-						TelemetryManager.info("indexName:: " + indexName);
-						TelemetryManager.info("documentType:: " + documentType);
-						ElasticSearchUtil.bulkIndexWithIndexId(indexName, documentType, messages);
+						TelemetryManager.info("ES_INDEX_NAME:: " + ES_INDEX_NAME);
+						TelemetryManager.info("DOCUMENT_TYPE:: " + DOCUMENT_TYPE);
+						ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
 					} catch (Exception e) {
 						TelemetryManager.error("Elastic Search indexing failed: " + e);
 					}					
@@ -640,8 +633,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private void setCompatibilityLevel(Node node) {
-		if (level4MimeTypes.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.mimeType.name(), "").toString())
-				|| level4ContentTypes.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.contentType.name(), "").toString())) {
+		if (LEVEL4_MIME_TYPES.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.mimeType.name(), "").toString())
+				|| LEVEL4_CONTENT_TYPES.contains(node.getMetadata().getOrDefault(ContentWorkflowPipelineParams.contentType.name(), "").toString())) {
 			TelemetryManager.info("setting compatibility level for content id : " + node.getIdentifier() + " as 4.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		}
@@ -704,7 +697,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void processCollection(Node node, List<Map<String, Object>> children){
+	private void processCollection(Node node, List<Map<String, Object>> children) {
 
 		String contentId = node.getIdentifier();
 		Map<String, Object> dataMap = null;
@@ -749,27 +742,26 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		enrichCollection(node, children);
-		
+
 		addResourceToCollection(node, children);
-		
-		if (MapUtils.isNotEmpty(dataMap)) {
-			if (null != dataMap.get("concepts")) {
-				List<String> concepts = new ArrayList<>();
-				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
-				if (!concepts.isEmpty()) {
-					List<Relation> relations = new ArrayList<>();
-					for(String concept : concepts) {
-						relations.add(new Relation(StringUtils.replace(contentId, ".img", ""), RelationTypes.ASSOCIATED_TO.relationName(), concept));
-					}
-					List<Relation> existingRelations = node.getOutRelations();
-					if (CollectionUtils.isNotEmpty(existingRelations)) {
-						relations.addAll(existingRelations);
-					}
-					node.setOutRelations(relations);
+
+		if (MapUtils.isNotEmpty(dataMap) && null != dataMap.get("concepts")) {
+			List<String> concepts = new ArrayList<>();
+			concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
+			if (!concepts.isEmpty()) {
+				List<Relation> relations = new ArrayList<>();
+				for (String concept : concepts) {
+					relations.add(new Relation(StringUtils.replace(contentId, ".img", ""), RelationTypes.ASSOCIATED_TO.relationName(), concept));
 				}
+				List<Relation> existingRelations = node.getOutRelations();
+				if (CollectionUtils.isNotEmpty(existingRelations)) {
+					relations.addAll(existingRelations);
+				}
+				node.setOutRelations(relations);
 			}
 		}
 	}
+
 	private void addResourceToCollection(Node node, List<Map<String, Object>> children) {
 		List<Map<String, Object>> leafNodes = getLeafNodes(children, 1);
 		if (CollectionUtils.isNotEmpty(leafNodes)) {

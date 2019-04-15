@@ -88,7 +88,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	private static String passKey = Platform.config.getString("graph.passport.key.base");
 
 	private static String DIALCODE_INDEX = "testdialcode";
-	private static String DIALCODE_INDEX_TYPE = "dc";
 
 	private static String collectionContent1Id = "";
 	private static String collectionVersion1Key = "";
@@ -1504,6 +1503,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		validateRetiredCollectionContent(contentId);
 	}
 
+	@Ignore
 	@Test
 	public void retirePublishedCollectionContentWithChildren() throws Exception {
 		String createCollectionReq = "{\"request\":{\"content\":{\"name\":\"Test-G-Dev-01\",\"code\":\"test.book.1\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\"}}}";
@@ -1576,7 +1576,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		String createTextbookReq = "{\"request\": {\"content\": {\"name\": \"Test Textbook\",\"code\": \"test.book.1\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\"}}}";
 		String textbookId = createContent(createTextbookReq);
 
-		String updateHierarchyRequestBody = "{\"request\":{\"data\":{\"nodesModified\":{\"TestBookUnit-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\"}},\"TestBookUnit-02\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"textbookIdentifier\":{\"name\":\"Test Textbook\",\"contentType\":\"TextBook\",\"isNew\":false,\"root\":true}},\"hierarchy\":{\"textbookIdentifier\":{\"name\":\"Test Textbook\",\"contentType\":\"TextBook\",\"children\":[\"TestBookUnit-01\",\"TestBookUnit-02\"]},\"TestBookUnit-01\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"root\":false,\"children\":[]},\"TestBookUnit-02\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"root\":false,\"children\":[]}}}}}";
+		String updateHierarchyRequestBody = "{\"request\":{\"data\":{\"nodesModified\":{\"TestBookUnit-01\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\"}},\"TestBookUnit-02\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"appIcon\":\"appIconUrl\"}},\"textbookIdentifier\":{\"metadata\":{\"name\":\"Test Textbook\",\"contentType\":\"TextBook\",\"mimeType\":\"application/vnd.ekstep.content-collection\"},\"isNew\":false,\"root\":true}},\"hierarchy\":{\"textbookIdentifier\":{\"name\":\"Test Textbook\",\"contentType\":\"TextBook\",\"children\":[\"TestBookUnit-01\",\"TestBookUnit-02\"]},\"TestBookUnit-01\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"root\":false,\"children\":[]},\"TestBookUnit-02\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"root\":false,\"children\":[]}}}}}";
 		updateHierarchyRequestBody = updateHierarchyRequestBody.replace("textbookIdentifier", textbookId);
 
 		String path = basePath + "/hierarchy/update";
@@ -1664,26 +1664,6 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
 				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(requestBody));
 		System.out.println("Update Hierarchy : "+actions.andReturn().getResponse().getContentAsString());
-		assertEquals(200, actions.andReturn().getResponse().getStatus());
-	}
-
-	private String createCollection() throws Exception {
-		String path = basePath + "/create";
-		String createCollectionContentRequestBody = "{\"request\": {\"content\": {\"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_Dev\",\"name\": \"TestBook1\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"testbook1\",\"tags\":[\"QA_Content\"],\"mimeType\": \"application/vnd.ekstep.content-collection\",\"children\":[]}}}";
-		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
-				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(createCollectionContentRequestBody));
-		assertEquals(200, actions.andReturn().getResponse().getStatus());
-		return (String) getResponse(actions).getResult().get(TestParams.node_id.name());
-	}
-
-	private void heirarchyUpdate(String collectionContentId) throws Exception {
-		String createDocumentContentRequestBody = "{\"request\": {\"content\": {\"name\": \"Text Book 1\",\"code\": \"test.book.1\",\"mimeType\": \"application/pdf\",\"contentType\":\"Resource\"}}}";
-		String resourceContentId1 = createContent(createDocumentContentRequestBody);
-		String resourceContentId2 = createContent(createDocumentContentRequestBody);
-		String path = basePath + "/hierarchy/update";
-		String updateHeirarchyReq = "{\"request\":{\"data\":{\"nodesModified\":{\"TestBookUnit-0111\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_01\",\"description\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-0211\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_02\",\"description\":\"TTest_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b90dd3aca\"}},\"TestBookUnit-0311\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_03\",\"description\":\"TTest_Collection_TextBookUnit_03\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4462-9b2b-8390b82dd3aca\"}},\"TestBookUnit-0411\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_04\",\"description\":\"TTest_Collection_TextBookUnit_04\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4912-9b2b-8390b82dd3aca\"}},\"TestBookUnit-0511\":{\"isNew\":true,\"root\":false,\"metadata\":{\"mimeType\":\"application/vnd.ekstep.content-collection\",\"keywords\":[],\"name\":\"Test_Collection_TextBookUnit_05\",\"description\":\"TTest_Collection_TextBookUnit_05\",\"contentType\":\"TextBookUnit\",\"code\":\"30b0cc0c-18dc-4912-9b2b-8390b82dd3aca\"}}},\"hierarchy\":{\"" + collectionContentId + "\":{\"name\":\"TextBook1-CreatedforRetireTesting\",\"contentType\":\"Collection\",\"children\":[\"TestBookUnit-0111\",\"TestBookUnit-0211\",\"TestBookUnit-0311\",\"TestBookUnit-0411\",\"TestBookUnit-0511\",\"" + resourceContentId1 + "\"],\"root\":true},\"TestBookUnit-0111\":{\"name\":\"Test_Collection_TextBookUnit_01\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 + "\"],\"root\":false},\"TestBookUnit-0211\":{\"name\":\"Test_Collection_TextBookUnit_02\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0311\":{\"name\":\"Test_Collection_TextBookUnit_03\",\"contentType\":\"TextBookUnit\",\"children\":[\""+ resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0411\":{\"name\":\"Test_Collection_TextBookUnit_04\",\"contentType\":\"TextBookUnit\",\"children\":[\""+ resourceContentId2 +"\"],\"root\":false},\"TestBookUnit-0511\":{\"name\":\"Test_Collection_TextBookUnit_05\",\"contentType\":\"TextBookUnit\",\"children\":[\"" + resourceContentId2 + "\"],\"root\":false},\"" + resourceContentId1 + "\":{\"name\":\"Test_Resource_Content\",\"contentType\":\"Story\",\"children\":[],\"root\":false}}}}}";
-		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("X-Channel-Id", "channelTest")
-				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(updateHeirarchyReq));
 		assertEquals(200, actions.andReturn().getResponse().getStatus());
 	}
 
