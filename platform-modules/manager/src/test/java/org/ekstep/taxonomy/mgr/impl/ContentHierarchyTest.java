@@ -1,6 +1,5 @@
 package org.ekstep.taxonomy.mgr.impl;
 
-
 import com.datastax.driver.core.ResultSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.cassandra.connector.util.CassandraConnector;
@@ -9,12 +8,10 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.content.mgr.impl.HierarchyManager;
 import org.ekstep.content.mgr.impl.operation.content.CreateOperation;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.ekstep.taxonomy.content.common.TestParams;
 import org.ekstep.test.common.CommonTestSetup;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,7 +22,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.ekstep.taxonomy.mgr.impl.ContentManagerImplCreateContentTest.channelId;
@@ -37,26 +33,21 @@ import static org.ekstep.taxonomy.mgr.impl.ContentManagerImplCreateContentTest.c
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class ContentHierarchyTest extends CommonTestSetup {
 
-    HierarchyManager manager = new HierarchyManager();
+    private static final String SCRIPT_1 = "CREATE KEYSPACE IF NOT EXISTS hierarchy_store_test WITH replication = {'class':'SimpleStrategy','replication_factor':'1'};";
+    private static final String SCRIPT_2 = "CREATE TABLE IF NOT EXISTS hierarchy_store_test.content_hierarchy_test(identifier text, hierarchy text,PRIMARY KEY (identifier));";
+
+    private HierarchyManager manager = new HierarchyManager();
     private static ObjectMapper mapper = new ObjectMapper();
-
-
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
-
-    private static String script_1 = "CREATE KEYSPACE IF NOT EXISTS hierarchy_store_test WITH replication = {'class':" +
-            " 'SimpleStrategy','replication_factor': '1'};";
-    private static String script_2 = "CREATE TABLE IF NOT EXISTS hierarchy_store_test.content_hierarchy_test " +
-            "(identifier text, hierarchy text,PRIMARY KEY (identifier));";
-
 
     @BeforeClass
     public static void init() throws Exception {
         LearningRequestRouterPool.init();
         loadDefinition("definitions/content_definition.json", "definitions/concept_definition.json",
                 "definitions/dimension_definition.json", "definitions/domain_definition.json");
-        executeScript(script_1, script_2);
+        executeScript(SCRIPT_1, SCRIPT_2);
         createTextBook();
     }
 

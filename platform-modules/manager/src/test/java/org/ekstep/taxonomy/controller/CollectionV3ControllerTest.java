@@ -216,13 +216,14 @@ public class CollectionV3ControllerTest extends CommonTestSetup {
             String query = "select hierarchy from hierarchy_store_test.content_hierarchy_test where identifier = 'rootIdentifier'".replace("rootIdentifier", contentId);
             ResultSet results = CassandraConnector.getSession().execute(query);
             if (null != results) {
-                for (Row row : results.all()) {
-                    System.out.println("Cassandra Hierarchy : " + row.getString("hierarchy"));
-                    return row.getString("hierarchy");
+                while (results.iterator().hasNext()) {
+                    Row row = results.iterator().next();
+                    String value = row.getString("hierarchy");
+                    return value;
                 }
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         return null;
     }

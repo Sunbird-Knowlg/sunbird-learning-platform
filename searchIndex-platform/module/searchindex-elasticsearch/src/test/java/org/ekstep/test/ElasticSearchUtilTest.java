@@ -32,16 +32,11 @@ import org.junit.Test;
 public class ElasticSearchUtilTest extends BaseSearchTest {
 
 	private static String[] contentTypes = new String[] { "Story", "Worksheet", "Game", "Collection", "Asset" };
-
-	private static String getContentType() {
-		return contentTypes[RandomUtils.nextInt(5)];
-	}
-
-	private static String[] tags = new String[] { "hindi story", "NCERT", "Pratham", "एकस्टेप", "हिन्दी",
-			"हाथी और भालू", "worksheet", "test" };
+	private static String[] tags = new String[] { "hindi story", "NCERT", "Pratham", "एकस्टेप", "हिन्दी", "हाथी और भालू", "worksheet", "test" };
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Random random = new Random();
+
 
 	@Test
 	public void testAddDocumentWithId() throws Exception {
@@ -141,6 +136,11 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 	public void testBulkDeleteDocumentWithId() throws Exception {
 		List<String> identifiers = createBulkTestRecord(100);
 		ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,identifiers);
+		for(String id : identifiers){
+			String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+			assertFalse(StringUtils.contains(doc, id));
+		}
 	}
 
 	private static Map<String, Object> getContentTestRecord() {
@@ -205,6 +205,10 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 			list.add(tags[RandomUtils.nextInt(8)]);
 		}
 		return list;
+	}
+
+	private static String getContentType() {
+		return contentTypes[RandomUtils.nextInt(5)];
 	}
 
 	/**
