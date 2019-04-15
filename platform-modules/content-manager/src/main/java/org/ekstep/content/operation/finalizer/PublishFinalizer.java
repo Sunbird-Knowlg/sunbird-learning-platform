@@ -54,6 +54,8 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -143,14 +145,17 @@ public class PublishFinalizer extends BaseFinalizer {
 		String artifactUrl = null;
 		File packageFile=null;
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
-
+		List<String> unitNodes = null;
+		
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
-		
 		if (node.getIdentifier().endsWith(".img")) {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
+			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
+				unitNodes = getUnitFromLiveContent();
+			}
 		}
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
@@ -261,7 +266,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		//update previewUrl for content streaming
 		updatePreviewURL(node);
 		
-		
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
@@ -297,17 +301,41 @@ public class PublishFinalizer extends BaseFinalizer {
 			Node publishedNode = util.getNode(ContentWorkflowPipelineParams.domain.name(), newNode.getIdentifier());
 			updateHierarchyMetadata(children, publishedNode);
 			publishHierarchy(publishedNode, children);
-			syncNodes(children);
+			
+			syncNodes(children, unitNodes);
 		}
 		
 		return response;
 	}
 	
-	private void syncNodes(List<Map<String, Object>> children) {
+	private List<String> getUnitFromLiveContent(){
+		Node liveContent = util.getNode(ContentWorkflowPipelineParams.domain.name(), contentId);
+		List<String> childNodes = null;
+		childNodes =(List<String>)liveContent.getMetadata().get("childNodes");
+		if(CollectionUtils.isNotEmpty(childNodes)) {
+			List<Relation> outRelations = liveContent.getOutRelations();
+			if(CollectionUtils.isNotEmpty(outRelations)) {
+				List<String> leafNodes = outRelations.stream().filter(rel -> StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SEQUENCE_MEMBERSHIP.name())).map(rel -> rel.getEndNodeId()).collect(Collectors.toList());
+				childNodes.removeAll(leafNodes);
+			}
+		}
+		return childNodes;
+	}
+	
+	private BoolQueryBuilder getDeleteIndexQuery(List<String> identifiers) throws Exception {
+		BoolQueryBuilder query = QueryBuilders.boolQuery();
+		for(String identifier : identifiers)
+			query.should(QueryBuilders.matchQuery("identifier.raw", identifier));
+		return query;
+	}
+	
+	private void syncNodes(List<Map<String, Object>> children, List<String> unitNodes) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
 		List<String> nodeIds = new ArrayList<>();
 		List<Node> nodes = new ArrayList<>();
 		getNodeMap(children, nodes, nodeIds, definition);
+		if(!CollectionUtils.isEmpty(unitNodes))
+			unitNodes.removeAll(nodeIds);
 		
 		if (nodes.isEmpty())
 			return;
@@ -335,13 +363,18 @@ public class PublishFinalizer extends BaseFinalizer {
 					TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
 				if(MapUtils.isNotEmpty(messages)) {
 					try {
-						TelemetryManager.info("messages:: " + messages);
-						TelemetryManager.info("ES_INDEX_NAME:: " + ES_INDEX_NAME);
-						TelemetryManager.info("DOCUMENT_TYPE:: " + DOCUMENT_TYPE);
 						ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
 					} catch (Exception e) {
 						TelemetryManager.error("Elastic Search indexing failed: " + e);
 					}					
+				}
+				if(!CollectionUtils.isEmpty(unitNodes)) {
+					try {
+						BoolQueryBuilder query = getDeleteIndexQuery(unitNodes);
+						ElasticSearchUtil.deleteDocumentsByQuery(query, ES_INDEX_NAME, DOCUMENT_TYPE);
+					} catch (Exception e) {
+						TelemetryManager.error("Elastic Search indexing failed: " + e);
+					}
 				}
 
 			}
@@ -362,8 +395,11 @@ public class PublishFinalizer extends BaseFinalizer {
                         childData.putAll(child);
                         childData.remove("children");
                         node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+                        if(StringUtils.isBlank(node.getObjectType()))
+                        		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
+                        if(StringUtils.isBlank(node.getGraphId()))
+                        		node.setGraphId(ContentWorkflowPipelineParams.domain.name());
                     }
-                    //nodeMap.put(node.getIdentifier(), node);
                     if(!nodeIds.contains(node.getIdentifier())) {
                     		nodes.add(node);
                     		nodeIds.add(node.getIdentifier());
