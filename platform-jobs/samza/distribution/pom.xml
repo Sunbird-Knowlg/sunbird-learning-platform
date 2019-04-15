@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.90</version>
+			<version>0.0.91</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -53,14 +53,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.221</version>
+			<version>0.0.227</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>collection-migration</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.5</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

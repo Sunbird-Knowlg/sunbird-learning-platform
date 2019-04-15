@@ -24,10 +24,10 @@ import org.ekstep.learning.util.ControllerUtil;
 
 public class AuditEventGeneratorTask implements StreamTask, InitableTask, WindowableTask{
 
-	static JobLogger LOGGER = new JobLogger(AuditEventGeneratorTask.class);
+	private static JobLogger LOGGER = new JobLogger(AuditEventGeneratorTask.class);
 
 	private JobMetrics metrics;
-	ISamzaService auditEventGenerator = new AuditEventGenerator();
+	private ISamzaService auditEventGenerator = new AuditEventGenerator();
 	private ControllerUtil controllerUtil = new ControllerUtil();
 
 	@Override

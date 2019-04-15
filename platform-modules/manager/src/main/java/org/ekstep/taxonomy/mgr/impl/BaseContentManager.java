@@ -718,4 +718,20 @@ public abstract class BaseContentManager extends BaseManager {
         return response;
     }
 
+    /**
+     * This method save or update content hierarchy into cassandra.
+     * @param contentId
+     * @param hierarchy
+     * @return
+     */
+    protected Response updateCollectionHierarchy(String contentId, Map<String, Object> hierarchy) {
+        Request request = new Request();
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+        request.setOperation(ContentStoreOperations.saveOrUpdateHierarchy.name());
+        request.put(ContentStoreParams.content_id.name(), contentId);
+        request.put(ContentStoreParams.hierarchy.name(), hierarchy);
+        Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
+        return response;
+    }
+
 }

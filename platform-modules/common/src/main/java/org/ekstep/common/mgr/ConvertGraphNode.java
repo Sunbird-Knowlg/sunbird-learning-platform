@@ -42,7 +42,10 @@ public class ConvertGraphNode {
                             c[0] = Character.toLowerCase(c[0]);
                             key = new String(c);
                             if (jsonProps.contains(key.toLowerCase())) {
-                            	Object val = JSONUtils.convertJSONString((String) entry.getValue());
+                                Object val = entry.getValue();
+                                if (val instanceof String) {
+                                     val = JSONUtils.convertJSONString((String) entry.getValue());
+                                }
                             	TelemetryManager.log("JSON Property " + key + " converted value is " + val);
                                 if (null != val)
                                 	map.put(key, val);

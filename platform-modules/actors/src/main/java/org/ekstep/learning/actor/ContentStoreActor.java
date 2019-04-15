@@ -76,6 +76,11 @@ public class ContentStoreActor extends BaseGraphManager {
 				List<String> identifiers = (List<String>) request.get(ContentStoreParams.content_id.name());
 				hierarchyStore.deleteHierarchy(identifiers);
 				OK(sender());
+			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.saveOrUpdateHierarchy.name(), operation)) {
+				String contentId = (String) request.get(ContentStoreParams.content_id.name());
+				Map<String, Object> hierarchy = (Map<String, Object>) request.get(ContentStoreParams.hierarchy.name());
+				hierarchyStore.saveOrUpdateHierarchy(contentId, hierarchy);
+				OK(sender());
 			} else {
 				TelemetryManager.log("Unsupported operation: " + operation);
 				throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),

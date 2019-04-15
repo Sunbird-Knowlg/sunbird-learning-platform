@@ -17,10 +17,10 @@ import org.ekstep.jobs.samza.util.JobLogger;
 
 public class CollectionMigrationTask implements StreamTask, InitableTask, WindowableTask {
 	
-	static JobLogger LOGGER = new JobLogger(CollectionMigrationTask.class);
+	private static JobLogger LOGGER = new JobLogger(CollectionMigrationTask.class);
 
 	private JobMetrics metrics;
-	ISamzaService collectionMigrationService = new CollectionMigrationService();
+	private ISamzaService collectionMigrationService = new CollectionMigrationService();
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
