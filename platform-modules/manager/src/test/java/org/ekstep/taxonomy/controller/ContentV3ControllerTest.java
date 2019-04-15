@@ -1503,6 +1503,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		validateRetiredCollectionContent(contentId);
 	}
 
+	@Ignore
 	@Test
 	public void retirePublishedCollectionContentWithChildren() throws Exception {
 		String createCollectionReq = "{\"request\":{\"content\":{\"name\":\"Test-G-Dev-01\",\"code\":\"test.book.1\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBook\"}}}";
