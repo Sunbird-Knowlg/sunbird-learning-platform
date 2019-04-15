@@ -629,7 +629,92 @@
             "defaultValue": "MCQ",
             "renderingHints": "{'order': 28}",
             "indexed": true
-	}],
+	    },
+        {
+            "propertyName": "channel",
+            "title": "Channel",
+            "description": "Channel Id of Assessment",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        },
+        {
+            "propertyName": "framework",
+            "title": "Framework",
+            "description": "Framework Id of Assessment",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        },
+        {
+            "propertyName": "isShuffleOption",
+            "title": "Is Shuffle Option",
+            "description": "R1.15",
+            "category": "General",
+            "dataType": "Boolean",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        },
+        {
+            "propertyName": "evalUnordered",
+            "title": "Eval Unordered",
+            "description": "R1.15",
+            "category": "General",
+            "dataType": "Boolean",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        },
+        {
+            "propertyName": "isPartialScore",
+            "title": "Is Partial Score",
+            "description": "R1.15",
+            "category": "General",
+            "dataType": "Boolean",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        },
+        {
+            "propertyName": "templateType",
+            "title": "Template Type",
+            "description": "R1.15",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        },
+        {
+            "propertyName": "topicData",
+            "title": "Topic Data",
+            "description": "R1.15",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        }
+        ],
         "inRelations": [],
         "outRelations": [{
             "relationName": "associatedTo",
