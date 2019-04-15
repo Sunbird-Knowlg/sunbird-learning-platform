@@ -2750,6 +2750,30 @@
 					"renderingHints": "",
 					"indexed": true
 				},
+				{
+					"propertyName": "assets",
+					"title": "Assets",
+					"description": "R1.15-List of Asset ids used in ecml content",
+					"category": "General",
+					"dataType": "List",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
+				{
+					"propertyName": "depth",
+					"title": "Depth",
+					"description": "R1.15-Depth for Collection Units",
+					"category": "General",
+					"dataType": "Number",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true
+				},
                 {
                   "propertyName": "SYS_INTERNAL_LAST_UPDATED_ON",
                   "title": "SYS_INTERNAL_LAST_UPDATED_ON",
