@@ -1,9 +1,20 @@
 package org.ekstep.taxonomy.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.graph.dac.model.Node;
+
+import java.io.IOException;
+import java.util.Map;
+
 public class DialCodeTestInputs {
     public static final String CONTENT_ID = "org.ekstep.apr10.textbook.test04";
 
     public static final String CHANNEL_ID = "in.ekstep";
+
+    public static ObjectMapper mapper = new ObjectMapper();
+
 
     public static final String HIERARCHY_WITH_RESERVED_DC_1 = "{  \n" +
             "   \"identifier\":\"org.ekstep.apr10.textbook.test04\",\n" +
@@ -484,4 +495,32 @@ public class DialCodeTestInputs {
             "      }\n" +
             "   ]\n" +
             "}";
+
+    public static final String testNodeMetadata ="{\"ownershipType\":[\"createdBy\"],\"code\":\"org.ekstep.apr10.textbook.test05\",\"keywords\":[\"QA_Content\"],\"channel\":\"in.ekstep\",\"description\":\"Text Book in English for Class IV\",\"language\":[\"English\"],\"mimeType\":\"application/vnd.ekstep.content-collection\",\"idealScreenSize\":\"normal\",\"createdOn\":\"2019-04-11T17:23:24.596+0530\",\"contentDisposition\":\"inline\",\"lastUpdatedOn\":\"2019-04-11T17:23:24.596+0530\",\"contentEncoding\":\"gzip\",\"dialcodeRequired\":\"No\",\"contentType\":\"TextBook\",\"lastStatusChangedOn\":\"2019-04-11T17:23:24.596+0530\",\"audience\":[\"Learner\"],\"IL_SYS_NODE_TYPE\":\"DATA_NODE\",\"visibility\":\"Default\",\"os\":[\"All\"],\"mediaType\":\"content\",\"osId\":\"org.ekstep.quiz.app\",\"version\":2,\"versionKey\":\"1554983604596\",\"idealScreenDensity\":\"hdpi\",\"framework\":\"NCF\",\"compatibilityLevel\":1.0,\"IL_FUNC_OBJECT_TYPE\":\"Content\",\"name\":\"Maths-4\",\"IL_UNIQUE_ID\":\"org.ekstep.apr10.textbook.test04\",\"status\":\"Draft\"}";
+
+    public static final String reservedDialCode ="{\"XKJFAK\":0,\"ALDJBC\":1,\"JAHFKA\":3}";
+
+    public static Map<String,Object> getMap(String input) {
+        try {
+            if(StringUtils.isNotBlank(input) )
+                return (mapper.readValue(input, new TypeReference<Map<String,Object>>(){})) ;
+            else
+                return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Node getTestNode() {
+        Node testNode = new Node();
+        testNode.setId(120489);
+        testNode.setIdentifier(CONTENT_ID);
+        testNode.setGraphId("domain");
+        testNode.setNodeType("DATA_NODE");
+        Map testMap = getMap(testNodeMetadata);
+        testMap.put("reservedDialcodes",getMap(reservedDialCode));
+        testNode.setMetadata(testMap);
+        return testNode;
+    }
 }

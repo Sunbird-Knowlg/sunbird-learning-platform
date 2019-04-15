@@ -50,38 +50,38 @@ public class ReleaseDialcodesOperation extends  BaseContentManager {
                 throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
                         "Error! No DIAL Codes are Reserved for content:: " + node.getIdentifier());
 
-        System.out.println(reservedDialcodeMap);
-        Map<String,Object> hierarchyMap = hierarchyStore.getHierarchy(contentId);
-        System.out.println(hierarchyMap);
-        List<Map<String,Object>> childrenMaps = mapper.convertValue(hierarchyMap.get("children"),new TypeReference<List<Map<String,Object>>>(){});
-        childrenMaps.forEach(map -> System.out.println(map));
-        Set assignedDialCodes = new HashSet();
-        populateAssignedDialCodes(childrenMaps,assignedDialCodes);
-        System.out.println(assignedDialCodes);
-        List<String> reservedDialcodes = new ArrayList<>(reservedDialcodeMap.keySet());
-        List<String> releasedDialcodes = assignedDialCodes.isEmpty() ?
-        		reservedDialcodes
-                : reservedDialcodes.stream().filter(dialcode -> !assignedDialCodes.contains(dialcode)).collect(toList());
+        Map<String,Object> hierarchyMap = hierarchyStore.getHierarchy(contentId+ ".img");
+        if(hierarchyMap != null){
+            List<Map<String,Object>> childrenMaps = mapper.convertValue(hierarchyMap.get("children"),new TypeReference<List<Map<String,Object>>>(){});
+            Set assignedDialCodes = new HashSet();
+            populateAssignedDialCodes(childrenMaps,assignedDialCodes);
+            List<String> reservedDialcodes = new ArrayList<>(reservedDialcodeMap.keySet());
+            List<String> releasedDialcodes = assignedDialCodes.isEmpty() ?
+                    reservedDialcodes
+                    : reservedDialcodes.stream().filter(dialcode -> !assignedDialCodes.contains(dialcode)).collect(toList());
 
-        if (releasedDialcodes.isEmpty())
-            throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved DIAL Codes are Utilized.");
+            if (releasedDialcodes.isEmpty())
+                throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved DIAL Codes are Utilized.");
 
-        releasedDialcodes.stream().forEach(dialcode -> reservedDialcodeMap.remove(dialcode));
-        Map<String, Object> updateMap = new HashMap<>();
-        if(MapUtils.isEmpty(reservedDialcodeMap))
-        		updateMap.put(ContentAPIParams.reservedDialcodes.name(), null);
-        	else
-        		updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
+            releasedDialcodes.stream().forEach(dialcode -> reservedDialcodeMap.remove(dialcode));
+            Map<String, Object> updateMap = new HashMap<>();
+            if(MapUtils.isEmpty(reservedDialcodeMap))
+                updateMap.put(ContentAPIParams.reservedDialcodes.name(), null);
+            else
+                updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
 
-        Response response = updateAllContents(contentId, updateMap);
-        if (checkError(response)) {
-            return response;
-        } else {
-            response.put(ContentAPIParams.count.name(), releasedDialcodes.size());
-            response.put(ContentAPIParams.releasedDialcodes.name(), releasedDialcodes);
-            response.put(ContentAPIParams.node_id.name(), contentId);
-            TelemetryManager.info("DIAL Codes released.", response.getResult());
-            return response;
+            Response response = updateAllContents(contentId, updateMap);
+            if (checkError(response)) {
+                return response;
+            } else {
+                response.put(ContentAPIParams.count.name(), releasedDialcodes.size());
+                response.put(ContentAPIParams.releasedDialcodes.name(), releasedDialcodes);
+                response.put(ContentAPIParams.node_id.name(), contentId);
+                TelemetryManager.info("DIAL Codes released.", response.getResult());
+                return response;
+            }
+        }else {
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), "Hierarchy is null for :"+contentId+".img");
         }
     }
 
@@ -105,7 +105,7 @@ public class ReleaseDialcodesOperation extends  BaseContentManager {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child ->{
                 assignedDialcodes.addAll(getDialCodes(child));
-                if(child.containsKey("children")){
+                if(child.containsKey("children") && !child.get("visibility").toString().equals("Default")){
                     populateAssignedDialCodes((List<Map<String,Object>>)child.get("children"),assignedDialcodes);
                 } else {
                     assignedDialcodes.addAll(getDialCodes (child));
@@ -120,10 +120,5 @@ public class ReleaseDialcodesOperation extends  BaseContentManager {
         }
         return new ArrayList<>();
     }
-
-
-
-
-
 
 }
