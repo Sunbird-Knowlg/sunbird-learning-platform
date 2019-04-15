@@ -8,7 +8,7 @@ import org.ekstep.graph.dac.model.Node;
 import java.io.IOException;
 import java.util.Map;
 
-public class DialCodeTestInputs {
+public class DialCodeTestInputUtil {
     public static final String CONTENT_ID = "org.ekstep.apr10.textbook.test04";
 
     public static final String CHANNEL_ID = "in.ekstep";

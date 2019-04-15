@@ -25,7 +25,6 @@ import java.util.Set;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class ReleaseDialcodesOperation extends  BaseContentManager {
     private HierarchyStore hierarchyStore = new HierarchyStore();
@@ -116,7 +115,7 @@ public class ReleaseDialcodesOperation extends  BaseContentManager {
 
     public List<String> getDialCodes(Map<String,Object> childMap) {
         if(childMap.containsKey("dialcodes") && !childMap.get("visibility").toString().equals("Default")) {
-            return ((List<String>) childMap.get("dialcodes")).stream().filter(f -> StringUtils.isNotBlank(f)).collect(Collectors.toList());
+            return ((List<String>) childMap.get("dialcodes")).stream().filter(f -> StringUtils.isNotBlank(f)).collect(toList());
         }
         return new ArrayList<>();
     }
