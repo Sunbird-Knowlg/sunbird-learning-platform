@@ -312,7 +312,8 @@ public class UpdateHierarchyOperation extends BaseContentManager {
         metadata.put(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
         Response validateNodeResponse = validateNode(TAXONOMY_ID, nodeId, metadata, tmpnode, definition);
         if (checkError(validateNodeResponse)){
-            throw new ClientException(validateNodeResponse.getParams().getErr(), validateNodeResponse.getParams().getErrmsg(), validateNodeResponse.getResult());
+            TelemetryManager.error("Validation Error for ID : " + id + " :: " + validateNodeResponse.getParams().getErr() +" :: " + validateNodeResponse.getParams().getErrmsg() + " :: "+ validateNodeResponse.getResult());
+            throw new ClientException(validateNodeResponse.getParams().getErr(), validateNodeResponse.getParams().getErrmsg() + " " + validateNodeResponse.getResult());
         }
         try {
             if(null != tmpnode) {
