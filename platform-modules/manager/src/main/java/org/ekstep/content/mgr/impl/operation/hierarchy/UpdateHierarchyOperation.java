@@ -338,8 +338,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
         try {
             node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
         } catch (Exception e) {
-             TelemetryManager.error("Validation Error for ID : " + id + " :: " + validateNodeResponse.getParams().getErr() +" :: " + validateNodeResponse.getParams().getErrmsg() + " :: "+ validateNodeResponse.getResult());
-            throw new ClientException(validateNodeResponse.getParams().getErr(), validateNodeResponse.getParams().getErrmsg() + " " + validateNodeResponse.getResult());
+            throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
         }
         if (null == tmpnode) {
             tmpnode = new Node();
