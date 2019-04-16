@@ -21,6 +21,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -310,8 +311,9 @@ public class UpdateHierarchyOperation extends BaseContentManager {
         metadata.put(ContentAPIParams.status.name(), "Draft");
         metadata.put(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
         Response validateNodeResponse = validateNode(TAXONOMY_ID, nodeId, metadata, tmpnode, definition);
-        if (checkError(validateNodeResponse))
-            return validateNodeResponse;
+        if (checkError(validateNodeResponse)){
+            throw new ClientException(validateNodeResponse.getParams().getErr(), validateNodeResponse.getParams().getErrmsg(), validateNodeResponse.getResult());
+        }
         try {
             if(null != tmpnode) {
                 updateNodeList(nodeList, id, metadata);
