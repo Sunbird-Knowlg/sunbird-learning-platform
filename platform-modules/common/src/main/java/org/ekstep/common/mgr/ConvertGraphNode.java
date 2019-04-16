@@ -22,11 +22,6 @@ public class ConvertGraphNode {
             List<String> fieldList) {
         Map<String, Object> map = new HashMap<String, Object>();
         if (null != node) {
-            if(StringUtils.isNotBlank(node.getObjectType()))
-                map.put("objectType", node.getObjectType());
-            if(StringUtils.isNotBlank(node.getGraphId()))
-                map.put("graph_id", node.getGraphId());
-
             Map<String, Object> metadata = node.getMetadata();
             if (null != metadata && !metadata.isEmpty()) {
             	List<String> jsonProps = getJSONProperties(definition);
