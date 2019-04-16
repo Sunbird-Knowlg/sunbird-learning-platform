@@ -324,6 +324,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
                 nodeList.add(node);
             }
         } catch (Exception e) {
+            TelemetryManager.error("Error creating content for the node: " + nodeId", e);
             throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
         }
         return null;
