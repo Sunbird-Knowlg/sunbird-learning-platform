@@ -24,6 +24,7 @@ import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -445,23 +446,35 @@ public class LinkDialCodeOperation extends BaseContentManager {
      * @param existingDialCodes
      */
     private void validateDuplicateDialCodes(String contentId, List<String> existingDialCodes, Map<String, List<String>> requestMap, List<Map<String, Object>> childrens) {
+        Boolean isLive = false;
         Response response = getDataNode(TAXONOMY_ID, contentId);
         if (!checkError(response)) {
             Node node = (Node) response.get("node");
+            isLive = StringUtils.equalsIgnoreCase("Live", (String) node.getMetadata().get("status")) ? true : false;
             List<String> dialcodes = getDialCodes(node.getMetadata());
             if (CollectionUtils.isNotEmpty(dialcodes))
                 existingDialCodes.addAll(dialcodes);
+        }
 
+        if (isLive) {
+            Response imageResponse = getDataNode(TAXONOMY_ID, contentId);
+            if (!checkError(imageResponse)) {
+                Node node = (Node) response.get("node");
+                List<String> dialcodes = getDialCodes(node.getMetadata());
+                if (CollectionUtils.isNotEmpty(dialcodes))
+                    existingDialCodes.addAll(dialcodes);
+            }
         }
         getAssignedDialCodes(childrens, existingDialCodes);
 
         if (CollectionUtils.isNotEmpty(requestMap.values()))
             existingDialCodes.addAll(requestMap.values().stream().flatMap(l -> l.stream()).collect(Collectors.toList()));
 
-        List<String> duplicateDialcodes = existingDialCodes.stream().filter(item -> Collections.frequency(existingDialCodes, item) > 1).distinct().collect(Collectors.toList());
+        Map<String, Long> dialsGroupBy = existingDialCodes.stream().collect(Collectors.groupingByConcurrent(Function.identity(), Collectors.counting()));
+        List<String> duplicateDials = dialsGroupBy.entrySet().stream().filter(entry -> entry.getValue() > 1).map(entry -> entry.getKey()).collect(Collectors.toList());
 
-        if (CollectionUtils.isNotEmpty(duplicateDialcodes))
-            throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK.name(), "Duplicate DIAL Codes Found : " + duplicateDialcodes);
+        if (CollectionUtils.isNotEmpty(duplicateDials))
+            throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK.name(), "DIAL Code should not be linked to multiple contents. Please validate: " + duplicateDials);
 
     }
 
