@@ -322,12 +322,12 @@ public class PublishFinalizer extends BaseFinalizer {
 		return childNodes;
 	}
 	
-	private BoolQueryBuilder getDeleteIndexQuery(List<String> identifiers) throws Exception {
+	/*private BoolQueryBuilder getDeleteIndexQuery(List<String> identifiers) throws Exception {
 		BoolQueryBuilder query = QueryBuilders.boolQuery();
 		for(String identifier : identifiers)
 			query.should(QueryBuilders.matchQuery("identifier.raw", identifier));
 		return query;
-	}
+	}*/
 	
 	private void syncNodes(List<Map<String, Object>> children, List<String> unitNodes) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
@@ -370,8 +370,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				}
 				if(!CollectionUtils.isEmpty(unitNodes)) {
 					try {
-						BoolQueryBuilder query = getDeleteIndexQuery(unitNodes);
-						ElasticSearchUtil.deleteDocumentsByQuery(query, ES_INDEX_NAME, DOCUMENT_TYPE);
+						ElasticSearchUtil.bulkDeleteDocumentById(ES_INDEX_NAME, DOCUMENT_TYPE, unitNodes);
 					} catch (Exception e) {
 						TelemetryManager.error("Elastic Search indexing failed: " + e);
 					}
