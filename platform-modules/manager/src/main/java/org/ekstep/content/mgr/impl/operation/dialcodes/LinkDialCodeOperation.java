@@ -468,10 +468,10 @@ public class LinkDialCodeOperation extends BaseContentManager {
         getAssignedDialCodes(childrens, existingDialCodes);
 
         if (CollectionUtils.isNotEmpty(requestMap.values()))
-            existingDialCodes.addAll(requestMap.values().stream().flatMap(l -> l.stream()).collect(Collectors.toList()));
+            existingDialCodes.addAll(requestMap.values().stream().flatMap(l -> l.stream()).collect(toList()));
 
         Map<String, Long> dialsGroupBy = existingDialCodes.stream().collect(Collectors.groupingByConcurrent(Function.identity(), Collectors.counting()));
-        List<String> duplicateDials = dialsGroupBy.entrySet().stream().filter(entry -> entry.getValue() > 1).map(entry -> entry.getKey()).collect(Collectors.toList());
+        List<String> duplicateDials = dialsGroupBy.entrySet().stream().filter(entry -> entry.getValue() > 1).map(entry -> entry.getKey()).collect(toList());
 
         if (CollectionUtils.isNotEmpty(duplicateDials))
             throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK.name(), "DIAL Code should not be linked to multiple contents. Please validate: " + duplicateDials);
