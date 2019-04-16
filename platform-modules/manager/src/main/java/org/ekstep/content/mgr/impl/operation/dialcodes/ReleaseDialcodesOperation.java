@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.util.RequestValidatorUtil;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
@@ -30,19 +31,13 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public ReleaseDialcodesOperation() {
-
-    }
+    public ReleaseDialcodesOperation() { }
 
     public ReleaseDialcodesOperation(HierarchyStore hierarchyStore) {
         this.hierarchyStore = hierarchyStore;
     }
 
-
     public Response releaseDialCodes(String contentId, String channelId) throws Exception {
-        Boolean isLive = false;
-        Set assignedDialCodes = new HashSet();
-        Set releasedDialcodes = new HashSet();
         validateEmptyOrNull(channelId, "Channel", ContentErrorCodes.ERR_CHANNEL_BLANK_OBJECT.name());
         validateEmptyOrNull(contentId, "Content Object Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
 
@@ -51,30 +46,41 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
         validateRequest(node, channelId);
 
         Map<String, Integer> reservedDialcodeMap = getReservedDialCodes(node);
-        if (null == reservedDialcodeMap || MapUtils.isEmpty(reservedDialcodeMap))
+        if (MapUtils.isEmpty(reservedDialcodeMap))
             throw new ClientException(ContentErrorCodes.ERR_NO_RESERVED_DIALCODES.name(),
                     "Error! No DIAL Codes are Reserved for content: " + node.getIdentifier());
 
+        Boolean isLive = false;
+        Set assignedDialCodes = new HashSet();
+        Set releasedDialcodes = new HashSet();
+
         assignedDialCodes.addAll(getDialCodes(node.getMetadata(), "Parent"));
 
-        isLive = StringUtils.equalsIgnoreCase("Live", (String) node.getMetadata().get("status")) ? true : isLive;
-
         Map<String, Object> imageHierarchy = hierarchyStore.getHierarchy(contentId + ".img");
-        Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(contentId);
-
-        if (imageHierarchy == null && liveHierarchy == null) {
+        if (MapUtils.isEmpty(imageHierarchy)) {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), "Hierarchy is null for :" + contentId);
         }
 
-        releasedDialcodes.addAll(getReleasedDialcodes(imageHierarchy, reservedDialcodeMap, assignedDialCodes, contentId + ".img"));
+        populateAssignedDialCodes(imageHierarchy,assignedDialCodes);
+
+        isLive = (StringUtils.equalsIgnoreCase("Live", (String) node.getMetadata().get("status")) ||
+                  StringUtils.equalsIgnoreCase("Unlisted", (String) node.getMetadata().get("status"))) ? true : isLive;
 
         if (isLive) {
-            Node imageNode = getContentNode(TAXONOMY_ID, contentId, "edit");
-            assignedDialCodes.addAll(getDialCodes(imageNode.getMetadata(), "Parent"));
-            reservedDialcodeMap.putAll(getReservedDialCodes(imageNode));
-            releasedDialcodes.addAll(getReleasedDialcodes(liveHierarchy, reservedDialcodeMap, assignedDialCodes, contentId));
+            Response response = getDataNode(TAXONOMY_ID, contentId + ".img");
+            if (!checkError(response)) {
+                Node imageNode = (Node) response.get(GraphDACParams.node.name());
+                assignedDialCodes.addAll(getDialCodes(imageNode.getMetadata(), "Parent"));
 
+            }
+            Map<String, Object> liveHierarchy = hierarchyStore.getHierarchy(contentId);
+            if (MapUtils.isEmpty(liveHierarchy)) {
+                throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), "Hierarchy is null for :" + contentId);
+            }
+            populateAssignedDialCodes(liveHierarchy,assignedDialCodes);
         }
+
+        releasedDialcodes.addAll(getReleasedDialcodes(reservedDialcodeMap,assignedDialCodes));
 
         if (releasedDialcodes.isEmpty())
             throw new ClientException(ContentErrorCodes.ERR_ALL_DIALCODES_UTILIZED.name(), "Error! All Reserved DIAL Codes are Utilized.");
@@ -87,10 +93,10 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
             updateMap.put(ContentAPIParams.reservedDialcodes.name(), null);
         else
             updateMap.put(ContentAPIParams.reservedDialcodes.name(), reservedDialcodeMap);
-        return getResponse(contentId,updateMap,releasedDialcodes);
+        return getResponse(contentId, updateMap, releasedDialcodes);
     }
 
-    private Response getResponse (String contentId, Map<String,Object> updateMap, Set releasedDialcodes) throws Exception {
+    private Response getResponse(String contentId, Map<String, Object> updateMap, Set releasedDialcodes) throws Exception {
         Response response = updateAllContents(contentId, updateMap);
         if (checkError(response)) {
             return response;
@@ -118,15 +124,17 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
         validateChannel(metadata, channelId);
         validateIsNodeRetired(metadata);
     }
-
-    public List<String> getReleasedDialcodes(Map<String, Object> hierarchyMap, Map<String, Integer> reservedDialcodeMap, Set assignedDialCodes, String contentId) {
-        List<String> releasedDialCodes;
-        List<String> reservedDialCodes = new ArrayList<>();
+    public void populateAssignedDialCodes(Map<String, Object> hierarchyMap, Set assignedDialCodes) {
         if (hierarchyMap != null) {
             List<Map<String, Object>> childrenMaps = mapper.convertValue(hierarchyMap.get("children"), new TypeReference<List<Map<String, Object>>>() {
             });
-            populateAssignedDialCodes(childrenMaps, assignedDialCodes);
+            getAssignedDialCodes(childrenMaps, assignedDialCodes);
         }
+    }
+
+    public List<String> getReleasedDialcodes( Map<String, Integer> reservedDialcodeMap, Set assignedDialCodes) {
+        List<String> releasedDialCodes;
+        List<String> reservedDialCodes = new ArrayList<>();
         reservedDialCodes.addAll(reservedDialcodeMap.keySet());
         releasedDialCodes = assignedDialCodes.isEmpty() ?
                 reservedDialCodes
@@ -134,14 +142,12 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
         return releasedDialCodes;
     }
 
-    private void populateAssignedDialCodes(List<Map<String, Object>> children, Set<String> assignedDialcodes) {
+    private void getAssignedDialCodes(List<Map<String, Object>> children, Set<String> assignedDialcodes) {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
                 assignedDialcodes.addAll(getDialCodes(child, "Default"));
                 if (child.containsKey("children") && !child.get("visibility").toString().equals("Default")) {
-                    populateAssignedDialCodes((List<Map<String, Object>>) child.get("children"), assignedDialcodes);
-                } else {
-                    assignedDialcodes.addAll(getDialCodes(child, "Default"));
+                    getAssignedDialCodes((List<Map<String, Object>>) child.get("children"), assignedDialcodes);
                 }
             });
         }
@@ -149,7 +155,8 @@ public class ReleaseDialcodesOperation extends BaseContentManager {
 
     public List<String> getDialCodes(Map<String, Object> childMap, String visibility) {
         if (childMap.containsKey("dialcodes") && childMap.containsKey("visibility") && !childMap.get("visibility").toString().equals(visibility)) {
-            return ((List<String>) childMap.get("dialcodes")).stream().filter(f -> StringUtils.isNotBlank(f)).collect(toList());
+            List<String> dialcodes = mapper.convertValue(childMap.get("dialcodes"), new TypeReference<List<String>>() {});
+            return (dialcodes.stream().filter(f -> StringUtils.isNotBlank(f)).collect(toList()));
         }
         return new ArrayList<>();
     }
