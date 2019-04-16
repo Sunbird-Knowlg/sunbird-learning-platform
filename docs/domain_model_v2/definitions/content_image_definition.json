@@ -1874,18 +1874,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "version",
-					"title": "Version",
-					"description": "Version of the content",
-					"category": "Lifecycle",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Readonly",
-					"defaultValue": "",
-					"renderingHints": "{'order': 23}",
-					"indexed": false
-				},
-				{
 					"propertyName": "versionDate",
 					"title": "Version Date",
 					"description": "Version Date",
@@ -2788,21 +2776,6 @@
 				},
 				{
 					"required": false,
-					"dataType": "List",
-					"propertyName": "assets",
-					"title": "Assets",
-					"description": "R1.15-List of Asset ids used in ecml content",
-					"category": "General",
-					"displayProperty": "Editable",
-					"range": null,
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true,
-					"draft": false,
-					"rangeValidation": true
-				},
-				{
-					"required": false,
 					"dataType": "Number",
 					"propertyName": "version",
 					"title": "Schema Version",
@@ -2811,6 +2784,19 @@
 					"displayProperty": "Editable",
 					"defaultValue": "1",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "qrCodeProcessId",
+					"title": "QR Code Process Id",
+					"description": "R-1.15",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
 					"indexed": true,
 					"draft": false
 				}
