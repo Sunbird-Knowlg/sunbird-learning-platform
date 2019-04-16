@@ -3,6 +3,8 @@ package org.ekstep.content.mgr.impl.operation.dialcodes;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -21,13 +23,10 @@ import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class LinkDialCodeOperation extends BaseContentManager {
 
@@ -35,6 +34,8 @@ public class LinkDialCodeOperation extends BaseContentManager {
 
     private final String DIALCODE_SEARCH_URI = Platform.config.hasPath("dialcode.api.search.url")
             ? Platform.config.getString("dialcode.api.search.url") : "http://localhost:8080/learning-service/v3/dialcode/search";
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      *
@@ -279,6 +280,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
      */
     private void updateDialCodeToCollection(String rootNodeId, Map<String, List<String>> requestMap,
                                             Map<String, Set<String>> resultMap) throws Exception {
+        List<String> existingDialcodes = new ArrayList<String>();
         Response hierarchyResponse = getCollectionHierarchy(getImageId(rootNodeId));
         if(checkError(hierarchyResponse)){
             throw new ServerException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
@@ -286,7 +288,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
         }
         Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
         List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
-
+        validateDuplicateDialCodes(rootNodeId, existingDialcodes, requestMap, rootChildren);
         updateCollectionUnits(rootNodeId, rootChildren, requestMap, resultMap);
         if(MapUtils.isNotEmpty(requestMap))
             resultMap.get("invalidContentList").addAll(requestMap.keySet());
@@ -416,6 +418,68 @@ public class LinkDialCodeOperation extends BaseContentManager {
     }
 
     /**
+     *
+     * @param children
+     * @param existingDialcodes
+     */
+    private void getAssignedDialCodes(List<Map<String, Object>> children, List<String> existingDialcodes) {
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.forEach(child -> {
+                try {
+                    String visibility = (String) child.get(ContentAPIParams.visibility.name());
+                    if (StringUtils.equalsIgnoreCase("Parent", visibility)) {
+                        existingDialcodes.addAll(getDialCodes(child));
+                    }
+                } catch (Exception e) {
+                    throw new ServerException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
+                            "Something Went Wrong While Linking DIAL Code");
+                }
+                getAssignedDialCodes((List<Map<String, Object>>) child.get(ContentAPIParams.children.name()), existingDialcodes);
+            });
+        }
+    }
+
+    /**
+     *
+     * @param contentId
+     * @param existingDialCodes
+     */
+    private void validateDuplicateDialCodes(String contentId, List<String> existingDialCodes, Map<String, List<String>> requestMap, List<Map<String, Object>> childrens) {
+        Response response = getDataNode(TAXONOMY_ID, contentId);
+        if (!checkError(response)) {
+            Node node = (Node) response.get("node");
+            List<String> dialcodes = getDialCodes(node.getMetadata());
+            if (CollectionUtils.isNotEmpty(dialcodes))
+                existingDialCodes.addAll(dialcodes);
+
+        }
+        getAssignedDialCodes(childrens, existingDialCodes);
+
+        if (CollectionUtils.isNotEmpty(requestMap.values()))
+            existingDialCodes.addAll(requestMap.values().stream().flatMap(l -> l.stream()).collect(Collectors.toList()));
+
+        List<String> duplicateDialcodes = existingDialCodes.stream().filter(item -> Collections.frequency(existingDialCodes, item) > 1).distinct().collect(Collectors.toList());
+
+        if (CollectionUtils.isNotEmpty(duplicateDialcodes))
+            throw new ClientException(DialCodeEnum.ERR_DIALCODE_LINK.name(), "Duplicate DIAL Codes Found : " + duplicateDialcodes);
+
+    }
+
+    /**
+     *
+     * @param map
+     * @return
+     */
+    public List<String> getDialCodes(Map<String, Object> map) {
+        if (MapUtils.isNotEmpty(map) && map.containsKey("dialcodes")) {
+            List<String> dialcodes = mapper.convertValue(map.get("dialcodes"), new TypeReference<List<String>>(){});
+            return (dialcodes.stream().filter(f -> StringUtils.isNotBlank(f)).collect(toList()));
+        }
+        return new ArrayList<>();
+    }
+
+
+    /**
      * @param resultMap
      * @return
      */
@@ -441,7 +505,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
             if (!invalidContentList.isEmpty())
                 messages.add("Content not found with id(s): " + String.join(",", invalidContentList));
             if (!updateFailedList.isEmpty())
-                messages.add("Content link with dialcode(s) fialed for id(s): " + String.join(",", updateFailedList));
+                messages.add("Content link with dialcode(s) failed for id(s): " + String.join(",", updateFailedList));
 
             resp.setParams(getErrorStatus(DialCodeEnum.ERR_DIALCODE_LINK.name(), String.join(",", messages)));
         }

@@ -2802,6 +2802,19 @@
 					"renderingHints": "",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "languageCode",
+					"title": "Language Code",
+					"description": "R-1.15",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
