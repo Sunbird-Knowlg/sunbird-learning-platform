@@ -30,6 +30,7 @@ public class SyncMessageGenerator {
 	private static ControllerUtil util = new ControllerUtil();
 	private static final String TAXONOMY_ID = "domain";
 	private static List<String> nestedFields = Arrays.asList(Platform.config.getString("content.nested.fields").split(","));
+	private static List<String> ALLOWED_ES_PROPS = Arrays.asList("IL_FUNC_OBJECT_TYPE", "IL_SYS_NODE_TYPE", "IL_UNIQUE_ID", "SYS_INTERNAL_LAST_UPDATED_ON");
 
 	public static Map<String, Object> getMessages(List<Node> nodes, String objectType,  Map<String, String> relationMap, Map<String, String> errors){
 		Map<String, Object> messages = new HashMap<>();
@@ -50,9 +51,7 @@ public class SyncMessageGenerator {
 				//Map<String, String> relationMap = definitionMap.get(node.getObjectType());
 				if (relationMap != null) {
 					Map<String, Object> nodeMap = getMessage(node);
-					Map<String, Object>  message = getJSONMessage(nodeMap, relationMap);
-					if (null != indexablePropslist && !indexablePropslist.isEmpty())
-						filterIndexableProps(message, indexablePropslist);
+					Map<String, Object>  message = getJSONMessage(nodeMap, relationMap, indexablePropslist);
 					messages.put(node.getIdentifier(), message);
 				}
 			} catch (Exception e) {
@@ -62,7 +61,7 @@ public class SyncMessageGenerator {
 		return messages;
 	}
 
-	public static Map<String, Object> getJSONMessage(Map<String, Object> message, Map<String, String> relationMap) throws Exception {
+	public static Map<String, Object> getJSONMessage(Map<String, Object> message, Map<String, String> relationMap, List<String> indexablePropsList) throws Exception {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
@@ -71,13 +70,14 @@ public class SyncMessageGenerator {
 				for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 					if (propertyMap != null && propertyMap.getKey() != null) {
 						String propertyName = (String) propertyMap.getKey();
-						// new value of the property
-						Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv");
-						if (nestedFields.contains(propertyName)) {
-							propertyNewValue = mapper.readValue((String) propertyNewValue, new TypeReference<Object>() {
-							});
+						// filter metadata based on definition
+						if (CollectionUtils.isNotEmpty(indexablePropsList)) {
+							if (indexablePropsList.contains(propertyName)) {
+								addMetadataToDocument(propertyMap, propertyName, indexDocument);
+							}
+						} else {
+							addMetadataToDocument(propertyMap, propertyName, indexDocument);
 						}
-						indexDocument.put(propertyName, propertyNewValue);
 					}
 				}
 			}
@@ -213,15 +213,30 @@ public class SyncMessageGenerator {
 				propsList.add((String) property.get("propertyName"));
 			}
 		}
+		propsList.addAll(ALLOWED_ES_PROPS);
 		return propsList;
 	}
 
+
 	/**
 	 *
-	 * @param documentMap
-	 * @param indexablePropsList
+	 * @param propertyMap
+	 * @param propertyName
+	 * @param indexDocument
+	 * @throws Exception
 	 */
-	private static void filterIndexableProps(Map<String, Object> documentMap, final List<String> indexablePropsList) {
-		documentMap.keySet().removeIf(propKey -> !indexablePropsList.contains(propKey));
+	private static void addMetadataToDocument(Map.Entry<String, Object> propertyMap, String propertyName, Map<String, Object> indexDocument) throws Exception {
+		Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv");
+		// New value from transaction data is null, then remove the property from document
+		if (propertyNewValue == null)
+			indexDocument.remove(propertyName);
+		else {
+			if (nestedFields.contains(propertyName)) {
+				propertyNewValue = mapper.readValue((String) propertyNewValue,
+						new TypeReference<Object>() {
+						});
+			}
+			indexDocument.put(propertyName, propertyNewValue);
+		}
 	}
 }
