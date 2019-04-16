@@ -311,7 +311,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private List<String> getUnitFromLiveContent(){
 		Node liveContent = util.getNode(ContentWorkflowPipelineParams.domain.name(), contentId);
 		List<String> childNodes = null;
-		childNodes =(List<String>)liveContent.getMetadata().get("childNodes");
+		childNodes = new ArrayList<>(Arrays.asList((String[])liveContent.getMetadata().get("childNodes")));
 		if(CollectionUtils.isNotEmpty(childNodes)) {
 			List<Relation> outRelations = liveContent.getOutRelations();
 			if(CollectionUtils.isNotEmpty(outRelations)) {
