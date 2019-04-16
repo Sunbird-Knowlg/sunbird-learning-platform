@@ -1,6 +1,8 @@
 package org.ekstep.content.mgr.impl.operation.content;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.graph.dac.model.Node;
@@ -11,6 +13,7 @@ import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -62,10 +65,25 @@ public class FindOperation extends BaseContentManager {
             contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
         else
             contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
-
+        updateContentTaggedProperty(contentMap, mode);
         response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
         response.setParams(getSucessStatus());
         return response;
     }
-
+    private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
+        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.with.list")?
+                Platform.config.getBoolean("content.tagging.with.list"):
+                true;
+        if(!StringUtils.equals(mode,"edit") && !contentTaggingFlag) {
+            List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+                    Platform.config.getStringList("content.tagging.property"):
+                    new ArrayList<>(Arrays.asList("subject","medium"));
+            contentTaggedKeys.forEach(contentTagKey -> {
+                if(contentMap.containsKey(contentTagKey)) {
+                    List<String> prop = Arrays.asList((String[])contentMap.get(contentTagKey));
+                    contentMap.put(contentTagKey, prop.get(0));
+                }
+            });
+        }
+    }
 }
