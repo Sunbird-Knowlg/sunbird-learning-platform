@@ -892,84 +892,32 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
 	}
-	
-	
-	private Map<String, Object> processChild(Map<String, Object> node) {
 
+	private Map<String, Object> processChild(Map<String, Object> node) {
 		Map<String, Object> result = new HashMap<>();
-		Set<Object> language = new HashSet<Object>();
-		Set<Object> concepts = new HashSet<Object>();
-		Set<Object> domain = new HashSet<Object>();
-		Set<Object> grade = new HashSet<Object>();
-		Set<Object> age = new HashSet<Object>();
-		Set<Object> medium = new HashSet<Object>();
-		Set<Object> subject = new HashSet<Object>();
-		Set<Object> genre = new HashSet<Object>();
-		Set<Object> theme = new HashSet<Object>();
-		Set<Object> keywords = new HashSet<Object>();
-		if (null != node.get("language")) {
-			//String[] langData = (String[]) node.get("language");
-			//language = new HashSet<Object>(Arrays.asList(langData));
-			language = new HashSet<Object>((List<String>)node.get("language"));
-			result.put("language", language);
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.domain.name())) {
-			//String[] domainData = (String[]) node.get(ContentWorkflowPipelineParams.domain.name());
-			//domain = new HashSet<Object>(Arrays.asList(domainData));
-			domain = new HashSet<Object>((List<String>)node.get(ContentWorkflowPipelineParams.domain.name()));
-			result.put(ContentWorkflowPipelineParams.domain.name(), domain);
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.gradeLevel.name())) {
-			//String[] gradeData = (String[]) node.get(ContentWorkflowPipelineParams.gradeLevel.name());
-			//grade = new HashSet<Object>(Arrays.asList(gradeData));
-			grade = new HashSet<Object>((List<String>)node.get(ContentWorkflowPipelineParams.gradeLevel.name()));
-			result.put(ContentWorkflowPipelineParams.gradeLevel.name(), grade);
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.ageGroup.name())) {
-			//String[] ageData = (String[]) node.get(ContentWorkflowPipelineParams.ageGroup.name());
-			//age = new HashSet<Object>(Arrays.asList(ageData));
-			age = new HashSet<Object>((List<String>)node.get(ContentWorkflowPipelineParams.ageGroup.name()));
-			result.put(ContentWorkflowPipelineParams.ageGroup.name(), age);
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.medium.name())) {
-			String mediumData = (String) node.get(ContentWorkflowPipelineParams.medium.name());
-			medium = new HashSet<Object>(Arrays.asList(mediumData));
-			result.put(ContentWorkflowPipelineParams.medium.name(), medium);
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.subject.name())) {
-			String subjectData = (String) node.get(ContentWorkflowPipelineParams.subject.name());
-			subject = new HashSet<Object>(Arrays.asList(subjectData));
-			result.put(ContentWorkflowPipelineParams.subject.name(), subject);
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.genre.name())) {
-			//String[] genreData = (String[]) node.get(ContentWorkflowPipelineParams.genre.name());
-			//genre = new HashSet<Object>(Arrays.asList(genreData));
-			genre = new HashSet<Object>((List<String>)node.get(ContentWorkflowPipelineParams.genre.name()));
-			result.put(ContentWorkflowPipelineParams.genre.name(), genre);
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.theme.name())) {
-			//String[] themeData = (String[]) node.get(ContentWorkflowPipelineParams.theme.name());
-			//theme = new HashSet<Object>(Arrays.asList(themeData));
-			theme = new HashSet<Object>((List<String>)node.get(ContentWorkflowPipelineParams.theme.name()));
-			result.put(ContentWorkflowPipelineParams.theme.name(), theme);
-		}
-		if (null != node.get(ContentWorkflowPipelineParams.keywords.name())) {
-			//String[] keyData = (String[]) node.get(ContentWorkflowPipelineParams.keywords.name());
-			keywords = new HashSet<Object>((List<String>)node.get(ContentWorkflowPipelineParams.keywords.name()));
-			result.put(ContentWorkflowPipelineParams.keywords.name(), keywords);
+		List<String> taggingProperties = Arrays.asList("language", "domain", "gradeLevel", "ageGroup", "medium", "subject", "genre", "theme", "keywords");
+		for(String prop : node.keySet()) {
+			if(taggingProperties.contains(prop)) {
+				Object o = node.get(prop);
+				if(o instanceof String)
+					result.put(prop, new HashSet<Object>(Arrays.asList((String)o)));
+				if(o instanceof List)
+					result.put(prop, new HashSet<Object>((List<String>)o));
+			}
 		}
 		if (null != node.get(ContentWorkflowPipelineParams.concepts.name())) {
 			List<Map<String, Object>> conceptList = (List<Map<String, Object>>) node.get(ContentWorkflowPipelineParams.concepts.name());
+			Set<Object> concepts = new HashSet<Object>();
 			for(Map<String, Object> concept : conceptList) {
 				concepts.add(concept.get("identifier"));
 			}
-		}
-		if (null != concepts && !concepts.isEmpty()) {
-			result.put(ContentWorkflowPipelineParams.concepts.name(), concepts);
+			if (null != concepts && !concepts.isEmpty()) {
+				result.put(ContentWorkflowPipelineParams.concepts.name(), concepts);
+			}
 		}
 		return result;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap){
 		if (dataMap.isEmpty()) {

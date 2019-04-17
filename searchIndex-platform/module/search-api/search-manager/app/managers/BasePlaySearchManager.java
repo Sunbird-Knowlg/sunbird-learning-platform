@@ -2,6 +2,7 @@ package managers;
 
 import static akka.pattern.Patterns.ask;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +44,11 @@ import play.mvc.Results;
 public class BasePlaySearchManager extends Results {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
+	private static Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
+			Platform.config.getBoolean("content.tagging.backward_enable"): false;
+	private static List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+			Platform.config.getStringList("content.tagging.property"):
+			new ArrayList<>(Arrays.asList("subject","medium"));
 
 	protected Promise<Result> getSearchResponse(Request request) {
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
@@ -152,16 +158,25 @@ public class BasePlaySearchManager extends Results {
 				params.setErrmsg(null);
 			}
 			response.setParams(params);
-			if(response.getResult().containsKey("content")){
+			if(response.getResult().containsKey("content")) {
 				List<Map<String,Object>> contentMap = (List<Map<String, Object>>) response.getResult().get("content");
 				for(Map<String,Object> content : contentMap){
 					if(content.containsKey("variants")){
 						Map<String,Object> variantsMap = (Map<String,Object>) mapper.readValue((String) content.get("variants"), Map.class);
 						content.put("variants",variantsMap);
+						updateContentTaggedProperty(content);
 						contentMap.set(contentMap.indexOf(content), content);
 					}
-					response.getResult().put("content", contentMap);
 				}
+				response.getResult().put("content", contentMap);
+			}
+			if(response.getResult().containsKey("collections")) {
+				List<Map<String,Object>> collectionList = (List<Map<String, Object>>) response.getResult().get("collections");
+				for(Map<String,Object> collection : collectionList){
+					updateContentTaggedProperty(collection);
+					collectionList.set(collectionList.indexOf(collection), collection);
+				}
+				response.getResult().put("collections", collectionList);
 			}
 			return mapper.writeValueAsString(response);
 		} catch (JsonProcessingException e) {
@@ -170,6 +185,17 @@ public class BasePlaySearchManager extends Results {
 			e.printStackTrace();
 		}
 		return "";
+	}
+
+	private void updateContentTaggedProperty(Map<String,Object> content) throws Exception {
+		if(contentTaggingFlag) {
+			for(String contentTagKey : contentTaggedKeys) {
+				if(content.containsKey(contentTagKey)) {
+					List<String> prop = mapper.readValue((String) content.get("contentTagKey"), List.class);
+					content.put(contentTagKey, prop.get(0));
+				}
+			}
+		}
 	}
 
 	private String getErrorMsg(String errorMsg) {
