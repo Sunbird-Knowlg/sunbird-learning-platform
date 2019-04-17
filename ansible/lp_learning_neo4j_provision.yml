@@ -21,7 +21,7 @@
       set_fact:
         server_id: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}{{ loop.index }}{% endif %}{% endfor %}"
   roles: 
-    - java
+    - jdk-1.8.0_121
     - neo4j-cluster
     - logstash
   
