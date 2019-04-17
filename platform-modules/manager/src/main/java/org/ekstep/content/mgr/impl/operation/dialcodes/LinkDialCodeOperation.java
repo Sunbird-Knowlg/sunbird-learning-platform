@@ -55,7 +55,6 @@ public class LinkDialCodeOperation extends BaseContentManager {
         Map<String, Set<String>> resultMap = initializeResultMap();
         List<Map<String, Object>> reqList = getRequestList(reqObj);
         Boolean isCollectionMode = false;
-        Boolean isCollectionImageReq = true;
 
         // collection dial link
         if (StringUtils.equalsIgnoreCase("collection", mode) && StringUtils.isNotBlank(contentId)) {
@@ -67,21 +66,10 @@ public class LinkDialCodeOperation extends BaseContentManager {
         prepareRequestMap(reqList, requestMap);
 
         if (isCollectionMode) {
-            if (requestMap.containsKey(contentId)) {
-                Map<String, List<String>> req = new HashMap<String, List<String>>(){{
-                    put(contentId, requestMap.get(contentId));
-                }};
-                updateDialCodeToContents(req, resultMap);
-                requestMap.remove(contentId);
-                isCollectionImageReq = false;
-            }
             updateDialCodeToCollection(contentId, requestMap, resultMap);
         } else {
             updateDialCodeToContents(requestMap, resultMap);
         }
-
-        if (isCollectionMode && isCollectionImageReq)
-            updateDataNode(contentId, new HashMap<String, Object>(), "collection");
 
         Response resp = prepareResponse(resultMap);
 
@@ -282,6 +270,12 @@ public class LinkDialCodeOperation extends BaseContentManager {
     private void updateDialCodeToCollection(String rootNodeId, Map<String, List<String>> requestMap,
                                             Map<String, Set<String>> resultMap) throws Exception {
         List<String> existingDialcodes = new ArrayList<String>();
+        Map<String, List<String>> collReqMap = new HashMap<String, List<String>>();
+        if (requestMap.containsKey(rootNodeId)) {
+            collReqMap.put(rootNodeId, getList(requestMap.get(rootNodeId)));
+            requestMap.remove(rootNodeId);
+        }
+
         Response hierarchyResponse = getCollectionHierarchy(getImageId(rootNodeId));
         if(checkError(hierarchyResponse)){
             throw new ServerException(DialCodeEnum.ERR_DIALCODE_LINK.name(),
@@ -289,16 +283,37 @@ public class LinkDialCodeOperation extends BaseContentManager {
         }
         Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
         List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
-        validateDuplicateDialCodes(rootNodeId, existingDialcodes, requestMap, rootChildren);
+
         updateCollectionUnits(rootNodeId, rootChildren, requestMap, resultMap);
-        if(MapUtils.isNotEmpty(requestMap))
-            resultMap.get("invalidContentList").addAll(requestMap.keySet());
+        if (MapUtils.isNotEmpty(collReqMap)) {
+            List<String> dials = getList(collReqMap.get(rootNodeId));
+            validateDuplicateDialCodes(rootNodeId, existingDialcodes, rootChildren, dials);
+        } else {
+            validateDuplicateDialCodes(rootNodeId, existingDialcodes, rootChildren, null);
+        }
+
         //update cassandra
         Response response = updateCollectionHierarchy(getImageId(rootNodeId),rootHierarchy);
         if (!checkError(response))
             resultMap.get("updateSuccessList").addAll(requestMap.keySet());
         else
             resultMap.get("updateFailedList").addAll(requestMap.keySet());
+
+        Map<String, Object> req = new HashMap<String, Object>();
+        if (null != collReqMap.get(rootNodeId)) {
+            List<String> dialcodes = getList(collReqMap.get(rootNodeId));
+            if (CollectionUtils.isNotEmpty(dialcodes)) {
+                req.put(DialCodeEnum.dialcodes.name(), dialcodes);
+
+            } else {
+                req.put(DialCodeEnum.dialcodes.name(), null);
+            }
+        }
+       Response nodeResp =  updateDataNode(rootNodeId, req, "collection");
+        if (!checkError(nodeResp))
+            resultMap.get("updateSuccessList").addAll(req.keySet());
+        else
+            resultMap.get("updateFailedList").addAll(req.keySet());
 
     }
 
@@ -445,31 +460,27 @@ public class LinkDialCodeOperation extends BaseContentManager {
      * @param contentId
      * @param existingDialCodes
      */
-    private void validateDuplicateDialCodes(String contentId, List<String> existingDialCodes, Map<String, List<String>> requestMap, List<Map<String, Object>> childrens) {
-        Boolean isLive = false;
-        Response response = getDataNode(TAXONOMY_ID, contentId);
+    private void validateDuplicateDialCodes(String contentId, List<String> existingDialCodes, List<Map<String, Object>> childrens, List<String> dials) {
+        Node node = null;
+        Response response = getDataNode(TAXONOMY_ID, getImageId(contentId));
         if (!checkError(response)) {
-            Node node = (Node) response.get("node");
-            isLive = StringUtils.equalsIgnoreCase("Live", (String) node.getMetadata().get("status")) ? true : false;
-            List<String> dialcodes = getDialCodes(node.getMetadata());
-            if (CollectionUtils.isNotEmpty(dialcodes))
-                existingDialCodes.addAll(dialcodes);
-        }
-
-        if (isLive) {
-            Response imageResponse = getDataNode(TAXONOMY_ID, contentId);
-            if (!checkError(imageResponse)) {
-                Node node = (Node) response.get("node");
-                List<String> dialcodes = getDialCodes(node.getMetadata());
-                if (CollectionUtils.isNotEmpty(dialcodes))
-                    existingDialCodes.addAll(dialcodes);
+            node = (Node) response.get("node");
+        } else {
+            response = getDataNode(TAXONOMY_ID, contentId);
+            if (!checkError(response)) {
+                node = (Node) response.get("node");
             }
         }
+        if (null != node) {
+            List<String> dialcodes = getDialCodes(node.getMetadata());
+            if (null == dials && CollectionUtils.isNotEmpty(dialcodes))
+                existingDialCodes.addAll(dialcodes);
+            else if (CollectionUtils.isNotEmpty(dials)) {
+                existingDialCodes.addAll(dials);
+            }
+        }
+
         getAssignedDialCodes(childrens, existingDialCodes);
-
-        if (CollectionUtils.isNotEmpty(requestMap.values()))
-            existingDialCodes.addAll(requestMap.values().stream().flatMap(l -> l.stream()).collect(toList()));
-
         Map<String, Long> dialsGroupBy = existingDialCodes.stream().collect(Collectors.groupingByConcurrent(Function.identity(), Collectors.counting()));
         List<String> duplicateDials = dialsGroupBy.entrySet().stream().filter(entry -> entry.getValue() > 1).map(entry -> entry.getKey()).collect(toList());
 

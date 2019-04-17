@@ -713,6 +713,66 @@
             "defaultValue": "",
             "renderingHints": "",
             "indexed": true
+        },
+        {
+          "propertyName": "questionTitle",
+          "title": "Question Title",
+          "description": "R1.15",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "data",
+          "title": "Question Data",
+          "description": "R1.15",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": false
+        },
+        {
+          "propertyName": "appId",
+          "title": "appId",
+          "description": "R1.15",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "lastStatusChangedOn",
+          "title": "lastStatusChangedOn",
+          "description": "Timestamp of last status update",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "consumerId",
+          "title": "consumerId",
+          "description": "R1.15",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
         }
         ],
         "inRelations": [],
