@@ -680,7 +680,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Term",
+					"dataType": "TermList",
 					"propertyName": "subject",
 					"title": "Subject",
 					"description": "Subject of the Content to use to teach",
@@ -693,7 +693,7 @@
 				},
 				{
 					"required": false,
-					"dataType": "Term",
+					"dataType": "TermList",
 					"propertyName": "medium",
 					"title": "Medium",
 					"description": "Medium of instruction. e.g: English, Hindi etc",
