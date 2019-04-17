@@ -289,11 +289,12 @@ public class LinkDialCodeOperation extends BaseContentManager {
         }
         Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
         List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
-        validateDuplicateDialCodes(rootNodeId, existingDialcodes, requestMap, rootChildren);
+
         updateCollectionUnits(rootNodeId, rootChildren, requestMap, resultMap);
         if(MapUtils.isNotEmpty(requestMap))
             resultMap.get("invalidContentList").addAll(requestMap.keySet());
         //update cassandra
+        validateDuplicateDialCodes(rootNodeId, existingDialcodes, rootChildren);
         Response response = updateCollectionHierarchy(getImageId(rootNodeId),rootHierarchy);
         if (!checkError(response))
             resultMap.get("updateSuccessList").addAll(requestMap.keySet());
@@ -445,7 +446,7 @@ public class LinkDialCodeOperation extends BaseContentManager {
      * @param contentId
      * @param existingDialCodes
      */
-    private void validateDuplicateDialCodes(String contentId, List<String> existingDialCodes, Map<String, List<String>> requestMap, List<Map<String, Object>> childrens) {
+    private void validateDuplicateDialCodes(String contentId, List<String> existingDialCodes, List<Map<String, Object>> childrens) {
         Boolean isLive = false;
         Response response = getDataNode(TAXONOMY_ID, contentId);
         if (!checkError(response)) {
@@ -466,10 +467,6 @@ public class LinkDialCodeOperation extends BaseContentManager {
             }
         }
         getAssignedDialCodes(childrens, existingDialCodes);
-
-        if (CollectionUtils.isNotEmpty(requestMap.values()))
-            existingDialCodes.addAll(requestMap.values().stream().flatMap(l -> l.stream()).collect(toList()));
-
         Map<String, Long> dialsGroupBy = existingDialCodes.stream().collect(Collectors.groupingByConcurrent(Function.identity(), Collectors.counting()));
         List<String> duplicateDials = dialsGroupBy.entrySet().stream().filter(entry -> entry.getValue() > 1).map(entry -> entry.getKey()).collect(toList());
 
