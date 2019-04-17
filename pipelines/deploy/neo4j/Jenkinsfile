@@ -43,6 +43,7 @@ node() {
                        mv learning-graph-extension-*.jar ansible
                        mv custom-procedures*.jar ansible
                     """
+                    ansiblePlaybook = "${currentWs}/ansible/lp_learning_neo4j_deploy.yml"
                     ansibleExtraArgs = "--vault-password-file /var/lib/jenkins/secrets/vault-pass"
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
