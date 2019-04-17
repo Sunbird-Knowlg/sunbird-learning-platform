@@ -66,7 +66,12 @@ public abstract class BaseManager {
 	}
 
 	public Response getResponse(Request request) {
-		ActorRef router = RequestRouterPool.getRequestRouter();
+		return getResponse(request, null);
+	}
+
+	public Response getResponse(Request request, ActorRef router) {
+		if (null == router)
+			router = RequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
@@ -79,6 +84,7 @@ public abstract class BaseManager {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
+			TelemetryManager.error("Error! Something went wrong: " + e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
@@ -150,7 +156,7 @@ public abstract class BaseManager {
 		return setContext(request, graphId, manager, operation);
 	}
 
-	protected Request getRequest(String graphId, String manager, String operation, String paramName, Object vo) {
+	public Request getRequest(String graphId, String manager, String operation, String paramName, Object vo) {
 		Request request = getRequest(graphId, manager, operation);
 		request.put(paramName, vo);
 		return request;
@@ -185,7 +191,7 @@ public abstract class BaseManager {
 		return response;
 	}
 
-	protected boolean checkError(Response response) {
+	public boolean checkError(Response response) {
 		ResponseParams params = response.getParams();
 		if (null != params) {
 			if (StringUtils.equals(StatusType.failed.name(), params.getStatus())) {
@@ -312,5 +318,5 @@ public abstract class BaseManager {
 	protected boolean isEmptyOrNull(Object... o) {
 		return RequestValidatorUtil.isEmptyOrNull(o);
 	}
-	
+
 }

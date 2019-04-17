@@ -1,5 +1,0 @@
-- hosts: redisall
-  roles:
-    - redis
-  serial: 1
-  
