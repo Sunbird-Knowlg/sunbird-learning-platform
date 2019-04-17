@@ -49,7 +49,6 @@ public class BasePlaySearchManager extends Results {
 			new ArrayList<>(Arrays.asList("subject","medium"));
 
 	protected Promise<Result> getSearchResponse(Request request) {
-        System.out.println("contentTaggingFlag: " + contentTaggingFlag);
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
 		Promise<Result> res = null;
 		try {
@@ -163,9 +162,10 @@ public class BasePlaySearchManager extends Results {
 					if(content.containsKey("variants")){
 						Map<String,Object> variantsMap = (Map<String,Object>) mapper.readValue((String) content.get("variants"), Map.class);
 						content.put("variants",variantsMap);
-						updateContentTaggedProperty(content);
 						contentMap.set(contentMap.indexOf(content), content);
 					}
+                    updateContentTaggedProperty(content);
+                    contentMap.set(contentMap.indexOf(content), content);
 				}
 				response.getResult().put("content", contentMap);
 			}
@@ -193,7 +193,6 @@ public class BasePlaySearchManager extends Results {
 					List<String> prop = null;
 					try {
 					    Object value = content.get(contentTagKey);
-					    System.out.println("Value for " + contentTagKey + " is " + value);
 					    if (value instanceof String[]) {
 					        prop = Arrays.asList((String[]) value);
                         } else if(value instanceof  List) {
@@ -203,7 +202,6 @@ public class BasePlaySearchManager extends Results {
 						}
 						content.put(contentTagKey, prop.get(0));
 					} catch (IOException e) {
-					    System.out.println("updateContentTaggedProperty got exception:" + e.getMessage());
 						content.put(contentTagKey, (String) content.get(contentTagKey));
 					}
 
