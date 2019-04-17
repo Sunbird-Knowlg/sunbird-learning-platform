@@ -25,6 +25,7 @@ import play.libs.F.Promise;
 import play.mvc.Result;
 import play.mvc.Results;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -184,12 +185,18 @@ public class BasePlaySearchManager extends Results {
 		return "";
 	}
 
-	private void updateContentTaggedProperty(Map<String,Object> content) throws Exception {
+	private void updateContentTaggedProperty(Map<String,Object> content) {
 		if(contentTaggingFlag) {
 			for(String contentTagKey : contentTaggedKeys) {
 				if(content.containsKey(contentTagKey)) {
-					List<String> prop = mapper.readValue((String) content.get("contentTagKey"), List.class);
-					content.put(contentTagKey, prop.get(0));
+					List<String> prop = null;
+					try {
+						prop = mapper.readValue((String) content.get("contentTagKey"), List.class);
+						content.put(contentTagKey, prop.get(0));
+					} catch (IOException e) {
+						content.put(contentTagKey, (String) content.get("contentTagKey"));
+					}
+
 				}
 			}
 		}
