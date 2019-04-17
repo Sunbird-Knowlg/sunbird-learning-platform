@@ -73,7 +73,7 @@ public class FindOperation extends BaseContentManager {
     private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
         Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
                 Platform.config.getBoolean("content.tagging.backward_enable"): false;
-        if(!StringUtils.equals(mode,"edit") && !contentTaggingFlag) {
+        if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
             List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
                     Platform.config.getStringList("content.tagging.property"):
                     new ArrayList<>(Arrays.asList("subject","medium"));
