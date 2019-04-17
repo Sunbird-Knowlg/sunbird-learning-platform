@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class AuditEventGenerator implements ISamzaService {
 
-	static JobLogger LOGGER = new JobLogger(AuditEventGenerator.class);
+	private static JobLogger LOGGER = new JobLogger(AuditEventGenerator.class);
 	private Config config = null;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private SystemStream systemStream = null;

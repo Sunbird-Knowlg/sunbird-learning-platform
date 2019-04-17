@@ -16,6 +16,7 @@ import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.ekstep.common.Platform;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.searchindex.transformer.IESResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
@@ -665,6 +666,38 @@ public class ElasticSearchUtil {
 					} catch (IOException e) {
 					}
 			}
+	}
+
+	/**
+	 * This method perform delete operation in bulk using document ids.
+	 *
+	 * @param indexName
+	 * @param documentType
+	 * @param identifiers
+	 * @throws Exception
+	 */
+	public static void bulkDeleteDocumentById(String indexName, String documentType, List<String> identifiers) throws Exception {
+		if (isIndexExists(indexName)) {
+			if (null != identifiers && !identifiers.isEmpty()) {
+				int count = 0;
+				BulkRequest request = new BulkRequest();
+				for (String documentId : identifiers) {
+					count++;
+					request.add(new DeleteRequest(indexName, documentType, documentId));
+					if (count % BATCH_SIZE == 0 || (count % BATCH_SIZE < BATCH_SIZE && count == identifiers.size())) {
+						BulkResponse bulkResponse = getClient(indexName).bulk(request);
+						//TODO: Iterate through response and return the identifiers successfully processed.
+						if (bulkResponse.hasFailures()) {
+							//TODO: Implement Retry Mechanism
+							TelemetryManager
+									.log("Error Occured While Deleting Elasticsearch Documents in Bulk : " + bulkResponse.buildFailureMessage());
+						}
+					}
+				}
+			}
+		} else {
+			throw new ServerException("ERR_BULK_DELETE_ES_DATA", "ES Index Not Found With Id : " + indexName);
+		}
 	}
 
 }

@@ -1,9 +1,12 @@
 package org.ekstep.learning.actor;
 
 import akka.actor.ActorRef;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
@@ -65,10 +68,18 @@ public class ContentStoreActor extends BaseGraphManager {
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getCollectionHierarchy.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				Map<String, Object> hierarchy = hierarchyStore.getHierarchy(contentId);
+				if(MapUtils.isEmpty(hierarchy)) {
+					throw new ResourceNotFoundException(ResponseCode.RESOURCE_NOT_FOUND.name(), "Resource not found : " + contentId);
+				}
 				OK(ContentStoreParams.hierarchy.name(), hierarchy, sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.deleteHierarchy.name(), operation)) {
 				List<String> identifiers = (List<String>) request.get(ContentStoreParams.content_id.name());
 				hierarchyStore.deleteHierarchy(identifiers);
+				OK(sender());
+			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.saveOrUpdateHierarchy.name(), operation)) {
+				String contentId = (String) request.get(ContentStoreParams.content_id.name());
+				Map<String, Object> hierarchy = (Map<String, Object>) request.get(ContentStoreParams.hierarchy.name());
+				hierarchyStore.saveOrUpdateHierarchy(contentId, hierarchy);
 				OK(sender());
 			} else {
 				TelemetryManager.log("Unsupported operation: " + operation);

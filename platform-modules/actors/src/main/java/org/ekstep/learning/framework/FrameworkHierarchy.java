@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
@@ -89,7 +90,12 @@ public class FrameworkHierarchy extends BaseManager {
 	 * @throws Exception
 	 */
 	public Map<String, Object> getFrameworkHierarchy(String frameworkId) throws Exception{
-		return hierarchyStore.getHierarchy(frameworkId);
+		Map<String, Object> hierarchy = hierarchyStore.getHierarchy(frameworkId);
+		if(MapUtils.isEmpty(hierarchy)) {
+			throw new ResourceNotFoundException(ResponseCode.RESOURCE_NOT_FOUND.name(), "Framework not found : " +
+					frameworkId);
+		}
+		return  hierarchy;
 	}
 
 	private void pushFrameworkEvent(Node node) throws Exception {

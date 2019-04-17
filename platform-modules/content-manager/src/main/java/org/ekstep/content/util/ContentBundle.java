@@ -92,9 +92,9 @@ public class ContentBundle {
 		for (Map<String, Object> content : contents) {
 			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
 			String mimeType = (String) content.get(ContentWorkflowPipelineParams.mimeType.name());
-			if (children.contains(identifier))
+			/*if (children.contains(identifier))
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
-						ContentWorkflowPipelineParams.Parent.name());
+						ContentWorkflowPipelineParams.Parent.name());*/
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 			content.keySet().removeIf(metadata -> EXCLUDE_ECAR_METADATA_FIELDS.contains(metadata));
@@ -148,10 +148,6 @@ public class ContentBundle {
 			}
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
 					(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
-			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
-			if (!(StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status) 
-					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Unlisted.name(), status)))
-				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
 		}
 		return downloadUrls;
 

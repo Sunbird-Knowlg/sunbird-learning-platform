@@ -1,5 +1,0 @@
----
-object_denormalization_additional_config_dir: /etc/samza-jobs/{{env}}
-object_denormalization_additional_config: "{{object_denormalization_additional_config_dir}}/object-denormalization-additional-config.json"
-es_router_additional_config: "{{object_denormalization_additional_config_dir}}/es-router-additional-config.json"
-es_router_additional_secondary_config: "{{object_denormalization_additional_config_dir}}/es-router-additional-secondary-config.json"
