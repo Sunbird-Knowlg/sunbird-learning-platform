@@ -191,7 +191,11 @@ public class BasePlaySearchManager extends Results {
 				if(content.containsKey(contentTagKey)) {
 					List<String> prop = null;
 					try {
-						prop = mapper.readValue((String) content.get("contentTagKey"), List.class);
+						if(content.get("contentTagKey") instanceof  List) {
+							prop = (List<String>)content.get("contentTagKey");
+						}else {
+							prop = mapper.readValue((String) content.get("contentTagKey"), List.class);
+						}
 						content.put(contentTagKey, prop.get(0));
 					} catch (IOException e) {
 						content.put(contentTagKey, (String) content.get("contentTagKey"));
