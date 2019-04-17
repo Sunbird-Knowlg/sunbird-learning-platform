@@ -1,19 +1,8 @@
 package managers;
 
-import static akka.pattern.Patterns.ask;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.Collections;
-
+import akka.actor.ActorRef;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -30,16 +19,24 @@ import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import akka.actor.ActorRef;
 import play.libs.F;
 import play.libs.F.Function;
 import play.libs.F.Promise;
 import play.mvc.Result;
 import play.mvc.Results;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static akka.pattern.Patterns.ask;
 
 public class BasePlaySearchManager extends Results {
 	protected ObjectMapper mapper = new ObjectMapper();
