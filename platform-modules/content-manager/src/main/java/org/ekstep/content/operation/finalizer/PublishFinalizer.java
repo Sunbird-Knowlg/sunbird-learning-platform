@@ -742,16 +742,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
 				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
 					continue;
-				} else if ("subject".equalsIgnoreCase(entry.getKey())) {
-					Set<Object> subject = (HashSet<Object>) entry.getValue();
-					if (null != subject.iterator().next()) {
-						node.getMetadata().put(entry.getKey(), (String) subject.iterator().next());
-					}
-				} else if ("medium".equalsIgnoreCase(entry.getKey())) {
-					Set<Object> medium = (HashSet<Object>) entry.getValue();
-					if (null != medium.iterator().next()) {
-						node.getMetadata().put(entry.getKey(), (String) medium.iterator().next());
-					}
 				} else {
 					Set<String> valueSet = (HashSet<String>) entry.getValue();
 					String[] value = valueSet.toArray(new String[valueSet.size()]);
@@ -895,7 +885,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private Map<String, Object> processChild(Map<String, Object> node) {
 		Map<String, Object> result = new HashMap<>();
-		List<String> taggingProperties = Arrays.asList("language", "domain", "gradeLevel", "ageGroup", "medium", "subject", "genre", "theme", "keywords");
+		List<String> taggingProperties = Arrays.asList("language", "domain", "ageGroup", "genre", "theme", "keywords");
 		for(String prop : node.keySet()) {
 			if(taggingProperties.contains(prop)) {
 				Object o = node.get(prop);
