@@ -2911,6 +2911,19 @@
 					"renderingHints": "",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "processingError",
+					"title": "Processing Error",
+					"description": "R-1.15_Processing Error While Publish Operation",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
