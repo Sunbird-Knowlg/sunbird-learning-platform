@@ -1,4 +1,5 @@
 - hosts: learningall
+  become: yes
   vars:
     learnings:
       paths: ['/data', '/data/graphDB', '/data/logs', '/data/contentBundle', '/data/properties', '/home/learning/tmp', '/home/learning/platform']
