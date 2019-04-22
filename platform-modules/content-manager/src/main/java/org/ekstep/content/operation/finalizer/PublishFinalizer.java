@@ -25,6 +25,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
@@ -415,8 +416,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), getContentMap(node, childrenList));
 	}
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
-		Map<String, Object> collectionHierarchy  = new HashMap<>();
-		collectionHierarchy.putAll(node.getMetadata());
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+		Map<String, Object> collectionHierarchy  = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		collectionHierarchy.put("children", childrenList);
 		collectionHierarchy.put("identifier", node.getIdentifier());
 		collectionHierarchy.put("objectType", node.getObjectType());
