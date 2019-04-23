@@ -205,6 +205,23 @@
           "defaultValue": "",
           "renderingHints": "{'inputType': 'table', 'order': 7}",
           "indexed": true
+        },
+        {
+          "propertyName": "status",
+            "title": "Status",
+            "description": "Status of the framework",
+            "category": "Lifecycle",
+            "dataType": "Select",
+            "range":
+            [
+                "Live",
+                "Retired"
+            ],
+            "required": false,
+            "indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Live",
+            "renderingHints": "{'inputType': 'select', 'order': 5}"
         }
       ],
       "inRelations": [],
