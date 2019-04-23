@@ -416,11 +416,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
 		Map<String, Object> hierarchy = getContentMap(node, childrenList);
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
-		try{
-			RedisStoreUtil.save(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), mapper.writeValueAsString(hierarchy), COLLECTION_CACHE_TTL);
-		} catch (Exception e) {
-			TelemetryManager.error("Error while saving hierarchy to redis for ID : " + node.getIdentifier(), e);
-		}
+		RedisStoreUtil.saveData(node.getIdentifier(), hierarchy, COLLECTION_CACHE_TTL);
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
