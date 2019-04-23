@@ -3,6 +3,8 @@ package org.ekstep.content.mgr.impl.operation.hierarchy;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -10,6 +12,7 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.router.RequestRouterPool;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.kafka.KafkaClient;
@@ -25,8 +28,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +38,12 @@ import java.util.stream.Collectors;
 public class GetHierarchyOperation extends BaseContentManager {
 
     private SearchProcessor processor = new SearchProcessor();
+    private static ObjectMapper mapper = new ObjectMapper();
     private static final String IMAGE_SUFFIX = ".img";
+
+    /** 3Days TTL for Collection hierarchy cache*/
+    private static final int COLLECTION_CACHE_TTL = 259200;
+    private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
     /**
      * Get Collection Hierarchy
@@ -157,23 +165,35 @@ public class GetHierarchyOperation extends BaseContentManager {
      * @return
      */
     private Response getPublishedHierarchy(String rootId, String bookmarkId) {
-        Response rootResponse = getCollectionHierarchy(rootId);
-        if (!checkError(rootResponse)) {
-            Map<String, Object> rootHierarchy = (Map<String, Object>) rootResponse.getResult().get("hierarchy");
+        Response response = getSuccessResponse();
+        Map<String, Object> rootHierarchy = null;
+        String hierarchy = RedisStoreUtil.get(rootId);
+        if (StringUtils.isNotBlank(hierarchy)) {
+            rootHierarchy = mapper.convertValue(hierarchy, new TypeReference<Map<String, Object>>() {
+            });
+            response.getResult().put("content", rootHierarchy);
             return getHierarchyResponse(rootHierarchy, bookmarkId);
         } else {
-            if (StringUtils.isBlank(bookmarkId)) {
-                bookmarkId = rootId;
-                rootId = searchRootId(bookmarkId);
-                if (StringUtils.isNotBlank(rootId)) {
-                    rootResponse = getCollectionHierarchy(rootId);
-                    Map<String, Object> rootHierarchy = (Map<String, Object>) rootResponse.getResult().get("hierarchy");
-                    return getHierarchyResponse(rootHierarchy, bookmarkId);
-                } else {
-                    throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
-                }
+            response = getCollectionHierarchy(rootId);
+            if (!checkError(response)) {
+                rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
+                saveHierarchyToCache(rootId, rootHierarchy);
+                return getHierarchyResponse(rootHierarchy, bookmarkId);
             } else {
-                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given collection root object ID is invalid: " + rootId);
+                if (StringUtils.isBlank(bookmarkId)) {
+                    bookmarkId = rootId;
+                    rootId = searchRootId(bookmarkId);
+                    if (StringUtils.isNotBlank(rootId)) {
+                        response = getCollectionHierarchy(rootId);
+                        rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
+                        saveHierarchyToCache(rootId, rootHierarchy);
+                        return getHierarchyResponse(rootHierarchy, bookmarkId);
+                    } else {
+                        throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
+                    }
+                } else {
+                    throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given collection root object ID is invalid: " + rootId);
+                }
             }
         }
     }
@@ -318,6 +338,19 @@ public class GetHierarchyOperation extends BaseContentManager {
 
         edata.put("action", "collection-migration");
         edata.put("contentType", "TextBook");
+    }
+
+    /**
+     * This Method Save Collection Hierarchy to Redis Cache with predefined ttl.
+     * @param rootId
+     * @param hierarchy
+     */
+    private void saveHierarchyToCache(String rootId, Map<String, Object> hierarchy) {
+        try {
+            RedisStoreUtil.save(COLLECTION_CACHE_KEY_PREFIX + rootId, mapper.writeValueAsString(hierarchy), COLLECTION_CACHE_TTL);
+        } catch (Exception e) {
+            TelemetryManager.error("Error while saving hierarchy to redis for ID : " + rootId, e);
+        }
     }
 
 
