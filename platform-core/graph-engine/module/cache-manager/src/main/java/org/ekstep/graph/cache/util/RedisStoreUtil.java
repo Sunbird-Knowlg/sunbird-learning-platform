@@ -30,6 +30,32 @@ public class RedisStoreUtil {
 		}
 	}
 
+
+	public static void save(String key, String value, int ttl) {
+
+		Jedis jedis = getRedisConncetion();
+		try {
+			jedis.set(key, value);
+			if(ttl > 0)
+				jedis.expire(key, ttl);
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
+	public static String get(String key) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			return jedis.get(key);
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
 	public static String getNodeProperty(String graphId, String objectId, String nodeProperty) {
 
 		Jedis jedis = getRedisConncetion();
