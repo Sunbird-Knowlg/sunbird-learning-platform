@@ -43,7 +43,6 @@ public class GetHierarchyOperation extends BaseContentManager {
 
     /** 3Days TTL for Collection hierarchy cache*/
     private static final int COLLECTION_CACHE_TTL = 259200;
-    private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
     /**
      * Get Collection Hierarchy
@@ -177,7 +176,7 @@ public class GetHierarchyOperation extends BaseContentManager {
             response = getCollectionHierarchy(rootId);
             if (!checkError(response)) {
                 rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
-                saveHierarchyToCache(rootId, rootHierarchy);
+                RedisStoreUtil.saveData(rootId, rootHierarchy, COLLECTION_CACHE_TTL);
                 return getHierarchyResponse(rootHierarchy, bookmarkId);
             } else {
                 if (StringUtils.isBlank(bookmarkId)) {
@@ -186,7 +185,7 @@ public class GetHierarchyOperation extends BaseContentManager {
                     if (StringUtils.isNotBlank(rootId)) {
                         response = getCollectionHierarchy(rootId);
                         rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
-                        saveHierarchyToCache(rootId, rootHierarchy);
+                        RedisStoreUtil.saveData(rootId, rootHierarchy, COLLECTION_CACHE_TTL);
                         return getHierarchyResponse(rootHierarchy, bookmarkId);
                     } else {
                         throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
@@ -339,19 +338,5 @@ public class GetHierarchyOperation extends BaseContentManager {
         edata.put("action", "collection-migration");
         edata.put("contentType", "TextBook");
     }
-
-    /**
-     * This Method Save Collection Hierarchy to Redis Cache with predefined ttl.
-     * @param rootId
-     * @param hierarchy
-     */
-    private void saveHierarchyToCache(String rootId, Map<String, Object> hierarchy) {
-        try {
-            RedisStoreUtil.save(COLLECTION_CACHE_KEY_PREFIX + rootId, mapper.writeValueAsString(hierarchy), COLLECTION_CACHE_TTL);
-        } catch (Exception e) {
-            TelemetryManager.error("Error while saving hierarchy to redis for ID : " + rootId, e);
-        }
-    }
-
 
 }
