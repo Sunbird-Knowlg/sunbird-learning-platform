@@ -16,7 +16,7 @@
           "indexed": true
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Select",
           "propertyName": "assetType",
           "title": "Asset Type",
@@ -131,7 +131,7 @@
           "indexed": true
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Select",
           "propertyName": "sector",
           "title": "Sector",
@@ -151,7 +151,7 @@
           "draft": false
         },
         {
-          "required": true,
+          "required": false,
           "dataType": "Select",
           "propertyName": "focusArea",
           "title": "Focus Area",
