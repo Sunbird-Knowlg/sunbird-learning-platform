@@ -104,6 +104,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	/** 3Days TTL for Collection hierarchy cache*/
 	private static final int COLLECTION_CACHE_TTL = 259200;
+	private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -416,8 +417,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Map<String, Object> hierarchy = getContentMap(node, childrenList);
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
 		try{
-			String key = "hierarchy_" + node.getIdentifier();
-			RedisStoreUtil.save(key, mapper.writeValueAsString(hierarchy), COLLECTION_CACHE_TTL);
+			RedisStoreUtil.save(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), mapper.writeValueAsString(hierarchy), COLLECTION_CACHE_TTL);
 		} catch (Exception e) {
 			TelemetryManager.error("Error while saving hierarchy to redis for ID : " + node.getIdentifier(), e);
 		}
