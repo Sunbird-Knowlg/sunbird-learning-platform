@@ -43,6 +43,7 @@ public class GetHierarchyOperation extends BaseContentManager {
 
     /** 3Days TTL for Collection hierarchy cache*/
     private static final int COLLECTION_CACHE_TTL = 259200;
+    private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
     /**
      * Get Collection Hierarchy
@@ -166,7 +167,7 @@ public class GetHierarchyOperation extends BaseContentManager {
     private Response getPublishedHierarchy(String rootId, String bookmarkId) {
         Response response = getSuccessResponse();
         Map<String, Object> rootHierarchy = null;
-        String hierarchy = RedisStoreUtil.get(rootId);
+        String hierarchy = RedisStoreUtil.get(COLLECTION_CACHE_KEY_PREFIX + rootId);
         if (StringUtils.isNotBlank(hierarchy)) {
             rootHierarchy = mapper.convertValue(hierarchy, new TypeReference<Map<String, Object>>() {
             });
