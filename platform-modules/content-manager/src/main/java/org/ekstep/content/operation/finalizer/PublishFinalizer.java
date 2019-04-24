@@ -103,7 +103,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	/** 3Days TTL for Collection hierarchy cache*/
-	private static final int CONTENT_CACHE_TTL = 259200;
+	private static final int CONTENT_CACHE_TTL = (Platform.config.hasPath("content.cache.ttl"))
+			? Platform.config.getInt("content.cache.ttl")
+			: 259200;
 	private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
 	/**

@@ -40,9 +40,6 @@ public class GetHierarchyOperation extends BaseContentManager {
     private SearchProcessor processor = new SearchProcessor();
     private static ObjectMapper mapper = new ObjectMapper();
     private static final String IMAGE_SUFFIX = ".img";
-
-    /** 3Days TTL for Collection hierarchy cache*/
-    private static final int COLLECTION_CACHE_TTL = 259200;
     private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
     /**
@@ -177,7 +174,7 @@ public class GetHierarchyOperation extends BaseContentManager {
             response = getCollectionHierarchy(rootId);
             if (!checkError(response)) {
                 rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
-                RedisStoreUtil.saveData(rootId, rootHierarchy, COLLECTION_CACHE_TTL);
+                RedisStoreUtil.saveData(rootId, rootHierarchy, CONTENT_CACHE_TTL);
                 return getHierarchyResponse(rootHierarchy, bookmarkId);
             } else {
                 if (StringUtils.isBlank(bookmarkId)) {
@@ -186,7 +183,7 @@ public class GetHierarchyOperation extends BaseContentManager {
                     if (StringUtils.isNotBlank(rootId)) {
                         response = getCollectionHierarchy(rootId);
                         rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
-                        RedisStoreUtil.saveData(rootId, rootHierarchy, COLLECTION_CACHE_TTL);
+                        RedisStoreUtil.saveData(rootId, rootHierarchy, CONTENT_CACHE_TTL);
                         return getHierarchyResponse(rootHierarchy, bookmarkId);
                     } else {
                         throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
