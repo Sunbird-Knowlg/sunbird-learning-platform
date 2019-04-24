@@ -97,6 +97,10 @@ public abstract class BaseContentManager extends BaseManager {
     protected static final Integer DEFAULT_CONTENT_VERSION = 1;
     protected static final Integer DEFAULT_COLLECTION_VERSION = 2;
 
+    protected static final Integer CONTENT_CACHE_TTL = (Platform.config.hasPath("content.cache.ttl"))
+            ? Platform.config.getInt("content.cache.ttl")
+            : 259200;
+
 	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
 			return identifier.replace(".img", "");

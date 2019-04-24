@@ -24,7 +24,6 @@ import static java.util.stream.Collectors.toList;
 
 public class FindOperation extends BaseContentManager {
 
-    private static final Integer CONTENT_CACHE_TTL = 259200;
 
     @SuppressWarnings("unchecked")
     public Response find(String contentId, String mode, List<String> fields) {

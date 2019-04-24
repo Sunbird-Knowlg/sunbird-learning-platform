@@ -5,6 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -41,7 +42,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static int frameworkTtl = 604800;
+	private static int frameworkTtl = (Platform.config.hasPath("framework.cache.ttl"))
+			? Platform.config.getInt("framework.cache.ttl")
+			: 604800;
 
 	/*
 	 * create framework

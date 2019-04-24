@@ -49,7 +49,9 @@ public class FrameworkHierarchy extends BaseManager {
 	private static final String objectType = "Framework";
 	private HierarchyStore hierarchyStore = new HierarchyStore(keyspace, table, objectType, false);
 
-	private int frameworkTtl = 604800;
+	private int frameworkTtl = (Platform.config.hasPath("framework.cache.ttl"))
+			? Platform.config.getInt("framework.cache.ttl")
+			: 604800;
 
 	/**
 	 * @param id
