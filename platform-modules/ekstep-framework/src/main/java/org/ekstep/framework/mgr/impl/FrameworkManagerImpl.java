@@ -20,6 +20,7 @@ import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
@@ -40,6 +41,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static int frameworkTtl = 604800;
 
 	/*
 	 * create framework
@@ -80,15 +82,23 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Response response = new Response();
-		Map<String, Object> responseMap = new HashMap<>();
-		Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
-		Map<String, Object> framework = (Map<String, Object>) getHierarchyResp.get("framework");
+		Map<String, Object> responseMap = new HashMap<String, Object>();
 
-		if (MapUtils.isNotEmpty(framework)) {
-			if (null != framework.get("fw_hierarchy")) {
+		String frameworkStr = RedisStoreUtil.get(frameworkId);
+		Map<String, Object> framework = new HashMap<String, Object>();
+		if(StringUtils.isNotBlank(frameworkStr)) {
+			framework = mapper.readValue(frameworkStr, Map.class);
+		} else { // if not available in redis
+			Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
+			framework = (Map<String, Object>) getHierarchyResp.get("framework");			
+		}
+		
+		
+		if (MapUtils.isNotEmpty(framework) && null != framework.get("fw_hierarchy")) {
+			//if (null != framework.get("fw_hierarchy")) {
 				Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
 						Map.class);
-				responseMap = framework;
+				responseMap.putAll(framework);
 				if (null != hierarchy && !hierarchy.isEmpty()) {
 					List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
 							.get("categories");
@@ -107,10 +117,22 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				responseMap.remove("fw_hierarchy");
 				response.put(FrameworkEnum.framework.name(), responseMap);
 				response.setParams(getSucessStatus());
-			}
+			//}
 		} else {
-			response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
+			if(StringUtils.isBlank(frameworkStr)) {
+				response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
+				framework = (Map<String, Object>) response.getResult().get("framework");
+			} else {
+				response = OK();
+				response.put("framework", framework);
+			}
+
 		}
+
+		//saving data in redis
+		if(StringUtils.isBlank(frameworkStr))
+			RedisStoreUtil.saveData(frameworkId, framework, frameworkTtl);
+
 		return response;
 	}
 

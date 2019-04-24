@@ -20,6 +20,7 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
@@ -47,6 +48,8 @@ public class FrameworkHierarchy extends BaseManager {
 			: "framework_hierarchy";
 	private static final String objectType = "Framework";
 	private HierarchyStore hierarchyStore = new HierarchyStore(keyspace, table, objectType, false);
+
+	private int frameworkTtl = 604800;
 
 	/**
 	 * @param id
@@ -116,6 +119,8 @@ public class FrameworkHierarchy extends BaseManager {
 				frameworkDocument.put(field, node.getMetadata().get(field));
 		}
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
+		//saving the framework in the redis sever for publish.
+		RedisStoreUtil.saveData(node.getIdentifier(), frameworkDocument, frameworkTtl);
 	}
 
 	@SuppressWarnings("unchecked")
