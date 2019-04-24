@@ -398,7 +398,9 @@ private Integer getIntValue(Object num) {
 		boolean compatibilityFilter = false;
 		boolean isContentSearch = false;
 		boolean statusFilter = false;
+		boolean publishedStatus = false;
 		if (null != filters && !filters.isEmpty()) {
+			publishedStatus = checkPublishedStatus(filters);
 			for (Entry<String, Object> entry : filters.entrySet()) {
 				if ("identifier".equalsIgnoreCase(entry.getKey())) {
 					List ids = new ArrayList<>();
@@ -409,8 +411,10 @@ private Integer getIntValue(Object num) {
 					}
 					List<String> identifiers = new ArrayList<>();
 					identifiers.addAll((List<String>) (List<?>) ids);
-					for (Object id : ids) {
-						identifiers.add(id + ".img");
+					if(!publishedStatus){
+						for (Object id : ids) {
+							identifiers.add(id + ".img");
+						}
 					}
 					entry.setValue(identifiers);
 				}
@@ -423,8 +427,10 @@ private Integer getIntValue(Object num) {
 					}
 					List<String> objectTypes = new ArrayList<>();
 					objectTypes.addAll((List<String>) (List<?>) value);
+
 					for (Object val : value) {
-						objectTypes.add(val + "Image");
+						if(StringUtils.equalsIgnoreCase("Content", (String) val) && !publishedStatus)
+							objectTypes.add(val + "Image");
 					}
 					entry.setValue(objectTypes);
 				}
@@ -554,6 +560,29 @@ private Integer getIntValue(Object num) {
 			properties.add(property);
 		}
 		return properties;
+	}
+
+	private boolean checkPublishedStatus(Map<String, Object> filters) {
+		List<String> statuses = Arrays.asList("Live", "Unlisted");
+		Object status =filters.get("status");
+		List<String> statusList = null;
+		if(null == status) {
+			return true;
+		} else if((status instanceof String) && (statuses.contains(status))){
+			statusList = Arrays.asList((String) status);
+		} else if(status instanceof String[]) {
+			statusList = Arrays.asList((String[]) status);
+		} else if(status instanceof List) {
+			statusList = (List<String>) status;
+		}
+
+		if(CollectionUtils.isNotEmpty(statusList) && statusList.size() == 1 && statuses.contains(statusList.get(0)))
+			return true;
+		else if(CollectionUtils.isNotEmpty(statusList) && statuses.containsAll(statusList))
+			return true;
+		else
+			return false;
+
 	}
 
 	@SuppressWarnings("unchecked")
