@@ -5,6 +5,7 @@ import org.ekstep.assessment.mgr.IAssessmentManager;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
@@ -51,7 +52,7 @@ public class ObjectManagerImpl extends BaseContentManager implements IObjectMana
 
     @Override
     public Response read(String objectType, String id) {
-        validateDefinition(objectType);
+        DefinitionDTO definition = validateDefinition(objectType);
         Response dataNodeResponse = getDataNode(TAXONOMY_ID, id);
         if(checkError(dataNodeResponse)){
             return dataNodeResponse;
@@ -61,8 +62,9 @@ public class ObjectManagerImpl extends BaseContentManager implements IObjectMana
             throw new ResourceNotFoundException("ERR_OBJECT_NOT_FOUND",
                     "Object not found with id: " + id);
         }
+        Map<String, Object> metadata = ConvertGraphNode.convertGraphNode(graphNode, TAXONOMY_ID, definition, null);
         Response readResponse = OK();
-        readResponse.put(objectType, graphNode);
+        readResponse.put(objectType, metadata);
         return readResponse;
     }
 

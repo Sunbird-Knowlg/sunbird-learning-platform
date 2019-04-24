@@ -222,6 +222,24 @@
             "displayProperty": "Editable",
             "defaultValue": "Live",
             "renderingHints": "{'inputType': 'select', 'order': 5}"
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "organization",
+          "title": "Focus Area",
+          "description": "organization. e.g: Diksha, etc",
+          "category": "General",
+          "displayProperty": "Editable",
+          "range": [
+            "Diksha",
+            "Shikshalokam",
+            "Arghyam"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
         }
       ],
       "inRelations": [],
