@@ -92,9 +92,13 @@ public class ContentBundle {
 		for (Map<String, Object> content : contents) {
 			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
 			String mimeType = (String) content.get(ContentWorkflowPipelineParams.mimeType.name());
-			/*if (children.contains(identifier))
+
+			// TODO: START : Remove this when mobile app is ready
+			if (children.contains(identifier))
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
-						ContentWorkflowPipelineParams.Parent.name());*/
+						ContentWorkflowPipelineParams.Parent.name());
+			// TODO: END
+
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 			content.keySet().removeIf(metadata -> EXCLUDE_ECAR_METADATA_FIELDS.contains(metadata));
