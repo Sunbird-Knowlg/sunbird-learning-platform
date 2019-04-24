@@ -452,7 +452,7 @@ public class BasePipeline extends BaseManager {
 					 metadata.put(ContentWorkflowPipelineParams.tags.name(), node.getTags());
 				
 				ctnts.add(metadata);
-				if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.visibility), ContentWorkflowPipelineParams.Parent.name()))
+				if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.visibility.name()), ContentWorkflowPipelineParams.Parent.name()))
 					childrenIds.add(node.getIdentifier());
 				
 				
