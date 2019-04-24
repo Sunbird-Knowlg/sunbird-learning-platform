@@ -86,7 +86,6 @@ public class FindOperation extends BaseContentManager {
         }
 
         // Get all the languages for a given Content
-        //List<String> languages = Arrays.asList((String[]) contentMap.get(TaxonomyAPIParams.language.name()));
         List<String> languages = prepareList(contentMap.get(TaxonomyAPIParams.language.name()));
 
         // Eval the language code for all Content Languages

@@ -103,7 +103,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	/** 3Days TTL for Collection hierarchy cache*/
-	private static final int COLLECTION_CACHE_TTL = 259200;
+	private static final int CONTENT_CACHE_TTL = 259200;
 	private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
 	/**
@@ -299,14 +299,18 @@ public class PublishFinalizer extends BaseFinalizer {
 					String.valueOf(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())));
 		}
 
+		Node publishedNode = util.getNode(ContentWorkflowPipelineParams.domain.name(), newNode.getIdentifier());
+
 		if (StringUtils.equalsIgnoreCase((String) newNode.getMetadata().get("mimeType"),
 				COLLECTION_MIMETYPE)) {
-			Node publishedNode = util.getNode(ContentWorkflowPipelineParams.domain.name(), newNode.getIdentifier());
 			updateHierarchyMetadata(children, publishedNode);
 			publishHierarchy(publishedNode, children);
 			syncNodes(children, unitNodes);
 		}
-
+		//TODO: Reduce get definition call
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+		RedisStoreUtil.saveData(contentId, contentMap, CONTENT_CACHE_TTL);
 		return response;
 	}
 	
@@ -416,7 +420,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
 		Map<String, Object> hierarchy = getContentMap(node, childrenList);
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
-		RedisStoreUtil.saveData(node.getIdentifier(), hierarchy, COLLECTION_CACHE_TTL);
+		RedisStoreUtil.saveData(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), hierarchy, CONTENT_CACHE_TTL);
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
