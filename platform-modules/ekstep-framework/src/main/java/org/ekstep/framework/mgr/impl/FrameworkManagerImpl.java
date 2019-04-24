@@ -1,13 +1,6 @@
 
 package org.ekstep.framework.mgr.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +19,13 @@ import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The Class <code>FrameworkManagerImpl</code> is the implementation of
@@ -86,51 +86,48 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		String frameworkStr = RedisStoreUtil.get(frameworkId);
 		Map<String, Object> framework = new HashMap<String, Object>();
-		if(StringUtils.isNotBlank(frameworkStr)) {
+		if (StringUtils.isNotBlank(frameworkStr)) {
 			framework = mapper.readValue(frameworkStr, Map.class);
 		} else { // if not available in redis
 			Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
-			framework = (Map<String, Object>) getHierarchyResp.get("framework");			
+			framework = (Map<String, Object>) getHierarchyResp.get("framework");
 		}
-		
-		
-		if (MapUtils.isNotEmpty(framework) && null != framework.get("fw_hierarchy")) {
-			//if (null != framework.get("fw_hierarchy")) {
-				Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
-						Map.class);
-				responseMap.putAll(framework);
-				if (null != hierarchy && !hierarchy.isEmpty()) {
-					List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
-							.get("categories");
-					if (categories != null) {
-						if (returnCategories != null && !returnCategories.isEmpty()) {
-							responseMap.put("categories",
-									categories.stream().filter(p -> returnCategories.contains(p.get("code")))
-											.collect(Collectors.toList()));
-							removeAssociations(responseMap, returnCategories);
 
-						} else {
-							responseMap.put("categories", categories);
-						}
+
+		if (MapUtils.isNotEmpty(framework) && null != framework.get("fw_hierarchy")) {
+			Map<String, Object> hierarchy = mapper.readValue((String) framework.get("fw_hierarchy"),
+					Map.class);
+			responseMap.putAll(framework);
+			if (null != hierarchy && !hierarchy.isEmpty()) {
+				List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy
+						.get("categories");
+				if (categories != null) {
+					if (returnCategories != null && !returnCategories.isEmpty()) {
+						responseMap.put("categories",
+								categories.stream().filter(p -> returnCategories.contains(p.get("code")))
+										.collect(Collectors.toList()));
+						removeAssociations(responseMap, returnCategories);
+
+					} else {
+						responseMap.put("categories", categories);
 					}
 				}
-				responseMap.remove("fw_hierarchy");
-				response.put(FrameworkEnum.framework.name(), responseMap);
-				response.setParams(getSucessStatus());
-			//}
+			}
+			responseMap.remove("fw_hierarchy");
+			response.put(FrameworkEnum.framework.name(), responseMap);
+			response.setParams(getSucessStatus());
 		} else {
-			if(StringUtils.isBlank(frameworkStr)) {
+			if (StringUtils.isBlank(frameworkStr)) {
 				response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
 				framework = (Map<String, Object>) response.getResult().get("framework");
 			} else {
 				response = OK();
 				response.put("framework", framework);
 			}
-
 		}
 
 		//saving data in redis
-		if(StringUtils.isBlank(frameworkStr))
+		if (StringUtils.isBlank(frameworkStr))
 			RedisStoreUtil.saveData(frameworkId, framework, frameworkTtl);
 
 		return response;
