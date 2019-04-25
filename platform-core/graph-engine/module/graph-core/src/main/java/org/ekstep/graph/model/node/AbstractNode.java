@@ -55,6 +55,9 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         }
         this.nodeId = nodeId;
         this.metadata = metadata;
+        if (this.metadata != null) {
+            this.metadata.remove("sYS_INTERNAL_LAST_UPDATED_ON");
+        }
     }
 
     /* (non-Javadoc)
