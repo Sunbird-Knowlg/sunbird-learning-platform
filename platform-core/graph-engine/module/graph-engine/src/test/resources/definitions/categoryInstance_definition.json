@@ -184,7 +184,8 @@
                 "name",
                 "code",
                 "description",
-                "status"
+                "status",
+                "translations"
             ]
         }
     }]
