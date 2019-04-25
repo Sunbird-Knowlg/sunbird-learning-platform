@@ -3,6 +3,7 @@ package managers;
 import akka.actor.ActorRef;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -373,9 +374,15 @@ public class BasePlaySearchManager extends Results {
 			return count;
 		}
 		if (isDIALScan(filters)) {
-			count = Collections.max(contents.stream().filter(content -> (null != content.get("leafNodesCount"))).map(content ->
-					((Number) content.get("leafNodesCount")).intValue()
-			).collect(Collectors.toList()));
+			try {
+				List<Integer> counts = contents.stream().filter(content -> (null != content.get("leafNodesCount")))
+						.map(content -> ((Number) content.get("leafNodesCount")).intValue()).collect(Collectors.toList());
+				if (CollectionUtils.isNotEmpty(counts))
+					count = Collections.max(counts);
+			} catch (Exception e) {
+				TelemetryManager.error("Error while getting leaf node count for dial scan : ", e);
+				throw e;
+			}
 		} else {
 			count = (Integer) response.getResult().get("count");
 		}
