@@ -364,6 +364,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
         node.getMetadata().remove(ContentAPIParams.depth.name());
         node.getMetadata().remove(ContentAPIParams.parent.name());
         node.getMetadata().remove(ContentAPIParams.index.name());
+        node.getMetadata().remove("sYS_INTERNAL_LAST_UPDATED_ON");
         Request request = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         request.put(GraphDACParams.node.name(), node);
         Response response = getResponse(request);
