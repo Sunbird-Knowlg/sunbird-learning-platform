@@ -2921,6 +2921,19 @@
 					"renderingHints": "",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "attribution",
+					"title": "Attribution",
+					"description": "R-1.15_Attribution/Credits",
+					"category": "Ownership",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
