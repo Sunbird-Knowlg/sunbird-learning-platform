@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 public class CollectionMigrationService implements ISamzaService {
 
+
     protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
     private static JobLogger LOGGER = new JobLogger(CollectionMigrationService.class);
     private Config config = null;
@@ -49,6 +50,7 @@ public class CollectionMigrationService implements ISamzaService {
     private String dowloadFileLocation;
     private String platformUri;
     private List<Boolean> assetChecks = new ArrayList<>();
+
 
 
     public void initialize(Config config) throws Exception {

@@ -25,6 +25,7 @@ import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
@@ -392,8 +393,23 @@ public class PublishFinalizer extends BaseFinalizer {
                     }else {
                     		Map<String, Object> childData = new HashMap<>();
                         childData.putAll(child);
+                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
                         childData.remove("children");
                         node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+                        List<Map<String, Object>> finalChildList = new ArrayList<>();
+						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
+								Map<String, Object> metadata = new HashMap<String, Object>() {{
+									put("identifier", nextLevelNode.get("identifier"));
+									put("name", nextLevelNode.get("name"));
+									put("objectType", "Content");
+									put("description", nextLevelNode.get("description"));
+									put("index", nextLevelNode.get("index"));
+								}};
+								return metadata;
+							}).collect(Collectors.toList());
+						}
+						node.getMetadata().put("children", finalChildList);
                         if(StringUtils.isBlank(node.getObjectType()))
                         		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
                         if(StringUtils.isBlank(node.getGraphId()))
@@ -415,8 +431,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), getContentMap(node, childrenList));
 	}
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
-		Map<String, Object> collectionHierarchy  = new HashMap<>();
-		collectionHierarchy.putAll(node.getMetadata());
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+		Map<String, Object> collectionHierarchy  = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
 		collectionHierarchy.put("children", childrenList);
 		collectionHierarchy.put("identifier", node.getIdentifier());
 		collectionHierarchy.put("objectType", node.getObjectType());
@@ -674,6 +690,23 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		}
 	}
+
+	// TODO: rewrite this specific code
+	private void updateRootChildrenList(Node node, List<Map<String, Object>> nextLevelNodes) {
+	    List<Map<String, Object>> childrenMap = new ArrayList<>();
+	    if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+	        for (Map<String, Object> nextLevelNode: nextLevelNodes) {
+	            childrenMap.add(new HashMap<String, Object>() {{
+                    put("identifier", nextLevelNode.get("identifier"));
+                    put("name", nextLevelNode.get("name"));
+                    put("objectType", "Content");
+                    put("description", nextLevelNode.get("description"));
+                    put("index", nextLevelNode.get("index"));
+                }});
+            }
+        }
+	    node.getMetadata().put("children", childrenMap);
+    }
 	
 	private void processForEcar(Node node, List<Map<String, Object>> children) {
 		List<Node> nodes = new ArrayList<Node>();
@@ -687,6 +720,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
 			List<String> nodeIds = new ArrayList<>();
 			nodeIds.add(node.getIdentifier());
+            updateRootChildrenList(node, children);
 			getNodeMap(children, nodes, nodeIds, definition);
 		}
 		
@@ -705,6 +739,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), new HashMap<String, Object>());
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 			TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
+			// TODO: START : Remove the below when mobile app is ready to accept Resources as Default in manifest
+			childrenIds = (List<String>) node.getMetadata().get("childNodes");
 		} else {
 			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
@@ -722,6 +758,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		// generate online ECAR for Collection
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
 			generateEcar(EcarPackageType.ONLINE, node, contentBundle, onlineContents, childrenIds);
+			node.getMetadata().remove("children");
 		}
 		// ECAR generation - END
 		

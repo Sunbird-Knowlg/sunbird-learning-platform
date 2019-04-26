@@ -287,12 +287,14 @@ public class AssetEnrichmentService implements ISamzaService {
 	}
 
 	private void processVideo(Node node, String tempFolder, String videoUrl) throws Exception{
-
-		File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
-		OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
+		if(!StringUtils.equalsIgnoreCase("video/x-youtube", (String) node.getMetadata().get(AssetEnrichmentEnums.mimeType.name()))) {
+			File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
+			OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
+		}
 		node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
 		Response res = util.updateNode(node);
 		if(checkError(res)) {
+			LOGGER.info("Error response during asset update to Live status : " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg() + " :: " + res.getResult());
 			throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(),
 					"Error! While Updating the Metadata | [Content Id: " + node.getIdentifier() + "]");
 		}
