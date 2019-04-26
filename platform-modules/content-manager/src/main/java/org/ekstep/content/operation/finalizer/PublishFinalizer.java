@@ -758,6 +758,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		// generate online ECAR for Collection
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
 			generateEcar(EcarPackageType.ONLINE, node, contentBundle, onlineContents, childrenIds);
+			node.getMetadata().remove("children");
 		}
 		// ECAR generation - END
 		
