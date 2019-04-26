@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.graph.common.JSONUtils;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -23,6 +24,7 @@ public class ConvertGraphNode {
         Map<String, Object> map = new HashMap<String, Object>();
         if (null != node) {
             Map<String, Object> metadata = node.getMetadata();
+            Object sysLastUpdatedOn = metadata.remove(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name());
             if (null != metadata && !metadata.isEmpty()) {
             	List<String> jsonProps = getJSONProperties(definition);
                 for (Entry<String, Object> entry : metadata.entrySet()) {
@@ -55,6 +57,10 @@ public class ConvertGraphNode {
                     }
                 }
             }
+            //TODO: Remove the property after inspection.
+            if (sysLastUpdatedOn != null)
+                map.put(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name(),sysLastUpdatedOn);
+
             Map<String, String> inRelDefMap = new HashMap<String, String>();
             Map<String, String> outRelDefMap = new HashMap<String, String>();
             getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
