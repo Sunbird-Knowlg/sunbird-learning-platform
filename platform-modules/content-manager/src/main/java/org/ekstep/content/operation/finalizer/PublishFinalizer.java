@@ -393,8 +393,23 @@ public class PublishFinalizer extends BaseFinalizer {
                     }else {
                     		Map<String, Object> childData = new HashMap<>();
                         childData.putAll(child);
+                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
                         childData.remove("children");
                         node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+                        List<Map<String, Object>> finalChildList = new ArrayList<>();
+						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
+								Map<String, Object> metadata = new HashMap<String, Object>() {{
+									put("identifier", nextLevelNode.get("identifier"));
+									put("name", nextLevelNode.get("name"));
+									put("objectType", "Content");
+									put("description", nextLevelNode.get("description"));
+									put("index", nextLevelNode.get("index"));
+								}};
+								return metadata;
+							}).collect(Collectors.toList());
+						}
+						node.getMetadata().put("children", finalChildList);
                         if(StringUtils.isBlank(node.getObjectType()))
                         		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
                         if(StringUtils.isBlank(node.getGraphId()))
