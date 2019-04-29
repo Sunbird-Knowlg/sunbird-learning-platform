@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import akka.pattern.Patterns;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
@@ -530,6 +531,107 @@ public class BaseFrameworkManager extends BaseManager {
 			TelemetryManager.error("Error! Something went wrong while making actor call for get framework hierarchy : " + e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something Went Wrong While Processing Your Request", e);
 		}
+	}
+
+	/**
+	 * @param responseMap
+	 * @param returnCategories
+	 */
+	@SuppressWarnings("unchecked")
+	protected void removeAssociations(Map<String, Object> responseMap, List<String> returnCategories) {
+		((List<Map<String, Object>>) responseMap.get("categories")).forEach(category -> {
+			removeTermAssociations((List<Map<String, Object>>) category.get("terms"), returnCategories);
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void removeTermAssociations(List<Map<String, Object>> terms, List<String> returnCategories) {
+		if (!CollectionUtils.isEmpty(terms)) {
+			terms.forEach(term -> {
+				if (!CollectionUtils.isEmpty((List<Map<String, Object>>) term.get("associations"))) {
+					term.put("associations",
+							((List<Map<String, Object>>) term.get("associations")).stream().filter(s -> s != null)
+									.filter(p -> returnCategories.contains(p.get("category")))
+									.collect(Collectors.toList()));
+					if (CollectionUtils.isEmpty((List<Map<String, Object>>) term.get("associations")))
+						term.remove("associations");
+
+					removeTermAssociations((List<Map<String, Object>>) term.get("children"), returnCategories);
+				}
+			});
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Response copyHierarchy(String existingObjectId, String clonedObjectId, String existingFrameworkId,
+									 String clonedFrameworkId, Map<String, Object> requestMap) throws Exception {
+		Response responseNode = getDataNode(GRAPH_ID, existingObjectId);
+		if (checkError(responseNode)) {
+			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + existingObjectId, ResponseCode.RESOURCE_NOT_FOUND);
+		}
+		Node node = (Node) responseNode.get(GraphDACParams.node.name());
+		String objectType = node.getObjectType();
+		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
+
+		Map<String, Object> request = new HashMap<>();
+		String[] fields = getFields(definition);
+		if (fields != null) {
+			for (String field : fields) {
+				request.put(field, node.getMetadata().get(field));
+			}
+		} else {
+			request.putAll(node.getMetadata());
+		}
+		if(StringUtils.equalsIgnoreCase(objectType, "Framework")) {
+			Set<String> propertySet = requestMap.keySet();
+			for(String property : propertySet) {
+				if(request.containsKey(property))
+					request.put(property, requestMap.get(property));
+			}
+		}
+		request.put("identifier", clonedObjectId);
+
+
+		Response getNodeResponse = getDataNode(GRAPH_ID, clonedObjectId);
+		if (checkError(getNodeResponse))
+			create(request, objectType);
+		else
+			update(clonedObjectId, objectType, request);
+
+		Map<String, String> inRelDefMap = new HashMap<>();
+		Map<String, String> outRelDefMap = new HashMap<>();
+		ConvertGraphNode.getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
+		List<Relation> outRelations = node.getOutRelations();
+		if (null != outRelations && !outRelations.isEmpty()) {
+			for (Relation relation : outRelations) {
+				String endNodeObjectType = relation.getEndNodeObjectType();
+				if(StringUtils.equals(endNodeObjectType, "Framework") ||
+						StringUtils.equals(endNodeObjectType, "CategoryInstance") ||
+						StringUtils.equals(endNodeObjectType, "Term")) {
+					String title = outRelDefMap.get(relation.getRelationType() + relation.getEndNodeObjectType());
+					String endNodeId = relation.getEndNodeId();
+					endNodeId = endNodeId.replaceFirst(existingFrameworkId, clonedFrameworkId);
+					Response res = copyHierarchy(relation.getEndNodeId(), endNodeId, existingFrameworkId, clonedFrameworkId, null);
+
+					Map<String, Object> childObjectMap = new HashMap<>();
+					childObjectMap.put("identifier", res.get("node_id"));
+					childObjectMap.put("index", relation.getMetadata().get("IL_SEQUENCE_INDEX"));
+
+					if(request.containsKey(title)) {
+						List<Map<String, Object>> relationshipList = (List<Map<String, Object>>)request.get(title);
+						relationshipList.add(childObjectMap);
+					}else {
+						List<Map<String, Object>> relationshipList = new ArrayList<>();
+						relationshipList.add(childObjectMap);
+						request.put(title, relationshipList);
+					}
+				}
+				update(clonedObjectId, objectType, request);
+			}
+		}
+		Response response = new Response();
+		response.put("node_id", clonedObjectId);
+		return response;
 	}
 
 }
