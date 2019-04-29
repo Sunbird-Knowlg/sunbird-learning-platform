@@ -3,19 +3,21 @@ package org.ekstep.content.mgr.impl.operation.content;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.ExecutionContext;
+import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.kafka.KafkaClient;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FindOperation extends BaseContentManager {
 
@@ -42,6 +44,15 @@ public class FindOperation extends BaseContentManager {
 
         List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
         Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, fields);
+        String channel = (String) contentMap.get("channel");
+        if (StringUtils.isBlank(channel)) {
+            channel = Platform.config.hasPath("channel.default") ?
+                    Platform.config.getString("channel.default") : "in.ekstep";
+        }
+        Number version = (Number) contentMap.get("version");
+        if (version == null || version.intValue() < 2) {
+            generateMigrationInstructionEvent(contentId, channel);
+        }
 
         if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
             Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
@@ -70,19 +81,70 @@ public class FindOperation extends BaseContentManager {
         response.setParams(getSucessStatus());
         return response;
     }
-    private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
-        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
-                Platform.config.getBoolean("content.tagging.backward_enable"): false;
-        if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
-            List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
-                    Platform.config.getStringList("content.tagging.property"):
-                    new ArrayList<>(Arrays.asList("subject","medium"));
+
+    private void updateContentTaggedProperty(Map<String, Object> contentMap, String mode) {
+        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable") ?
+                Platform.config.getBoolean("content.tagging.backward_enable") : false;
+        if (!StringUtils.equals(mode, "edit") && contentTaggingFlag) {
+            List<String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+                    Platform.config.getStringList("content.tagging.property") :
+                    new ArrayList<>(Arrays.asList("subject", "medium"));
             contentTaggedKeys.forEach(contentTagKey -> {
-                if(contentMap.containsKey(contentTagKey)) {
-                    List<String> prop = Arrays.asList((String[])contentMap.get(contentTagKey));
+                if (contentMap.containsKey(contentTagKey)) {
+                    List<String> prop = Arrays.asList((String[]) contentMap.get(contentTagKey));
                     contentMap.put(contentTagKey, prop.get(0));
                 }
             });
         }
+    }
+
+    private void generateMigrationInstructionEvent(String identifier, String channel) {
+        try {
+            pushInstructionEvent(identifier, channel);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void pushInstructionEvent(String contentId, String channel) throws Exception {
+        Map<String, Object> actor = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> object = new HashMap<String, Object>();
+        Map<String, Object> edata = new HashMap<String, Object>();
+
+        generateInstructionEventMetadata(actor, context, object, edata, contentId, channel);
+        String beJobRequestEvent = LogTelemetryEventUtil.logInstructionEvent(actor, context, object, edata);
+        String topic = Platform.config.getString("kafka.topics.instruction");
+        if (org.apache.commons.lang3.StringUtils.isBlank(beJobRequestEvent)) {
+            throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.");
+        }
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(topic)) {
+            KafkaClient.send(beJobRequestEvent, topic);
+        } else {
+            throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.");
+        }
+    }
+
+    private void generateInstructionEventMetadata(Map<String, Object> actor, Map<String, Object> context,
+                                                  Map<String, Object> object, Map<String, Object> edata, String contentId,
+                                                  String channel) {
+        actor.put("id", "Collection Migration Samza Job");
+        actor.put("type", "System");
+
+        Map<String, Object> pdata = new HashMap<>();
+        pdata.put("id", "org.ekstep.platform");
+        pdata.put("ver", "1.0");
+        context.put("pdata", pdata);
+        if (Platform.config.hasPath("cloud_storage.env")) {
+            String env = Platform.config.getString("cloud_storage.env");
+            context.put("env", env);
+        }
+
+        object.put("id", contentId);
+        object.put("type", "content");
+        object.put("channel", channel);
+
+        edata.put("action", "ecml-migration");
+        edata.put("contentType", "Asset");
     }
 }
