@@ -97,16 +97,8 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		}
 
 		if (MapUtils.isNotEmpty(framework)) {
-
-
 			// filtering based on requested categories.
-			List<Map<String, Object>> categories = (List<Map<String, Object>>) framework.get("categories");
-			if (CollectionUtils.isNotEmpty(categories) && CollectionUtils.isNotEmpty(returnCategories)) {
-				responseMap.put("categories",
-						categories.stream().filter(p -> returnCategories.contains(p.get("code")))
-								.collect(Collectors.toList()));
-				removeAssociations(responseMap, returnCategories);
-			}
+			filterFrameworkCategories(framework, returnCategories);
 
 			responseMap.putAll(framework);
 			response.put(FrameworkEnum.framework.name(), responseMap);
