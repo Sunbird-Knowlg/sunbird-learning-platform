@@ -12,6 +12,7 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import com.mashape.unirest.http.HttpResponse;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.HttpRestUtil;
@@ -34,6 +35,7 @@ public class EcmlMigrationService {
     public final String VERSION = "version";
     public final int VERSION_NUM = 2;
     public final String REGEXGDRIVE = "\\w+://drive.google.com/\\w+\\?export=download&id=";
+    public final String ECML_MIGRATION_FAILED = "ECML_MIGRATION_FAILED";
 
     private final ControllerUtil util = new ControllerUtil();
 
@@ -84,10 +86,10 @@ public class EcmlMigrationService {
                         return true;
                 }
             } else {
-                throw new Exception("Google Drive content cannot be private");
+                throw new ClientException(ECML_MIGRATION_FAILED,"Google Drive content cannot be private");
             }
         } else {
-            throw new Exception("404 Resource Not Found, Make sure resource is available");
+            throw new ClientException(ECML_MIGRATION_FAILED,"404 Resource Not Found, Make sure resource is available");
         }
         return false;
     }
@@ -110,7 +112,7 @@ public class EcmlMigrationService {
             contentId = (String) response.getResult().get("node_id");
             assetIdList.add(contentId);
         } else
-            throw new Exception("Asset Creation Failed");
+            throw new ClientException(ECML_MIGRATION_FAILED,"Asset Creation Failed");
         return contentId;
     }
 
@@ -173,9 +175,9 @@ public class EcmlMigrationService {
         if (StringUtils.isNotBlank(contentBody)) {
             Response response = util.updateContentBody(contentId, contentBody);
             if (response.getResponseCode() != ResponseCode.OK)
-                throw new Exception("ECML Body update was not possible");
+                throw new ClientException(ECML_MIGRATION_FAILED,"Cassandra Body update failed");
         } else
-            throw new Exception("ECML Body update was not possible");
+            throw new ClientException(ECML_MIGRATION_FAILED,"ECML Body update was not possible");
     }
 
     public void updateEcmlNode(String contentId) throws Exception {
@@ -184,7 +186,7 @@ public class EcmlMigrationService {
         existingMetaData.put(VERSION, VERSION_NUM);
         Response response = util.updateNode(node);
         if (response.getResponseCode() != ResponseCode.OK)
-            throw new Exception("ECML node was not updated");
+            throw new ClientException(ECML_MIGRATION_FAILED,"ECML node was not updated");
     }
 
 }

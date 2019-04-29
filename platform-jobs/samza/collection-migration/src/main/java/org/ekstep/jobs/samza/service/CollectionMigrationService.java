@@ -10,6 +10,7 @@ import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.RequestValidatorUtil;
@@ -28,7 +29,6 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -91,6 +91,7 @@ public class CollectionMigrationService implements ISamzaService {
                 migrateECML(message, metrics, collector, object);
                 break;
             }
+            default: LOGGER.info("Ecml migration is already done");
         }
 
     }
@@ -119,7 +120,7 @@ public class CollectionMigrationService implements ISamzaService {
                     migrationService.updateEcmlNode(contentId);
 
                 } else
-                    throw new Exception("Drive Urls are not valid");
+                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Drive Urls are not valid");
             } else {
                 metrics.incSkippedCounter();
                 FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
