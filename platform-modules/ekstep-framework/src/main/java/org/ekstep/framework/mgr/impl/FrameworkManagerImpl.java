@@ -96,26 +96,17 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			framework = (Map<String, Object>) getHierarchyResp.get("framework");
 		}
 
-
-		if (MapUtils.isNotEmpty(framework) && null != framework.get("hierarchy")) {
-			Map<String, Object> hierarchy = mapper.readValue((String) framework.get("hierarchy"),
-					Map.class);
+		if (MapUtils.isNotEmpty(framework)) {
 			responseMap.putAll(framework);
-			if (MapUtils.isNotEmpty(hierarchy)) {
-				List<Map<String, Object>> categories = (List<Map<String, Object>>) hierarchy.get("categories");
-				if (CollectionUtils.isNotEmpty(categories)) {
-					if (returnCategories != null && !returnCategories.isEmpty()) {
-						responseMap.put("categories",
-								categories.stream().filter(p -> returnCategories.contains(p.get("code")))
-										.collect(Collectors.toList()));
-						removeAssociations(responseMap, returnCategories);
 
-					} else {
-						responseMap.put("categories", categories);
-					}
-				}
+			// filtering based on requested categories.
+			List<Map<String, Object>> categories = (List<Map<String, Object>>) framework.get("categories");
+			if (CollectionUtils.isNotEmpty(categories) && CollectionUtils.isNotEmpty(returnCategories)) {
+				responseMap.put("categories",
+						categories.stream().filter(p -> returnCategories.contains(p.get("code")))
+								.collect(Collectors.toList()));
+				removeAssociations(responseMap, returnCategories);
 			}
-			responseMap.remove("hierarchy");
 			response.put(FrameworkEnum.framework.name(), responseMap);
 			response.setParams(getSucessStatus());
 		} else {
@@ -134,8 +125,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		return response;
 	}
-
-
+	
 	/*
 	 * Update Framework Details
 	 * 

@@ -68,12 +68,9 @@ public class FrameworkHierarchy extends BaseManager {
 			Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
 			CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
 
-			frameworkDocument.put("hierarchy", mapper.writeValueAsString(frameworkHierarchy));
-			frameworkDocument.put("graph_id", GRAPH_ID);
-			frameworkDocument.put("node_id", (int) node.getId());
+			frameworkDocument.putAll(frameworkHierarchy);
 			frameworkDocument.put("identifier", node.getIdentifier());
 			frameworkDocument.put("objectType", node.getObjectType());
-			frameworkDocument.put("nodeType", node.getNodeType());
 			DefinitionDTO definition = getDefinition(GRAPH_ID, node.getObjectType());
 			String[] fields = getFields(definition);
 			for (String field : fields) {
