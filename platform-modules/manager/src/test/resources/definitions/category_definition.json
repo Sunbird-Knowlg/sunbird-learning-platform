@@ -132,6 +132,54 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{ inputType': 'date', 'order': 11 }"
+        },
+        {
+          "propertyName": "consumerId",
+          "title": "consumerId",
+          "description": "R1.15",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "appId",
+          "title": "appId",
+          "description": "R1.15",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "channel",
+          "title": "Channel",
+          "description": "Channel Id of Framework Creator",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "lastStatusChangedOn",
+          "title": "lastStatusChangedOn",
+          "description": "Timestamp of last status update",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
         }
       ],
       "inRelations":[],
@@ -150,7 +198,10 @@
       "systemTags": [],
       "metadata": {
         "ttl": 11,
-        "limit": 50
+        "limit": 50,
+        "fields": [
+                "translations"
+            ]
       }
     }
   ]
