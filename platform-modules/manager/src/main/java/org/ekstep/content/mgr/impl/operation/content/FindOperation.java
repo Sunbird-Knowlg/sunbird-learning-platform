@@ -1,13 +1,14 @@
 package org.ekstep.content.mgr.impl.operation.content;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.Platform;
-import org.ekstep.common.dto.ExecutionContext;
-import org.ekstep.common.dto.HeaderParam;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.kafka.KafkaClient;
@@ -19,31 +20,59 @@ import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.toList;
+
 public class FindOperation extends BaseContentManager {
+
 
     @SuppressWarnings("unchecked")
     public Response find(String contentId, String mode, List<String> fields) {
+
         Response response = new Response();
+        Map<String, Object> contentMap = null;
 
-        Node node = getContentNode(TAXONOMY_ID, contentId, mode);
-
-        TelemetryManager.log("Fetching the Data For Content Id: " + node.getIdentifier());
-        DefinitionDTO definition = getDefinition(TAXONOMY_ID, node.getObjectType());
+        DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
         List<String> externalPropsList = getExternalPropsList(definition);
-        if (null == fields)
-            fields = new ArrayList<String>();
-        else
-            fields = new ArrayList<String>(fields);
 
-        // TODO: this is only for backward compatibility. remove after this
-        // release.
+        fields = CollectionUtils.isEmpty(fields) ? new ArrayList<>() : new ArrayList<>(fields);
+
+        //TODO: this is only for backward compatibility. remove after this release.
         if (fields.contains("tags")) {
             fields.remove("tags");
             fields.add("keywords");
         }
 
+        if (!StringUtils.equalsIgnoreCase("edit", mode)) {
+            String content = RedisStoreUtil.get(contentId);
+            if (StringUtils.isNotBlank(content)) {
+                try{
+                    contentMap = objectMapper.readValue(content, new TypeReference<Map<String,Object>>() {
+                    });
+                }catch(Exception e){
+                    throw new ServerException("ERR_CONTENT_PARSE","Something Went Wrong While Processing the Content. ",e);
+                }
+
+            } else {
+                TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
+                Node node = getContentNode(TAXONOMY_ID, contentId, null);
+                contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+                RedisStoreUtil.saveData(contentId, contentMap, CONTENT_CACHE_TTL);
+            }
+        } else {
+            TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
+            Node node = getContentNode(TAXONOMY_ID, contentId, mode);
+            contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, fields);
+            contentId = node.getIdentifier();
+        }
+
+        // Filter contentMap based on Fields
+        if(CollectionUtils.isNotEmpty(fields)){
+            fields.add("identifier");
+            List<String> fieldsIncluded = new ArrayList<>(fields);
+            contentMap.keySet().removeIf(metadata -> !fieldsIncluded.contains(metadata));
+        }
+
         List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
-        Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, fields);
         String channel = (String) contentMap.get("channel");
         if (StringUtils.isBlank(channel)) {
             channel = Platform.config.hasPath("channel.default") ?
@@ -55,7 +84,7 @@ public class FindOperation extends BaseContentManager {
         }
 
         if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
-            Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
+            Response getContentPropsRes = getContentProperties(contentId, externalPropsToFetch);
             if (!checkError(getContentPropsRes)) {
                 Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes
                         .get(TaxonomyAPIParams.values.name());
@@ -65,8 +94,7 @@ public class FindOperation extends BaseContentManager {
         }
 
         // Get all the languages for a given Content
-        List<String> languages = convertStringArrayToList(
-                (String[]) node.getMetadata().get(TaxonomyAPIParams.language.name()));
+        List<String> languages = prepareList(contentMap.get(TaxonomyAPIParams.language.name()));
 
         // Eval the language code for all Content Languages
         List<String> languageCodes = new ArrayList<String>();
@@ -82,13 +110,14 @@ public class FindOperation extends BaseContentManager {
         return response;
     }
 
-    private void updateContentTaggedProperty(Map<String, Object> contentMap, String mode) {
-        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable") ?
-                Platform.config.getBoolean("content.tagging.backward_enable") : false;
-        if (!StringUtils.equals(mode, "edit") && contentTaggingFlag) {
-            List<String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
-                    Platform.config.getStringList("content.tagging.property") :
-                    new ArrayList<>(Arrays.asList("subject", "medium"));
+
+    private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
+        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
+                Platform.config.getBoolean("content.tagging.backward_enable"): false;
+        if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
+            List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+                    Platform.config.getStringList("content.tagging.property"):
+                    new ArrayList<>(Arrays.asList("subject","medium"));
             contentTaggedKeys.forEach(contentTagKey -> {
                 if (contentMap.containsKey(contentTagKey)) {
                     List<String> prop = Arrays.asList((String[]) contentMap.get(contentTagKey));
@@ -147,4 +176,17 @@ public class FindOperation extends BaseContentManager {
         edata.put("action", "ecml-migration");
         edata.put("contentType", "Asset");
     }
-}
+    private List<String> prepareList(Object obj) {
+        List<String> list = new ArrayList<String>();
+        try {
+            list = Arrays.asList((String[]) obj);
+        } catch (Exception e) {
+            if (obj instanceof List)
+                list.addAll((List<String>) obj);
+        }
+        if (null != list) {
+            list = list.stream().filter(x -> org.apache.commons.lang3.StringUtils.isNotBlank(x) && !org.apache.commons.lang3.StringUtils.equals(" ", x)).collect(toList());
+        }
+        return list;
+    }
+        }

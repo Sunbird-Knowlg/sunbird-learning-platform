@@ -131,6 +131,54 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{ inputType': 'date', 'order': 11 }"
+        },
+        {
+            "propertyName": "appId",
+            "title": "appId",
+            "description": "R1.15",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        },
+        {
+            "propertyName": "channel",
+            "title": "Channel",
+            "description": "R-1.15_Channel Id",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 3}",
+            "indexed": true
+        },
+        {
+            "propertyName": "consumerId",
+            "title": "consumerId",
+            "description": "R1.15",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        },
+        {
+            "propertyName": "lastStatusChangedOn",
+            "title": "lastStatusChangedOn",
+            "description": "Timestamp of last status update",
+            "category": "General",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
         }],
         "inRelations": [
         {
@@ -184,7 +232,8 @@
                 "name",
                 "code",
                 "description",
-                "status"
+                "status",
+                "translations"
             ]
         }
     }]
