@@ -117,6 +117,7 @@ public class GetHierarchyOperation extends BaseContentManager {
                     generateMigrationInstructionEvent(rootId);
                 }
             }
+            util.hierarchyCleanUp(dataMap);
             return OK("content", dataMap);
         } else {
             if (StringUtils.isNotBlank(bookmarkId)) {
@@ -134,6 +135,7 @@ public class GetHierarchyOperation extends BaseContentManager {
                         Map<String, Object> hierarchy = filterBookmark(rootChildren, bookmarkId);
                         if (MapUtils.isNotEmpty(hierarchy)) {
                             generateMigrationInstructionEvent(rootId);
+                            util.hierarchyCleanUp(hierarchy);
                             return OK("content", hierarchy);
                         } else {
                             throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);

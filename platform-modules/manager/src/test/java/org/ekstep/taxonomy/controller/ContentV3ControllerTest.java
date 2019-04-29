@@ -915,7 +915,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 */
 	@Test
 	public void testFrameworkLinking_03() throws Exception {
-		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_03\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"medium\":\"english\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_03\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"medium\":[\"english\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
@@ -950,7 +950,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 */
 	@Test
 	public void testFrameworkLinking_05() throws Exception {
-		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"medium\":\"english\",\"versionKey\":\""
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"medium\":[\"english\"],\"versionKey\":\""
 				+ passKey + "\"}}}";
 		String path = basePath + "/update/" + frContentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
@@ -1059,7 +1059,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 */
 	@Test
 	public void testFrameworkLinking_11() throws Exception {
-		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_07\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"subject\":\"math\",\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
+		String request = "{\"request\": {\"content\": {\"identifier\":\"LP_UTEST_07\",\"name\": \"Unit Test Content\",\"framework\":\"NCFTEST\",\"subject\":[\"math\"],\"code\": \"unit.test\",\"contentType\": \"Resource\",\"mimeType\": \"application/pdf\",\"tags\": [\"colors\", \"games\"]}}}";
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON)
 				.header("X-Channel-Id", "in.ekstep").content(request));
@@ -1094,7 +1094,7 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 	 */
 	@Test
 	public void testFrameworkLinking_13() throws Exception {
-		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"subject\":\"math\",\"versionKey\":\""
+		String request = "{\"request\": {\"content\": {\"name\": \"Unit Test Content\",\"subject\":[\"math\"],\"versionKey\":\""
 				+ passKey + "\"}}}";
 		String path = basePath + "/update/" + frContentId;
 		actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).contentType(MediaType.APPLICATION_JSON)
