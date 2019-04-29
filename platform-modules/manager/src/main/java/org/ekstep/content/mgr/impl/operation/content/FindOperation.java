@@ -110,7 +110,7 @@ public class FindOperation extends BaseContentManager {
                     new ArrayList<>(Arrays.asList("subject","medium"));
             contentTaggedKeys.forEach(contentTagKey -> {
                 if(contentMap.containsKey(contentTagKey)) {
-                    List<String> prop = Arrays.asList((String[])contentMap.get(contentTagKey));
+                    List<String> prop = prepareList(contentMap.get(contentTagKey));
                     contentMap.put(contentTagKey, prop.get(0));
                 }
             });
