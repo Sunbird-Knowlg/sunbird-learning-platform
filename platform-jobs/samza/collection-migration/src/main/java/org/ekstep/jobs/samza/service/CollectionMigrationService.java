@@ -175,7 +175,7 @@ public class CollectionMigrationService implements ISamzaService {
 									liveNode.setOutRelations(relations);
 								}
 								liveNode.getMetadata().put("version", 2);
-								Response response = util.updateNode(liveNode);
+								Response response = util.updateNodeWithoutValidation(liveNode);
 								LOGGER.info("Relations update response: " + mapper.writeValueAsString(response));
 								if (!util.checkError(response)) {
 									LOGGER.info("Updated the collection with new format of relations...");
@@ -217,7 +217,7 @@ public class CollectionMigrationService implements ISamzaService {
 
 	private void updateNodeVersion(Node node) throws Exception {
 		node.getMetadata().put("version", 2);
-		Response response = util.updateNode(node);
+		Response response = util.updateNodeWithoutValidation(node);
 		if (!util.checkError(response)) {
 			LOGGER.info("Updated the node version to 2 for collection ID: " + node.getIdentifier());
 			LOGGER.info("Migration completed for collection ID: " + node.getIdentifier());

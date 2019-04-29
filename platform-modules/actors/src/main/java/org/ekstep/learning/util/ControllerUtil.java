@@ -98,6 +98,21 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	/**
+	 * Update node without validation.
+	 *
+	 * @param node the node
+	 * @return the response
+	 */
+	public Response updateNodeWithoutValidation(Node node) {
+		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		updateReq.put(GraphDACParams.node.name(), node);
+		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+		updateReq.put(GraphDACParams.skip_validations.name(), true);
+		Response updateRes = getResponse(updateReq);
+		return updateRes;
+	}
+
+	/**
 	 * Gets the definition.
 	 *
 	 * @param taxonomyId the taxonomy id
