@@ -66,13 +66,6 @@
     		<version>1.2.5</version>
 		</dependency>
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>cloud-store</id>
-			<url>https://oss.sonatype.org/content/repositories/orgsunbird-1032</url>
-		</repository>
-	</repositories>
   
 	<build>
 		<pluginManagement>

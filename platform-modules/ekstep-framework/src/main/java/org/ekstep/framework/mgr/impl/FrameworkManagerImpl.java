@@ -97,16 +97,10 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		}
 
 		if (MapUtils.isNotEmpty(framework)) {
-			responseMap.putAll(framework);
-
 			// filtering based on requested categories.
-			List<Map<String, Object>> categories = (List<Map<String, Object>>) framework.get("categories");
-			if (CollectionUtils.isNotEmpty(categories) && CollectionUtils.isNotEmpty(returnCategories)) {
-				responseMap.put("categories",
-						categories.stream().filter(p -> returnCategories.contains(p.get("code")))
-								.collect(Collectors.toList()));
-				removeAssociations(responseMap, returnCategories);
-			}
+			filterFrameworkCategories(framework, returnCategories);
+
+			responseMap.putAll(framework);
 			response.put(FrameworkEnum.framework.name(), responseMap);
 			response.setParams(getSucessStatus());
 		} else {
@@ -115,7 +109,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				framework = (Map<String, Object>) response.getResult().get("framework");
 			} else {
 				response = OK();
-				response.put("framework", framework);
+				response.put(FrameworkEnum.framework.name(), framework);
 			}
 		}
 
@@ -125,7 +119,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		return response;
 	}
-	
+
 	/*
 	 * Update Framework Details
 	 * 
