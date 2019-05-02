@@ -79,7 +79,7 @@ public class FrameworkHierarchy extends BaseManager {
 			}
 			hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
 			//saving the framework in the redis sever for publish.
-			RedisStoreUtil.saveData(node.getIdentifier(), frameworkDocument, frameworkTtl);
+			RedisStoreUtil.saveCompressedData(node.getIdentifier(), frameworkDocument, frameworkTtl);
 
 		} else {
 			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "The object with given identifier is not a framework: " + id);
