@@ -45,11 +45,11 @@ public class FindOperation extends BaseContentManager {
         if (!StringUtils.equalsIgnoreCase("edit", mode)) {
             String content = RedisStoreUtil.get(contentId);
             if (StringUtils.isNotBlank(content)) {
-                try{
-                    contentMap = objectMapper.readValue(content, new TypeReference<Map<String,Object>>() {
+                try {
+                    contentMap = objectMapper.readValue(content, new TypeReference<Map<String, Object>>() {
                     });
-                }catch(Exception e){
-                    throw new ServerException("ERR_CONTENT_PARSE","Something Went Wrong While Processing the Content. ",e);
+                } catch (Exception e) {
+                    throw new ServerException("ERR_CONTENT_PARSE", "Something Went Wrong While Processing the Content. ", e);
                 }
 
             } else {
@@ -66,7 +66,7 @@ public class FindOperation extends BaseContentManager {
         }
 
         // Filter contentMap based on Fields
-        if(CollectionUtils.isNotEmpty(fields)){
+        if (CollectionUtils.isNotEmpty(fields)) {
             fields.add("identifier");
             List<String> fieldsIncluded = new ArrayList<>(fields);
             contentMap.keySet().removeIf(metadata -> !fieldsIncluded.contains(metadata));
@@ -74,14 +74,17 @@ public class FindOperation extends BaseContentManager {
 
         List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
         String channel = (String) contentMap.get("channel");
-        if (StringUtils.isBlank(channel)) {
+        if (StringUtils.isBlank(channel))
             channel = Platform.config.hasPath("channel.default") ?
                     Platform.config.getString("channel.default") : "in.ekstep";
-        }
+
         Number version = (Number) contentMap.get("version");
-        if (version == null || version.intValue() < 2) {
+        String mimeType = (String) contentMap.get("mimeType");
+        if (mimeType != null
+                && org.apache.commons.lang3.StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.ecml-archive")
+                && (version == null || version.intValue() < 2))
             generateMigrationInstructionEvent(contentId, channel);
-        }
+
 
         if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
             Response getContentPropsRes = getContentProperties(contentId, externalPropsToFetch);
@@ -111,13 +114,13 @@ public class FindOperation extends BaseContentManager {
     }
 
 
-    private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
-        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
-                Platform.config.getBoolean("content.tagging.backward_enable"): false;
-        if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
-            List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
-                    Platform.config.getStringList("content.tagging.property"):
-                    new ArrayList<>(Arrays.asList("subject","medium"));
+    private void updateContentTaggedProperty(Map<String, Object> contentMap, String mode) {
+        Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable") ?
+                Platform.config.getBoolean("content.tagging.backward_enable") : false;
+        if (!StringUtils.equals(mode, "edit") && contentTaggingFlag) {
+            List<String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+                    Platform.config.getStringList("content.tagging.property") :
+                    new ArrayList<>(Arrays.asList("subject", "medium"));
             contentTaggedKeys.forEach(contentTagKey -> {
                 if (contentMap.containsKey(contentTagKey)) {
                     List<String> prop = Arrays.asList((String[]) contentMap.get(contentTagKey));
@@ -168,7 +171,7 @@ public class FindOperation extends BaseContentManager {
             String env = Platform.config.getString("cloud_storage.env");
             context.put("env", env);
         }
-
+        contentId = contentId.replace(".img","");
         object.put("id", contentId);
         object.put("type", "content");
         object.put("channel", channel);
@@ -176,6 +179,7 @@ public class FindOperation extends BaseContentManager {
         edata.put("action", "ecml-migration");
         edata.put("contentType", "Asset");
     }
+
     private List<String> prepareList(Object obj) {
         List<String> list = new ArrayList<String>();
         try {
@@ -189,4 +193,4 @@ public class FindOperation extends BaseContentManager {
         }
         return list;
     }
-        }
+}

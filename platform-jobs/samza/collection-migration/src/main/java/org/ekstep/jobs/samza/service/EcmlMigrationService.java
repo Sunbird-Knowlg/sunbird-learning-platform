@@ -7,6 +7,7 @@ package org.ekstep.jobs.samza.service;
 import com.mashape.unirest.http.Unirest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
@@ -34,19 +35,19 @@ public class EcmlMigrationService {
     public final String DOMAIN = "domain";
     public final String VERSION = "version";
     public final int VERSION_NUM = 2;
-    public final String REGEXGDRIVE = "\\w+://drive.google.com/\\w+\\?export=download&id=";
     public final String ECML_MIGRATION_FAILED = "ECML_MIGRATION_FAILED";
+    public final String MIMETYPE = "mimeType";
 
     private final ControllerUtil util = new ControllerUtil();
 
-    public static List<String> assetIdList = new ArrayList<>();
-    public static Map<String, String> driveArtifactMap = new HashMap<>();
+    public List<String> assetIdList = new ArrayList<>();
     private final ObjectMapper mapper = new ObjectMapper();
     private JobLogger LOGGER = new JobLogger(EcmlMigrationService.class);
 
     public Boolean checkIfValidMigrationRequest(Node node) {
         Number version = (Number) node.getMetadata().get(VERSION);
-        if (version != null && version.intValue() >= 2) {
+        String mimeType = (String) node.getMetadata().get(MIMETYPE);
+        if (mimeType != null && StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.ecml-archive") && version != null && version.intValue() >= 2) {
             LOGGER.info("Migration is already completed for Content ID: " + node.getIdentifier() + ". So, skipping this message.");
             return false;
         } else
@@ -73,31 +74,39 @@ public class EcmlMigrationService {
         return mediasDriveUrl;
     }
 
-
-    public Boolean downloadCreateandUpload(String contentUrl, String dirUrl, String lpUrl, String channelId) throws Exception {
-        HttpResponse response = makeGetRequest(contentUrl);
-        if (response.getStatus() == 200) {
-            String contentType = response.getHeaders().get("Content-Type").get(0);
-            if (!StringUtils.equalsIgnoreCase("text/html; charset=UTF-8", contentType)) {
-                File media = HttpDownloadUtility.downloadFile(contentUrl, dirUrl);
-                if (media != null) {
-                    String contentId = createAsset(channelId, lpUrl, media, contentType);
-                    if (uploadAsset(media, contentId, contentUrl))
-                        return true;
+    public Map<String, List> downloadDriveContents(String driveUrl, String dirUrl) {
+        Map<String, List> fileMap = new HashMap<>();
+        try {
+            HttpResponse response = makeGetRequest(driveUrl);
+            if (response.getStatus() == 200) {
+                String contentType = response.getHeaders().get("Content-Type").get(0);
+                if (!StringUtils.equalsIgnoreCase("text/html; charset=UTF-8", contentType)) {
+                    File media = HttpDownloadUtility.downloadFile(driveUrl, dirUrl);
+                    if (media != null) {
+                        List fileAndMimeType = new ArrayList();
+                        fileAndMimeType.add(media);
+                        fileAndMimeType.add(contentType);
+                        fileMap.put(driveUrl, fileAndMimeType);
+                    } else {
+                        throw new ClientException(ECML_MIGRATION_FAILED, "Google Drive should be downloadable");
+                    }
+                } else {
+                    throw new ClientException(ECML_MIGRATION_FAILED, "Google Drive content cannot be private");
                 }
             } else {
-                throw new ClientException(ECML_MIGRATION_FAILED,"Google Drive content cannot be private");
+                throw new ClientException(ECML_MIGRATION_FAILED, "404 Resource Not Found, Make sure resource is available");
             }
-        } else {
-            throw new ClientException(ECML_MIGRATION_FAILED,"404 Resource Not Found, Make sure resource is available");
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error(e.getMessage(),e);
         }
-        return false;
+        return fileMap;
     }
 
     public String createAsset(String channelId, String lpUrl, File media, String contentType) throws Exception {
         if (StringUtils.isBlank(channelId))
             channelId = CHANNEL_ID;
-        String contentId = null;
+        String contentId;
         Map<String, String> headerParam = new HashMap<String, String>();
         Map<String, Object> requestMap = new HashMap<String, Object>();
         Map<String, Object> contentMap = new HashMap<String, Object>();
@@ -112,26 +121,26 @@ public class EcmlMigrationService {
             contentId = (String) response.getResult().get("node_id");
             assetIdList.add(contentId);
         } else
-            throw new ClientException(ECML_MIGRATION_FAILED,"Asset Creation Failed");
+            throw new ClientException(ECML_MIGRATION_FAILED, "Asset Creation Failed");
         return contentId;
     }
 
-    private Map<String, Object> prepData(File media, String contentType) {
+    private Map<String, Object> prepData(File media, String mimeType) throws Exception {
         Map<String, Object> map = new HashMap<>();
         map.put("name", media.getName());
         map.put("code", media.getName());
-        map.put("mimeType", contentType);
+        map.put("mimeType", mimeType);
         map.put("contentType", "Asset");
+        map.put("mediaType", mimeType.split("/")[0]);
         return map;
     }
 
-    public Boolean uploadAsset(File media, String contentId, String driveUrl) {
+    public String uploadAsset(File media, String contentId) {
         Response response = new AssetsMimeTypeMgrImpl().upload(contentId, util.getNode(DOMAIN, contentId), media, true);
         if (response.getResponseCode() == ResponseCode.OK) {
-            driveArtifactMap.put(driveUrl, (String) response.getResult().get("content_url"));
-            return true;
+            return (String) response.getResult().get("content_url");
         }
-        return false;
+        return null;
     }
 
     public Boolean deleteDownloadedContent(String fileUrl) {
@@ -139,10 +148,11 @@ public class EcmlMigrationService {
         try {
             if (file.listFiles() != null) {
                 FileUtils.cleanDirectory(file);
+                LOGGER.info("Successfully deleted all temp media");
                 return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Deleting media unsuccesful", e);
             return false;
         }
         return false;
@@ -156,7 +166,7 @@ public class EcmlMigrationService {
         assetIdList.forEach(assetId -> {
             try {
                 if (!StringUtils.equalsIgnoreCase((String) util.getNode(DOMAIN, assetId).getMetadata().get("status"), "LIVE")) {
-                    throw new Exception("All asset are not live");
+                    throw new ClientException(ECML_MIGRATION_FAILED, "All asset are not live");
                 }
             } catch (Exception e) {
                 LOGGER.info(e.getMessage() + ", Migration failed.");
@@ -164,29 +174,27 @@ public class EcmlMigrationService {
         });
     }
 
-    public void ecmlBodyUpdate(String contentBody, String contentId) throws Exception {
+    public void ecmlBodyUpdate(String contentBody, String contentId, Map<String, String> driveArtifactMap) throws Exception {
         for (String driveUrl : driveArtifactMap.keySet()) {
             if (contentBody.contains(driveUrl)) {
-                String id = driveUrl.split("id=")[1];
-                contentBody = contentBody.replaceAll(REGEXGDRIVE + id, driveArtifactMap.get(driveUrl));
+                String driveRegexUrl = driveUrl.replace("?", "\\?");
+                contentBody = contentBody.replaceAll(driveRegexUrl, driveArtifactMap.get(driveUrl));
             }
         }
         System.out.println("Post Update of Content Body, Body is :" + contentBody);
         if (StringUtils.isNotBlank(contentBody)) {
             Response response = util.updateContentBody(contentId, contentBody);
             if (response.getResponseCode() != ResponseCode.OK)
-                throw new ClientException(ECML_MIGRATION_FAILED,"Cassandra Body update failed");
+                throw new ClientException(ECML_MIGRATION_FAILED, "Cassandra Body update failed");
         } else
-            throw new ClientException(ECML_MIGRATION_FAILED,"ECML Body update was not possible");
+            throw new ClientException(ECML_MIGRATION_FAILED, "ECML Body update was not possible");
     }
 
-    public void updateEcmlNode(String contentId) throws Exception {
-        Node node = util.getNode(DOMAIN, contentId);
-        Map existingMetaData = node.getMetadata();
-        existingMetaData.put(VERSION, VERSION_NUM);
-        Response response = util.updateNode(node);
+    public void updateEcmlNode(List<Node> nodes) throws Exception {
+        Map<String, Object> newMetaData = new HashMap<>();
+        newMetaData.put(VERSION, VERSION_NUM);
+        Response response = util.updateNodes(nodes, newMetaData);
         if (response.getResponseCode() != ResponseCode.OK)
-            throw new ClientException(ECML_MIGRATION_FAILED,"ECML node was not updated");
+            throw new ClientException(ECML_MIGRATION_FAILED, "ECML nodes were not updated");
     }
-
 }

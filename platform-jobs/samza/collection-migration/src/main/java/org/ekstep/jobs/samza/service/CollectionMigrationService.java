@@ -30,6 +30,7 @@ import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,10 +48,8 @@ public class CollectionMigrationService implements ISamzaService {
     private final String COLLECTION_MIGRATION = "collection-migration";
     private final String ECML_MIGRATION = "ecml-migration";
     private EcmlMigrationService migrationService;
-    private String dowloadFileLocation;
+    private String downloadFileLocation;
     private String platformUri;
-    private List<Boolean> assetChecks = new ArrayList<>();
-
 
 
     public void initialize(Config config) throws Exception {
@@ -63,11 +62,9 @@ public class CollectionMigrationService implements ISamzaService {
         LOGGER.info("Stream initialized for Failed Events");
         hierarchyStore = new HierarchyStore();
         migrationService = new EcmlMigrationService();
-        dowloadFileLocation = Platform.config.hasPath("tmp.download.directory") ? Platform.config.getString("tmp.download.directory") : "/data/tmp/temp/";
+        downloadFileLocation = Platform.config.hasPath("tmp.download.directory") ? Platform.config.getString("tmp.download.directory") : "/data/tmp/temp/";
         platformUri = Platform.config.hasPath("platform-api-url")
                 ? Platform.config.getString("platform-api-url") : "http://localhost:8080/learning-service";
-
-
     }
 
     @Override
@@ -88,52 +85,83 @@ public class CollectionMigrationService implements ISamzaService {
                 break;
             }
             case ECML_MIGRATION: {
-                migrateECML(message, metrics, collector, object);
+                migrateECML(message, metrics, object);
                 break;
             }
-            default: LOGGER.info("Ecml migration is already done");
+            default:
+                LOGGER.info("Ecml migration is already done");
         }
 
     }
 
-    private void migrateECML(Map<String, Object> message, JobMetrics metrics,
-                             MessageCollector collector, Map<String, Object> object) {
+    private void migrateECML(Map<String, Object> message, JobMetrics metrics, Map<String, Object> object) {
         try {
             String contentId = (String) object.get("id");
-            if (!RequestValidatorUtil.isEmptyOrNull(contentId) && migrationService.checkIfValidMigrationRequest(getNode(contentId))) {
+
+            Boolean isImage = false;
+            Node ecmlNode = util.getNode("domain", contentId);
+            Node ecmlImageNode = util.getNode("domain", contentId + ".img");
+
+            if (RequestValidatorUtil.isEmptyOrNull(ecmlImageNode) && RequestValidatorUtil.isEmptyOrNull(ecmlNode)) {
+                throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "No content with this id");
+            }
+            if (!RequestValidatorUtil.isEmptyOrNull(ecmlImageNode))
+                isImage = true;
+
+            if (migrationService.checkIfValidMigrationRequest(ecmlNode)) {
                 String contentBody = util.getContentBody(contentId);
+                String imageContentBody;
                 List<Map<String, Object>> mediaContents = migrationService.getMediaContents(contentBody);
+                if (isImage && migrationService.checkIfValidMigrationRequest(ecmlImageNode)) {
+                    imageContentBody = util.getContentBody(contentId + ".img");
+                    mediaContents.addAll(migrationService.getMediaContents(imageContentBody));
+                }
                 List<Map<String, Object>> mediasWithDriveUrl = migrationService.getMediasWithDriveUrl(mediaContents);
                 Set<String> contentUrls = new HashSet<>();
                 mediasWithDriveUrl.forEach(media -> contentUrls.add((String) media.get("src")));
-                contentUrls.forEach(contentUrl -> {
+
+                List<Node> nodesForUpdate = new ArrayList<>();
+                nodesForUpdate.add(ecmlNode);
+                if (isImage)
+                    nodesForUpdate.add(ecmlImageNode);
+
+                if (CollectionUtils.isEmpty(contentUrls)) {
+                    migrationService.updateEcmlNode(nodesForUpdate);
+                    return;
+                }
+                Map<String, List> fileMap = new HashMap();
+                contentUrls.forEach(contentUrl -> fileMap.putAll(migrationService.downloadDriveContents(contentUrl, downloadFileLocation)));
+                Map<String, String> driveArtifactMap = new HashMap();
+                fileMap.keySet().forEach(driveUrl -> {
                     try {
-                        assetChecks.add(migrationService.downloadCreateandUpload(contentUrl, dowloadFileLocation, platformUri, (String) object.get("channel")));
-                        migrationService.deleteDownloadedContent(dowloadFileLocation);
+                        String id = migrationService.createAsset((String) object.get("channel"), platformUri,
+                                (File) fileMap.get(driveUrl).get(0), (String) fileMap.get(driveUrl).get(1));
+                        String artifactUrl = migrationService.uploadAsset((File) fileMap.get(driveUrl).get(0), id);
+                        if (StringUtils.isNotBlank(artifactUrl))
+                            driveArtifactMap.put(driveUrl, artifactUrl);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        LOGGER.info(e.getMessage() + ", Migration failed.");
+                        LOGGER.error(e.getMessage(), e);
                     }
                 });
-                if (!assetChecks.contains(false) && CollectionUtils.isNotEmpty(assetChecks)) {
-                    migrationService.ecmlBodyUpdate(contentBody, contentId);
-                    migrationService.updateEcmlNode(contentId);
-
+                migrationService.deleteDownloadedContent(downloadFileLocation);
+                if (MapUtils.isNotEmpty(driveArtifactMap)) {
+                    if (isImage)
+                        migrationService.ecmlBodyUpdate(contentBody, contentId + ".img", driveArtifactMap);
+                    migrationService.ecmlBodyUpdate(contentBody, contentId, driveArtifactMap);
+                    migrationService.updateEcmlNode(nodesForUpdate);
                 } else
-                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Drive Urls are not valid");
+                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Drive Urls are not valid or not present");
             } else {
                 metrics.incSkippedCounter();
-                FailedEventsUtil.pushEventForRetry(systemStream, message, metrics, collector,
-                        PlatformErrorCodes.PROCESSING_ERROR.name(), new ServerException("ERR_ECML_MIGRATION", "Please check neo4j connection or identifier to migrate."));
-                LOGGER.info("Invalid contentId /Migration is already done. Unable to process the event.", message);
+                LOGGER.info("Migration is already done. Unable to process the event.", message);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.info(e.getMessage() + ", Migration failed.");
+            LOGGER.error(e.getMessage(), e);
         }
 
     }
-
 
     private void migrateCollections(Map<String, Object> message, JobMetrics metrics,
                                     MessageCollector collector, Map<String, Object> object) throws Exception {

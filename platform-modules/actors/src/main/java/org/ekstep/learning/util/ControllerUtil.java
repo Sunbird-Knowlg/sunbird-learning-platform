@@ -98,6 +98,16 @@ public class ControllerUtil extends BaseLearningManager {
 		return updateRes;
 	}
 
+	public Response updateNodes(List<Node> nodes, Map<String,Object> metadata) {
+		List<String> nodeIds = new ArrayList<>();
+		nodes.forEach(node -> nodeIds.add(node.getIdentifier()));
+		Request updateReq = getRequest(nodes.get(0).getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNodes");
+		updateReq.put(GraphDACParams.node_ids.name(),nodeIds);
+		updateReq.put(GraphDACParams.metadata.name(),metadata);
+		Response updateRes = getResponse(updateReq);
+		return updateRes;
+	}
+
 	/**
 	 * Update node without validation.
 	 *
