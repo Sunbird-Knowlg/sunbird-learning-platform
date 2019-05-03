@@ -89,7 +89,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		long start = System.currentTimeMillis();
 		String frameworkStr = RedisStoreUtil.getUncompressed(frameworkId);
-		System.out.println("Time to fetch data from Redis for framework " + frameworkId + " is : " + (System.currentTimeMillis() - start));
+		System.out.println("Time to fetch data from RedisStoreUtils for framework " + frameworkId + " is : " + (System.currentTimeMillis() - start));
 		Map<String, Object> framework = new HashMap<String, Object>();
 		if (StringUtils.isNotBlank(frameworkStr)) {
 			framework = mapper.readValue(frameworkStr, Map.class);

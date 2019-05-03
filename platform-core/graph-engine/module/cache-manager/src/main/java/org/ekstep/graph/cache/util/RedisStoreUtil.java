@@ -205,8 +205,13 @@ public class RedisStoreUtil {
 	public static String getUncompressed(String key) {
 		Jedis jedis = getRedisConncetion();
 		try {
+			long start = System.currentTimeMillis();
 			String value = jedis.get(key);
-			return uncompressString(value);
+			System.out.println("Time taken fetch data from redis for : " + key + (System.currentTimeMillis() - start));
+			start = System.currentTimeMillis();
+			String uncompressedValue = uncompressString(value);
+			System.out.println("Time taken uncompress data for : " + key + (System.currentTimeMillis() - start));
+			return uncompressedValue;
 		} catch (Exception e) {
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
