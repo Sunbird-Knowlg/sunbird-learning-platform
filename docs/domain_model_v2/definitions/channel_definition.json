@@ -182,6 +182,19 @@
           "defaultValue": "",
           "renderingHints": "",
           "indexed": true
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "versionKey",
+          "title": "Data Version Key",
+          "description": "Version number data in Content Node",
+          "category": "Technical",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
         }
       ],
       "inRelations":[],
