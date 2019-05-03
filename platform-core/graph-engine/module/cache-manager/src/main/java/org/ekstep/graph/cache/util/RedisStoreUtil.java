@@ -1,7 +1,5 @@
 package org.ekstep.graph.cache.util;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
@@ -9,16 +7,11 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import redis.clients.jedis.Jedis;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import static org.ekstep.graph.cache.factory.JedisFactory.getRedisConncetion;
 import static org.ekstep.graph.cache.factory.JedisFactory.returnConnection;
@@ -192,49 +185,5 @@ public class RedisStoreUtil {
 		} catch (Exception e) {
 			TelemetryManager.error("Error while saving hierarchy to Redis for Identifier : " + identifier + " | Error is : ", e);
 		}
-	}
-
-	public static void saveCompressedData(String identifier, Map<String, Object> data, int ttl) {
-		try {
-			save(identifier, compressString(mapper.writeValueAsString(data)), ttl);
-		} catch (Exception e) {
-			TelemetryManager.error("Error while saving hierarchy to Redis for Identifier : " + identifier + " | Error is : ", e);
-		}
-	}
-
-	public static String getUncompressed(String key) {
-		Jedis jedis = getRedisConncetion();
-		try {
-			String value = jedis.get(key);
-			return uncompressString(value);
-		} catch (Exception e) {
-			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
-		} finally {
-			returnConnection(jedis);
-		}
-	}
-
-	public static String compressString(String srcTxt)
-			throws IOException {
-		ByteArrayOutputStream rstBao = new ByteArrayOutputStream();
-		GZIPOutputStream zos = new GZIPOutputStream(rstBao);
-		zos.write(srcTxt.getBytes());
-		IOUtils.closeQuietly(zos);
-		byte[] bytes = rstBao.toByteArray();
-		return Base64.encodeBase64String(bytes);
-	}
-
-	public static String uncompressString(String zippedBase64Str)
-			throws IOException {
-		String result = null;
-		byte[] bytes = Base64.decodeBase64(zippedBase64Str);
-		GZIPInputStream zi = null;
-		try {
-			zi = new GZIPInputStream(new ByteArrayInputStream(bytes));
-			result = IOUtils.toString(zi, "UTF-8");
-		} finally {
-			IOUtils.closeQuietly(zi);
-		}
-		return result;
 	}
 }

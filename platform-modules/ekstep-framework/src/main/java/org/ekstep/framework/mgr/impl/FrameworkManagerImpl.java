@@ -19,7 +19,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
-import org.ekstep.telemetry.logger.TelemetryManager;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -87,9 +86,8 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Response response = new Response();
 		Map<String, Object> responseMap = new HashMap<String, Object>();
-		long start = System.currentTimeMillis();
-		String frameworkStr = RedisStoreUtil.getUncompressed(frameworkId);
-		System.out.println("Time to fetch data from Redis for framework " + frameworkId + " is : " + (System.currentTimeMillis() - start));
+
+		String frameworkStr = RedisStoreUtil.get(frameworkId);
 		Map<String, Object> framework = new HashMap<String, Object>();
 		if (StringUtils.isNotBlank(frameworkStr)) {
 			framework = mapper.readValue(frameworkStr, Map.class);
@@ -100,9 +98,8 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		if (MapUtils.isNotEmpty(framework)) {
 			// filtering based on requested categories.
-			start = System.currentTimeMillis();
 			filterFrameworkCategories(framework, returnCategories);
-			System.out.println("Time to filter categories from Redis for framework " + frameworkId + " is : " + (System.currentTimeMillis() - start));
+
 			responseMap.putAll(framework);
 			response.put(FrameworkEnum.framework.name(), responseMap);
 			response.setParams(getSucessStatus());
@@ -118,7 +115,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 
 		//saving data in redis
 		if (StringUtils.isBlank(frameworkStr))
-			RedisStoreUtil.saveCompressedData(frameworkId, framework, frameworkTtl);
+			RedisStoreUtil.saveData(frameworkId, framework, frameworkTtl);
 
 		return response;
 	}
