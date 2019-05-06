@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.SetUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,8 +56,6 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -238,10 +237,18 @@ public class PublishFinalizer extends BaseFinalizer {
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
 		
-		Map<String,Object> collectionHierarchy = getHierarchy(node);
+		Map<String,Object> collectionHierarchy = getHierarchy(node.getIdentifier(), true);
 		List<Map<String, Object>> children = null;
-		if(MapUtils.isNotEmpty(collectionHierarchy))
+		if(MapUtils.isNotEmpty(collectionHierarchy)) {
+			Set<String> collectionResourceChildNodes = new HashSet<>();
 			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
+			enrichChildren(children, collectionResourceChildNodes);
+			if(!collectionResourceChildNodes.isEmpty()) {
+				List<String> collectionChildNodes = (List<String>)node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name());
+				collectionChildNodes.addAll(collectionResourceChildNodes);
+			}
+				
+		}
 		
 		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
 			TelemetryManager.log("Collection processing started for content: " + node.getIdentifier());
@@ -307,6 +314,31 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		
 		return response;
+	}
+	
+	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes) {
+		List<Map<String, Object>> newChildren = new ArrayList<>(children);
+		
+		if (null!=newChildren && !newChildren.isEmpty()) {
+			for (Map<String, Object> child : newChildren) {
+				if(StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.visibility.name(), "Parent") &&
+						StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.mimeType.name(), COLLECTION_MIMETYPE))
+					enrichChildren((List<Map<String, Object>>)child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes);
+				if(StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.visibility.name(), "Default") &&
+						StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.mimeType.name(), COLLECTION_MIMETYPE)) {
+					Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
+					collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
+					collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
+					List<String> childNodes = (List<String>)collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name());
+					if(!CollectionUtils.isEmpty(childNodes)) 
+						collectionResourceChildNodes.addAll(childNodes);
+					if(!MapUtils.isEmpty(collectionHierarchy)) {
+						children.remove(child);
+						children.add(collectionHierarchy);
+					}
+				}
+			}
+		}
 	}
 	
 	private List<String> getUnitFromLiveContent(){
@@ -439,9 +471,12 @@ public class PublishFinalizer extends BaseFinalizer {
 		return collectionHierarchy;
 	}
 	
-	private Map<String, Object> getHierarchy(Node node) {
-		String identifier = StringUtils.endsWith(node.getIdentifier(), ".img") ? 
-				node.getIdentifier() : node.getIdentifier() + ".img";
+	private Map<String, Object> getHierarchy(String nodeId, boolean needImageHierarchy) {
+		String identifier = nodeId;
+		if(needImageHierarchy) {
+			identifier = StringUtils.endsWith(nodeId, ".img") ? nodeId : nodeId + ".img";
+		}
+		
 		return hierarchyStore.getHierarchy(identifier);
 	}
 	
