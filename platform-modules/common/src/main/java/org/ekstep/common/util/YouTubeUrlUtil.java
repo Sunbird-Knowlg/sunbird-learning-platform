@@ -1,21 +1,6 @@
 package org.ekstep.common.util;
 
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.Platform;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.exception.ServerException;
-import org.ekstep.telemetry.logger.TelemetryManager;
-
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -26,6 +11,18 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.telemetry.logger.TelemetryManager;
+import org.springframework.util.CollectionUtils;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Contains methods for authorizing a user and caching credentials.
@@ -137,5 +134,58 @@ public class YouTubeUrlUtil {
 			return url.replace(matcher.group(), "");
 		}
 		return url;
+	}
+
+	/**
+	 *
+	 * @param videoId
+	 * @param params
+	 * @return
+	 */
+	private static List<Video> getVideoList(String videoId, String params) {
+		try {
+			YouTube.Videos.List videosListByIdRequest = youtube.videos().list(params);
+			String apiKey = Platform.config.getString("learning_content_youtube_apikey");
+			videosListByIdRequest.setKey(apiKey);
+			videosListByIdRequest.setId(videoId);
+			VideoListResponse response = videosListByIdRequest.execute();
+			return response.getItems();
+		} catch (GoogleJsonResponseException ex) {
+			Map<String, Object> error = ex.getDetails().getErrors().get(0);
+			String reason = (String) error.get("reason");
+			if (errorCodes.contains(reason)) {
+				limitExceeded = true;
+				TelemetryManager
+						.log("Youtube API Limit Exceeded. Reason is: " + reason + " | Error Details : " + ex);
+			}
+		} catch (Exception e) {
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+					"Something Went Wrong While Processing Youtube Video. Please Try Again After Sometime!");
+		}
+		return null;
+	}
+
+	public static Map<String,Object> getVideoInfo(String videoUrl, String apiParams, String... metadata) {
+		Video video = null;
+		Map<String,Object> result = new HashMap<String, Object>();
+		String videoId = getIdFromUrl(videoUrl);
+		List<Video> videoList = getVideoList(videoId, apiParams);
+		if(null != videoList && !videoList.isEmpty()) {
+			video = videoList.get(0);
+		}
+
+		for(String str: metadata){
+			if("license".equalsIgnoreCase(str)){
+				String license = video.getStatus().getLicense().toString();
+				if(StringUtils.isNotBlank(license))
+					result.put(str,license);
+			}
+
+			if("thumbnail".equalsIgnoreCase(str)) {
+				
+			}
+		}
+
+		return result;
 	}
 }
