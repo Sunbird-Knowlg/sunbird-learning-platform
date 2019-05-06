@@ -24,5 +24,6 @@ public enum ContentWorkflowPipelineParams {
 	isPublishOperation, Processing, Draft, uploadError, publishError, reviewError, _temp, Failed, TextBook, TextBookUnit, 
 	compatibilityLevel, baseUrl, ecarUrl, spine, variants, isImageObject, ContentImage, youtube, pdf, msword, screenshots, 
 	Course, CourseUnit, LessonPlan, LessonPlanUnit, contentDisposition, publish_type, Unlisted, Public, Pending, previewUrl, 
-	streamingUrl, channel, online, leafNodesCount, domain, gradeLevel, ageGroup, medium, genre, keywords, lastUpdatedOn;
+	streamingUrl, channel, online, leafNodesCount, domain, gradeLevel, ageGroup, medium, genre, keywords, lastUpdatedOn, index, parent,
+	childNodes;
 }
