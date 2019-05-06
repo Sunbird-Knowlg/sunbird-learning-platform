@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.SetUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -244,7 +243,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
 			enrichChildren(children, collectionResourceChildNodes);
 			if(!collectionResourceChildNodes.isEmpty()) {
-				List<String> collectionChildNodes = (List<String>)node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name());
+				List<String> collectionChildNodes = new ArrayList<String>(Arrays.asList((String[])node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name())));
 				collectionChildNodes.addAll(collectionResourceChildNodes);
 			}
 				
@@ -321,11 +320,11 @@ public class PublishFinalizer extends BaseFinalizer {
 		
 		if (null!=newChildren && !newChildren.isEmpty()) {
 			for (Map<String, Object> child : newChildren) {
-				if(StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.visibility.name(), "Parent") &&
-						StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.mimeType.name(), COLLECTION_MIMETYPE))
+				if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Parent") &&
+						StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE))
 					enrichChildren((List<Map<String, Object>>)child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes);
-				if(StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.visibility.name(), "Default") &&
-						StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.mimeType.name(), COLLECTION_MIMETYPE)) {
+				if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
+						StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
 					Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
 					collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
 					collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
