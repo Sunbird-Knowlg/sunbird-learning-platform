@@ -112,21 +112,27 @@ public class EcmlMigrationService {
         return fileMap;
     }
 
-    public String doesAssetExists(String driveUrl) throws Exception {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("migratedUrl", driveUrl);
-        properties.put("status", new ArrayList<>());
-        SearchDTO searchDto = new SearchDTO();
-        searchDto.setFuzzySearch(false);
-        searchDto.setProperties(setSearchProperties(properties));
-        searchDto.setOperation("AND");
-        searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-        searchDto.setFields(getFields());
-        List<Object> searchResult = Await.result(
-                processor.processSearchQuery(searchDto, false, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false),
-                RequestRouterPool.WAIT_TIMEOUT.duration());
-        if (searchResult.size() > 0)
-            return (String) ((Map) searchResult.get(0)).get("artifactUrl");
+    public String doesAssetExists(String driveUrl) {
+        try {
+
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("migratedUrl", driveUrl);
+            properties.put("status", new ArrayList<>());
+            SearchDTO searchDto = new SearchDTO();
+            searchDto.setFuzzySearch(false);
+            searchDto.setProperties(setSearchProperties(properties));
+            searchDto.setOperation("AND");
+            searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+            searchDto.setFields(getFields());
+            List<Object> searchResult = Await.result(
+                    processor.processSearchQuery(searchDto, false, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false),
+                    RequestRouterPool.WAIT_TIMEOUT.duration());
+            if (searchResult.size() > 0)
+                return (String) ((Map) searchResult.get(0)).get("artifactUrl");
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
+        }
         return null;
     }
 
@@ -151,22 +157,27 @@ public class EcmlMigrationService {
         return props;
     }
 
-    public String createAsset(Map<String, List> fileMap, String driveUrl) throws Exception {
-        String contentId;
-        Node node = ConvertToGraphNode.convertToGraphNode(prepData(fileMap, driveUrl), util.getDefinition("domain", "Content"), null);
-        node.setObjectType("Content");
-        node.setGraphId("domain");
-        Response response = util.createDataNode(node);
-        if (response.getResponseCode() == ResponseCode.OK) {
-            contentId = (String) response.getResult().get("node_id");
-            assetIdList.add(contentId);
-        } else
-            throw new ClientException(ECML_MIGRATION_FAILED, "Asset Creation Failed");
+    public String createAsset(Map<String, List> fileMap, String driveUrl) {
+        String contentId = "";
+        try {
+            Node node = ConvertToGraphNode.convertToGraphNode(prepData(fileMap, driveUrl), util.getDefinition("domain", "Content"), null);
+            node.setObjectType("Content");
+            node.setGraphId("domain");
+            Response response = util.createDataNode(node);
+            if (response.getResponseCode() == ResponseCode.OK) {
+                contentId = (String) response.getResult().get("node_id");
+                assetIdList.add(contentId);
+            } else
+                throw new ClientException(ECML_MIGRATION_FAILED, "Asset Creation Failed");
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
+        }
         return contentId;
     }
 
 
-    private Map<String, Object> prepData(Map<String, List> fileMap, String driveUrl) throws Exception {
+    private Map<String, Object> prepData(Map<String, List> fileMap, String driveUrl) {
         Map<String, Object> map = new HashMap<>();
         map.put("name", ((File) fileMap.get(driveUrl).get(0)).getName());
         map.put("code", ((File) fileMap.get(driveUrl).get(0)).getName());
@@ -178,9 +189,17 @@ public class EcmlMigrationService {
     }
 
     public String uploadAsset(File media, String contentId) {
-        Response response = new AssetsMimeTypeMgrImpl().upload(contentId, util.getNode(DOMAIN, contentId), media, true);
-        if (response.getResponseCode() == ResponseCode.OK) {
-            return (String) response.getResult().get("content_url");
+        try {
+            if (StringUtils.isBlank(contentId))
+                throw new ClientException(ECML_MIGRATION_FAILED, "ContentId of created Asset can't be blank");
+            Response response = new AssetsMimeTypeMgrImpl().upload(contentId, util.getNode(DOMAIN, contentId), media, true);
+            if (response.getResponseCode() == ResponseCode.OK) {
+                return (String) response.getResult().get("content_url");
+            } else
+                throw new ClientException(ECML_MIGRATION_FAILED, "Upload content has failed");
+        }catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
         return null;
     }
