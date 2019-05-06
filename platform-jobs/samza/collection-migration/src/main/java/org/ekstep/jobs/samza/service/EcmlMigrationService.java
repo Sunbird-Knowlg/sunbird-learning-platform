@@ -15,12 +15,17 @@ import org.ekstep.common.dto.Response;
 import com.mashape.unirest.http.HttpResponse;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.common.mgr.ConvertToGraphNode;
+import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.common.util.HttpDownloadUtility;
-import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.searchindex.dto.SearchDTO;
+import org.ekstep.searchindex.processor.SearchProcessor;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
+import scala.concurrent.Await;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,6 +42,7 @@ public class EcmlMigrationService {
     public final int VERSION_NUM = 2;
     public final String ECML_MIGRATION_FAILED = "ECML_MIGRATION_FAILED";
     public final String MIMETYPE = "mimeType";
+    public SearchProcessor processor = new SearchProcessor();
 
     private final ControllerUtil util = new ControllerUtil();
 
@@ -57,8 +63,11 @@ public class EcmlMigrationService {
     public List<Map<String, Object>> getMediaContents(String contentBody) throws Exception {
         Map<String, Object> contentBodyMap = mapper.readValue(contentBody, new TypeReference<Map<String, Object>>() {
         });
-        return (List<Map<String, Object>>) ((Map<String, Object>)
-                ((Map<String, Object>) contentBodyMap.get("theme")).get("manifest")).get("media");
+        if (StringUtils.isNotBlank(contentBody))
+            return (List<Map<String, Object>>) ((Map<String, Object>)
+                    ((Map<String, Object>) contentBodyMap.get("theme")).get("manifest")).get("media");
+        else
+            return new ArrayList<>();
     }
 
 
@@ -88,7 +97,7 @@ public class EcmlMigrationService {
                         fileAndMimeType.add(contentType);
                         fileMap.put(driveUrl, fileAndMimeType);
                     } else {
-                        throw new ClientException(ECML_MIGRATION_FAILED, "Google Drive should be downloadable");
+                        throw new ClientException(ECML_MIGRATION_FAILED, "Google Drive content should be downloadable");
                     }
                 } else {
                     throw new ClientException(ECML_MIGRATION_FAILED, "Google Drive content cannot be private");
@@ -98,25 +107,57 @@ public class EcmlMigrationService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error(e.getMessage(),e);
+            LOGGER.error(e.getMessage(), e);
         }
         return fileMap;
     }
 
-    public String createAsset(String channelId, String lpUrl, File media, String contentType) throws Exception {
-        if (StringUtils.isBlank(channelId))
-            channelId = CHANNEL_ID;
+    public String doesAssetExists(String driveUrl) throws Exception {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("migratedUrl", driveUrl);
+        properties.put("status", new ArrayList<>());
+        SearchDTO searchDto = new SearchDTO();
+        searchDto.setFuzzySearch(false);
+        searchDto.setProperties(setSearchProperties(properties));
+        searchDto.setOperation("AND");
+        searchDto.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+        searchDto.setFields(getFields());
+        List<Object> searchResult = Await.result(
+                processor.processSearchQuery(searchDto, false, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, false),
+                RequestRouterPool.WAIT_TIMEOUT.duration());
+        if (searchResult.size() > 0)
+            return (String) ((Map) searchResult.get(0)).get("artifactUrl");
+        return null;
+    }
+
+    private List<String> getFields() {
+        List<String> fields = new ArrayList<String>();
+        fields.add("identifier");
+        fields.add("migratedUrl");
+        fields.add("artifactUrl");
+        fields.add("status");
+        return fields;
+    }
+
+    public List<Map> setSearchProperties(Map<String, Object> properties) {
+        List<Map> props = new ArrayList<>();
+        properties.keySet().forEach(property -> {
+            Map<String, Object> prop = new HashMap<>();
+            prop.put("operation", "EQ");
+            prop.put("propertyName", property);
+            prop.put("values", properties.get(property));
+            props.add(prop);
+        });
+        return props;
+    }
+
+    public String createAsset(Map<String, List> fileMap, String driveUrl) throws Exception {
         String contentId;
-        Map<String, String> headerParam = new HashMap<String, String>();
-        Map<String, Object> requestMap = new HashMap<String, Object>();
-        Map<String, Object> contentMap = new HashMap<String, Object>();
-        Map<String, Object> data;
-        headerParam.put("Content-Type", CONTENT_TYPE);
-        headerParam.put("X-Channel-Id", channelId);
-        data = prepData(media, contentType);
-        contentMap.put("content", data);
-        requestMap.put("request", contentMap);
-        Response response = HttpRestUtil.makePostRequest(lpUrl + "/content/v3/create", requestMap, headerParam);
+        Node node = ConvertToGraphNode.convertToGraphNode(prepData(fileMap, driveUrl), util.getDefinition("domain", "Content"), null);
+        node.setObjectType("Content");
+        node.setGraphId("domain");
+        Response response = util.createDataNode(node);
+        System.out.println(response.getResponseCode());
         if (response.getResponseCode() == ResponseCode.OK) {
             contentId = (String) response.getResult().get("node_id");
             assetIdList.add(contentId);
@@ -125,13 +166,15 @@ public class EcmlMigrationService {
         return contentId;
     }
 
-    private Map<String, Object> prepData(File media, String mimeType) throws Exception {
+
+    private Map<String, Object> prepData(Map<String, List> fileMap, String driveUrl) throws Exception {
         Map<String, Object> map = new HashMap<>();
-        map.put("name", media.getName());
-        map.put("code", media.getName());
-        map.put("mimeType", mimeType);
+        map.put("name", ((File) fileMap.get(driveUrl).get(0)).getName());
+        map.put("code", ((File) fileMap.get(driveUrl).get(0)).getName());
+        map.put("mimeType", fileMap.get(driveUrl).get(1));
         map.put("contentType", "Asset");
-        map.put("mediaType", mimeType.split("/")[0]);
+        map.put("mediaType", ((String) fileMap.get(driveUrl).get(1)).split("/")[0]);
+        map.put("migratedUrl", driveUrl);
         return map;
     }
 

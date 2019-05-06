@@ -177,7 +177,7 @@ public class FindOperation extends BaseContentManager {
         object.put("channel", channel);
 
         edata.put("action", "ecml-migration");
-        edata.put("contentType", "Asset");
+        edata.put("contentType", "Ecml");
     }
 
     private List<String> prepareList(Object obj) {

@@ -111,7 +111,10 @@ public class CollectionMigrationService implements ISamzaService {
             if (migrationService.checkIfValidMigrationRequest(ecmlNode)) {
                 String contentBody = util.getContentBody(contentId);
                 String imageContentBody;
+                if(RequestValidatorUtil.isEmptyOrNull(contentBody))
+                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml body cannot be null");
                 List<Map<String, Object>> mediaContents = migrationService.getMediaContents(contentBody);
+
                 if (isImage && migrationService.checkIfValidMigrationRequest(ecmlImageNode)) {
                     imageContentBody = util.getContentBody(contentId + ".img");
                     mediaContents.addAll(migrationService.getMediaContents(imageContentBody));
@@ -134,9 +137,11 @@ public class CollectionMigrationService implements ISamzaService {
                 Map<String, String> driveArtifactMap = new HashMap();
                 fileMap.keySet().forEach(driveUrl -> {
                     try {
-                        String id = migrationService.createAsset((String) object.get("channel"), platformUri,
-                                (File) fileMap.get(driveUrl).get(0), (String) fileMap.get(driveUrl).get(1));
-                        String artifactUrl = migrationService.uploadAsset((File) fileMap.get(driveUrl).get(0), id);
+                        String artifactUrl = migrationService.doesAssetExists(driveUrl);
+                        if(RequestValidatorUtil.isEmptyOrNull(artifactUrl)) {
+                            String id = migrationService.createAsset(fileMap, driveUrl);
+                            artifactUrl = migrationService.uploadAsset((File) fileMap.get(driveUrl).get(0), id);
+                        }
                         if (StringUtils.isNotBlank(artifactUrl))
                             driveArtifactMap.put(driveUrl, artifactUrl);
                     } catch (Exception e) {
