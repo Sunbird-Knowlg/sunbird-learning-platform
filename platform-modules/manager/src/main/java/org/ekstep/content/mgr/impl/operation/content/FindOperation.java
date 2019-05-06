@@ -123,7 +123,7 @@ public class FindOperation extends BaseContentManager {
                     new ArrayList<>(Arrays.asList("subject", "medium"));
             contentTaggedKeys.forEach(contentTagKey -> {
                 if (contentMap.containsKey(contentTagKey)) {
-                    List<String> prop = Arrays.asList((String[]) contentMap.get(contentTagKey));
+                    List<String> prop = prepareList(contentMap.get(contentTagKey));
                     contentMap.put(contentTagKey, prop.get(0));
                 }
             });
@@ -171,7 +171,7 @@ public class FindOperation extends BaseContentManager {
             String env = Platform.config.getString("cloud_storage.env");
             context.put("env", env);
         }
-        contentId = contentId.replace(".img","");
+        contentId = contentId.replace(".img", "");
         object.put("id", contentId);
         object.put("type", "content");
         object.put("channel", channel);

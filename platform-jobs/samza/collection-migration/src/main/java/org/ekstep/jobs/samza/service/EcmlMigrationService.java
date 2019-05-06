@@ -157,7 +157,6 @@ public class EcmlMigrationService {
         node.setObjectType("Content");
         node.setGraphId("domain");
         Response response = util.createDataNode(node);
-        System.out.println(response.getResponseCode());
         if (response.getResponseCode() == ResponseCode.OK) {
             contentId = (String) response.getResult().get("node_id");
             assetIdList.add(contentId);
