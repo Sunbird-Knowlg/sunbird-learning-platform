@@ -24,6 +24,7 @@ import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.util.YouTubeUrlUtil;
 import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
@@ -100,6 +101,8 @@ public abstract class BaseContentManager extends BaseManager {
     protected static final Integer CONTENT_CACHE_TTL = (Platform.config.hasPath("content.cache.ttl"))
             ? Platform.config.getInt("content.cache.ttl")
             : 259200;
+
+    protected static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
 	protected String getId(String identifier) {
 		if (StringUtils.endsWith(identifier, ".img")) {
@@ -327,6 +330,7 @@ public abstract class BaseContentManager extends BaseManager {
             if (checkError(externalPropsResponse))
                 return externalPropsResponse;
         }
+        RedisStoreUtil.delete(originalId);
         return updateResponse;
     }
 

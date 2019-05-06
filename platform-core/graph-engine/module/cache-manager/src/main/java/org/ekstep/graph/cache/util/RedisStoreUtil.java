@@ -186,4 +186,20 @@ public class RedisStoreUtil {
 			TelemetryManager.error("Error while saving hierarchy to Redis for Identifier : " + identifier + " | Error is : ", e);
 		}
 	}
+
+	/**
+	 * This method delete the keys from Redis Cache
+	 * @param keys
+	 */
+	public static void delete(String... keys) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			jedis.del(keys);
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_DELETE_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
 }
