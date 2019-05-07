@@ -326,14 +326,16 @@ public class PublishFinalizer extends BaseFinalizer {
 				if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
 						StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
 					Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
-					collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
-					collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
-					List<String> childNodes = (List<String>)collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name());
-					if(!CollectionUtils.isEmpty(childNodes)) 
-						collectionResourceChildNodes.addAll(childNodes);
-					if(!MapUtils.isEmpty(collectionHierarchy)) {
-						children.remove(child);
-						children.add(collectionHierarchy);
+					if(MapUtils.isNotEmpty(collectionHierarchy)) {
+						collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
+						collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
+						List<String> childNodes = (List<String>)collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name());
+						if(!CollectionUtils.isEmpty(childNodes)) 
+							collectionResourceChildNodes.addAll(childNodes);
+						if(!MapUtils.isEmpty(collectionHierarchy)) {
+							children.remove(child);
+							children.add(collectionHierarchy);
+						}
 					}
 				}
 			}
