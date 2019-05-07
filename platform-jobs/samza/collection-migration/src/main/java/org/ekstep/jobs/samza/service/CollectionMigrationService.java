@@ -258,7 +258,7 @@ public class CollectionMigrationService implements ISamzaService {
             //Checks if the content can be migrated or already has been
             if (migrationService.checkIfValidMigrationRequest(ecmlNode)) {
                 String contentBody = util.getContentBody(contentId);
-                String imageContentBody;
+                String imageContentBody = "";
                 if (RequestValidatorUtil.isEmptyOrNull(contentBody))
                     throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml body cannot be null");
                 //Add media maps of all contents (Both node and image node)
@@ -266,6 +266,8 @@ public class CollectionMigrationService implements ISamzaService {
                 if (isImage && migrationService.checkIfValidMigrationRequest(ecmlImageNode)) {
                     imageContentBody = util.getContentBody(contentId + ".img");
                     mediaContents.addAll(migrationService.getMediaContents(imageContentBody));
+                    if (RequestValidatorUtil.isEmptyOrNull(imageContentBody))
+                        throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml body cannot be null");
                 }
                 //Add medias only with drive urls (Both node and image)
                 List<Map<String, Object>> mediasWithDriveUrl = migrationService.getMediasWithDriveUrl(mediaContents);
@@ -305,7 +307,7 @@ public class CollectionMigrationService implements ISamzaService {
                 //Update the ecml body and the nodes
                 if (MapUtils.isNotEmpty(driveArtifactMap)) {
                     if (isImage)
-                        migrationService.ecmlBodyUpdate(contentBody, contentId + ".img", driveArtifactMap);
+                        migrationService.ecmlBodyUpdate(imageContentBody, contentId + ".img", driveArtifactMap);
                     migrationService.ecmlBodyUpdate(contentBody, contentId, driveArtifactMap);
                     migrationService.updateEcmlNode(nodesForUpdate);
                 } else
