@@ -20,6 +20,7 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,9 +85,11 @@ public class CopyOperation extends BaseContentManager {
         Node copyNode = copyMetdata(existingNode, requestMap);
         Response response = createDataNode(copyNode);
         if (checkError(response)) {
+            TelemetryManager.error("CopyContent: Error while creating new content: " + response.getParams().getErr() + " :: " + response.getParams().getErrmsg() + response.getResult());
             throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
         }
         uploadArtifactUrl(existingNode, copyNode);
+        TelemetryManager.info("CopyContent: Uploaded artefact for Id: " + copyNode.getIdentifier());
         uploadExternalProperties(existingNode, copyNode);
         Map<String, String> idMap = new HashMap<>();
         idMap.put(existingNode.getIdentifier(), copyNode.getIdentifier());
@@ -161,6 +164,7 @@ public class CopyOperation extends BaseContentManager {
     private void copyHierarchy(Node existingNode, Map<String, String> idMap, String mode) {
         Response readResponse = hierarchyManager.getContentHierarchy(existingNode.getIdentifier(), null, mode, null);
         if(checkError(readResponse)) {
+            TelemetryManager.error("CopyContent: Error while reading hierarchy: " + readResponse.getParams().getErr() + " :: " + readResponse.getParams().getErrmsg() + readResponse.getResult());
             throw new ServerException(readResponse.getParams().getErr(), readResponse.getParams().getErrmsg());
         }
         Map<String, Object> contentMap = (Map<String, Object>) readResponse.getResult().get("content");
@@ -170,6 +174,7 @@ public class CopyOperation extends BaseContentManager {
 
         Response response = this.hierarchyManager.update(updateRequest);
         if (checkError(response)) {
+            TelemetryManager.error("CopyContent: Error while updating hierarchy: " + response.getParams().getErr() + " :: " + response.getParams().getErrmsg() + response.getResult());
             throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
         }
     }
