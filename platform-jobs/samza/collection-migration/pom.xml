@@ -32,6 +32,11 @@
 		    <version>1.10.19</version>
 		    <scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>content-manager</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
