@@ -330,7 +330,11 @@ public abstract class BaseContentManager extends BaseManager {
             if (checkError(externalPropsResponse))
                 return externalPropsResponse;
         }
-        RedisStoreUtil.delete(originalId);
+        if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", domainObj.getMetadata().get("mimeType").toString())) {
+            RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
+        } else {
+            RedisStoreUtil.delete(originalId);
+        }
         return updateResponse;
     }
 
