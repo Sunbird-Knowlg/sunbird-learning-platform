@@ -182,6 +182,19 @@
           "defaultValue": "",
           "renderingHints": "",
           "indexed": true
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "versionKey",
+          "title": "Data Version Key",
+          "description": "Version number of Channel",
+          "category": "Technical",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true,
+          "draft": false
         }
       ],
       "inRelations":[],
