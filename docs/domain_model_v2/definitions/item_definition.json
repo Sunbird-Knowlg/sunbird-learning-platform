@@ -624,7 +624,7 @@
             "category": "general",
             "dataType": "Select",
             "displayProperty": "Editable",
-            "range": ["MCQ", "FTB", "MTF"],
+            "range": ["MCQ", "FTB", "MTF", "VSA", "SA", "LA"],
             "required": true,
             "defaultValue": "MCQ",
             "renderingHints": "{'order': 28}",
