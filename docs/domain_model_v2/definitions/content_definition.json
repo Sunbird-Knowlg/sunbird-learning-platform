@@ -2937,19 +2937,6 @@
           "renderingHints": "",
           "indexed": true,
           "draft": false
-        },
-        {
-          "required": false,
-          "dataType": "Text",
-          "propertyName": "migratedUrl",
-          "title": "Drive Url",
-          "description": "This Url has to be migrated",
-          "category": "General",
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-          "indexed": true,
-          "draft": false
         }
       ],
       "inRelations": [
@@ -3250,8 +3237,7 @@
           "appId",
           "s3Key",
           "consumerId",
-          "organisation",
-          "migratedUrl"
+          "organisation"
         ]
       }
     }
