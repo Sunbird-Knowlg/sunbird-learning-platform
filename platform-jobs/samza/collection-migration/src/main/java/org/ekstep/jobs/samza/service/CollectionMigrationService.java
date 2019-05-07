@@ -435,7 +435,7 @@ public class CollectionMigrationService implements ISamzaService {
 
     private boolean validateEdata(Map<String, Object> edata) {
         String action = (String) edata.get("action");
-        return (StringUtils.equalsIgnoreCase("collection-migration", action));
+        return (StringUtils.equalsIgnoreCase("collection-migration", action) || StringUtils.equalsIgnoreCase("ecml-migration", action));
     }
 
     private Node getNode(String nodeId) {
