@@ -531,6 +531,7 @@ public class ContentV3Controller extends BaseController {
 			response = contentManager.copyContent(contentId, map, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception occured while copying Content: " + contentId + " :: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
