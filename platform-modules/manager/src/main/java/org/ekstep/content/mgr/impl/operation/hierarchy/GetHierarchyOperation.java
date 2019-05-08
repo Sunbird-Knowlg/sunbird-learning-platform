@@ -13,6 +13,7 @@ import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.kafka.KafkaClient;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -249,8 +250,12 @@ public class GetHierarchyOperation extends BaseContentManager {
             List<Map<String, Object>> response = children.stream().filter(child -> StringUtils.equalsIgnoreCase
                     (bookMarkId, (String)
                             child.get("identifier"))).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(response))
-                return response.get(0);
+            if (CollectionUtils.isNotEmpty(response)) {
+                Map<String, Object> res = response.get(0);
+                if(MapUtils.isNotEmpty(res) &&
+                        StringUtils.equalsIgnoreCase(ContentAPIParams.Parent.name(), (String) res.get(ContentAPIParams.visibility.name())))
+                    return res;
+            }
             else {
                 List<Map<String, Object>> nextChildren = children.stream()
                         .map(child -> (List<Map<String, Object>>) child.get("children"))
