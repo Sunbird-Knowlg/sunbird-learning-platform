@@ -40,7 +40,7 @@ public class GetHierarchyOperation extends BaseContentManager {
     private SearchProcessor processor = new SearchProcessor();
     private static ObjectMapper mapper = new ObjectMapper();
     private static final String IMAGE_SUFFIX = ".img";
-    private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
+
 
     /**
      * Get Collection Hierarchy

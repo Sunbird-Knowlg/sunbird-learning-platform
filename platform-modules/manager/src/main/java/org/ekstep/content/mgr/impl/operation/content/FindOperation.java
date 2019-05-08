@@ -12,18 +12,25 @@ import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.kafka.KafkaClient;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.taxonomy.common.LanguageCodeMap;
 import org.ekstep.taxonomy.enums.TaxonomyAPIParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
 public class FindOperation extends BaseContentManager {
 
+    private static List<String> CONTENT_CACHE_FINAL_STATUS = Arrays.asList("Live", "Unlisted");
 
     @SuppressWarnings("unchecked")
     public Response find(String contentId, String mode, List<String> fields) {
@@ -56,7 +63,8 @@ public class FindOperation extends BaseContentManager {
                 TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
                 Node node = getContentNode(TAXONOMY_ID, contentId, null);
                 contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-                RedisStoreUtil.saveData(contentId, contentMap, CONTENT_CACHE_TTL);
+                if(CONTENT_CACHE_FINAL_STATUS.contains(contentMap.get(ContentAPIParams.status.name()).toString()))
+                    RedisStoreUtil.saveData(contentId, contentMap, 0);
             }
         } else {
             TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
