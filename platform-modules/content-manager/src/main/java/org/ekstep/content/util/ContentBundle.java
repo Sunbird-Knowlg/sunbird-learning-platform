@@ -23,6 +23,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
@@ -98,6 +99,9 @@ public class ContentBundle {
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
 						ContentWorkflowPipelineParams.Parent.name());
 			// TODO: END
+
+			//TODO: Added for backward compatibility in mobile - start
+			updateContentTaggedProperty(content);
 
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
@@ -489,6 +493,26 @@ public class ContentBundle {
 	private String getUUID() {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
+	}
+
+	/**
+	 *
+	 * @param contentMap
+	 */
+	private void updateContentTaggedProperty(Map<String,Object> contentMap) {
+		Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
+				Platform.config.getBoolean("content.tagging.backward_enable"): false;
+		if(contentTaggingFlag) {
+			List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+					Arrays.asList(Platform.config.getString("content.tagging.property").split(",")):
+					new ArrayList<>(Arrays.asList("subject","medium"));
+			contentTaggedKeys.forEach(contentTagKey -> {
+				if(contentMap.containsKey(contentTagKey)) {
+					List<String> prop = Arrays.asList((String[])contentMap.get(contentTagKey));
+					contentMap.put(contentTagKey, prop.get(0));
+				}
+			});
+		}
 	}
 
 }
