@@ -205,6 +205,18 @@
 				"defaultValue": "",
 				"renderingHints": "",
 				"indexed": true
+			},
+			{
+				"propertyName": "value",
+				"title": "value",
+				"description": "R-1.15-Value",
+				"category": "General",
+				"dataType": "Text",
+				"required": false,
+				"displayProperty": "Editable",
+				"defaultValue": "",
+				"renderingHints": "",
+				"indexed": true
 			}
 			],
 			"inRelations":[
