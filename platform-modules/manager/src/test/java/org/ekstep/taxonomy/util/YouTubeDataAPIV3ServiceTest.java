@@ -150,7 +150,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
 		assertEquals("OK", responseCode);
-		RedisStoreUtil
+		RedisStoreUtil.delete(contentId);
 		//Read Content and Verify Result
 		Response resp = contentManager.find(contentId, null, null);
 		String license = (String) ((Map<String, Object>) resp.getResult().get("content")).get("license");
@@ -169,6 +169,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
 		assertEquals("OK", responseCode);
+		RedisStoreUtil.delete(contentId);
 		delay(2000);
 		//Read Content and Verify Result
 		Response resp = contentManager.find(contentId, null, null);
