@@ -182,6 +182,18 @@
           "defaultValue": "",
           "renderingHints": "",
           "indexed": true
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "owner",
+          "title": "Owner",
+          "description": "R-1.15_Framework Owner",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "indexed": true,
+          "draft": false
         }
       ],
       "inRelations":[

@@ -193,6 +193,18 @@
 				"defaultValue": "",
 				"renderingHints": "",
 				"indexed": true
+			},
+			{
+				"propertyName": "label",
+				"title": "Label",
+				"description": "R-1.15-Label",
+				"category": "General",
+				"dataType": "Text",
+				"required": false,
+				"displayProperty": "Editable",
+				"defaultValue": "",
+				"renderingHints": "",
+				"indexed": true
 			}
 			],
 			"inRelations":[
