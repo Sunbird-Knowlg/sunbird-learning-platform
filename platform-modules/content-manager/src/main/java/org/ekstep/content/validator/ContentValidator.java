@@ -11,6 +11,8 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.CoverageIgnore;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.optimizr.FileUtils;
+import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.content.common.AssetsMimeTypeMap;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -476,31 +478,16 @@ public class ContentValidator {
 	 * @throws IOException
 	 */
 	public Boolean isValidUrl(String fileURL, String mimeType) {
+		Boolean isValid = false;
+		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
 		try {
-			HttpResponse<String> httpResponse = Unirest.head(fileURL).asString();
-			if(200 != httpResponse.getStatus()){
-				TelemetryManager.error("Content Validator : Invalid URL : " + fileURL + " with http response " +
-                        ": "  + new ObjectMapper().writeValueAsString(httpResponse));
-				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
-						ContentErrorMessageConstants.FILE_DOES_NOT_EXIST);
+			if (exceptionChecks(mimeType, file)) {
+				return true;
 			}
-			String urlMimeType = httpResponse.getHeaders().get("Content-Type").get(0);
-			if(!StringUtils.startsWith(urlMimeType, mimeType)) {
-				TelemetryManager.error("Content Validator : Invalid MimeType : " + fileURL + " with http response " +
-						": "  + new ObjectMapper().writeValueAsString(httpResponse));
-				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
-						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
-			}
-		} catch(ClientException ce) {
-			throw ce;
-		} catch (UnirestException ue){
-			TelemetryManager.error("Content Validator : Error while Fetching the file : " + fileURL , ue);
-			throw new ServerException(ContentErrorCodes.INVALID_FILE.name(), ue.getMessage(), ue);
-		} catch (Exception e) {
-				TelemetryManager.error("Content Validator : Error while Fetching the file : " + fileURL ,	e);
-				throw new ServerException(ContentErrorCodes.INVALID_FILE.name(), e.getMessage(), e);
+		} finally {
+			FileUtils.deleteFile(file);
 		}
-		return true;
+		return isValid;
 	}
 
 	public Boolean exceptionChecks(String mimeType, File file) {
