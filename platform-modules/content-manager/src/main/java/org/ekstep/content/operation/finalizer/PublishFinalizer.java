@@ -320,7 +320,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		//TODO: Reduce get definition call
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-		RedisStoreUtil.saveData(contentId, contentMap, CONTENT_CACHE_TTL);
+		RedisStoreUtil.saveData(contentId, contentMap, 0);
 		return response;
 	}
 	
