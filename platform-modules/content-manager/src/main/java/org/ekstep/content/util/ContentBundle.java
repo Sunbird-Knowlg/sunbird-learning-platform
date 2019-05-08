@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -508,11 +509,30 @@ public class ContentBundle {
 					new ArrayList<>(Arrays.asList("subject","medium"));
 			contentTaggedKeys.forEach(contentTagKey -> {
 				if(contentMap.containsKey(contentTagKey)) {
-					List<String> prop = Arrays.asList((String[])contentMap.get(contentTagKey));
+					List<String> prop = prepareList(contentMap.get(contentTagKey));
 					contentMap.put(contentTagKey, prop.get(0));
 				}
 			});
 		}
+	}
+
+	/**
+	 *
+	 * @param obj
+	 * @return
+	 */
+	private List<String> prepareList(Object obj) {
+		List<String> list = new ArrayList<String>();
+		try {
+			list = Arrays.asList((String[]) obj);
+		} catch (Exception e) {
+			if (obj instanceof List)
+				list.addAll((List<String>) obj);
+		}
+		if (null != list) {
+			list = list.stream().filter(x -> org.apache.commons.lang3.StringUtils.isNotBlank(x) && !org.apache.commons.lang3.StringUtils.equals(" ", x)).collect(Collectors.toList());
+		}
+		return list;
 	}
 
 }
