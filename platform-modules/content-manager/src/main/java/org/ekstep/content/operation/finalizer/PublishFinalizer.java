@@ -779,7 +779,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 			TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			// TODO: START : Remove the below when mobile app is ready to accept Resources as Default in manifest
-			childrenIds = (List<String>) node.getMetadata().get("childNodes");
+			if(CollectionUtils.isNotEmpty((List<String>) node.getMetadata().get("childNodes")))
+				childrenIds = (List<String>) node.getMetadata().get("childNodes");
 		} else {
 			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
