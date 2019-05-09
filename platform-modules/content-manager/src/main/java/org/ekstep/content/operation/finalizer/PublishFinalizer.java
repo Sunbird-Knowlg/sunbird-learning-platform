@@ -237,7 +237,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		Map<String,Object> collectionHierarchy = getHierarchy(node.getIdentifier(), true);
-		TelemetryManager.info("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
+		TelemetryManager.log("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
 		List<Map<String, Object>> children = null;
 		if(MapUtils.isNotEmpty(collectionHierarchy)) {
 			Set<String> collectionResourceChildNodes = new HashSet<>();
@@ -327,7 +327,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
 							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
 						Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
-						TelemetryManager.info("Collection hierarchy for chilNode : " + child.get(ContentWorkflowPipelineParams.identifier.name()) + " : " + collectionHierarchy);
+						TelemetryManager.log("Collection hierarchy for chilNode : " + child.get(ContentWorkflowPipelineParams.identifier.name()) + " : " + collectionHierarchy);
 						if(MapUtils.isNotEmpty(collectionHierarchy)) {
 							collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
 							collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
