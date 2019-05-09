@@ -1,10 +1,9 @@
 package org.ekstep.content.mgr.impl.operation.hierarchy;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -38,7 +37,7 @@ import java.util.stream.Collectors;
 public class GetHierarchyOperation extends BaseContentManager {
 
     private SearchProcessor processor = new SearchProcessor();
-    private static ObjectMapper mapper = new ObjectMapper();
+
     private static final String IMAGE_SUFFIX = ".img";
 
 
@@ -166,7 +165,7 @@ public class GetHierarchyOperation extends BaseContentManager {
         Map<String, Object> rootHierarchy = null;
         String hierarchy = RedisStoreUtil.get(COLLECTION_CACHE_KEY_PREFIX + rootId);
         if (StringUtils.isNotBlank(hierarchy)) {
-            rootHierarchy = mapper.convertValue(hierarchy, new TypeReference<Map<String, Object>>() {
+            rootHierarchy = objectMapper.convertValue(hierarchy, new TypeReference<Object>() {
             });
             response.getResult().put("content", rootHierarchy);
             return getHierarchyResponse(rootHierarchy, bookmarkId);
