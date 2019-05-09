@@ -19,7 +19,6 @@ import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -120,12 +119,18 @@ public class FindOperation extends BaseContentManager {
         return response;
     }
 
+
+    /**
+     *
+     * @param contentMap
+     * @param mode
+     */
     private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
         Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
                 Platform.config.getBoolean("content.tagging.backward_enable"): false;
         if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
             List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
-                    Platform.config.getStringList("content.tagging.property"):
+                    Arrays.asList(Platform.config.getString("content.tagging.property").split(",")):
                     new ArrayList<>(Arrays.asList("subject","medium"));
             contentTaggedKeys.forEach(contentTagKey -> {
                 if(contentMap.containsKey(contentTagKey)) {
@@ -136,6 +141,12 @@ public class FindOperation extends BaseContentManager {
         }
     }
 
+
+    /**
+     *
+     * @param obj
+     * @return
+     */
     private List<String> prepareList(Object obj) {
         List<String> list = new ArrayList<String>();
         try {
@@ -199,4 +210,6 @@ public class FindOperation extends BaseContentManager {
         edata.put("action", "ecml-migration");
         edata.put("contentType", "Ecml");
     }
+
 }
+
