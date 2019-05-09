@@ -1,17 +1,8 @@
 package org.ekstep.content.operation.finalizer;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rits.cloning.Cloner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -39,6 +30,7 @@ import org.ekstep.content.util.ContentBundle;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.content.util.GraphUtil;
 import org.ekstep.content.util.SyncMessageGenerator;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.RelationTypes;
 import org.ekstep.graph.dac.enums.SystemProperties;
@@ -56,9 +48,17 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rits.cloning.Cloner;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The Class BundleFinalizer, extends BaseFinalizer which mainly holds common
@@ -101,6 +101,12 @@ public class PublishFinalizer extends BaseFinalizer {
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
 	}
+
+	/** 3Days TTL for Collection hierarchy cache*/
+	private static final int CONTENT_CACHE_TTL = (Platform.config.hasPath("content.cache.ttl"))
+			? Platform.config.getInt("content.cache.ttl")
+			: 259200;
+	private static final String COLLECTION_CACHE_KEY_PREFIX = "hierarchy_";
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base path and current
@@ -303,15 +309,18 @@ public class PublishFinalizer extends BaseFinalizer {
 					String.valueOf(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())));
 		}
 
+		Node publishedNode = util.getNode(ContentWorkflowPipelineParams.domain.name(), newNode.getIdentifier());
+
 		if (StringUtils.equalsIgnoreCase((String) newNode.getMetadata().get("mimeType"),
 				COLLECTION_MIMETYPE)) {
-			Node publishedNode = util.getNode(ContentWorkflowPipelineParams.domain.name(), newNode.getIdentifier());
 			updateHierarchyMetadata(children, publishedNode);
 			publishHierarchy(publishedNode, children);
-			
 			syncNodes(children, unitNodes);
 		}
-		
+		//TODO: Reduce get definition call
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+		RedisStoreUtil.saveData(contentId, contentMap, 0);
 		return response;
 	}
 	
@@ -461,8 +470,11 @@ public class PublishFinalizer extends BaseFinalizer {
     }
 	
 	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
-		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), getContentMap(node, childrenList));
+		Map<String, Object> hierarchy = getContentMap(node, childrenList);
+		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
+		RedisStoreUtil.saveData(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), hierarchy, CONTENT_CACHE_TTL);
 	}
+
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
 		Map<String, Object> collectionHierarchy  = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
