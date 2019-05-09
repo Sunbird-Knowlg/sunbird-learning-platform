@@ -604,7 +604,7 @@ public class ControllerUtil extends BaseLearningManager {
 //		startTime = System.currentTimeMillis();
 		Response getList = getDataNodes(graphId, ids);
 //		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
-		if (!checkError(getList)) {
+		if (null != getList && !checkError(getList)) {
 			List<Node> nodeList = (List<Node>) getList.get("node_list");
 			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
 					(n, graphId, definition, fields)).map(contentMap -> {
@@ -626,7 +626,7 @@ public class ControllerUtil extends BaseLearningManager {
 			collectionHierarchy = contentCleanUp(constructHierarchy(contentList));
 //			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
 		} else {
-			if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+			if (null != getList && getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
 				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
 			} else {
 				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
