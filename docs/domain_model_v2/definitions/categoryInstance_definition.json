@@ -179,7 +179,20 @@
             "defaultValue": "",
             "renderingHints": "",
             "indexed": true
-        }],
+        },
+        {
+            "propertyName": "index",
+            "title": "Index",
+            "description": "R-1.15_Index Position",
+            "category": "General",
+            "dataType": "Number",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true
+        }
+        ],
         "inRelations": [
         {
             "relationName": "hasSequenceMember",
