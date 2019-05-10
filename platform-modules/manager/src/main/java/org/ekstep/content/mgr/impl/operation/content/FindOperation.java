@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -120,12 +121,17 @@ public class FindOperation extends BaseContentManager {
         return response;
     }
 
+    /**
+     *
+     * @param contentMap
+     * @param mode
+     */
     private void updateContentTaggedProperty(Map<String,Object> contentMap, String mode) {
         Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
                 Platform.config.getBoolean("content.tagging.backward_enable"): false;
         if(!StringUtils.equals(mode,"edit") && contentTaggingFlag) {
             List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
-                    Platform.config.getStringList("content.tagging.property"):
+                    Arrays.asList(Platform.config.getString("content.tagging.property").split(",")):
                     new ArrayList<>(Arrays.asList("subject","medium"));
             contentTaggedKeys.forEach(contentTagKey -> {
                 if(contentMap.containsKey(contentTagKey)) {
@@ -200,3 +206,4 @@ public class FindOperation extends BaseContentManager {
         edata.put("contentType", "Ecml");
     }
 }
+

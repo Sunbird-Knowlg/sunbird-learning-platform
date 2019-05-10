@@ -1,4 +1,5 @@
 - hosts: searchall
+  become: yes
   vars:
     searchs:
       paths: ['/data', '/data/logs', '/data/contentBundle', '/data/properties', '/home/learning/tmp', '/home/learning/platform', '/home/learning/platform/search', '/home/learning/platform/service', '/home/learning/platform/service/logs' ]
@@ -25,7 +26,7 @@
       file: path={{ item }} state=directory mode=0755 owner={{learner_user}} group={{learner_group}}
       with_items: "{{ searchs.paths }}"
   roles:
-    - java
+    - jdk-1.8.0_121
     - logstash
     - search-service
   serial: 1

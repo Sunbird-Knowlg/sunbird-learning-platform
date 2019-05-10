@@ -241,8 +241,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (StringUtils.isNotBlank(artifactUrl))
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
-		
+
 		Map<String,Object> collectionHierarchy = getHierarchy(node.getIdentifier(), true);
+		TelemetryManager.info("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
 		List<Map<String, Object>> children = null;
 		if(MapUtils.isNotEmpty(collectionHierarchy)) {
 			Set<String> collectionResourceChildNodes = new HashSet<>();
@@ -252,9 +253,9 @@ public class PublishFinalizer extends BaseFinalizer {
 				List<String> collectionChildNodes = new ArrayList<String>(Arrays.asList((String[])node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name())));
 				collectionChildNodes.addAll(collectionResourceChildNodes);
 			}
-				
+
 		}
-		
+
 		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
 			TelemetryManager.log("Collection processing started for content: " + node.getIdentifier());
 			processCollection(node, children);
@@ -325,25 +326,27 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes) {
-		List<Map<String, Object>> newChildren = new ArrayList<>(children);
-		
-		if (null!=newChildren && !newChildren.isEmpty()) {
-			for (Map<String, Object> child : newChildren) {
-				if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Parent") &&
-						StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE))
-					enrichChildren((List<Map<String, Object>>)child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes);
-				if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
-						StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-					Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
-					if(MapUtils.isNotEmpty(collectionHierarchy)) {
-						collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
-						collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
-						List<String> childNodes = (List<String>)collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name());
-						if(!CollectionUtils.isEmpty(childNodes)) 
-							collectionResourceChildNodes.addAll(childNodes);
-						if(!MapUtils.isEmpty(collectionHierarchy)) {
-							children.remove(child);
-							children.add(collectionHierarchy);
+		if(CollectionUtils.isNotEmpty(children)){
+			List<Map<String, Object>> newChildren = new ArrayList<>(children);
+
+			if (null!=newChildren && !newChildren.isEmpty()) {
+				for (Map<String, Object> child : newChildren) {
+					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Parent") &&
+							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE))
+						enrichChildren((List<Map<String, Object>>)child.get(ContentWorkflowPipelineParams.children.name()), collectionResourceChildNodes);
+					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
+							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
+						Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
+						if(MapUtils.isNotEmpty(collectionHierarchy)) {
+							collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
+							collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
+							List<String> childNodes = (List<String>)collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name());
+							if(!CollectionUtils.isEmpty(childNodes))
+								collectionResourceChildNodes.addAll(childNodes);
+							if(!MapUtils.isEmpty(collectionHierarchy)) {
+								children.remove(child);
+								children.add(collectionHierarchy);
+							}
 						}
 					}
 				}
