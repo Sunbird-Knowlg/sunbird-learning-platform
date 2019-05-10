@@ -2941,6 +2941,19 @@
 				{
 					"required": false,
 					"dataType": "Text",
+					"propertyName": "creatorInfo",
+					"title": "CreatorInfo",
+					"description": "R-1.15_creatorInfo",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
+                },
+				{
+					"required": false,
+					"dataType": "Text",
 					"propertyName": "migratedUrl",
 					"title": "Drive Url",
 					"description": "This Url has to be migrated",
