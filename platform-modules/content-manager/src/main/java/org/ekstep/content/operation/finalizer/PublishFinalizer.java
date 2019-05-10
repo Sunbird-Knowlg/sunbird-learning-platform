@@ -428,6 +428,25 @@ public class PublishFinalizer extends BaseFinalizer {
                 try {
                     if(StringUtils.equalsIgnoreCase("Default", (String) child.get("visibility"))) {
                         node = util.getNode(ContentWorkflowPipelineParams.domain.name(), (String)child.get("identifier"));//getContentNode(TAXONOMY_ID, (String) child.get("identifier"), null);
+                        node.getMetadata().remove("children");
+                        Map<String, Object> childData = new HashMap<>();
+                        childData.putAll(child);
+                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
+                        List<Map<String, Object>> finalChildList = new ArrayList<>();
+						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
+								Map<String, Object> metadata = new HashMap<String, Object>() {{
+									put("identifier", nextLevelNode.get("identifier"));
+									put("name", nextLevelNode.get("name"));
+									put("objectType", "Content");
+									put("description", nextLevelNode.get("description"));
+									put("index", nextLevelNode.get("index"));
+								}};
+								return metadata;
+							}).collect(Collectors.toList());
+						}
+						node.getMetadata().put("children", finalChildList);
+                        
                     }else {
                     		Map<String, Object> childData = new HashMap<>();
                         childData.putAll(child);
