@@ -235,8 +235,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (StringUtils.isNotBlank(artifactUrl))
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
-		
+
 		Map<String,Object> collectionHierarchy = getHierarchy(node.getIdentifier(), true);
+		TelemetryManager.info("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
 		List<Map<String, Object>> children = null;
 		if(MapUtils.isNotEmpty(collectionHierarchy)) {
 			Set<String> collectionResourceChildNodes = new HashSet<>();
@@ -246,9 +247,9 @@ public class PublishFinalizer extends BaseFinalizer {
 				List<String> collectionChildNodes = new ArrayList<String>(Arrays.asList((String[])node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name())));
 				collectionChildNodes.addAll(collectionResourceChildNodes);
 			}
-				
+
 		}
-		
+
 		if (StringUtils.equalsIgnoreCase(((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())),COLLECTION_MIMETYPE)) {
 			TelemetryManager.log("Collection processing started for content: " + node.getIdentifier());
 			processCollection(node, children);
