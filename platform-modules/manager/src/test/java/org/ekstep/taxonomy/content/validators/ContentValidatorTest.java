@@ -144,27 +144,6 @@ public class ContentValidatorTest {
     }
 
 
-    @Test
-    public void testInValidPDFMimeType() {
-        exception.expect(ClientException.class);
-        exception.expectMessage(ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
-        validator.isValidUrl("https://ekstep-public-prod.s3-ap-south-1.amazonaws" +
-                ".com/assets/do_312468653843972096217603/1_being-a-school-leader-in-india.pdf", "application/pdfs");
-    }
-
-    @Test
-    public void testInValidPdfUrl() {
-        exception.expect(ClientException.class);
-        exception.expectMessage(ContentErrorMessageConstants.FILE_DOES_NOT_EXIST);
-        validator.isValidUrl("https://ekstep-public-prod.s3-ap-south-1.amazonaws" +
-                ".com/assets/do_312468653843972096217603/1_being-a-school-leader-in-Inindia.pdf", "application/pdf");
-    }
-
-    @Test
-    public void testServerErrorWithUrl() {
-        exception.expect(ServerException.class);
-        validator.isValidUrl("1_being-a-school-leader-in-Inindia.pdf", "application/pdf");
-    }
 
     @Test
     public void testValidEpubUrl() {
