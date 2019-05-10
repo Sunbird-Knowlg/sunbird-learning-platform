@@ -21,7 +21,6 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
-import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
@@ -29,6 +28,7 @@ import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.cache.CategoryCache;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
+import org.ekstep.learning.util.FrameworkCache;
 
 /**
  * @author pradyumna
@@ -78,8 +78,8 @@ public class FrameworkHierarchy extends BaseManager {
 					frameworkDocument.put(field, node.getMetadata().get(field));
 			}
 			hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
-			//saving the framework in the redis sever for publish.
-			RedisStoreUtil.saveData(node.getIdentifier(), frameworkDocument, frameworkTtl);
+			//saving the framework in the local cache after publish.
+			FrameworkCache.save(node.getIdentifier(), frameworkDocument);
 
 		} else {
 			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "The object with given identifier is not a framework: " + id);
