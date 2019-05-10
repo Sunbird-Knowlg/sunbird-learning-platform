@@ -144,6 +144,8 @@ public class YouTubeUrlUtil {
 						.log("Youtube API Limit Exceeded. Reason is: " + reason + " | Error Details : " + ex);
 			}
 		} catch (Exception e) {
+			TelemetryManager
+					.error("Error Occured While Calling Youtube API. Error Details : " ,e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
 					"Something Went Wrong While Processing Youtube Video. Please Try Again After Sometime!");
 		}
