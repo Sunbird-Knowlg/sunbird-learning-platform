@@ -1,16 +1,6 @@
 package org.ekstep.jobs.samza.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
@@ -21,6 +11,7 @@ import org.ekstep.common.dto.ResponseParams.StatusType;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.YouTubeUrlUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.AssetEnrichmentEnums;
@@ -32,6 +23,18 @@ import org.ekstep.learning.contentstore.VideoStreamingJobRequest;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class AssetEnrichmentService implements ISamzaService {
 	private VideoStreamingJobRequest streamJobRequest = null;
@@ -286,14 +289,22 @@ public class AssetEnrichmentService implements ISamzaService {
 
 	}
 
-	private void processVideo(Node node, String tempFolder, String videoUrl) throws Exception{
-		if(!StringUtils.equalsIgnoreCase("video/x-youtube", (String) node.getMetadata().get(AssetEnrichmentEnums.mimeType.name()))) {
+	private void processVideo(Node node, String tempFolder, String videoUrl) throws Exception {
+		if (StringUtils.equalsIgnoreCase("video/x-youtube", (String) node.getMetadata().get(AssetEnrichmentEnums.mimeType.name()))) {
+			Map<String, Object> data = YouTubeUrlUtil.getVideoInfo(videoUrl, "snippet,contentDetails", "thumbnail", "duration");
+			if (MapUtils.isNotEmpty(data)) {
+				if (data.containsKey("thumbnail"))
+					node.getMetadata().put("thumbnail", (String) data.get("thumbnail"));
+				if (data.containsKey("duration"))
+					node.getMetadata().put("duration", data.get("duration"));
+			}
+		} else {
 			File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
 			OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
 		}
 		node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
 		Response res = util.updateNode(node);
-		if(checkError(res)) {
+		if (checkError(res)) {
 			LOGGER.info("Error response during asset update to Live status : " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg() + " :: " + res.getResult());
 			throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(),
 					"Error! While Updating the Metadata | [Content Id: " + node.getIdentifier() + "]");

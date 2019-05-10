@@ -7,6 +7,7 @@ import java.util.Map;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.util.YouTubeUrlUtil;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.engine.common.GraphEngineTestSetup;
 import org.ekstep.taxonomy.content.common.TestParams;
 import org.ekstep.taxonomy.mgr.IContentManager;
@@ -149,7 +150,7 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
 		assertEquals("OK", responseCode);
-
+		RedisStoreUtil.delete(contentId);
 		//Read Content and Verify Result
 		Response resp = contentManager.find(contentId, null, null);
 		String license = (String) ((Map<String, Object>) resp.getResult().get("content")).get("license");
@@ -168,7 +169,8 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 		Response response = contentManager.upload(contentId, fileUrl, mimeType);
 		String responseCode = (String) response.getResponseCode().toString();
 		assertEquals("OK", responseCode);
-
+		RedisStoreUtil.delete(contentId);
+		delay(2000);
 		//Read Content and Verify Result
 		Response resp = contentManager.find(contentId, null, null);
 		String license = (String) ((Map<String, Object>) resp.getResult().get("content")).get("license");
