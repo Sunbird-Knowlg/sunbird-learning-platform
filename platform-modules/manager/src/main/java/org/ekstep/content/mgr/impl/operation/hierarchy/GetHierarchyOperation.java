@@ -28,8 +28,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,8 +166,13 @@ public class GetHierarchyOperation extends BaseContentManager {
         Map<String, Object> rootHierarchy = null;
         String hierarchy = RedisStoreUtil.get(COLLECTION_CACHE_KEY_PREFIX + rootId);
         if (StringUtils.isNotBlank(hierarchy)) {
-            rootHierarchy = objectMapper.convertValue(hierarchy, new TypeReference<Object>() {
-            });
+            try {
+                rootHierarchy = objectMapper.readValue(hierarchy, new TypeReference<Map<String, Object>>() {
+                });
+            } catch (Exception e) {
+                TelemetryManager.error("Error Occurred While Parsing Hierarchy for Content Id : " + rootId + " | Error is: ", e);
+                throw new ServerException("ERR_CONTENT_HIERARCHY_PARSE", "Something Went Wrong While Processing the Content. ", e);
+            }
             response.getResult().put("content", rootHierarchy);
             return getHierarchyResponse(rootHierarchy, bookmarkId);
         } else {
