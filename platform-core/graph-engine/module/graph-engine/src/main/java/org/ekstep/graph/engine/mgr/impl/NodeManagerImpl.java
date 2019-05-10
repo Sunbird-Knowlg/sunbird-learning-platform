@@ -12,8 +12,10 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
+import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.graph.common.mgr.BaseGraphManager;
+import org.ekstep.graph.dac.enums.AuditProperties;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemNodeTypes;
 import org.ekstep.graph.dac.model.Node;
@@ -330,6 +332,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 			final List<Relation> addRels = new ArrayList<Relation>();
 			final List<Relation> delRels = new ArrayList<Relation>();
 			final List<Node> dbNodes = new ArrayList<Node>();
+			String date = DateUtils.formatCurrentDate();
 			
 			Node dbNode = datanode.getNodeObject(request);
 			
@@ -341,6 +344,10 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 				if (null != dbMetadata && !dbMetadata.isEmpty()) {
 					dbMetadata.remove(GraphDACParams.versionKey.name());
 					dbMetadata.remove(GraphDACParams.lastUpdatedBy.name());
+					// add lastStatusChangedOn if status got changed
+					if (!StringUtils.equalsIgnoreCase((String) dbMetadata.get(GraphDACParams.status.name()), (String) node.getMetadata().get(GraphDACParams.status.name()))) {
+						datanode.getMetadata().put(AuditProperties.lastStatusChangedOn.name(), date);
+					}
 					for (Entry<String, Object> entry : dbMetadata.entrySet()) {
 						if (!datanode.getMetadata().containsKey(entry.getKey()))
 							datanode.getMetadata().put(entry.getKey(), entry.getValue());

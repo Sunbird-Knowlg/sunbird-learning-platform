@@ -1,5 +1,6 @@
 package org.ekstep.content.mgr.impl.operation.plugin;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,7 @@ import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.contentstore.ContentStoreParams;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
+import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +37,7 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class CopyOperation extends BaseContentManager {
 
+    private final List<String> graphValidationErrors = Arrays.asList("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", "ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED");
     private final HierarchyManager hierarchyManager = new HierarchyManager();
 
     public Response copyContent(String contentId, Map<String, Object> requestMap, String mode) {
@@ -84,9 +87,14 @@ public class CopyOperation extends BaseContentManager {
         Node copyNode = copyMetdata(existingNode, requestMap);
         Response response = createDataNode(copyNode);
         if (checkError(response)) {
-            throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+            TelemetryManager.error("CopyContent: Error while creating new content: " + response.getParams().getErr() + " :: " + response.getParams().getErrmsg() + response.getResult());
+            if(MapUtils.isNotEmpty(response.getResult()) && graphValidationErrors.contains(response.getParams().getErr()))
+                throw new ServerException(response.getParams().getErr(), (response.getResult().toString()));
+            else
+                throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
         }
         uploadArtifactUrl(existingNode, copyNode);
+        TelemetryManager.info("CopyContent: Uploaded artefact for Id: " + copyNode.getIdentifier());
         uploadExternalProperties(existingNode, copyNode);
         Map<String, String> idMap = new HashMap<>();
         idMap.put(existingNode.getIdentifier(), copyNode.getIdentifier());
@@ -159,16 +167,26 @@ public class CopyOperation extends BaseContentManager {
      */
     @SuppressWarnings("unchecked")
     private void copyHierarchy(Node existingNode, Map<String, String> idMap, String mode) {
-        DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
-        Map<String, Object> contentMap = util.getHierarchyMap(existingNode.getGraphId(), existingNode.getIdentifier(),
-                definition, mode, null);
+        Response readResponse = hierarchyManager.getContentHierarchy(existingNode.getIdentifier(), null, mode, null);
+        if(checkError(readResponse)) {
+            TelemetryManager.error("CopyContent: Error while reading hierarchy: " + readResponse.getParams().getErr() + " :: " + readResponse.getParams().getErrmsg() + readResponse.getResult());
+            if(MapUtils.isNotEmpty(readResponse.getResult()) && graphValidationErrors.contains(readResponse.getParams().getErr()))
+                throw new ServerException(readResponse.getParams().getErr(), readResponse.getResult().toString());
+            else
+                throw new ServerException(readResponse.getParams().getErr(), readResponse.getParams().getErrmsg());
+        }
+        Map<String, Object> contentMap = (Map<String, Object>) readResponse.getResult().get("content");
 
         Map<String, Object> updateRequest = prepareUpdateHierarchyRequest(
                 (List<Map<String, Object>>) contentMap.get("children"), existingNode, idMap);
 
         Response response = this.hierarchyManager.update(updateRequest);
         if (checkError(response)) {
-            throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+            TelemetryManager.error("CopyContent: Error while updating hierarchy: " + response.getParams().getErr() + " :: " + response.getParams().getErrmsg() + response.getResult());
+            if(MapUtils.isNotEmpty(response.getResult()) && graphValidationErrors.contains(response.getParams().getErr()))
+                throw new ServerException(readResponse.getParams().getErr(), readResponse.getResult().toString());
+            else
+                throw new ServerException(readResponse.getParams().getErr(), readResponse.getParams().getErrmsg());
         }
     }
 
@@ -259,7 +277,6 @@ public class CopyOperation extends BaseContentManager {
      * @param children
      * @param nodesModified
      * @param hierarchy
-     * @param nullPropMap
      */
     private void populateHierarchy(List<Map<String, Object>> children, Map<String, Object> nodesModified,
                                      Map<String, Object> hierarchy, String parentId) {

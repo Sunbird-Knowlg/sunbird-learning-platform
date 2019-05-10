@@ -20,10 +20,10 @@ import org.ekstep.jobs.samza.util.JobLogger;
 
 public class AuditHistoryIndexerTask implements StreamTask, InitableTask, WindowableTask {
 
-	static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerTask.class);
+	private static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerTask.class);
 
 	private JobMetrics metrics;
-	ISamzaService auditHistoryMsgProcessor = new AuditHistoryIndexerService();
+	private ISamzaService auditHistoryMsgProcessor = new AuditHistoryIndexerService();
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {

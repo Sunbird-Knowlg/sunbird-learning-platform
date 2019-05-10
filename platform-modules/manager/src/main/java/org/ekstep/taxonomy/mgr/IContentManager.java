@@ -16,7 +16,7 @@ import org.ekstep.common.dto.Response;
  * artifacts or assets to the respective Storage Space.
  * 
  * @author Azhar
- * @see ContentManagerImpl
+ * @see org.ekstep.taxonomy.mgr.impl.ContentManagerImpl
  */
 public interface IContentManager {
 
@@ -153,7 +153,7 @@ public interface IContentManager {
 	 *
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be review.
-	 * @param requestMap
+	 * @param request
 	 *            the map of request params
 	 * @return the response contains the Node <code>identifier</code> in its
 	 *         Result Set.
@@ -161,24 +161,6 @@ public interface IContentManager {
 	 */
 	Response review(String contentId, Request request) throws Exception;
 
-	/**
-	 * This method returns the full hierarchy of a content. The "Sequence
-	 * Membership" relation is traversed to compute the hierarchy of the
-	 * content.
-	 * 
-	 * A subclass must provide an implementation of this method.
-	 *
-	 * @param contentId
-	 *            the content <code>identifier</code> whose hierarchy needs to
-	 *            be returned
-	 * @param mode
-	 *            if edit, returns the hierarchy of the Draft version, else
-	 *            returns the hierarchy of the Live version. If Live version
-	 *            does not exist, Draft version is returned
-	 * @return the response contains the hierarchy of the <code>content</code>
-	 *         in its Result Set.
-	 */
-	Response getHierarchy(String contentId, String mode, List<String> fields) throws Exception;
 
 	/**
 	 * This method returns the content.
@@ -239,10 +221,12 @@ public interface IContentManager {
 	/**
 	 * @param channelId
 	 * @param reqObj
+	 * @param mode
+	 * @param contentId
 	 * @return
 	 * @throws Exception
 	 */
-	Response linkDialCode(String channelId, Object reqObj) throws Exception;
+	Response linkDialCode(String channelId, Object reqObj, String mode, String contentId) throws Exception;
 
 	/**
 	 * @param contentId
@@ -270,7 +254,7 @@ public interface IContentManager {
     /**
      * @param contentId
      * @param channelId
-     * @param reqObj
+     * @param reqMap
      * @return
      * @throws Exception
      */
@@ -285,5 +269,20 @@ public interface IContentManager {
 	 */
 	Response releaseDialcodes(String contentId, String channelId) throws Exception;
 
-	Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception;
+	/**
+	 * This method returns the full hierarchy of a content. The "Sequence
+	 * Membership" relation is traversed to compute the hierarchy of the
+	 * content.
+	 *
+	 * A subclass must provide an implementation of this method.
+	 *
+	 * @param contentId
+	 * @param bookMarkId
+	 * @param mode
+	 * @param fields
+	 * @return
+	 * @throws Exception
+	 */
+	Response getContentHierarchy(String contentId, String bookMarkId,  String mode, List<String> fields) throws
+			Exception;
 }

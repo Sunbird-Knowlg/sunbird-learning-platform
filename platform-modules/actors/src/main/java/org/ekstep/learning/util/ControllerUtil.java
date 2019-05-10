@@ -77,6 +77,12 @@ public class ControllerUtil extends BaseLearningManager {
 		return node;
 	}
 
+	public Response deleteNode(String taxonomyId, String id) {
+		Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode",
+				GraphDACParams.node_id.name(), id);
+		return getResponse(request);
+	}
+
 	/**
 	 * Update node.
 	 *
@@ -87,6 +93,21 @@ public class ControllerUtil extends BaseLearningManager {
 		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+		Response updateRes = getResponse(updateReq);
+		return updateRes;
+	}
+
+	/**
+	 * Update node without validation.
+	 *
+	 * @param node the node
+	 * @return the response
+	 */
+	public Response updateNodeWithoutValidation(Node node) {
+		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		updateReq.put(GraphDACParams.node.name(), node);
+		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+		updateReq.put(GraphDACParams.skip_validations.name(), true);
 		Response updateRes = getResponse(updateReq);
 		return updateRes;
 	}
@@ -656,7 +677,7 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 
-	private void hierarchyCleanUp (Map < String, Object > map){
+	public void hierarchyCleanUp (Map < String, Object > map){
 		if (map.containsKey("identifier")) {
 			String identifier = (String) map.get("identifier");
 			String parentId = (String) map.get("parent");

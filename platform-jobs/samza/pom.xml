@@ -24,9 +24,10 @@
 	    <module>audit-event-generator</module>
 		<module>composite-search-indexer</module>
 		<module>publish-pipeline</module>
-		<module>image-tagging</module>
-		<module>distribution</module>
+		<module>asset-enrichment</module>
 		<module>qrcode-image-generator</module>
+		<module>collection-migration</module>
+		<module>distribution</module>
   </modules>
 
 	<build>

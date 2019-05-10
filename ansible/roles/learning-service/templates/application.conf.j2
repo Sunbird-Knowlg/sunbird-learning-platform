@@ -213,9 +213,9 @@ telemetry.search.topn=5
 #Copy Content validation configuration
 learning.content.copy.invalid_status_list=["Flagged","FlagDraft","FlagReview","Retired", "Processing"]
 learning.content.copy.props_to_remove=["downloadUrl", "artifactUrl", "variants","createdOn", "collections", "children",
-"lastUpdatedOn", "sYS_INTERNAL_LAST_UPDATED_ON","versionKey", "s3Key", "status", "pkgVersion", "toc_url",
+"lastUpdatedOn", "SYS_INTERNAL_LAST_UPDATED_ON","versionKey", "s3Key", "status", "pkgVersion", "toc_url",
 "mimeTypesCount", "contentTypesCount", "leafNodesCount", "childNodes", "prevState", "lastPublishedOn", "flagReasons",
-"compatibilityLevel", "size", "publishChecklist", "publishComment", "LastPublishedBy", "rejectReasons", "rejectComment",
+"compatibilityLevel", "size", "publishChecklist", "publishComment", "lastPublishedBy", "rejectReasons", "rejectComment",
  "gradeLevel", "subject", "medium", "board", "topic", "purpose", "subtopic", "attributions", "contentCredits", "owner",
  "collaborators", "creators", "contributors", "badgeAssertions", "dialcodes", "concepts", "keywords", "reservedDialcodes", "dialcodeRequired"]
 learning.content.type.not.copied.list=["Asset"]
@@ -257,4 +257,10 @@ cassandra.lpa.connection="{{ dp_cassandra_connection }}"
 
 compositesearch.index.name="{{ compositesearch_index_name }}"
 
-# restrict.metadata.objectTypes=["Content", "ContentImage", "AssessmentItem", "Channel", "Framework", "Category", "CategoryInstance", "Term"]
+restrict.metadata.objectTypes="Content,ContentImage,AssessmentItem,Channel,Framework,Category,CategoryInstance,Term,Concept,Dimension,Domain"
+
+# Consistency Level for Multi Node Cassandra cluster
+cassandra.lp.consistency.level=QUORUM
+
+content.tagging.backward_enable=true
+content.tagging.property=["subject","medium"]

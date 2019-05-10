@@ -1,3 +1,0 @@
-cassandra_root_dir: /etc/cassandra
-cassandra_backup_dir: /data/cassandra/backup
-

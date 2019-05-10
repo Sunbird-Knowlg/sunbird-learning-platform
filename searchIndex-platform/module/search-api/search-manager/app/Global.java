@@ -65,11 +65,13 @@ public class Global extends GlobalSettings {
 							data.put("X-Session-ID", request.getHeader("X-Session-ID"));
 							String consumerId = request.getHeader("X-Consumer-ID");
 							data.put("X-Consumer-ID", consumerId);
-							String deviceId=request.getHeader("X-Device-ID");
+							String deviceId = request.getHeader("X-Device-ID");
 							data.put("X-Device-ID", deviceId);
 							if(StringUtils.isNotBlank(deviceId))
 								ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.DEVICE_ID.name(),
 										deviceId);
+							data.put(HeaderParam.APP_ID.name(), request.getHeader("X-App-Id"));
+
 							data.put("X-Authenticated-Userid", request.getHeader("X-Authenticated-Userid"));
 							if (StringUtils.isNotBlank(consumerId))
 								ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(),

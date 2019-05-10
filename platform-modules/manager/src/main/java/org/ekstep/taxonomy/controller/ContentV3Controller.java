@@ -1,11 +1,5 @@
 package org.ekstep.taxonomy.controller;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.controller.BaseController;
@@ -30,6 +24,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.PathParam;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Class ContentV3Controller, is the main entry point for the High Level
@@ -106,9 +104,6 @@ public class ContentV3Controller extends BaseController {
 	 *            Uploaded.
 	 * @param file
 	 *            The Content Package File
-	 * @param userId
-	 *            Unique id of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
@@ -157,9 +152,6 @@ public class ContentV3Controller extends BaseController {
 	 * @param map
 	 *            the map contains the parameter for creating the Bundle e.g.
 	 *            "identifier" List.
-	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
 	 * @return The Response entity with a Bundle URL in its Result Set.
 	 */
 	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
@@ -187,9 +179,6 @@ public class ContentV3Controller extends BaseController {
 	 *
 	 * @param contentId
 	 *            The Content Id which needs to be published.
-	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
 	 * @return The Response entity with Content Id and ECAR URL in its Result
 	 *         Set.
 	 */
@@ -270,9 +259,6 @@ public class ContentV3Controller extends BaseController {
 	 *
 	 * @param contentId
 	 *            The Content Id which needs to be published.
-	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
@@ -305,7 +291,6 @@ public class ContentV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
 											  @RequestParam(value = "mode", required = false) String mode,
-											  @RequestParam(value = "api", required = false) String api,
 											  @RequestParam(value = "fields", required = false) String[] fields) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
@@ -317,14 +302,38 @@ public class ContentV3Controller extends BaseController {
 			// This is to support portal backward compatibility. Remove after 1.14.0 final sprint.
 			if (reqFields.size() == 1 && StringUtils.equalsIgnoreCase( reqFields.get(0), "versionKey"))
 				reqFields = null;
+			response = contentManager.getContentHierarchy(contentId, null, mode, reqFields);
 
-			// This is to check the performance old vs new implementation.
-			if (StringUtils.equalsIgnoreCase(api, "old")) {
-				response = contentManager.getHierarchy(contentId, mode, reqFields);
-			} else {
-				response = contentManager.getContentHierarchy(contentId, mode, reqFields);
-			}
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
+	/**
+	 * This method fetches the hierarchy of a given bookMark in a Collection
+	 *
+	 * @param contentId
+	 *            The Content Id whose hierarchy needs to be fetched
+	 *
+	 * @param bookmarkId The BookMarkId for the which the hierarchy is to be fetched.
+	 * @return The Response entity with Content hierarchy in the result set
+	 */
+	@RequestMapping(value = "/hierarchy/{id:.+}/{bookmarkId:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
+											  @PathVariable(value = "bookmarkId") String bookmarkId,
+											  @RequestParam(value = "mode", required = false) String mode,
+											  @RequestParam(value = "fields", required = false) String[] fields) {
+		String apiId = "ekstep.learning.content.hierarchy";
+		Response response;
+		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
+		try {
+			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]"
+					+ contentId);
+			List<String> reqFields = convertStringArrayToList(fields);
+			response = contentManager.getContentHierarchy(contentId, bookmarkId, mode, reqFields);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
@@ -440,7 +449,7 @@ public class ContentV3Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Object reqObj = request.get("content");
-			Response response = contentManager.linkDialCode(channelId, reqObj);
+			Response response = contentManager.linkDialCode(channelId, reqObj, null, null);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Linking Dial Code with Content: " + e.getMessage(), e);
@@ -522,6 +531,7 @@ public class ContentV3Controller extends BaseController {
 			response = contentManager.copyContent(contentId, map, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			TelemetryManager.error("Exception occured while copying Content: " + contentId + " :: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

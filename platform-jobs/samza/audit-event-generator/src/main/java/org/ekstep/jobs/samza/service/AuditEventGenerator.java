@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,6 +16,7 @@ import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.Platform;
+import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.enums.SystemProperties;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -36,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class AuditEventGenerator implements ISamzaService {
 
-	static JobLogger LOGGER = new JobLogger(AuditEventGenerator.class);
+	private static JobLogger LOGGER = new JobLogger(AuditEventGenerator.class);
 	private Config config = null;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private SystemStream systemStream = null;
@@ -48,7 +50,7 @@ public class AuditEventGenerator implements ISamzaService {
 
 	static {
 		systemPropsList = Stream.of(SystemProperties.values()).map(SystemProperties::name).collect(Collectors.toList());
-		systemPropsList.addAll(Arrays.asList("SYS_INTERNAL_LAST_UPDATED_ON", "lastUpdatedOn", "versionKey"));
+		systemPropsList.addAll(Arrays.asList("SYS_INTERNAL_LAST_UPDATED_ON", "lastUpdatedOn", "versionKey","lastStatusChangedOn"));
 	}
 
 	public AuditEventGenerator() {
@@ -88,7 +90,7 @@ public class AuditEventGenerator implements ISamzaService {
 		try {
 			Map<String, Object> auditMap = getAuditMessage(message);
 			String objectType = (String) ((Map<String, Object>) auditMap.get("object")).get("type");
-			if (null != objectType) {
+			if (StringUtils.isNotBlank(objectType)) {
 				collector.send(new OutgoingMessageEnvelope(systemStream, auditMap));
 				LOGGER.info("Telemetry Audit Message Successfully Sent for : "
 						+ (String) ((Map<String, Object>) auditMap.get("object")).get("id"));
@@ -140,6 +142,7 @@ public class AuditEventGenerator implements ISamzaService {
 		Map<String, Object> transactionData = (Map<String, Object>) message.get(GraphDACParams.transactionData.name());
 		Map<String, Object> propertyMap = (Map<String, Object>) transactionData.get(GraphDACParams.properties.name());
 		Map<String, Object> statusMap = (Map<String, Object>) propertyMap.get(GraphDACParams.status.name());
+		Map<String, Object> lastStatusChangedOn = (Map<String, Object>) propertyMap.get("lastStatusChangedOn");
 		List<Map<String, Object>> addedRelations = (List<Map<String, Object>>) transactionData
 				.get(GraphDACParams.addedRelations.name());
 		List<Map<String, Object>> removedRelations = (List<Map<String, Object>>) transactionData
@@ -152,9 +155,21 @@ public class AuditEventGenerator implements ISamzaService {
 
 		String prevStatus = "";
 		String currStatus = "";
+		String duration = "";
 		if (null != statusMap) {
 			prevStatus = (String) statusMap.get("ov");
 			currStatus = (String) statusMap.get("nv");
+			// Compute Duration for Status Change
+			if (StringUtils.isNotBlank(currStatus) && StringUtils.isNotBlank(prevStatus) && null != lastStatusChangedOn) {
+				String ov = (String) lastStatusChangedOn.get("ov");
+				String nv = (String) lastStatusChangedOn.get("nv");
+				if (null == ov) {
+					ov = (String) ((Map<String, Object>) propertyMap.get("lastUpdatedOn")).get("ov");
+				}
+				if (null != ov && null != nv) {
+					duration = String.valueOf(computeDuration(ov, nv));
+				}
+			}
 		}
 		List<String> props = propertyMap.keySet().stream().collect(Collectors.toList());
 		props.addAll(getRelationProps(addedRelations, inRelations, outRelations));
@@ -167,6 +182,8 @@ public class AuditEventGenerator implements ISamzaService {
 		objectType = (null != objectType) ? objectType.replaceAll(OBJECT_TYPE_IMAGE_SUFFIX, "") : objectType;
 		context.put("objectId", objectId);
 		context.put(GraphDACParams.objectType.name(), objectType);
+		if (StringUtils.isNotBlank(duration))
+			context.put("duration", duration);
 		if (StringUtils.isNotBlank(pkgVersion))
 			context.put("pkgVersion", pkgVersion);
 		if (!CollectionUtils.isEmpty(propsExceptSystemProps)) {
@@ -287,5 +304,18 @@ public class AuditEventGenerator implements ISamzaService {
 				relDefMap.put(key, rDef.getTitle());
 			}
 		}
+	}
+
+	/**
+	 * @param oldDate
+	 * @param newDate
+	 * @return
+	 */
+	public Long computeDuration(String oldDate, String newDate) {
+		Date od = DateUtils.parse(oldDate);
+		Date nd = DateUtils.parse(newDate);
+		long diff = nd.getTime() - od.getTime();
+		long diffSeconds = diff / 1000;
+		return diffSeconds;
 	}
 }

@@ -38,6 +38,7 @@ import scala.concurrent.Future;
 
 public class SearchManager extends SearchBaseActor {
 
+	private ObjectMapper mapper = new ObjectMapper();
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
@@ -124,7 +125,7 @@ public class SearchManager extends SearchBaseActor {
 			Map<String, Object> req = request.getRequest();
 			TelemetryManager.log("Search Request: ", req);
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
-			int limit = getLimitValue(req.get(CompositeSearchParams.limit.name()));
+			int limit = getIntValue(req.get(CompositeSearchParams.limit.name()));
 			Boolean fuzzySearch = (Boolean) request.get("fuzzy");
 			if (null == fuzzySearch)
 				fuzzySearch = false;
@@ -207,11 +208,10 @@ public class SearchManager extends SearchBaseActor {
 
 			String mode = (String) req.get(CompositeSearchParams.mode.name());
 			if (null != mode && mode.equals(Modes.soft.name())
-					&& (null == softConstraints || softConstraints.isEmpty())) {
+					&& (null == softConstraints || softConstraints.isEmpty()) && objectType != null) {
 				try {
 					Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
 					if (null != metaData.get("softConstraints")) {
-						ObjectMapper mapper = new ObjectMapper();
 						String constraintString = (String) metaData.get("softConstraints");
 						softConstraints = mapper.readValue(constraintString, Map.class);
 					}
@@ -271,7 +271,7 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 
 			if (null != req.get(CompositeSearchParams.offset.name())) {
-				int offset = (Integer) req.get(CompositeSearchParams.offset.name());
+				int offset = getIntValue(req.get(CompositeSearchParams.offset.name()));
 				TelemetryManager.log("Offset: " + offset);
 				searchObj.setOffset(offset);
 			}
@@ -291,7 +291,6 @@ public class SearchManager extends SearchBaseActor {
 	private Map<String, Float> getWeightagesMap(String weightagesString)
 			throws JsonParseException, JsonMappingException, IOException {
 		Map<String, Float> weightagesMap = new HashMap<String, Float>();
-		ObjectMapper mapper = new ObjectMapper();
 		if (weightagesString != null && !weightagesString.isEmpty()) {
 			Map<String, Object> weightagesRequestMap = mapper.readValue(weightagesString,
 					new TypeReference<Map<String, Object>>() {
@@ -349,18 +348,25 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return paramList;
 	}
-
-	private Integer getLimitValue(Object limit) {
-		int i = 100;
-		if (null != limit) {
-			try {
-				i = (int) limit;
-			} catch (Exception e) {
-				i = new Long(limit.toString()).intValue();
+	
+private Integer getIntValue(Object num) {
+	int i = 100;
+	if (null != num) {
+		try {
+			i = (int) num;
+		} catch (Exception e) {
+			if(num instanceof String){
+				try{
+					return Integer.parseInt((String) num);
+				}catch (Exception ex){
+					throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(), "Invalid Input.", e);
+				}
 			}
+			i = new Long(num.toString()).intValue();
 		}
-		return i;
 	}
+	return i;
+}
 
 	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
@@ -389,10 +395,10 @@ public class SearchManager extends SearchBaseActor {
 	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters, Boolean traversal)
 			throws Exception {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
-		boolean compatibilityFilter = false;
-		boolean isContentSearch = false;
 		boolean statusFilter = false;
+		boolean publishedStatus = false;
 		if (null != filters && !filters.isEmpty()) {
+			publishedStatus = checkPublishedStatus(filters);
 			for (Entry<String, Object> entry : filters.entrySet()) {
 				if ("identifier".equalsIgnoreCase(entry.getKey())) {
 					List ids = new ArrayList<>();
@@ -403,8 +409,10 @@ public class SearchManager extends SearchBaseActor {
 					}
 					List<String> identifiers = new ArrayList<>();
 					identifiers.addAll((List<String>) (List<?>) ids);
-					for (Object id : ids) {
-						identifiers.add(id + ".img");
+					if(!publishedStatus){
+						for (Object id : ids) {
+							identifiers.add(id + ".img");
+						}
 					}
 					entry.setValue(identifiers);
 				}
@@ -417,8 +425,10 @@ public class SearchManager extends SearchBaseActor {
 					}
 					List<String> objectTypes = new ArrayList<>();
 					objectTypes.addAll((List<String>) (List<?>) value);
+
 					for (Object val : value) {
-						objectTypes.add(val + "Image");
+						if(StringUtils.equalsIgnoreCase("Content", (String) val) && !publishedStatus)
+							objectTypes.add(val + "Image");
 					}
 					entry.setValue(objectTypes);
 				}
@@ -509,35 +519,10 @@ public class SearchManager extends SearchBaseActor {
 						properties.add(property);
 					}
 				}
-				if (StringUtils.equals(CompositeSearchParams.objectType.name(), entry.getKey())) {
-					String objectType = null;
-					if (filterObject instanceof List) {
-						List objectTypeList = (List) filterObject;
-						if (objectTypeList.size() == 1)
-							objectType = (String) objectTypeList.get(0);
-					} else if (filterObject instanceof Object[]) {
-						Object[] objectTypeList = (Object[]) filterObject;
-						if (objectTypeList.length == 1)
-							objectType = (String) objectTypeList[0];
-					} else if (filterObject instanceof String) {
-						objectType = (String) filterObject;
-					}
-					if (StringUtils.equalsIgnoreCase(CompositeSearchParams.Content.name(), objectType))
-						isContentSearch = true;
-				}
+
 				if (StringUtils.equals("status", entry.getKey()))
 					statusFilter = true;
-				if (StringUtils.equals(CompositeSearchParams.compatibilityLevel.name(), entry.getKey()))
-					compatibilityFilter = true;
 			}
-		}
-
-		if (!compatibilityFilter && isContentSearch && !traversal) {
-			Map<String, Object> property = new HashMap<String, Object>();
-			property.put(CompositeSearchParams.propertyName.name(), CompositeSearchParams.compatibilityLevel.name());
-			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-			property.put(CompositeSearchParams.values.name(), Arrays.asList(new Integer[] { 1 }));
-			properties.add(property);
 		}
 
 		if (!statusFilter && !traversal) {
@@ -548,6 +533,29 @@ public class SearchManager extends SearchBaseActor {
 			properties.add(property);
 		}
 		return properties;
+	}
+
+	private boolean checkPublishedStatus(Map<String, Object> filters) {
+		List<String> statuses = Arrays.asList("Live", "Unlisted");
+		Object status =filters.get("status");
+		List<String> statusList = null;
+		if(null == status) {
+			return true;
+		} else if((status instanceof String) && (statuses.contains(status))){
+			statusList = Arrays.asList((String) status);
+		} else if(status instanceof String[]) {
+			statusList = Arrays.asList((String[]) status);
+		} else if(status instanceof List) {
+			statusList = (List<String>) status;
+		}
+
+		if(CollectionUtils.isNotEmpty(statusList) && statusList.size() == 1 && statuses.contains(statusList.get(0)))
+			return true;
+		else if(CollectionUtils.isNotEmpty(statusList) && statuses.containsAll(statusList))
+			return true;
+		else
+			return false;
+
 	}
 
 	@SuppressWarnings("unchecked")

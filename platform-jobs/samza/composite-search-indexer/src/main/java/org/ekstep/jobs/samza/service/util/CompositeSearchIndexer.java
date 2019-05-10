@@ -3,6 +3,7 @@
  */
 package org.ekstep.jobs.samza.service.util;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author pradyumna
@@ -62,9 +65,21 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
 	}
 
+	private Map<String, Object> getIndexDocument(String id) throws Exception {
+		Map<String, Object> indexDocument = new HashMap<String, Object>();
+		String documentJson = ElasticSearchUtil.getDocumentAsStringById(
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+		if (documentJson != null && !documentJson.isEmpty()) {
+			indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
+			});
+		}
+		return indexDocument;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Map<String, Object> getIndexDocument(Map<String, Object> message,
-			Map<String, String> relationMap, boolean updateRequest) throws Exception {
+												 Map<String, String> relationMap, boolean updateRequest, List<String> indexableProps) throws Exception {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		String uniqueId = (String) message.get("nodeUniqueId");
 		if (updateRequest) {
@@ -83,19 +98,13 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 				for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 					if (propertyMap != null && propertyMap.getKey() != null) {
 						String propertyName = (String) propertyMap.getKey();
-						// new value of the property
-						Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv");
-						// New value from transaction data is null, then remove
-						// the property from document
-						if (propertyNewValue == null)
-							indexDocument.remove(propertyName);
-						else {
-							if (nestedFields.contains(propertyName)) {
-								propertyNewValue = mapper.readValue((String) propertyNewValue,
-										new TypeReference<Object>() {
-										});
+						// filter metadata based on definition
+						if (CollectionUtils.isNotEmpty(indexableProps)) {
+							if (indexableProps.contains(propertyName)) {
+								addMetadataToDocument(propertyMap, propertyName, indexDocument);
 							}
-							indexDocument.put(propertyName, propertyNewValue);
+						} else {
+							addMetadataToDocument(propertyMap, propertyName, indexDocument);
 						}
 					}
 				}
@@ -178,6 +187,7 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 
 	public void processESMessage(String graphId, String objectType, String uniqueId, String messageId,
 			 Map<String, Object> message, JobMetrics metrics) throws Exception {
+		List<String> indexablePropslist = new ArrayList<String>();
 		DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
 		if (null == definitionNode) {
 			LOGGER.info("Failed to fetch definition node from cache");
@@ -188,32 +198,72 @@ public class CompositeSearchIndexer extends AbstractESIndexer {
 		Map<String, Object> definition = mapper.convertValue(definitionNode, new TypeReference<Map<String, Object>>() {
 		});
 		LOGGER.debug("definition fetched from cache: " + definitionNode.getIdentifier());
+		//Create List of metadata which should be indexed, if objectType is enabled for metadata filtration.
+		List<String> objectTypeList = Platform.config.hasPath("restrict.metadata.objectTypes") ?
+				Arrays.asList(Platform.config.getString("restrict.metadata.objectTypes").split(",")) : Collections.emptyList();
+		if (objectTypeList.contains(objectType))
+			indexablePropslist = getIndexableProperties(definition);
+
 		LOGGER.info("Message Id: " + messageId + ", " + "Unique Id: " + uniqueId + " is indexing into compositesearch.");
 		Map<String, String> relationMap = getRelationMap(objectType, definition);
-		upsertDocument(uniqueId, message, relationMap);
+		upsertDocument(uniqueId, message, relationMap, indexablePropslist);
 	}
 
-	private void upsertDocument(String uniqueId, Map<String, Object> message, Map<String, String> relationMap)
+	private void upsertDocument(String uniqueId, Map<String, Object> message, Map<String, String> relationMap, List<String> indexableProps)
 			throws Exception {
 		String operationType = (String) message.get("operationType");
 		switch (operationType) {
 		case CompositeSearchConstants.OPERATION_CREATE: {
-			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, false);
+			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, false, indexableProps);
 			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
 			upsertDocument(uniqueId, jsonIndexDocument);
 			break;
 		}
 		case CompositeSearchConstants.OPERATION_UPDATE: {
-			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, true);
+			Map<String, Object> indexDocument = getIndexDocument(message, relationMap, true, indexableProps);
 			String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
 			upsertDocument(uniqueId, jsonIndexDocument);
 			break;
 		}
 		case CompositeSearchConstants.OPERATION_DELETE: {
-			ElasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
-					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
+			String id = (String) message.get("nodeUniqueId");
+			Map<String, Object> indexDocument = getIndexDocument(id);
+			String visibility = (String) indexDocument.get("visibility");
+			if (StringUtils.equalsIgnoreCase("Parent", visibility)) {
+				LOGGER.info("Not deleting the document (visibility: Parent) with ID:" + id);
+			} else {
+				ElasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
+			}
 			break;
 		}
+		}
+	}
+
+	private List<String> getIndexableProperties(Map<String, Object> definition) {
+		List<String> propsList = new ArrayList<>();
+		List<Map<String, Object>> properties = (List<Map<String, Object>>) definition.get("properties");
+		for (Map<String, Object> property : properties) {
+			if ((Boolean) property.get("indexed")) {
+				propsList.add((String) property.get("propertyName"));
+			}
+		}
+		return propsList;
+	}
+
+	private void addMetadataToDocument(Map.Entry<String, Object> propertyMap, String propertyName, Map<String, Object> indexDocument) throws Exception {
+		// new value of the property
+		Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv");
+		// New value from transaction data is null, then remove the property from document
+		if (propertyNewValue == null)
+			indexDocument.remove(propertyName);
+		else {
+			if (nestedFields.contains(propertyName)) {
+				propertyNewValue = mapper.readValue((String) propertyNewValue,
+						new TypeReference<Object>() {
+						});
+			}
+			indexDocument.put(propertyName, propertyNewValue);
 		}
 	}
 

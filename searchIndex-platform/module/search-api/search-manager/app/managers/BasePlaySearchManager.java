@@ -1,15 +1,10 @@
 package managers;
 
-import static akka.pattern.Patterns.ask;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import akka.actor.ActorRef;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,20 +20,34 @@ import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.telemetry.logger.TelemetryManager;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import akka.actor.ActorRef;
 import play.libs.F;
 import play.libs.F.Function;
 import play.libs.F.Promise;
 import play.mvc.Result;
 import play.mvc.Results;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static akka.pattern.Patterns.ask;
+
 public class BasePlaySearchManager extends Results {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
+	private static Boolean contentTaggingFlag = Platform.config.hasPath("content.tagging.backward_enable")?
+			Platform.config.getBoolean("content.tagging.backward_enable"): false;
+	private static List <String> contentTaggedKeys = Platform.config.hasPath("content.tagging.property") ?
+			Platform.config.getStringList("content.tagging.property"):
+			new ArrayList<>(Arrays.asList("subject","medium"));
 
 	protected Promise<Result> getSearchResponse(Request request) {
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
@@ -55,6 +64,9 @@ public class BasePlaySearchManager extends Results {
 							String correlationId = UUID.randomUUID().toString();
 							if (result instanceof Response) {
 								Response response = (Response) result;
+								if(response.getResponseCode().name().equals("CLIENT_ERROR")){
+                                    return badRequest(getResult(response,request.getId(), request.getVer(), null, correlationId)).as("application/json");
+                                }
 								if (checkError(response)) {
 									String errMsg = getMessage(response);
 									return notFound(getErrorMsg(errMsg)).as("application/json");
@@ -145,7 +157,7 @@ public class BasePlaySearchManager extends Results {
 				params.setErrmsg(null);
 			}
 			response.setParams(params);
-			if(response.getResult().containsKey("content")){
+			if(response.getResult().containsKey("content")) {
 				List<Map<String,Object>> contentMap = (List<Map<String, Object>>) response.getResult().get("content");
 				for(Map<String,Object> content : contentMap){
 					if(content.containsKey("variants")){
@@ -153,8 +165,18 @@ public class BasePlaySearchManager extends Results {
 						content.put("variants",variantsMap);
 						contentMap.set(contentMap.indexOf(content), content);
 					}
-					response.getResult().put("content", contentMap);
+                    updateContentTaggedProperty(content);
+                    contentMap.set(contentMap.indexOf(content), content);
 				}
+				response.getResult().put("content", contentMap);
+			}
+			if(response.getResult().containsKey("collections")) {
+				List<Map<String,Object>> collectionList = (List<Map<String, Object>>) response.getResult().get("collections");
+				for(Map<String,Object> collection : collectionList){
+					updateContentTaggedProperty(collection);
+					collectionList.set(collectionList.indexOf(collection), collection);
+				}
+				response.getResult().put("collections", collectionList);
 			}
 			return mapper.writeValueAsString(response);
 		} catch (JsonProcessingException e) {
@@ -163,6 +185,30 @@ public class BasePlaySearchManager extends Results {
 			e.printStackTrace();
 		}
 		return "";
+	}
+
+	private void updateContentTaggedProperty(Map<String,Object> content) {
+		if(contentTaggingFlag) {
+			for(String contentTagKey : contentTaggedKeys) {
+				if(content.containsKey(contentTagKey)) {
+					List<String> prop = null;
+					try {
+					    Object value = content.get(contentTagKey);
+					    if (value instanceof String[]) {
+					        prop = Arrays.asList((String[]) value);
+                        } else if(value instanceof  List) {
+							prop = (List<String>) value;
+						}else {
+							prop = mapper.readValue((String) value, List.class);
+						}
+						content.put(contentTagKey, prop.get(0));
+					} catch (IOException e) {
+						content.put(contentTagKey, (String) content.get(contentTagKey));
+					}
+
+				}
+			}
+		}
 	}
 
 	private String getErrorMsg(String errorMsg) {
@@ -203,9 +249,10 @@ public class BasePlaySearchManager extends Results {
 				? (Map<String, Object>) request.get(CompositeSearchParams.filters.name()) : new HashMap();
 		Object sort = (null != request.get(CompositeSearchParams.sort_by.name()))
 				? request.get(CompositeSearchParams.sort_by.name()) : new HashMap();
-		int count = (response.getResult() == null ? 0 : (Integer) response.getResult().get("count"));
+		int count = getCount(filters, response);
 		Object topN = getTopNResult(response.getResult());
 		String type = getType(filters);
+		populateTargetDialObject(context, filters);
 		TelemetryManager.search(context, query, filters, sort, count, topN, type);
 	}
 
@@ -266,4 +313,81 @@ public class BasePlaySearchManager extends Results {
 		}
 		
 	}
+
+	/**
+	 * This method populates Target Object field for DIAL Scan.
+	 * @param context
+	 * @param filters
+	 */
+	private void populateTargetDialObject(Map<String, Object> context, Map<String, Object> filters) {
+		if (MapUtils.isNotEmpty(filters) && null != filters.get("dialcodes")) {
+			List<String> dialcodes = getList(filters.get("dialcodes"));
+			if (dialcodes.size() == 1) {
+				context.put("objectId", dialcodes.get(0));
+				context.put("objectType", "DialCode");
+			}
+		}
+	}
+
+	/**
+	 * @param param
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected static List<String> getList(Object param) {
+		List<String> paramList = null;
+		try {
+			paramList = (List<String>) param;
+		} catch (Exception e) {
+			String str = (String) param;
+			paramList = Arrays.asList(str);
+		}
+		if (null != paramList) {
+			paramList = paramList.stream().filter(x -> StringUtils.isNotBlank(x) && !StringUtils.equals(" ", x)).collect(Collectors.toList());
+		}
+		return paramList;
+	}
+
+	/**
+	 * This Method Checks Whether Search Request is from DIAL Scan Or Not.
+	 * @param filters
+	 * @return Boolean
+	 */
+	private static Boolean isDIALScan(Map<String, Object> filters) {
+		if (MapUtils.isNotEmpty(filters) && null != filters.get("dialcodes")) {
+			List<String> dialcodes = getList(filters.get("dialcodes"));
+			return (dialcodes.size() == 1) ? true : false;
+		}
+		return false;
+	}
+
+	/**
+	 * This Method Returns Total Number of Content Found in Search
+	 * @param filters
+	 * @param response
+	 * @return
+	 */
+	private static Integer getCount(Map<String, Object> filters, Response response) {
+		Integer count = 0;
+		List<Map<String, Object>> contents = (List<Map<String, Object>>) response.getResult().get("results");
+		if (null == contents || contents.isEmpty()) {
+			return count;
+		}
+		if (isDIALScan(filters)) {
+			try {
+				List<Integer> counts = contents.stream().filter(content -> (null != content.get("leafNodesCount")))
+						.map(content -> ((Number) content.get("leafNodesCount")).intValue()).collect(Collectors.toList());
+				if (CollectionUtils.isNotEmpty(counts))
+					count = Collections.max(counts);
+			} catch (Exception e) {
+				TelemetryManager.error("Error while getting leaf node count for dial scan : ", e);
+				throw e;
+			}
+		} else {
+			count = (Integer) response.getResult().get("count");
+		}
+
+		return count;
+	}
+
 }

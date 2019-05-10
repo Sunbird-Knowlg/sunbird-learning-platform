@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.graph.common.JSONUtils;
+import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -23,6 +24,7 @@ public class ConvertGraphNode {
         Map<String, Object> map = new HashMap<String, Object>();
         if (null != node) {
             Map<String, Object> metadata = node.getMetadata();
+            Object sysLastUpdatedOn = metadata.remove(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name());
             if (null != metadata && !metadata.isEmpty()) {
             	List<String> jsonProps = getJSONProperties(definition);
                 for (Entry<String, Object> entry : metadata.entrySet()) {
@@ -42,7 +44,10 @@ public class ConvertGraphNode {
                             c[0] = Character.toLowerCase(c[0]);
                             key = new String(c);
                             if (jsonProps.contains(key.toLowerCase())) {
-                            	Object val = JSONUtils.convertJSONString((String) entry.getValue());
+                                Object val = entry.getValue();
+                                if (val instanceof String) {
+                                     val = JSONUtils.convertJSONString((String) entry.getValue());
+                                }
                             	TelemetryManager.log("JSON Property " + key + " converted value is " + val);
                                 if (null != val)
                                 	map.put(key, val);
@@ -52,6 +57,10 @@ public class ConvertGraphNode {
                     }
                 }
             }
+            //TODO: Remove the property after inspection.
+            if (sysLastUpdatedOn != null)
+                map.put(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name(),sysLastUpdatedOn);
+
             Map<String, String> inRelDefMap = new HashMap<String, String>();
             Map<String, String> outRelDefMap = new HashMap<String, String>();
             getRelationDefinitionMaps(definition, inRelDefMap, outRelDefMap);
@@ -90,8 +99,7 @@ public class ConvertGraphNode {
 						String objectType = outRel.getEndNodeObjectType();
 						String id = outRel.getEndNodeId();
 						if (StringUtils.endsWith(objectType, "Image")) {
-							if (!StringUtils.equalsIgnoreCase("Default",
-									(String) outRel.getEndNodeMetadata().get("visibility"))) {
+							if (isVisibilityDefault(outRel.getEndNodeMetadata())) {
 								objectType = objectType.replace("Image", "");
 								id = id.replace(".img", "");
 								NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
@@ -116,7 +124,14 @@ public class ConvertGraphNode {
         }
         return map;
     }
-    
+
+    private static boolean isVisibilityDefault(Map<String, Object> endNodeMetadata) {
+        if(null != endNodeMetadata && !endNodeMetadata.isEmpty()) {
+            return  !StringUtils.equalsIgnoreCase("Default",(String) endNodeMetadata.get("visibility"));
+        }
+        return false;
+    }
+
     public static Map<String, Object> convertGraphNodeWithoutRelations(Node node, String domainId, DefinitionDTO definition,
             List<String> fieldList) {
         Map<String, Object> map = new HashMap<String, Object>();

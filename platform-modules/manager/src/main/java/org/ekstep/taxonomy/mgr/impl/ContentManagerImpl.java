@@ -100,11 +100,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return this.contentEventManager.review(contentId, request);
 	}
 
-	@Override
-	public Response getHierarchy(String contentId, String mode, List<String> fields) {
-        return this.hierarchyManager.get(contentId, mode);
-	}
-
 	public Response create(Map<String, Object> map, String channelId) throws Exception {
 		return this.contentManger.create(map, channelId);
 	}
@@ -137,8 +132,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.util.List)
 	 */
 	@Override
-	public Response linkDialCode(String channelId, Object reqObj) throws Exception {
-		return this.dialCodesManager.link(channelId, reqObj);
+	public Response linkDialCode(String channelId, Object reqObj, String mode, String contentId) throws Exception {
+		return this.dialCodesManager.link(channelId, reqObj, mode, contentId);
 	}
 
 	@Override
@@ -184,8 +179,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
     @Override
-    public Response getContentHierarchy(String contentId, String mode, List<String> fields) throws Exception {
-        return this.hierarchyManager.getContentHierarchy(contentId, mode, fields);
+    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields) throws
+			Exception {
+        return this.hierarchyManager.getContentHierarchy(contentId, bookMarkId, mode, fields);
     }
 
 }

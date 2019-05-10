@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,7 +31,11 @@ import org.junit.Test;
  */
 public class ElasticSearchUtilTest extends BaseSearchTest {
 
+	private static String[] contentTypes = new String[] { "Story", "Worksheet", "Game", "Collection", "Asset" };
+	private static String[] tags = new String[] { "hindi story", "NCERT", "Pratham", "एकस्टेप", "हिन्दी", "हाथी और भालू", "worksheet", "test" };
+
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static Random random = new Random();
 
 
 	@Test
@@ -127,11 +132,22 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 
 	}
 
+	@Test
+	public void testBulkDeleteDocumentWithId() throws Exception {
+		List<String> identifiers = createBulkTestRecord(100);
+		ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,identifiers);
+		for(String id : identifiers){
+			String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+			assertFalse(StringUtils.contains(doc, id));
+		}
+	}
+
 	private static Map<String, Object> getContentTestRecord() {
 		String objectType = "Content";
 		Date d = new Date();
 		Map<String, Object> map = new HashMap<String, Object>();
-		long suffix = (long) (10000000 + Math.random());
+		long suffix = (long) (10000000 + random.nextInt(1000000));
 		map.put("identifier", "do_" + suffix);
 		map.put("objectType", objectType);
 		map.put("name", "Content_" + System.currentTimeMillis() + "_name");
@@ -181,14 +197,6 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 		return map;
 	}
 
-	private static String[] contentTypes = new String[] { "Story", "Worksheet", "Game", "Collection", "Asset" };
-
-	private static String getContentType() {
-		return contentTypes[RandomUtils.nextInt(5)];
-	}
-
-	private static String[] tags = new String[] { "hindi story", "NCERT", "Pratham", "एकस्टेप", "हिन्दी",
-			"हाथी और भालू", "worksheet", "test" };
 
 	private static Set<String> getTags() {
 		Set<String> list = new HashSet<String>();
@@ -197,6 +205,31 @@ public class ElasticSearchUtilTest extends BaseSearchTest {
 			list.add(tags[RandomUtils.nextInt(8)]);
 		}
 		return list;
+	}
+
+	private static String getContentType() {
+		return contentTypes[RandomUtils.nextInt(5)];
+	}
+
+	/**
+	 * This method create es record in bulk.
+	 * @param numberOfRecords
+	 * @return List<String>
+	 * @throws Exception
+	 */
+	private static List<String> createBulkTestRecord(int numberOfRecords) throws Exception {
+		List<String> identifiers = new ArrayList<>();
+		for (int i = 1; i <= numberOfRecords; i++) {
+			Map<String, Object> content = getContentTestRecord();
+			String id = (String) content.get("identifier");
+			addToIndex(id, content);
+			String doc = ElasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
+			if (StringUtils.contains(doc, id)) {
+				identifiers.add(id);
+			}
+		}
+		return identifiers;
 	}
 
 }

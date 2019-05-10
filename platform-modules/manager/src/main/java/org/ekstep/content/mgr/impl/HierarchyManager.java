@@ -14,17 +14,13 @@ public class HierarchyManager {
     private final UpdateHierarchyOperation updateHierarchyOperation = new UpdateHierarchyOperation();
     private final SyncHierarchyOperation syncHierarchyOperation = new SyncHierarchyOperation();
 
-    public Response get(String contentId, String mode) {
-        return this.getHierarchyOperation.getHierarchy(contentId, mode);
-    }
-
     public Response update(Map<String, Object> data) {
         return this.updateHierarchyOperation.updateHierarchy(data);
     }
 
     public Response sync(String identifier) { return this.syncHierarchyOperation.syncHierarchy(identifier); }
 
-    public Response getContentHierarchy(String contentId, String mode, List<String> fields) {
-        return this.getHierarchyOperation.getContentHierarchy(contentId, mode, fields);
+    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields) {
+        return this.getHierarchyOperation.getContentHierarchy(contentId, bookMarkId, mode, fields);
     }
 }
