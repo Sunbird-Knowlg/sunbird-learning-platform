@@ -262,9 +262,12 @@ restrict.metadata.objectTypes="Content,ContentImage,AssessmentItem,Channel,Frame
 # Consistency Level for Multi Node Cassandra cluster
 cassandra.lp.consistency.level=QUORUM
 
+# Content Tagging Config 
 content.tagging.backward_enable=true
-content.tagging.property=["subject","medium"]
+content.tagging.property="subject,medium"
 
 # Redis Cache Configuration
 content.cache.ttl=259200
 framework.cache.ttl=604800
+
+
