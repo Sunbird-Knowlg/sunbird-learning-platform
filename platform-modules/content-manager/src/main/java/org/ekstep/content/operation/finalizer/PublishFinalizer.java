@@ -243,7 +243,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		Map<String,Object> collectionHierarchy = getHierarchy(node.getIdentifier(), true);
-		TelemetryManager.info("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
+		TelemetryManager.log("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
 		List<Map<String, Object>> children = null;
 		if(MapUtils.isNotEmpty(collectionHierarchy)) {
 			Set<String> collectionResourceChildNodes = new HashSet<>();
@@ -326,9 +326,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes) {
-		if(CollectionUtils.isNotEmpty(children)){
+		if(CollectionUtils.isNotEmpty(children)) {
 			List<Map<String, Object>> newChildren = new ArrayList<>(children);
-
 			if (null!=newChildren && !newChildren.isEmpty()) {
 				for (Map<String, Object> child : newChildren) {
 					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Parent") &&
@@ -337,11 +336,12 @@ public class PublishFinalizer extends BaseFinalizer {
 					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
 							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
 						Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
+						TelemetryManager.log("Collection hierarchy for chilNode : " + child.get(ContentWorkflowPipelineParams.identifier.name()) + " : " + collectionHierarchy);
 						if(MapUtils.isNotEmpty(collectionHierarchy)) {
 							collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
 							collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
 							List<String> childNodes = (List<String>)collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name());
-							if(!CollectionUtils.isEmpty(childNodes))
+							if(!CollectionUtils.isEmpty(childNodes)) 
 								collectionResourceChildNodes.addAll(childNodes);
 							if(!MapUtils.isEmpty(collectionHierarchy)) {
 								children.remove(child);
@@ -791,7 +791,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 			TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			// TODO: START : Remove the below when mobile app is ready to accept Resources as Default in manifest
-			childrenIds = (List<String>) node.getMetadata().get("childNodes");
+			if(CollectionUtils.isNotEmpty((List<String>) node.getMetadata().get("childNodes")))
+				childrenIds = (List<String>) node.getMetadata().get("childNodes");
 		} else {
 			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
