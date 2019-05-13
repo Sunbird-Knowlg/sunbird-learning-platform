@@ -184,8 +184,8 @@ public class YouTubeUrlUtil {
 				}
 
 				if ("duration".equalsIgnoreCase(str)) {
-					long duration = computeVideoDuration(video.getContentDetails().getDuration());
-					if (duration > 0)
+					String duration = computeVideoDuration(video.getContentDetails().getDuration());
+					if (StringUtils.isNotBlank(duration))
 						result.put(str, duration);
 				}
 			}
@@ -194,17 +194,25 @@ public class YouTubeUrlUtil {
 	}
 
 	/**
-	 * This Method Compute Duration for Youtube Video.
+	 * This Method Computes Duration for Youtube Video
 	 * @param videoDuration
 	 * @return
 	 */
-	private static long computeVideoDuration(String videoDuration) {
-		if (StringUtils.isNotBlank(videoDuration)) {
-			String youtubeDuration = videoDuration.replaceAll("PT|S", "").replaceAll("H|M", ":");
-			String[] values = youtubeDuration.split(":");
-			return (long) ((Integer.parseInt(values[0]) * Math.pow(60, 2)) + (Integer.parseInt(values[1]) * Math.pow(60, 1)) + (Integer.parseInt(values[2]) * Math.pow(60, 0)));
+	private static String computeVideoDuration(String videoDuration) {
+		String youtubeDuration = videoDuration.replaceAll("PT|S", "").replaceAll("H|M", ":");
+		String[] values = youtubeDuration.split(":");
+		if (null != values) {
+			if (values.length == 1) {
+				return values[0];
+			}
+			if (values.length == 2) {
+				return String.valueOf((Integer.parseInt(values[0]) * 60) + (Integer.parseInt(values[1]) * 1));
+			}
+			if (values.length == 3) {
+				return String.valueOf((Integer.parseInt(values[0]) * 3600) + (Integer.parseInt(values[1]) * 60) + (Integer.parseInt(values[2]) * 1));
+			}
 		}
-		return 0;
+		return "";
 	}
 
 }
