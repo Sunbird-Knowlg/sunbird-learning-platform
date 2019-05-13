@@ -775,8 +775,8 @@
           "indexed": true
         },
         {
-          "propertyName": "answers",
-          "title": "Answers",
+          "propertyName": "solutions",
+          "title": "Solutions",
           "description": "R2.0",
           "category": "General",
           "dataType": "List",
@@ -814,6 +814,18 @@
         {
           "propertyName": "qumlConfig",
           "title": "QuML Config",
+          "description": "R2.0",
+          "category": "General",
+          "dataType": "JSON",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
+          "propertyName": "responseDeclaration",
+          "title": "Response Declaration",
           "description": "R2.0",
           "category": "General",
           "dataType": "JSON",
