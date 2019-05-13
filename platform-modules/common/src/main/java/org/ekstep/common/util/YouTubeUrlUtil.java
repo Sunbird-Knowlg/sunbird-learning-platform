@@ -99,7 +99,9 @@ public class YouTubeUrlUtil {
     }
 	private static String getIdFromUrl(String url) {
 		String videoLink = getVideoLink(url);
-		List<String> videoIdRegex = Platform.config.getStringList("youtube.license.regex.pattern");
+		List<String> videoIdRegex = Platform.config.hasPath("youtube.license.regex.pattern") ?
+				Platform.config.getStringList("youtube.license.regex.pattern") :
+				Arrays.asList("\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-\\_]*)");
 		for (String regex : videoIdRegex) {
 			Pattern compiledPattern = Pattern.compile(regex);
 			Matcher matcher = compiledPattern.matcher(videoLink);
