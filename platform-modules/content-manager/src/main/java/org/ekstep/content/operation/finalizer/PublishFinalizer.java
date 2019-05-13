@@ -348,12 +348,14 @@ public class PublishFinalizer extends BaseFinalizer {
 	private List<String> getUnitFromLiveContent(){
 		Node liveContent = util.getNode(ContentWorkflowPipelineParams.domain.name(), contentId);
 		List<String> childNodes = null;
-		childNodes = new ArrayList<>(Arrays.asList((String[])liveContent.getMetadata().get("childNodes")));
-		if(CollectionUtils.isNotEmpty(childNodes)) {
-			List<Relation> outRelations = liveContent.getOutRelations();
-			if(CollectionUtils.isNotEmpty(outRelations)) {
-				List<String> leafNodes = outRelations.stream().filter(rel -> StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SEQUENCE_MEMBERSHIP.name())).map(rel -> rel.getEndNodeId()).collect(Collectors.toList());
-				childNodes.removeAll(leafNodes);
+		if(null != liveContent.getMetadata().get("childNodes")) {
+			childNodes = new ArrayList<>(Arrays.asList((String[])liveContent.getMetadata().get("childNodes")));
+			if(CollectionUtils.isNotEmpty(childNodes)) {
+				List<Relation> outRelations = liveContent.getOutRelations();
+				if(CollectionUtils.isNotEmpty(outRelations)) {
+					List<String> leafNodes = outRelations.stream().filter(rel -> StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SEQUENCE_MEMBERSHIP.name())).map(rel -> rel.getEndNodeId()).collect(Collectors.toList());
+					childNodes.removeAll(leafNodes);
+				}
 			}
 		}
 		return childNodes;
@@ -426,6 +428,25 @@ public class PublishFinalizer extends BaseFinalizer {
                 try {
                     if(StringUtils.equalsIgnoreCase("Default", (String) child.get("visibility"))) {
                         node = util.getNode(ContentWorkflowPipelineParams.domain.name(), (String)child.get("identifier"));//getContentNode(TAXONOMY_ID, (String) child.get("identifier"), null);
+                        node.getMetadata().remove("children");
+                        Map<String, Object> childData = new HashMap<>();
+                        childData.putAll(child);
+                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
+                        List<Map<String, Object>> finalChildList = new ArrayList<>();
+						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
+								Map<String, Object> metadata = new HashMap<String, Object>() {{
+									put("identifier", nextLevelNode.get("identifier"));
+									put("name", nextLevelNode.get("name"));
+									put("objectType", "Content");
+									put("description", nextLevelNode.get("description"));
+									put("index", nextLevelNode.get("index"));
+								}};
+								return metadata;
+							}).collect(Collectors.toList());
+						}
+						node.getMetadata().put("children", finalChildList);
+                        
                     }else {
                     		Map<String, Object> childData = new HashMap<>();
                         childData.putAll(child);
@@ -954,10 +975,18 @@ public class PublishFinalizer extends BaseFinalizer {
 			content.put(ContentAPIParams.childNodes.name(), childNodes);
 			
 			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
-			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
-			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+			try {
+				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), convertToString(mimeTypeMap));
+				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), convertToString(contentTypeMap));
+			} catch (Exception e) {
+				TelemetryManager.error("Error while stringifying mimeTypeCount or contentTypesCount.", e);
+			}
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
+	}
+	
+	private String convertToString(Object obj) throws Exception {
+		return mapper.writeValueAsString(obj);
 	}
 
 	private Map<String, Object> processChild(Map<String, Object> node) {
