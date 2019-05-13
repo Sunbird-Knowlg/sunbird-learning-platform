@@ -1,32 +1,21 @@
 
 package org.ekstep.framework.mgr.impl;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
-import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
-import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
-import org.ekstep.graph.dac.model.Relation;
-import org.ekstep.graph.model.node.DefinitionDTO;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * The Class <code>FrameworkManagerImpl</code> is the implementation of
@@ -41,10 +30,6 @@ import java.util.stream.Collectors;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
-	private static ObjectMapper mapper = new ObjectMapper();
-	private static int frameworkTtl = (Platform.config.hasPath("framework.cache.ttl"))
-			? Platform.config.getInt("framework.cache.ttl")
-			: 604800;
 
 	/*
 	 * create framework
@@ -85,38 +70,26 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
 		Response response = new Response();
-		Map<String, Object> responseMap = new HashMap<String, Object>();
+		Map<String, Object> framework = null;
 
-		String frameworkStr = RedisStoreUtil.get(frameworkId);
-		Map<String, Object> framework = new HashMap<String, Object>();
-		if (StringUtils.isNotBlank(frameworkStr)) {
-			framework = mapper.readValue(frameworkStr, Map.class);
-		} else { // if not available in redis
-			Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
+		Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
+		if (!checkError(getHierarchyResp)) {
 			framework = (Map<String, Object>) getHierarchyResp.get("framework");
 		}
 
-		if (MapUtils.isNotEmpty(framework)) {
-			// filtering based on requested categories.
-			filterFrameworkCategories(framework, returnCategories);
-
-			responseMap.putAll(framework);
-			response.put(FrameworkEnum.framework.name(), responseMap);
-			response.setParams(getSucessStatus());
-		} else {
-			if (StringUtils.isBlank(frameworkStr)) {
-				response = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
-				framework = (Map<String, Object>) response.getResult().get("framework");
-			} else {
-				response = OK();
-				response.put(FrameworkEnum.framework.name(), framework);
-			}
+		if (MapUtils.isEmpty(framework)) {
+			Response readResponse = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
+			if (!checkError(readResponse))
+				framework = (Map<String, Object>) readResponse.getResult().get("framework");
 		}
 
-		//saving data in redis
-		if (StringUtils.isBlank(frameworkStr))
-			RedisStoreUtil.saveData(frameworkId, framework, frameworkTtl);
-
+		if (MapUtils.isNotEmpty(framework)) {
+			filterFrameworkCategories(framework, returnCategories);
+			response = OK();
+			response.put(FrameworkEnum.framework.name(), framework);
+		} else {
+			throw new ResourceNotFoundException("ERR_FRAMEWORK_READ", "Framework Not Found With Identifier:" + frameworkId);
+		}
 		return response;
 	}
 

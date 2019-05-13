@@ -68,7 +68,7 @@ public class FindOperation extends BaseContentManager {
         } else {
             TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
             Node node = getContentNode(TAXONOMY_ID, contentId, mode);
-            contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, fields);
+            contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
             contentId = node.getIdentifier();
         }
 
