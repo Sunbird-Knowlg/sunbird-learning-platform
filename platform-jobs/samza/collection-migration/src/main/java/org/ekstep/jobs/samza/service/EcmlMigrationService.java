@@ -105,6 +105,8 @@ public class EcmlMigrationService {
         try {
 
             Map<String, Object> properties = new HashMap<>();
+            properties.put("objectType","Content");
+            properties.put("contentType","Asset");
             properties.put("migratedUrl", driveUrl);
             properties.put("status", new ArrayList<>());
             SearchDTO searchDto = new SearchDTO();
