@@ -631,19 +631,19 @@ public class ControllerUtil extends BaseLearningManager {
 //		startTime = System.currentTimeMillis();
         Response getList = getDataNodes(graphId, ids);
 //		System.out.println("Time to get required data nodes: " + (System.currentTimeMillis() - startTime));
-        if (!checkError(getList)) {
-            List<Node> nodeList = (List<Node>) getList.get("node_list");
-            Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
-                    (n, graphId, definition, fields)).map(contentMap -> {
-                contentMap.remove("collections");
-                contentMap.remove("children");
-                contentMap.remove("usedByContent");
-                contentMap.remove("item_sets");
-                contentMap.remove("methods");
-                contentMap.remove("libraries");
-                contentMap.remove("editorState");
-                return contentMap;
-            }).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
+		if (null != getList && !checkError(getList)) {
+			List<Node> nodeList = (List<Node>) getList.get("node_list");
+			Map<String, Map<String, Object>> contentsWithMetadata = nodeList.stream().map(n -> ConvertGraphNode.convertGraphNode
+					(n, graphId, definition, fields)).map(contentMap -> {
+				contentMap.remove("collections");
+				contentMap.remove("children");
+				contentMap.remove("usedByContent");
+				contentMap.remove("item_sets");
+				contentMap.remove("methods");
+				contentMap.remove("libraries");
+				contentMap.remove("editorState");
+				return contentMap;
+			}).collect(Collectors.toMap(e -> (String) e.get("identifier"), e -> e));
 
             contentList = contentList.stream().map(n -> {
                 n.putAll(contentsWithMetadata.get(n.get("identifier")));
@@ -652,16 +652,16 @@ public class ControllerUtil extends BaseLearningManager {
 //			startTime = System.currentTimeMillis();
             collectionHierarchy = contentCleanUp(constructHierarchy(contentList));
 //			System.out.println("Time to construct hierarchy: " + (System.currentTimeMillis() - startTime));
-        } else {
-            if (getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
-                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
-            } else {
-                throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
-            }
-        }
-        hierarchyCleanUp(collectionHierarchy);
-        return collectionHierarchy;
-    }
+		} else {
+			if (null != getList && getList.getResponseCode() == ResponseCode.CLIENT_ERROR) {
+				throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), getList.getParams().getErrmsg());
+			} else {
+				throw new ServerException(ContentAPIParams.SERVER_ERROR.name(), getList.getParams().getErrmsg());
+			}
+		}
+		hierarchyCleanUp(collectionHierarchy);
+		return collectionHierarchy;
+	}
 
 
     public List<String> getPublishedCollections(String graphId, int offset, int limit) {
