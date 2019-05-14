@@ -54,7 +54,6 @@ public class CassandraESSyncManager {
         Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
         if (MapUtils.isNotEmpty(hierarchy)) {
             List<Map<String, Object>> units = getUnitsMetadata(hierarchy, bookmarkIds);
-            System.out.println(units);
             if(CollectionUtils.isEmpty(bookmarkIds)) {
                 Map<String, Object> tbMetaData = getTBMetaData(resourceId);
                 if (MapUtils.isNotEmpty(tbMetaData))
@@ -63,6 +62,8 @@ public class CassandraESSyncManager {
             if (CollectionUtils.isNotEmpty(units)) {
                 List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
                 Map<String, Object> esDocs = getESDocuments(units);
+                System.out.println(esDocs.size());
+                esDocs.entrySet().forEach(entry -> System.out.println(entry));
                 if (MapUtils.isNotEmpty(esDocs))
                     pushToElastic(esDocs);
                 if (!CollectionUtils.isEmpty(failedUnits))
@@ -90,11 +91,12 @@ public class CassandraESSyncManager {
         }
         List<Map<String, Object>> childrenMaps = mapper.convertValue(hierarchy.get("children"), new TypeReference<List<Map<String, Object>>>() {
         });
-        return getUnitsToBeSynced(childrenMaps, bookmarkIds , flag);
+        List<Map<String, Object>> unitsMetadata = new ArrayList<>();
+        getUnitsToBeSynced(unitsMetadata,childrenMaps, bookmarkIds , flag);
+        return unitsMetadata;
     }
 
-    private List<Map<String, Object>> getUnitsToBeSynced(List<Map<String, Object>> children, List<String> bookmarkIds, Boolean flag) {
-        List<Map<String, Object>> unitsMetadata = new ArrayList<>();
+    private void getUnitsToBeSynced(List<Map<String, Object>> unitsMetadata, List<Map<String, Object>> children, List<String> bookmarkIds, Boolean flag) {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
                 if (child.containsKey("visibility")
@@ -103,12 +105,13 @@ public class CassandraESSyncManager {
                         unitsMetadata.add(child);
                     else if (bookmarkIds.contains(child.get("identifier")))
                         unitsMetadata.add(child);
-                    if (child.containsKey("children"))
-                        getUnitsToBeSynced((List<Map<String, Object>>) child.get("children"), bookmarkIds, flag);
+                    if (child.containsKey("children")) {
+                        List<Map<String,Object>> newChildren = mapper.convertValue(child.get("children"), new TypeReference<List<Map<String, Object>>>(){});
+                        getUnitsToBeSynced(unitsMetadata, newChildren , bookmarkIds, flag);
+                    }
                 }
             });
         }
-        return unitsMetadata;
     }
 
     private List<String> getFailedUnitIds(List<Map<String, Object>> units, List<String> bookmarkIds) {
@@ -150,7 +153,6 @@ public class CassandraESSyncManager {
                 esDocument.put( identifier , unit);
             });
         }
-        System.out.println(esDocument);
         return esDocument;
     }
 
