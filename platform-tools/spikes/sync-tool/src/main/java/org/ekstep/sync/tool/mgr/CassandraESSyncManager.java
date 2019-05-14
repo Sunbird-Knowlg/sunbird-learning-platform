@@ -37,33 +37,37 @@ public class CassandraESSyncManager {
     private final String objectType = "Content";
     private final String nodeType = "DATA_NODE";
 
+    private int batchSize ;
+
+
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
 
 
     @PostConstruct
     private void init() throws Exception {
+        batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
     }
 
     public void syncByBookmarkId(String graphId, String resourceId, List<String> bookmarkIds) {
         this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
         Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
         if (MapUtils.isNotEmpty(hierarchy)) {
-            List<Map<String, Object>> units = new ArrayList<>();
-            units.addAll(getUnitsMetadata(hierarchy, bookmarkIds));
-            List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
+            List<Map<String, Object>> units = getUnitsMetadata(hierarchy, bookmarkIds);
+            System.out.println(units);
+            if(CollectionUtils.isEmpty(bookmarkIds)) {
+                Map<String, Object> tbMetaData = getTBMetaData(resourceId);
+                if (MapUtils.isNotEmpty(tbMetaData))
+                    units.add(tbMetaData);
+            }
             if (CollectionUtils.isNotEmpty(units)) {
-                if(CollectionUtils.isEmpty(bookmarkIds)) {
-                    Map<String, Object> tbMetaData = getTBMetaData(resourceId);
-                    if (MapUtils.isNotEmpty(tbMetaData))
-                        units.add(tbMetaData);
-                }
+                List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
                 Map<String, Object> esDocs = getESDocuments(units);
                 if (MapUtils.isNotEmpty(esDocs))
                     pushToElastic(esDocs);
+                if (!CollectionUtils.isEmpty(failedUnits))
+                    printMessages("failed", failedUnits, resourceId);
             }
-            if (!CollectionUtils.isEmpty(failedUnits))
-                printMessages("failed", failedUnits, resourceId);
         } else
             System.out.println("Resource is not a Textbook or Textbook is not live");
     }
@@ -79,24 +83,28 @@ public class CassandraESSyncManager {
 
 
     public List<Map<String, Object>> getUnitsMetadata(Map<String, Object> hierarchy, List<String> bookmarkIds) {
-        if(CollectionUtils.isEmpty(bookmarkIds))
+        Boolean flag = false;
+        if(CollectionUtils.isEmpty(bookmarkIds)) {
             System.out.println("The whole TextBook will be synced");
+            flag = true;
+        }
         List<Map<String, Object>> childrenMaps = mapper.convertValue(hierarchy.get("children"), new TypeReference<List<Map<String, Object>>>() {
         });
-        return getUnitsToBeSynced(childrenMaps, bookmarkIds);
+        return getUnitsToBeSynced(childrenMaps, bookmarkIds , flag);
     }
 
-    private List<Map<String, Object>> getUnitsToBeSynced(List<Map<String, Object>> children, List<String> bookmarkIds) {
+    private List<Map<String, Object>> getUnitsToBeSynced(List<Map<String, Object>> children, List<String> bookmarkIds, Boolean flag) {
         List<Map<String, Object>> unitsMetadata = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
-                if (child.containsKey("children") && child.containsKey("visibility")
-                        && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "Parent")) {
-                    if (CollectionUtils.isEmpty(bookmarkIds))
+                if (child.containsKey("visibility")
+                        && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "parent")) {
+                    if (flag)
                         unitsMetadata.add(child);
                     else if (bookmarkIds.contains(child.get("identifier")))
                         unitsMetadata.add(child);
-                    getUnitsToBeSynced((List<Map<String, Object>>) child.get("children"), bookmarkIds);
+                    if (child.containsKey("children"))
+                        getUnitsToBeSynced((List<Map<String, Object>>) child.get("children"), bookmarkIds, flag);
                 }
             });
         }
@@ -120,6 +128,9 @@ public class CassandraESSyncManager {
         Node node = util.getNode(graphId, textBookId);
         if (RequestValidatorUtil.isEmptyOrNull(node))
             throw new ClientException("RESOURCE_NOT_FOUND", "Enter a Valid Textbook id");
+        String status = (String) node.getMetadata().get("status");
+        if (StringUtils.isNotEmpty(status) && (!StringUtils.equalsIgnoreCase(status,"live")))
+            throw new ClientException("RESOURCE_NOT_FOUND", "Text book must be live");
         return ConvertGraphNode.convertGraphNode(node,graphId,util.getDefinition(graphId,objectType),null);
     }
 
@@ -132,18 +143,20 @@ public class CassandraESSyncManager {
         if (objectTypeList.contains(objectType)) {
             indexablePropslist = getIndexableProperties(definition);
             units.forEach(unit -> {
+                String identifier = (String) unit.get("identifier");
                 if (CollectionUtils.isNotEmpty(indexablePropslist))
                     filterIndexableProps(unit, indexablePropslist);
-                putAdditionalFields(unit);
-                esDocument.put((String) unit.get("identifier"), unit);
+                putAdditionalFields(unit, identifier);
+                esDocument.put( identifier , unit);
             });
         }
+        System.out.println(esDocument);
         return esDocument;
     }
 
-    private void putAdditionalFields(Map<String, Object> unit) {
+    private void putAdditionalFields(Map<String, Object> unit, String identifier) {
         unit.put("graph_id", graphId);
-        unit.put("identifier", (String) unit.get("identifier"));
+        unit.put("identifier", identifier);
         unit.put("objectType", objectType);
         unit.put("nodeType", nodeType);
     }
