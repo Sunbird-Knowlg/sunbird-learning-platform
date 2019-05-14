@@ -1,0 +1,13 @@
+- hosts: learning-neo4j-node1
+  become: yes
+  become_user: "{{learner_user}}"
+  vars_files:
+    - "{{inventory_dir}}/secrets.yml"
+  tasks:
+    - name: copy jar file
+      copy: src=size-migration-0.0.1-SNAPSHOT-jar-with-dependencies.jar  dest=/home/learning mode=0755 
+  
+    - name: run jar file
+      shell: nohup java -jar size-migration-0.0.1-SNAPSHOT-jar-with-dependencies.jar &
+      args:
+        chdir: /home/learning/
