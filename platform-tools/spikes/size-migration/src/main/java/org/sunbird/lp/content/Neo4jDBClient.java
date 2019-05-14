@@ -34,7 +34,7 @@ import java.util.Map.Entry;
  *
  */
 public class Neo4jDBClient {
-
+	
 	private final Driver driver;
 	private StatementResult result;
 	/**
@@ -42,6 +42,12 @@ public class Neo4jDBClient {
 	 */
 	private ArrayNode contentArrayNode = JsonNodeFactory.instance.arrayNode();
 	private Map<String, Content> contentMap ;//= new HashMap<String, Content>();
+	/**
+	 * Holds the info for content id that are failed and could not get updated
+	 * It holds mapping for the contentId and respective error message
+	 */
+	private Map<String, String> failedContentsWithErrorMap = new HashMap<String, String>();
+
 
 	/**
 	 * @param uri
@@ -119,7 +125,6 @@ public class Neo4jDBClient {
 											+ "SET n.size = $size " /* + "RETURN n.IL_UNIQUE_ID, n.size " */,
 									parameters("id", content.getValue().getContentId(), "size",
 											content.getValue().getContentSize()));
-							//System.out.println("print resutt "+result);
 						}
 						return "";
 
@@ -194,30 +199,37 @@ public class Neo4jDBClient {
 			while (result.hasNext()) {
 				Record record = result.next();
 				String cId = record.get("contentId").asString();
-				String dUrl = record.get("downloadUrl").asString();
-				String aUrl = record.get("artifactUrl").asString();
+				
+				if(!failedContentsWithErrorMap.containsKey(cId)) { 
+					
+					String dUrl = record.get("downloadUrl").asString();
+					String aUrl = record.get("artifactUrl").asString();
 
-				Content content = new Content(cId, aUrl);
-				content.setDownloadUrl(dUrl);
+					Content content = new Content(cId, aUrl);
+					content.setDownloadUrl(dUrl);
 
-				String artifactUrl = !content.getArifactUrl().equals("null") ? content.getArifactUrl()
-						: content.getDownloadUrl();
-				// if artifactUrl present or downloadUrl is present, is use to get the size
-				try {
-					if (artifactUrl != null && !artifactUrl.isEmpty() && !artifactUrl.equals("null")) {
-						double size = getContentSize(artifactUrl); // gets content's size from header
-						content.setContentSize(size);
-						contentArrayNode.add(content.asJson());
-						contentMap.put(cId, content);
+					String artifactUrl = !content.getArifactUrl().equals("null") ? content.getArifactUrl()
+							: content.getDownloadUrl();
+					// if artifactUrl present or downloadUrl is present, is use to get the size
+					try {
+						if (artifactUrl != null && !artifactUrl.isEmpty() && !artifactUrl.equals("null")) {
+							double size = getContentSize(artifactUrl); // gets content's size from header
+							content.setContentSize(size);
+							contentArrayNode.add(content.asJson());
+							contentMap.put(cId, content);
 
-					} else {
-						System.out.println(content.getContentId()
-								+ ": artifactUrl, downloadUrl both are empty, so size could not be updated ");
+						} else {
+							System.out.println(content.getContentId()
+									+ ": artifactUrl, downloadUrl both are empty, so size could not be updated ");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						failedContentsWithErrorMap.put(cId, e.getMessage());
+						System.out.println("Exception occured for Content-" + content.getContentId() + ": " + e.getMessage());
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.out
-							.println("Exception occured for Content-" + content.getContentId() + ": " + e.getMessage());
+	
+				} else {
+					System.out.println("contentId: "+cId+" in previous batch was failed");
 				}
 
 			}
@@ -225,40 +237,6 @@ public class Neo4jDBClient {
 
 	}
 	
-	private void populateContentsSize() throws JsonGenerationException, JsonMappingException, IOException {
-		if (result != null) {
-			while (result.hasNext()) {
-				Record record = result.next();
-				String cId = record.get("contentId").asString();
-				String dUrl = record.get("downloadUrl").asString();
-				String aUrl = record.get("artifactUrl").asString();
-				float sizeStr = record.get("contentSize").asFloat();
-
-				Content content = new Content(cId, aUrl);
-				content.setDownloadUrl(dUrl);
-
-				try {
-					double size = new Double(sizeStr); // gets content's size from header
-					content.setContentSize(size);
-					contentArrayNode.add(content.asJson());
-					contentMap.put(cId, content);
-					/*
-					 * if (sizeStr . ) {
-					 * 
-					 * 
-					 * } else { System.out.println(content.getContentId() +
-					 * ": size empty, so size could not be updated "); }
-					 */
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.out
-							.println("Exception occured for Content-" + content.getContentId() + ": " + e.getMessage());
-				}
-
-			}
-		}
-
-	}
 
 	/**
 	 * Execute fetching the contents for DB and populating to Content model
@@ -298,4 +276,9 @@ public class Neo4jDBClient {
 		String contentLength = response.getHeaders().get("Content-Length").iterator().next();
 		return new Double(contentLength);
 	}
+	
+	public Map<String,String> getFailedContentsMap() {
+		return failedContentsWithErrorMap;
+	}
+	
 }
