@@ -236,6 +236,15 @@ public class EcmlMigrationService {
             throw new ClientException(ECML_MIGRATION_FAILED, "ECML Body update was not possible");
     }
 
+    public void ecmlOldBodyUpdate(String contentBody, String contentId) throws Exception {
+        if (StringUtils.isNotBlank(contentBody)) {
+            Response response = util.updateContentOldBody(contentId, contentBody);
+            if (response.getResponseCode() != ResponseCode.OK)
+                throw new ClientException(ECML_MIGRATION_FAILED, "Cassandra Old Body update failed");
+        } else
+            throw new ClientException(ECML_MIGRATION_FAILED, "ECML Old Body update was not possible");
+    }
+
     public void updateEcmlNode(List<Node> nodes) throws Exception {
         Map<String, Object> newMetaData = new HashMap<>();
         newMetaData.put(VERSION, VERSION_NUM);

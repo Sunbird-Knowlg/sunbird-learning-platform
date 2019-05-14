@@ -40,6 +40,11 @@ public class ContentStoreActor extends BaseGraphManager {
 				String body = (String) request.get(ContentStoreParams.body.name());
 				contentStore.updateContentBody(contentId, body);
 				OK(sender());
+			}else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.updateContentOldBody.name(), operation)) {
+				String contentId = (String) request.get(ContentStoreParams.content_id.name());
+				String body = (String) request.get(ContentStoreParams.body.name());
+				contentStore.updateContentOldBody(contentId, body);
+				OK(sender());
 			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getContentBody.name(), operation)) {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				String body = contentStore.getContentBody(contentId);
