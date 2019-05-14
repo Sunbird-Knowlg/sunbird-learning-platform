@@ -1,9 +1,7 @@
 package org.ekstep.taxonomy.util;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Map;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.util.YouTubeUrlUtil;
@@ -24,8 +22,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test Cases for YouTube Service
@@ -38,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
+public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 
 	@Autowired
 	private IContentManager contentManager;
@@ -196,5 +195,31 @@ public class YouTubeDataAPIV3ServiceTest extends GraphEngineTestSetup {
 		String artifactUrl = "https://youtu.be/WM4ys_PnrUY";
 		String result = YouTubeUrlUtil.getLicense(artifactUrl);
 		assertEquals("youtube", result);
+	}
+
+	// get thumbnail for youtube video
+	@Test
+	public void tesGetVideoInfoExpectThumbnail() throws Exception {
+		String videoUrl = "https://youtu.be/WM4ys_PnrUY";
+		Map<String, Object> result = YouTubeUrlUtil.getVideoInfo(videoUrl, "snippet", "thumbnail");
+		assertEquals("https://i.ytimg.com/vi/WM4ys_PnrUY/mqdefault.jpg", (String) result.get("thumbnail"));
+	}
+
+	// get video duration for youtube video
+	@Test
+	public void tesGetVideoInfoExpectDuration() throws Exception {
+		String videoUrl = "https://youtu.be/WM4ys_PnrUY";
+		Map<String, Object> result = YouTubeUrlUtil.getVideoInfo(videoUrl, "contentDetails", "duration");
+		assertEquals("1918", (String) result.get("duration"));
+	}
+
+	// get multiple information about youtube video
+	@Test
+	public void tesGetVideoInfoExpectMultipleData() throws Exception {
+		String videoUrl = "https://youtu.be/WM4ys_PnrUY";
+		Map<String, Object> result = YouTubeUrlUtil.getVideoInfo(videoUrl, "status,snippet,contentDetails", "license", "thumbnail", "duration");
+		assertEquals("youtube", (String) result.get("license"));
+		assertEquals("https://i.ytimg.com/vi/WM4ys_PnrUY/mqdefault.jpg", (String) result.get("thumbnail"));
+		assertEquals("1918", (String) result.get("duration"));
 	}
 }
