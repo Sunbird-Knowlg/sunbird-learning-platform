@@ -244,8 +244,8 @@ public class CollectionMigrationService implements ISamzaService {
     }
 
     private void migrateECML(Map<String, Object> message, JobMetrics metrics, Map<String, Object> object) {
+        String contentId = (String) object.get("id");
         try {
-            String contentId = (String) object.get("id");
             //Get both the image and original node if exists
             Boolean isImage = false;
             Node ecmlNode = util.getNode("domain", contentId);
@@ -284,6 +284,11 @@ public class CollectionMigrationService implements ISamzaService {
                     migrationService.updateEcmlNode(nodesForUpdate);
                     return;
                 }
+                //Update the old body to store current body
+                if (isImage)
+                    migrationService.ecmlOldBodyUpdate(imageContentBody, contentId + ".img");
+                migrationService.ecmlOldBodyUpdate(contentBody, contentId);
+
                 //Get all the contents whose drive urls don't have an existing asset
                 Set<String> contentUrlsWithNoAsset = new HashSet<>();
                 Map<String, String> driveArtifactMap = new HashMap();
@@ -324,7 +329,7 @@ public class CollectionMigrationService implements ISamzaService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage() + " for content id : " +contentId, e);
         }
     }
 

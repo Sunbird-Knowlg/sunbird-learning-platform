@@ -240,6 +240,16 @@ public class ControllerUtil extends BaseLearningManager {
         return response;
     }
 
+    public Response updateContentOldBody(String contentId, String ecmlBody) {
+        Request request = new Request();
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+        request.setOperation(ContentStoreOperations.updateContentOldBody.name());
+        request.put(ContentStoreParams.content_id.name(), contentId);
+        request.put(ContentStoreParams.body.name(), ecmlBody);
+        Response response = getResponse(request, LearningRequestRouterPool.getRequestRouter());
+        return response;
+    }
+
     public Response getContentProperties(String contentId, List<String> properties) {
         Request request = new Request();
         request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
