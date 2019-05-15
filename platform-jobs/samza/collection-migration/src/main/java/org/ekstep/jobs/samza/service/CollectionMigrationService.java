@@ -321,6 +321,7 @@ public class CollectionMigrationService implements ISamzaService {
                         migrationService.ecmlBodyUpdate(imageContentBody, contentId + ".img", driveArtifactMap);
                     migrationService.ecmlBodyUpdate(contentBody, contentId, driveArtifactMap);
                     migrationService.updateEcmlNode(nodesForUpdate);
+                    LOGGER.info("Migration is successful for id : " + contentId);
                 } else
                     throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Drive Urls are not valid or No Assets found");
             } else {
