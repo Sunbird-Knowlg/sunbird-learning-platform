@@ -61,7 +61,7 @@
             "indexed": true,
             "draft": false
         }, {
-            "required": true,
+            "required": false,
             "dataType": "Text",
             "propertyName": "template_id",
             "title": "Template Id",
@@ -822,6 +822,73 @@
           "defaultValue": "",
           "renderingHints": "",
           "indexed": true
+        },
+        {
+            "required": false,
+            "dataType": "List",
+            "propertyName": "solutions",
+            "title": "Solutions",
+            "description": "R2.0",
+            "category": "General",
+            "displayProperty": "Editable",
+            "range": null,
+            "defaultValue": "",
+            "renderingHints": "",
+            "indexed": true,
+            "draft": false,
+            "rangeValidation": true
+        },
+        {
+            "required": false,
+            "dataType": "Text",
+            "propertyName": "templateId",
+            "title": "TemplateId",
+            "description": "QuML: Id of the Template/Layout used to render this item",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        },
+        {
+            "required": false,
+            "dataType": "Number",
+            "propertyName": "maxScore",
+            "title": "Maximum Score",
+            "description": "QuML: Maximum possible score for this item",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'number', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        },
+        {
+            "required": false,
+            "dataType": "Text",
+            "propertyName": "programId",
+            "title": "ProgramId",
+            "description": "QuML: Id of the Program",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        },
+        {
+            "required": false,
+            "dataType": "Text",
+            "propertyName": "program",
+            "title": "Program",
+            "description": "QuML: Program",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+            "indexed": true,
+            "draft": false
         }
         ],
         "inRelations": [],
