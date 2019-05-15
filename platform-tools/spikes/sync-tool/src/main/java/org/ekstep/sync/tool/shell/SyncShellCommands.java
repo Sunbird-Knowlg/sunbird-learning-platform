@@ -43,16 +43,16 @@ public class SyncShellCommands implements CommandMarker {
 	@CliCommand(value = "syncbybookmarkids", help = "Sync units from cassandra to Elastic Search by Id(s)")
 	public void syncByBookmark(@CliOption(key = {
 			"graphId"}, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
-							   @CliOption(key = {"id"}, mandatory = true, help = "Unique Id of node object") final String id,
+							   @CliOption(key = {"id","ids"}, mandatory = true, help = "Unique Id of node object") final String[] ids,
 							   @CliOption(key = {"bookmarkId", "bookmarkIds"}, mandatory = false, help = "Unique Id of node object") final String[] bookmarkIds)
 			throws Exception {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
 		if(bookmarkIds != null)
-			syncManager.syncByBookmarkId(graphId, id, new ArrayList<>(Arrays.asList(bookmarkIds)));
+			syncManager.syncAllIds(graphId, new ArrayList<>(Arrays.asList(ids)), new ArrayList<>(Arrays.asList(bookmarkIds)));
 		else
-			syncManager.syncByBookmarkId(graphId, id, null);
+			syncManager.syncAllIds(graphId, new ArrayList<>(Arrays.asList(ids)), null);
 
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;

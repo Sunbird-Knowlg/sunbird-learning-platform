@@ -37,8 +37,6 @@ public class CassandraESSyncManager {
     private final String objectType = "Content";
     private final String nodeType = "DATA_NODE";
 
-    private int batchSize ;
-
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
@@ -46,10 +44,25 @@ public class CassandraESSyncManager {
 
     @PostConstruct
     private void init() throws Exception {
-        batchSize = Platform.config.hasPath("batch.size") ? Platform.config.getInt("batch.size"): 50;
     }
 
-    public void syncByBookmarkId(String graphId, String resourceId, List<String> bookmarkIds) {
+    public void syncAllIds(String graphId, List<String> resourceIds, List<String> bookmarkIds) {
+        if(CollectionUtils.isNotEmpty(resourceIds)) {
+            if(CollectionUtils.size(resourceIds) > 1) {
+                if(CollectionUtils.isNotEmpty(bookmarkIds))
+                    System.out.println("Bookmark Id's shouldn't be provided for Multiple textbooks");
+                resourceIds.forEach(textbook->{
+                    Boolean flag = syncByBookmarkId(graphId, textbook, null);
+                        System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
+                });
+            } else
+                resourceIds.forEach(textbook->{
+                    Boolean flag = syncByBookmarkId(graphId, textbook, bookmarkIds);
+                    System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
+                });        }
+    }
+
+    public Boolean syncByBookmarkId(String graphId, String resourceId, List<String> bookmarkIds) {
         this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
         Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
         if (MapUtils.isNotEmpty(hierarchy)) {
@@ -66,11 +79,16 @@ public class CassandraESSyncManager {
                 esDocs.entrySet().forEach(entry -> System.out.println(entry));
                 if (MapUtils.isNotEmpty(esDocs))
                     pushToElastic(esDocs);
-                if (!CollectionUtils.isEmpty(failedUnits))
+                if (!CollectionUtils.isEmpty(failedUnits)) {
                     printMessages("failed", failedUnits, resourceId);
+                    return false;
+                }
             }
-        } else
+        } else {
             System.out.println("Resource is not a Textbook or Textbook is not live");
+            return false;
+        }
+        return true;
     }
 
 
@@ -134,7 +152,10 @@ public class CassandraESSyncManager {
         String status = (String) node.getMetadata().get("status");
         if (StringUtils.isNotEmpty(status) && (!StringUtils.equalsIgnoreCase(status,"live")))
             throw new ClientException("RESOURCE_NOT_FOUND", "Text book must be live");
-        return ConvertGraphNode.convertGraphNode(node,graphId,util.getDefinition(graphId,objectType),null);
+        Map<String,Object> metadata = node.getMetadata();
+        metadata.put("identifier",node.getIdentifier());
+        metadata.put("nodeUniqueId",node.getId());
+        return metadata;
     }
 
     private Map<String, Object> getESDocuments(List<Map<String, Object>> units) {
@@ -180,7 +201,6 @@ public class CassandraESSyncManager {
             e.printStackTrace();
             System.out.println(e.getLocalizedMessage());
         }
-        System.out.println("Syncing data is a success");
     }
 
     private List<String> getIndexableProperties(Map<String, Object> definition) {
