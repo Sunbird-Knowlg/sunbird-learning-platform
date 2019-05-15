@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.ekstep.sync.tool.mgr.CassandraESSyncManager;
 import org.ekstep.sync.tool.mgr.ISyncManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +21,9 @@ public class SyncShellCommands implements CommandMarker {
 	@Qualifier("neo4jESSyncManager") 
 	ISyncManager indexSyncManager;
 
+	@Autowired
+	CassandraESSyncManager syncManager;
+
 	@CliCommand(value = "syncbyids", help = "Sync data from Neo4j to Elastic Search by Id(s)")
 	public void syncByIds(@CliOption(key = {
 			"graphId" }, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
@@ -30,6 +34,26 @@ public class SyncShellCommands implements CommandMarker {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
 		indexSyncManager.syncByIds(graphId, new ArrayList<>(Arrays.asList(ids)));
+		long endTime = System.currentTimeMillis();
+		long exeTime = endTime - startTime;
+		System.out.println("Total time of execution: " + exeTime + "ms");
+		LocalDateTime end = LocalDateTime.now();
+		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
+	}
+	@CliCommand(value = "syncbybookmarkids", help = "Sync units from cassandra to Elastic Search by Id(s)")
+	public void syncByBookmark(@CliOption(key = {
+			"graphId"}, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
+							   @CliOption(key = {"id"}, mandatory = true, help = "Unique Id of node object") final String id,
+							   @CliOption(key = {"bookmarkId", "bookmarkIds"}, mandatory = false, help = "Unique Id of node object") final String[] bookmarkIds)
+			throws Exception {
+		long startTime = System.currentTimeMillis();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime start = LocalDateTime.now();
+		if(bookmarkIds != null)
+			syncManager.syncByBookmarkId(graphId, id, new ArrayList<>(Arrays.asList(bookmarkIds)));
+		else
+			syncManager.syncByBookmarkId(graphId, id, null);
+
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");
