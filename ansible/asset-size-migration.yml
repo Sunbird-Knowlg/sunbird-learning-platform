@@ -8,6 +8,6 @@
       copy: src=size-migration-0.0.1-SNAPSHOT-jar-with-dependencies.jar  dest=/home/learning mode=0755 
   
     - name: run jar file
-      shell: nohup java -jar size-migration-0.0.1-SNAPSHOT-jar-with-dependencies.jar &
+      shell: nohup java -jar size-migration-0.0.1-SNAPSHOT-jar-with-dependencies.jar 500 &
       args:
         chdir: /home/learning/
