@@ -2963,6 +2963,32 @@
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "baseUrl",
+					"title": "Base Url of Instanse",
+					"description": "R-1.15_baseUrl-VR",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "topicData",
+					"title": "Topic Data",
+					"description": "R-1.15_topicData-VR",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
