@@ -13,7 +13,7 @@
 #   include: java.yml
 #   when: es_java_install
 #   tags:
-#       - java
+#       - jdk-1.8.0_121
 
 - name: include elasticsearch.yml
   include: elasticsearch.yml

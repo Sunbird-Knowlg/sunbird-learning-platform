@@ -28,7 +28,7 @@
       file: path={{ item }} state=directory mode=0775 owner={{learner_user}} group={{learner_user}}
       with_items: "{{ learnings.paths }}"
   roles:
-    - java
+    - jdk-1.8.0_121
     - tomcat
     - ffmpeg
     - imagemagick

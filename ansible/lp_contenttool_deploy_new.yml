@@ -4,7 +4,7 @@
   vars_files:
        - ['{{inventory_dir}}/secrets.yml']
   roles:
-    - java
+    - jdk-1.8.0_121
     - lp-contenttool
   tags: 
     - provision

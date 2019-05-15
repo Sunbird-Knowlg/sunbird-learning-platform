@@ -24,7 +24,7 @@
   vars_files:
     - "{{inventory_dir}}/secrets/lp_secrets.yml"
   roles:
-    - java
+    - jdk-1.8.0_121
     - yarn
     - samza-job-server
 
@@ -48,4 +48,4 @@
     - "{{inventory_dir}}/secrets/lp_secrets.yml"
   remote_user: hduser
   roles:
-    - java
+    - jdk-1.8.0_121
