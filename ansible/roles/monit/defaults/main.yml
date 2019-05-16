@@ -1,0 +1,6 @@
+---
+user: root
+group: root
+slack_channel: 
+slack_user: Monit
+slack_web_hook: 
