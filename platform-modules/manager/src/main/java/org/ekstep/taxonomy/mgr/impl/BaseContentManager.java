@@ -260,6 +260,19 @@ public abstract class BaseContentManager extends BaseManager {
         }
         return response;
     }
+    
+    protected Response createDataNodeWithNoValidation(Node node) {
+        Response response = new Response();
+        if (null != node) {
+            Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
+            request.put(GraphDACParams.node.name(), node);
+            request.put(GraphDACParams.skip_validations.name(), true);
+
+            TelemetryManager.log("Creating the Node ID without validation: " + node.getIdentifier());
+            response = getResponse(request);
+        }
+        return response;
+    }
 
     protected void restrictProps(DefinitionDTO definition, Map<String, Object> map, String... props) {
         for (String prop : props) {

@@ -459,7 +459,7 @@ public class DataNode extends AbstractNode {
 		if (validObjectTypes.contains(objectType)) {
 			Set<String> properties = defs.stream().map(MetadataDefinition::getPropertyName).collect(toSet());
 			metadata.keySet().forEach(e  -> {
-				if (!properties.contains(e) && !SystemProperties.isSystemProperty(e)) invalidProps.add(e);
+				if (!properties.contains(e) && !SystemProperties.isSystemProperty(e) && (metadata.get(e)!=null)) invalidProps.add(e);
 			});
 			if (!invalidProps.isEmpty()) messages.add("Invalid Properties : " + invalidProps.toString());
 		}
