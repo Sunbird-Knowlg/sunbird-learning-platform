@@ -4,3 +4,84 @@ group: root
 slack_channel: 
 slack_user: Monit
 slack_web_hook: 
+
+monit_logstash_lp:
+  app_name: logstash
+  custom_start: /usr/sbin/service logstash start
+  custom_stop: /usr/sbin/service logstash stop
+  retry: 3
+
+monit_tomcat_lp:
+  app_name: tomcat
+  script_path: "/etc/init.d/tomcat"
+  pid_file: ""
+  timeout: "30"
+  retry: 3
+
+monit_search_lp:
+  app_name: search
+  pid_file: /home/learning/platform/service/search-service.pid
+  custom_start: /home/learning/platform/service/search-service start
+  custom_stop: /home/learning/platform/service/search-service stop
+  user: learning
+  group: learning
+  retry: 3
+
+monit_yarn_master:
+  app_name: resourcemanager
+  custom_start: /usr/local/hadoop/sbin/yarn-daemon.sh start resourcemanager
+  custom_stop: /usr/local/hadoop/bin/kill_jobs.sh && sleep 10 && bash /usr/local/hadoop/sbin/yarn-daemon.sh stop resourcemanager
+  retry: 3
+  user: hduser
+  group: hadoop
+
+monit_yarn_slave:
+  app_name: nodemanager
+  custom_start: /usr/local/hadoop/sbin/yarn-daemon.sh start nodemanager
+  timeout: 20
+  custom_stop: /usr/local/hadoop/sbin/yarn-daemon.sh stop nodemanager
+  user: hduser
+  group: hadoop
+  retry: 3
+
+monit_cs-node-1_elasticsearch:
+  app_name: cs-node-1_elasticsearch
+  grep_string: elasticsearch
+  custom_start: /usr/sbin/service cs-node-1_elasticsearch start
+  custom_stop: /usr/sbin/service cs-node-1_elasticsearch stop
+  retry: 3
+
+monit_cs-node-2_elasticsearch:
+  app_name: cs-node-2_elasticsearch
+  grep_string: elasticsearch
+  custom_start: /usr/sbin/service cs-node-2_elasticsearch start
+  custom_stop: /usr/sbin/service cs-node-2_elasticsearch stop
+  retry: 3
+
+monit_cs-node-3_elasticsearch:
+  app_name: cs-node-3_elasticsearch
+  grep_string: elasticsearch
+  custom_start: /usr/sbin/service cs-node-3_elasticsearch start
+  custom_stop: /usr/sbin/service cs-node-3_elasticsearch stop
+  retry: 3
+
+monit_kafka:
+  app_name: kafka
+  custom_start: "/usr/sbin/service kafka start"
+  custom_stop: "/usr/sbin/service kafka stop"
+  timeout: "30"
+  retry: 3
+
+monit_zookeeper:
+  app_name: zookeeper
+  custom_start: "/usr/sbin/service zookeeper start"
+  custom_stop: "/usr/sbin/service zookeeper stop"
+  timeout: "30"
+  retry: 3
+
+monit_cassandra:
+  app_name: cassandra
+  custom_start: /usr/sbin/service cassandra start
+  custom_stop: /usr/sbin/service cassandra stop
+  timeout: "30"
+  retry: 3
