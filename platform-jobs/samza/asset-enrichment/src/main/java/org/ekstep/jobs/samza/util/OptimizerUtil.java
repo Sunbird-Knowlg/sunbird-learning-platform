@@ -1,17 +1,5 @@
 package org.ekstep.jobs.samza.util;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
-
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -32,6 +20,17 @@ import org.ekstep.learning.util.CloudStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.imgscalr.Scalr;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The Class OptimizerUtil functionality to optimiseImage operation for different resolutions.
@@ -209,25 +208,34 @@ public class OptimizerUtil {
 	 * @throws Exception Signals that an exception has occurred.
 	 */
 	private static File fetchThumbNail(String tempFolder, long numberOfFrames, FFmpegFrameGrabber frameGrabber) throws Exception {
-		BufferedImage  bufferedImage;
+		BufferedImage bufferedImage;
 		Java2DFrameConverter converter = new Java2DFrameConverter();
-		File thumbnail = null;
-		int colorCount = 0;
-		int numbeOfSampleThumbnails = 5;
-		for(int i=1; i<=numbeOfSampleThumbnails;i++) {
-			File inFile = new File(tempFolder+ File.separator + System.currentTimeMillis() + ".png");
-			File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
-	        frameGrabber.setFrameNumber((int)(numberOfFrames/numbeOfSampleThumbnails)*i	);
-	        bufferedImage = converter.convert(frameGrabber.grabImage());
-	        ImageIO.write(bufferedImage, "png", inFile);
-	        generateThumbNail(inFile, outFile);
-	        int tmpColorCount = getImageColor(outFile);
-	        if(colorCount<tmpColorCount) {
-	        		colorCount = tmpColorCount;
-	        		thumbnail = outFile;
-	        }
+		try {
+			File thumbnail = null;
+			int colorCount = 0;
+			int numbeOfSampleThumbnails = 5;
+			for (int i = 1; i <= numbeOfSampleThumbnails; i++) {
+				File inFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".png");
+				File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
+				frameGrabber.setFrameNumber((int) (numberOfFrames / numbeOfSampleThumbnails) * i);
+				try{
+					bufferedImage = converter.convert(frameGrabber.grabImage());
+					ImageIO.write(bufferedImage, "png", inFile);
+				}catch(Exception e){
+
+				}
+				generateThumbNail(inFile, outFile);
+				int tmpColorCount = getImageColor(outFile);
+				if (colorCount < tmpColorCount) {
+					colorCount = tmpColorCount;
+					thumbnail = outFile;
+				}
+			}
+			return thumbnail;
+		} catch (Throwable e) {
+			LOGGER.error("Something Went Wrong While generating thumbnail for video", e);
+			throw new ClientException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Video Enrichment Failed. Please check and upload it again");
 		}
-		return thumbnail;
 	}
 	
 	private static void generateThumbNail(File inFile, File outFile) throws Exception {
