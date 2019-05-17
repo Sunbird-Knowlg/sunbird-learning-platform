@@ -210,32 +210,25 @@ public class OptimizerUtil {
 	private static File fetchThumbNail(String tempFolder, long numberOfFrames, FFmpegFrameGrabber frameGrabber) throws Exception {
 		BufferedImage bufferedImage;
 		Java2DFrameConverter converter = new Java2DFrameConverter();
-		try {
-			File thumbnail = null;
-			int colorCount = 0;
-			int numbeOfSampleThumbnails = 5;
-			for (int i = 1; i <= numbeOfSampleThumbnails; i++) {
-				File inFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".png");
-				File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
-				frameGrabber.setFrameNumber((int) (numberOfFrames / numbeOfSampleThumbnails) * i);
-				try{
-					bufferedImage = converter.convert(frameGrabber.grabImage());
-					ImageIO.write(bufferedImage, "png", inFile);
-				}catch(Exception e){
 
-				}
-				generateThumbNail(inFile, outFile);
-				int tmpColorCount = getImageColor(outFile);
-				if (colorCount < tmpColorCount) {
-					colorCount = tmpColorCount;
-					thumbnail = outFile;
-				}
+		File thumbnail = null;
+		int colorCount = 0;
+		int numbeOfSampleThumbnails = 5;
+		for (int i = 1; i <= numbeOfSampleThumbnails; i++) {
+			File inFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".png");
+			File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
+			frameGrabber.setFrameNumber((int) (numberOfFrames / numbeOfSampleThumbnails) * i);
+			bufferedImage = converter.convert(frameGrabber.grabImage());
+			ImageIO.write(bufferedImage, "png", inFile);
+			generateThumbNail(inFile, outFile);
+			int tmpColorCount = getImageColor(outFile);
+			if (colorCount < tmpColorCount) {
+				colorCount = tmpColorCount;
+				thumbnail = outFile;
 			}
-			return thumbnail;
-		} catch (Throwable e) {
-			LOGGER.error("Something Went Wrong While generating thumbnail for video", e);
-			throw new ClientException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Video Enrichment Failed. Please check and upload it again");
 		}
+		return thumbnail;
+
 	}
 	
 	private static void generateThumbNail(File inFile, File outFile) throws Exception {

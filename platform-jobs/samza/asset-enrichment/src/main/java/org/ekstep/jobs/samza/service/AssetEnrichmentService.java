@@ -137,7 +137,7 @@ public class AssetEnrichmentService implements ISamzaService {
 			}
 			String image_url = variantsMap.get(AssetEnrichmentEnums.medium.name());
 			processImage(image_url, variantsMap, node);
-		}catch(Throwable e) {
+		}catch(Exception e) {
 			LOGGER.info(
 					"Something Went Wrong While Performing Asset Enrichment operation. | [Content Id: "
 							+ node.getIdentifier() + "]",
@@ -148,7 +148,7 @@ public class AssetEnrichmentService implements ISamzaService {
 			if(checkError(res))
 				throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " +
 						node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
-
+			throw e;
 		}
 	}
 
@@ -277,9 +277,7 @@ public class AssetEnrichmentService implements ISamzaService {
 			if(checkError(res))
 				throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " +
 						node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
-			if(e instanceof ClientException){
-				throw e;
-			}
+			throw e;
 		}finally {
 			try {
 				deleteFolder(tempFolder);
@@ -302,11 +300,7 @@ public class AssetEnrichmentService implements ISamzaService {
 			}
 		} else {
 			File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
-			try{
-				OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
-			}catch (Throwable e){
-				LOGGER.error("Unable to enrich video for ccontent id : "+node.getIdentifier(),e);
-			}
+			OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
 		}
 		node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
 		Response res = util.updateNode(node);
