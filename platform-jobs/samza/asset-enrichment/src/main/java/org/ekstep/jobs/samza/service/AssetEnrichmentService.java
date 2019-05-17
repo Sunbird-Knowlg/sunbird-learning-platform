@@ -137,7 +137,7 @@ public class AssetEnrichmentService implements ISamzaService {
 			}
 			String image_url = variantsMap.get(AssetEnrichmentEnums.medium.name());
 			processImage(image_url, variantsMap, node);
-		}catch(Exception e) {
+		}catch(Throwable e) {
 			LOGGER.info(
 					"Something Went Wrong While Performing Asset Enrichment operation. | [Content Id: "
 							+ node.getIdentifier() + "]",
@@ -148,7 +148,7 @@ public class AssetEnrichmentService implements ISamzaService {
 			if(checkError(res))
 				throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " +
 						node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
-			throw e;
+
 		}
 	}
 

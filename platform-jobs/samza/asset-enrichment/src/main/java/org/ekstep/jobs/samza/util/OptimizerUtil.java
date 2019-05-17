@@ -218,8 +218,12 @@ public class OptimizerUtil {
 				File inFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".png");
 				File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
 				frameGrabber.setFrameNumber((int) (numberOfFrames / numbeOfSampleThumbnails) * i);
-				bufferedImage = converter.convert(frameGrabber.grabImage());
-				ImageIO.write(bufferedImage, "png", inFile);
+				try{
+					bufferedImage = converter.convert(frameGrabber.grabImage());
+					ImageIO.write(bufferedImage, "png", inFile);
+				}catch(Exception e){
+
+				}
 				generateThumbNail(inFile, outFile);
 				int tmpColorCount = getImageColor(outFile);
 				if (colorCount < tmpColorCount) {
