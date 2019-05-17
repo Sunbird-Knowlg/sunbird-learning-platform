@@ -13,13 +13,8 @@ public class JSONUtils {
 	
 	private static ObjectMapper mapper = new ObjectMapper();;
 
-	public static String serialize(Object object) {
-		try {
+	public static String serialize(Object object) throws Exception {
 			return mapper.writeValueAsString(object);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-		return "";
 	}
 	
 	public static void loadProperties(Config config){

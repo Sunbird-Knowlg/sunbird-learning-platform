@@ -15,17 +15,17 @@ public class JobLogger {
 		logger = LoggerFactory.getLogger(clazz);
 	}
 
-	public void debug(String msg, Map<String, Object> event) {
+	public void debug(String msg, Map<String, Object> event) throws Exception {
 		if (logger.isDebugEnabled())
 			debug(msg, JSONUtils.serialize(event));
 	}
 
-	public void info(String msg, Map<String, Object> event) {
+	public void info(String msg, Map<String, Object> event) throws Exception {
 		if (logger.isInfoEnabled())
 			info(msg, JSONUtils.serialize(event));
 	}
 
-	public void error(String msg, Map<String, Object> event, Throwable t) {
+	public void error(String msg, Map<String, Object> event, Throwable t) throws Exception {
 		if (logger.isErrorEnabled())
 			error(msg, JSONUtils.serialize(event), t);
 	}
