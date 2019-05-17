@@ -277,7 +277,9 @@ public class AssetEnrichmentService implements ISamzaService {
 			if(checkError(res))
 				throw new ServerException(AssetEnrichmentEnums.PROCESSING_ERROR.name(), "Error! While Updating the Metadata | [Content Id: " +
 						node.getIdentifier() + "] :: " + res.getParams().getErr() + " :: " + res.getParams().getErrmsg());
-			throw e;
+			if(e instanceof ClientException){
+				throw e;
+			}
 		}finally {
 			try {
 				deleteFolder(tempFolder);
@@ -300,7 +302,11 @@ public class AssetEnrichmentService implements ISamzaService {
 			}
 		} else {
 			File videoFile = HttpDownloadUtility.downloadFile(videoUrl, tempFolder);
-			OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
+			try{
+				OptimizerUtil.videoEnrichment(node, tempFolder, videoFile);
+			}catch (Throwable e){
+				LOGGER.error("Unable to enrich video for ccontent id : "+node.getIdentifier(),e);
+			}
 		}
 		node.getMetadata().put(AssetEnrichmentEnums.status.name(), AssetEnrichmentEnums.Live.name());
 		Response res = util.updateNode(node);
