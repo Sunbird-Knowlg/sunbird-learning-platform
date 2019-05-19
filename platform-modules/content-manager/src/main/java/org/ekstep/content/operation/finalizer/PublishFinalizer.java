@@ -159,7 +159,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-				unitNodes = getUnitFromLiveContent();
+				unitNodes = new ArrayList<>();
+				getUnitFromLiveContent(unitNodes);
 			}
 		}
 		node.setIdentifier(contentId);
@@ -354,79 +355,71 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 	
-	private List<String> getUnitFromLiveContent(){
-		Node liveContent = util.getNode(ContentWorkflowPipelineParams.domain.name(), contentId);
-		List<String> childNodes = null;
-		if(null != liveContent.getMetadata().get("childNodes")) {
-			childNodes = new ArrayList<>(Arrays.asList((String[])liveContent.getMetadata().get("childNodes")));
-			if(CollectionUtils.isNotEmpty(childNodes)) {
-				List<Relation> outRelations = liveContent.getOutRelations();
-				if(CollectionUtils.isNotEmpty(outRelations)) {
-					List<String> leafNodes = outRelations.stream().filter(rel -> StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SEQUENCE_MEMBERSHIP.name())).map(rel -> rel.getEndNodeId()).collect(Collectors.toList());
-					childNodes.removeAll(leafNodes);
-				}
-			}
+	private void getUnitFromLiveContent(List<String> unitNodes){
+		Map<String, Object> liveContentHierarchy = getHierarchy(contentId, false);
+		if(MapUtils.isNotEmpty(liveContentHierarchy)) {
+			List<Map<String, Object>> children = (List<Map<String, Object>>)liveContentHierarchy.get("children");
+			getUnitFromLiveContent(unitNodes, children);
 		}
-		return childNodes;
 	}
-	
-	/*private BoolQueryBuilder getDeleteIndexQuery(List<String> identifiers) throws Exception {
-		BoolQueryBuilder query = QueryBuilders.boolQuery();
-		for(String identifier : identifiers)
-			query.should(QueryBuilders.matchQuery("identifier.raw", identifier));
-		return query;
-	}*/
+	private void getUnitFromLiveContent(List<String> unitNodes, List<Map<String, Object>> children) {
+		if(CollectionUtils.isNotEmpty(children)) {
+			children.stream().forEach(child -> {
+				if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+                		unitNodes.add((String)child.get("identifier"));
+                		getUnitFromLiveContent(unitNodes, (List<Map<String, Object>>) child.get("children"));
+                }
+            });
+		}
+	}
 	
 	private void syncNodes(List<Map<String, Object>> children, List<String> unitNodes) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
-		List<String> nodeIds = new ArrayList<>();
-		List<Node> nodes = new ArrayList<>();
-		getNodeMap(children, nodes, nodeIds, definition);
-		if(!CollectionUtils.isEmpty(unitNodes))
-			unitNodes.removeAll(nodeIds);
-		
-		if (nodes.isEmpty())
-			return;
-
-		Map<String, String> errors;
-		
 		if (null == definition) {
 			TelemetryManager.error("Content definition is null.");
 		}
+		List<String> nodeIds = new ArrayList<>();
+		List<Node> nodes = new ArrayList<>();
+		getNodeForSyncing(children, nodes, nodeIds, definition);
+		if(CollectionUtils.isNotEmpty(unitNodes))
+			unitNodes.removeAll(nodeIds);
 		
+		if(CollectionUtils.isEmpty(nodes) && CollectionUtils.isEmpty(unitNodes))
+			return;
+
+		Map<String, String> errors;
 		org.codehaus.jackson.map.ObjectMapper o = new org.codehaus.jackson.map.ObjectMapper();
 		Map<String, Object> def =  o.convertValue(definition, new TypeReference<Map<String, Object>>() {});
 		Map<String, String> relationMap = GraphUtil.getRelationMap(ContentWorkflowPipelineParams.Content.name(), def);
-		//SyncMessageGenerator.definitionMap.put(ContentWorkflowPipelineParams.Content.name(), relationMap);
-		
-		while (!nodes.isEmpty()) {
-			int currentBatchSize = (nodes.size() >= batchSize) ? batchSize : nodes.size();
-			List<Node> nodeBatch = nodes.subList(0, currentBatchSize);
-
-			if (CollectionUtils.isNotEmpty(nodeBatch)) {
-				
-				errors = new HashMap<>();
-				Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, ContentWorkflowPipelineParams.Content.name(), relationMap, errors);
-				if (!errors.isEmpty())
-					TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
-				if(MapUtils.isNotEmpty(messages)) {
-					try {
-						ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
-					} catch (Exception e) {
-						TelemetryManager.error("Elastic Search indexing failed: " + e);
-					}					
-				}
-				if(!CollectionUtils.isEmpty(unitNodes)) {
-					try {
-						ElasticSearchUtil.bulkDeleteDocumentById(ES_INDEX_NAME, DOCUMENT_TYPE, unitNodes);
-					} catch (Exception e) {
-						TelemetryManager.error("Elastic Search indexing failed: " + e);
+		if(CollectionUtils.isNotEmpty(nodes)) {
+			while (!nodes.isEmpty()) {
+				int currentBatchSize = (nodes.size() >= batchSize) ? batchSize : nodes.size();
+				List<Node> nodeBatch = nodes.subList(0, currentBatchSize);
+	
+				if (CollectionUtils.isNotEmpty(nodeBatch)) {
+					
+					errors = new HashMap<>();
+					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Content.name(), relationMap, errors);
+					if (!errors.isEmpty())
+						TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
+					if(MapUtils.isNotEmpty(messages)) {
+						try {
+							ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
+						} catch (Exception e) {
+							TelemetryManager.error("Elastic Search indexing failed: " + e);
+						}					
 					}
 				}
-
+				// clear the already batched node ids from the list
+				nodes.subList(0, currentBatchSize).clear();
 			}
-			// clear the already batched node ids from the list
-			nodes.subList(0, currentBatchSize).clear();
+		}
+		try {
+			//Unindexing not utilized units
+			if(CollectionUtils.isNotEmpty(unitNodes))
+				ElasticSearchUtil.bulkDeleteDocumentById(ES_INDEX_NAME, DOCUMENT_TYPE, unitNodes);
+		} catch (Exception e) {
+			TelemetryManager.error("Elastic Search indexing failed: " + e);
 		}
 	}
 	
@@ -486,9 +479,47 @@ public class PublishFinalizer extends BaseFinalizer {
                     		nodeIds.add(node.getIdentifier());
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                		TelemetryManager.error("Error while generating node map. ", e);
                 }
                 getNodeMap((List<Map<String, Object>>) child.get("children"), nodes, nodeIds, definition);
+            });
+        }
+    }
+	
+	private void getNodeForSyncing(List<Map<String, Object>> children, List<Node> nodes, List<String> nodeIds, DefinitionDTO definition) {
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.stream().forEach(child -> {
+                Node node = null;
+                try {
+                    if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+                    		Map<String, Object> childData = new HashMap<>();
+                        childData.putAll(child);
+                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
+                        childData.remove("children");
+                        node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+                        List<String> finalChildList = new ArrayList<>();
+						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
+								String identifier = (String)nextLevelNode.get("identifier");
+								return identifier;
+							}).collect(Collectors.toList());
+						}
+						node.getMetadata().put("children", finalChildList);
+                        if(StringUtils.isBlank(node.getObjectType()))
+                        		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
+                        if(StringUtils.isBlank(node.getGraphId()))
+                        		node.setGraphId(ContentWorkflowPipelineParams.domain.name());
+                        if(!nodeIds.contains(node.getIdentifier())) {
+                    			nodes.add(node);
+                    			nodeIds.add(node.getIdentifier());
+                        }
+                        getNodeForSyncing((List<Map<String, Object>>) child.get("children"), nodes, nodeIds, definition);
+                    }
+                    
+                } catch (Exception e) {
+                	TelemetryManager.error("Error while fetching unit nodes for syncing. ", e);
+                }
+                
             });
         }
     }
