@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.253</version>
+			<version>0.0.254</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
