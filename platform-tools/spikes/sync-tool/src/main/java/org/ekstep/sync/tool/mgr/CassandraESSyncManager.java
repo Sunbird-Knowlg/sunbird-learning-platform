@@ -11,7 +11,6 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
-import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.util.RequestValidatorUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -27,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class CassandraESSyncManager {
@@ -36,6 +36,7 @@ public class CassandraESSyncManager {
     private String graphId;
     private final String objectType = "Content";
     private final String nodeType = "DATA_NODE";
+    Map<String, Object> definition = getDefinition();
 
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
@@ -68,23 +69,27 @@ public class CassandraESSyncManager {
             Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
             if (MapUtils.isNotEmpty(hierarchy)) {
                 List<Map<String, Object>> units = getUnitsMetadata(hierarchy, bookmarkIds);
-                if (CollectionUtils.isEmpty(bookmarkIds)) {
+                
+                // Textbook should not be synced here.
+                /*if (CollectionUtils.isEmpty(bookmarkIds)) {
                     Map<String, Object> tbMetaData = getTBMetaData(resourceId);
                     if (MapUtils.isNotEmpty(tbMetaData))
                         units.add(tbMetaData);
-                }
+                }*/
                 if (CollectionUtils.isNotEmpty(units)) {
                     List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
                     Map<String, Object> esDocs = getESDocuments(units);
-                    if (MapUtils.isNotEmpty(esDocs))
+                    if (MapUtils.isNotEmpty(esDocs)) {
                         pushToElastic(esDocs);
-                    if (!CollectionUtils.isEmpty(failedUnits)) {
+                        printMessages("success", bookmarkIds, resourceId);
+                    }
+                    if (CollectionUtils.isNotEmpty(failedUnits)) {
                         printMessages("failed", failedUnits, resourceId);
                         return false;
                     }
                 }
             } else {
-                System.out.println(resourceId + " is not a Textbook or Textbook is not live");
+                System.out.println(resourceId + " is not a type of Collection or it is not live.");
                 return false;
             }
         } catch (Exception e) {
@@ -106,31 +111,23 @@ public class CassandraESSyncManager {
 
     public List<Map<String, Object>> getUnitsMetadata(Map<String, Object> hierarchy, List<String> bookmarkIds) {
         Boolean flag = false;
-        if(CollectionUtils.isEmpty(bookmarkIds)) {
-            flag = true;
-        }
         List<Map<String, Object>> unitsMetadata = new ArrayList<>();
-        List<Map<String, Object>> childrenMaps = null;
-
-        Object children = hierarchy.get("children");
-        if(children != null) {
-            childrenMaps = mapper.convertValue(children, new TypeReference<List<Map<String, Object>>>() {
-            });
-            getUnitsToBeSynced(unitsMetadata, childrenMaps, bookmarkIds, flag);
-        }
+        if(CollectionUtils.isEmpty(bookmarkIds))
+            flag = true;
+        List<Map<String, Object>> children = (List<Map<String, Object>>)hierarchy.get("children");
+        getUnitsToBeSynced(unitsMetadata, children, bookmarkIds, flag);
         return unitsMetadata;
     }
 
-    //TODO: Improve this for next level children.
     private void getUnitsToBeSynced(List<Map<String, Object>> unitsMetadata, List<Map<String, Object>> children, List<String> bookmarkIds, Boolean flag) {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
-                if (child.containsKey("visibility")
-                        && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "parent")) {
-                    if (flag)
-                        unitsMetadata.add(child);
+                if (child.containsKey("visibility") && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "parent")) {
+                		Map<String, Object> childData = refactorUnit(child);
+                		if (flag)
+                        unitsMetadata.add(childData);
                     else if (bookmarkIds.contains(child.get("identifier")))
-                        unitsMetadata.add(child);
+                        unitsMetadata.add(childData);
                     if (child.containsKey("children")) {
                         List<Map<String,Object>> newChildren = mapper.convertValue(child.get("children"), new TypeReference<List<Map<String, Object>>>(){});
                         getUnitsToBeSynced(unitsMetadata, newChildren , bookmarkIds, flag);
@@ -139,18 +136,41 @@ public class CassandraESSyncManager {
             });
         }
     }
+    
+    private Map<String, Object> refactorUnit(Map<String, Object> child) {
+    		Map<String, Object> childData = new HashMap<>();
+        childData.putAll(child);
+        List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
+                Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
+        for(String property : relationshipProperties) {
+        		if(childData.containsKey(property)) {
+        			List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get(property);
+        	        List<String> finalPropertyList = new ArrayList<>();
+        			if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+        				finalPropertyList = nextLevelNodes.stream().map(nextLevelNode -> {
+        					String identifier = (String)nextLevelNode.get("identifier");
+        					return identifier;
+        				}).collect(Collectors.toList());
+        			}
+        			childData.remove(property);
+        			childData.put(property, finalPropertyList);
+        		}
+        }
+        return childData;
+	}
 
     private List<String> getFailedUnitIds(List<Map<String, Object>> units, List<String> bookmarkIds) {
         List<String> failedUnits = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(bookmarkIds)) {
-            if (units.size() == bookmarkIds.size())
+        	    if (units.size() == bookmarkIds.size())
                 return failedUnits;
+        	    failedUnits.addAll(bookmarkIds);
             units.forEach(unit -> {
                 if (bookmarkIds.contains(unit.get("identifier")))
-                    bookmarkIds.remove(unit.get("identifier"));
+                		failedUnits.remove(unit.get("identifier"));
             });
         }
-        return bookmarkIds;
+        return failedUnits;
     }
 
     private Map<String,Object> getTBMetaData(String textBookId) throws Exception {
@@ -168,7 +188,7 @@ public class CassandraESSyncManager {
 
     private Map<String, Object> getESDocuments(List<Map<String, Object>> units) {
         List<String> indexablePropslist;
-        Map<String, Object> definition = getDefinition();
+        
         Map<String, Object> esDocument = new HashMap<>();
         List<String> objectTypeList = Platform.config.hasPath("restrict.metadata.objectTypes") ?
                 Arrays.asList(Platform.config.getString("restrict.metadata.objectTypes").split(",")) : Collections.emptyList();
@@ -178,6 +198,12 @@ public class CassandraESSyncManager {
                 String identifier = (String) unit.get("identifier");
                 if (CollectionUtils.isNotEmpty(indexablePropslist))
                     filterIndexableProps(unit, indexablePropslist);
+                putAdditionalFields(unit, identifier);
+                esDocument.put( identifier , unit);
+            });
+        }else {
+        		units.forEach(unit -> {
+                String identifier = (String) unit.get("identifier");
                 putAdditionalFields(unit, identifier);
                 esDocument.put( identifier , unit);
             });
@@ -193,6 +219,7 @@ public class CassandraESSyncManager {
     }
 
     private Map<String, Object> getDefinition() {
+    		this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
         DefinitionDTO definition = util.getDefinition(graphId, objectType);
         if (RequestValidatorUtil.isEmptyOrNull(definition)) {
             throw new ServerException("ERR_DEFINITION_NOT_FOUND", "No Definition found for " + objectType);
