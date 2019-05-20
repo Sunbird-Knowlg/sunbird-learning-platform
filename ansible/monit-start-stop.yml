@@ -13,7 +13,7 @@
     - name: check service status
       service:
         name: monit
-        state: sttaus
+        state: status
         register: monit_service_status
       tags:
         - status
