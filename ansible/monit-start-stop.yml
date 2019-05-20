@@ -12,7 +12,7 @@
 
     - name: check service status
       command: service monit status
-        register: monit_service_status
+      register: monit_service_status
       tags:
         - status
     
