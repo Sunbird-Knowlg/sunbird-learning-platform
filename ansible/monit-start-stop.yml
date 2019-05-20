@@ -39,6 +39,7 @@
       debug: var=monit_status.stdout_lines
       tags:
         - status
+  serial: 1      
 
 
 
