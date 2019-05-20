@@ -22,7 +22,7 @@ public class ElasticSearchConnector {
 	private void init() throws Exception {
 		indexName = Platform.config.hasPath("search.index.name") ? Platform.config.getString("search.index.name")
 				: CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
-		documentType = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.index.name")
+		documentType = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type")
 				: CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
 		ElasticSearchUtil.initialiseESClient(indexName, Platform.config.getString("search.es_conn_info"));
 		createIndexIfNotExist();
