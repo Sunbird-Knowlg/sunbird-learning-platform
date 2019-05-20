@@ -187,7 +187,14 @@ public class OptimizerUtil {
     			node.getMetadata().put(ContentAPIParams.duration.name(), 
     					TimeUnit.MICROSECONDS.toSeconds(videoDuration)+"");
         long numberOfFrames = frameGrabber.getLengthInFrames();
-        File thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
+        File thumbNail = null;
+        try {
+        		thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
+        }catch(Exception e) {
+        		LOGGER.error("videoEnrichment :: Exception while generating thumbnail for content :: " + node.getIdentifier(), e);
+        }catch(Error e) {
+    			LOGGER.error("videoEnrichment :: Error while generating thumbnail for content :: " + node.getIdentifier(), e);
+        }
         frameGrabber.stop();
         if (null != thumbNail && thumbNail.exists()) {
 			TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
@@ -195,7 +202,7 @@ public class OptimizerUtil {
 			String thumbUrl = urlArray[1];
 			node.getMetadata().put(ContentAPIParams.thumbnail.name(), thumbUrl);
 		}else {
-			LOGGER.info("Thumbnail could not be generated.");
+			LOGGER.info("videoEnrichment :: Thumbnail could not be generated.");
 		}
     }
 	
@@ -218,14 +225,25 @@ public class OptimizerUtil {
 			File inFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".png");
 			File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
 			frameGrabber.setFrameNumber((int) (numberOfFrames / numbeOfSampleThumbnails) * i);
-			bufferedImage = converter.convert(frameGrabber.grabImage());
-			ImageIO.write(bufferedImage, "png", inFile);
-			generateThumbNail(inFile, outFile);
-			int tmpColorCount = getImageColor(outFile);
-			if (colorCount < tmpColorCount) {
-				colorCount = tmpColorCount;
-				thumbnail = outFile;
+			try {
+				bufferedImage = converter.convert(frameGrabber.grabImage());
+				if(null != bufferedImage) {
+					ImageIO.write(bufferedImage, "png", inFile);
+					generateThumbNail(inFile, outFile);
+					int tmpColorCount = getImageColor(outFile);
+					if (colorCount < tmpColorCount) {
+						colorCount = tmpColorCount;
+						thumbnail = outFile;
+					}
+				}
+			}catch(Exception e) {
+				LOGGER.error("fetchThumbNail :: Exception while generating thumbnail.", e);
+				throw new ServerException("ERR_THUMBNAIL_GENERATION", "Exception while generating thumbnail. " + e.getMessage());
+			}catch(Error e) {
+				LOGGER.error("fetchThumbNail :: Exception while generating thumbnail.", e);
+				throw new ServerException("ERR_THUMBNAIL_GENERATION", "Exception while generating thumbnail. " + e.getMessage());
 			}
+			
 		}
 		return thumbnail;
 
