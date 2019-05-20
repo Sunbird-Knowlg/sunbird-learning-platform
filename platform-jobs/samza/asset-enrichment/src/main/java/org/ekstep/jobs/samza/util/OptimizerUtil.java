@@ -3,6 +3,7 @@ package org.ekstep.jobs.samza.util;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
@@ -190,10 +191,8 @@ public class OptimizerUtil {
         File thumbNail = null;
         try {
         		thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
-        }catch(Exception e) {
+        }catch(Throwable e) {
         		LOGGER.error("videoEnrichment :: Exception while generating thumbnail for content :: " + node.getIdentifier(), e);
-        }catch(Error e) {
-    			LOGGER.error("videoEnrichment :: Error while generating thumbnail for content :: " + node.getIdentifier(), e);
         }
         frameGrabber.stop();
         if (null != thumbNail && thumbNail.exists()) {
@@ -220,7 +219,8 @@ public class OptimizerUtil {
 
 		File thumbnail = null;
 		int colorCount = 0;
-		int numbeOfSampleThumbnails = 5;
+		int numbeOfSampleThumbnails = Platform.config.hasPath("max.sample.thumbnail.image")?
+			Platform.config.getInt("max.sample.thumbnail.image"): 5;
 		for (int i = 1; i <= numbeOfSampleThumbnails; i++) {
 			File inFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".png");
 			File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
@@ -236,14 +236,10 @@ public class OptimizerUtil {
 						thumbnail = outFile;
 					}
 				}
-			}catch(Exception e) {
-				LOGGER.error("fetchThumbNail :: Exception while generating thumbnail.", e);
-				throw new ServerException("ERR_THUMBNAIL_GENERATION", "Exception while generating thumbnail. " + e.getMessage());
-			}catch(Error e) {
+			}catch(Throwable e) {
 				LOGGER.error("fetchThumbNail :: Exception while generating thumbnail.", e);
 				throw new ServerException("ERR_THUMBNAIL_GENERATION", "Exception while generating thumbnail. " + e.getMessage());
 			}
-			
 		}
 		return thumbnail;
 
