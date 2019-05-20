@@ -11,9 +11,7 @@
         - start-stop-monit
 
     - name: check service status
-      service:
-        name: monit
-        state: status
+      command: service monit status
         register: monit_service_status
       tags:
         - status
