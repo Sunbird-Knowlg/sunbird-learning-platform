@@ -41,11 +41,10 @@ public class SyncShellCommands implements CommandMarker {
 		System.out.println("START_TIME: " + dtf.format(start) + ", END_TIME: " + dtf.format(end));
 	}
 	@CliCommand(value = "syncbybookmarkids", help = "Sync units from cassandra to Elastic Search by Id(s)")
-	public void syncByBookmark(@CliOption(key = {
-			"graphId"}, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
-							   @CliOption(key = {"id","ids"}, mandatory = true, help = "Unique Id of node object") final String[] ids,
-							   @CliOption(key = {"bookmarkId", "bookmarkIds"}, mandatory = false, help = "Unique Id of node object") final String[] bookmarkIds)
-			throws Exception {
+	public void syncByBookmark(
+			@CliOption(key = {"graphId"}, mandatory = false, unspecifiedDefaultValue = "domain", help = "graphId of the object") final String graphId,
+			@CliOption(key = {"id","ids"}, mandatory = true, help = "Unique Id of node object") final String[] ids,
+			@CliOption(key = {"bookmarkId", "bookmarkIds"}, mandatory = false, help = "Unique Id of node object") final String[] bookmarkIds) throws Exception {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
