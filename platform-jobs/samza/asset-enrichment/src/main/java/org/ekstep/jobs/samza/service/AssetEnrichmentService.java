@@ -286,7 +286,6 @@ public class AssetEnrichmentService implements ISamzaService {
 				TelemetryManager.error("Error! While deleting the Thumbnail Folder: " + tempFolder, e);
 			}
 		}
-
 	}
 
 	private void processVideo(Node node, String tempFolder, String videoUrl) throws Exception {

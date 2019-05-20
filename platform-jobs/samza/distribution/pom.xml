@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>asset-enrichment</artifactId>
-			<version>0.0.83</version>
+			<version>0.0.84</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 			<exclusions>

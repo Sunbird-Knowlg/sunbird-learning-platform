@@ -3,6 +3,7 @@ package org.ekstep.jobs.samza.util;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
@@ -187,7 +188,12 @@ public class OptimizerUtil {
     			node.getMetadata().put(ContentAPIParams.duration.name(), 
     					TimeUnit.MICROSECONDS.toSeconds(videoDuration)+"");
         long numberOfFrames = frameGrabber.getLengthInFrames();
-        File thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
+        File thumbNail = null;
+        try {
+        		thumbNail = fetchThumbNail(tempFolder, numberOfFrames, frameGrabber);
+        }catch(Throwable e) {
+        		LOGGER.error("videoEnrichment :: Exception while generating thumbnail for content :: " + node.getIdentifier(), e);
+        }
         frameGrabber.stop();
         if (null != thumbNail && thumbNail.exists()) {
 			TelemetryManager.log("Thumbnail created for Content Id: " + node.getIdentifier());
@@ -195,7 +201,7 @@ public class OptimizerUtil {
 			String thumbUrl = urlArray[1];
 			node.getMetadata().put(ContentAPIParams.thumbnail.name(), thumbUrl);
 		}else {
-			LOGGER.info("Thumbnail could not be generated.");
+			LOGGER.info("videoEnrichment :: Thumbnail could not be generated.");
 		}
     }
 	
@@ -213,18 +219,26 @@ public class OptimizerUtil {
 
 		File thumbnail = null;
 		int colorCount = 0;
-		int numbeOfSampleThumbnails = 5;
+		int numbeOfSampleThumbnails = Platform.config.hasPath("max.sample.thumbnail.image")?
+			Platform.config.getInt("max.sample.thumbnail.image"): 5;
 		for (int i = 1; i <= numbeOfSampleThumbnails; i++) {
 			File inFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".png");
 			File outFile = new File(tempFolder + File.separator + System.currentTimeMillis() + ".thumb.png");
 			frameGrabber.setFrameNumber((int) (numberOfFrames / numbeOfSampleThumbnails) * i);
-			bufferedImage = converter.convert(frameGrabber.grabImage());
-			ImageIO.write(bufferedImage, "png", inFile);
-			generateThumbNail(inFile, outFile);
-			int tmpColorCount = getImageColor(outFile);
-			if (colorCount < tmpColorCount) {
-				colorCount = tmpColorCount;
-				thumbnail = outFile;
+			try {
+				bufferedImage = converter.convert(frameGrabber.grabImage());
+				if(null != bufferedImage) {
+					ImageIO.write(bufferedImage, "png", inFile);
+					generateThumbNail(inFile, outFile);
+					int tmpColorCount = getImageColor(outFile);
+					if (colorCount < tmpColorCount) {
+						colorCount = tmpColorCount;
+						thumbnail = outFile;
+					}
+				}
+			}catch(Throwable e) {
+				LOGGER.error("fetchThumbNail :: Exception while generating thumbnail.", e);
+				throw new ServerException("ERR_THUMBNAIL_GENERATION", "Exception while generating thumbnail. " + e.getMessage());
 			}
 		}
 		return thumbnail;
