@@ -47,14 +47,12 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
-import org.elasticsearch.search.suggest.completion.CompletionSuggestion.Entry;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -99,9 +97,6 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private HierarchyStore hierarchyStore = new HierarchyStore();
 	private ControllerUtil util = new ControllerUtil();
-	private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
-			Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
-
 
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -490,18 +485,24 @@ public class PublishFinalizer extends BaseFinalizer {
             });
         }
     }
+	private List<String> getRelationList(DefinitionDTO definition){
+		List<String> relationshipProperties = new ArrayList<>();
+		relationshipProperties.addAll(definition.getInRelations().stream().map(rel -> rel.getTitle()).collect(Collectors.toList()));
+		relationshipProperties.addAll(definition.getOutRelations().stream().map(rel -> rel.getTitle()).collect(Collectors.toList()));
+		return relationshipProperties;
+	}
 	
 	private void getNodeForSyncing(List<Map<String, Object>> children, List<Node> nodes, List<String> nodeIds, DefinitionDTO definition) {
+		List<String> relationshipProperties = getRelationList(definition);
         if (CollectionUtils.isNotEmpty(children)) {
             children.stream().forEach(child -> {
             		try {
             			if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
             				Map<String, Object> childData = new HashMap<>();
             				childData.putAll(child);
-            				Map<String, Object> relationProperties = null;
+            				Map<String, Object> relationProperties = new HashMap<>();
             				for(String property : relationshipProperties) {
             					if(childData.containsKey(property)) {
-                        			relationProperties = null!=relationProperties?relationProperties:new HashMap<>();
                         			relationProperties.put(property, (List<Map<String, Object>>) childData.get(property));
                         			childData.remove(property);
                         		}
