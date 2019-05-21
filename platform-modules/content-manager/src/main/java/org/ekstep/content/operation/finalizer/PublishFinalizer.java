@@ -497,10 +497,10 @@ public class PublishFinalizer extends BaseFinalizer {
                     if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
                     		Map<String, Object> childData = new HashMap<>();
                         childData.putAll(child);
+						node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
 						for(String property : relationshipProperties) {
 							if (childData.containsKey(property)) {
 								List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get(property);
-								node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
 								List<String> finalChildList = new ArrayList<>();
 								if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
 									finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
