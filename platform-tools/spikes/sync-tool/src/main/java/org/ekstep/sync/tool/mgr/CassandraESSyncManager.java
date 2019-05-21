@@ -77,11 +77,12 @@ public class CassandraESSyncManager {
                         units.add(tbMetaData);
                 }*/
                 if (CollectionUtils.isNotEmpty(units)) {
+                		List<String> syncedUnits = getSyncedUnitIds(units);
                     List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
                     Map<String, Object> esDocs = getESDocuments(units);
                     if (MapUtils.isNotEmpty(esDocs)) {
                         pushToElastic(esDocs);
-                        printMessages("success", bookmarkIds, resourceId);
+                        printMessages("success", syncedUnits, resourceId);
                     }
                     if (CollectionUtils.isNotEmpty(failedUnits)) {
                         printMessages("failed", failedUnits, resourceId);
@@ -172,6 +173,13 @@ public class CassandraESSyncManager {
         }
         return failedUnits;
     }
+    private List<String> getSyncedUnitIds(List<Map<String, Object>> units){
+    		List<String> syncedUnits = new ArrayList<>();
+    		units.forEach(unit -> {
+    			syncedUnits.add((String)unit.get("identifier"));
+    		});
+    		return syncedUnits;
+    }
 
     private Map<String,Object> getTBMetaData(String textBookId) throws Exception {
         Node node = util.getNode(graphId, textBookId);
@@ -256,11 +264,11 @@ public class CassandraESSyncManager {
     private void printMessages(String status, List<String> bookmarkIds, String id) {
         switch (status) {
             case "failed": {
-                System.out.println("The units " + bookmarkIds + "of textbook with " + id + " failed. Check if valid unit.");
+                System.out.println("The units " + bookmarkIds + " of textbook with " + id + " failed. Check if valid unit.");
                 break;
             }
             case "success": {
-                System.out.println("The units " + bookmarkIds + "of textbook with " + id + " success");
+                System.out.println("The units " + bookmarkIds + " of textbook with " + id + " success");
                 break;
             }
         }
