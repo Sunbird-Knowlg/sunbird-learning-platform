@@ -2963,6 +2963,32 @@
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "programId",
+					"title": "ProgramId",
+					"description": "QuML: Id of the Program",
+					"category": "general",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "program",
+					"title": "Program",
+					"description": "QuML: Program",
+					"category": "general",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
