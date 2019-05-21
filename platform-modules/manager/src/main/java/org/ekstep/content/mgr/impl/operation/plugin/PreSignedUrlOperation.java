@@ -14,7 +14,7 @@ public class PreSignedUrlOperation extends BaseContentManager {
         Response contentResp = getDataNode(TAXONOMY_ID, contentId);
         if (checkError(contentResp))
             return contentResp;
-        Response response = new Response();
+        Response response = OK();
         String objectKey = "content/" + type +"/"+contentId+"/"+ Slug.makeSlug(fileName, true);
         String expiry = S3PropertyReader.getProperty("cloud_storage.upload.url.ttl");
         String preSignedURL = CloudStore.getCloudStoreService().getSignedURL(CloudStore.getContainerName(), objectKey, Option.apply(Integer.parseInt(expiry)), Option.apply("w"));
