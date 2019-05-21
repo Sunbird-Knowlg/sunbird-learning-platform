@@ -485,26 +485,43 @@ public class PublishFinalizer extends BaseFinalizer {
             });
         }
     }
+	private List<String> getRelationList(DefinitionDTO definition){
+		List<String> relationshipProperties = new ArrayList<>();
+		relationshipProperties.addAll(definition.getInRelations().stream().map(rel -> rel.getTitle()).collect(Collectors.toList()));
+		relationshipProperties.addAll(definition.getOutRelations().stream().map(rel -> rel.getTitle()).collect(Collectors.toList()));
+		return relationshipProperties;
+	}
 	
 	private void getNodeForSyncing(List<Map<String, Object>> children, List<Node> nodes, List<String> nodeIds, DefinitionDTO definition) {
+		List<String> relationshipProperties = getRelationList(definition);
         if (CollectionUtils.isNotEmpty(children)) {
             children.stream().forEach(child -> {
-                Node node = null;
-                try {
-                    if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
-                    		Map<String, Object> childData = new HashMap<>();
-                        childData.putAll(child);
-                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
-                        childData.remove("children");
-                        node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
-                        List<String> finalChildList = new ArrayList<>();
-						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
-							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
-								String identifier = (String)nextLevelNode.get("identifier");
-								return identifier;
-							}).collect(Collectors.toList());
-						}
-						node.getMetadata().put("children", finalChildList);
+            		try {
+            			if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+            				Map<String, Object> childData = new HashMap<>();
+            				childData.putAll(child);
+            				Map<String, Object> relationProperties = new HashMap<>();
+            				for(String property : relationshipProperties) {
+            					if(childData.containsKey(property)) {
+                        			relationProperties.put(property, (List<Map<String, Object>>) childData.get(property));
+                        			childData.remove(property);
+                        		}
+            				}
+            				Node node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+            				if(MapUtils.isNotEmpty(relationProperties)) {
+            					for(String key : relationProperties.keySet()) {
+                        			List<String> finalPropertyList = null;
+                        			List<Map<String, Object>> properties = (List<Map<String, Object>>)relationProperties.get(key);
+                        			if (CollectionUtils.isNotEmpty(properties)) {
+                        				finalPropertyList = properties.stream().map(property -> {
+            								String identifier = (String)property.get("identifier");
+            								return identifier;
+            							}).collect(Collectors.toList());
+            						}
+                        			if(CollectionUtils.isNotEmpty(finalPropertyList))
+                        				node.getMetadata().put(key, finalPropertyList);
+                        		}
+                        }
                         if(StringUtils.isBlank(node.getObjectType()))
                         		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
                         if(StringUtils.isBlank(node.getGraphId()))
