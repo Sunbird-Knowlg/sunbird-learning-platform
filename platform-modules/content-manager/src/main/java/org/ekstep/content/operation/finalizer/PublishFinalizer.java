@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -97,6 +98,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private HierarchyStore hierarchyStore = new HierarchyStore();
 	private ControllerUtil util = new ControllerUtil();
+	private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
+			Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
 
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -494,28 +497,33 @@ public class PublishFinalizer extends BaseFinalizer {
                     if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
                     		Map<String, Object> childData = new HashMap<>();
                         childData.putAll(child);
-                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
-                        childData.remove("children");
-                        node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
-                        List<String> finalChildList = new ArrayList<>();
-						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
-							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
-								String identifier = (String)nextLevelNode.get("identifier");
-								return identifier;
-							}).collect(Collectors.toList());
+						for(String property : relationshipProperties) {
+							if (childData.containsKey(property)) {
+								List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get(property);
+								childData.remove(property);
+								node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+								List<String> finalChildList = new ArrayList<>();
+								if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+									finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
+										String identifier = (String) nextLevelNode.get("identifier");
+										return identifier;
+									}).collect(Collectors.toList());
+								}
+								node.getMetadata().put(property, finalChildList);
+							}
 						}
-						node.getMetadata().put("children", finalChildList);
-                        if(StringUtils.isBlank(node.getObjectType()))
-                        		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
-                        if(StringUtils.isBlank(node.getGraphId()))
-                        		node.setGraphId(ContentWorkflowPipelineParams.domain.name());
-                        if(!nodeIds.contains(node.getIdentifier())) {
-                    			nodes.add(node);
-                    			nodeIds.add(node.getIdentifier());
-                        }
-                        getNodeForSyncing((List<Map<String, Object>>) child.get("children"), nodes, nodeIds, definition);
+						if(null != node) {
+							if(StringUtils.isBlank(node.getObjectType()))
+								node.setObjectType(ContentWorkflowPipelineParams.Content.name());
+							if(StringUtils.isBlank(node.getGraphId()))
+								node.setGraphId(ContentWorkflowPipelineParams.domain.name());
+							if(!nodeIds.contains(node.getIdentifier())) {
+								nodes.add(node);
+								nodeIds.add(node.getIdentifier());
+							}
+						}
+						getNodeForSyncing((List<Map<String, Object>>) child.get("children"), nodes, nodeIds, definition);
                     }
-                    
                 } catch (Exception e) {
                 	TelemetryManager.error("Error while fetching unit nodes for syncing. ", e);
                 }
