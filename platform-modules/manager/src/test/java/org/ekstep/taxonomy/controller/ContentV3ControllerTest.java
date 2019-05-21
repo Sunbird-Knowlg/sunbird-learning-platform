@@ -1589,6 +1589,109 @@ public class ContentV3ControllerTest extends CommonTestSetup {
 		Assert.assertNotNull(response.getResult());
 	}
 
+	//Test case to validate the file name while generating pre-signed url for content
+	@Test
+	public void testGeneratePreSignedUrlWithInvalidFileNameExpect400() throws Exception {
+		String createVideoContentReq = "{\"request\": {\"content\": {\"name\": \"Test Video Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"video/mp4\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createVideoContentReq);
+
+		String preSignedReq = "{\"request\": {\"content\": {\"fileName\": \".mp4\"}}}";
+		String path = basePath + "/upload/url/"+contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(preSignedReq));
+		Response response = getResponse(actions);
+
+		assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+		assertEquals("failed", response.getParams().getStatus());
+		assertEquals("Please Provide Valid File Name.", response.getParams().getErrmsg());
+	}
+
+	//Test case to validate the file name while generating pre-signed url for content
+	@Test
+	public void testGeneratePreSignedUrlWithInvalidFileNameHavingLongStringExpect400() throws Exception {
+		String createVideoContentReq = "{\"request\": {\"content\": {\"name\": \"Test Video Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"video/mp4\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createVideoContentReq);
+
+		String preSignedReq = "{\"request\": {\"content\": {\"fileName\": \"tIdPRlKzpJlti4NXsNJItjqPJB4iHJOx9mEOQphThOoPc2x6BbBF9lRPKcWk7ORteqwytBwVoOLLrFYi3fMaoUsUOBEiaz4c89I6Y3OfGtFAKXAO7eFXVXNrRLlwFnDp11wHvSmtqbNTKlycU3CELbfAXvbojuXVdDBi4W0EnSF0cMzpVeiL0ISPCPTVMiFpLabIbKlyvOiEB1taJdeGTcgGqaJdGGp2WVpnZOV56qqtPOvSg5kwB5naZ2qoQ0I4X.mp4\"}}}";
+		String path = basePath + "/upload/url/"+contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(preSignedReq));
+		Response response = getResponse(actions);
+
+		assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+		assertEquals("failed", response.getParams().getStatus());
+		assertEquals("Please Provide Valid File Name.", response.getParams().getErrmsg());
+	}
+
+	//Test case to validate the file name while generating pre-signed url for content
+	@Test
+	public void testGeneratePreSignedUrlWithInvalidFileNameHavingLongHindiStringExpect400() throws Exception {
+		String createVideoContentReq = "{\"request\": {\"content\": {\"name\": \"Test Video Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"video/mp4\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createVideoContentReq);
+
+		String preSignedReq = "{\"request\": {\"content\": {\"fileName\": \"तकनीकी सामूहिक विवरण होने मानव बिन्दुओमे विकेन्द्रियकरण विभाग कुशलता सुविधा सोफ़तवेर पुर्व केवल बाधा बातसमय पुर्णता विश्वव्यापि विवरण सुनत सभीकुछ दस्तावेज मुख्य ब्रौशर तकरीबन कार्यकर्ता पढाए सीमित पढाए शीघ्र स्थिति है।अभी सभिसमज काम वर्तमान समस्याए मुख्य भाषा है।अभी वर्तमान प्रति आधुनिक गोपनीयता सार्वजनिक संसाध उनको उपेक्ष मुश्किले पसंद बनाना विकसित समस्याए नाकर देखने यायेका भोगोलिक विश्लेषण सुनत लेकिन प्राण विज्ञानि गुजरना पहोचने जिसकी कैसे.mp4\"}}}";
+		String path = basePath + "/upload/url/"+contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(preSignedReq));
+		Response response = getResponse(actions);
+
+		assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+		assertEquals("failed", response.getParams().getStatus());
+		assertEquals("Please Provide Valid File Name.", response.getParams().getErrmsg());
+	}
+
+	//Test case to validate the file name while generating pre-signed url for content
+	@Test
+	public void testGeneratePreSignedUrlWithFileNameHavingSpaceOnlyExpect400() throws Exception {
+		String createVideoContentReq = "{\"request\": {\"content\": {\"name\": \"Test Video Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"video/mp4\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createVideoContentReq);
+
+		String preSignedReq = "{\"request\": {\"content\": {\"fileName\": \" .mp4\"}}}";
+		String path = basePath + "/upload/url/"+contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(preSignedReq));
+		Response response = getResponse(actions);
+
+		assertEquals("CLIENT_ERROR", response.getResponseCode().toString());
+		assertEquals("failed", response.getParams().getStatus());
+		assertEquals("Please Provide Valid File Name.", response.getParams().getErrmsg());
+	}
+
+	//Test case to validate the file name while generating pre-signed url for content
+	@Test
+	public void testGeneratePreSignedUrlWithValidFileNameExpect200() throws Exception {
+		String createVideoContentReq = "{\"request\": {\"content\": {\"name\": \"Test Video Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"video/mp4\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createVideoContentReq);
+
+		String preSignedReq = "{\"request\": {\"content\": {\"fileName\": \"test.mp4\"}}}";
+		String path = basePath + "/upload/url/"+contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(preSignedReq));
+		Response response = getResponse(actions);
+
+		assertEquals("OK", response.getResponseCode().toString());
+		assertEquals("successful", response.getParams().getStatus());
+		Assert.assertNotNull(response.getResult());
+	}
+
+	//Test case to validate the file name while generating pre-signed url for content
+	@Test
+	public void testGeneratePreSignedUrlWithValidFileNameWithSpaceExpect200() throws Exception {
+		String createVideoContentReq = "{\"request\": {\"content\": {\"name\": \"Test Video Resource Content\",\"code\": \"test.res.1\",\"mimeType\": \"video/mp4\",\"contentType\":\"Resource\"}}}";
+		String contentId = createContent(createVideoContentReq);
+
+		String preSignedReq = "{\"request\": {\"content\": {\"fileName\": \"test 123.mp4\"}}}";
+		String path = basePath + "/upload/url/"+contentId;
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")
+				.header("user-id", "ilimi").contentType(MediaType.APPLICATION_JSON).content(preSignedReq));
+		Response response = getResponse(actions);
+
+		assertEquals("OK", response.getResponseCode().toString());
+		assertEquals("successful", response.getParams().getStatus());
+		assertEquals(contentId, response.getResult().get("content_id"));
+		Assert.assertNotNull(response.getResult().get("pre_signed_url"));
+	}
+
 	private String createContent(String requestBody) throws Exception {
 		String path = basePath + "/create";
 		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi").header("X-Channel-Id", "channelTest")

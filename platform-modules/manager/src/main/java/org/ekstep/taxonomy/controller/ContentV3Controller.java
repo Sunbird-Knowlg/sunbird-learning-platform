@@ -2,6 +2,7 @@ package org.ekstep.taxonomy.controller;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Slug;
 import org.ekstep.common.controller.BaseController;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
@@ -384,6 +385,10 @@ public class ContentV3Controller extends BaseController {
 				if (StringUtils.isBlank(fileName)) {
 					return getExceptionResponseEntity(new ClientException(
 							ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"), apiId, null);
+				}
+				if (StringUtils.isBlank(FilenameUtils.getBaseName(fileName)) || StringUtils.length(Slug.makeSlug(fileName, true)) > 256) {
+					return getExceptionResponseEntity(new ClientException(
+							ContentErrorCodes.ERR_CONTENT_INVALID_FILE_NAME.name(), "Please Provide Valid File Name."), apiId, null);
 				}
 			} else {
 				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
