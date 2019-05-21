@@ -500,7 +500,6 @@ public class PublishFinalizer extends BaseFinalizer {
 						for(String property : relationshipProperties) {
 							if (childData.containsKey(property)) {
 								List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get(property);
-								childData.remove(property);
 								node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
 								List<String> finalChildList = new ArrayList<>();
 								if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
