@@ -47,12 +47,14 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.telemetry.logger.TelemetryManager;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion.Entry;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -97,6 +99,9 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private HierarchyStore hierarchyStore = new HierarchyStore();
 	private ControllerUtil util = new ControllerUtil();
+	private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
+			Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
+
 
 	static {
 		ElasticSearchUtil.initialiseESClient(ES_INDEX_NAME, Platform.config.getString("search.es_conn_info"));
@@ -489,22 +494,33 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void getNodeForSyncing(List<Map<String, Object>> children, List<Node> nodes, List<String> nodeIds, DefinitionDTO definition) {
         if (CollectionUtils.isNotEmpty(children)) {
             children.stream().forEach(child -> {
-                Node node = null;
-                try {
-                    if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
-                    		Map<String, Object> childData = new HashMap<>();
-                        childData.putAll(child);
-                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
-                        childData.remove("children");
-                        node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
-                        List<String> finalChildList = new ArrayList<>();
-						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
-							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
-								String identifier = (String)nextLevelNode.get("identifier");
-								return identifier;
-							}).collect(Collectors.toList());
-						}
-						node.getMetadata().put("children", finalChildList);
+            		try {
+            			if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+            				Map<String, Object> childData = new HashMap<>();
+            				childData.putAll(child);
+            				Map<String, Object> relationProperties = null;
+            				for(String property : relationshipProperties) {
+            					if(childData.containsKey(property)) {
+                        			relationProperties = null!=relationProperties?relationProperties:new HashMap<>();
+                        			relationProperties.put(property, (List<Map<String, Object>>) childData.get(property));
+                        			childData.remove(property);
+                        		}
+            				}
+            				Node node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+            				if(MapUtils.isNotEmpty(relationProperties)) {
+            					for(String key : relationProperties.keySet()) {
+                        			List<String> finalPropertyList = null;
+                        			List<Map<String, Object>> properties = (List<Map<String, Object>>)relationProperties.get(key);
+                        			if (CollectionUtils.isNotEmpty(properties)) {
+                        				finalPropertyList = properties.stream().map(property -> {
+            								String identifier = (String)property.get("identifier");
+            								return identifier;
+            							}).collect(Collectors.toList());
+            						}
+                        			if(CollectionUtils.isNotEmpty(finalPropertyList))
+                        				node.getMetadata().put(key, finalPropertyList);
+                        		}
+                        }
                         if(StringUtils.isBlank(node.getObjectType()))
                         		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
                         if(StringUtils.isBlank(node.getGraphId()))
