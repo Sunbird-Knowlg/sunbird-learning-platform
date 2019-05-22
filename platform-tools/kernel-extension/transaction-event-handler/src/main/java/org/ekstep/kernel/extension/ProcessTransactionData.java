@@ -566,6 +566,8 @@ public class ProcessTransactionData {
 		if (StringUtils.isEmpty(userId)) {
 			if (node.hasProperty("lastUpdatedBy"))
 				userId = (String) node.getProperty("lastUpdatedBy");
+			else if(node.hasProperty("createdBy"))
+				userId = (String) node.getProperty("createdBy");
 			else
 				userId = "ANONYMOUS";
 		}
