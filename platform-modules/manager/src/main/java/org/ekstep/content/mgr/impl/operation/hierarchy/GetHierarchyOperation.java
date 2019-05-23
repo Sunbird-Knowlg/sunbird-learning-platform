@@ -1,10 +1,9 @@
 package org.ekstep.content.mgr.impl.operation.hierarchy;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -29,8 +28,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
 public class GetHierarchyOperation extends BaseContentManager {
 
     private SearchProcessor processor = new SearchProcessor();
-    private static ObjectMapper mapper = new ObjectMapper();
+
     private static final String IMAGE_SUFFIX = ".img";
 
 
@@ -167,8 +166,13 @@ public class GetHierarchyOperation extends BaseContentManager {
         Map<String, Object> rootHierarchy = null;
         String hierarchy = RedisStoreUtil.get(COLLECTION_CACHE_KEY_PREFIX + rootId);
         if (StringUtils.isNotBlank(hierarchy)) {
-            rootHierarchy = mapper.convertValue(hierarchy, new TypeReference<Map<String, Object>>() {
-            });
+            try {
+                rootHierarchy = objectMapper.readValue(hierarchy, new TypeReference<Map<String, Object>>() {
+                });
+            } catch (Exception e) {
+                TelemetryManager.error("Error Occurred While Parsing Hierarchy for Content Id : " + rootId + " | Error is: ", e);
+                throw new ServerException("ERR_CONTENT_HIERARCHY_PARSE", "Something Went Wrong While Processing the Content. ", e);
+            }
             response.getResult().put("content", rootHierarchy);
             return getHierarchyResponse(rootHierarchy, bookmarkId);
         } else {

@@ -44,7 +44,9 @@ public class ContentStore extends CassandraStore {
 	public void updateContentBody(String contentId, String body) {
 		updateContentProperty(contentId, "body", body);
 	}
-
+	public void updateContentOldBody(String contentId, String body) {
+		updateContentProperty(contentId, "oldBody", body);
+	}
 	public String getContentBody(String contentId) {
 		return getContentProperty(contentId, "body");
 	}

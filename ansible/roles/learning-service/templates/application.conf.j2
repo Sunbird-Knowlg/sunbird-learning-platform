@@ -257,7 +257,7 @@ cassandra.lpa.connection="{{ dp_cassandra_connection }}"
 
 compositesearch.index.name="{{ compositesearch_index_name }}"
 
-restrict.metadata.objectTypes="Content,ContentImage,AssessmentItem,Channel,Framework,Category,CategoryInstance,Term,Concept,Dimension,Domain"
+#restrict.metadata.objectTypes="Content,ContentImage,AssessmentItem,Channel,Framework,Category,CategoryInstance,Term,Concept,Dimension,Domain"
 
 # Consistency Level for Multi Node Cassandra cluster
 cassandra.lp.consistency.level=QUORUM
@@ -268,6 +268,5 @@ content.tagging.property="subject,medium"
 
 # Redis Cache Configuration
 content.cache.ttl=259200
-framework.cache.ttl=604800
 
 

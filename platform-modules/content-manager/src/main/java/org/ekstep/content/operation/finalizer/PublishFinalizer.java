@@ -159,7 +159,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-				unitNodes = getUnitFromLiveContent();
+				unitNodes = new ArrayList<>();
+				getUnitFromLiveContent(unitNodes);
 			}
 		}
 		node.setIdentifier(contentId);
@@ -243,7 +244,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		Map<String,Object> collectionHierarchy = getHierarchy(node.getIdentifier(), true);
-		TelemetryManager.info("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
+		TelemetryManager.log("Hierarchy for content : " + node.getIdentifier() + " : " + collectionHierarchy);
 		List<Map<String, Object>> children = null;
 		if(MapUtils.isNotEmpty(collectionHierarchy)) {
 			Set<String> collectionResourceChildNodes = new HashSet<>();
@@ -326,9 +327,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes) {
-		if(CollectionUtils.isNotEmpty(children)){
+		if(CollectionUtils.isNotEmpty(children)) {
 			List<Map<String, Object>> newChildren = new ArrayList<>(children);
-
 			if (null!=newChildren && !newChildren.isEmpty()) {
 				for (Map<String, Object> child : newChildren) {
 					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Parent") &&
@@ -337,11 +337,12 @@ public class PublishFinalizer extends BaseFinalizer {
 					if(StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.visibility.name()), "Default") &&
 							StringUtils.equalsIgnoreCase((String)child.get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
 						Map<String,Object> collectionHierarchy = getHierarchy((String)child.get(ContentWorkflowPipelineParams.identifier.name()), false);
+						TelemetryManager.log("Collection hierarchy for chilNode : " + child.get(ContentWorkflowPipelineParams.identifier.name()) + " : " + collectionHierarchy);
 						if(MapUtils.isNotEmpty(collectionHierarchy)) {
 							collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
 							collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
 							List<String> childNodes = (List<String>)collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name());
-							if(!CollectionUtils.isEmpty(childNodes))
+							if(!CollectionUtils.isEmpty(childNodes)) 
 								collectionResourceChildNodes.addAll(childNodes);
 							if(!MapUtils.isEmpty(collectionHierarchy)) {
 								children.remove(child);
@@ -354,77 +355,71 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 	
-	private List<String> getUnitFromLiveContent(){
-		Node liveContent = util.getNode(ContentWorkflowPipelineParams.domain.name(), contentId);
-		List<String> childNodes = null;
-		childNodes = new ArrayList<>(Arrays.asList((String[])liveContent.getMetadata().get("childNodes")));
-		if(CollectionUtils.isNotEmpty(childNodes)) {
-			List<Relation> outRelations = liveContent.getOutRelations();
-			if(CollectionUtils.isNotEmpty(outRelations)) {
-				List<String> leafNodes = outRelations.stream().filter(rel -> StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SEQUENCE_MEMBERSHIP.name())).map(rel -> rel.getEndNodeId()).collect(Collectors.toList());
-				childNodes.removeAll(leafNodes);
-			}
+	private void getUnitFromLiveContent(List<String> unitNodes){
+		Map<String, Object> liveContentHierarchy = getHierarchy(contentId, false);
+		if(MapUtils.isNotEmpty(liveContentHierarchy)) {
+			List<Map<String, Object>> children = (List<Map<String, Object>>)liveContentHierarchy.get("children");
+			getUnitFromLiveContent(unitNodes, children);
 		}
-		return childNodes;
 	}
-	
-	/*private BoolQueryBuilder getDeleteIndexQuery(List<String> identifiers) throws Exception {
-		BoolQueryBuilder query = QueryBuilders.boolQuery();
-		for(String identifier : identifiers)
-			query.should(QueryBuilders.matchQuery("identifier.raw", identifier));
-		return query;
-	}*/
+	private void getUnitFromLiveContent(List<String> unitNodes, List<Map<String, Object>> children) {
+		if(CollectionUtils.isNotEmpty(children)) {
+			children.stream().forEach(child -> {
+				if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+                		unitNodes.add((String)child.get("identifier"));
+                		getUnitFromLiveContent(unitNodes, (List<Map<String, Object>>) child.get("children"));
+                }
+            });
+		}
+	}
 	
 	private void syncNodes(List<Map<String, Object>> children, List<String> unitNodes) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
-		List<String> nodeIds = new ArrayList<>();
-		List<Node> nodes = new ArrayList<>();
-		getNodeMap(children, nodes, nodeIds, definition);
-		if(!CollectionUtils.isEmpty(unitNodes))
-			unitNodes.removeAll(nodeIds);
-		
-		if (nodes.isEmpty())
-			return;
-
-		Map<String, String> errors;
-		
 		if (null == definition) {
 			TelemetryManager.error("Content definition is null.");
 		}
+		List<String> nodeIds = new ArrayList<>();
+		List<Node> nodes = new ArrayList<>();
+		getNodeForSyncing(children, nodes, nodeIds, definition);
+		if(CollectionUtils.isNotEmpty(unitNodes))
+			unitNodes.removeAll(nodeIds);
 		
+		if(CollectionUtils.isEmpty(nodes) && CollectionUtils.isEmpty(unitNodes))
+			return;
+
+		Map<String, String> errors;
 		org.codehaus.jackson.map.ObjectMapper o = new org.codehaus.jackson.map.ObjectMapper();
 		Map<String, Object> def =  o.convertValue(definition, new TypeReference<Map<String, Object>>() {});
 		Map<String, String> relationMap = GraphUtil.getRelationMap(ContentWorkflowPipelineParams.Content.name(), def);
-		//SyncMessageGenerator.definitionMap.put(ContentWorkflowPipelineParams.Content.name(), relationMap);
-		
-		while (!nodes.isEmpty()) {
-			int currentBatchSize = (nodes.size() >= batchSize) ? batchSize : nodes.size();
-			List<Node> nodeBatch = nodes.subList(0, currentBatchSize);
-
-			if (CollectionUtils.isNotEmpty(nodeBatch)) {
-				
-				errors = new HashMap<>();
-				Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, ContentWorkflowPipelineParams.Content.name(), relationMap, errors);
-				if (!errors.isEmpty())
-					TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
-				if(MapUtils.isNotEmpty(messages)) {
-					try {
-						ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
-					} catch (Exception e) {
-						TelemetryManager.error("Elastic Search indexing failed: " + e);
-					}					
-				}
-				if(!CollectionUtils.isEmpty(unitNodes)) {
-					try {
-						ElasticSearchUtil.bulkDeleteDocumentById(ES_INDEX_NAME, DOCUMENT_TYPE, unitNodes);
-					} catch (Exception e) {
-						TelemetryManager.error("Elastic Search indexing failed: " + e);
+		if(CollectionUtils.isNotEmpty(nodes)) {
+			while (!nodes.isEmpty()) {
+				int currentBatchSize = (nodes.size() >= batchSize) ? batchSize : nodes.size();
+				List<Node> nodeBatch = nodes.subList(0, currentBatchSize);
+	
+				if (CollectionUtils.isNotEmpty(nodeBatch)) {
+					
+					errors = new HashMap<>();
+					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Content.name(), relationMap, errors);
+					if (!errors.isEmpty())
+						TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
+					if(MapUtils.isNotEmpty(messages)) {
+						try {
+							ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
+						} catch (Exception e) {
+							TelemetryManager.error("Elastic Search indexing failed: " + e);
+						}					
 					}
 				}
-
+				// clear the already batched node ids from the list
+				nodes.subList(0, currentBatchSize).clear();
 			}
-			// clear the already batched node ids from the list
-			nodes.subList(0, currentBatchSize).clear();
+		}
+		try {
+			//Unindexing not utilized units
+			if(CollectionUtils.isNotEmpty(unitNodes))
+				ElasticSearchUtil.bulkDeleteDocumentById(ES_INDEX_NAME, DOCUMENT_TYPE, unitNodes);
+		} catch (Exception e) {
+			TelemetryManager.error("Elastic Search indexing failed: " + e);
 		}
 	}
 	
@@ -435,6 +430,25 @@ public class PublishFinalizer extends BaseFinalizer {
                 try {
                     if(StringUtils.equalsIgnoreCase("Default", (String) child.get("visibility"))) {
                         node = util.getNode(ContentWorkflowPipelineParams.domain.name(), (String)child.get("identifier"));//getContentNode(TAXONOMY_ID, (String) child.get("identifier"), null);
+                        node.getMetadata().remove("children");
+                        Map<String, Object> childData = new HashMap<>();
+                        childData.putAll(child);
+                        List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get("children");
+                        List<Map<String, Object>> finalChildList = new ArrayList<>();
+						if (CollectionUtils.isNotEmpty(nextLevelNodes)) {
+							finalChildList = nextLevelNodes.stream().map(nextLevelNode -> {
+								Map<String, Object> metadata = new HashMap<String, Object>() {{
+									put("identifier", nextLevelNode.get("identifier"));
+									put("name", nextLevelNode.get("name"));
+									put("objectType", "Content");
+									put("description", nextLevelNode.get("description"));
+									put("index", nextLevelNode.get("index"));
+								}};
+								return metadata;
+							}).collect(Collectors.toList());
+						}
+						node.getMetadata().put("children", finalChildList);
+                        
                     }else {
                     		Map<String, Object> childData = new HashMap<>();
                         childData.putAll(child);
@@ -465,9 +479,64 @@ public class PublishFinalizer extends BaseFinalizer {
                     		nodeIds.add(node.getIdentifier());
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                		TelemetryManager.error("Error while generating node map. ", e);
                 }
                 getNodeMap((List<Map<String, Object>>) child.get("children"), nodes, nodeIds, definition);
+            });
+        }
+    }
+	private List<String> getRelationList(DefinitionDTO definition){
+		List<String> relationshipProperties = new ArrayList<>();
+		relationshipProperties.addAll(definition.getInRelations().stream().map(rel -> rel.getTitle()).collect(Collectors.toList()));
+		relationshipProperties.addAll(definition.getOutRelations().stream().map(rel -> rel.getTitle()).collect(Collectors.toList()));
+		return relationshipProperties;
+	}
+	
+	private void getNodeForSyncing(List<Map<String, Object>> children, List<Node> nodes, List<String> nodeIds, DefinitionDTO definition) {
+		List<String> relationshipProperties = getRelationList(definition);
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.stream().forEach(child -> {
+            		try {
+            			if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+            				Map<String, Object> childData = new HashMap<>();
+            				childData.putAll(child);
+            				Map<String, Object> relationProperties = new HashMap<>();
+            				for(String property : relationshipProperties) {
+            					if(childData.containsKey(property)) {
+                        			relationProperties.put(property, (List<Map<String, Object>>) childData.get(property));
+                        			childData.remove(property);
+                        		}
+            				}
+            				Node node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+            				if(MapUtils.isNotEmpty(relationProperties)) {
+            					for(String key : relationProperties.keySet()) {
+                        			List<String> finalPropertyList = null;
+                        			List<Map<String, Object>> properties = (List<Map<String, Object>>)relationProperties.get(key);
+                        			if (CollectionUtils.isNotEmpty(properties)) {
+                        				finalPropertyList = properties.stream().map(property -> {
+            								String identifier = (String)property.get("identifier");
+            								return identifier;
+            							}).collect(Collectors.toList());
+            						}
+                        			if(CollectionUtils.isNotEmpty(finalPropertyList))
+                        				node.getMetadata().put(key, finalPropertyList);
+                        		}
+                        }
+                        if(StringUtils.isBlank(node.getObjectType()))
+                        		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
+                        if(StringUtils.isBlank(node.getGraphId()))
+                        		node.setGraphId(ContentWorkflowPipelineParams.domain.name());
+                        if(!nodeIds.contains(node.getIdentifier())) {
+                    			nodes.add(node);
+                    			nodeIds.add(node.getIdentifier());
+                        }
+                        getNodeForSyncing((List<Map<String, Object>>) child.get("children"), nodes, nodeIds, definition);
+                    }
+                    
+                } catch (Exception e) {
+                	TelemetryManager.error("Error while fetching unit nodes for syncing. ", e);
+                }
+                
             });
         }
     }
@@ -791,7 +860,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 			TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			// TODO: START : Remove the below when mobile app is ready to accept Resources as Default in manifest
-			childrenIds = (List<String>) node.getMetadata().get("childNodes");
+			if(CollectionUtils.isNotEmpty((List<String>) node.getMetadata().get("childNodes")))
+				childrenIds = (List<String>) node.getMetadata().get("childNodes");
 		} else {
 			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
@@ -965,10 +1035,18 @@ public class PublishFinalizer extends BaseFinalizer {
 			content.put(ContentAPIParams.childNodes.name(), childNodes);
 			
 			node.getMetadata().put(ContentAPIParams.toc_url.name(), generateTOC(node, content));
-			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
-			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+			try {
+				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), convertToString(mimeTypeMap));
+				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), convertToString(contentTypeMap));
+			} catch (Exception e) {
+				TelemetryManager.error("Error while stringifying mimeTypeCount or contentTypesCount.", e);
+			}
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
+	}
+	
+	private String convertToString(Object obj) throws Exception {
+		return mapper.writeValueAsString(obj);
 	}
 
 	private Map<String, Object> processChild(Map<String, Object> node) {

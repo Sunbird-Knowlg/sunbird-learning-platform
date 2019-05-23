@@ -19,13 +19,11 @@ import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.ekstep.telemetry.util.LogTelemetryEventUtil;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -70,8 +68,19 @@ public class FindOperation extends BaseContentManager {
         } else {
             TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
             Node node = getContentNode(TAXONOMY_ID, contentId, mode);
-            contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, fields);
+            contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
             contentId = node.getIdentifier();
+        }
+
+        String channel = (String) contentMap.get("channel");
+        if (StringUtils.isBlank(channel))
+            channel = Platform.config.hasPath("channel.default") ? Platform.config.getString("channel.default") : "in.ekstep";
+        Number version = (Number) contentMap.get("version");
+        String mimeType = (String) contentMap.get("mimeType");
+        if (null != mimeType
+                && StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.ecml-archive")
+                && (version == null || version.intValue() < 2)) {
+            generateMigrationInstructionEvent(contentId, channel);
         }
 
         // Filter contentMap based on Fields
@@ -92,17 +101,6 @@ public class FindOperation extends BaseContentManager {
                     contentMap.putAll(resProps);
             }
         }
-        // Push data for ecml migration
-        String channel = (String) contentMap.get("channel");
-        if (StringUtils.isBlank(channel))
-            channel = Platform.config.hasPath("channel.default") ?
-                    Platform.config.getString("channel.default") : "in.ekstep";
-        Number version = (Number) contentMap.get("version");
-        String mimeType = (String) contentMap.get("mimeType");
-        if (mimeType != null
-                && org.apache.commons.lang3.StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.ecml-archive")
-                && (version == null || version.intValue() < 2))
-            generateMigrationInstructionEvent(contentId, channel);
 
         // Get all the languages for a given Content
         List<String> languages = prepareList(contentMap.get(TaxonomyAPIParams.language.name()));

@@ -4,14 +4,12 @@
  */
 package org.ekstep.jobs.samza.service;
 
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.dto.Response;
-import com.mashape.unirest.http.HttpResponse;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
@@ -79,9 +77,8 @@ public class EcmlMigrationService {
         return mediasDriveUrl;
     }
 
-    public Map<String, List> downloadDriveContents(String driveUrl, String dirUrl) {
+    public Map<String, List> downloadDriveContents(String driveUrl, String dirUrl) throws Exception{
         Map<String, List> fileMap = new HashMap<>();
-        try {
             HttpResponse response = makeGetRequest(driveUrl);
             if (response.getStatus() == 200) {
                 String contentType = response.getHeaders().get("Content-Type").get(0);
@@ -101,10 +98,6 @@ public class EcmlMigrationService {
             } else {
                 throw new ClientException(ECML_MIGRATION_FAILED, "404 Resource Not Found, Make sure resource is available");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getMessage(), e);
-        }
         return fileMap;
     }
 
@@ -112,6 +105,8 @@ public class EcmlMigrationService {
         try {
 
             Map<String, Object> properties = new HashMap<>();
+            properties.put("objectType","Content");
+            properties.put("contentType","Asset");
             properties.put("migratedUrl", driveUrl);
             properties.put("status", new ArrayList<>());
             SearchDTO searchDto = new SearchDTO();
@@ -200,19 +195,13 @@ public class EcmlMigrationService {
         return null;
     }
 
-    public Boolean deleteDownloadedContent(String fileUrl) {
-        File file = new File(fileUrl);
-        try {
-            if (file.listFiles() != null) {
-                FileUtils.cleanDirectory(file);
-                LOGGER.info("Successfully deleted all temp media");
-                return true;
-            }
-        } catch (Exception e) {
-            LOGGER.error("Deleting media unsuccesful", e);
-            return false;
+    public void deleteDownloadedContent(String fileUrl) {
+        File index = new File(fileUrl);
+        String[] entries = index.list();
+        for (String s : entries) {
+            File currentFile = new File(index.getPath(), s);
+            currentFile.delete();
         }
-        return false;
     }
 
     public HttpResponse makeGetRequest(String url) throws Exception {
@@ -245,6 +234,15 @@ public class EcmlMigrationService {
                 throw new ClientException(ECML_MIGRATION_FAILED, "Cassandra Body update failed");
         } else
             throw new ClientException(ECML_MIGRATION_FAILED, "ECML Body update was not possible");
+    }
+
+    public void ecmlOldBodyUpdate(String contentBody, String contentId) throws Exception {
+        if (StringUtils.isNotBlank(contentBody)) {
+            Response response = util.updateContentOldBody(contentId, contentBody);
+            if (response.getResponseCode() != ResponseCode.OK)
+                throw new ClientException(ECML_MIGRATION_FAILED, "Cassandra Old Body update failed");
+        } else
+            throw new ClientException(ECML_MIGRATION_FAILED, "ECML Old Body update was not possible");
     }
 
     public void updateEcmlNode(List<Node> nodes) throws Exception {

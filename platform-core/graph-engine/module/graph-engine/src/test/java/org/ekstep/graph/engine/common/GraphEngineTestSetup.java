@@ -3,14 +3,9 @@
  */
 package org.ekstep.graph.engine.common;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.ekstep.common.Platform;
@@ -27,13 +22,17 @@ import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author pradyumna
@@ -156,6 +155,18 @@ public class GraphEngineTestSetup {
 		Response resp = (Response) obj;
 		if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
 			
+		}
+	}
+
+	/**
+	 *
+	 * @param time
+	 */
+	protected static void delay(long time) {
+		try {
+			Thread.sleep(time);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

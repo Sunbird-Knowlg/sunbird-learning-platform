@@ -50,10 +50,6 @@ public class FrameworkHierarchy extends BaseManager {
 	private static final String objectType = "Framework";
 	private HierarchyStore hierarchyStore = new HierarchyStore(keyspace, table, objectType, false);
 
-	private int frameworkTtl = (Platform.config.hasPath("framework.cache.ttl"))
-			? Platform.config.getInt("framework.cache.ttl")
-			: 604800;
-
 	/**
 	 * @param id
 	 * @throws Exception
@@ -78,8 +74,6 @@ public class FrameworkHierarchy extends BaseManager {
 					frameworkDocument.put(field, node.getMetadata().get(field));
 			}
 			hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
-			//saving the framework in the redis sever for publish.
-			RedisStoreUtil.saveData(node.getIdentifier(), frameworkDocument, frameworkTtl);
 
 		} else {
 			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "The object with given identifier is not a framework: " + id);

@@ -1,6 +1,7 @@
 package org.ekstep.jobs.samza.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Throwables;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +61,7 @@ public class CollectionMigrationService implements ISamzaService {
         LOGGER.info("Stream initialized for Failed Events");
         hierarchyStore = new HierarchyStore();
         migrationService = new EcmlMigrationService();
-        downloadFileLocation = Platform.config.hasPath("tmp.download.directory") ? Platform.config.getString("tmp.download.directory") : "/data/tmp/temp/";
+        downloadFileLocation = Platform.config.hasPath("tmp.download.directory") ? Platform.config.getString("tmp.download.directory") : "/tmp";
     }
 
     @Override
@@ -243,8 +244,8 @@ public class CollectionMigrationService implements ISamzaService {
     }
 
     private void migrateECML(Map<String, Object> message, JobMetrics metrics, Map<String, Object> object) {
+        String contentId = (String) object.get("id");
         try {
-            String contentId = (String) object.get("id");
             //Get both the image and original node if exists
             Boolean isImage = false;
             Node ecmlNode = util.getNode("domain", contentId);
@@ -267,7 +268,7 @@ public class CollectionMigrationService implements ISamzaService {
                     imageContentBody = util.getContentBody(contentId + ".img");
                     mediaContents.addAll(migrationService.getMediaContents(imageContentBody));
                     if (RequestValidatorUtil.isEmptyOrNull(imageContentBody))
-                        throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml body cannot be null");
+                        throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml Image body cannot be null");
                 }
                 //Add medias only with drive urls (Both node and image)
                 List<Map<String, Object>> mediasWithDriveUrl = migrationService.getMediasWithDriveUrl(mediaContents);
@@ -283,6 +284,11 @@ public class CollectionMigrationService implements ISamzaService {
                     migrationService.updateEcmlNode(nodesForUpdate);
                     return;
                 }
+                //Update the old body to store current body
+                if (isImage)
+                    migrationService.ecmlOldBodyUpdate(imageContentBody, contentId + ".img");
+                migrationService.ecmlOldBodyUpdate(contentBody, contentId);
+
                 //Get all the contents whose drive urls don't have an existing asset
                 Set<String> contentUrlsWithNoAsset = new HashSet<>();
                 Map<String, String> driveArtifactMap = new HashMap();
@@ -295,8 +301,13 @@ public class CollectionMigrationService implements ISamzaService {
                 });
                 //Download the content, create asset and upload the respective content
                 Map<String, List> fileMap = new HashMap();
-                contentUrlsWithNoAsset.forEach(contentUrl -> fileMap.putAll(migrationService.downloadDriveContents(contentUrl, downloadFileLocation)));
-                fileMap.keySet().forEach(driveUrl -> {
+                contentUrlsWithNoAsset.forEach(contentUrl ->{
+                    try {
+                        fileMap.putAll(migrationService.downloadDriveContents(contentUrl, downloadFileLocation));
+                    } catch (Exception e) {
+                        throw Throwables.propagate(e);
+                    }
+                });                fileMap.keySet().forEach(driveUrl -> {
                     String id = migrationService.createAsset(fileMap, driveUrl);
                     String artifactUrl = migrationService.uploadAsset((File) fileMap.get(driveUrl).get(0), id);
                     if (StringUtils.isNotBlank(artifactUrl))
@@ -310,15 +321,16 @@ public class CollectionMigrationService implements ISamzaService {
                         migrationService.ecmlBodyUpdate(imageContentBody, contentId + ".img", driveArtifactMap);
                     migrationService.ecmlBodyUpdate(contentBody, contentId, driveArtifactMap);
                     migrationService.updateEcmlNode(nodesForUpdate);
+                    LOGGER.info("Migration is successful for id : " + contentId);
                 } else
-                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Drive Urls are not valid or not present");
+                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Drive Urls are not valid or No Assets found");
             } else {
                 metrics.incSkippedCounter();
                 LOGGER.info("Migration is already done. Unable to process the event.", message);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage() + " for content id : " +contentId, e);
         }
     }
 
