@@ -1,0 +1,10 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+#GET	/health                                     @controllers.health.HealthController.checkAPIhealth
+#GET /content/v3/read/:identifier                @controllers.Application.readContent(identifier:String, mode:Option[String], fields:Option[List[String]])
+#GET /framework/v3/read/:identifier              @controllers.Application.readFramework(identifier:String, categories:Option[String])
+#GET /channel/v3/read/:identifier                @controllers.Application.readChannel(identifier:String)
+
+GET     /                                        controllers.HomeController.index
