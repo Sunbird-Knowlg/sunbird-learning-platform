@@ -1048,20 +1048,12 @@
       },
       {
         "required": false,
-        "dataType": "Multi-Select",
+        "dataType": "List",
         "propertyName": "bloomsLevel",
         "title": "Blooms Level",
         "description": "R2.0",
         "category": "General",
         "displayProperty": "Editable",
-        "range": [
-          "remember",
-          "understand",
-          "apply",
-          "analyse",
-          "evaluate",
-          "create"
-        ],
         "defaultValue": "",
         "renderingHints": "",
         "indexed": true,
