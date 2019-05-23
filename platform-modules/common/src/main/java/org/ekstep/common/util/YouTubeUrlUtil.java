@@ -1,21 +1,6 @@
 package org.ekstep.common.util;
 
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
-import org.ekstep.common.Platform;
-import org.ekstep.common.enums.TaxonomyErrorCodes;
-import org.ekstep.common.exception.ClientException;
-import org.ekstep.common.exception.ServerException;
-import org.ekstep.telemetry.logger.TelemetryManager;
-
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -26,6 +11,20 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
+import org.ekstep.common.exception.ClientException;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.telemetry.logger.TelemetryManager;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Contains methods for authorizing a user and caching credentials.
@@ -71,38 +70,21 @@ public class YouTubeUrlUtil {
 	 * @return licenceType
 	 */
 	public static String getLicense(String videoUrl) {
+		Video video = null;
 		String videoId = getIdFromUrl(videoUrl);
-		if(StringUtils.isBlank(videoId))
+		if (StringUtils.isBlank(videoId))
 			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_URL.name(), ERR_MSG);
-		
-		String licenceType = "";
-		try {
-			YouTube.Videos.List videosListByIdRequest = youtube.videos().list("status");
-			String apiKey = Platform.config.getString("learning_content_youtube_apikey");
-			videosListByIdRequest.setKey(apiKey);
-			videosListByIdRequest.setId(videoId);
-			VideoListResponse response = videosListByIdRequest.execute();
-			List<Video> videoList = response.getItems();
 
-			if (null != videoList && !videoList.isEmpty()) {
-				Iterator<Video> itr = videoList.iterator();
-				while (itr.hasNext()) {
-					Video singleVideo = itr.next();
-					licenceType = singleVideo.getStatus().getLicense().toString();
-				}
-			}
-		} catch (GoogleJsonResponseException ex) {
-			Map<String, Object> error = ex.getDetails().getErrors().get(0);
-			String reason = (String) error.get("reason");
-			if (errorCodes.contains(reason)) {
-				limitExceeded = true;
-				TelemetryManager
-						.log("Youtube API Limit Exceeded. Reason is: " + reason + " | Error Details : " + ex);
-			}
-		} catch (Exception e) {
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
-					"Something Went Wrong While Processing Your Request. Please Try Again After Sometime!");
+		String licenceType = "";
+		List<Video> videoList = getVideoList(videoId, "status");
+		if (null != videoList && !videoList.isEmpty()) {
+			video = videoList.get(0);
 		}
+
+		if (null != video) {
+			licenceType = video.getStatus().getLicense().toString();
+		}
+
 		if (StringUtils.isBlank(licenceType) && !limitExceeded)
 			throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name(), ERR_MSG);
 
@@ -117,7 +99,9 @@ public class YouTubeUrlUtil {
     }
 	private static String getIdFromUrl(String url) {
 		String videoLink = getVideoLink(url);
-		List<String> videoIdRegex = Platform.config.getStringList("youtube.license.regex.pattern");
+		List<String> videoIdRegex = Platform.config.hasPath("youtube.license.regex.pattern") ?
+				Platform.config.getStringList("youtube.license.regex.pattern") :
+				Arrays.asList("\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-\\_]*)");
 		for (String regex : videoIdRegex) {
 			Pattern compiledPattern = Pattern.compile(regex);
 			Matcher matcher = compiledPattern.matcher(videoLink);
@@ -138,4 +122,97 @@ public class YouTubeUrlUtil {
 		}
 		return url;
 	}
+
+	/**
+	 *
+	 * @param videoId
+	 * @param params
+	 * @return
+	 */
+	private static List<Video> getVideoList(String videoId, String params) {
+		try {
+			YouTube.Videos.List videosListByIdRequest = youtube.videos().list(params);
+			String apiKey = Platform.config.getString("learning_content_youtube_apikey");
+			videosListByIdRequest.setKey(apiKey);
+			videosListByIdRequest.setId(videoId);
+			VideoListResponse response = videosListByIdRequest.execute();
+			return response.getItems();
+		} catch (GoogleJsonResponseException ex) {
+			Map<String, Object> error = ex.getDetails().getErrors().get(0);
+			String reason = (String) error.get("reason");
+			if (errorCodes.contains(reason)) {
+				limitExceeded = true;
+				TelemetryManager
+						.log("Youtube API Limit Exceeded. Reason is: " + reason + " | Error Details : " + ex);
+			}
+		} catch (Exception e) {
+			TelemetryManager
+					.error("Error Occured While Calling Youtube API. Error Details : " ,e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(),
+					"Something Went Wrong While Processing Youtube Video. Please Try Again After Sometime!");
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 * @param videoUrl
+	 * @param apiParams
+	 * @param metadata
+	 * @return
+	 */
+	public static Map<String, Object> getVideoInfo(String videoUrl, String apiParams, String... metadata) {
+		Video video = null;
+		Map<String, Object> result = new HashMap<String, Object>();
+		String videoId = getIdFromUrl(videoUrl);
+		List<Video> videoList = getVideoList(videoId, apiParams);
+		if (null != videoList && !videoList.isEmpty()) {
+			video = videoList.get(0);
+		}
+		if (null != video) {
+			for (String str : metadata) {
+				if ("license".equalsIgnoreCase(str)) {
+					String license = video.getStatus().getLicense().toString();
+					if (StringUtils.isNotBlank(license))
+						result.put(str, license);
+				}
+
+				if ("thumbnail".equalsIgnoreCase(str)) {
+					String thumbnailUrl = video.getSnippet().getThumbnails().getMedium().getUrl();
+					if (StringUtils.isNotBlank(thumbnailUrl))
+						result.put(str, thumbnailUrl);
+				}
+
+				if ("duration".equalsIgnoreCase(str)) {
+					String duration = computeVideoDuration(video.getContentDetails().getDuration());
+					if (StringUtils.isNotBlank(duration))
+						result.put(str, duration);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * This Method Computes Duration for Youtube Video
+	 * @param videoDuration
+	 * @return
+	 */
+	private static String computeVideoDuration(String videoDuration) {
+		String youtubeDuration = videoDuration.replaceAll("PT|S", "").replaceAll("H|M", ":");
+		String[] values = youtubeDuration.split(":");
+		if (null != values) {
+			if (values.length == 1) {
+				return values[0];
+			}
+			if (values.length == 2) {
+				return String.valueOf((Integer.parseInt(values[0]) * 60) + (Integer.parseInt(values[1]) * 1));
+			}
+			if (values.length == 3) {
+				return String.valueOf((Integer.parseInt(values[0]) * 3600) + (Integer.parseInt(values[1]) * 60) + (Integer.parseInt(values[2]) * 1));
+			}
+		}
+		return "";
+	}
+
 }

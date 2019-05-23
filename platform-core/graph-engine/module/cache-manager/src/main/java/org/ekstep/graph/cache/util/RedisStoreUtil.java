@@ -1,7 +1,11 @@
 package org.ekstep.graph.cache.util;
 
-import static org.ekstep.graph.cache.factory.JedisFactory.getRedisConncetion;
-import static org.ekstep.graph.cache.factory.JedisFactory.returnConnection;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.exception.ServerException;
+import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
+import org.ekstep.graph.dac.enums.GraphDACParams;
+import org.ekstep.telemetry.logger.TelemetryManager;
+import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,13 +13,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.ekstep.common.exception.ServerException;
-import org.ekstep.graph.cache.exception.GraphCacheErrorCodes;
-import org.ekstep.graph.dac.enums.GraphDACParams;
-
-import redis.clients.jedis.Jedis;
+import static org.ekstep.graph.cache.factory.JedisFactory.getRedisConncetion;
+import static org.ekstep.graph.cache.factory.JedisFactory.returnConnection;
 
 public class RedisStoreUtil {
+
+	private static ObjectMapper mapper = new ObjectMapper();
 
 	public static void saveNodeProperty(String graphId, String objectId, String nodeProperty, String propValue) {
 
@@ -25,6 +28,32 @@ public class RedisStoreUtil {
 			jedis.set(redisKey, propValue);
 		} catch (Exception e) {
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
+
+	public static void save(String key, String value, int ttl) {
+
+		Jedis jedis = getRedisConncetion();
+		try {
+			jedis.set(key, value);
+			if(ttl > 0)
+				jedis.expire(key, ttl);
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
+	public static String get(String key) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			return jedis.get(key);
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
 			returnConnection(jedis);
 		}
@@ -142,4 +171,35 @@ public class RedisStoreUtil {
 			returnConnection(jedis);
 		}
 	}
+
+	/**
+	 * This Method Save Data to Redis Cache With ttl.
+	 *
+	 * @param identifier
+	 * @param data
+	 * @param ttl
+	 */
+	public static void saveData(String identifier, Map<String, Object> data, int ttl) {
+		try {
+			save(identifier, mapper.writeValueAsString(data), ttl);
+		} catch (Exception e) {
+			TelemetryManager.error("Error while saving hierarchy to Redis for Identifier : " + identifier + " | Error is : ", e);
+		}
+	}
+
+	/**
+	 * This method delete the keys from Redis Cache
+	 * @param keys
+	 */
+	public static void delete(String... keys) {
+		Jedis jedis = getRedisConncetion();
+		try {
+			jedis.del(keys);
+		} catch (Exception e) {
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_DELETE_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+	}
+
 }

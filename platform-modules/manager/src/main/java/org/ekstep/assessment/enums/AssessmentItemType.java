@@ -3,7 +3,7 @@ package org.ekstep.assessment.enums;
 import org.apache.commons.lang3.StringUtils;
 
 public enum AssessmentItemType {
-    mcq, mmcq, sort_list, ftb, mtf, speech_question, canvas_question, recognition;
+    mcq, mmcq, sort_list, ftb, mtf, speech_question, canvas_question, recognition, vsa, sa, la, reference;
 
     public static boolean isValidAssessmentType(String str) {
         AssessmentItemType val = null;

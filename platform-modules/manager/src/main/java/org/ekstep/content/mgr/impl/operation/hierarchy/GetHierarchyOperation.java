@@ -1,5 +1,6 @@
 package org.ekstep.content.mgr.impl.operation.hierarchy;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +11,7 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.router.RequestRouterPool;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.kafka.KafkaClient;
@@ -36,7 +38,9 @@ import java.util.stream.Collectors;
 public class GetHierarchyOperation extends BaseContentManager {
 
     private SearchProcessor processor = new SearchProcessor();
+
     private static final String IMAGE_SUFFIX = ".img";
+
 
     /**
      * Get Collection Hierarchy
@@ -158,23 +162,40 @@ public class GetHierarchyOperation extends BaseContentManager {
      * @return
      */
     private Response getPublishedHierarchy(String rootId, String bookmarkId) {
-        Response rootResponse = getCollectionHierarchy(rootId);
-        if (!checkError(rootResponse)) {
-            Map<String, Object> rootHierarchy = (Map<String, Object>) rootResponse.getResult().get("hierarchy");
+        Response response = getSuccessResponse();
+        Map<String, Object> rootHierarchy = null;
+        String hierarchy = RedisStoreUtil.get(COLLECTION_CACHE_KEY_PREFIX + rootId);
+        if (StringUtils.isNotBlank(hierarchy)) {
+            try {
+                rootHierarchy = objectMapper.readValue(hierarchy, new TypeReference<Map<String, Object>>() {
+                });
+            } catch (Exception e) {
+                TelemetryManager.error("Error Occurred While Parsing Hierarchy for Content Id : " + rootId + " | Error is: ", e);
+                throw new ServerException("ERR_CONTENT_HIERARCHY_PARSE", "Something Went Wrong While Processing the Content. ", e);
+            }
+            response.getResult().put("content", rootHierarchy);
             return getHierarchyResponse(rootHierarchy, bookmarkId);
         } else {
-            if (StringUtils.isBlank(bookmarkId)) {
-                bookmarkId = rootId;
-                rootId = searchRootId(bookmarkId);
-                if (StringUtils.isNotBlank(rootId)) {
-                    rootResponse = getCollectionHierarchy(rootId);
-                    Map<String, Object> rootHierarchy = (Map<String, Object>) rootResponse.getResult().get("hierarchy");
-                    return getHierarchyResponse(rootHierarchy, bookmarkId);
-                } else {
-                    throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
-                }
+            response = getCollectionHierarchy(rootId);
+            if (!checkError(response)) {
+                rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
+                RedisStoreUtil.saveData(rootId, rootHierarchy, CONTENT_CACHE_TTL);
+                return getHierarchyResponse(rootHierarchy, bookmarkId);
             } else {
-                throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given collection root object ID is invalid: " + rootId);
+                if (StringUtils.isBlank(bookmarkId)) {
+                    bookmarkId = rootId;
+                    rootId = searchRootId(bookmarkId);
+                    if (StringUtils.isNotBlank(rootId)) {
+                        response = getCollectionHierarchy(rootId);
+                        rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
+                        RedisStoreUtil.saveData(rootId, rootHierarchy, CONTENT_CACHE_TTL);
+                        return getHierarchyResponse(rootHierarchy, bookmarkId);
+                    } else {
+                        throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
+                    }
+                } else {
+                    throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Given collection root object ID is invalid: " + rootId);
+                }
             }
         }
     }
@@ -324,6 +345,5 @@ public class GetHierarchyOperation extends BaseContentManager {
         edata.put("action", "collection-migration");
         edata.put("contentType", "TextBook");
     }
-
 
 }

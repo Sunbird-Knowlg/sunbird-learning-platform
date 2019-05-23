@@ -6,6 +6,7 @@ import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.common.DateUtils;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
@@ -75,9 +76,13 @@ public class RetireOperation extends BaseContentManager {
                     throw new ServerException(ContentErrorCodes.ERR_CONTENT_RETIRE.name(), "Something Went Wrong While Removing Children's from ES.");
                 }
                 deleteHierarchy(Arrays.asList(contentId));
+                RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
             }
             Response responseNode = validateAndGetNodeResponseForOperation(contentId);
             node = (Node) responseNode.get("node");
+            if(!"application/vnd.ekstep.content-collection".equalsIgnoreCase(mimeType))
+                RedisStoreUtil.delete(contentId);
+
             Response res = getSuccessResponse();
             res.put(ContentAPIParams.node_id.name(), node.getIdentifier());
             res.put(ContentAPIParams.versionKey.name(), node.getMetadata().get("versionKey"));

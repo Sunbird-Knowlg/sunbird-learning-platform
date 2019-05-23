@@ -16,10 +16,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.mgr.BaseManager;
 import org.ekstep.common.mgr.ConvertGraphNode;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.dac.model.Relation;
@@ -58,28 +60,23 @@ public class FrameworkHierarchy extends BaseManager {
 			throw new ResourceNotFoundException("ERR_DATA_NOT_FOUND", "Data not found with id : " + id);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Framework")) {
-			pushFrameworkEvent(node);
-		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "CategoryInstance")) {
-			List<Relation> inRelations = node.getInRelations();
-			if (null != inRelations && !inRelations.isEmpty()) {
-				for (Relation rel : inRelations) {
-					if (StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Framework")
-							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
-						generateFrameworkHierarchy(rel.getStartNodeId());
-					}
-				}
+			Map<String, Object> frameworkDocument = new HashMap<>();
+			Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
+			CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
+
+			frameworkDocument.putAll(frameworkHierarchy);
+			frameworkDocument.put("identifier", node.getIdentifier());
+			frameworkDocument.put("objectType", node.getObjectType());
+			DefinitionDTO definition = getDefinition(GRAPH_ID, node.getObjectType());
+			String[] fields = getFields(definition);
+			for (String field : fields) {
+				if(null!=node.getMetadata().get(field))
+					frameworkDocument.put(field, node.getMetadata().get(field));
 			}
-		} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Term")) {
-			List<Relation> inRelations = node.getInRelations();
-			if (null != inRelations && !inRelations.isEmpty()) {
-				for (Relation rel : inRelations) {
-					if ((StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "CategoryInstance")
-							|| StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Term"))
-							&& StringUtils.equalsIgnoreCase(rel.getRelationType(), "hasSequenceMember")) {
-						generateFrameworkHierarchy(rel.getStartNodeId());
-					}
-				}
-			}
+			hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
+
+		} else {
+			throw new ClientException(ResponseCode.CLIENT_ERROR.name(), "The object with given identifier is not a framework: " + id);
 		}
 	}
 
@@ -99,23 +96,7 @@ public class FrameworkHierarchy extends BaseManager {
 	}
 
 	private void pushFrameworkEvent(Node node) throws Exception {
-		Map<String, Object> frameworkDocument = new HashMap<>();
-		Map<String, Object> frameworkHierarchy = getHierarchy(node.getIdentifier(), 0, false, true);
-		CategoryCache.setFramework(node.getIdentifier(), frameworkHierarchy);
 
-		frameworkDocument.put("fw_hierarchy", mapper.writeValueAsString(frameworkHierarchy));
-		frameworkDocument.put("graph_id", GRAPH_ID);
-		frameworkDocument.put("node_id", (int) node.getId());
-		frameworkDocument.put("identifier", node.getIdentifier());
-		frameworkDocument.put("objectType", node.getObjectType());
-		frameworkDocument.put("nodeType", node.getNodeType());
-		DefinitionDTO definition = getDefinition(GRAPH_ID, node.getObjectType());
-		String[] fields = getFields(definition);
-		for (String field : fields) {
-			if(null!=node.getMetadata().get(field))
-				frameworkDocument.put(field, node.getMetadata().get(field));
-		}
-		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(),frameworkDocument);
 	}
 
 	@SuppressWarnings("unchecked")
