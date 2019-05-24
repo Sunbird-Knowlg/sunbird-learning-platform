@@ -41,6 +41,8 @@ public class GetHierarchyOperation extends BaseContentManager {
 
     private static final String IMAGE_SUFFIX = ".img";
 
+    private static final Boolean CONTENT_CACHE_ENABLED = Platform.config.hasPath("content.cache.hierarchy") ? Platform.config.getBoolean("content.cache.hierarchy") : false;
+
 
     /**
      * Get Collection Hierarchy
@@ -164,7 +166,11 @@ public class GetHierarchyOperation extends BaseContentManager {
     private Response getPublishedHierarchy(String rootId, String bookmarkId) {
         Response response = getSuccessResponse();
         Map<String, Object> rootHierarchy = null;
-        String hierarchy = RedisStoreUtil.get(COLLECTION_CACHE_KEY_PREFIX + rootId);
+        String cacheKey = COLLECTION_CACHE_KEY_PREFIX + rootId;
+        String hierarchy = "";
+        if(CONTENT_CACHE_ENABLED)
+            hierarchy =  RedisStoreUtil.get(cacheKey);
+
         if (StringUtils.isNotBlank(hierarchy)) {
             try {
                 rootHierarchy = objectMapper.readValue(hierarchy, new TypeReference<Map<String, Object>>() {
@@ -179,7 +185,8 @@ public class GetHierarchyOperation extends BaseContentManager {
             response = getCollectionHierarchy(rootId);
             if (!checkError(response)) {
                 rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
-                RedisStoreUtil.saveData(rootId, rootHierarchy, CONTENT_CACHE_TTL);
+                if (CONTENT_CACHE_ENABLED && MapUtils.isNotEmpty(rootHierarchy))
+                    RedisStoreUtil.saveData(cacheKey, rootHierarchy, CONTENT_CACHE_TTL);
                 return getHierarchyResponse(rootHierarchy, bookmarkId);
             } else {
                 if (StringUtils.isBlank(bookmarkId)) {
@@ -188,7 +195,8 @@ public class GetHierarchyOperation extends BaseContentManager {
                     if (StringUtils.isNotBlank(rootId)) {
                         response = getCollectionHierarchy(rootId);
                         rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
-                        RedisStoreUtil.saveData(rootId, rootHierarchy, CONTENT_CACHE_TTL);
+                        if (CONTENT_CACHE_ENABLED && MapUtils.isNotEmpty(rootHierarchy))
+                            RedisStoreUtil.saveData(cacheKey, rootHierarchy, CONTENT_CACHE_TTL);
                         return getHierarchyResponse(rootHierarchy, bookmarkId);
                     } else {
                         throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);
