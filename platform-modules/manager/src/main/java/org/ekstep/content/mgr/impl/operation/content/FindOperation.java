@@ -139,19 +139,26 @@ public class FindOperation extends BaseContentManager {
             contentTaggedKeys.forEach(contentTagKey -> {
                 if(contentMap.containsKey(contentTagKey)) {
                     List<String> prop = prepareList(contentMap.get(contentTagKey));
-                    contentMap.put(contentTagKey, prop.get(0));
+                    if (CollectionUtils.isNotEmpty(prop))
+                        contentMap.put(contentTagKey, prop.get(0));
                 }
             });
         }
     }
 
-    private List<String> prepareList(Object obj) {
+    private static List<String> prepareList(Object obj) {
         List<String> list = new ArrayList<String>();
         try {
-            list = Arrays.asList((String[]) obj);
-        } catch (Exception e) {
-            if (obj instanceof List)
+            if (obj instanceof String) {
+                list.add((String) obj);
+            } else if (obj instanceof String[]) {
+                System.out.println("Array is input.");
+                list = Arrays.asList((String[]) obj);
+            } else if (obj instanceof List){
                 list.addAll((List<String>) obj);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         if (null != list) {
             list = list.stream().filter(x -> org.apache.commons.lang3.StringUtils.isNotBlank(x) && !org.apache.commons.lang3.StringUtils.equals(" ", x)).collect(toList());
