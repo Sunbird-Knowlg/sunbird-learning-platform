@@ -181,6 +181,7 @@ public class RedisStoreUtil {
 	 */
 	public static void saveData(String identifier, Map<String, Object> data, int ttl) {
 		try {
+			TelemetryManager.log("Saving Content Data To Redis Cache having identifier : " + identifier);
 			save(identifier, mapper.writeValueAsString(data), ttl);
 		} catch (Exception e) {
 			TelemetryManager.error("Error while saving hierarchy to Redis for Identifier : " + identifier + " | Error is : ", e);
