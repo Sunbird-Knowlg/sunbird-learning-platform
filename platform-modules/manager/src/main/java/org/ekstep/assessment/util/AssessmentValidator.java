@@ -56,39 +56,44 @@ public class AssessmentValidator extends BaseManager {
                     null);
         if (isNotBlank(metadata, "responses"))
         	validateResponses(metadata.get("responses"), errorMessages);
-        switch (AssessmentItemType.getAssessmentType(itemType)) {
-        case mcq:
-            checkJsonList(metadata, errorMessages, "options",
-                    new String[] { "value" }, AssessmentItemType.mcq.name());
-            break;
-        case mmcq:
-            checkJsonList(metadata, errorMessages, "options",
-                    new String[] { "value" }, AssessmentItemType.mmcq.name());
-            break;
-        case ftb:
-            if (null == metadata.get("answer"))
-                errorMessages.add("answer is missing.");
-            checkAnswers(metadata, errorMessages, numAnswers);
-            break;
-        case mtf:
-            checkMtfJson(metadata, errorMessages);
-            break;
-        case speech_question:
-            if (null == metadata.get("answer"))
-                errorMessages.add("answer is missing.");
-            checkAnswers(metadata, errorMessages, numAnswers);
-            break;
-        case canvas_question:
-            if (null == metadata.get("answer"))
-                errorMessages.add("answer is missing.");
-            checkAnswers(metadata, errorMessages, numAnswers);
-            break;
-        case recognition:
-        	checkJsonList(metadata, errorMessages, "options",
-                    new String[] { "value" }, AssessmentItemType.recognition.name());
-            break;
-        default:
-            break;
+        if(StringUtils.isNotEmpty(itemType)) {
+            switch (AssessmentItemType.getAssessmentType(itemType)) {
+                case mcq:
+                    checkJsonList(metadata, errorMessages, "options",
+                            new String[]{"value"}, AssessmentItemType.mcq.name());
+                    break;
+                case mmcq:
+                    checkJsonList(metadata, errorMessages, "options",
+                            new String[]{"value"}, AssessmentItemType.mmcq.name());
+                    break;
+                case ftb:
+                    if (null == metadata.get("answer"))
+                        errorMessages.add("answer is missing.");
+                    checkAnswers(metadata, errorMessages, numAnswers);
+                    break;
+                case mtf:
+                    checkMtfJson(metadata, errorMessages);
+                    break;
+                case speech_question:
+                    if (null == metadata.get("answer"))
+                        errorMessages.add("answer is missing.");
+                    checkAnswers(metadata, errorMessages, numAnswers);
+                    break;
+                case canvas_question:
+                    if (null == metadata.get("answer"))
+                        errorMessages.add("answer is missing.");
+                    checkAnswers(metadata, errorMessages, numAnswers);
+                    break;
+                case recognition:
+                    checkJsonList(metadata, errorMessages, "options",
+                            new String[]{"value"}, AssessmentItemType.recognition.name());
+                    break;
+                default:
+                    break;
+            }
+
+        }else{
+            errorMessages.add("Assessment Type is Null");
         }
         return errorMessages;
     }

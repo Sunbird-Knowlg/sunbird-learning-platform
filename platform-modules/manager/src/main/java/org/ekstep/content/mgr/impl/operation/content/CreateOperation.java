@@ -62,8 +62,8 @@ public class CreateOperation extends BaseContentManager {
 
             updateDefaultValuesByMimeType(map, mimeType);
 
-            if (StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, mimeType)) {
-                map.put("version", DEFAULT_COLLECTION_VERSION);
+            if (StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, mimeType) || StringUtils.equalsIgnoreCase("application/vnd.ekstep.ecml-archive", mimeType)) {
+                map.put("version", LATEST_CONTENT_VERSION);
             } else {
                 map.put("version", DEFAULT_CONTENT_VERSION);
             }
