@@ -28,7 +28,10 @@ node() {
         }
 
         stage('Build') {
-            sh 'mvn clean install'
+            sh """
+                 cd platform-tests/functional-tests
+                 mvn clean install
+              """   
         }
 
         stage('Post_Build-Action') {
