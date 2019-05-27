@@ -201,7 +201,7 @@ public class UpdateHierarchyOperation extends BaseContentManager {
             throw new ClientException("ERR_INVALID_ROOT_ID", "The collection version is not up to date " + rootId);
         }
 
-        rootNode.getMetadata().put(ContentAPIParams.version.name(), DEFAULT_COLLECTION_VERSION);
+        rootNode.getMetadata().put(ContentAPIParams.version.name(), LATEST_CONTENT_VERSION);
         nodeList.add(rootNode);
         nodeMap.put(rootId, rootNode);
         if (MapUtils.isNotEmpty(hierarchyResponse)) {

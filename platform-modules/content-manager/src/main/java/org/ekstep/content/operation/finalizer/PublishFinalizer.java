@@ -92,6 +92,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final List<String> LEVEL4_CONTENT_TYPES = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
 	private static final String  ES_INDEX_NAME = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 	private static final String DOCUMENT_TYPE = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type") : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
+	private static final Boolean CONTENT_CACHE_ENABLED = Platform.config.hasPath("content.cache.read") ? Platform.config.getBoolean("content.cache.read") : false;
+	private static final Boolean CONTENT_HIERARCHY_CACHE_ENABLED = Platform.config.hasPath("content.cache.hierarchy") ? Platform.config.getBoolean("content.cache.hierarchy") : false;
 
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -320,9 +322,12 @@ public class PublishFinalizer extends BaseFinalizer {
 			syncNodes(children, unitNodes);
 		}
 		//TODO: Reduce get definition call
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-		RedisStoreUtil.saveData(contentId, contentMap, 0);
+		if (CONTENT_CACHE_ENABLED) {
+			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+			RedisStoreUtil.saveData(contentId, contentMap, 0);
+		}
+
 		return response;
 	}
 	
@@ -544,7 +549,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
 		Map<String, Object> hierarchy = getContentMap(node, childrenList);
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
-		RedisStoreUtil.saveData(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), hierarchy, CONTENT_CACHE_TTL);
+		if (CONTENT_HIERARCHY_CACHE_ENABLED)
+			RedisStoreUtil.saveData(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), hierarchy, CONTENT_CACHE_TTL);
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
