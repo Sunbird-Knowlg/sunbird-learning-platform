@@ -5,6 +5,7 @@ java::import -package java.util HashSet Set
 java::import -package java.util Arrays
 java::import -package org.ekstep.graph.dac.model Node
 java::import -package org.ekstep.graph.common DateUtils
+java::import -package org.ekstep.graph.cache.util RedisStoreUtil
 
 set graph_id "domain"
 set object_type "Content"
@@ -118,6 +119,7 @@ if {$check_error} {
 				$node_metadata put "prevState" $status_val_str
 				set log_response [log_content_lifecycle_event $content_id $node_metadata]
 			}
+			set redisResponse [java::call RedisStoreUtil delete $content_id]
 			return $create_response
 		} else {
 			set result_map [java::new HashMap]

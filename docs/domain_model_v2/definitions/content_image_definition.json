@@ -2643,18 +2643,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "isNew",
-					"title": "isNew",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Boolean",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": false
-				},
-				{
 					"propertyName": "reviewError",
 					"title": "reviewError",
 					"description": "R1.15",
@@ -2727,129 +2715,9 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "year",
-					"title": "year",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Text",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "assets",
-					"title": "Assets",
-					"description": "R1.15-List of Asset ids used in ecml content",
-					"category": "General",
-					"dataType": "List",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
 					"propertyName": "depth",
 					"title": "Depth",
 					"description": "R1.15-Depth for Collection Units",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_stage_open_batch_count",
-					"title": "c_diksha_stage_open_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_stage_private_batch_count",
-					"title": "c_diksha_stage_private_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_open_batch_count",
-					"title": "c_diksha_open_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_private_batch_count",
-					"title": "c_diksha_private_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_preprod_open_batch_count",
-					"title": "c_diksha_preprod_open_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_diksha_preprod_private_batch_count",
-					"title": "c_diksha_preprod_private_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_sunbird_dev_open_batch_count",
-					"title": "c_sunbird_dev_open_batch_count",
-					"description": "R1.15",
-					"category": "General",
-					"dataType": "Number",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "",
-					"indexed": true
-				},
-				{
-					"propertyName": "c_sunbird_dev_private_batch_count",
-					"title": "c_sunbird_dev_private_batch_count",
-					"description": "R1.15",
 					"category": "General",
 					"dataType": "Number",
 					"required": false,
@@ -2869,6 +2737,21 @@
 					"defaultValue": "",
 					"renderingHints": "",
 					"indexed": false
+				},
+				{
+					"required": false,
+					"dataType": "List",
+					"propertyName": "assets",
+					"title": "Assets",
+					"description": "R1.15-List of Asset ids used in ecml content",
+					"category": "General",
+					"displayProperty": "Editable",
+					"range": null,
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false,
+					"rangeValidation": true
 				},
 				{
 					"required": false,
@@ -2929,6 +2812,45 @@
 					"title": "Attribution",
 					"description": "R-1.15_Attribution/Credits",
 					"category": "Ownership",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "creatorInfo",
+					"title": "CreatorInfo",
+					"description": "R-1.15_creatorInfo",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "migratedUrl",
+					"title": "Drive Url",
+					"description": "This Url has to be migrated",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Text",
+					"propertyName": "baseUrl",
+					"title": "Base Url of Instanse",
+					"description": "R-1.15_baseUrl-VR",
+					"category": "General",
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "",
@@ -3234,7 +3156,8 @@
 					"appId",
 					"s3Key",
 					"consumerId",
-					"organisation"
+					"organisation",
+					"migratedUrl"
 				]
 			}
 		}

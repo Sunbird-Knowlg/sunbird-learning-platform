@@ -50,3 +50,9 @@ hierarchy.keyspace.name="{{ hierarchy_keyspace_name }}"
 content.hierarchy.table="content_hierarchy"
 cassandra.lp.connection="{{ lp_cassandra_connection }}"
 
+#Filter metadata based on definition while indexing into ES
+#restrict.metadata.objectTypes="Content,ContentImage"
+
+#Content relationship properties, to be used for units
+content.relationship.properties="collections,usedByContent,concepts,questions,item_sets,methods,usesContent,children,libraries"
+

@@ -1,11 +1,6 @@
 package org.ekstep.telemetry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.telemetry.dto.Actor;
@@ -14,7 +9,11 @@ import org.ekstep.telemetry.dto.Producer;
 import org.ekstep.telemetry.dto.Target;
 import org.ekstep.telemetry.dto.Telemetry;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * {@link TelemetryGenerator} uses context and other parameters to generate
@@ -217,9 +216,10 @@ public class TelemetryGenerator {
 
 	private static Actor getActor(Map<String, String> context) {
 		String actorId = context.get(TelemetryParams.ACTOR.name());
-		if (StringUtils.isBlank(actorId))
-			actorId = "org.ekstep.learning.platform";
-		return new Actor(actorId, "System");
+		if (StringUtils.isNotBlank(actorId))
+			return new Actor(actorId, "User");
+
+		return new Actor("org.ekstep.learning.platform", "System");
 
 	}
 
