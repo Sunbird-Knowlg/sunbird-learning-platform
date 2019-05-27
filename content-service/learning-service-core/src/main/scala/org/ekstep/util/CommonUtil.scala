@@ -2,7 +2,7 @@ package org.ekstep.util
 
 import java.util.UUID
 
-import org.ekstep.api.{Params, Response, ResponseCode,RespCode}
+import org.ekstep.commons.{Params, Response, ResponseCode,RespCode}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, DateTimeZone}
 

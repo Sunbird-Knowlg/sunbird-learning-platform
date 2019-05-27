@@ -1,6 +1,6 @@
 package org.ekstep.service
 
-import org.ekstep.api.Request
+import org.ekstep.commons.Request
 import org.ekstep.cassandra.connector.util.CassandraConnector
 import org.ekstep.common.mgr.BaseManager
 import org.ekstep.graph.cache.factory.JedisFactory

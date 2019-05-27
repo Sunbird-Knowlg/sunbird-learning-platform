@@ -3,7 +3,7 @@ package org.ekstep.actor.core
 import java.util.UUID
 
 import akka.actor.UntypedActor
-import org.ekstep.api._
+import org.ekstep.commons._
 import org.ekstep.common.dto.ResponseParams
 import org.ekstep.common.dto.ResponseParams.StatusType
 import org.ekstep.common.exception.ResponseCode
@@ -23,10 +23,10 @@ abstract class BaseAPIActor extends UntypedActor {
   val API_VERSION = "3.0"
 
   @throws(classOf[Exception])
-  def onReceive(request: org.ekstep.api.Request)
+  def onReceive(request: org.ekstep.commons.Request)
 
   override def onReceive(message: Any): Unit = {
-    val request = message.asInstanceOf[org.ekstep.api.Request]
+    val request = message.asInstanceOf[org.ekstep.commons.Request]
     try {
       onReceive(request)
     } catch {

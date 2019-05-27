@@ -4,7 +4,7 @@ import akka.actor.{ActorSystem, Props}
 import play.api.mvc.{Action, AnyContent}
 import controllers.BaseController
 import javax.inject.{Inject, Singleton}
-import org.ekstep.api.{APIIds, Request}
+import org.ekstep.commons.{APIIds, Request}
 import org.ekstep.service.HealthCheckService
 @Singleton
 class HealthController @Inject()(system: ActorSystem) extends BaseController {

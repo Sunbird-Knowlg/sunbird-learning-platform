@@ -1,4 +1,4 @@
-package org.ekstep.api
+package org.ekstep.commons
 
 object Model {
 
@@ -28,11 +28,10 @@ object RespCode extends Enumeration {
 }
 
 object APIIds {
-  val ES_READ = "org.ekstep.es.read"
   val READ_CONTENT = "org.ekstep.content.read"
-  val READ_FRAMEWORK = "org.ekstep.framework.read"
-  val READ_CHANNEL = "org.ekstep.channel.read"
-  val SEARCH_DIALCODE = "org.ekstep.dialcode.search"
+  val CREATE_CONTENT = "org.ekstep.content.create"
+  val UPDATE_CONTENT = "org.ekstep.content.update"
+  val DELETE_CONTENT = "org.ekstep.content.delete"
   val CHECK_HEALTH = "learning-service.health"
 
 }
