@@ -30,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 public class FindOperation extends BaseContentManager {
 
     private static List<String> CONTENT_CACHE_FINAL_STATUS = Arrays.asList("Live", "Unlisted");
+    private static final Boolean CONTENT_CACHE_ENABLED = Platform.config.hasPath("content.cache.read") ? Platform.config.getBoolean("content.cache.read") : false;
 
     @SuppressWarnings("unchecked")
     public Response find(String contentId, String mode, List<String> fields) {
@@ -49,12 +50,16 @@ public class FindOperation extends BaseContentManager {
         }
 
         if (!StringUtils.equalsIgnoreCase("edit", mode)) {
-            String content = RedisStoreUtil.get(contentId);
+            String content = "";
+            if(CONTENT_CACHE_ENABLED)
+                content = RedisStoreUtil.get(contentId);
+
             if (StringUtils.isNotBlank(content)) {
                 try{
                     contentMap = objectMapper.readValue(content, new TypeReference<Map<String,Object>>() {
                     });
                 }catch(Exception e){
+                    TelemetryManager.error("Error Occurred While Parsing Hierarchy for Content Id : " + contentId + " | Error is: ", e);
                     throw new ServerException("ERR_CONTENT_PARSE","Something Went Wrong While Processing the Content. ",e);
                 }
 
@@ -62,7 +67,7 @@ public class FindOperation extends BaseContentManager {
                 TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
                 Node node = getContentNode(TAXONOMY_ID, contentId, null);
                 contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-                if(CONTENT_CACHE_FINAL_STATUS.contains(contentMap.get(ContentAPIParams.status.name()).toString()))
+                if(CONTENT_CACHE_ENABLED && CONTENT_CACHE_FINAL_STATUS.contains(contentMap.get(ContentAPIParams.status.name()).toString()))
                     RedisStoreUtil.saveData(contentId, contentMap, 0);
             }
         } else {
@@ -134,19 +139,26 @@ public class FindOperation extends BaseContentManager {
             contentTaggedKeys.forEach(contentTagKey -> {
                 if(contentMap.containsKey(contentTagKey)) {
                     List<String> prop = prepareList(contentMap.get(contentTagKey));
-                    contentMap.put(contentTagKey, prop.get(0));
+                    if (CollectionUtils.isNotEmpty(prop))
+                        contentMap.put(contentTagKey, prop.get(0));
                 }
             });
         }
     }
 
-    private List<String> prepareList(Object obj) {
+    private static List<String> prepareList(Object obj) {
         List<String> list = new ArrayList<String>();
         try {
-            list = Arrays.asList((String[]) obj);
-        } catch (Exception e) {
-            if (obj instanceof List)
+            if (obj instanceof String) {
+                list.add((String) obj);
+            } else if (obj instanceof String[]) {
+                System.out.println("Array is input.");
+                list = Arrays.asList((String[]) obj);
+            } else if (obj instanceof List){
                 list.addAll((List<String>) obj);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         if (null != list) {
             list = list.stream().filter(x -> org.apache.commons.lang3.StringUtils.isNotBlank(x) && !org.apache.commons.lang3.StringUtils.equals(" ", x)).collect(toList());

@@ -41,6 +41,8 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * The Class ContentBundle.
  */
@@ -521,16 +523,22 @@ public class ContentBundle {
 	 * @param obj
 	 * @return
 	 */
-	private List<String> prepareList(Object obj) {
+	private static List<String> prepareList(Object obj) {
 		List<String> list = new ArrayList<String>();
 		try {
-			list = Arrays.asList((String[]) obj);
-		} catch (Exception e) {
-			if (obj instanceof List)
+			if (obj instanceof String) {
+				list.add((String) obj);
+			} else if (obj instanceof String[]) {
+				System.out.println("Array is input.");
+				list = Arrays.asList((String[]) obj);
+			} else if (obj instanceof List){
 				list.addAll((List<String>) obj);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		if (null != list) {
-			list = list.stream().filter(x -> org.apache.commons.lang3.StringUtils.isNotBlank(x) && !org.apache.commons.lang3.StringUtils.equals(" ", x)).collect(Collectors.toList());
+			list = list.stream().filter(x -> org.apache.commons.lang3.StringUtils.isNotBlank(x) && !org.apache.commons.lang3.StringUtils.equals(" ", x)).collect(toList());
 		}
 		return list;
 	}
