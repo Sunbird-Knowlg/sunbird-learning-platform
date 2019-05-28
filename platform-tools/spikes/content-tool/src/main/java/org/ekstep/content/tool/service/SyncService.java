@@ -364,6 +364,11 @@ public class SyncService extends BaseService implements ISyncService {
     private void createContent(String id, String forceUpdate) throws Exception {
         Response sourceContent = getContent(id, false, null);
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
+
+        //Fix for SB-12281
+        changeAttributeTypeFromStringToList(metadata, "subject");
+        changeAttributeTypeFromStringToList(metadata, "medium");
+
         String channel = (String) metadata.get("channel");
         if(null != metadata.get("pkgVersion"))
             metadata.put("pkgVersion", ((Number) metadata.get("pkgVersion")).doubleValue());
@@ -378,6 +383,13 @@ public class SyncService extends BaseService implements ISyncService {
             throw new ServerException("ERR_CONTENT_SYNC","Error while creating content " + id +" in destination env : "+  response.getParams().getErrmsg());
         }
 
+    }
+
+    private void changeAttributeTypeFromStringToList(Map<String, Object> metadata, String attribute) {
+        String value = (String) metadata.get(attribute);
+        List<String> valueList = new ArrayList();
+        valueList.add(value);
+        metadata.put(attribute, valueList);
     }
 
     private void updateMimeType(String id, Map<String, Object> metadata, String forceUpdate) throws Exception {
