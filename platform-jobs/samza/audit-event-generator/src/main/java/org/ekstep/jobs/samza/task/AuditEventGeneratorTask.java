@@ -22,7 +22,7 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.util.ControllerUtil;
 
-public class AuditEventGeneratorTask implements StreamTask, InitableTask, WindowableTask{
+public class AuditEventGeneratorTask extends BaseTask implements StreamTask, InitableTask, WindowableTask{
 
 	private static JobLogger LOGGER = new JobLogger(AuditEventGeneratorTask.class);
 
@@ -58,6 +58,7 @@ public class AuditEventGeneratorTask implements StreamTask, InitableTask, Window
 				}
 			} else {
 				auditEventGenerator.processMessage(outgoingMap, metrics, collector);
+				setMetricsOffset(getSystemStreamPartition(envelope), getOffset(envelope), metrics);
 			}
 		} catch (Exception e) {
 			metrics.incErrorCounter();
