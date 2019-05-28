@@ -24,7 +24,7 @@ import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.handler.Level;
 
-public abstract class AbstractTask extends BaseTask implements StreamTask, InitableTask, WindowableTask {
+public abstract class AbstractTask extends BaseTask {
 
 	protected JobMetrics metrics;
 	private Config config = null;

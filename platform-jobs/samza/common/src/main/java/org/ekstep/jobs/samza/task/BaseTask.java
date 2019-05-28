@@ -2,6 +2,9 @@ package org.ekstep.jobs.samza.task;
 
 import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.system.SystemStreamPartition;
+import org.apache.samza.task.InitableTask;
+import org.apache.samza.task.StreamTask;
+import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 
 /**
@@ -9,7 +12,7 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
  *
  * @author Kumar Gauraw
  */
-public class BaseTask {
+public abstract class BaseTask implements StreamTask, InitableTask, WindowableTask {
 
     /**
      *

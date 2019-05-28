@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class CompositeSearchIndexerTask extends BaseTask implements StreamTask, InitableTask, WindowableTask {
+public class CompositeSearchIndexerTask extends BaseTask {
 	
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerTask.class);
 	private ControllerUtil controllerUtil = new ControllerUtil();
