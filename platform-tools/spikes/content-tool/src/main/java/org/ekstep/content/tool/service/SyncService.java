@@ -388,7 +388,9 @@ public class SyncService extends BaseService implements ISyncService {
     private void changeAttributeTypeFromStringToList(Map<String, Object> metadata, String attribute) {
         String value = (String) metadata.get(attribute);
         List<String> valueList = new ArrayList();
-        valueList.add(value);
+        if(null != value) {
+            valueList.add(value);
+        }
         metadata.put(attribute, valueList);
     }
 
