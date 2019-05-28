@@ -37,7 +37,7 @@ public class AuthTokenUtil {
                         body(request).
                         when().
                         post(requestUrl).
-                        then().log().all().
+                        then().
                         extract().
                         response();
         JsonPath jsonResponse = response.jsonPath();
