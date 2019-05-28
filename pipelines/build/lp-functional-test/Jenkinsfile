@@ -30,7 +30,7 @@ node() {
         stage('Build') {
             sh """
                  cd platform-tests/functional-tests
-                 mvn -Dtest=org.ekstep.platform.runner.AllTestRunner test
+                 mvn clean install
               """   
         }
 
