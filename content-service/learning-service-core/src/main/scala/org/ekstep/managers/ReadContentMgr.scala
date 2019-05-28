@@ -16,6 +16,8 @@ import org.ekstep.learning.common.enums.LearningActorNames
 import org.ekstep.learning.router.LearningRequestRouterPool
 import org.ekstep.search.router._
 import scala.collection.JavaConverters._
+import org.ekstep.util.{CommonUtil, JSONUtils}
+
 
 /**
   * This manager is responsible for reading a data from DB
@@ -33,15 +35,15 @@ class ReadContentMgr extends BaseManager{
   val system = ActorSystem.create("learningActor")
   val learningActor = system.actorOf(Props[ContentStoreActor], name = "learningActor")
 
-  def read(request: org.ekstep.commons.Request):String = {
+  def read(request: org.ekstep.commons.Request) = {
 
     LearningRequestRouterPool.init()
     SearchRequestRouterPool.init(RequestRouterPool.getActorSystem())
 
     val params = request.params.getOrElse(Map())
 
-    val identifier: String = "do_1125252239566028801496"//params.getOrElse("identifier", "").asInstanceOf[String]
-    val objectType: String = "Content"//params.getOrElse("objectType", "").asInstanceOf[String]
+    val identifier: String = params.getOrElse("identifier", "").asInstanceOf[String]
+    val objectType: String = params.getOrElse("objectType", "").asInstanceOf[String]
     val fields: List[String] = params.getOrElse("fields", List()).asInstanceOf[List[String]]
     val mode: String = params.getOrElse("mode", "").asInstanceOf[String]
 
@@ -64,15 +66,9 @@ class ReadContentMgr extends BaseManager{
     val externalPropsResp = getExternalProps(identifier,objectType, fields, definitionDto)
     //val resProps = externalPropsResp.get(TaxonomyAPIParams.values.name).asInstanceOf[org.ekstep.common.dto.Response]
 
-
-    val responseJson = new ObjectMapper().writeValueAsString(contentMap)
-    println("responseJson === "+responseJson)
-
-    // TODO: return as Response case
-    return responseJson //new Response("Id","12345", "tsvalue",null,"",null)
+    contentMap
 
   }
-
 
   private def buildRequest(graphId: String, objectType: String): org.ekstep.common.dto.Request = {
 
