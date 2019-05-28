@@ -32,7 +32,7 @@ public class BaseTest
 	public String channelId = "Test";
 	public String appId = "test.appId";
 
-	public String APIToken = TestConstant.BEARER + Platform.config.getString("kp_ft_access_key");
+	public String APIToken = TestConstant.BEARER + System.getenv("kp_access_key");//Platform.config.getString("kp_ft_access_key");
 	public String validuserId = "functional-tests";
 	public String invalidUserId = "abc";
 

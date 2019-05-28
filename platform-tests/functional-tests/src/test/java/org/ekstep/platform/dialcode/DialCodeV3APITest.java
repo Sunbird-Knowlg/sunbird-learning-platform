@@ -36,7 +36,7 @@ public class DialCodeV3APITest extends BaseTest {
 	String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"version_key\",\"language\":[\"Tamil\",\"Telugu\"]}}}";
 	private String createPublisherReq = "{\"request\": {\"publisher\": {\"identifier\":\"LFT_PUB_" + rn
 			+ "\",\"name\": \"Functional Test Publisher\"}}}";
-	String contentAPIToken = TestConstant.BEARER + Platform.config.getString("kp_ft_access_key");
+	String contentAPIToken = TestConstant.BEARER + System.getenv("kp_access_key");//Platform.config.getString("kp_ft_access_key");
 
 	private static String publisherId = "";
 	private static String dialCodeId = "";
@@ -46,7 +46,7 @@ public class DialCodeV3APITest extends BaseTest {
 
 	@Before
 	public void init() {
-		APIToken = TestConstant.BEARER + Platform.config.getString("kp_ft_ekstep_access_key");
+		APIToken = TestConstant.BEARER + System.getenv("kp_ekstep_access_key");//Platform.config.getString("kp_ft_ekstep_access_key");
 		if (StringUtils.isBlank(publisherId))
 			createPublisher();
 		if (StringUtils.isBlank(dialCodeId))
