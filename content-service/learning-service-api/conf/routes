@@ -5,4 +5,5 @@
 
 GET     /                                           controllers.HomeController.index
 GET     /content/v3/read/:identifier                @controllers.ContentV3Controller.read(identifier:String, mode:Option[String], fields:Option[List[String]])
-#GET	/health                                     @controllers.health.HealthController.checkAPIhealth
+GET	/health                                     @controllers.health.HealthController.checkAPIhealth
+
