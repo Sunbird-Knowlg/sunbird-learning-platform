@@ -29,11 +29,7 @@ object ContentActor extends BaseAPIActor{
 
   private def readContent(request: Request) = {
     val readContentMgr = new ReadContentMgr()
-    val responseMap = readContentMgr.read(request)
-
-    val result = new org.ekstep.common.dto.Response() {
-      put("result", responseMap)
-    }
+    val result = readContentMgr.read(request)
 
     val response = OK(request.apiId,result)
     Patterns.pipe(Futures.successful(response),getContext().dispatcher).to(sender())

@@ -15,8 +15,17 @@ import org.ekstep.learning.actor.ContentStoreActor
 import org.ekstep.learning.common.enums.LearningActorNames
 import org.ekstep.learning.router.LearningRequestRouterPool
 import org.ekstep.search.router._
+
 import scala.collection.JavaConverters._
 import org.ekstep.util.{CommonUtil, JSONUtils}
+import com.fasterxml.jackson.core._
+import org.ekstep.graph.cache.util._
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ArrayNode
+import java.util
+import org.ekstep.util._
+import scala.collection.mutable.MutableList
 
 
 /**
@@ -47,29 +56,102 @@ class ReadContentMgr extends BaseManager{
     val fields: List[String] = params.getOrElse("fields", List()).asInstanceOf[List[String]]
     val mode: String = params.getOrElse("mode", "").asInstanceOf[String]
 
-    println("read operaions called " +identifier)
+    //println("read operaions called " +identifier)
 
     val requestDto = getRequest("domain", GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition", GraphDACParams.object_type.name, "Content");//buildRequest("domain", objectType)
 
     val definitionDto = getResponse(requestDto).get(GraphDACParams.definition_node.name).asInstanceOf[DefinitionDTO]
 
-    val resultNode:Node = mode match {
+    val contentMap = mode match {
       case EDIT_MODE =>
-        editMode(identifier, objectType)
+        editMode(identifier, objectType, definitionDto)
       case _ =>
-        nonEditMode(identifier, objectType)
+        nonEditMode(identifier, definitionDto)
     }
 
-    //TODO: non-edit mode
-    val contentMap = ConvertGraphNode.convertGraphNode(resultNode,"domainId", definitionDto, null)
-
+    val contentNode: JsonNode = new ObjectMapper().valueToTree(contentMap)
     val externalPropsResp = getExternalProps(identifier,objectType, fields, definitionDto)
-    //val resProps = externalPropsResp.get(TaxonomyAPIParams.values.name).asInstanceOf[org.ekstep.common.dto.Response]
 
-    contentMap
+    //TODO: pushEvent to kafka, for ecml content.
+
+    addExternalProps(externalPropsResp, contentNode.asInstanceOf[ObjectNode])
+    addlangageCode(contentNode.asInstanceOf[ObjectNode])
+    updateContentTaggedProperty(contentNode.asInstanceOf[ObjectNode], mode)
+
+    buildResponse(contentNode.asInstanceOf[ObjectNode])
 
   }
 
+   def buildResponse (contentNode: ObjectNode)= {
+    var response = new org.ekstep.common.dto.Response(){
+      put("content", contentCleanUp(contentNode))
+    }
+    response
+  }
+
+
+   def addExternalProps( externalPropsResp:org.ekstep.common.dto.Response, contentNode: ObjectNode)  = {
+      val props = externalPropsResp.get("values")
+      if(props != null){
+        contentNode.putAll(props.asInstanceOf[ObjectNode])
+      }
+  }
+
+   def addlangageCode(contentNode: ObjectNode)  = {
+
+    val it = contentNode.get("language").elements()
+
+    var codes = MutableList[String]()
+    while (it.hasNext) {
+      val metadata: String = it.next().toString
+      val lang = metadata.replaceAll("\"", "").toLowerCase()
+      codes += LanguageCode.getLanguageCode(lang)
+
+    }
+
+    if (null != codes && (codes.length == 1)) contentNode.put("languageCode", codes(0))
+    else contentNode.put("languageCode", codes.toString)
+  }
+
+
+   def contentCleanUp(contentNode: ObjectNode)  = {
+    if (contentNode.has("identifier")) {
+      val identifier = contentNode.get("identifier").asText()
+      if (identifier.endsWith(".img")) {
+        val newIdentifier = identifier.replace(".img", "")
+        contentNode.put("identifier", newIdentifier)
+      }
+    }
+    contentNode
+  }
+
+
+   def updateContentTaggedProperty(contentMap:ObjectNode, mode: String): Unit = {
+    val contentTaggingFlag =
+      if (Platform.config.hasPath("content.tagging.backward_enable")) Platform.config.getBoolean("content.tagging.backward_enable")
+      else false
+
+    if (!mode.equals("edit") && contentTaggingFlag) {
+      val contentTaggedKeys:Array[String] = if (Platform.config.hasPath("content.tagging.property"))
+        Platform.config.getString("content.tagging.property").split(",")
+      else{
+        val prop = "subject, medium"
+        prop.split(",")
+      }
+
+      for(i <- 0 until contentTaggedKeys.length){
+        val toAddProp = contentMap.get(contentTaggedKeys(i))
+        contentMap.put(contentTaggedKeys(i), toAddProp)
+      }
+    }
+  }
+
+  /**
+    * Not used as of not. getRequest got called
+    * @param graphId
+    * @param objectType
+    * @return
+    */
   private def buildRequest(graphId: String, objectType: String): org.ekstep.common.dto.Request = {
 
     val request = new org.ekstep.common.dto.Request() {
@@ -82,20 +164,34 @@ class ReadContentMgr extends BaseManager{
 
   }
 
-  private def nonEditMode(identifier: String, objectType: String): Node ={
+   def nonEditMode(identifier: String, definitionDto: DefinitionDTO) ={
+
     val responseNode = getDataNode("domain", identifier)
     val node:Node = responseNode.get(GraphDACParams.node.name).asInstanceOf[Node]
-    return node
+
+    val content = RedisStoreUtil.get(identifier)
+
+    val contentMap = ConvertGraphNode.convertGraphNode(node,"domainId", definitionDto, null)
+
+     if(content != null){
+       new ObjectMapper().readValue(content, classOf[Map[String, Any]])
+
+     } else {
+       ConvertGraphNode.convertGraphNode(node,"domainId", definitionDto, null)
+     }
 
   }
 
-  private def editMode(identifier: String, objectType: String): Node ={
+   def editMode(identifier: String, objectType: String, definitionDto: DefinitionDTO) ={
     val imageContentId = identifier+".img"
     val responseNode = getDataNode("domain", imageContentId)
-    responseNode.get(GraphDACParams.node.name).asInstanceOf[Node]
+    val node = responseNode.get(GraphDACParams.node.name).asInstanceOf[Node]
+    val contentMap = ConvertGraphNode.convertGraphNode(node,"domainId", definitionDto, null)
+    contentMap
   }
 
-  private def getExternalProps(identifier: String,objectType: String, fields: List[String], definitionDTO: DefinitionDTO) = {
+   def getExternalProps(identifier: String,objectType: String, fields: List[String], definitionDTO: DefinitionDTO)
+  : org.ekstep.common.dto.Response= {
     val externalPropsList = getExternalPropList(objectType, definitionDTO)
     val propsList = fields.intersect(externalPropsList)
 
@@ -106,16 +202,17 @@ class ReadContentMgr extends BaseManager{
         put("content_id", identifier)
         put("properties", propsList.asJava)
       }
-      val response = getResponse(request, LearningRequestRouterPool.getRequestRouter())
+      getResponse(request, LearningRequestRouterPool.getRequestRouter())
 
 
     } else {
-      Map[String, AnyRef]().asJava
+      /*Map[String, AnyRef]().asJava*/
+      new org.ekstep.common.dto.Response()
     }
   }
 
-  private def getExternalPropList(objectType: String, definitionDTO: DefinitionDTO): List[String] = {
-    println("definitionDTO= "+definitionDTO.getProperties())
+   def getExternalPropList(objectType: String, definitionDTO: DefinitionDTO): List[String] = {
+    //println("definitionDTO= "+definitionDTO.getProperties())
     val it = definitionDTO.getProperties().iterator
     val list: List[String] = List[String]()
 
