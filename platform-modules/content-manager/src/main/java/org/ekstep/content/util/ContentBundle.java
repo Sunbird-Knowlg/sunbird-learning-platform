@@ -556,8 +556,7 @@ public class ContentBundle {
 		return list;
 	}
 
-	public  File createHierarchyFile(String bundlePath,
-										   Node node, List<Map<String, Object>> children) throws Exception {
+	public  File createHierarchyFile(String bundlePath, Node node, List<Map<String, Object>> children) throws Exception {
 		String contentId = node.getIdentifier();
 		File hierarchyFile = null;
 		if (node == null || StringUtils.isBlank(bundlePath)) {
