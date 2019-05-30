@@ -2,8 +2,7 @@ package org.ekstep.actor
 
 import org.ekstep.actor.core.BaseAPIActor
 import org.ekstep.commons.{APIIds, Request}
-import org.ekstep.managers.ReadContentMgr
-
+import org.ekstep.managers.{ContentMgr}
 import akka.dispatch.Futures
 import akka.pattern.Patterns
 
@@ -28,7 +27,7 @@ object ContentActor extends BaseAPIActor {
 
 
   private def readContent(request: Request) = {
-    val readContentMgr = new ReadContentMgr()
+    val readContentMgr = new ContentMgr()
     val result = readContentMgr.read(request)
 
     val response = OK(request.apiId, result)
