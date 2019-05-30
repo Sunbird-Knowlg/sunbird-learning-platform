@@ -1,7 +1,9 @@
 import com.typesafe.config.Config
 import org.ekstep.util.JSONUtils
 import org.ekstep.common.dto._
+import org.ekstep.learning.router.LearningRequestRouterPool
 import org.ekstep.telemetry.TelemetryGenerator
+import org.ekstep.telemetry.logger.TelemetryManager
 import org.ekstep.telemetry.util.TelemetryAccessEventUtil
 import play.api._
 import play.api.libs.iteratee.Iteratee
@@ -63,7 +65,13 @@ object Global extends WithFilters(AccessLoggerFilter) {
   }
 
   override def onStart(app: Application) = {
+    //TODO: check name for component
     TelemetryGenerator.setComponent("content-api")
+    TelemetryManager.log("Initialising Request Router Pool")
+    LearningRequestRouterPool.init()
+    //TODO: Enable local cache updater.
+    //TelemetryManager.log("Initialising Local Cache Updater")
+    //LocalCacheUpdater.init()
   }
 
 
