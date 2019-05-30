@@ -12,7 +12,6 @@
 		<scala.version>2.11</scala.version>
 		<hadoop.version>2.6.2</hadoop.version>
 		<kafka.version>1.1.0</kafka.version>
-		<jackson.version>2.9.9</jackson.version>
 	</properties>
 	<groupId>org.ekstep</groupId>
 	<artifactId>samza</artifactId>
