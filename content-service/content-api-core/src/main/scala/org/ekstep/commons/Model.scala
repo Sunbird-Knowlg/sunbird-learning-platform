@@ -35,3 +35,10 @@ object APIIds {
   val CHECK_HEALTH = "learning-service.health"
 
 }
+
+object TaxonomyAPIParams extends Enumeration {
+  type TaxonomyAPIParams = Value
+  val taxonomy, taxonomy_hierarchy, concepts, search_criteria, property_keys, unique_constraint, status, Flagged,
+  FlagDraft, Live, Draft, isImageObject, node_id, Processing, body, languageCode, language, edit, identifier, content,
+  mimeType, contentEncoding, contentDisposition, lastSubmittedOn, channel, Unlisted, Pending = Value
+}

@@ -21,8 +21,8 @@
         </repository>
     </repositories>
     <modules>
-        <module>learning-service-api</module>
-        <module>learning-service-core</module>
+        <module>content-api</module>
+        <module>content-api-core</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
