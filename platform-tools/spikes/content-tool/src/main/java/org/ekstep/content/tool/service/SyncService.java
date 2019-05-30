@@ -366,8 +366,11 @@ public class SyncService extends BaseService implements ISyncService {
         Map<String, Object> metadata = (Map<String, Object>) sourceContent.get("content");
 
         //Fix for SB-12281
+        System.out.println("metadata before conversion:" + metadata);
         changeAttributeTypeFromStringToList(metadata, "subject");
         changeAttributeTypeFromStringToList(metadata, "medium");
+        System.out.println("metadata after conversion:" + metadata);
+        System.out.println("contentRequest:" + makeContentRequest(metadata));
 
         String channel = (String) metadata.get("channel");
         if(null != metadata.get("pkgVersion"))
