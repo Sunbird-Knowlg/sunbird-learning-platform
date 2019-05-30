@@ -5,14 +5,11 @@ import akka.pattern._
 import akka.routing.FromConfig
 import javax.inject.{Inject, Singleton}
 import org.ekstep.actor.ContentActor
-import org.ekstep.commons.{APIIds, Request}
 import org.ekstep.common.dto.Response
-import org.ekstep.searchindex.util.ObjectDefinitionCache
+import org.ekstep.commons.{APIIds, Request}
 import play.api.mvc.{Action, AnyContent}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.duration._
 
 
 @Singleton

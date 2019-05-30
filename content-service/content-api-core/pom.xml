@@ -98,7 +98,7 @@
 
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>
-		<testSourceDirectory>src/test/scala</testSourceDirectory>
+
 		<plugins>
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
@@ -131,16 +131,6 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.scoverage</groupId>
-				<artifactId>scoverage-maven-plugin</artifactId>
-				<version>${scoverage.plugin.version}</version>
-				<configuration>
-					<scalaVersion>${scala.version}</scalaVersion>
-					<aggregate>true</aggregate>
-					<highlighting>true</highlighting>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

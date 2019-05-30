@@ -48,7 +48,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ekstep</groupId>
-            <artifactId>learning-service-core</artifactId>
+            <artifactId>content-api-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -134,17 +134,6 @@
                         <include>**/*Spec.java</include>
                         <include>**/*Test.java</include>
                     </includes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.scoverage</groupId>
-                <artifactId>scoverage-maven-plugin</artifactId>
-                <version>${scoverage.plugin.version}</version>
-                <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
-                    <aggregate>true</aggregate>
-                    <highlighting>true</highlighting>
-                    <excludedFiles>.*RoutesPrefix.*;.*Routes.*;.*ReverseRoutes.*</excludedFiles>
                 </configuration>
             </plugin>
         </plugins>
