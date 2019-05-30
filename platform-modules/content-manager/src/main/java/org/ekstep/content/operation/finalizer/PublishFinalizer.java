@@ -137,7 +137,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	 *
 	 * @param parameterMap
 	 *            the parameterMap
-	 * 
+	 *
 	 *            checks if Node, ecrfType,ecmlType exists in the parameterMap
 	 *            else throws ClientException Output only ECML format create
 	 *            'artifactUrl' Get Content String write ECML File Create 'ZIP'
@@ -148,12 +148,12 @@ public class PublishFinalizer extends BaseFinalizer {
 	 * @return the response
 	 */
 	public Response finalize(Map<String, Object> parameterMap) {
-		
+
 		String artifactUrl = null;
 		File packageFile=null;
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		List<String> unitNodes = null;
-		
+
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
@@ -167,20 +167,20 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
-		
+
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
-		
+
 		if (BooleanUtils.isTrue(isCompressionApplied)) {
 			Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
-			
+
 			if (null == ecrf)
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 						ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
-			
+
 			// Output only ECML format
 			String ecmlType = ContentWorkflowPipelineParams.ecml.name();
-			
+
 			// Get Content String
 			String ecml = getECMLString(ecrf, ecmlType);
 			// Write ECML File
@@ -210,8 +210,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		// Download App Icon and create thumbnail
 		createThumbnail(basePath, node);
-		
-		
+
+
 		// Set Package Version
 		double version = 1.0;
 		if (null != node && null != node.getMetadata()
@@ -226,13 +226,13 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		setCompatibilityLevel(node);
 		setPragma(node);
-		
+
 		String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
 		node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 				StringUtils.equalsIgnoreCase(publishType, ContentWorkflowPipelineParams.Unlisted.name())?
 						ContentWorkflowPipelineParams.Unlisted.name(): ContentWorkflowPipelineParams.Live.name());
 		node.getMetadata().put(ContentWorkflowPipelineParams.publish_type.name(), null);
-		
+
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 		if (null != artifact && artifact instanceof File) {
 			File pkgFile = (File) artifact;
@@ -267,7 +267,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		TelemetryManager.log("Ecar processing started for content: " + node.getIdentifier());
 		processForEcar(node, children);
 		TelemetryManager.log("Ecar processing done for content: " + node.getIdentifier());
-		
+
 		try {
 			TelemetryManager.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
@@ -282,7 +282,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		//update previewUrl for content streaming
 		updatePreviewURL(node);
-		
+
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
@@ -304,7 +304,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
 
 		getResponse(request);
-		
+
 		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
 				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
 		if (streamableMimeType.contains((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
@@ -330,7 +330,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		return response;
 	}
-	
+
 	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes) {
 		if(CollectionUtils.isNotEmpty(children)) {
 			List<Map<String, Object>> newChildren = new ArrayList<>(children);
@@ -596,7 +596,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
 		content.put(ContentWorkflowPipelineParams.variants.name(), node.getMetadata().get(ContentWorkflowPipelineParams.variants.name()));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private Integer getLeafNodeCount(Map<String, Object> data, int leafCount) {
 		List<Object> children = (List<Object>) data.get("children");
@@ -785,7 +785,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			return true;
 	}
 
-	private List<String> generateEcar(EcarPackageType pkgType, Node node, ContentBundle contentBundle, List<Map<String, Object>> ecarContents, List<String> childrenIds) {
+	private List<String> generateEcar(EcarPackageType pkgType, Node node, ContentBundle contentBundle,
+									  List<Map<String, Object>> ecarContents, List<String> childrenIds, List<Map<String, Object>> children) {
 
 		Map<Object, List<String>> downloadUrls = null;
 		TelemetryManager.log("Creating " + pkgType.toString() + " ECAR For Content Id: " + node.getIdentifier());
@@ -794,7 +795,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				pkgType);
 
 		List<String> ecarUrl = Arrays.asList(contentBundle.createContentBundle(ecarContents, bundleFileName,
-				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier()));
+				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node, children,pkgType.toString()));
 		TelemetryManager.log(pkgType.toString() + " ECAR created For Content Id: " + node.getIdentifier());
 
 		if (!EcarPackageType.FULL.name().equalsIgnoreCase(pkgType.toString())) {
@@ -869,12 +870,12 @@ public class PublishFinalizer extends BaseFinalizer {
 			if(CollectionUtils.isNotEmpty((List<String>) node.getMetadata().get("childNodes")))
 				childrenIds = (List<String>) node.getMetadata().get("childNodes");
 		} else {
-			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds);
+			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds, null);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
 			s3Key = fullECARURL.get(IDX_S3_KEY);
 		}
 		// Generate spine ECAR.
-		List<String> spineECARUrl = generateEcar(EcarPackageType.SPINE, node, contentBundle, spineContents, childrenIds);
+		List<String> spineECARUrl = generateEcar(EcarPackageType.SPINE, node, contentBundle, spineContents, childrenIds, children);
 
 		// if collection full ECAR creation disabled set spine as download url.
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
@@ -884,7 +885,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		// generate online ECAR for Collection
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
-			generateEcar(EcarPackageType.ONLINE, node, contentBundle, onlineContents, childrenIds);
+			generateEcar(EcarPackageType.ONLINE, node, contentBundle, onlineContents, childrenIds, children);
 			node.getMetadata().remove("children");
 		}
 		// ECAR generation - END

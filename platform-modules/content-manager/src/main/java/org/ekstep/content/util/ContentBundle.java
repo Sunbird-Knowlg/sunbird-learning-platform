@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -37,7 +37,9 @@ import org.ekstep.content.common.EcarPackageType;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.common.JSONUtils;
+import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -183,8 +185,10 @@ public class ContentBundle {
 	 * @return the string[]
 	 */
 	public String[] createContentBundle(List<Map<String, Object>> contents, String fileName, String version,
-			Map<Object, List<String>> downloadUrls, String contentId) {
-		String bundleFileName = BUNDLE_PATH + File.separator + fileName;
+										Map<Object, List<String>> downloadUrls, Node node,
+										List<Map<String, Object>> children, String pkgType) {
+        String contentId = node.getIdentifier();
+        String bundleFileName = BUNDLE_PATH + File.separator + fileName;
 		String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
 		List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);
 		try {
@@ -194,6 +198,12 @@ public class ContentBundle {
 			if (null != downloadedFiles) {
 				if (null != manifestFile)
 					downloadedFiles.add(manifestFile);
+				//Adding Hierarchy into hierarchy.json file
+                if (StringUtils.isNotBlank(pkgType) && !StringUtils.equalsIgnoreCase("FULL", pkgType)) {
+                    File hierarchyFile = HierarchyJsonUtil.createHierarchyFile(bundlePath, node, children);
+                    if (null != hierarchyFile)
+                        downloadedFiles.add(hierarchyFile);
+                }
 				try {
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
 					String folderName = S3PropertyReader.getProperty(ECAR_FOLDER);
@@ -433,7 +443,8 @@ public class ContentBundle {
 			for (File file : files) {
 				if (null != file) {
 					String fileName = null;
-					if (file.getName().toLowerCase().endsWith("manifest.json")) {
+					if (file.getName().toLowerCase().endsWith("manifest.json")
+							|| file.getName().equalsIgnoreCase("hierarchy.json")) {
 						fileName = file.getName();
 					} else if (file.getParentFile().getName().toLowerCase().endsWith("screenshots")) {
 						fileName = file.getParent()

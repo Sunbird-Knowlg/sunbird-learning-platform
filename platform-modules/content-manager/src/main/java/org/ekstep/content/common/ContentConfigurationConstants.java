@@ -121,6 +121,9 @@ public class ContentConfigurationConstants {
 	
 	public static final boolean IS_CONTENT_PACKAGE_EXTRACTION_ENABLED = true;
 
+	public static final String CONTENT_BUNDLE_HIERARCHY_FILE_NAME = "hierarchy.json";
+
+
 	/**
 	 * Instantiates a new content configuration constants, It is being used in a
 	 * way that the Class cannot be instantiated.
