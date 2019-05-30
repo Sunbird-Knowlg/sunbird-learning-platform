@@ -6,7 +6,7 @@ import akka.routing.FromConfig
 import play.api.mvc.{Action, AnyContent}
 import controllers.BaseController
 import javax.inject.{Inject, Singleton}
-import org.ekstep.actor.health.HealthActor
+import org.ekstep.actor.HealthActor
 import org.ekstep.commons.{APIIds, Request}
 import org.ekstep.common.dto.Response
 import org.ekstep.service.HealthCheckService

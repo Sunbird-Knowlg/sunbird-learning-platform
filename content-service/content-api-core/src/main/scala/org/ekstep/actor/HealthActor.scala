@@ -1,5 +1,4 @@
-package org.ekstep.actor.health
-
+package org.ekstep.actor
 
 import akka.dispatch.Futures
 import akka.pattern.Patterns
@@ -34,7 +33,3 @@ object HealthActor extends BaseAPIActor {
     Patterns.pipe(Futures.successful(response),getContext().dispatcher).to(sender())
   }
 }
-
-
-
-
