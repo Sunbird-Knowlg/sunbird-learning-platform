@@ -1,18 +1,7 @@
-package org.ekstep.managers
+package org.ekstep.mgr.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.ekstep.common._
-import org.ekstep.common.mgr.{ConvertGraphNode}
-
-import org.ekstep.graph.dac.enums.GraphDACParams
-import org.ekstep.graph.dac.model.Node
-import org.ekstep.graph.model.node.{DefinitionDTO, MetadataDefinition}
-
-import org.ekstep.graph.cache.util._
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.JsonNode
-import org.ekstep.util._
-import scala.collection.mutable.MutableList
 import org.ekstep.commons.Constants
 
 
@@ -20,7 +9,7 @@ import org.ekstep.commons.Constants
   * This manager is responsible for read operation
   */
 
-class ContentMgr extends BaseContentManager {
+class ContentManagerImpl extends BaseContentManager {
 
   def read(request: org.ekstep.commons.Request) = {
 
