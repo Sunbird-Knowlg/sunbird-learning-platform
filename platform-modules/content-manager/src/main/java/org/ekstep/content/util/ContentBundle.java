@@ -582,6 +582,7 @@ public class ContentBundle {
 	public  Map<String, Object> getContentMap(Node node, List<Map<String, Object>> childrenList) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
 		Map<String, Object> collectionHierarchy = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+		if (!childrenList.isEmpty())
 		collectionHierarchy.put("children", childrenList);
 		collectionHierarchy.put("identifier", node.getIdentifier());
 		collectionHierarchy.put("objectType", node.getObjectType());
