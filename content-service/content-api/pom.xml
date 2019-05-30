@@ -8,9 +8,13 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>content-api</artifactId>
     <packaging>play2</packaging>
+
+    <properties>
+        <play2.version>2.4.6</play2.version>
+        <play2.plugin.version>1.0.0-beta5</play2.plugin.version>
+    </properties>
 
     <repositories>
         <repository>
@@ -33,18 +37,6 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-
-        <jar.plugin.version>2.6</jar.plugin.version>
-        <play2.version>2.4.6</play2.version>
-        <play2.plugin.version>1.0.0-beta5</play2.plugin.version>
-        <scala.version>2.11.8</scala.version>
-
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.ekstep</groupId>
@@ -53,31 +45,26 @@
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play_${scala.maj.version}</artifactId>
+            <artifactId>play_${scala.major.version}</artifactId>
             <version>${play2.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-netty-server_${scala.maj.version}</artifactId>
+            <artifactId>play-netty-server_${scala.major.version}</artifactId>
             <version>${play2.version}</version>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-specs2_${scala.maj.version}</artifactId>
+            <artifactId>play-specs2_${scala.major.version}</artifactId>
             <version>${play2.version}</version>
             <scope>test</scope>
         </dependency>
-
-
-        <!-- required for IntegrationSpec -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.1</version>
         </dependency>
-        <!-- http://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -85,20 +72,13 @@
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-slf4j_${scala.maj.version}</artifactId>
+            <artifactId>akka-slf4j_${scala.major.version}</artifactId>
             <version>2.4.6</version>
         </dependency>
         <dependency>
             <groupId>org.ekstep</groupId>
             <artifactId>platform-telemetry</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
         </dependency>
     </dependencies>
 
