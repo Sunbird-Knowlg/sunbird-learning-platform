@@ -18,7 +18,7 @@ object HealthCheckService extends BaseManager {
 
   def checkSystemHealth(request: Request) = {
     var status = false
-    var allChecks = new ListBuffer[Map[String, Any]]()
+    var allChecks = ListBuffer[Map[String, Any]]()
     status = getNeo4jHealth()
     if (!status)
       overAllHealth = false
