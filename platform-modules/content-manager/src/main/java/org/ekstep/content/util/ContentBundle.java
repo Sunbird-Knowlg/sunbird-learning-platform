@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -28,6 +29,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
@@ -38,9 +40,10 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.common.JSONUtils;
 import org.ekstep.graph.dac.model.Node;
+import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.CloudStore;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import static java.util.stream.Collectors.toList;
@@ -53,10 +56,9 @@ public class ContentBundle {
 	/** The logger. */
 
 	/** The mapper. */
-	private ObjectMapper mapper = new ObjectMapper();
-
-	/** The Constant URL_FIELD. */
-	protected static final String URL_FIELD = "URL";
+	private static ObjectMapper mapper = new ObjectMapper();
+	public final String TAXONOMY_ID = "domain";
+	public final ControllerUtil util = new ControllerUtil();
 
 	/** The Constant BUNDLE_PATH. */
 	protected static final String BUNDLE_PATH = "/tmp";
@@ -200,7 +202,7 @@ public class ContentBundle {
 					downloadedFiles.add(manifestFile);
 				//Adding Hierarchy into hierarchy.json file
                 if (StringUtils.isNotBlank(pkgType) && !StringUtils.equalsIgnoreCase("FULL", pkgType)) {
-                    File hierarchyFile = HierarchyJsonUtil.createHierarchyFile(bundlePath, node, children);
+                    File hierarchyFile = createHierarchyFile(bundlePath, node, children);
                     if (null != hierarchyFile)
                         downloadedFiles.add(hierarchyFile);
                 }
@@ -443,8 +445,8 @@ public class ContentBundle {
 			for (File file : files) {
 				if (null != file) {
 					String fileName = null;
-					if (file.getName().toLowerCase().endsWith("manifest.json")
-							|| file.getName().equalsIgnoreCase("hierarchy.json")) {
+					if (file.getName().toLowerCase().endsWith(ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME)
+							|| file.getName().equalsIgnoreCase(ContentConfigurationConstants.CONTENT_BUNDLE_HIERARCHY_FILE_NAME)) {
 						fileName = file.getName();
 					} else if (file.getParentFile().getName().toLowerCase().endsWith("screenshots")) {
 						fileName = file.getParent()
@@ -554,4 +556,36 @@ public class ContentBundle {
 		return list;
 	}
 
+	public  File createHierarchyFile(String bundlePath,
+										   Node node, List<Map<String, Object>> children) throws Exception {
+		String contentId = node.getIdentifier();
+		File hierarchyFile = null;
+		if (node == null || StringUtils.isBlank(bundlePath)) {
+			TelemetryManager.error("Hierarchy File creation failed for identifier : " +contentId);
+			return hierarchyFile;
+		}
+		Map<String, Object> hierarchyMap = getContentMap(node, children);
+		if (MapUtils.isNotEmpty(hierarchyMap)) {
+			hierarchyFile = new File(bundlePath + File.separator + ContentConfigurationConstants.CONTENT_BUNDLE_HIERARCHY_FILE_NAME);
+			if (hierarchyFile == null) {
+				TelemetryManager.error("Hierarchy File creation failed for identifier : " + contentId);
+				return hierarchyFile;
+			}
+			String hierarchyJSON = mapper.writeValueAsString(hierarchyMap);
+			FileUtils.writeStringToFile(hierarchyFile, hierarchyJSON);
+			TelemetryManager.log("Hierarchy JSON Written for identifier : " +contentId);
+		} else {
+			TelemetryManager.log("Hierarchy JSON can't be created for identifier : " +contentId);
+		}
+		return hierarchyFile;
+	}
+
+	public  Map<String, Object> getContentMap(Node node, List<Map<String, Object>> childrenList) {
+		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+		Map<String, Object> collectionHierarchy = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+		collectionHierarchy.put("children", childrenList);
+		collectionHierarchy.put("identifier", node.getIdentifier());
+		collectionHierarchy.put("objectType", node.getObjectType());
+		return collectionHierarchy;
+	}
 }

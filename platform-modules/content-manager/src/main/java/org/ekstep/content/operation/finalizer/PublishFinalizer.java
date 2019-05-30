@@ -795,7 +795,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				pkgType);
 
 		List<String> ecarUrl = Arrays.asList(contentBundle.createContentBundle(ecarContents, bundleFileName,
-				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node, children,pkgType.toString()));
+				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node, children, pkgType.name()));
 		TelemetryManager.log(pkgType.toString() + " ECAR created For Content Id: " + node.getIdentifier());
 
 		if (!EcarPackageType.FULL.name().equalsIgnoreCase(pkgType.toString())) {
