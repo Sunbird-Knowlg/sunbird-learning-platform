@@ -7,7 +7,7 @@ import org.ekstep.managers.ReadContentMgr
 import akka.dispatch.Futures
 import akka.pattern.Patterns
 
-object ContentActor extends BaseAPIActor{
+object ContentActor extends BaseAPIActor {
 
 
   override def onReceive(request: Request) = {
@@ -31,8 +31,8 @@ object ContentActor extends BaseAPIActor{
     val readContentMgr = new ReadContentMgr()
     val result = readContentMgr.read(request)
 
-    val response = OK(request.apiId,result)
-    Patterns.pipe(Futures.successful(response),getContext().dispatcher).to(sender())
+    val response = OK(request.apiId, result)
+    Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
   }
 
 
