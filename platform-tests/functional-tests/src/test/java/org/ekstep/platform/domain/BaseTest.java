@@ -81,6 +81,7 @@ public class BaseTest
 		RequestSpecBuilder builderreq = new RequestSpecBuilder();
 		builderreq.addHeader("Content-Type", content_type);
 		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeaders(getHeaders(true));
 		RequestSpecification requestSpec = builderreq.build();
 		return requestSpec;
 	}
@@ -91,6 +92,7 @@ public class BaseTest
 		builderreq.addHeader("Content-Type", content_type);
 		builderreq.addHeader("user-id", user_id);
 		builderreq.addHeader("Authorization", APIToken);
+		builderreq.addHeaders(getHeaders(true));
 		RequestSpecification requestSpec = builderreq.build();
 		return requestSpec;
 	}
@@ -99,9 +101,10 @@ public class BaseTest
 	{
 		RequestSpecBuilder builderreq = new RequestSpecBuilder();
 		builderreq.addHeader("user-id", user_id);
-		builderreq.addHeader("Content-Type", content_type);
 		builderreq.addHeader("Authorization", APIToken);
 		builderreq.addHeader("fileUrl", fileUrl);
+		builderreq.addHeaders(getHeaders(true));
+		builderreq.addHeader("Content-Type", content_type);
 		RequestSpecification requestSpec = builderreq.build();
 		return requestSpec;
 	}
@@ -134,6 +137,7 @@ public class BaseTest
 	{
 		RequestSpecBuilder builderreq = new RequestSpecBuilder();
 		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeaders(getHeaders(true));
 		builderreq.addHeader("Content-Type", content_type);
 		builderreq.addHeader("Authorization", APIToken);
 		builderreq.addHeader("X-Channel-Id", channelId);
