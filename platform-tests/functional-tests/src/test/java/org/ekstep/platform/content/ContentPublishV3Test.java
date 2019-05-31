@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
 import net.lingala.zip4j.core.ZipFile;
+import org.springframework.test.context.TestPropertySource;
 
 /**
  * Test Cases for Content Publish Usecase.
@@ -454,6 +456,51 @@ public class ContentPublishV3Test extends BaseTest{
 		assertEquals("1.0", pkgVersion);
 	}
 
+	@Test
+	public void hierarchyJsonCreationSuccess() {
+		String ecarName = "test_bundle";
+		String downloadPath = "/data/testBundle/";
+		String ecarPath = downloadPath + ecarName + ".zip";
+		//Create TextBook
+		String createTextBook = "{\"request\":{\"content\":{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Text Book in English for Class III\",\"name\":\"Marigold\",\"language\":[\"English\"],\"contentType\":\"TextBook\",\"code\":\"org.ekstep.feb16.story.test01\",\"tags\":[\"QA_Content\"],\"mimeType\":\"application/vnd.ekstep.content-collection\",\"children\":[]}}}";
+		String identifier = createContent(contentType, createTextBook);
+
+		//Update Hierarchy
+		String updateTextBookHierarchy = "{\"request\":{\"data\":{\"nodesModified\":{\"" + identifier + "\":{\"isNew\":true,\"root\":true,\"reservedDialcodes\":{\"ZDYAKA\":0,\"DAFKJN\":1,\"ZNLDAJ\":2},\"metadata\":{\"name\":\"YO\"}},\"textbookunit_0\":{\"isNew\":true,\"root\":false,\"metadata\":{\"name\":\"U1\",\"code\":\"testbook 0\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBookUnit\"}},\"textbookunit_1\":{\"isNew\":true,\"root\":false,\"metadata\":{\"name\":\"U2\",\"code\":\"testbook 1\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBookUnit\"}},\"textbookunit_2\":{\"isNew\":true,\"root\":false,\"metadata\":{\"name\":\"U3\",\"code\":\"testbook 2\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBookUnit\"}},\"textbooksubunit_0\":{\"isNew\":true,\"root\":false,\"metadata\":{\"name\":\"U1.1\",\"code\":\"testbook 1.1\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBookUnit\"}},\"textbooksubunit_1\":{\"isNew\":true,\"root\":false,\"metadata\":{\"name\":\"U2.1\",\"code\":\"testbook 2.1\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBookUnit\"}},\"textbooksubunit_2\":{\"isNew\":true,\"root\":false,\"metadata\":{\"name\":\"U3.1\",\"code\":\"testbook 3.1\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBookUnit\"}},\"textbooksubsubunit_2\":{\"isNew\":true,\"root\":false,\"metadata\":{\"name\":\"U3.1.1\",\"code\":\"testbook 3.1.1\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"contentType\":\"TextBookUnit\"}}},\"hierarchy\":{\""+identifier+"\":{\"name\":\"Test Undefined\",\"contentType\":\"TextBook\",\"children\":[\"textbookunit_0\",\"textbookunit_1\",\"textbookunit_2\"],\"root\":true},\"textbookunit_0\":{\"name\":\"New Unit\",\"contentType\":\"TextBookUnit\",\"children\":[\"textbooksubunit_0\"],\"root\":false},\"textbookunit_1\":{\"name\":\"New Unit\",\"contentType\":\"TextBookUnit\",\"children\":[\"textbooksubunit_1\"],\"root\":false},\"textbookunit_2\":{\"name\":\"New Unit\",\"contentType\":\"TextBookUnit\",\"children\":[\"textbooksubunit_2\"],\"root\":false},\"textbooksubunit_0\":{\"name\":\"New Unit\",\"contentType\":\"TextBookUnit\",\"children\":[],\"root\":false},\"textbooksubunit_1\":{\"name\":\"New Unit\",\"contentType\":\"TextBookUnit\",\"children\":[],\"root\":false},\"textbooksubunit_2\":{\"name\":\"New Unit\",\"contentType\":\"TextBookUnit\",\"children\":[\"textbooksubsubunit_2\"],\"root\":false},\"textbooksubsubunit_2\":{\"name\":\"New Unit\",\"contentType\":\"TextBookUnit\",\"children\":[\"do_112724210033541120115\"],\"root\":false}},\"lastUpdatedBy\":\"pradyumna\"}}}";
+		String responseCode = updateHierarchy(contentType,updateTextBookHierarchy);
+		//Publish TextBook
+		publishContent(identifier, null, false);
+		delay(15000);
+		String downloadUrl = readContent(identifier).get("result.content.downloadUrl");
+		try {
+			// Download Ecar
+			FileUtils.copyURLToFile(new URL(downloadUrl), new File(downloadPath + ecarName + ".zip"));
+
+			// Extract Ecar
+			File bundleExtract = new File(downloadPath + ecarName);
+			String bundleExtractPath = bundleExtract.getPath();
+
+			ZipFile bundleZip = new ZipFile(ecarPath);
+			bundleZip.extractAll(bundleExtractPath);
+
+			File fileName = new File(bundleExtractPath);
+			File[] files = fileName.listFiles();
+			List<File> fileList = Arrays.asList(files);
+			long fileNo = fileList.stream().filter(file -> file.getName().equalsIgnoreCase("hierarchy.json")).count();
+			assertEquals(1, fileNo);
+			FileUtils.deleteDirectory(new File(downloadPath));
+		}catch (Exception e) {
+			e.printStackTrace();
+			try {
+				FileUtils.deleteDirectory(new File(downloadPath));
+			} catch (Exception exp) {
+				exp.printStackTrace();
+			}
+		}
+	}
+
+
+
 	/**
 	 *
 	 * @param contentType
@@ -471,7 +518,7 @@ public class ContentPublishV3Test extends BaseTest{
 				contentType(JSON).
 				when().
 				post("content/v3/create").
-				then().//log().all().
+				then().log().all().
 				extract().
 				response();
 		JsonPath jsonResponse = response.jsonPath();
@@ -499,6 +546,24 @@ public class ContentPublishV3Test extends BaseTest{
 		JsonPath jsonResponse = response.jsonPath();
 		contentUrl = jsonResponse.get("result.content_url");
 		return contentUrl;
+	}
+
+	private String updateHierarchy(String identifier, String request) {
+		String responseCode;
+		setURI();
+		Response response =
+				given().
+						spec(getRequestSpecification(contentType, validuserId, APIToken, channelId, appId)).
+						body(request).
+						with().
+						contentType(JSON).
+						when().
+						patch("content/v3/hierarchy/update").
+						then().log().all().
+						extract().
+						response();
+		JsonPath jsonResponse = response.jsonPath();
+		return jsonResponse.get("responseCode");
 	}
 
 	/**
