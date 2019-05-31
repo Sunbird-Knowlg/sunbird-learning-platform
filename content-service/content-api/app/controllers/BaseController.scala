@@ -5,7 +5,7 @@ import akka.util.Timeout.durationToTimeout
 import com.typesafe.config.Config
 import org.ekstep.common.dto.Response
 import org.ekstep.common.exception.ResponseCode
-import org.ekstep.util.JSONUtils
+import org.ekstep.content.util.JSONUtils
 import play.api.mvc.{Controller, Result}
 
 import scala.concurrent.duration.DurationInt

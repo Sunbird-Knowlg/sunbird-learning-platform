@@ -1,4 +1,4 @@
-package org.ekstep.util
+package org.ekstep.content.util
 
 import java.util
 

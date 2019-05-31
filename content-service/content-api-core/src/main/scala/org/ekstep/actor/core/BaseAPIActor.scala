@@ -7,7 +7,7 @@ import org.ekstep.commons._
 import org.ekstep.common.dto.ResponseParams
 import org.ekstep.common.dto.ResponseParams.StatusType
 import org.ekstep.common.exception.ResponseCode
-import org.ekstep.util.JSONUtils
+import org.ekstep.content.util.JSONUtils
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, DateTimeZone}
 

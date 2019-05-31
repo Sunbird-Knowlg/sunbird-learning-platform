@@ -1,8 +1,8 @@
-package org.ekstep.util
+package org.ekstep.content.util
 
 import java.util.UUID
 
-import org.ekstep.commons.{Params, Response, ResponseCode,RespCode}
+import org.ekstep.commons.{Params, RespCode, Response}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, DateTimeZone}
 

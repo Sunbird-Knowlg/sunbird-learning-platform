@@ -10,6 +10,7 @@ import org.ekstep.common.mgr.ConvertGraphNode
 import org.ekstep.common.router.RequestRouterPool
 import org.ekstep.common.{Platform, dto}
 import org.ekstep.commons.ContentErrorCodes
+import org.ekstep.content.util.LanguageCode
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.common.enums.GraphHeaderParams
 import org.ekstep.graph.dac.enums.GraphDACParams
@@ -22,7 +23,6 @@ import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStorePar
 import org.ekstep.learning.router.LearningRequestRouterPool
 import org.ekstep.mgr.IContentManager
 import org.ekstep.telemetry.util.LogTelemetryEventUtil
-import org.ekstep.util.LanguageCode
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.MutableList
@@ -61,8 +61,8 @@ abstract class BaseContentManager extends IContentManager {
     * @return
     */
   def contentCleanUp(contentNode: Map[String, AnyRef]) = {
-    if (contentNode.contains("identifier") && contentNode.get("identifier").asInstanceOf[String].endsWith(".img")) {
-        contentNode + ("identifier"-> contentNode.get("identifier").asInstanceOf[String].replace(".img", ""))
+    if (contentNode.contains("identifier") && contentNode.get("identifier").get.asInstanceOf[String].endsWith(".img")) {
+        contentNode + ("identifier"-> contentNode.get("identifier").get.asInstanceOf[String].replace(".img", ""))
     }
     contentNode
   }
@@ -100,7 +100,7 @@ abstract class BaseContentManager extends IContentManager {
 
   def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
     if (null != definitionDTO) {
-      definitionDTO.getProperties.asScala.asInstanceOf[List[MetadataDefinition]].map(prop => {
+      definitionDTO.getProperties.asScala.toList.asInstanceOf[List[MetadataDefinition]].map(prop => {
         if (prop.getDataType.equalsIgnoreCase("external"))
           prop.getPropertyName.trim
       }).toList.asInstanceOf[List[String]]
@@ -143,7 +143,7 @@ abstract class BaseContentManager extends IContentManager {
 
 
 
-  def updateContentTaggedProperty(contentMap: Map[String, AnyRef], mode: String): Unit = {
+  def updateContentTaggedProperty(contentMap: Map[String, AnyRef], mode: String): Map[String, AnyRef] = {
     val contentTaggingFlag =
       if (Platform.config.hasPath("content.tagging.backward_enable")) Platform.config.getBoolean("content.tagging.backward_enable")
       else false
@@ -161,6 +161,7 @@ abstract class BaseContentManager extends IContentManager {
         contentMap + (contentTaggedKeys(i) -> toAddProp)
       }
     }
+    contentMap
   }
 
 
@@ -275,7 +276,7 @@ abstract class BaseContentManager extends IContentManager {
 
   @throws[Exception]
   private def pushInstructionEvent(contentId: String, channel: String): Unit = {
-    val actor: Map[String, AnyRef] = Map[String, AnyRef] (
+    var actor: Map[String, AnyRef] = Map[String, AnyRef] (
       "id" -> "Collection Migration Samza Job",
       "type" -> "System",
       "pdata" -> Map[String, AnyRef] (
@@ -283,15 +284,15 @@ abstract class BaseContentManager extends IContentManager {
         "ver" -> "1.0"
       )
     )
-    val context: Map[String, AnyRef] = {if(Platform.config.hasPath("cloud_storage.env"))Map[String, AnyRef](
+    var context: Map[String, AnyRef] = {if(Platform.config.hasPath("cloud_storage.env"))Map[String, AnyRef](
       "env" -> Platform.config.getString("cloud_storage.env")
     )else Map()}
-    val `object`: Map[String, AnyRef] = Map[String, AnyRef](
+    var `object`: Map[String, AnyRef] = Map[String, AnyRef](
       "id" -> contentId.replace(".img",""),
       "type" -> "content",
       "channel" -> channel
     )
-    val edata: Map[String, AnyRef] = Map[String, AnyRef](
+    var edata: Map[String, AnyRef] = Map[String, AnyRef](
       "action" -> "ecml-migration",
       "contentType" -> "Ecml"
     )
