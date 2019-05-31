@@ -1,32 +1,33 @@
 package org.ekstep.mgr.impl
 
-import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.pattern.Patterns
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import org.ekstep.common.dto.ResponseParams
-import org.ekstep.common.dto.ResponseParams.StatusType
-import org.ekstep.common.enums.TaxonomyErrorCodes
-import org.ekstep.common.exception.{ResponseCode, ServerException}
+import org.apache.commons.lang3.{BooleanUtils, StringUtils}
+import org.apache.commons.lang3.StringUtils.equalsIgnoreCase
+import org.ekstep.common.dto.{Request, Response}
+import org.ekstep.common.exception.{ClientException, ResourceNotFoundException}
 import org.ekstep.common.mgr.ConvertGraphNode
 import org.ekstep.common.router.RequestRouterPool
 import org.ekstep.common.{Platform, dto}
-import org.ekstep.commons.{Constants, ValidationUtils}
+import org.ekstep.commons.{Constants, ContentErrorCodes, ContentMetadata, TaxonomyAPIParams, ValidationUtils}
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.common.enums.GraphHeaderParams
 import org.ekstep.graph.dac.enums.GraphDACParams
 import org.ekstep.graph.dac.model.Node
 import org.ekstep.graph.engine.router.GraphEngineManagers
-import org.ekstep.graph.model.node.DefinitionDTO
-import org.ekstep.learning.actor.ContentStoreActor
+import org.ekstep.graph.model.node.{DefinitionDTO, MetadataDefinition}
+import org.ekstep.kafka.KafkaClient
 import org.ekstep.learning.common.enums.LearningActorNames
+import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStoreParams}
 import org.ekstep.learning.router.LearningRequestRouterPool
-import org.ekstep.search.router.SearchRequestRouterPool
+import org.ekstep.mgr.IContentManager
+import org.ekstep.telemetry.logger.TelemetryManager
+import org.ekstep.telemetry.util.LogTelemetryEventUtil
 import org.ekstep.util.LanguageCode
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.MutableList
-import scala.concurrent.Await
 
 
 /**
@@ -34,26 +35,27 @@ import scala.concurrent.Await
   * This holds the basic required operations, can be used by all managers
   */
 
-abstract class BaseContentManager /*extends BaseManager*/ {
+abstract class BaseContentManager extends IContentManager {
 
-  var objectMapper = new ObjectMapper()
+  val objectMapper = new ObjectMapper()
+  val DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX: String = ".img"
+  val CONTENT_IMAGE_OBJECT_TYPE = "ContentImage"
 
-  /**
+ /* /**
     * Actors initializations
     */
   val system = ActorSystem.create("learningActor")
   val learningActor = system.actorOf(Props[ContentStoreActor], name = "learningActor")
   LearningRequestRouterPool.init()
-  SearchRequestRouterPool.init(RequestRouterPool.getActorSystem())
+  SearchRequestRouterPool.init(RequestRouterPool.getActorSystem())*/
 
   /**
     * To get a definition node for content type
     * @return
     */
-  protected def getDefinitionNode(): DefinitionDTO = {
-    val requestDto = getRequest(Constants.TAXONOMY_ID, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition", GraphDACParams.object_type.name, Constants.CONTENT_OBJECT_TYPE);
+  protected def getDefinitionNode(graphId: String, objectType: String): DefinitionDTO = {
+    val requestDto = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition", GraphDACParams.object_type.name, objectType);
     getResponse(requestDto,RequestRouterPool.getRequestRouter()).get(GraphDACParams.definition_node.name).asInstanceOf[DefinitionDTO]
-
   }
 
   /**
@@ -61,13 +63,9 @@ abstract class BaseContentManager /*extends BaseManager*/ {
     * @param contentNode
     * @return
     */
-  def contentCleanUp(contentNode: ObjectNode) = {
-    if (contentNode.has("identifier")) {
-      val identifier = contentNode.get("identifier").asText()
-      if (identifier.endsWith(".img")) {
-        val newIdentifier = identifier.replace(".img", "")
-        contentNode.put("identifier", newIdentifier)
-      }
+  def contentCleanUp(contentNode: Map[String, AnyRef]) = {
+    if (contentNode.contains("identifier") && contentNode.get("identifier").asInstanceOf[String].endsWith(".img")) {
+        contentNode + ("identifier"-> contentNode.get("identifier").asInstanceOf[String].replace(".img", ""))
     }
     contentNode
   }
@@ -101,22 +99,19 @@ abstract class BaseContentManager /*extends BaseManager*/ {
     }
   }
 
-
-  private def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
-    val it = definitionDTO.getProperties().iterator
-    val list: List[String] = List[String]()
-
-    while (it.hasNext) {
-      val metadata = it.next()
-      if (metadata.getDataType.equalsIgnoreCase("external")) {
-        list + metadata.getPropertyName().trim()
-      }
+  def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
+    if (null != definitionDTO) {
+      definitionDTO.getProperties.asScala.asInstanceOf[List[MetadataDefinition]].map(prop => {
+        if (prop.getDataType.equalsIgnoreCase("external"))
+          prop.getPropertyName.trim
+      }).toList.asInstanceOf[List[String]]
+    } else{
+      List[String]()
     }
-    return list
   }
 
 
-  def buildResponse(contentNode: ObjectNode) = {
+  def buildResponse(contentNode: Map[String, AnyRef]) = {
     val response = new org.ekstep.common.dto.Response() {
       put("content", contentCleanUp(contentNode))
     }
@@ -149,7 +144,7 @@ abstract class BaseContentManager /*extends BaseManager*/ {
 
 
 
-  def updateContentTaggedProperty(contentMap: ObjectNode, mode: String): Unit = {
+  def updateContentTaggedProperty(contentMap: Map[String, AnyRef], mode: String): Unit = {
     val contentTaggingFlag =
       if (Platform.config.hasPath("content.tagging.backward_enable")) Platform.config.getBoolean("content.tagging.backward_enable")
       else false
@@ -164,7 +159,7 @@ abstract class BaseContentManager /*extends BaseManager*/ {
 
       for (i <- 0 until contentTaggedKeys.length) {
         val toAddProp = contentMap.get(contentTaggedKeys(i))
-        contentMap.put(contentTaggedKeys(i), toAddProp)
+        contentMap + (contentTaggedKeys(i) -> toAddProp)
       }
     }
   }
@@ -196,7 +191,8 @@ abstract class BaseContentManager /*extends BaseManager*/ {
     contentMap
   }
 
-  def getDataNode(taxonomyId: String, id: String)={
+
+  def getDataNodeX(taxonomyId: String, id: String)={
     val request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name, id)
     getResponse(request,RequestRouterPool.getRequestRouter())
   }
@@ -213,7 +209,7 @@ abstract class BaseContentManager /*extends BaseManager*/ {
 
 
 
-  def getResponse(request: org.ekstep.common.dto.Request, router: ActorRef):org.ekstep.common.dto.Response ={
+  /*def getResponse(request: org.ekstep.common.dto.Request, router: ActorRef):org.ekstep.common.dto.Response ={
 
     try {
       val future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT)
@@ -229,9 +225,9 @@ abstract class BaseContentManager /*extends BaseManager*/ {
     }
 
 
-  }
+  }*/
 
-  def getErrorStatus(errorCode: String, errorMessage: String): ResponseParams = {
+  /*def getErrorStatus(errorCode: String, errorMessage: String): ResponseParams = {
     val params = new ResponseParams
     params.setErr(errorCode)
     params.setStatus(StatusType.failed.name)
@@ -245,6 +241,135 @@ abstract class BaseContentManager /*extends BaseManager*/ {
     response.setParams(getErrorStatus(errorCode, errorMessage))
     response.setResponseCode(responseCode)
     return response
+  }*/
+
+  protected def getContentNode(graphId: String, contentId: String, mode: String): Node = {
+    if (equalsIgnoreCase("edit", mode)) {
+      val contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX
+      val responseNode = getDataNode(graphId, contentImageId)
+      if (!checkError(responseNode)) {
+        val content = responseNode.get(GraphDACParams.node.name).asInstanceOf[Node]
+        return content
+      }
+    }
+    val responseNode = getDataNode(graphId, contentId)
+    if (checkError(responseNode)) {
+      throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.asInstanceOf[String], "Content not found with id: " + contentId)
+    }
+    val content = responseNode.get(GraphDACParams.node.name).asInstanceOf[Node]
+    content
+  }
+
+  protected def getContentProperties(contentId: String, properties: List[String]): org.ekstep.common.dto.Response = {
+    val request: org.ekstep.common.dto.Request = new Request()
+    request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+    request.setOperation(ContentStoreOperations.getContentProperties.name)
+    request.put(ContentStoreParams.content_id.name, contentId)
+    request.put(ContentStoreParams.properties.name, properties.asJava)
+    val response: org.ekstep.common.dto.Response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
+    response
+  }
+
+  protected def generateMigrationInstructionEvent(identifier: String, channel: String): Unit = {
+    try
+      pushInstructionEvent(identifier, channel)
+    catch {
+      case e: Exception =>
+        e.printStackTrace()
+    }
+  }
+
+  @throws[Exception]
+  private def pushInstructionEvent(contentId: String, channel: String): Unit = {
+    val actor: Map[String, AnyRef] = Map[String, AnyRef] (
+      "id" -> "Collection Migration Samza Job",
+      "type" -> "System",
+      "pdata" -> Map[String, AnyRef] (
+        "id" -> "org.ekstep.platform",
+        "ver" -> "1.0"
+      )
+    )
+    val context: Map[String, AnyRef] = {if(Platform.config.hasPath("cloud_storage.env"))Map[String, AnyRef](
+      "env" -> Platform.config.getString("cloud_storage.env")
+    )else Map()}
+    val `object`: Map[String, AnyRef] = Map[String, AnyRef](
+      "id" -> contentId.replace(".img",""),
+      "type" -> "content",
+      "channel" -> channel
+    )
+    val edata: Map[String, AnyRef] = Map[String, AnyRef](
+      "action" -> "ecml-migration",
+      "contentType" -> "Ecml"
+    )
+    val beJobRequestEvent: String = LogTelemetryEventUtil.logInstructionEvent(actor.asJava, context.asJava, `object`.asJava, edata.asJava)
+    val topic: String = Platform.config.getString("kafka.topics.instruction")
+    if (org.apache.commons.lang3.StringUtils.isBlank(beJobRequestEvent)) throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Event is not generated properly.")
+    if (org.apache.commons.lang3.StringUtils.isNotBlank(topic)) KafkaClient.send(beJobRequestEvent, topic)
+    else throw new ClientException("BE_JOB_REQUEST_EXCEPTION", "Invalid topic id.")
+  }
+
+
+  protected def restrictProps(definition: DefinitionDTO, map: Map[String, AnyRef], props: String*): Unit = {
+    for (prop <- props) {
+      val allow = definition.getMetadata.get("allowupdate_" + prop)
+      if (allow == null || BooleanUtils.isFalse(allow.asInstanceOf[Boolean])) if (map.contains(prop))
+        throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.toString, "Error! " + prop + " can't be set for the content.")
+    }
+  }
+
+  // TODO: push this to publish-pipeline.
+  protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
+    if (StringUtils.isNotBlank(mimeType)) {
+      if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
+        map + TaxonomyAPIParams.contentEncoding.asInstanceOf[String] -> ContentMetadata.ContentEncoding.identity
+      else map + TaxonomyAPIParams.contentEncoding.asInstanceOf[String] -> ContentMetadata.ContentEncoding.identity
+      if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url"))
+        map + TaxonomyAPIParams.contentDisposition.asInstanceOf[String] -> ContentMetadata.ContentDisposition.online
+      else map + TaxonomyAPIParams.contentDisposition.asInstanceOf[String] -> ContentMetadata.ContentDisposition.inline
+    }
+  }
+
+  protected def createDataNode(node: Node) = {
+    var response = new Response
+    if (null != node) {
+      val request = getRequest(node.getGraphId, GraphEngineManagers.NODE_MANAGER, "createDataNode")
+      request.put(GraphDACParams.node.name, node)
+      TelemetryManager.log("Creating the Node ID: " + node.getIdentifier)
+      response = getResponse(request)
+    }
+    response
+  }
+
+  protected def updateContentProperties(contentId: String, properties: Map[String, AnyRef])= {
+    val request = new org.ekstep.common.dto.Request()
+    request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+    request.setOperation(ContentStoreOperations.updateContentProperties.name)
+    request.put(ContentStoreParams.content_id.name, contentId)
+    request.put(ContentStoreParams.properties.name, properties)
+    val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
+    response
+  }
+
+  protected def updateDataNode(node: Node) = {
+    var response = new Response
+    if (null != node) {
+      val contentId = node.getIdentifier
+      // Checking if Content Image Object is being Updated, then return
+      // the Original Content Id
+      if (BooleanUtils.isTrue(node.getMetadata.get(TaxonomyAPIParams.isImageObject).asInstanceOf[Boolean])) {
+        node.getMetadata.remove(TaxonomyAPIParams.isImageObject)
+        node.setIdentifier(node.getIdentifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)
+      }
+      TelemetryManager.log("Getting Update Node Request For Node ID: " + node.getIdentifier)
+      val updateReq = getRequest(node.getGraphId, GraphEngineManagers.NODE_MANAGER, "updateDataNode")
+      updateReq.put(GraphDACParams.node.name, node)
+      updateReq.put(GraphDACParams.node_id.name, node.getIdentifier)
+      TelemetryManager.log("Updating the Node ID: " + node.getIdentifier)
+      response = getResponse(updateReq)
+      response.put(TaxonomyAPIParams.node_id.toString, contentId)
+      TelemetryManager.log("Returning Node Update Response.")
+    }
+    response
   }
 
 
