@@ -3,18 +3,12 @@ package controllers
 import akka.util.Timeout
 import akka.util.Timeout.durationToTimeout
 import com.typesafe.config.Config
-import play.api.mvc.{Controller, Result}
 import org.ekstep.common.dto.Response
 import org.ekstep.common.exception.ResponseCode
 import org.ekstep.util.JSONUtils
+import play.api.mvc.{Controller, Result}
 
 import scala.concurrent.duration.DurationInt
-
-/**
-  * @author mahesh
-  */
-
-
 
 abstract class BaseController extends Controller {
   implicit val timeout: Timeout = 30 seconds;
@@ -27,11 +21,10 @@ abstract class BaseController extends Controller {
       case ResponseCode.CLIENT_ERROR => BadRequest(res)
       case ResponseCode.RESOURCE_NOT_FOUND => NotFound(res)
       case ResponseCode.SERVER_ERROR => ServiceUnavailable(res)
-      case _ =>  ServiceUnavailable(res)
+      case _ => ServiceUnavailable(res)
     }
 
     result.withHeaders(CONTENT_TYPE -> "application/json")
   }
-
 
 }
