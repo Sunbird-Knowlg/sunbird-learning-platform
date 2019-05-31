@@ -11,7 +11,7 @@ import org.ekstep.common.exception.{ResponseCode, ServerException}
 import org.ekstep.common.mgr.ConvertGraphNode
 import org.ekstep.common.router.RequestRouterPool
 import org.ekstep.common.{Platform, dto}
-import org.ekstep.commons.Constants
+import org.ekstep.commons.{Constants, ValidationUtils}
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.common.enums.GraphHeaderParams
 import org.ekstep.graph.dac.enums.GraphDACParams
@@ -77,14 +77,13 @@ abstract class BaseContentManager /*extends BaseManager*/ {
     * Connecting cassandra
     *
     * @param identifier
-    * @param objectType
     * @param fields
     * @param definitionDTO
     * @return
     */
-  def getExternalProps(identifier: String, objectType: String, fields: List[String], definitionDTO: DefinitionDTO)
+  def getExternalProps(identifier: String, fields: List[String], definitionDTO: DefinitionDTO)
   : org.ekstep.common.dto.Response = {
-    val externalPropsList = getExternalPropList(objectType, definitionDTO)
+    val externalPropsList = getExternalPropList(definitionDTO)
     val propsList = fields.intersect(externalPropsList)
 
     if (propsList.nonEmpty) {
@@ -103,7 +102,7 @@ abstract class BaseContentManager /*extends BaseManager*/ {
   }
 
 
-  private def getExternalPropList(objectType: String, definitionDTO: DefinitionDTO): List[String] = {
+  private def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
     val it = definitionDTO.getProperties().iterator
     val list: List[String] = List[String]()
 
@@ -173,7 +172,7 @@ abstract class BaseContentManager /*extends BaseManager*/ {
 
   def nonEditMode(identifier: String, definitionDto: DefinitionDTO) = {
 
-    val responseNode = getDataNodeX("domain", identifier)
+    val responseNode = getDataNode("domain", identifier)
     val node: Node = responseNode.get(GraphDACParams.node.name).asInstanceOf[Node]
     val content = RedisStoreUtil.get(identifier)
 
@@ -185,17 +184,19 @@ abstract class BaseContentManager /*extends BaseManager*/ {
 
   }
 
-  def editMode(identifier: String, objectType: String, definitionDto: DefinitionDTO) = {
+  def editMode(identifier: String, definitionDto: DefinitionDTO) = {
     val imageContentId = identifier + ".img"
-    val responseNode = getDataNodeX("domain", imageContentId)
+    var responseNode = getDataNode("domain", imageContentId)
+    if(!ValidationUtils.isValid(responseNode)){
+      responseNode = getDataNode("domain", identifier)
+    }
+
     val node = responseNode.get(GraphDACParams.node.name).asInstanceOf[Node]
     val contentMap = ConvertGraphNode.convertGraphNode(node, "domainId", definitionDto, null)
     contentMap
   }
 
-  def getDataNodeX(taxonomyId: String, id: String)={
-    import org.ekstep.graph.dac.enums.GraphDACParams
-    import org.ekstep.graph.engine.router.GraphEngineManagers
+  def getDataNode(taxonomyId: String, id: String)={
     val request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name, id)
     getResponse(request,RequestRouterPool.getRequestRouter())
   }
@@ -245,6 +246,7 @@ abstract class BaseContentManager /*extends BaseManager*/ {
     response.setResponseCode(responseCode)
     return response
   }
+
 
 
 }

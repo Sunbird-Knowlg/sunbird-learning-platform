@@ -16,7 +16,7 @@ class ContentManagerImpl extends BaseContentManager {
     val params = request.params.getOrElse(Map())
 
     val identifier: String = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
-    val objectType: String = params.getOrElse(Constants.OBJECT_TYPE, "").asInstanceOf[String]
+    //val objectType: String = params.getOrElse(Constants.OBJECT_TYPE, "").asInstanceOf[String]
     val fields: List[String] = params.getOrElse(Constants.FIELDS, List()).asInstanceOf[List[String]]
     val mode: String = params.getOrElse(Constants.MODE, "").asInstanceOf[String]
 
@@ -25,13 +25,13 @@ class ContentManagerImpl extends BaseContentManager {
 
     val contentMap = mode match {
       case Constants.EDIT_MODE =>
-        editMode(identifier, objectType, definitionDto)
+        editMode(identifier, definitionDto)
       case _ =>
         nonEditMode(identifier, definitionDto)
     }
 
     val contentNode: JsonNode = new ObjectMapper().valueToTree(contentMap)
-    val externalPropsResp = getExternalProps(identifier, objectType, fields, definitionDto)
+    val externalPropsResp = getExternalProps(identifier, fields, definitionDto)
 
     //TODO: pushEvent to kafka, for ecml content.
 

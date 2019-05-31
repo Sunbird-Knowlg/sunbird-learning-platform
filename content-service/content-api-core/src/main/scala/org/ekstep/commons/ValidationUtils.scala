@@ -1,7 +1,9 @@
 package org.ekstep.commons
 
+import org.ekstep.common.dto.ResponseParams.StatusType
 
-class ValidationUtils {
+
+object ValidationUtils {
 
 
    def isPluginMimeType(mimeType: String): Boolean = {
@@ -17,8 +19,15 @@ class ValidationUtils {
    }
 
 
-  protected def isCollectionMimeType(mimeType: String): Boolean = {
+  def isCollectionMimeType(mimeType: String): Boolean = {
     "application/vnd.ekstep.content-collection".equalsIgnoreCase(mimeType)
+  }
+
+
+  def isValid(response: org.ekstep.common.dto.Response) = {
+    val params = response.getParams
+    if (null != params && StatusType.failed.name.equals(params.getStatus)) true
+    false
   }
 
 }
