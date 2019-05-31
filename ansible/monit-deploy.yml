@@ -1,4 +1,51 @@
-- hosts: "{{hosts}}"
+- hosts: learningall
+  becomme: yes
   name: Installing and configuring monit
   roles:
-    - monit
+    - { role: monit, service: 'monit_logstash_lp,monit_tomcat_lp' }
+  tags: learningall
+
+- hosts: searchall
+  becomme: yes
+  name: Installing and configuring monit
+  roles:
+    - { role: monit, service: 'monit_logstash_lp,monit_search_lp' }
+  tags: searchall  
+
+- hosts: learning-neo4j-cluster
+  becomme: yes
+  name: Installing and configuring monit
+  roles:
+    - { role: monit, service: 'monit_logstash_lp' }
+  tags: learning-neo4j-cluster
+
+- hosts: cassandra
+  becomme: yes
+  name: Installing and configuring monit
+  roles:
+    - { role: monit, service: 'monit_cassandra' }
+  tags: cassandra
+
+- hosts: processing-cluster-kafka
+  becomme: yes
+  name: Installing and configuring monit
+  roles:
+    - { role: monit, service: 'monit_kafka' }
+  tags: processing-cluster-kafka
+
+- hosts: processing-cluster-zookeepers
+  becomme: yes
+  name: Installing and configuring monit
+  roles:
+    - { role: monit, service: 'monit_zookeeper' }
+  tags: processing-cluster-zookeepers
+
+- hosts: composite-search-cluster
+  becomme: yes
+  pre_tasks:
+    - name: Registering node name
+      set_fact:
+        es_instance_name: "{% for servername in play_hosts %}{% if inventory_hostname==servername %}cs-node-{{ loop.index }}{% endif %}{% endfor %}"
+  roles:
+    - { role: monit, service: 'monit_{{ es_instance_name }}_elasticsearch' }
+  tags: composite-search-cluster
