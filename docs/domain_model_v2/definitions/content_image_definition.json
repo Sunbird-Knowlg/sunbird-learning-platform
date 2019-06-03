@@ -1766,18 +1766,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "udpdater",
-					"title": "Name of the user who updated Content last",
-					"description": "",
-					"category": "Lifecycle",
-					"dataType": "Text",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "{'order': 21}",
-					"indexed": true
-				},
-				{
 					"propertyName": "reviewer",
 					"title": "Name of the user who did the final review and published the content",
 					"description": "",
