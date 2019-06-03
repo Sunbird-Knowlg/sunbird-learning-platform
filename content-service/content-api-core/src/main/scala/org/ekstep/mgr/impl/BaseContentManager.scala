@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils.equalsIgnoreCase
 import org.ekstep.common.dto.{Request, RequestParams, Response}
 import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.exception.{ClientException, ResourceNotFoundException}
-import org.ekstep.common.mgr.ConvertGraphNode
+import org.ekstep.common.mgr.{BaseManager, ConvertGraphNode}
 import org.ekstep.common.router.RequestRouterPool
 import org.ekstep.common.util.YouTubeUrlUtil
 import org.ekstep.common.{Platform, dto}
@@ -26,12 +26,10 @@ import org.ekstep.kafka.KafkaClient
 import org.ekstep.learning.common.enums.{ContentAPIParams, LearningActorNames}
 import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStoreParams}
 import org.ekstep.learning.router.LearningRequestRouterPool
-import org.ekstep.mgr.IContentManager
 import org.ekstep.telemetry.logger.TelemetryManager
 import org.ekstep.telemetry.util.LogTelemetryEventUtil
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.collection.mutable.MutableList
 
 
@@ -40,11 +38,19 @@ import scala.collection.mutable.MutableList
   * This holds the basic required operations, can be used by all managers
   */
 
-abstract class BaseContentManager extends IContentManager {
+ class BaseContentManager extends BaseManager {
 
   val objectMapper = new ObjectMapper()
   val DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX: String = ".img"
   val CONTENT_IMAGE_OBJECT_TYPE = "ContentImage"
+
+  val TAXONOMY_ID: String = "domain"
+  val CONTENT_OBJECT_TYPE: String = "Content"
+  protected val CONTENT_CACHE_FINAL_STATUS = List("Live", "Unlisted")
+  protected val reviewStatus =  List("Review", "FlagReview")
+  protected var finalStatus = List("Flagged", "Live", "Unlisted")
+  protected val CONTENT_CACHE_ENABLED = if (Platform.config.hasPath("content.cache.read")) Platform.config.getBoolean("content.cache.read")
+  else false
 
  /* /**
     * Actors initializations
@@ -103,13 +109,21 @@ abstract class BaseContentManager extends IContentManager {
       new org.ekstep.common.dto.Response()
     }
   }
-
+/*
   def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
     if (null != definitionDTO) {
       definitionDTO.getProperties.asScala.toList.map(prop => {
         if (prop.getDataType.equalsIgnoreCase("external"))
           prop.getPropertyName
       }).asInstanceOf[List[String]]
+    } else{
+      List[String]()
+    }
+  }*/
+
+  def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
+    if (null != definitionDTO) {
+      definitionDTO.getProperties.asScala.toList.asInstanceOf[List[MetadataDefinition]].filter(prop => prop.getDataType.equalsIgnoreCase("external")).map(prop => {prop.getPropertyName.trim}).toList
     } else{
       List[String]()
     }

@@ -26,19 +26,17 @@ import org.ekstep.learning.common.enums.ContentAPIParams
 import org.ekstep.learning.contentstore.ContentStoreParams
 import org.ekstep.telemetry.logger.TelemetryManager
 import org.ekstep.content.util.{JSONUtils, MimeTypeManagerFactory}
-import org.ekstep.mgr.IContentManager
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil
 import org.ekstep.searchindex.util.CompositeSearchConstants
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 
 /**
   * This manager is responsible for read operation
   */
 
-class ContentManagerImpl extends BaseContentManager with IContentManager{
+class ContentManagerImpl extends BaseContentManager{
 
   def read(request: Request) : Response = {
     val params = request.params.getOrElse(Map())
@@ -305,15 +303,12 @@ class ContentManagerImpl extends BaseContentManager with IContentManager{
 
   }
 
-
-
   private def getChildrenIdentifiers(childrens: List[Map[String, AnyRef]]):List[String] = {
     val identifiers = scala.collection.mutable.MutableList[String]()
     for (child <- childrens) {
-      child.get(ContentAPIParams.visibility.name())
 
-     // if (StringUtils.equalsIgnoreCase("Parent", child.get(ContentAPIParams.visibility.name()).asInstanceOf[String])
-
+      //if (StringUtils.equalsIgnoreCase("Parent", child.get(ContentAPIParams.visibility.name()).asInstanceOf[String])
+        // TODO
     }
     identifiers.toList
   }
@@ -333,7 +328,7 @@ class ContentManagerImpl extends BaseContentManager with IContentManager{
     ValidationUtils.isValidFlaggedContent(node)
 
     val definition = getDefinitionNode(TAXONOMY_ID, CONTENT_OBJECT_TYPE)
-    val externalPropsList = getExternalPropListX(definition)
+    val externalPropsList = getExternalPropList(definition)
 
 
     val imageContentId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX
