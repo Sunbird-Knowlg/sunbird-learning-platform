@@ -10,6 +10,7 @@ import org.ekstep.commons.{APIIds, Request}
 import org.ekstep.content.util.JSONUtils
 import play.api.mvc.{Action, AnyContent}
 
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
@@ -21,7 +22,7 @@ class ContentV3Controller @Inject()(system: ActorSystem) extends BaseController 
   def create() = Action.async {
     implicit request =>
       val body: String = JSONUtils.serialize(request.body.asJson.getOrElse(""))
-      val result = ask(contentActor, Request(APIIds.CREATE_CONTENT, Some(body), Some(Map())))
+      val result = ask(contentActor, Request(APIIds.CREATE_CONTENT, Some(body), Some(Map()), Some(getContext(request))))
         .mapTo[Response]
       result.map(response => sendResponse(response))
   }
@@ -29,7 +30,7 @@ class ContentV3Controller @Inject()(system: ActorSystem) extends BaseController 
   def read(identifier: String, mode: Option[String], fields: Option[List[String]]): Action[AnyContent] = Action.async {
     implicit request =>
       val result = ask(contentActor, Request(APIIds.READ_CONTENT, None, Some(Map("identifier" -> identifier, "objectType" ->
-        "Content", "mode" -> mode.getOrElse(""), "fields" -> fields.getOrElse(List())))))
+              "Content", "mode" -> mode.getOrElse(""), "fields" -> fields.getOrElse(List()))), Some(mutable.Map())))
         .mapTo[Response]
       result.map(response => sendResponse(response))
   }
