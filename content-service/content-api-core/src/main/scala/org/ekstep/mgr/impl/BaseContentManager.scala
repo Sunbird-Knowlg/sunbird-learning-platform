@@ -5,28 +5,33 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.commons.lang3.{BooleanUtils, StringUtils}
 import org.apache.commons.lang3.StringUtils.equalsIgnoreCase
-import org.ekstep.common.dto.{Request, Response}
+import org.ekstep.common.dto.{Request, RequestParams, Response}
+import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.exception.{ClientException, ResourceNotFoundException}
 import org.ekstep.common.mgr.ConvertGraphNode
 import org.ekstep.common.router.RequestRouterPool
+import org.ekstep.common.util.YouTubeUrlUtil
 import org.ekstep.common.{Platform, dto}
 import org.ekstep.commons.{Constants, ContentErrorCodes, ContentMetadata, TaxonomyAPIParams, ValidationUtils}
+import org.ekstep.commons.ContentErrorCodes
+import org.ekstep.content.enums.ContentWorkflowPipelineParams
+import org.ekstep.content.util.LanguageCode
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.common.enums.GraphHeaderParams
-import org.ekstep.graph.dac.enums.GraphDACParams
+import org.ekstep.graph.dac.enums.{GraphDACParams, SystemNodeTypes}
 import org.ekstep.graph.dac.model.Node
 import org.ekstep.graph.engine.router.GraphEngineManagers
 import org.ekstep.graph.model.node.{DefinitionDTO, MetadataDefinition}
 import org.ekstep.kafka.KafkaClient
-import org.ekstep.learning.common.enums.LearningActorNames
+import org.ekstep.learning.common.enums.{ContentAPIParams, LearningActorNames}
 import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStoreParams}
 import org.ekstep.learning.router.LearningRequestRouterPool
 import org.ekstep.mgr.IContentManager
 import org.ekstep.telemetry.logger.TelemetryManager
 import org.ekstep.telemetry.util.LogTelemetryEventUtil
-import org.ekstep.util.LanguageCode
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.collection.mutable.MutableList
 
 
@@ -64,8 +69,8 @@ abstract class BaseContentManager extends IContentManager {
     * @return
     */
   def contentCleanUp(contentNode: Map[String, AnyRef]) = {
-    if (contentNode.contains("identifier") && contentNode.get("identifier").asInstanceOf[String].endsWith(".img")) {
-        contentNode + ("identifier"-> contentNode.get("identifier").asInstanceOf[String].replace(".img", ""))
+    if (contentNode.contains("identifier") && contentNode.get("identifier").get.asInstanceOf[String].endsWith(".img")) {
+        contentNode + ("identifier"-> contentNode.get("identifier").get.asInstanceOf[String].replace(".img", ""))
     }
     contentNode
   }
@@ -101,13 +106,25 @@ abstract class BaseContentManager extends IContentManager {
 
   def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
     if (null != definitionDTO) {
-      definitionDTO.getProperties.asScala.asInstanceOf[List[MetadataDefinition]].map(prop => {
+      definitionDTO.getProperties.asScala.toList.map(prop => {
         if (prop.getDataType.equalsIgnoreCase("external"))
-          prop.getPropertyName.trim
-      }).toList.asInstanceOf[List[String]]
+          prop.getPropertyName
+      }).asInstanceOf[List[String]]
     } else{
       List[String]()
     }
+  }
+
+  def getExternalPropListX(definitionDTO: DefinitionDTO): List[String] = {
+    val list = scala.collection.mutable.MutableList[String]()
+
+    if (null != definitionDTO) {
+      definitionDTO.getProperties.asScala.toList.map(prop => {
+        if (prop.getDataType.equalsIgnoreCase("external"))
+          list += prop.getPropertyName
+      })
+    }
+    return list.toList
   }
 
 
@@ -144,7 +161,7 @@ abstract class BaseContentManager extends IContentManager {
 
 
 
-  def updateContentTaggedProperty(contentMap: Map[String, AnyRef], mode: String): Unit = {
+  def updateContentTaggedProperty(contentMap: Map[String, AnyRef], mode: String): Map[String, AnyRef] = {
     val contentTaggingFlag =
       if (Platform.config.hasPath("content.tagging.backward_enable")) Platform.config.getBoolean("content.tagging.backward_enable")
       else false
@@ -162,6 +179,7 @@ abstract class BaseContentManager extends IContentManager {
         contentMap + (contentTaggedKeys(i) -> toAddProp)
       }
     }
+    contentMap
   }
 
 
@@ -182,7 +200,7 @@ abstract class BaseContentManager extends IContentManager {
   def editMode(identifier: String, definitionDto: DefinitionDTO) = {
     val imageContentId = identifier + ".img"
     var responseNode = getDataNode("domain", imageContentId)
-    if(!ValidationUtils.isValid(responseNode)){
+    if(!ValidationUtils.hasError(responseNode)){
       responseNode = getDataNode("domain", identifier)
     }
 
@@ -281,7 +299,7 @@ abstract class BaseContentManager extends IContentManager {
 
   @throws[Exception]
   private def pushInstructionEvent(contentId: String, channel: String): Unit = {
-    val actor: Map[String, AnyRef] = Map[String, AnyRef] (
+    var actor: Map[String, AnyRef] = Map[String, AnyRef] (
       "id" -> "Collection Migration Samza Job",
       "type" -> "System",
       "pdata" -> Map[String, AnyRef] (
@@ -289,15 +307,15 @@ abstract class BaseContentManager extends IContentManager {
         "ver" -> "1.0"
       )
     )
-    val context: Map[String, AnyRef] = {if(Platform.config.hasPath("cloud_storage.env"))Map[String, AnyRef](
+    var context: Map[String, AnyRef] = {if(Platform.config.hasPath("cloud_storage.env"))Map[String, AnyRef](
       "env" -> Platform.config.getString("cloud_storage.env")
     )else Map()}
-    val `object`: Map[String, AnyRef] = Map[String, AnyRef](
+    var `object`: Map[String, AnyRef] = Map[String, AnyRef](
       "id" -> contentId.replace(".img",""),
       "type" -> "content",
       "channel" -> channel
     )
-    val edata: Map[String, AnyRef] = Map[String, AnyRef](
+    var edata: Map[String, AnyRef] = Map[String, AnyRef](
       "action" -> "ecml-migration",
       "contentType" -> "Ecml"
     )
@@ -369,6 +387,183 @@ abstract class BaseContentManager extends IContentManager {
       response.put(TaxonomyAPIParams.node_id.toString, contentId)
       TelemetryManager.log("Returning Node Update Response.")
     }
+    response
+  }
+
+   def buildRequest(requestMap: Map[String,AnyRef])= {
+    val request = new Request
+    if (null != requestMap && !requestMap.isEmpty) {
+      val id = requestMap.get("id").asInstanceOf[String]
+      val ver = requestMap.get("ver").asInstanceOf[String]
+      val ts = requestMap.get("ts").asInstanceOf[String]
+      request.setId(id)
+      request.setVer(ver)
+      request.setTs(ts)
+      val reqParams = requestMap.get("params")
+      if (null != reqParams) try {
+        val params = objectMapper.convertValue(reqParams, classOf[RequestParams])
+        request.setParams(params)
+      } catch {
+        case e: Exception =>
+
+      }
+      val requestObj = requestMap.get("request")
+      if (null != requestObj) try {
+        val strRequest = objectMapper.writeValueAsString(requestObj)
+        val map = objectMapper.readValue(strRequest, classOf[Map[String,AnyRef]])
+        if (null != map && !map.isEmpty) request.setRequest(map.asJava)
+      } catch {
+        case e: Exception =>
+      }
+    }
+    request
+  }
+
+///  for Review supporing methods
+  protected def getNodeForOperation(contentId: String, operation: String) = {
+    var node = new Node()
+    TelemetryManager.log("Fetching the Content Node. | [Content ID: " + contentId + "]")
+    val contentImageId = contentId +DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX
+    var response = getDataNode(TAXONOMY_ID, contentImageId)
+    if (ValidationUtils.hasError(response)) {
+      TelemetryManager.log("Unable to Fetch Content Image Node for Content Id: " + contentId)
+      TelemetryManager.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId)
+      response = getDataNode(TAXONOMY_ID, contentId)
+      TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId)
+      if (checkError(response))
+        throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]")
+
+      node = response.get(GraphDACParams.node.name).asInstanceOf[Node]
+      if (!equalsIgnoreCase(operation, "publish") && !equalsIgnoreCase(operation, "review")) { // Checking if given Content Id is Image Node
+        if (null != node && isContentImageObject(node))
+          throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier + "' does not Exist.]")
+        val status = node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String]
+        if (StringUtils.isNotBlank(status) && (equalsIgnoreCase(TaxonomyAPIParams.Live.toString, status) || equalsIgnoreCase(TaxonomyAPIParams.Unlisted.toString, status)
+          || equalsIgnoreCase(TaxonomyAPIParams.Flagged.toString, status))) node = createContentImageNode(TAXONOMY_ID, contentImageId, node)
+      }
+    }
+    else { // Content Image Node is Available so assigning it as node
+      node = response.get(GraphDACParams.node.name).asInstanceOf[Node]
+      TelemetryManager.log("Getting Content Image Node and assigning it as node" + node.getIdentifier)
+    }
+    TelemetryManager.log("Returning the Node for Operation with Identifier: " + node.getIdentifier)
+    node
+  }
+
+
+  protected def isContentImageObject(node: Node): Boolean = {
+    val isConImg = if (null != node && equalsIgnoreCase(node.getObjectType, ContentWorkflowPipelineParams.ContentImage.name)) true
+    else false
+    isConImg
+  }
+
+  protected def createContentImageNode(taxonomyId: String, contentImageId: String, node: Node) = {
+    val imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name, CONTENT_IMAGE_OBJECT_TYPE)
+    imageNode.setGraphId(taxonomyId)
+    imageNode.setIdentifier(contentImageId)
+    imageNode.setMetadata(node.getMetadata)
+    imageNode.setInRelations(node.getInRelations)
+    imageNode.setOutRelations(node.getOutRelations)
+    imageNode.setTags(node.getTags)
+    imageNode.getMetadata.put(TaxonomyAPIParams.status.toString, TaxonomyAPIParams.Draft.toString)
+    val response = createDataNode(imageNode)
+    if (checkError(response)) throw new ClientException(TaxonomyErrorCodes.ERR_NODE_CREATION.name, "Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier + "]")
+    val resp = getDataNode(taxonomyId, contentImageId)
+    val nodeData = resp.get(GraphDACParams.node.name).asInstanceOf[Node]
+    TelemetryManager.log("Returning Content Image Node Identifier" + nodeData.getIdentifier)
+    nodeData
+  }
+
+
+  protected def isNodeUnderProcessing(node: Node, operation: String): Unit = {
+    val status = List[String](TaxonomyAPIParams.Processing.toString)
+    val isProcessing = checkNodeStatus(node, status)
+    if (BooleanUtils.isTrue(isProcessing)) {
+      TelemetryManager.log("Given Content is in Processing Status.")
+      throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(), "Operation Denied! | [Cannot Apply '" + operation + "' Operation on the Content in '" + node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String] + "' Status.] ")
+    }
+    else TelemetryManager.log("Given Content is not in " + node.getMetadata.get(TaxonomyAPIParams.status.toString) + " Status.")
+  }
+
+  private def checkNodeStatus(node: Node, status: List[String]) = {
+    var inGivenStatus = false
+    try
+        if (null != node && null != node.getMetadata) {
+          for (st <- status) {
+            if (equalsIgnoreCase(node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String], st)) inGivenStatus = true
+          }
+        }
+    catch {
+      case e: Exception =>
+        TelemetryManager.error("Something went wrong while checking the object whether it is under processing or not.", e)
+    }
+    inGivenStatus
+  }
+
+  protected def getContentBody(contentId: String) = {
+    val request = new Request()
+    request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+    request.setOperation(ContentStoreOperations.getContentBody.name)
+    request.put(ContentStoreParams.content_id.name, contentId)
+    val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
+    val body = response.get(ContentStoreParams.body.name).asInstanceOf[String]
+    body
+  }
+
+
+  protected def checkYoutubeLicense(artifactUrl: String, node: Node): Unit = {
+    val isValReq = if (Platform.config.hasPath("learning.content.youtube.validate.license")) Platform.config.getBoolean("learning.content.youtube.validate.license")
+    else false
+    if (isValReq) {
+      val licenseType = YouTubeUrlUtil.getLicense(artifactUrl)
+      if (equalsIgnoreCase("youtube", licenseType)) node.getMetadata.put("license", "Standard YouTube License")
+      else if (equalsIgnoreCase("creativeCommon", licenseType)) node.getMetadata.put("license", "Creative Commons Attribution (CC BY)")
+      else {
+        TelemetryManager.log("Got Unsupported Youtube License Type : " + licenseType + " | [Content ID: " + node.getIdentifier + "]")
+        throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name, "Unsupported Youtube License!")
+      }
+    }
+  }
+
+  protected def getContentTypeFrom(node: Node): String = node.getMetadata.get("contentType").asInstanceOf[String]
+
+  protected def getMimeTypeFrom(node: Node): String = node.getMetadata.get(ContentAPIParams.mimeType.name).asInstanceOf[String]
+
+  protected def getArtifactUrlFrom(node: Node): String = node.getMetadata.get(ContentAPIParams.artifactUrl.name).asInstanceOf[String]
+
+
+  protected def deleteHierarchy(identifiers: List[String])= {
+    val request = new Request()
+    request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+    request.setOperation(ContentStoreOperations.deleteHierarchy.name)
+    request.put(ContentStoreParams.content_id.name, identifiers)
+    val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
+    response
+  }
+
+  protected def updateDataNodes(map: Map[String, AnyRef], idList: List[String], graphId: String) = {
+    TelemetryManager.log("Getting Update Node Request For Node ID: " + idList)
+    val updateReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "updateDataNodes")
+    updateReq.put(GraphDACParams.node_ids.name, idList)
+    updateReq.put(GraphDACParams.metadata.name, map)
+    TelemetryManager.log("Updating DialCodes for :" + idList)
+    val response = getResponse(updateReq)
+    TelemetryManager.log("Returning Node Update Response.")
+    response
+  }
+
+  /**
+    * Cassandra call to fetch hierarchy data
+    *
+    * @param contentId
+    * @return
+    */
+  def getCollectionHierarchy(contentId: String) = {
+    val request = new Request()
+    request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+    request.setOperation(ContentStoreOperations.getCollectionHierarchy.name)
+    request.put(ContentStoreParams.content_id.name, contentId)
+    val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
     response
   }
 

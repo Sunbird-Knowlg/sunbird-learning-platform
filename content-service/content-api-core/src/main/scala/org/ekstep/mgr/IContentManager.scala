@@ -1,7 +1,7 @@
 package org.ekstep.mgr
 
 import org.ekstep.common.Platform
-import org.ekstep.common.dto.Response
+import org.ekstep.common.dto.{Request, Response}
 import org.ekstep.common.mgr.BaseManager
 
 trait IContentManager extends BaseManager {
@@ -16,8 +16,11 @@ trait IContentManager extends BaseManager {
 
   def read(request: org.ekstep.commons.Request) : Response
   def update(request: org.ekstep.commons.Request) : Response
+  def review(request: org.ekstep.commons.Request) : Response
+  def retire(request: org.ekstep.commons.Request) : Response
+  def acceptFlag(request: org.ekstep.commons.Request) : Response
+  def publish(request: org.ekstep.commons.Request) : Response
 
 
 
-
-}
+  }

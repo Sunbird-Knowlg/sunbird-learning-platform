@@ -7,8 +7,9 @@ import javax.inject.{Inject, Singleton}
 import org.ekstep.actor.ContentActor
 import org.ekstep.common.dto.Response
 import org.ekstep.commons.{APIIds, Request}
-import org.ekstep.util.JSONUtils
+import org.ekstep.content.util.JSONUtils
 import play.api.mvc.{Action, AnyContent}
+import play.api.libs.json.Json
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -20,7 +21,7 @@ class ContentV3Controller @Inject()(system: ActorSystem) extends BaseController 
 
   def create() = Action.async {
     implicit request =>
-      val body: String = JSONUtils.serialize(request.body.asJson.getOrElse(""))
+      val body: String = Json.stringify(request.body.asJson.get)//JSONUtils.serialize(request.body.asJson.getOrElse(""))
       val result = ask(contentActor, Request(APIIds.CREATE_CONTENT, Some(body), Some(Map())))
         .mapTo[Response]
       result.map(response => sendResponse(response))
@@ -33,6 +34,14 @@ class ContentV3Controller @Inject()(system: ActorSystem) extends BaseController 
         .mapTo[Response]
       result.map(response => sendResponse(response))
   }
-}
 
+  def update(identifier: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      val body: String = Json.stringify(request.body.asJson.get)
+      val result = ask(contentActor, Request(APIIds.UPDATE_CONTENT, Some(body), Some(Map("identifier" -> identifier, "objectType" ->
+        "Content"))))
+        .mapTo[Response]
+      result.map(response => sendResponse(response))
+  }
+}
 

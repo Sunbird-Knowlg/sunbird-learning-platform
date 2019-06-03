@@ -1,5 +1,5 @@
 import com.typesafe.config.Config
-import org.ekstep.util.JSONUtils
+import org.ekstep.content.util.JSONUtils
 import org.ekstep.common.dto._
 import org.ekstep.learning.router.LearningRequestRouterPool
 import org.ekstep.telemetry.TelemetryGenerator
