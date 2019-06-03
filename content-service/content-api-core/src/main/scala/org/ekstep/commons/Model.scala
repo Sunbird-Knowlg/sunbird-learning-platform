@@ -1,5 +1,7 @@
 package org.ekstep.commons
 
+import scala.collection.mutable
+
 object Model {
 
 }
@@ -9,7 +11,7 @@ case class Params(resmsgid: String, msgid: String, err: String, status: String, 
 //case class RequestBody(id: String, ver: String, ts: String, request: Map[String, AnyRef], params: Option[Params]);
 case class RequestBody(request: Map[String, AnyRef])
 
-case class Request(apiId: String, body: Option[String], params: Option[Map[String, AnyRef]]);
+case class Request(apiId: String, body: Option[String], params: Option[Map[String, AnyRef]], context: Option[mutable.Map[String, AnyRef]]);
 case class Response(id: String, ver: String, ts: String, params: Params, responseCode: String, result: Option[Map[String, AnyRef]]);
 
 

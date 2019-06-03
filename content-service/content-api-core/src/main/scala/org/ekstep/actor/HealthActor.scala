@@ -7,6 +7,8 @@ import org.ekstep.actor.core.BaseAPIActor
 import org.ekstep.commons.{APIIds, Request}
 import org.ekstep.service.HealthCheckService
 
+import scala.collection.mutable
+
 
 object HealthActor extends BaseAPIActor {
   val ERR_INVALID_REQUEST: String = "ERR_INVALID_REQUEST"
@@ -26,7 +28,7 @@ object HealthActor extends BaseAPIActor {
 
 
   def checkHealth(request: Request) = {
-    val responseMap = HealthCheckService.checkSystemHealth(Request(APIIds.CHECK_HEALTH,None,None))
+    val responseMap = HealthCheckService.checkSystemHealth(Request(APIIds.CHECK_HEALTH, None, None, Some(mutable.Map())))
     val result = new org.ekstep.common.dto.Response() {
       put("result", responseMap)
     }
