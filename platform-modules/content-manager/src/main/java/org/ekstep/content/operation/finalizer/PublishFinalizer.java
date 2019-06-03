@@ -614,6 +614,24 @@ public class PublishFinalizer extends BaseFinalizer {
 		return leafCount;
 	}
 
+	private double getTotalCompressedSize(Map<String, Object> data, double totalCompressed) {
+		List<Map<String,Object>> children = (List<Map<String,Object>>) data.get("children");
+		if(CollectionUtils.isNotEmpty(children)) {
+			for(Map<String,Object> child : children ){
+				if(!StringUtils.equals((String)child.get(ContentAPIParams.mimeType.name()), COLLECTION_MIMETYPE)
+						&& StringUtils.equals((String) child.get(ContentAPIParams.visibility.name()),"Default")) {
+					if(child.get(ContentAPIParams.totalCompressedSize.name()) != null) {
+						totalCompressed += (Double) child.get(ContentAPIParams.totalCompressedSize.name());
+					} else if(child.get(ContentAPIParams.size.name()) != null) {
+						totalCompressed += (Double) child.get(ContentAPIParams.size.name());
+					}
+				}
+				totalCompressed = getTotalCompressedSize(child, totalCompressed);
+			}
+		}
+		return totalCompressed;
+	}
+
 	/**
 	 * @param identifier
 	 * @return
@@ -795,7 +813,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				pkgType);
 
 		List<String> ecarUrl = Arrays.asList(contentBundle.createContentBundle(ecarContents, bundleFileName,
-				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node, children, pkgType.name()));
+				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node, children));
 		TelemetryManager.log(pkgType.toString() + " ECAR created For Content Id: " + node.getIdentifier());
 
 		if (!EcarPackageType.FULL.name().equalsIgnoreCase(pkgType.toString())) {
@@ -1027,9 +1045,13 @@ public class PublishFinalizer extends BaseFinalizer {
 				return;
 			int leafCount = 0;
 			leafCount = getLeafNodeCount(content, leafCount);
+			double totalCompressedSize = 0.0;
+			totalCompressedSize = getTotalCompressedSize(content, totalCompressedSize);
 			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
-			
+			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
+			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
+
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
@@ -1185,7 +1207,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					+ ContentAPIParams._temp.name() + File.separator + contentId;
 		return path;
 	}
-	
+
 	private String getAWSPath(String identifier) {
 		String folderName = S3PropertyReader.getProperty(CONTENT_FOLDER);
 		if (!StringUtils.isBlank(folderName)) {
@@ -1194,4 +1216,5 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		return folderName;
 	}
+
 }

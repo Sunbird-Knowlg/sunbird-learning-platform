@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -74,7 +75,9 @@ public class ContentBundle {
 	private static final String WEB_URL_MIMETYPE = "text/x-url";
 	
 	private static final List<String> EXCLUDE_ECAR_METADATA_FIELDS=Arrays.asList("screenshots","posterImage");
-	
+	private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+
+
 	/**
 	 * Creates the content manifest data.
 	 *
@@ -188,8 +191,8 @@ public class ContentBundle {
 	 */
 	public String[] createContentBundle(List<Map<String, Object>> contents, String fileName, String version,
 										Map<Object, List<String>> downloadUrls, Node node,
-										List<Map<String, Object>> children, String pkgType) {
-        String contentId = node.getIdentifier();
+										List<Map<String, Object>> children) {
+		String contentId = node.getIdentifier();
         String bundleFileName = BUNDLE_PATH + File.separator + fileName;
 		String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
 		List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);
@@ -201,11 +204,12 @@ public class ContentBundle {
 				if (null != manifestFile)
 					downloadedFiles.add(manifestFile);
 				//Adding Hierarchy into hierarchy.json file
-                if (StringUtils.isNotBlank(pkgType) && !StringUtils.equalsIgnoreCase("FULL", pkgType)) {
-                    File hierarchyFile = createHierarchyFile(bundlePath, node, children);
-                    if (null != hierarchyFile)
-                        downloadedFiles.add(hierarchyFile);
-                }
+				if (StringUtils.isNotBlank((String) node.getMetadata().get("mimeType")) &&
+						StringUtils.equalsIgnoreCase((String) node.getMetadata().get("mimeType"), COLLECTION_MIMETYPE)) {
+					File hierarchyFile = createHierarchyFile(bundlePath, node, children);
+					if (null != hierarchyFile)
+						downloadedFiles.add(hierarchyFile);
+				}
 				try {
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
 					String folderName = S3PropertyReader.getProperty(ECAR_FOLDER);
@@ -582,8 +586,8 @@ public class ContentBundle {
 	public  Map<String, Object> getContentMap(Node node, List<Map<String, Object>> childrenList) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
 		Map<String, Object> collectionHierarchy = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-		if (!childrenList.isEmpty())
-		collectionHierarchy.put("children", childrenList);
+		if (CollectionUtils.isNotEmpty(childrenList))
+			collectionHierarchy.put("children", childrenList);
 		collectionHierarchy.put("identifier", node.getIdentifier());
 		collectionHierarchy.put("objectType", node.getObjectType());
 		return collectionHierarchy;
