@@ -10,6 +10,7 @@ import org.ekstep.common.dto.Response
 import org.ekstep.commons.{APIIds, Request}
 import play.api.mvc.{Action, AnyContent}
 
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
@@ -20,7 +21,7 @@ class HealthController @Inject()(system: ActorSystem) extends BaseController {
 
   def checkAPIhealth(): Action[AnyContent] = Action.async {
       implicit request =>
-        val result = ask(healthActor, Request(APIIds.CHECK_HEALTH,None,None))
+        val result = ask(healthActor, Request(APIIds.CHECK_HEALTH, None, None, Some(mutable.Map())))
           .mapTo[Response]
         result.map(response => sendResponse(response))
     }
