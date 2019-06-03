@@ -34,7 +34,7 @@ object APIIds {
   val READ_CONTENT = "org.ekstep.content.read"
   val CREATE_CONTENT = "org.ekstep.content.create"
   val UPDATE_CONTENT = "org.ekstep.content.update"
-  val DELETE_CONTENT = "org.ekstep.content.delete"
+  val REVIEW_CONTENT = "org.ekstep.content.review"
   val CHECK_HEALTH = "learning-service.health"
 
 }

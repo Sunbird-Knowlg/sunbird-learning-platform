@@ -40,7 +40,15 @@ class ContentV3Controller @Inject()(system: ActorSystem) extends BaseController 
     implicit request =>
       val body: String = Json.stringify(request.body.asJson.get)
       val result = ask(contentActor, Request(APIIds.UPDATE_CONTENT, Some(body), Some(Map("identifier" -> identifier, "objectType" ->
-        "Content"))))
+        "Content")), Some(getContext(request))))
+        .mapTo[Response]
+      result.map(response => sendResponse(response))
+  }
+
+  def review(identifier: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      val result = ask(contentActor, Request(APIIds.REVIEW_CONTENT, None, Some(Map("identifier" -> identifier, "objectType" ->
+        "Content")), Some(getContext(request))))
         .mapTo[Response]
       result.map(response => sendResponse(response))
   }

@@ -8,3 +8,5 @@ GET	    /health                                             @controllers.health.
 POST    /content/v3/create                                  @controllers.ContentV3Controller.create()
 GET     /content/v3/read/:identifier                        @controllers.ContentV3Controller.read(identifier:String, mode:Option[String], fields:Option[List[String]])
 POST    /content/v3/update/:identifier                      @controllers.ContentV3Controller.update(identifier:String)
+POST    /content/v3/review/:identifier                      @controllers.ContentV3Controller.review(identifier:String)
+
