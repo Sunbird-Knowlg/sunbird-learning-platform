@@ -574,7 +574,9 @@ public class ContentBundle {
 				TelemetryManager.error("Hierarchy File creation failed for identifier : " + contentId);
 				return hierarchyFile;
 			}
+			String header = getHeaderForHierarchy("1.0", null);
 			String hierarchyJSON = mapper.writeValueAsString(hierarchyMap);
+			hierarchyJSON = header + hierarchyJSON + "}";
 			FileUtils.writeStringToFile(hierarchyFile, hierarchyJSON);
 			TelemetryManager.log("Hierarchy JSON Written for identifier : " +contentId);
 		} else {
@@ -591,5 +593,22 @@ public class ContentBundle {
 		collectionHierarchy.put("identifier", node.getIdentifier());
 		collectionHierarchy.put("objectType", node.getObjectType());
 		return collectionHierarchy;
+	}
+
+	public String getHeaderForHierarchy(String hierarchyVersion, String expiresOn) {
+		if (StringUtils.isBlank(hierarchyVersion))
+			hierarchyVersion = ContentConfigurationConstants.DEFAULT_CONTENT_HIERARCHY_VERSION;
+		TelemetryManager.log("Hierarchy Header Version: " + hierarchyVersion);
+		StringBuilder header = new StringBuilder();
+		header.append("{ \"id\": \"ekstep.content.hierarchy\", \"ver\": \"").append(hierarchyVersion);
+		header.append("\", \"ts\": \"").append(getResponseTimestamp()).append("\", \"params\": { \"resmsgid\": \"");
+		header.append(getUUID()).append("\"");
+		if (StringUtils.isNotBlank(expiresOn))
+			header.append(", \"expires\": \"").append(expiresOn).append("\" }, ");
+		else
+			header.append(" }, ");
+
+		header.append(" \"content\": ");
+		return header.toString();
 	}
 }

@@ -50,6 +50,12 @@ public class ContentConfigurationConstants {
 	 * Manifest File which is visible in Manifest File Header.
 	 */
 	public static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
+	/**
+	 * The Constant DEFAULT_CONTENT_HIERARCHY_VERSION is the default version of
+	 * Hierarchy File which is visible in Hierarchy File Header.
+	 */
+	public static final String DEFAULT_CONTENT_HIERARCHY_VERSION = "1.0";
+
 
 	/**
 	 * The Constant DEFAULT_ZIP_EXTENSION is the default ZIP package file
