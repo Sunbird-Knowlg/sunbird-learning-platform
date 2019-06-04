@@ -2,7 +2,7 @@ package org.ekstep.content.util
 
 import java.util.UUID
 
-import org.ekstep.commons.{Params, RespCode, Response}
+import org.ekstep.commons.{Params, ResponseCode, Response}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, DateTimeZone}
 
@@ -20,6 +20,6 @@ object CommonUtil {
   }
 
   def OK(apiId: String, result: Map[String, AnyRef]): Response = {
-    Response(apiId, "1.0", df.print(DateTime.now(DateTimeZone.UTC).getMillis), Params(UUID.randomUUID().toString(), null, null, "successful", null), RespCode.OK.toString, Option(result));
+    Response(apiId, "1.0", df.print(DateTime.now(DateTimeZone.UTC).getMillis), Params(UUID.randomUUID().toString(), null, null, "successful", null), ResponseCode.OK.toString, Option(result));
   }
 }
