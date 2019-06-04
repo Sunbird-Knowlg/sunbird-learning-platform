@@ -98,10 +98,8 @@ class ContentManagerImpl extends BaseContentManager{
 
     //validations
     val mimeType = contentMap.getOrElse("mimeType","").asInstanceOf[String]
-    ValidationUtils.has(mimeType)
     val code = contentMap.getOrElse("code","").asInstanceOf[String]
-    if (ValidationUtils.isPluginMimeType(mimeType) && StringUtils.isBlank(code))
-      return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins", ResponseCode.CLIENT_ERROR)
+    ValidationUtils.isValidProperties(mimeType, code)
 
 
     //updating the content map with required values.
@@ -117,7 +115,7 @@ class ContentManagerImpl extends BaseContentManager{
         val contentId = response.get(GraphDACParams.node_id.name).asInstanceOf[String]
         if (null != externalProps && !externalProps.isEmpty) {
           val externalPropsResponse = updateContentProperties(contentId, externalProps)
-          if (checkError(externalPropsResponse)) return externalPropsResponse
+          if (ValidationUtils.hasError(externalPropsResponse)) return externalPropsResponse
         }
         return response
       }
@@ -139,10 +137,10 @@ class ContentManagerImpl extends BaseContentManager{
     val externalProps = Map [String,AnyRef]()
     val externalPropsList = getExternalPropList(definitionDTO)
     if (null != externalPropsList && !externalPropsList.isEmpty) {
-      for (prop <- externalPropsList) {
-        if (null != contentMap.get(prop)) externalProps + (prop -> contentMap.get(prop))
-        contentMap - (prop)
-      }
+      externalPropsList.map(key=>{
+        if (null != contentMap.get(key)) externalProps + (key -> contentMap.get(key))
+        contentMap - (key)
+      })
     }
     return externalProps
   }
@@ -153,8 +151,8 @@ class ContentManagerImpl extends BaseContentManager{
     */
   private def prepareContentMap(contentMap: Map[String,AnyRef]) ={
 
-    val framework = contentMap.getOrElse("framework","").asInstanceOf[String]
-    if (StringUtils.isBlank(framework)) contentMap + "framework" -> getDefaultFramework
+    val framework = contentMap.getOrElse("framework",{ if (Platform.config.hasPath("platform.framework.default")) Platform.config.getString("platform.framework.default")
+    else "NCF"}).asInstanceOf[String]
 
     val mimeType = contentMap.getOrElse("mimeType","").asInstanceOf[String]
 
@@ -177,14 +175,6 @@ class ContentManagerImpl extends BaseContentManager{
 
   }
 
-  /**
-    * Get the default Framework configured
-    * @return
-    */
-  private def getDefaultFramework = {
-    if (Platform.config.hasPath("platform.framework.default")) Platform.config.getString("platform.framework.default")
-    else "NCF"
-  }
 
   /**
     * Upload URL
@@ -200,9 +190,7 @@ class ContentManagerImpl extends BaseContentManager{
 
     var updateMimeType = false
     try {
-      ValidationUtils.isValidContentId(contentId);
       ValidationUtils.has(fileUrl);
-      ValidationUtils.isImage(contentId)
 
       val node = getNodeForOperation(contentId, "upload")
       isNodeUnderProcessing(node, "Upload");
@@ -282,7 +270,7 @@ class ContentManagerImpl extends BaseContentManager{
     if (contentMap.contains("dialcodes")) contentMap - "dialcodes"
 
     val definition = getDefinitionNode(TAXONOMY_ID, CONTENT_OBJECT_TYPE)
-    restrictProps(definition, contentMap, "status", "framework")
+    restrictProps(definition, contentMap, "status", "framework", "mimeType", "contentType")
 
     val originalId = contentId
     var objectType = CONTENT_OBJECT_TYPE
@@ -314,11 +302,11 @@ class ContentManagerImpl extends BaseContentManager{
     val externalProps: Map[String, AnyRef] = Map()
     val externalPropsList = getExternalPropListX(definition)
     if (null != externalPropsList) {
-      for (prop <- externalPropsList) {
-        if (!prop.isEmpty && null != contentMap.get(prop)) externalProps + (prop -> contentMap.get(prop))
-        if (StringUtils.equalsIgnoreCase(ContentAPIParams.screenshots.name, prop) && null != contentMap.get(prop)) contentMap + (prop -> null)
-        else contentMap - (prop)
-      }
+      externalPropsList.map(key=>{
+        if ( null != contentMap.get(key)) externalProps + (key -> contentMap.get(key))
+        if (StringUtils.equalsIgnoreCase(ContentAPIParams.screenshots.name, key) && null != contentMap.get(key)) contentMap + (key -> null)
+        else contentMap - (key)
+      })
     }
 
     val graphNode = getNodeResponse.get(GraphDACParams.node.name).asInstanceOf[Node]
@@ -498,7 +486,7 @@ class ContentManagerImpl extends BaseContentManager{
   protected def getChildrenIdentifiers(childrens: List[Map[String, AnyRef]]):List[String] = {
     val identifiers = scala.collection.mutable.MutableList[String]()
 
-    childrens.foreach(child => {
+    childrens.map(child=>{
       val cVisibility = child.get(ContentAPIParams.visibility.name()).asInstanceOf[String]
       val identifier = child.get(ContentAPIParams.identifier.name()).asInstanceOf[String]
       if(StringUtils.equalsIgnoreCase("Parent",cVisibility)) identifiers += identifier

@@ -51,6 +51,13 @@ object ValidationUtils {
       throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.toString, "Content Object cannot is Blank.")
   }
 
+  def isValidProperties(mimeType: String, code: String): Unit = {
+    if(StringUtils.isBlank(mimeType))
+      throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.toString, "Content Object cannot is Blank.")
+    if (isPluginMimeType(mimeType)  && StringUtils.isBlank(code))
+      throw new ClientException("ERR_PLUGIN_CODE_REQUIRED", "\"Unique code is mandatory for plugins\", ResponseCode.CLIENT_ERROR")
+  }
+
   def isImage(identifier: String): Unit = {
     if (StringUtils.endsWithIgnoreCase(identifier,".img"))
       throw new ClientException(ContentErrorCodes.OPERATION_DENIED.toString, "Invalid Content Identifier. | [Content Identifier does not Exists.]")

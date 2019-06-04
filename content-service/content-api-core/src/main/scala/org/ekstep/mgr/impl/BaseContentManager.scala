@@ -165,17 +165,20 @@ import scala.collection.mutable.MutableList
       else false
 
     if (!mode.equals("edit") && contentTaggingFlag) {
-      val contentTaggedKeys: Array[String] = if (Platform.config.hasPath("content.tagging.property"))
-        Platform.config.getString("content.tagging.property").split(",")
-      else {
-        val prop = "subject, medium"
-        prop.split(",")
-      }
+      val contentTaggedKeys: List[String] = (
+        if (Platform.config.hasPath("content.tagging.property"))
+          Platform.config.getString("content.tagging.property").split(",")
+        else {
+          val prop = "subject, medium"
+          prop.split(",")
+        }
+      ).toList
 
-      for (i <- 0 until contentTaggedKeys.length) {
-        val toAddProp = contentMap.get(contentTaggedKeys(i))
-        contentMap + (contentTaggedKeys(i) -> toAddProp)
-      }
+      contentTaggedKeys.map(key => {
+        if(contentMap.keySet.contains(key))
+          contentMap + key -> contentMap.get(key).get.asInstanceOf[List[String]](0)
+      })
+
     }
     contentMap
   }
@@ -291,11 +294,12 @@ import scala.collection.mutable.MutableList
 
 
   protected def restrictProps(definition: DefinitionDTO, map: Map[String, AnyRef], props: String*): Unit = {
-    for (prop <- props) {
-      val allow = definition.getMetadata.get("allowupdate_" + prop)
-      if (allow == null || BooleanUtils.isFalse(allow.asInstanceOf[Boolean])) if (map.contains(prop))
-        throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.toString, "Error! " + prop + " can't be set for the content.")
-    }
+    props.map(key =>{
+      val allow = definition.getMetadata.get("allowupdate_" + key)
+      if((allow!=None || BooleanUtils.isFalse(allow.asInstanceOf[Boolean])) && map.keySet.contains(key)){
+        throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.toString, "Error! " + key + " can't be set for the content.")
+      }
+    })
   }
 
   // TODO: push this to publish-pipeline.
@@ -382,7 +386,6 @@ import scala.collection.mutable.MutableList
     request
   }
 
-///  for Review supporing methods
   protected def getNodeForOperation(contentId: String, operation: String) = {
     var node = new Node()
     TelemetryManager.log("Fetching the Content Node. | [Content ID: " + contentId + "]")
@@ -393,7 +396,7 @@ import scala.collection.mutable.MutableList
       TelemetryManager.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId)
       response = getDataNode(TAXONOMY_ID, contentId)
       TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId)
-      if (checkError(response))
+      if (ValidationUtils.hasError(response))
         throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]")
 
       node = response.get(GraphDACParams.node.name).asInstanceOf[Node]
@@ -452,9 +455,10 @@ import scala.collection.mutable.MutableList
     var inGivenStatus = false
     try
         if (null != node && null != node.getMetadata) {
-          for (st <- status) {
-            if (equalsIgnoreCase(node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String], st)) inGivenStatus = true
-          }
+          status.map(key=>{
+            if (equalsIgnoreCase(node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String],key)) inGivenStatus = true
+          })
+
         }
     catch {
       case e: Exception =>
