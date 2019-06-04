@@ -529,7 +529,6 @@ public class ContentBundle {
 			if (obj instanceof String) {
 				list.add((String) obj);
 			} else if (obj instanceof String[]) {
-				System.out.println("Array is input.");
 				list = Arrays.asList((String[]) obj);
 			} else if (obj instanceof List){
 				list.addAll((List<String>) obj);
