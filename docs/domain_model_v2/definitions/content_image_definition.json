@@ -1766,18 +1766,6 @@
 					"indexed": true
 				},
 				{
-					"propertyName": "udpdater",
-					"title": "Name of the user who updated Content last",
-					"description": "",
-					"category": "Lifecycle",
-					"dataType": "Text",
-					"required": false,
-					"displayProperty": "Editable",
-					"defaultValue": "",
-					"renderingHints": "{'order': 21}",
-					"indexed": true
-				},
-				{
 					"propertyName": "reviewer",
 					"title": "Name of the user who did the final review and published the content",
 					"description": "",
@@ -2856,6 +2844,19 @@
 					"renderingHints": "",
 					"indexed": true,
 					"draft": false
+				},
+				{
+					"required": false,
+					"dataType": "Number",
+					"propertyName": "totalCompressedSize",
+					"title": "Download File Size (in bytes)",
+					"description": "Download File Size (in bytes)",
+					"category": "Technical",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+					"indexed": true,
+					"draft": false
 				}
 			],
 			"inRelations": [
@@ -3157,7 +3158,8 @@
 					"s3Key",
 					"consumerId",
 					"organisation",
-					"migratedUrl"
+					"migratedUrl",
+					"totalCompressedSize"
 				]
 			}
 		}
