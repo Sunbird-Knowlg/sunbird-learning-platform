@@ -35,6 +35,10 @@ object APIIds {
   val CREATE_CONTENT = "org.ekstep.content.create"
   val UPDATE_CONTENT = "org.ekstep.content.update"
   val REVIEW_CONTENT = "org.ekstep.content.review"
+  val UPLOAD_CONTENT = "org.ekstep.content.upload"
+  val PUBLISH_PUBLIC_CONTENT = "org.ekstep.content.publish.public"
+  val PUBLISH_UNLISTED_CONTENT = "org.ekstep.content.publish.unlisted"
+
   val CHECK_HEALTH = "learning-service.health"
 
 }

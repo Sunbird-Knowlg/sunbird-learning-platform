@@ -22,7 +22,8 @@ class ContentV3Controller @Inject()(system: ActorSystem) extends BaseController 
 
   def create() = Action.async {
     implicit request =>
-      val body: String = JSONUtils.serialize(request.body.asJson.getOrElse(""))
+      //val body: String = JSONUtils.serialize(request.body.asJson.getOrElse(""))
+      val body: String = Json.stringify(request.body.asJson.get)
       val result = ask(contentActor, Request(APIIds.CREATE_CONTENT, Some(body), Some(Map()), Some(getContext(request))))
         .mapTo[Response]
       result.map(response => sendResponse(response))
@@ -52,5 +53,32 @@ class ContentV3Controller @Inject()(system: ActorSystem) extends BaseController 
         .mapTo[Response]
       result.map(response => sendResponse(response))
   }
+
+  def upload(identifier: String, fileUrl: Option[String]): Action[AnyContent] = Action.async {
+    implicit request =>
+      val result = ask(contentActor, Request(APIIds.UPLOAD_CONTENT, None, Some(Map("identifier" -> identifier, "objectType" ->
+        "Content", "fileUrl" -> fileUrl.getOrElse(""))), Some(getContext(request))))
+        .mapTo[Response]
+      result.map(response => sendResponse(response))
+  }
+
+  def publish(identifier: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      val body: String = Json.stringify(request.body.asJson.get)
+      val result = ask(contentActor, Request(APIIds.PUBLISH_PUBLIC_CONTENT, Some(body), Some(Map("identifier" -> identifier, "objectType" ->
+        "Content")), Some(getContext(request))))
+        .mapTo[Response]
+      result.map(response => sendResponse(response))
+  }
+
+  def publishUnlisted(identifier: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      val body: String = Json.stringify(request.body.asJson.get)
+      val result = ask(contentActor, Request(APIIds.PUBLISH_UNLISTED_CONTENT, Some(body), Some(Map("identifier" -> identifier, "objectType" ->
+        "Content")), Some(getContext(request))))
+        .mapTo[Response]
+      result.map(response => sendResponse(response))
+  }
+
 }
 

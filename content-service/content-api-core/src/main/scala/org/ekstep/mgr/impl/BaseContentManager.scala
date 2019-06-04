@@ -15,13 +15,15 @@ import org.ekstep.common.{Platform, dto}
 import org.ekstep.commons.{Constants, ContentErrorCodes, ContentMetadata, TaxonomyAPIParams, ValidationUtils}
 import org.ekstep.commons.ContentErrorCodes
 import org.ekstep.content.enums.ContentWorkflowPipelineParams
-import org.ekstep.content.util.LanguageCode
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager
+import org.ekstep.content.util.{LanguageCode, MimeTypeManagerFactory}
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.common.enums.GraphHeaderParams
 import org.ekstep.graph.dac.enums.{GraphDACParams, SystemNodeTypes}
 import org.ekstep.graph.dac.model.Node
 import org.ekstep.graph.engine.router.GraphEngineManagers
 import org.ekstep.graph.model.node.{DefinitionDTO, MetadataDefinition}
+import org.ekstep.graph.service.common.DACConfigurationConstants
 import org.ekstep.kafka.KafkaClient
 import org.ekstep.learning.common.enums.{ContentAPIParams, LearningActorNames}
 import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStoreParams}
@@ -353,11 +355,11 @@ import scala.collection.mutable.MutableList
   protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
     if (StringUtils.isNotBlank(mimeType)) {
       if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
-        map + TaxonomyAPIParams.contentEncoding.asInstanceOf[String] -> ContentMetadata.ContentEncoding.identity
-      else map + TaxonomyAPIParams.contentEncoding.asInstanceOf[String] -> ContentMetadata.ContentEncoding.identity
+        map + TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
+      else map + TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
       if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url"))
-        map + TaxonomyAPIParams.contentDisposition.asInstanceOf[String] -> ContentMetadata.ContentDisposition.online
-      else map + TaxonomyAPIParams.contentDisposition.asInstanceOf[String] -> ContentMetadata.ContentDisposition.inline
+        map + TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.online
+      else map + TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.inline
     }
   }
 
@@ -525,7 +527,7 @@ import scala.collection.mutable.MutableList
   }
 
 
-  protected def checkYoutubeLicense(artifactUrl: String, node: Node): Unit = {
+/*  protected def checkYoutubeLicense(artifactUrl: String, node: Node): Unit = {
     val isValReq = if (Platform.config.hasPath("learning.content.youtube.validate.license")) Platform.config.getBoolean("learning.content.youtube.validate.license")
     else false
     if (isValReq) {
@@ -537,7 +539,7 @@ import scala.collection.mutable.MutableList
         throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name, "Unsupported Youtube License!")
       }
     }
-  }
+  }*/
 
   protected def getContentTypeFrom(node: Node): String = node.getMetadata.get("contentType").asInstanceOf[String]
 
@@ -581,6 +583,11 @@ import scala.collection.mutable.MutableList
     response
   }
 
+  protected def getMimeTypeManger(contentId: String, mimeType: String, node: Node): IMimeTypeManager = {
+    TelemetryManager.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]")
+    val contentType = getContentTypeFrom(node)
+    return MimeTypeManagerFactory.getManager(contentType, mimeType)
+  }
 
 
 }

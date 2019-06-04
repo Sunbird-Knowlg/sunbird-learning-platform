@@ -9,4 +9,10 @@ POST    /content/v3/create                                  @controllers.Content
 GET     /content/v3/read/:identifier                        @controllers.ContentV3Controller.read(identifier:String, mode:Option[String], fields:Option[List[String]])
 POST    /content/v3/update/:identifier                      @controllers.ContentV3Controller.update(identifier:String)
 POST    /content/v3/review/:identifier                      @controllers.ContentV3Controller.review(identifier:String)
+POST    /content/v3/upload/:identifier                      @controllers.ContentV3Controller.upload(identifier:String, fileUrl:Option[String])
+POST    /content/v3/publish/:identifier                     @controllers.ContentV3Controller.publish(identifier:String)
+POST    /content/v3/unlisted/publish/:identifier            @controllers.ContentV3Controller.publishUnlisted(identifier:String)
+
+
+
 
