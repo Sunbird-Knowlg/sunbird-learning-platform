@@ -8,9 +8,7 @@ object Model {
 
 
 case class Params(resmsgid: String, msgid: String, err: String, status: String, errmsg: String, client_key: Option[String] = None);
-//case class RequestBody(id: String, ver: String, ts: String, request: Map[String, AnyRef], params: Option[Params]);
 case class RequestBody(request: Map[String, AnyRef])
-
 case class Request(apiId: String, body: Option[String], params: Option[Map[String, AnyRef]], context: Option[mutable.Map[String, AnyRef]]);
 case class Response(id: String, ver: String, ts: String, params: Params, responseCode: String, result: Option[Map[String, AnyRef]]);
 
@@ -22,24 +20,34 @@ object ResponseCode extends Enumeration {
   val SERVER_ERROR = Value(500)
   val REQUEST_TIMEOUT = Value(500)
   val RESOURCE_NOT_FOUND = Value(404)
-}
-
-
-object RespCode extends Enumeration {
-  type Code = Value
-  val OK, CLIENT_ERROR, SERVER_ERROR, REQUEST_TIMEOUT, RESOURCE_NOT_FOUND, FORBIDDEN = Value
+  val FORBIDDEN = Value(403)
 }
 
 object APIIds {
-  val READ_CONTENT = "org.ekstep.content.read"
-  val CREATE_CONTENT = "org.ekstep.content.create"
-  val UPDATE_CONTENT = "org.ekstep.content.update"
-  val REVIEW_CONTENT = "org.ekstep.content.review"
-  val UPLOAD_CONTENT = "org.ekstep.content.upload"
-  val PUBLISH_PUBLIC_CONTENT = "org.ekstep.content.publish.public"
-  val PUBLISH_UNLISTED_CONTENT = "org.ekstep.content.publish.unlisted"
 
-  val CHECK_HEALTH = "learning-service.health"
+  val CHECK_HEALTH = "ekstep.learning.service.health"
+
+  val CREATE_CONTENT = "ekstep.learning.content.create"
+  val READ_CONTENT = "ekstep.content.find"
+  val UPDATE_CONTENT = "ekstep.learning.content.update"
+  val UPLOAD_CONTENT = "ekstep.learning.content.upload"
+  val REVIEW_CONTENT = "ekstep.learning.content.review"
+  val BUNDLE_CONTENT = "ekstep.learning.content.archive"
+  val PUBLIC_PUBLISH_CONTENT = "ekstep.learning.content.publish"
+  val UNLISTED_PUBLISH_CONTENT = "ekstep.learning.content.unlisted.publish"
+  val COPY_CONTENT = "ekstep.content.copy"
+  val RETIRE_CONTENT = "ekstep.content.retire"
+  val ACCEPT_FLAG_CONTENT = "ekstep.content.accept.flag"
+  val READ_HIERACHY = "ekstep.learning.content.hierarchy"
+  val READ_HIERACHY_WITH_BOOKMARK = "ekstep.learning.content.hierarchy"
+  val UPDATE_HIERARCHY = "content.hierarchy.update"
+  val GET_PRESIGNED_URL = "ekstep.learning.content.upload.url"
+  val CONTENT_HIERARCHY_SYNC = "content.hierarchy.sync"
+
+  val DIALCODE_LINK = "ekstep.content.dialcode.link"
+  val DIALCODE_COLLECTION_LINK = "ekstep.collection.dialcode.link"
+  val DIALCODE_RESERVE = "ekstep.learning.content.dialcode.reserve"
+  val DIALCODE_RELEASE = "ekstep.learning.content.dialcode.release"
 
 }
 

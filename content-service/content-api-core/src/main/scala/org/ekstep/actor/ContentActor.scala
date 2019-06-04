@@ -27,10 +27,10 @@ object ContentActor extends BaseAPIActor {
       case APIIds.UPLOAD_CONTENT =>
         uploadContent(request)
 
-      case APIIds.PUBLISH_PUBLIC_CONTENT =>
+      case APIIds.PUBLIC_PUBLISH_CONTENT =>
         publishContent(request, "public")
 
-      case APIIds.PUBLISH_UNLISTED_CONTENT =>
+      case APIIds.UNLISTED_PUBLISH_CONTENT =>
         publishContent(request, "unlisted")
 
       case _ =>
@@ -75,6 +75,7 @@ object ContentActor extends BaseAPIActor {
   private def uploadContent(request: Request) = {
     val contentMgr = new ContentManagerImpl()
     val fileUrl = request.params.getOrElse("fileUrl","")
+
     if(fileUrl != None){
 
       val result = contentMgr.uploadUrl(request)
