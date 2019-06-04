@@ -1,7 +1,7 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 
-GET	    /health                                             @controllers.health.HealthController.checkAPIhealth
+GET	    /health                                             @controllers.HealthController.checkAPIhealth
 
 # Content V3 API's
 

@@ -615,13 +615,10 @@ class ContentManagerImpl extends BaseContentManager{
        new PublishManager().publish(contentId, node)
     } catch {
       case e: ClientException =>
-        println("client exceptin ################ "+e)
         throw e
       case e: ServerException =>
-        println("server exceptin ################ "+e)
         throw e
       case e: Exception =>
-        println("exceptin ################ "+e)
         throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.toString, "Error occured during content publish")
     }
 
