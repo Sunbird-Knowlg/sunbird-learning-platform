@@ -17,7 +17,11 @@ object ContentActor extends BaseAPIActor {
 
       //case APIIds.CREATE_CONTENT =>
 
-      //case APIIds.UPDATE_CONTENT =>
+      case APIIds.UPDATE_CONTENT =>
+        updateContent(request)
+
+      case APIIds.REVIEW_CONTENT =>
+        reviewContent(request)
 
       case _ =>
         invalidAPIResponseSerialized(request.apiId);
@@ -29,6 +33,22 @@ object ContentActor extends BaseAPIActor {
   private def readContent(request: Request) = {
     val readContentMgr = new ContentManagerImpl()
     val result = readContentMgr.read(request)
+
+    val response = OK(request.apiId, result)
+    Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+  }
+
+  private def updateContent(request: Request) = {
+    val contentMgr = new ContentManagerImpl()
+    val result = contentMgr.update(request)
+
+    val response = OK(request.apiId, result)
+    Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+  }
+
+  private def reviewContent(request: Request) = {
+    val contentMgr = new ContentManagerImpl()
+    val result = contentMgr.review(request)
 
     val response = OK(request.apiId, result)
     Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
