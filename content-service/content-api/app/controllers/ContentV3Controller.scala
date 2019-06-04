@@ -15,7 +15,7 @@ class ContentV3Controller extends BaseController {
 
     def create():Action[AnyContent] = Action.async {
         implicit request =>
-            val body: String = JSONUtils.serialize(request.body.asJson.getOrElse(""))
+            val body: String = Json.stringify(request.body.asJson.get)
             val result = ask(RequestRouter.getActorRef("contentActor"), Request(APIIds.CREATE_CONTENT, Some(body), Some(Map()), Some(getContext(request))))
                     .mapTo[Response]
             result.map(response => sendResponse(response))
