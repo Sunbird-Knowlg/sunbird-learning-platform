@@ -54,13 +54,6 @@ import scala.collection.mutable.MutableList
   protected val CONTENT_CACHE_ENABLED = if (Platform.config.hasPath("content.cache.read")) Platform.config.getBoolean("content.cache.read")
   else false
 
- /* /**
-    * Actors initializations
-    */
-  val system = ActorSystem.create("learningActor")
-  val learningActor = system.actorOf(Props[ContentStoreActor], name = "learningActor")
-  LearningRequestRouterPool.init()
-  SearchRequestRouterPool.init(RequestRouterPool.getActorSystem())*/
 
   /**
     * To get a definition node for content type
@@ -111,17 +104,6 @@ import scala.collection.mutable.MutableList
       new org.ekstep.common.dto.Response()
     }
   }
-/*
-  def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
-    if (null != definitionDTO) {
-      definitionDTO.getProperties.asScala.toList.map(prop => {
-        if (prop.getDataType.equalsIgnoreCase("external"))
-          prop.getPropertyName
-      }).asInstanceOf[List[String]]
-    } else{
-      List[String]()
-    }
-  }*/
 
   def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
     if (null != definitionDTO) {
@@ -241,41 +223,6 @@ import scala.collection.mutable.MutableList
     request
   }
 
-
-
-  /*def getResponse(request: org.ekstep.common.dto.Request, router: ActorRef):org.ekstep.common.dto.Response ={
-
-    try {
-      val future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT)
-      val obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration)
-      if (obj.isInstanceOf[org.ekstep.common.dto.Response]) {
-        val response = obj.asInstanceOf[org.ekstep.common.dto.Response]
-        response
-      }
-      else ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name, "System Error", ResponseCode.SERVER_ERROR)
-    } catch {
-      case e: Exception =>
-        throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name, "System Error", e)
-    }
-
-
-  }*/
-
-  /*def getErrorStatus(errorCode: String, errorMessage: String): ResponseParams = {
-    val params = new ResponseParams
-    params.setErr(errorCode)
-    params.setStatus(StatusType.failed.name)
-    params.setErrmsg(errorMessage)
-    return params
-  }
-
-
-  def ERROR(errorCode: String, errorMessage: String, responseCode: org.ekstep.common.exception.ResponseCode): org.ekstep.common.dto.Response = {
-    val response = new org.ekstep.common.dto.Response
-    response.setParams(getErrorStatus(errorCode, errorMessage))
-    response.setResponseCode(responseCode)
-    return response
-  }*/
 
   protected def getContentNode(graphId: String, contentId: String, mode: String): Node = {
     if (equalsIgnoreCase("edit", mode)) {
@@ -525,21 +472,6 @@ import scala.collection.mutable.MutableList
     val body = response.get(ContentStoreParams.body.name).asInstanceOf[String]
     body
   }
-
-
-/*  protected def checkYoutubeLicense(artifactUrl: String, node: Node): Unit = {
-    val isValReq = if (Platform.config.hasPath("learning.content.youtube.validate.license")) Platform.config.getBoolean("learning.content.youtube.validate.license")
-    else false
-    if (isValReq) {
-      val licenseType = YouTubeUrlUtil.getLicense(artifactUrl)
-      if (equalsIgnoreCase("youtube", licenseType)) node.getMetadata.put("license", "Standard YouTube License")
-      else if (equalsIgnoreCase("creativeCommon", licenseType)) node.getMetadata.put("license", "Creative Commons Attribution (CC BY)")
-      else {
-        TelemetryManager.log("Got Unsupported Youtube License Type : " + licenseType + " | [Content ID: " + node.getIdentifier + "]")
-        throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name, "Unsupported Youtube License!")
-      }
-    }
-  }*/
 
   protected def getContentTypeFrom(node: Node): String = node.getMetadata.get("contentType").asInstanceOf[String]
 
