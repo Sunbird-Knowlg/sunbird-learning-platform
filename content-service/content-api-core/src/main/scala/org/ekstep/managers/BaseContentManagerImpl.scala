@@ -184,8 +184,8 @@ class BaseContentManagerImpl extends BaseManager {
     protected def updateDataNodes(map: Map[String, AnyRef], idList: List[String], graphId: String) = {
         TelemetryManager.log("Getting Update Node Request For Node ID: " + idList)
         val updateReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "updateDataNodes")
-        updateReq.put(GraphDACParams.node_ids.name, idList)
-        updateReq.put(GraphDACParams.metadata.name, map)
+        updateReq.put(GraphDACParams.node_ids.name, idList.asJava)
+        updateReq.put(GraphDACParams.metadata.name, map.asJava)
         TelemetryManager.log("Updating DialCodes for :" + idList)
         val response = getResponse(updateReq)
         TelemetryManager.log("Returning Node Update Response.")
@@ -236,6 +236,29 @@ class BaseContentManagerImpl extends BaseManager {
           .map(child=>{
                 child.getOrElse(ContentAPIParams.identifier.name(),"").asInstanceOf[String]
             }).toList
+    }
+
+
+    protected def updateDataNode(node: Node) = {
+        var response = new Response
+        if (null != node) {
+            val contentId = node.getIdentifier
+            // Checking if Content Image Object is being Updated, then return
+            // the Original Content Id
+            if (BooleanUtils.isTrue(node.getMetadata.get(TaxonomyAPIParams.isImageObject).asInstanceOf[Boolean])) {
+                node.getMetadata.remove(TaxonomyAPIParams.isImageObject)
+                node.setIdentifier(node.getIdentifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)
+            }
+            TelemetryManager.log("Getting Update Node Request For Node ID: " + node.getIdentifier)
+            val updateReq = getRequest(node.getGraphId, GraphEngineManagers.NODE_MANAGER, "updateDataNode")
+            updateReq.put(GraphDACParams.node.name, node)
+            updateReq.put(GraphDACParams.node_id.name, node.getIdentifier)
+            TelemetryManager.log("Updating the Node ID: " + node.getIdentifier)
+            response = getResponse(updateReq)
+            response.put(TaxonomyAPIParams.node_id.toString, contentId)
+            TelemetryManager.log("Returning Node Update Response.")
+        }
+        response
     }
 
 

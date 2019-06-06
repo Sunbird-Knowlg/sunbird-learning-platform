@@ -1,5 +1,6 @@
 package org.ekstep.actor
 
+import org.ekstep.actor.ContentActor.{retireContent, sender}
 import org.ekstep.actor.core.BaseAPIActor
 import org.ekstep.common.dto.Response
 import org.ekstep.commons.{APIIds, Request}
@@ -10,6 +11,7 @@ object ContentActor extends BaseAPIActor {
 
   override def onReceive(request: Request) = {
     request.apiId match {
+
       case APIIds.CREATE_CONTENT => sender() ! createContent(request)
       case APIIds.READ_CONTENT => sender() ! readContent(request)
       case APIIds.UPDATE_CONTENT => sender() ! updateContent(request)
@@ -21,6 +23,8 @@ object ContentActor extends BaseAPIActor {
       case APIIds.DIALCODE_COLLECTION_LINK => sender() ! collectionLinkDialCode(request)
       case APIIds.DIALCODE_RESERVE => sender() ! reserveDialCode(request)
       case APIIds.DIALCODE_RELEASE => sender() ! releaseDialCode(request)
+      case APIIds.RETIRE_CONTENT => sender() ! retireContent(request)
+      case APIIds.ACCEPT_FLAG_CONTENT => sender() ! acceptFlagContent(request)
       case _ => invalidAPIResponseSerialized(request.apiId)
     }
   }
@@ -66,6 +70,24 @@ object ContentActor extends BaseAPIActor {
     }
 
   }
+
+  private def retireContent(request: Request) : Response  = {
+    try{
+      val result = ContentManager.retire(request)
+      setResponseEnvelope(result, request.apiId, null)
+    } catch {
+      case e: Exception => getErrorResponse(e, APIIds.REVIEW_CONTENT)
+    }
+
+  }
+
+  private def acceptFlagContent(request: Request) = {
+    try{
+      val result = ContentManager.acceptFlag(request)
+      setResponseEnvelope(result, request.apiId, null)
+    } catch {
+      case e: Exception => getErrorResponse(e, APIIds.REVIEW_CONTENT)
+    }
 
   /**
     * Link DIAL Code to Neo4j Object
