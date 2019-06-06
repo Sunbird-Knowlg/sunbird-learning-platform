@@ -3,6 +3,7 @@ package org.ekstep.managers
 
 import org.apache.commons.lang3.StringUtils
 import org.ekstep.common.dto.Response
+import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.exception.{ClientException, ResponseCode, ServerException}
 import org.ekstep.common.mgr.ConvertToGraphNode
 import org.ekstep.commons.{Constants, ContentErrorCodes, Request, RequestBody, TaxonomyAPIParams, ValidationUtils}
@@ -14,6 +15,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams
 import org.ekstep.graph.model.node.DefinitionDTO
 import org.ekstep.learning.common.enums.ContentAPIParams
 import org.ekstep.graph.dac.model.Node
+import org.ekstep.learning.contentstore.ContentStoreParams
 import org.ekstep.telemetry.logger.TelemetryManager
 
 import scala.collection.JavaConverters._
@@ -84,18 +86,15 @@ class ContentManager extends BaseContentManagerImpl {
         node.getMetadata.asScala += TaxonomyAPIParams.lastSubmittedOn.toString -> DateUtils.formatCurrentDate
 
         val mimeType = node.getMetadata.getOrDefault(ContentAPIParams.mimeType.name,"assets").asInstanceOf[String]
-        TelemetryManager.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]")
 
         val artifactUrl = node.getMetadata.getOrDefault(ContentAPIParams.artifactUrl.name,"").asInstanceOf[String]
         val license = node.getMetadata.getOrDefault("license","").asInstanceOf[String]
 
         if (YOUTUBE_MIMETYPE.equalsIgnoreCase(mimeType) && StringUtils.isBlank(artifactUrl) && StringUtils.isBlank(license)) ValidationUtils.checkYoutubeLicense(artifactUrl, node)
-        TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]")
 
         val contentType = node.getMetadata.getOrDefault("contentType","").asInstanceOf[String]
         val mimeTypeManager: IMimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType)
         val response = mimeTypeManager.review(contentId, node, false)
-        TelemetryManager.log("Returning 'Response' Object: ", response.getResult)
 
         response
     }
@@ -119,27 +118,23 @@ class ContentManager extends BaseContentManagerImpl {
         node.getMetadata.asScala += "rejectReasons" -> null
         node.getMetadata.asScala += "rejectComment"-> null
         val publisher = contentMap.getOrElse("lastPublishedBy",null)
-        TelemetryManager.log("LastPublishedBy: " + publisher)
         node.getMetadata.asScala += GraphDACParams.lastUpdatedBy.name -> publisher
 
         val response = try {
             new PublishManager().publish(contentId, node)
         } catch {
             case e: ClientException =>
+                TelemetryManager.error("Error occured during content publish: ",e)
                 throw e
             case e: ServerException =>
+                TelemetryManager.error("Error occured during content publish: ",e)
                 throw e
             case e: Exception =>
+                TelemetryManager.error("Error occured during content publish ",e)
                 throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.toString, "Error occured during content publish")
         }
 
-        TelemetryManager.log("Returning 'Response' Object.")
-        if (StringUtils.endsWith(response.getResult.get("node_id").toString, ".img")) {
-            val identifier: String = response.getResult.get("node_id").toString
-            val new_identifier: String = identifier.replace(".img", "")
-            TelemetryManager.log("replacing image id with content id in response" + identifier + new_identifier)
-            response.getResult.replace("node_id", identifier, new_identifier)
-        }
+        contentCleanUp(contentMap)
         return response
     }
 
@@ -147,7 +142,7 @@ class ContentManager extends BaseContentManagerImpl {
 
         val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
         val response = getDataNode(TAXONOMY_ID, contentId)
-        if (ValidationUtils.hasError(response))
+        if (checkError(response))
             return response
 
         val node = response.get(GraphDACParams.node.name).asInstanceOf[Node]
@@ -158,7 +153,7 @@ class ContentManager extends BaseContentManagerImpl {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.toString, "Content with Identifier [" + contentId + "] is already Retired.")
 
         val imageNodeResponse = getDataNode(TAXONOMY_ID, contentId+DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)
-        val isImageNodeExist = if (!ValidationUtils.hasError(imageNodeResponse)) true else false
+        val isImageNodeExist = if (!checkError(imageNodeResponse)) true else false
         val identifiers = if (isImageNodeExist) List[String](contentId, contentId+DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX) else List[String](contentId)
 
         val params = Map[String, AnyRef]()
@@ -166,7 +161,7 @@ class ContentManager extends BaseContentManagerImpl {
         params + ("lastStatusChangedOn" -> DateUtils.formatCurrentDate)
 
         val responseUpdated = updateDataNodes(params, identifiers, TAXONOMY_ID)
-        if (ValidationUtils.hasError(responseUpdated)) return responseUpdated
+        if (checkError(responseUpdated)) return responseUpdated
 
         deletionsFor(contentId, mimeType, status)
 
@@ -178,5 +173,6 @@ class ContentManager extends BaseContentManagerImpl {
         return res
 
     }
+
 
 }

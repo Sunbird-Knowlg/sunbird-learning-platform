@@ -4,9 +4,10 @@ import org.apache.commons.lang3.{BooleanUtils, StringUtils}
 import org.ekstep.common.Platform
 import org.ekstep.common.dto.{Request, Response}
 import org.ekstep.common.enums.TaxonomyErrorCodes
-import org.ekstep.common.exception.ClientException
+import org.ekstep.common.exception.{ClientException, ServerException}
 import org.ekstep.common.mgr.BaseManager
-import org.ekstep.commons.{Constants, ContentErrorCodes, TaxonomyAPIParams, ValidationUtils}
+import org.ekstep.common.router.RequestRouterPool
+import org.ekstep.commons.{Constants, ContentErrorCodes, TaxonomyAPIParams}
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.dac.enums.{GraphDACParams, SystemNodeTypes}
 import org.ekstep.graph.dac.model.Node
@@ -142,26 +143,23 @@ class BaseContentManagerImpl extends BaseManager {
         resp.get(GraphDACParams.node.name).asInstanceOf[Node]
     }
 
+    /**
+      * To remove image from content-id
+      * @param contentNode
+      * @return
+      */
+    def contentCleanUp(contentNode: Map[String, AnyRef]) = {
+        if (contentNode.contains("identifier") && contentNode.get("identifier").get.asInstanceOf[String].endsWith(".img")) {
+            contentNode + ("identifier"-> contentNode.get("identifier").get.asInstanceOf[String].replace(".img", ""))
+        }
+        contentNode
+    }
 
     protected def isNodeUnderProcessing(node: Node, operation: String): Unit = {
         val statusList = List[String](TaxonomyAPIParams.Processing.toString)
-        var isProcessing = false
-        try{
-            if (null != node && null != node.getMetadata) {
-                statusList.map(key => {
-                    if (key.equalsIgnoreCase(node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String])) isProcessing = true
-                })
-            }
-        } catch {
-            case e: Exception =>
-                TelemetryManager.error("Something went wrong while checking the object whether it is under processing or not.", e)
-        }
-
-        if (BooleanUtils.isTrue(isProcessing)) {
-            TelemetryManager.log("Given Content is in Processing Status.")
+        var isProcessing = statusList.contains(node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String])
+        if(isProcessing)
             throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(), "Operation Denied! | [Cannot Apply '" + operation + "' Operation on the Content in '" + node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String] + "' Status.] ")
-        }
-        else TelemetryManager.log("Given Content is not in " + node.getMetadata.get(TaxonomyAPIParams.status.toString) + " Status.")
     }
 
     protected def getContentBody(contentId: String) = {
@@ -212,8 +210,8 @@ class BaseContentManagerImpl extends BaseManager {
     protected def deletionsFor(contentId: String, mimeType: String, status: String) ={
         if (COLLECTION_MIME_TYPE.equalsIgnoreCase(mimeType) && "Live".equalsIgnoreCase(status)) { // Delete Units from ES
             val hierarchyResponse = getCollectionHierarchy(contentId)
-            if (ValidationUtils.hasError(hierarchyResponse)) {
-                throw new ClientException("ERR_ROOT_NODE_HIERARCHY", "Unable to fetch Hierarchy for Root Node: [" + contentId + "]")
+            if (checkError(hierarchyResponse)) {
+                throw new ServerException("ERR_ROOT_NODE_HIERARCHY", "Unable to fetch Hierarchy for Root Node: " + contentId + " :: " + hierarchyResponse.getParams.getErrmsg)
             }
             val rootHierarchy = hierarchyResponse.getResult.getOrDefault("hierarchy", Map()).asInstanceOf[Map[String, AnyRef]]
             val rootChildren = rootHierarchy.getOrElse("children", List()).asInstanceOf[List[Map[String, AnyRef]]]
@@ -222,7 +220,8 @@ class BaseContentManagerImpl extends BaseManager {
                 ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, childrenIdentifiers.asJava)
             } catch {
                 case e: Exception =>
-                    throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.toString, "Something Went Wrong While Removing Children's from ES.")
+                    TelemetryManager.error("Error occured during bulk delete in ES ", e)
+                    throw new ServerException(ContentErrorCodes.ERR_CONTENT_RETIRE.toString, e.getMessage)
             }
             deleteHierarchy(List(contentId))
             RedisStoreUtil.delete(Constants.COLLECTION_CACHE_KEY_PREFIX + contentId)
@@ -233,14 +232,11 @@ class BaseContentManagerImpl extends BaseManager {
     }
 
     private def getChildrenIdentifiers(childrens: List[Map[String, AnyRef]]):List[String] = {
-        val identifiers = scala.collection.mutable.MutableList[String]()
-        childrens.map(child=>{
-            val cVisibility = child.getOrElse(ContentAPIParams.visibility.name(),"").asInstanceOf[String]
-            val identifier = child.getOrElse(ContentAPIParams.identifier.name(),"").asInstanceOf[String]
-            if(StringUtils.equalsIgnoreCase("Parent",cVisibility)) identifiers += identifier
-
-            getChildrenIdentifiers(child.get(ContentAPIParams.children.name).asInstanceOf[List[Map[String, AnyRef]]])
-        })
-        identifiers.toList
+        childrens.filter(child => child.getOrElse(ContentAPIParams.visibility.name(),"").toString.equalsIgnoreCase("Parent"))
+          .map(child=>{
+                child.getOrElse(ContentAPIParams.identifier.name(),"").asInstanceOf[String]
+            }).toList
     }
+
+
 }
