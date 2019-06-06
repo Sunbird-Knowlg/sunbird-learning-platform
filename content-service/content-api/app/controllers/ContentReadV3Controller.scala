@@ -16,7 +16,7 @@ class ContentReadV3Controller extends BaseController {
             val result = ask(RequestRouter.getActorRef("contentActor"), Request(APIIds.READ_CONTENT, None, Some(Map("identifier" -> identifier, "objectType" ->
                     "Content", "mode" -> mode.getOrElse(""), "fields" -> fields.getOrElse(List()))), Some(mutable.Map())))
                     .mapTo[Response]
-            result.map(response => sendResponse(response)
+            result.map(response => sendResponse(response))
     }
 
     def readHierarchy(identifier: String, mode: Option[String], fields: Option[List[String]]): Action[AnyContent] = Action.async {
