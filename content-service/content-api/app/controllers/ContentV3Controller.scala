@@ -30,11 +30,11 @@ class ContentV3Controller extends BaseController {
             result.map(response => sendResponse(response))
     }
 
-    def upload(identifier: String): Action[AnyContent] = Action.async {
+    def upload(identifier: String, fileUrl:Option[String]): Action[AnyContent] = Action.async {
         implicit request =>
             val body: String = Json.stringify(request.body.asJson.get)
             val result = ask(RequestRouter.getActorRef("contentActor"), Request(APIIds.UPLOAD_CONTENT, Some(body), Some(Map("identifier" -> identifier, "objectType" ->
-                    "Content")), Some(getContext(request))))
+                    "Content", "fileUrl" -> fileUrl.getOrElse(""))), Some(getContext(request))))
                     .mapTo[Response]
             result.map(response => sendResponse(response))
     }

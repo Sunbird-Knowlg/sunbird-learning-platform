@@ -2,11 +2,6 @@ package org.ekstep.mgr.impl
 
 import java.util.Date
 
-import com.fasterxml.jackson.core.`type`.TypeReference
-import org.apache.commons.collections.CollectionUtils
-import org.apache.commons.lang3.StringUtils
-import org.ekstep.common.Platform
-import org.ekstep.common.dto.Response
 import org.ekstep.common.exception.{ClientException, ResponseCode, ServerException}
 import org.ekstep.common.mgr.{ConvertGraphNode, ConvertToGraphNode}
 import org.ekstep.commons.{Constants, ContentErrorCodes, Request, RequestBody, TaxonomyAPIParams, ValidationUtils}
@@ -15,6 +10,7 @@ import org.ekstep.common.Platform
 import org.ekstep.common.dto.Response
 import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.mgr.ConvertGraphNode
+import org.ekstep.content.enums.ContentWorkflowPipelineParams
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager
 import org.ekstep.content.publish.PublishManager
 import org.ekstep.graph.cache.util.RedisStoreUtil
@@ -26,6 +22,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams
 import org.ekstep.learning.contentstore.ContentStoreParams
 import org.ekstep.telemetry.logger.TelemetryManager
 import org.ekstep.content.util.{JSONUtils, MimeTypeManagerFactory}
+import org.ekstep.graph.service.common.DACConfigurationConstants
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil
 import org.ekstep.searchindex.util.CompositeSearchConstants
 
@@ -87,6 +84,168 @@ class ContentManagerImpl extends BaseContentManager{
   }
 
   /**
+    * Create content
+    * @param request
+    * @return
+    */
+  def create(request: org.ekstep.commons.Request) : Response ={
+
+    val requestBody = JSONUtils.deserialize[RequestBody](request.body.get)
+    val contentMap = requestBody.request.get("content").get.asInstanceOf[Map[String, AnyRef]]
+    val definition = getDefinitionNode(TAXONOMY_ID, CONTENT_OBJECT_TYPE)
+
+    restrictProps(definition, contentMap, "status")
+
+    //validations
+    val mimeType = contentMap.getOrElse("mimeType","").asInstanceOf[String]
+    val code = contentMap.getOrElse("code","").asInstanceOf[String]
+    ValidationUtils.isValidProperties(mimeType, code)
+
+
+    //updating the content map with required values.
+    prepareContentMap(contentMap)
+    val externalProps = updateExternalPropertiesFrom(contentMap, definition)
+    try {
+      val node = ConvertToGraphNode.convertToGraphNode(contentMap.asJava, definition, null)
+      node.setObjectType(CONTENT_OBJECT_TYPE)
+      node.setGraphId(TAXONOMY_ID)
+      val response = createDataNode(node)
+      if (ValidationUtils.hasError(response)) return response
+      else {
+        val contentId = response.get(GraphDACParams.node_id.name).asInstanceOf[String]
+        if (null != externalProps && !externalProps.isEmpty) {
+          val externalPropsResponse = updateContentProperties(contentId, externalProps)
+          if (ValidationUtils.hasError(externalPropsResponse)) return externalPropsResponse
+        }
+        return response
+      }
+    } catch {
+      case e: Exception =>
+        return ERROR("ERR_CONTENT_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR)
+    }
+
+  }
+
+  /**
+    * external properties removed from contenMap and added to external property list
+    * @param contentMap
+    * @param definitionDTO
+    * @return external property list
+    */
+  private def updateExternalPropertiesFrom(contentMap: Map[String, AnyRef], definitionDTO: DefinitionDTO): Map [String,AnyRef] ={
+
+    val externalProps = Map [String,AnyRef]()
+    val externalPropsList = getExternalPropList(definitionDTO)
+    if (null != externalPropsList && !externalPropsList.isEmpty) {
+      externalPropsList.map(key=>{
+        if (null != contentMap.get(key)) externalProps + (key -> contentMap.get(key))
+        contentMap - (key)
+      })
+    }
+    return externalProps
+  }
+
+  /**
+    * Update contentMap to add visibility, framwork, osId, identifier, version
+    * @param contentMap
+    */
+  private def prepareContentMap(contentMap: Map[String,AnyRef]) ={
+
+    val framework = contentMap.getOrElse("framework",{ if (Platform.config.hasPath("platform.framework.default")) Platform.config.getString("platform.framework.default")
+    else "NCF"}).asInstanceOf[String]
+
+    val mimeType = contentMap.getOrElse("mimeType","").asInstanceOf[String]
+
+    if (!ValidationUtils.isPluginMimeType(mimeType)) contentMap + "osId" -> "org.ekstep.quiz.app"
+    else {
+      contentMap + "identifier" -> contentMap.get("code")
+    }
+
+    val contentType = contentMap.getOrElse("contentType","").asInstanceOf[String]
+    if (StringUtils.isNotBlank(contentType)) {
+      val parentVisibilityList = Platform.config.getStringList("content.metadata.visibility.parent")
+      if (parentVisibilityList.contains(contentType.toLowerCase)) contentMap + "visibility"-> "Parent"
+    }
+
+    updateDefaultValuesByMimeType(contentMap, mimeType)
+
+    if (ValidationUtils.isCollectionMimeType(mimeType) || ValidationUtils.isEcmlMimeType(mimeType))
+      contentMap + "version" -> Constants.LATEST_CONTENT_VERSION
+    else contentMap + "version" -> Constants.DEFAULT_CONTENT_VERSION
+
+  }
+
+
+  /**
+    * Upload URL
+    * @param request
+    * @return
+    */
+  def uploadUrl(request: org.ekstep.commons.Request) : Response ={
+    val params = request.params.getOrElse(Map())
+    val contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
+    val fileUrl = params.getOrElse("fileUrl", "").asInstanceOf[String]
+    var mimeType = params.getOrElse("mimeType", "").asInstanceOf[String]
+
+
+    var updateMimeType = false
+    try {
+      ValidationUtils.has(fileUrl);
+
+      val node = getNodeForOperation(contentId, "upload")
+      isNodeUnderProcessing(node, "Upload");
+      if (StringUtils.isBlank(mimeType)) {
+        mimeType = node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString
+      } else {
+        node.getMetadata.put("mimeType", mimeType)
+        updateDefaultValuesByMimeType(node.getMetadata().asInstanceOf[Map[String, AnyRef]], mimeType)
+        updateMimeType = true
+      }
+
+      ValidationUtils.validateUrlLicense(mimeType, fileUrl, node)
+
+      TelemetryManager.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]")
+      val mimeTypeManager = getMimeTypeManger(contentId, mimeType, node)
+
+      val res = mimeTypeManager.upload(contentId, node, fileUrl)
+
+      if (updateMimeType && !ValidationUtils.hasError(res)) {
+        node.getMetadata() + "versionKey" -> res.getResult().get("versionKey")
+
+        val map = Map[String, AnyRef]()
+        map + "mimeType" -> mimeType
+        map + "versionKey" -> Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY)
+
+        //Calls update functionality here..
+        val response = updateResponse(contentId, map)
+        if (null != response && ValidationUtils.hasError(response)) return response
+
+      }
+
+      if (ValidationUtils.hasError(res)) return res
+      else {
+        val nodeId = res.getResult.get("node_id").asInstanceOf[String]
+        val returnNodeId = if (StringUtils.endsWith(nodeId, ".img")) nodeId.replace(".img", "") else nodeId
+        res.getResult.replace("node_id", nodeId, returnNodeId)
+        return res
+      }
+
+    } catch {
+      case e: ClientException =>
+        throw e
+      case e: ServerException =>
+        return ERROR(e.getErrCode, e.getMessage, ResponseCode.SERVER_ERROR)
+      case e: Exception =>
+        val message = "Something went wrong while processing uploaded file."
+        TelemetryManager.error(message, e)
+        return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name, message, ResponseCode.SERVER_ERROR)
+    }
+  }
+
+
+
+
+  /**
     * Update a content
     * @param request   containing versionKey as latest version of node to update
     * @throws java.lang.Exception
@@ -96,16 +255,22 @@ class ContentManagerImpl extends BaseContentManager{
   def update(request: org.ekstep.commons.Request) : Response ={
     val params = request.params.getOrElse(Map())
 
-    var contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
+    val contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
     val requestBody = JSONUtils.deserialize[RequestBody](request.body.get)
     val contentMap = requestBody.request.get("content").get.asInstanceOf[Map[String, AnyRef]]
+    updateResponse(contentId, contentMap)
+
+  }
+
+  private def updateResponse (contentIdentifier: String, contentMap: Map[String, AnyRef]): Response = {
+    var contentId = contentIdentifier
 
     if (null == contentMap) return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR)
 
     if (contentMap.contains("dialcodes")) contentMap - "dialcodes"
 
     val definition = getDefinitionNode(TAXONOMY_ID, CONTENT_OBJECT_TYPE)
-    restrictProps(definition, contentMap, "status", "framework")
+    restrictProps(definition, contentMap, "status", "framework", "mimeType", "contentType")
 
     val originalId = contentId
     var objectType = CONTENT_OBJECT_TYPE
@@ -137,11 +302,11 @@ class ContentManagerImpl extends BaseContentManager{
     val externalProps: Map[String, AnyRef] = Map()
     val externalPropsList = getExternalPropListX(definition)
     if (null != externalPropsList) {
-      for (prop <- externalPropsList) {
-        if (!prop.isEmpty && null != contentMap.get(prop)) externalProps + (prop -> contentMap.get(prop))
-        if (StringUtils.equalsIgnoreCase(ContentAPIParams.screenshots.name, prop) && null != contentMap.get(prop)) contentMap + (prop -> null)
-        else contentMap - (prop)
-      }
+      externalPropsList.map(key=>{
+        if ( null != contentMap.get(key)) externalProps + (key -> contentMap.get(key))
+        if (StringUtils.equalsIgnoreCase(ContentAPIParams.screenshots.name, key) && null != contentMap.get(key)) contentMap + (key -> null)
+        else contentMap - (key)
+      })
     }
 
     val graphNode = getNodeResponse.get(GraphDACParams.node.name).asInstanceOf[Node]
@@ -201,8 +366,15 @@ class ContentManagerImpl extends BaseContentManager{
       }
     }
     return createResponse
+
   }
 
+  /**
+    * Review a content- changes the status to 'Review'
+    *
+    * @param request
+    * @return
+    */
   def review(request: org.ekstep.commons.Request) : Response ={
 
     val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
@@ -225,7 +397,7 @@ class ContentManagerImpl extends BaseContentManager{
     val artifactUrl = getArtifactUrlFrom(node)
     val license = node.getMetadata.get("license").asInstanceOf[String]
 
-    if (ValidationUtils.isYoutubeMimeType(mimeType) && null != artifactUrl && StringUtils.isBlank(license)) checkYoutubeLicense(artifactUrl, node)
+    if (ValidationUtils.isYoutubeMimeType(mimeType) && null != artifactUrl && StringUtils.isBlank(license)) ValidationUtils.checkYoutubeLicense(artifactUrl, node)
     TelemetryManager.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]")
 
     val contentType = getContentTypeFrom(node)
@@ -239,6 +411,12 @@ class ContentManagerImpl extends BaseContentManager{
     response
   }
 
+  /**
+    * Deletes(Soft delete) a content with given content id
+    *
+    * @param request
+    * @return
+    */
   def retire(request: org.ekstep.commons.Request) : Response ={
 
     val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
@@ -269,51 +447,62 @@ class ContentManagerImpl extends BaseContentManager{
     val responseUpdated = updateDataNodes(params, identifiers, TAXONOMY_ID)
     if (ValidationUtils.hasError(responseUpdated)) return responseUpdated
     else {
-
-      if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType) && StringUtils.equalsIgnoreCase("Live", status)) { // Delete Units from ES
-        val hierarchyResponse = getCollectionHierarchy(contentId)
-        if (ValidationUtils.hasError(hierarchyResponse)) {
-          throw new ClientException("", "Unable to fetch Hierarchy for Root Node: [" + contentId + "]")
-        }
-        val rootHierarchy = hierarchyResponse.getResult.get("hierarchy").asInstanceOf[Map[String, AnyRef]]
-        val rootChildren = rootHierarchy.get("children").asInstanceOf[List[Map[String, AnyRef]]]
-        val childrenIdentifiers = getChildrenIdentifiers(rootChildren)
-        try {
-          ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, childrenIdentifiers.asJava)
-        } catch {
-          case e: Exception =>
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.toString, "Something Went Wrong While Removing Children's from ES.")
-        }
-        deleteHierarchy(List(contentId))
-        RedisStoreUtil.delete("hierarchy_" + contentId)
-      }
-      ValidationUtils.isValidContentId(contentId)
-      val responseNode = getDataNode(TAXONOMY_ID, contentId)
-      val node = responseNode.get("node").asInstanceOf[Node]
-      if (!ValidationUtils.isCollectionMimeType(mimeType)) {
-        RedisStoreUtil.delete(contentId)
-      }
-
-      val res = getSuccessResponse
-      res.put(ContentAPIParams.node_id.name, node.getIdentifier)
-      res.put(ContentAPIParams.versionKey.name, node.getMetadata.get("versionKey"))
-      return res
-
+     return responseForBulkDelete(contentId, mimeType, status)
     }
-
   }
 
-  private def getChildrenIdentifiers(childrens: List[Map[String, AnyRef]]):List[String] = {
-    val identifiers = scala.collection.mutable.MutableList[String]()
-    for (child <- childrens) {
+  protected def responseForBulkDelete(contentId: String, mimeType: String, status: String): Response ={
 
-      //if (StringUtils.equalsIgnoreCase("Parent", child.get(ContentAPIParams.visibility.name()).asInstanceOf[String])
-        // TODO
+    if (ValidationUtils.isCollectionMimeType(mimeType) && ValidationUtils.isLive(status)) { // Delete Units from ES
+      val hierarchyResponse = getCollectionHierarchy(contentId)
+      if (ValidationUtils.hasError(hierarchyResponse)) {
+        throw new ClientException("", "Unable to fetch Hierarchy for Root Node: [" + contentId + "]")
+      }
+      val rootHierarchy = hierarchyResponse.getResult.get("hierarchy").asInstanceOf[Map[String, AnyRef]]
+      val rootChildren = rootHierarchy.get("children").asInstanceOf[List[Map[String, AnyRef]]]
+      val childrenIdentifiers = getChildrenIdentifiers(rootChildren)
+      try {
+        ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, childrenIdentifiers.asJava)
+      } catch {
+        case e: Exception =>
+          throw new ClientException(ContentErrorCodes.ERR_CONTENT_RETIRE.toString, "Something Went Wrong While Removing Children's from ES.")
+      }
+      deleteHierarchy(List(contentId))
+      RedisStoreUtil.delete(Constants.COLLECTION_CACHE_KEY_PREFIX + contentId)
     }
+    ValidationUtils.isValidContentId(contentId)
+    val responseNode = getDataNode(TAXONOMY_ID, contentId)
+    val node = responseNode.get("node").asInstanceOf[Node]
+    if (!ValidationUtils.isCollectionMimeType(mimeType)) {
+      RedisStoreUtil.delete(contentId)
+    }
+
+    val res = getSuccessResponse
+    res.put(ContentAPIParams.node_id.name, node.getIdentifier)
+    res.put(ContentAPIParams.versionKey.name, node.getMetadata.get("versionKey"))
+    return res
+  }
+
+  protected def getChildrenIdentifiers(childrens: List[Map[String, AnyRef]]):List[String] = {
+    val identifiers = scala.collection.mutable.MutableList[String]()
+
+    childrens.map(child=>{
+      val cVisibility = child.get(ContentAPIParams.visibility.name()).asInstanceOf[String]
+      val identifier = child.get(ContentAPIParams.identifier.name()).asInstanceOf[String]
+      if(StringUtils.equalsIgnoreCase("Parent",cVisibility)) identifiers += identifier
+
+      getChildrenIdentifiers(child.get(ContentAPIParams.children.name).asInstanceOf[List[Map[String, AnyRef]]])
+    })
+
     identifiers.toList
   }
 
-
+  /**
+    * Accepts the content of 'Flagged' status
+    * Applicable to the content with 'Flagged' status
+    * @param request
+    * @returnversion
+    */
   def acceptFlag(request: org.ekstep.commons.Request) : Response ={
 
     val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
@@ -330,10 +519,10 @@ class ContentManagerImpl extends BaseContentManager{
     val definition = getDefinitionNode(TAXONOMY_ID, CONTENT_OBJECT_TYPE)
     val externalPropsList = getExternalPropList(definition)
 
-
     val imageContentId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX
     val imageResponse = getDataNode(TAXONOMY_ID, imageContentId)
     val isImageNodeExist = if(!ValidationUtils.hasError(imageResponse)) true else false
+
 
     val versionKey = if (!isImageNodeExist) {
       val createNode = response.get(GraphDACParams.node.name).asInstanceOf[Node]
@@ -352,15 +541,15 @@ class ContentManagerImpl extends BaseContentManager{
         }
         createResponse.get("versionKey").asInstanceOf[String]
       }
-      else createResponse
-    }
-    else {
+      else return createResponse
+    } else {
       TelemetryManager.log("Updating Image node: " + imageContentId)
       val imageNode = imageResponse.get(GraphDACParams.node.name).asInstanceOf[Node]
       imageNode.setGraphId(TAXONOMY_ID)
       imageNode.getMetadata.put(ContentAPIParams.status.name, "FlagDraft")
       val updateResponse = updateDataNode(imageNode)
-      if (checkError(updateResponse)) return updateResponse
+      if (ValidationUtils.hasError(updateResponse)) return  updateResponse
+
       updateResponse.get("versionKey").asInstanceOf[String]
     }
 
@@ -380,7 +569,7 @@ class ContentManagerImpl extends BaseContentManager{
 
   }
 
-  def publish(request: org.ekstep.commons.Request) : Response ={
+  def publishByType(request: org.ekstep.commons.Request, publishType: String) : Response ={
     val params = request.params.getOrElse(Map())
 
     val contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
@@ -389,13 +578,15 @@ class ContentManagerImpl extends BaseContentManager{
     val requestBody = JSONUtils.deserialize[RequestBody](request.body.get)
     val contentMap = requestBody.request.get("content").get.asInstanceOf[Map[String, AnyRef]]
 
+    contentMap + "publish_type" ->  publishType
+
     val node: Node = getNodeForOperation(contentId, "publish")
     isNodeUnderProcessing(node, "Publish")
 
     if (null != contentMap && !(ValidationUtils.isValidList(contentMap.getOrElse("publishChecklist","")))) {
       contentMap + "publishChecklist" -> null
     }
-    val publisher = contentMap.get("lastPublishedBy").asInstanceOf[String]
+    val publisher = contentMap.getOrElse("lastPublishedBy","").asInstanceOf[String]
     node.getMetadata.putAll(contentMap.asJava)
     node.getMetadata.put("rejectReasons", null)
     node.getMetadata.put("rejectComment", null)

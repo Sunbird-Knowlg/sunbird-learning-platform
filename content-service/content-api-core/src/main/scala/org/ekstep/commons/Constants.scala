@@ -58,4 +58,6 @@ object Constants {
 
   val COLLECTION_CACHE_KEY_PREFIX = "hierarchy_"
 
+  val LATEST_CONTENT_VERSION = 2
+
 }

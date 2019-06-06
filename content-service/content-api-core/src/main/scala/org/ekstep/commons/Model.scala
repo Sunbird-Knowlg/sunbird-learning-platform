@@ -24,6 +24,7 @@ object ResponseCode extends Enumeration {
 }
 
 object APIIds {
+
   val CHECK_HEALTH = "ekstep.learning.service.health"
 
   val CREATE_CONTENT = "ekstep.learning.content.create"
