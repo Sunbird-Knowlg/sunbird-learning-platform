@@ -20,7 +20,7 @@ import org.ekstep.telemetry.logger.TelemetryManager
 
 import scala.collection.JavaConverters._
 
-class ContentManager extends BaseContentManagerImpl {
+object ContentManager extends BaseContentManagerImpl {
 
     def create(request: Request): Response = {
         val requestBody = JSONUtils.deserialize[RequestBody](request.body.get)
@@ -48,7 +48,7 @@ class ContentManager extends BaseContentManagerImpl {
         else contentMap += ("version" -> DEFAULT_CONTENT_VERSION.asInstanceOf[AnyRef])
 
         val externalPropList: List[String] = getExternalPropList(definition)
-        val externalPropMap: Map[String, AnyRef] = externalPropList.map(prop => (prop, contentMap.getOrElse(prop, ""))).toMap
+        val externalPropMap: Map[String, AnyRef] = externalPropList.map(prop => (prop, contentMap.getOrElse(prop, ""))).toMap.filter(entry => ( (null != entry._2) && (!entry._2.toString.isEmpty)))
         contentMap = contentMap.filterKeys(key => !externalPropList.contains(key))
 
         try {
@@ -177,29 +177,30 @@ class ContentManager extends BaseContentManagerImpl {
     def acceptFlag(request: org.ekstep.commons.Request) : Response ={
         val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
         val response = getDataNode(TAXONOMY_ID, contentId)
-        if (checkError(response)) throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]")
+        if (checkError(response))
+            response
+        else{
+            val originalNode: Node = response.get(GraphDACParams.node.name).asInstanceOf[Node]
+            if (! "Flagged".equalsIgnoreCase(originalNode.getMetadata.get("status").asInstanceOf[String])) throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Invalid Flagged Content! Content Can Not Be Accepted.")
+            val node = getNodeForOperation(contentId, "update")
+            node.getMetadata.put("status","FlagDraft")
+            val updateResponse = updateDataNode(node)
+            if(checkError(updateResponse))
+                updateResponse
+            else{
+                originalNode.getMetadata.put("status", "Retired")
+                val retiredResponse = updateDataNode(originalNode)
+                if(checkError(retiredResponse))
+                    retiredResponse
+                else {
+                    val response= getSuccessResponse;
+                    response.put("node_id", contentId)
+                    response.put("version", updateResponse.get("versionKey"))
+                    response
+                }
 
-        val node = getNodeForOperation(contentId, "update")
-        if (! "Flagged".equalsIgnoreCase(node.getMetadata.get("status").asInstanceOf[String])) throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Invalid Flagged Content! Content Can Not Be Accepted.")
-
-        val updateResponse = updateDataNode(node)
-        val versionKey = updateResponse.get("versionKey").asInstanceOf[String]
-
-        val nodeResponse = getDataNode(TAXONOMY_ID, contentId)
-        val originalNode = nodeResponse.get(GraphDACParams.node.name).asInstanceOf[Node]
-        originalNode.getMetadata.put(ContentAPIParams.status.name, "Retired")
-        val retireResponse = updateDataNode(originalNode)
-        if (!checkError(retireResponse)) {
-            if (originalNode.getMetadata.getOrDefault("mimeType","").toString.equalsIgnoreCase("application/vnd.ekstep.content-collection"))
-                deleteHierarchy(List[String](contentId))
-
-            getSuccessResponse.getResult.asScala += "node_id" -> contentId
-            getSuccessResponse.getResult.asScala += "versionKey"-> versionKey
-            return getSuccessResponse
-        } else return retireResponse
-
+            }
+        }
     }
-
-
 
 }

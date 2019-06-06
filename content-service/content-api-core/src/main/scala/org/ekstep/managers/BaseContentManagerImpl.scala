@@ -28,7 +28,7 @@ class BaseContentManagerImpl extends BaseManager {
     val TAXONOMY_ID: String = "domain"
     val CONTENT_OBJECT_TYPE = "Content"
     val CONTENT_IMAGE_OBJECT_TYPE = "ContentImage"
-    val parentVisibilityList:List[String] = Platform.config.getStringList("content.metadata.visibility.parent").asScala.asInstanceOf[List[String]]
+    val parentVisibilityList:List[String] = Platform.config.getStringList("content.metadata.visibility.parent").asScala.toList
     val PLUGIN_MIMETYPE = "application/vnd.ekstep.plugin-archive"
     val ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive"
     val COLLECTION_MIME_TYPE = "application/vnd.ekstep.content-collection"
@@ -184,8 +184,8 @@ class BaseContentManagerImpl extends BaseManager {
     protected def updateDataNodes(map: Map[String, AnyRef], idList: List[String], graphId: String) = {
         TelemetryManager.log("Getting Update Node Request For Node ID: " + idList)
         val updateReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "updateDataNodes")
-        updateReq.put(GraphDACParams.node_ids.name, idList)
-        updateReq.put(GraphDACParams.metadata.name, map)
+        updateReq.put(GraphDACParams.node_ids.name, idList.asJava)
+        updateReq.put(GraphDACParams.metadata.name, map.asJava)
         TelemetryManager.log("Updating DialCodes for :" + idList)
         val response = getResponse(updateReq)
         TelemetryManager.log("Returning Node Update Response.")
