@@ -104,7 +104,7 @@ abstract class BaseAPIActor extends UntypedActor {
     response
   }
 
-  def setResponseEnvelope(response: org.ekstep.common.dto.Response, apiId: String, msgId: String) = {
+  def setResponseEnvelope(response: org.ekstep.common.dto.Response, apiId: String, msgId: String): org.ekstep.common.dto.Response = {
     if (null != response) {
       response.setId(apiId)
       response.setVer(API_VERSION)
@@ -119,6 +119,7 @@ abstract class BaseAPIActor extends UntypedActor {
       }
       response.setParams(params)
     }
+      response
   }
 
 }

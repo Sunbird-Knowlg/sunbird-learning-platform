@@ -32,8 +32,7 @@ object ContentActor extends BaseAPIActor {
 
   private def createContent(request: Request) = {
     try {
-      val newContentMgr = new ContentManager()
-      val result = newContentMgr.create(request)
+      val result = ContentManager.create(request)
       val response = setResponseEnvelope(result, request.apiId, null)
       Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
     } catch {
@@ -51,7 +50,7 @@ object ContentActor extends BaseAPIActor {
       Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
     } catch {
       case e: Exception =>
-        sender().tell(getErrorResponse(e, request.apiId), self)
+        sender().tell(getErrorResponse(e, APIIds.CREATE_CONTENT), self)
     }
   }
 

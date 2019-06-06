@@ -11,7 +11,7 @@ import org.ekstep.graph.model.node.DefinitionDTO
 
 import scala.collection.JavaConverters._
 
-class ContentManager extends BaseContentManagerImpl {
+object ContentManager extends BaseContentManagerImpl {
 
     def create(request: Request): Response = {
         val requestBody = JSONUtils.deserialize[RequestBody](request.body.get)

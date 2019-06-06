@@ -22,7 +22,7 @@ class BaseContentManagerImpl extends BaseManager {
     val TAXONOMY_ID: String = "domain"
     val CONTENT_OBJECT_TYPE = "Content"
     val CONTENT_IMAGE_OBJECT_TYPE = "ContentImage"
-    val parentVisibilityList:List[String] = Platform.config.getStringList("content.metadata.visibility.parent").asScala.asInstanceOf[List[String]]
+    val parentVisibilityList:List[String] = Platform.config.getStringList("content.metadata.visibility.parent").asScala.toList
     val PLUGIN_MIMETYPE = "application/vnd.ekstep.plugin-archive"
     val ECML_MIMETYPE = "application/vnd.ekstep.ecml-archive"
     val COLLECTION_MIME_TYPE = "application/vnd.ekstep.content-collection"
