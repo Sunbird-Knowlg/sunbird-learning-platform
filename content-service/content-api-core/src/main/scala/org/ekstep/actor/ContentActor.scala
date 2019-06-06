@@ -74,7 +74,7 @@ object ContentActor extends BaseAPIActor {
   private def retireContent(request: Request) : Response  = {
     try{
       val result = ContentManager.retire(request)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.REVIEW_CONTENT)
     }
@@ -84,7 +84,7 @@ object ContentActor extends BaseAPIActor {
   private def acceptFlagContent(request: Request) = {
     try{
       val result = ContentManager.acceptFlag(request)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.REVIEW_CONTENT)
     }
