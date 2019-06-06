@@ -4,11 +4,11 @@ import java.util.UUID
 
 import akka.actor.UntypedActor
 import org.apache.commons.lang3.StringUtils
-import org.ekstep.common.dto.{Response, ResponseParams}
+import org.ekstep.common.dto.ResponseParams
 import org.ekstep.common.dto.ResponseParams.StatusType
 import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.exception.{MiddlewareException, ResponseCode}
-import org.ekstep.commons.{Params, Request, RequestBody, Response}
+import org.ekstep.commons.{Params, Request, RequestBody}
 import org.ekstep.content.util.JSONUtils
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, DateTimeZone}
@@ -68,11 +68,8 @@ abstract class BaseAPIActor extends UntypedActor {
   def OK(apiId: String, response: org.ekstep.common.dto.Response): org.ekstep.common.dto.Response = {
     response.setId(apiId)
     response.setParams(new ResponseParams() {
-      setErr("0")
       setStatus(StatusType.successful.name)
-      setErrmsg("Operation successful")
     })
-
     response.setResponseCode(ResponseCode.OK)
     response.setTs(df.print(DateTime.now(DateTimeZone.UTC).getMillis))
     response.setVer(API_VERSION)
@@ -86,6 +83,7 @@ abstract class BaseAPIActor extends UntypedActor {
 
   def getErrorResponse(e: Exception, apiId: String): org.ekstep.common.dto.Response = {
     val response = new org.ekstep.common.dto.Response
+    setResponseEnvelope(response, apiId, null)
     val resStatus = new ResponseParams
     val message = e.getMessage
     resStatus.setErrmsg(message)
@@ -100,7 +98,6 @@ abstract class BaseAPIActor extends UntypedActor {
       response.setResponseCode(ResponseCode.SERVER_ERROR)
     }
     response.setParams(resStatus)
-    setResponseEnvelope(response, apiId, null)
     response
   }
 
@@ -109,15 +106,13 @@ abstract class BaseAPIActor extends UntypedActor {
       response.setId(apiId)
       response.setVer(API_VERSION)
       response.setTs(df.print(System.currentTimeMillis()))
-      var params = response.getParams
-      if (null == params) params = new ResponseParams
-      if (StringUtils.isNotBlank(msgId)) params.setMsgid(msgId)
-      params.setResmsgid(UUID.randomUUID().toString)
-      if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.successful.name, params.getStatus)) {
-        params.setErr(null)
-        params.setErrmsg(null)
+      if(null == response.getParams) response.setParams(new ResponseParams)
+      if (StringUtils.isNotBlank(msgId)) response.getParams.setMsgid(msgId)
+      response.getParams.setResmsgid(UUID.randomUUID().toString)
+      if (StringUtils.equalsIgnoreCase(StatusType.successful.name, response.getParams.getStatus)) {
+        response.getParams.setErr(null)
+        response.getParams.setErrmsg(null)
       }
-      response.setParams(params)
     }
       response
   }

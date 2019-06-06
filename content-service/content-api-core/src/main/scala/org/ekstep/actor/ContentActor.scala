@@ -1,9 +1,8 @@
 package org.ekstep.actor
 
 import org.ekstep.actor.core.BaseAPIActor
+import org.ekstep.common.dto.Response
 import org.ekstep.commons.{APIIds, Request}
-import akka.dispatch.Futures
-import akka.pattern.Patterns
 import org.ekstep.managers.ContentManager
 import org.ekstep.mgr.impl.ContentManagerImpl
 
@@ -13,25 +12,25 @@ object ContentActor extends BaseAPIActor {
 
     request.apiId match {
       case APIIds.CREATE_CONTENT =>
-        createContent(request)
+        sender() ! createContent(request)
 
       case APIIds.READ_CONTENT =>
-        readContent(request)
+        sender() ! readContent(request)
 
       case APIIds.UPDATE_CONTENT =>
-        updateContent(request)
+        sender() ! updateContent(request)
 
       case APIIds.REVIEW_CONTENT =>
-        reviewContent(request)
+        sender() ! reviewContent(request)
 
       case APIIds.UPLOAD_CONTENT =>
-        uploadContent(request)
+        sender() ! uploadContent(request)
 
       case APIIds.PUBLIC_PUBLISH_CONTENT =>
-        publishContent(request, "public")
+        sender() ! publishContent(request, "public")
 
       case APIIds.UNLISTED_PUBLISH_CONTENT =>
-        publishContent(request, "unlisted")
+        sender() ! publishContent(request, "unlisted")
 
       case _ =>
         invalidAPIResponseSerialized(request.apiId);
@@ -39,76 +38,64 @@ object ContentActor extends BaseAPIActor {
 
   }
 
-  private def createContent(request: Request) = {
+  private def createContent(request: Request) : Response = {
     try {
-      val result = ContentManager.create(request)
-      val response = setResponseEnvelope(result, request.apiId, null)
-      Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+        val result = ContentManager.create(request)
+        OK(request.apiId, result)
     } catch {
       case e: Exception =>
-        sender().tell(getErrorResponse(e, request.apiId), self)
+        getErrorResponse(e, APIIds.CREATE_CONTENT)
     }
   }
 
 
-  private def readContent(request: Request) = {
+  private def readContent(request: Request) : Response  = {
     try{
       val contentMgr = new ContentManagerImpl()
       val result = contentMgr.read(request)
-      val response = setResponseEnvelope(result, request.apiId, null)
-      Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+      //val response =
+      OK(request.apiId, result)
     } catch {
       case e: Exception =>
-        sender().tell(getErrorResponse(e, APIIds.CREATE_CONTENT), self)
+        getErrorResponse(e, APIIds.READ_CONTENT)
     }
   }
 
-  private def updateContent(request: Request) = {
+  private def updateContent(request: Request) : Response  = {
     try{
       val contentMgr = new ContentManagerImpl()
-    val result = contentMgr.update(request)
-    val response = setResponseEnvelope(result, request.apiId, null)
-    Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+      val result = contentMgr.update(request)
+      OK(request.apiId, result)
     } catch {
-      case e: Exception =>
-        sender().tell(getErrorResponse(e, request.apiId), self)
+      case e: Exception => getErrorResponse(e, APIIds.UPDATE_CONTENT)
     }
   }
 
-  private def reviewContent(request: Request) = {
+  private def reviewContent(request: Request) : Response  = {
     try{
-      val contentMgr = new ContentManagerImpl()
-      val result = contentMgr.review(request)
-      val response = setResponseEnvelope(result, request.apiId, null)
-      Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+      val result = ContentManager.review(request)
+      OK(request.apiId, result)
     } catch {
-      case e: Exception =>
-        sender().tell(getErrorResponse(e, request.apiId), self)
+      case e: Exception => getErrorResponse(e, APIIds.REVIEW_CONTENT)
     }
 
   }
 
-  private def uploadContent(request: Request) = {
+  private def publishContent(request: Request, publishType: String) : Response  = {
+    val apiId = request.apiId
+    try {
+      val result = ContentManager.publishByType(request, publishType)
+      OK(request.apiId, result)
+    } catch {
+      case e: Exception => getErrorResponse(e, apiId)
+    }
+  }
+
+  private def uploadContent(request: Request) : Response  = {
     val contentMgr = new ContentManagerImpl()
     val fileUrl = request.params.getOrElse("fileUrl","")
-
-    if(fileUrl != None){
-
-      val result = contentMgr.uploadUrl(request)
-
-      val response = OK(request.apiId, result)
-      Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
-    }
-
-
-  }
-
-  private def publishContent(request: Request, publishType: String) = {
-    val contentMgr = new ContentManagerImpl()
-    val result = contentMgr.publishByType(request, publishType)
-
-    val response = OK(request.apiId, result)
-    Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+    val result = contentMgr.uploadUrl(request)
+    OK(request.apiId, result)
   }
 
 }

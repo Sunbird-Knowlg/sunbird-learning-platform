@@ -48,7 +48,7 @@ object ContentManager extends BaseContentManagerImpl {
         else contentMap += ("version" -> DEFAULT_CONTENT_VERSION.asInstanceOf[AnyRef])
 
         val externalPropList: List[String] = getExternalPropList(definition)
-        val externalPropMap: Map[String, AnyRef] = externalPropList.map(prop => (prop, contentMap.getOrElse(prop, ""))).toMap
+        val externalPropMap: Map[String, AnyRef] = externalPropList.map(prop => (prop, contentMap.getOrElse(prop, ""))).toMap.filter(entry => ( (null != entry._2) && (!entry._2.toString.isEmpty)))
         contentMap = contentMap.filterKeys(key => !externalPropList.contains(key))
 
         try {
@@ -174,6 +174,5 @@ object ContentManager extends BaseContentManagerImpl {
         return res
 
     }
-
 
 }
