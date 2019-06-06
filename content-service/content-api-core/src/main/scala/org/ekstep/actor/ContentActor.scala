@@ -24,6 +24,15 @@ object ContentActor extends BaseAPIActor {
       case APIIds.REVIEW_CONTENT =>
         reviewContent(request)
 
+      case APIIds.UPLOAD_CONTENT =>
+        uploadContent(request)
+
+      case APIIds.PUBLIC_PUBLISH_CONTENT =>
+        publishContent(request, "public")
+
+      case APIIds.UNLISTED_PUBLISH_CONTENT =>
+        publishContent(request, "unlisted")
+
       case _ =>
         invalidAPIResponseSerialized(request.apiId);
     }
@@ -79,5 +88,27 @@ object ContentActor extends BaseAPIActor {
 
   }
 
+  private def uploadContent(request: Request) = {
+    val contentMgr = new ContentManagerImpl()
+    val fileUrl = request.params.getOrElse("fileUrl","")
+
+    if(fileUrl != None){
+
+      val result = contentMgr.uploadUrl(request)
+
+      val response = OK(request.apiId, result)
+      Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+    }
+
+
+  }
+
+  private def publishContent(request: Request, publishType: String) = {
+    val contentMgr = new ContentManagerImpl()
+    val result = contentMgr.publishByType(request, publishType)
+
+    val response = OK(request.apiId, result)
+    Patterns.pipe(Futures.successful(response), getContext().dispatcher).to(sender())
+  }
 
 }

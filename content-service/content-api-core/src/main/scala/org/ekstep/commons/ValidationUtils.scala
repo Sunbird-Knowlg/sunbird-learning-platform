@@ -1,10 +1,15 @@
 package org.ekstep.commons
 
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.StringUtils.equalsIgnoreCase
+import org.ekstep.common.Platform
 import org.ekstep.common.dto.ResponseParams.StatusType
 import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.exception.ClientException
+import org.ekstep.common.util.YouTubeUrlUtil
+import org.ekstep.graph.dac.model.Node
 import org.ekstep.learning.common.enums.ContentAPIParams
+import org.ekstep.telemetry.logger.TelemetryManager
 
 
 object ValidationUtils {
@@ -27,6 +32,10 @@ object ValidationUtils {
     "application/vnd.ekstep.content-collection".equalsIgnoreCase(mimeType)
   }
 
+  def isLive(status:String) ={
+    StringUtils.equalsIgnoreCase("Live", status)
+  }
+
   def hasError(response: org.ekstep.common.dto.Response): Boolean = {
     val params = response.getParams
     if (null != params && StatusType.failed.name.equals(params.getStatus)) return true
@@ -35,6 +44,41 @@ object ValidationUtils {
 
    def isValidContentId(contentId: String): Unit = {
     if (StringUtils.isBlank(contentId)) throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.toString, "Content Object Id cannot is Blank.")
+  }
+
+  def has(value: String): Unit = {
+    if (StringUtils.isBlank(value))
+      throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.toString, "Content Object cannot is Blank.")
+  }
+
+  def isValidProperties(mimeType: String, code: String): Unit = {
+    if(StringUtils.isBlank(mimeType))
+      throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.toString, "Content Object cannot is Blank.")
+    if (isPluginMimeType(mimeType)  && StringUtils.isBlank(code))
+      throw new ClientException("ERR_PLUGIN_CODE_REQUIRED", "\"Unique code is mandatory for plugins\", ResponseCode.CLIENT_ERROR")
+  }
+
+  def isImage(identifier: String): Unit = {
+    if (StringUtils.endsWithIgnoreCase(identifier,".img"))
+      throw new ClientException(ContentErrorCodes.OPERATION_DENIED.toString, "Invalid Content Identifier. | [Content Identifier does not Exists.]")
+  }
+
+  def validateUrlLicense(mimeType: String, fileUrl: String, node: Node): Unit = {
+    if(mimeType.equalsIgnoreCase("video/x-youtube")) checkYoutubeLicense(fileUrl, node)
+  }
+
+  def checkYoutubeLicense(artifactUrl: String, node: Node): Unit = {
+    val isValReq = if (Platform.config.hasPath("learning.content.youtube.validate.license")) Platform.config.getBoolean("learning.content.youtube.validate.license")
+    else false
+    if (isValReq) {
+      val licenseType = YouTubeUrlUtil.getLicense(artifactUrl)
+      if (equalsIgnoreCase("youtube", licenseType)) node.getMetadata.put("license", "Standard YouTube License")
+      else if (equalsIgnoreCase("creativeCommon", licenseType)) node.getMetadata.put("license", "Creative Commons Attribution (CC BY)")
+      else {
+        TelemetryManager.log("Got Unsupported Youtube License Type : " + licenseType + " | [Content ID: " + node.getIdentifier + "]")
+        throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name, "Unsupported Youtube License!")
+      }
+    }
   }
 
   def isValidFlaggedContent(node: org.ekstep.graph.dac.model.Node): Boolean ={

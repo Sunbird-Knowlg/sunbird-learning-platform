@@ -1,17 +1,23 @@
 package org.ekstep.managers
 
+import org.apache.commons.lang3.{BooleanUtils, StringUtils}
 import org.ekstep.common.Platform
-import org.ekstep.common.dto.Response
-import org.ekstep.common.exception.ClientException
+import org.ekstep.common.dto.{Request, Response}
+import org.ekstep.common.enums.TaxonomyErrorCodes
+import org.ekstep.common.exception.{ClientException, ServerException}
 import org.ekstep.common.mgr.BaseManager
-import org.ekstep.commons.{ContentErrorCodes, TaxonomyAPIParams}
+import org.ekstep.common.router.RequestRouterPool
+import org.ekstep.commons.{Constants, ContentErrorCodes, TaxonomyAPIParams}
+import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.dac.enums.{GraphDACParams, SystemNodeTypes}
 import org.ekstep.graph.dac.model.Node
 import org.ekstep.graph.engine.router.GraphEngineManagers
 import org.ekstep.graph.model.node.DefinitionDTO
-import org.ekstep.learning.common.enums.LearningActorNames
+import org.ekstep.learning.common.enums.{ContentAPIParams, LearningActorNames}
 import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStoreParams}
 import org.ekstep.learning.router.LearningRequestRouterPool
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil
+import org.ekstep.searchindex.util.CompositeSearchConstants
 import org.ekstep.telemetry.logger.TelemetryManager
 
 import scala.collection.JavaConverters._
@@ -29,6 +35,8 @@ class BaseContentManagerImpl extends BaseManager {
     val DEFAULT_CONTENT_VERSION: Int = 1
     val LATEST_CONTENT_VERSION:Int = 2
     val publishedStatus:List[String] = List("Live", "Unlisted", "Flagged")
+    val YOUTUBE_MIMETYPE = "video/x-youtube"
+    val DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX: String = ".img"
 
     /**
       * Get definition
@@ -134,4 +142,101 @@ class BaseContentManagerImpl extends BaseManager {
         val resp = getDataNode(TAXONOMY_ID, identifier + ".img")
         resp.get(GraphDACParams.node.name).asInstanceOf[Node]
     }
+
+    /**
+      * To remove image from content-id
+      * @param contentNode
+      * @return
+      */
+    def contentCleanUp(contentNode: Map[String, AnyRef]) = {
+        if (contentNode.contains("identifier") && contentNode.get("identifier").get.asInstanceOf[String].endsWith(".img")) {
+            contentNode + ("identifier"-> contentNode.get("identifier").get.asInstanceOf[String].replace(".img", ""))
+        }
+        contentNode
+    }
+
+    protected def isNodeUnderProcessing(node: Node, operation: String): Unit = {
+        val statusList = List[String](TaxonomyAPIParams.Processing.toString)
+        var isProcessing = statusList.contains(node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String])
+        if(isProcessing)
+            throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(), "Operation Denied! | [Cannot Apply '" + operation + "' Operation on the Content in '" + node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String] + "' Status.] ")
+    }
+
+    protected def getContentBody(contentId: String) = {
+        val request = new Request()
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+        request.setOperation(ContentStoreOperations.getContentBody.name)
+        request.put(ContentStoreParams.content_id.name, contentId)
+        val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
+        val body = response.get(ContentStoreParams.body.name).asInstanceOf[String]
+        body
+    }
+
+    protected def deleteHierarchy(identifiers: List[String])= {
+        val request = new Request()
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+        request.setOperation(ContentStoreOperations.deleteHierarchy.name)
+        request.put(ContentStoreParams.content_id.name, identifiers)
+        val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
+        response
+    }
+
+    protected def updateDataNodes(map: Map[String, AnyRef], idList: List[String], graphId: String) = {
+        TelemetryManager.log("Getting Update Node Request For Node ID: " + idList)
+        val updateReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "updateDataNodes")
+        updateReq.put(GraphDACParams.node_ids.name, idList)
+        updateReq.put(GraphDACParams.metadata.name, map)
+        TelemetryManager.log("Updating DialCodes for :" + idList)
+        val response = getResponse(updateReq)
+        TelemetryManager.log("Returning Node Update Response.")
+        response
+    }
+
+    /**
+      * Cassandra call to fetch hierarchy data
+      *
+      * @param contentId
+      * @return
+      */
+    def getCollectionHierarchy(contentId: String) = {
+        val request = new Request()
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+        request.setOperation(ContentStoreOperations.getCollectionHierarchy.name)
+        request.put(ContentStoreParams.content_id.name, contentId)
+        val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
+        response
+    }
+
+    protected def deletionsFor(contentId: String, mimeType: String, status: String) ={
+        if (COLLECTION_MIME_TYPE.equalsIgnoreCase(mimeType) && "Live".equalsIgnoreCase(status)) { // Delete Units from ES
+            val hierarchyResponse = getCollectionHierarchy(contentId)
+            if (checkError(hierarchyResponse)) {
+                throw new ServerException("ERR_ROOT_NODE_HIERARCHY", "Unable to fetch Hierarchy for Root Node: " + contentId + " :: " + hierarchyResponse.getParams.getErrmsg)
+            }
+            val rootHierarchy = hierarchyResponse.getResult.getOrDefault("hierarchy", Map()).asInstanceOf[Map[String, AnyRef]]
+            val rootChildren = rootHierarchy.getOrElse("children", List()).asInstanceOf[List[Map[String, AnyRef]]]
+            val childrenIdentifiers = getChildrenIdentifiers(rootChildren)
+            try {
+                ElasticSearchUtil.bulkDeleteDocumentById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, childrenIdentifiers.asJava)
+            } catch {
+                case e: Exception =>
+                    TelemetryManager.error("Error occured during bulk delete in ES ", e)
+                    throw new ServerException(ContentErrorCodes.ERR_CONTENT_RETIRE.toString, e.getMessage)
+            }
+            deleteHierarchy(List(contentId))
+            RedisStoreUtil.delete(Constants.COLLECTION_CACHE_KEY_PREFIX + contentId)
+        }
+        if (!COLLECTION_MIME_TYPE.equalsIgnoreCase(mimeType)) {
+            RedisStoreUtil.delete(contentId)
+        }
+    }
+
+    private def getChildrenIdentifiers(childrens: List[Map[String, AnyRef]]):List[String] = {
+        childrens.filter(child => child.getOrElse(ContentAPIParams.visibility.name(),"").toString.equalsIgnoreCase("Parent"))
+          .map(child=>{
+                child.getOrElse(ContentAPIParams.identifier.name(),"").asInstanceOf[String]
+            }).toList
+    }
+
+
 }

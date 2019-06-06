@@ -15,13 +15,15 @@ import org.ekstep.common.{Platform, dto}
 import org.ekstep.commons.{Constants, ContentErrorCodes, ContentMetadata, TaxonomyAPIParams, ValidationUtils}
 import org.ekstep.commons.ContentErrorCodes
 import org.ekstep.content.enums.ContentWorkflowPipelineParams
-import org.ekstep.content.util.LanguageCode
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager
+import org.ekstep.content.util.{LanguageCode, MimeTypeManagerFactory}
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.common.enums.GraphHeaderParams
 import org.ekstep.graph.dac.enums.{GraphDACParams, SystemNodeTypes}
 import org.ekstep.graph.dac.model.Node
 import org.ekstep.graph.engine.router.GraphEngineManagers
 import org.ekstep.graph.model.node.{DefinitionDTO, MetadataDefinition}
+import org.ekstep.graph.service.common.DACConfigurationConstants
 import org.ekstep.kafka.KafkaClient
 import org.ekstep.learning.common.enums.{ContentAPIParams, LearningActorNames}
 import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStoreParams}
@@ -52,13 +54,6 @@ import scala.collection.mutable.MutableList
   protected val CONTENT_CACHE_ENABLED = if (Platform.config.hasPath("content.cache.read")) Platform.config.getBoolean("content.cache.read")
   else false
 
- /* /**
-    * Actors initializations
-    */
-  val system = ActorSystem.create("learningActor")
-  val learningActor = system.actorOf(Props[ContentStoreActor], name = "learningActor")
-  LearningRequestRouterPool.init()
-  SearchRequestRouterPool.init(RequestRouterPool.getActorSystem())*/
 
   /**
     * To get a definition node for content type
@@ -109,17 +104,6 @@ import scala.collection.mutable.MutableList
       new org.ekstep.common.dto.Response()
     }
   }
-/*
-  def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
-    if (null != definitionDTO) {
-      definitionDTO.getProperties.asScala.toList.map(prop => {
-        if (prop.getDataType.equalsIgnoreCase("external"))
-          prop.getPropertyName
-      }).asInstanceOf[List[String]]
-    } else{
-      List[String]()
-    }
-  }*/
 
   def getExternalPropList(definitionDTO: DefinitionDTO): List[String] = {
     if (null != definitionDTO) {
@@ -181,17 +165,20 @@ import scala.collection.mutable.MutableList
       else false
 
     if (!mode.equals("edit") && contentTaggingFlag) {
-      val contentTaggedKeys: Array[String] = if (Platform.config.hasPath("content.tagging.property"))
-        Platform.config.getString("content.tagging.property").split(",")
-      else {
-        val prop = "subject, medium"
-        prop.split(",")
-      }
+      val contentTaggedKeys: List[String] = (
+        if (Platform.config.hasPath("content.tagging.property"))
+          Platform.config.getString("content.tagging.property").split(",")
+        else {
+          val prop = "subject, medium"
+          prop.split(",")
+        }
+      ).toList
 
-      for (i <- 0 until contentTaggedKeys.length) {
-        val toAddProp = contentMap.get(contentTaggedKeys(i))
-        contentMap + (contentTaggedKeys(i) -> toAddProp)
-      }
+      contentTaggedKeys.map(key => {
+        if(contentMap.keySet.contains(key))
+          contentMap + key -> contentMap.get(key).get.asInstanceOf[List[String]](0)
+      })
+
     }
     contentMap
   }
@@ -239,41 +226,6 @@ import scala.collection.mutable.MutableList
     request
   }
 
-
-
-  /*def getResponse(request: org.ekstep.common.dto.Request, router: ActorRef):org.ekstep.common.dto.Response ={
-
-    try {
-      val future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT)
-      val obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration)
-      if (obj.isInstanceOf[org.ekstep.common.dto.Response]) {
-        val response = obj.asInstanceOf[org.ekstep.common.dto.Response]
-        response
-      }
-      else ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name, "System Error", ResponseCode.SERVER_ERROR)
-    } catch {
-      case e: Exception =>
-        throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name, "System Error", e)
-    }
-
-
-  }*/
-
-  /*def getErrorStatus(errorCode: String, errorMessage: String): ResponseParams = {
-    val params = new ResponseParams
-    params.setErr(errorCode)
-    params.setStatus(StatusType.failed.name)
-    params.setErrmsg(errorMessage)
-    return params
-  }
-
-
-  def ERROR(errorCode: String, errorMessage: String, responseCode: org.ekstep.common.exception.ResponseCode): org.ekstep.common.dto.Response = {
-    val response = new org.ekstep.common.dto.Response
-    response.setParams(getErrorStatus(errorCode, errorMessage))
-    response.setResponseCode(responseCode)
-    return response
-  }*/
 
   protected def getContentNode(graphId: String, contentId: String, mode: String): Node = {
     if (equalsIgnoreCase("edit", mode)) {
@@ -342,22 +294,23 @@ import scala.collection.mutable.MutableList
 
 
   protected def restrictProps(definition: DefinitionDTO, map: Map[String, AnyRef], props: String*): Unit = {
-    for (prop <- props) {
-      val allow = definition.getMetadata.get("allowupdate_" + prop)
-      if (allow == null || BooleanUtils.isFalse(allow.asInstanceOf[Boolean])) if (map.contains(prop))
-        throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.toString, "Error! " + prop + " can't be set for the content.")
-    }
+    props.map(key =>{
+      val allow = definition.getMetadata.get("allowupdate_" + key)
+      if((allow!=None || BooleanUtils.isFalse(allow.asInstanceOf[Boolean])) && map.keySet.contains(key)){
+        throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.toString, "Error! " + key + " can't be set for the content.")
+      }
+    })
   }
 
   // TODO: push this to publish-pipeline.
   protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
     if (StringUtils.isNotBlank(mimeType)) {
       if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
-        map + TaxonomyAPIParams.contentEncoding.asInstanceOf[String] -> ContentMetadata.ContentEncoding.identity
-      else map + TaxonomyAPIParams.contentEncoding.asInstanceOf[String] -> ContentMetadata.ContentEncoding.identity
+        map + TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
+      else map + TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
       if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url"))
-        map + TaxonomyAPIParams.contentDisposition.asInstanceOf[String] -> ContentMetadata.ContentDisposition.online
-      else map + TaxonomyAPIParams.contentDisposition.asInstanceOf[String] -> ContentMetadata.ContentDisposition.inline
+        map + TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.online
+      else map + TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.inline
     }
   }
 
@@ -433,7 +386,6 @@ import scala.collection.mutable.MutableList
     request
   }
 
-///  for Review supporing methods
   protected def getNodeForOperation(contentId: String, operation: String) = {
     var node = new Node()
     TelemetryManager.log("Fetching the Content Node. | [Content ID: " + contentId + "]")
@@ -444,7 +396,7 @@ import scala.collection.mutable.MutableList
       TelemetryManager.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId)
       response = getDataNode(TAXONOMY_ID, contentId)
       TelemetryManager.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId)
-      if (checkError(response))
+      if (ValidationUtils.hasError(response))
         throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]")
 
       node = response.get(GraphDACParams.node.name).asInstanceOf[Node]
@@ -503,9 +455,10 @@ import scala.collection.mutable.MutableList
     var inGivenStatus = false
     try
         if (null != node && null != node.getMetadata) {
-          for (st <- status) {
-            if (equalsIgnoreCase(node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String], st)) inGivenStatus = true
-          }
+          status.map(key=>{
+            if (equalsIgnoreCase(node.getMetadata.get(TaxonomyAPIParams.status).asInstanceOf[String],key)) inGivenStatus = true
+          })
+
         }
     catch {
       case e: Exception =>
@@ -522,21 +475,6 @@ import scala.collection.mutable.MutableList
     val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
     val body = response.get(ContentStoreParams.body.name).asInstanceOf[String]
     body
-  }
-
-
-  protected def checkYoutubeLicense(artifactUrl: String, node: Node): Unit = {
-    val isValReq = if (Platform.config.hasPath("learning.content.youtube.validate.license")) Platform.config.getBoolean("learning.content.youtube.validate.license")
-    else false
-    if (isValReq) {
-      val licenseType = YouTubeUrlUtil.getLicense(artifactUrl)
-      if (equalsIgnoreCase("youtube", licenseType)) node.getMetadata.put("license", "Standard YouTube License")
-      else if (equalsIgnoreCase("creativeCommon", licenseType)) node.getMetadata.put("license", "Creative Commons Attribution (CC BY)")
-      else {
-        TelemetryManager.log("Got Unsupported Youtube License Type : " + licenseType + " | [Content ID: " + node.getIdentifier + "]")
-        throw new ClientException(TaxonomyErrorCodes.ERR_YOUTUBE_LICENSE_VALIDATION.name, "Unsupported Youtube License!")
-      }
-    }
   }
 
   protected def getContentTypeFrom(node: Node): String = node.getMetadata.get("contentType").asInstanceOf[String]
@@ -581,6 +519,11 @@ import scala.collection.mutable.MutableList
     response
   }
 
+  protected def getMimeTypeManger(contentId: String, mimeType: String, node: Node): IMimeTypeManager = {
+    TelemetryManager.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]")
+    val contentType = getContentTypeFrom(node)
+    return MimeTypeManagerFactory.getManager(contentType, mimeType)
+  }
 
 
 }
