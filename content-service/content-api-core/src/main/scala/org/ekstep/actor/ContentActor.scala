@@ -28,7 +28,7 @@ object ContentActor extends BaseAPIActor {
   private def createContent(request: Request) : Response = {
     try {
         val result = ContentManager.create(request)
-        OK(request.apiId, result)
+        setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception =>
         getErrorResponse(e, APIIds.CREATE_CONTENT)
@@ -40,8 +40,7 @@ object ContentActor extends BaseAPIActor {
     try{
       val contentMgr = new ContentManagerImpl()
       val result = contentMgr.read(request)
-      //val response =
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception =>
         getErrorResponse(e, APIIds.READ_CONTENT)
@@ -52,7 +51,7 @@ object ContentActor extends BaseAPIActor {
     try{
       val contentMgr = new ContentManagerImpl()
       val result = contentMgr.update(request)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.UPDATE_CONTENT)
     }
@@ -61,7 +60,7 @@ object ContentActor extends BaseAPIActor {
   private def reviewContent(request: Request) : Response  = {
     try{
       val result = ContentManager.review(request)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.REVIEW_CONTENT)
     }
@@ -77,7 +76,7 @@ object ContentActor extends BaseAPIActor {
   private def linkDialCode(request: Request) = {
     try {
       val result = ContentDialCodeManagerImpl.linkDialCode(request)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.DIALCODE_LINK)
     }
@@ -92,7 +91,7 @@ object ContentActor extends BaseAPIActor {
   private def collectionLinkDialCode(request: Request) = {
     try {
       val result = ContentDialCodeManagerImpl.collectionLinkDialCode(request)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.DIALCODE_COLLECTION_LINK)
     }
@@ -107,7 +106,7 @@ object ContentActor extends BaseAPIActor {
   private def reserveDialCode(request: Request) = {
     try {
       val result = ContentDialCodeManagerImpl.reserveDialCode(request)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.DIALCODE_RESERVE)
     }
@@ -122,7 +121,7 @@ object ContentActor extends BaseAPIActor {
   private def releaseDialCode(request: Request) = {
     try {
       val result = ContentDialCodeManagerImpl.releaseDialCode(request)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.DIALCODE_RELEASE)
     }
@@ -132,7 +131,7 @@ object ContentActor extends BaseAPIActor {
     val apiId = request.apiId
     try {
       val result = ContentManager.publishByType(request, publishType)
-      OK(request.apiId, result)
+      setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, apiId)
     }
@@ -142,8 +141,7 @@ object ContentActor extends BaseAPIActor {
     val contentMgr = new ContentManagerImpl()
     val fileUrl = request.params.getOrElse("fileUrl","")
     val result = contentMgr.uploadUrl(request)
-    OK(request.apiId, result)
+    setResponseEnvelope(result, request.apiId, null)
   }
-
 
 }
