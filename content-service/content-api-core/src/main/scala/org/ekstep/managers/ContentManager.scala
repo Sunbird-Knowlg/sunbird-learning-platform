@@ -20,7 +20,7 @@ import org.ekstep.telemetry.logger.TelemetryManager
 
 import scala.collection.JavaConverters._
 
-class ContentManager extends BaseContentManagerImpl {
+object ContentManager extends BaseContentManagerImpl {
 
     def create(request: Request): Response = {
         val requestBody = JSONUtils.deserialize[RequestBody](request.body.get)
@@ -48,7 +48,7 @@ class ContentManager extends BaseContentManagerImpl {
         else contentMap += ("version" -> DEFAULT_CONTENT_VERSION.asInstanceOf[AnyRef])
 
         val externalPropList: List[String] = getExternalPropList(definition)
-        val externalPropMap: Map[String, AnyRef] = externalPropList.map(prop => (prop, contentMap.getOrElse(prop, ""))).toMap
+        val externalPropMap: Map[String, AnyRef] = externalPropList.map(prop => (prop, contentMap.getOrElse(prop, ""))).toMap.filter(entry => ( (null != entry._2) && (!entry._2.toString.isEmpty)))
         contentMap = contentMap.filterKeys(key => !externalPropList.contains(key))
 
         try {
@@ -174,6 +174,5 @@ class ContentManager extends BaseContentManagerImpl {
         return res
 
     }
-
 
 }
