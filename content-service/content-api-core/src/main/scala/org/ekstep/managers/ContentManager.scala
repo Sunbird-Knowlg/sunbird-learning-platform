@@ -80,6 +80,7 @@ class ContentManager extends BaseContentManagerImpl {
         val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER,"").asInstanceOf[String]
 
         val node = getNodeForOperation(contentId, "review")
+        println("node == "+node)
         isNodeUnderProcessing(node, "Review")
         val body = getContentBody(node.getIdentifier)
 
@@ -157,9 +158,7 @@ class ContentManager extends BaseContentManagerImpl {
         val isImageNodeExist = if (!checkError(imageNodeResponse)) true else false
         val identifiers = if (isImageNodeExist) List[String](contentId, contentId+DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX) else List[String](contentId)
 
-        val params = Map[String, AnyRef]()
-        params + "status" -> "Retired"
-        params + ("lastStatusChangedOn" -> DateUtils.formatCurrentDate)
+        val params = Map("status" -> "Retired", "lastStatusChangedOn" -> DateUtils.formatCurrentDate)
 
         val responseUpdated = updateDataNodes(params, identifiers, TAXONOMY_ID)
         if (checkError(responseUpdated)) return responseUpdated
@@ -174,6 +173,33 @@ class ContentManager extends BaseContentManagerImpl {
         return res
 
     }
+
+    def acceptFlag(request: org.ekstep.commons.Request) : Response ={
+        val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
+        val response = getDataNode(TAXONOMY_ID, contentId)
+        if (checkError(response)) throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]")
+
+        val node = getNodeForOperation(contentId, "update")
+        if (! "Flagged".equalsIgnoreCase(node.getMetadata.get("status").asInstanceOf[String])) throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Invalid Flagged Content! Content Can Not Be Accepted.")
+
+        val updateResponse = updateDataNode(node)
+        val versionKey = updateResponse.get("versionKey").asInstanceOf[String]
+
+        val nodeResponse = getDataNode(TAXONOMY_ID, contentId)
+        val originalNode = nodeResponse.get(GraphDACParams.node.name).asInstanceOf[Node]
+        originalNode.getMetadata.put(ContentAPIParams.status.name, "Retired")
+        val retireResponse = updateDataNode(originalNode)
+        if (!checkError(retireResponse)) {
+            if (originalNode.getMetadata.getOrDefault("mimeType","").toString.equalsIgnoreCase("application/vnd.ekstep.content-collection"))
+                deleteHierarchy(List[String](contentId))
+
+            getSuccessResponse.getResult.asScala += "node_id" -> contentId
+            getSuccessResponse.getResult.asScala += "versionKey"-> versionKey
+            return getSuccessResponse
+        } else return retireResponse
+
+    }
+
 
 
 }

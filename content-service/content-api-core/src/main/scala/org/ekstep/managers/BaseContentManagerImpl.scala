@@ -239,4 +239,27 @@ class BaseContentManagerImpl extends BaseManager {
     }
 
 
+    protected def updateDataNode(node: Node) = {
+        var response = new Response
+        if (null != node) {
+            val contentId = node.getIdentifier
+            // Checking if Content Image Object is being Updated, then return
+            // the Original Content Id
+            if (BooleanUtils.isTrue(node.getMetadata.get(TaxonomyAPIParams.isImageObject).asInstanceOf[Boolean])) {
+                node.getMetadata.remove(TaxonomyAPIParams.isImageObject)
+                node.setIdentifier(node.getIdentifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)
+            }
+            TelemetryManager.log("Getting Update Node Request For Node ID: " + node.getIdentifier)
+            val updateReq = getRequest(node.getGraphId, GraphEngineManagers.NODE_MANAGER, "updateDataNode")
+            updateReq.put(GraphDACParams.node.name, node)
+            updateReq.put(GraphDACParams.node_id.name, node.getIdentifier)
+            TelemetryManager.log("Updating the Node ID: " + node.getIdentifier)
+            response = getResponse(updateReq)
+            response.put(TaxonomyAPIParams.node_id.toString, contentId)
+            TelemetryManager.log("Returning Node Update Response.")
+        }
+        response
+    }
+
+
 }
