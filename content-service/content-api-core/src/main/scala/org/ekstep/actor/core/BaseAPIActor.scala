@@ -84,7 +84,7 @@ abstract class BaseAPIActor extends UntypedActor {
     JSONUtils.serialize(errorResponse(apiId, "INVALID_API_ID", "Invalid API id.", ResponseCode.SERVER_ERROR.toString))
   }
 
-  def getErrorResponse(e: Exception): org.ekstep.common.dto.Response = {
+  def getErrorResponse(e: Exception, apiId: String): org.ekstep.common.dto.Response = {
     val response = new org.ekstep.common.dto.Response
     val resStatus = new ResponseParams
     val message = e.getMessage
@@ -100,10 +100,11 @@ abstract class BaseAPIActor extends UntypedActor {
       response.setResponseCode(ResponseCode.SERVER_ERROR)
     }
     response.setParams(resStatus)
+    setResponseEnvelope(response, apiId, null)
     response
   }
 
-  def setResponseEnvelope(response: org.ekstep.common.dto.Response, apiId: String, msgId: String): Unit = {
+  def setResponseEnvelope(response: org.ekstep.common.dto.Response, apiId: String, msgId: String) = {
     if (null != response) {
       response.setId(apiId)
       response.setVer(API_VERSION)

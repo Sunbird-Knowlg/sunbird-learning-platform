@@ -62,6 +62,7 @@ class ContentManager extends BaseContentManagerImpl {
             }
         } catch {
             case e: Exception =>
+                e.printStackTrace()
                 throw e
         }
     }
