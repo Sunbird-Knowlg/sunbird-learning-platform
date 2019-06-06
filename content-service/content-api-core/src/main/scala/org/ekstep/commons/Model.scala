@@ -91,5 +91,10 @@ object ContentMetadata {
     val gzip, identity = Value
   }
 
+  object DialCodeEnum extends Enumeration {
+    type String = Value
+    val ERR_DIALCODE_LINK, ERR_DIALCODE_LINK_REQUEST= Value
+  }
+
 }
 
