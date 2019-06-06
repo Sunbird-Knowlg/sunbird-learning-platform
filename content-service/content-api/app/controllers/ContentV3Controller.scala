@@ -39,7 +39,7 @@ class ContentV3Controller extends BaseController {
             result.map(response => sendResponse(response))
     }
 
-    def preSignedUrl(): Action[AnyContent] = Action.async {
+    def preSignedUrl(identifier: String): Action[AnyContent] = Action.async {
         implicit request =>
             val body: String = Json.stringify(request.body.asJson.get)
             val result = ask(RequestRouter.getActorRef("contentActor"), Request(APIIds.GET_PRESIGNED_URL, Some(body), Some(Map()), Some(getContext(request))))
