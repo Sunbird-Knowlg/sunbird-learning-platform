@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.PathParam;
+import javax.ws.rs.ext.ParamConverter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -572,6 +573,22 @@ public class ContentV3Controller extends BaseController {
 		} catch(Exception e) {
 			TelemetryManager.error("Exception occured while Accepting Flagged Content: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@RequestMapping(value = "/discard/{id:.+}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Response> discard(@PathVariable(value = "id") String contentId) {
+		String apiId = "ekstep.learning.content.discard";
+		TelemetryManager.log("Discarding Changes | Content Id : " + contentId);
+		Response response;
+		try {
+			response = contentManager.discardContent(contentId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			TelemetryManager.error("Exception occured while Discarding Content : " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+
 		}
 	}
 }
