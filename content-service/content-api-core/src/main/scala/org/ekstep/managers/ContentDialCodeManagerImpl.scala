@@ -10,8 +10,6 @@ import org.ekstep.commons.Request
 import org.ekstep.graph.dac.model.Node
 import org.ekstep.learning.common.enums.ContentAPIParams
 
-import scala.collection.mutable
-
 /**
   * This Class holds implementation of DIAL Operations (link, reserve, release) with Content.
   *
@@ -103,12 +101,7 @@ object ContentDialCodeManagerImpl extends BaseContentManagerImpl {
 
 
 
-    private def getRequestList(reqObj: AnyRef): List[Map[String, AnyRef]] = {
-        if (reqObj.isInstanceOf[List])
-            reqObj.asInstanceOf[List[Map[String, AnyRef]]]
-        else
-            List(reqObj.asInstanceOf[Map[String, AnyRef]])
-    }
+
 
     def validateReqStructure(dialcodes: List[String], contents: List[String]): Unit = {
         if (dialcodes.isEmpty || contents.isEmpty)

@@ -1,6 +1,5 @@
 package org.ekstep.actor
 
-import org.ekstep.actor.ContentActor.{retireContent, sender}
 import org.ekstep.actor.core.BaseAPIActor
 import org.ekstep.common.dto.Response
 import org.ekstep.commons.{APIIds, Request}
@@ -82,12 +81,13 @@ object ContentActor extends BaseAPIActor {
   }
 
   private def acceptFlagContent(request: Request) = {
-    try{
+    try {
       val result = ContentManager.acceptFlag(request)
       setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.REVIEW_CONTENT)
     }
+  }
 
   /**
     * Link DIAL Code to Neo4j Object
@@ -95,7 +95,7 @@ object ContentActor extends BaseAPIActor {
     * @param request
     * @return
     */
-  private def linkDialCode(request: Request) = {
+  private def linkDialCode(request: Request):Response = {
     try {
       val result = ContentDialCodeManagerImpl.linkDialCode(request)
       setResponseEnvelope(result, request.apiId, null)
@@ -110,7 +110,7 @@ object ContentActor extends BaseAPIActor {
     * @param request
     * @return
     */
-  private def collectionLinkDialCode(request: Request) = {
+  private def collectionLinkDialCode(request: Request): Response = {
     try {
       val result = ContentDialCodeManagerImpl.collectionLinkDialCode(request)
       setResponseEnvelope(result, request.apiId, null)
@@ -125,7 +125,7 @@ object ContentActor extends BaseAPIActor {
     * @param request
     * @return
     */
-  private def reserveDialCode(request: Request) = {
+  private def reserveDialCode(request: Request): Response = {
     try {
       val result = ContentDialCodeManagerImpl.reserveDialCode(request)
       setResponseEnvelope(result, request.apiId, null)
@@ -140,7 +140,7 @@ object ContentActor extends BaseAPIActor {
     * @param request
     * @return
     */
-  private def releaseDialCode(request: Request) = {
+  private def releaseDialCode(request: Request): Response = {
     try {
       val result = ContentDialCodeManagerImpl.releaseDialCode(request)
       setResponseEnvelope(result, request.apiId, null)
