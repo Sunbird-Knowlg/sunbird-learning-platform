@@ -80,6 +80,7 @@ object ContentManager extends BaseContentManagerImpl {
         val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER,"").asInstanceOf[String]
 
         val node = getNodeForOperation(contentId, "review")
+        println("node == "+node)
         isNodeUnderProcessing(node, "Review")
         val body = getContentBody(node.getIdentifier)
 
@@ -157,9 +158,7 @@ object ContentManager extends BaseContentManagerImpl {
         val isImageNodeExist = if (!checkError(imageNodeResponse)) true else false
         val identifiers = if (isImageNodeExist) List[String](contentId, contentId+DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX) else List[String](contentId)
 
-        val params = Map[String, AnyRef]()
-        params + "status" -> "Retired"
-        params + ("lastStatusChangedOn" -> DateUtils.formatCurrentDate)
+        val params = Map("status" -> "Retired", "lastStatusChangedOn" -> DateUtils.formatCurrentDate)
 
         val responseUpdated = updateDataNodes(params, identifiers, TAXONOMY_ID)
         if (checkError(responseUpdated)) return responseUpdated
@@ -173,6 +172,35 @@ object ContentManager extends BaseContentManagerImpl {
         res.put(ContentAPIParams.versionKey.name, updatedNode.getMetadata.get("versionKey"))
         return res
 
+    }
+
+    def acceptFlag(request: org.ekstep.commons.Request) : Response ={
+        val contentId = request.params.getOrElse(Map()).getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
+        val response = getDataNode(TAXONOMY_ID, contentId)
+        if (checkError(response))
+            response
+        else{
+            val originalNode: Node = response.get(GraphDACParams.node.name).asInstanceOf[Node]
+            if (! "Flagged".equalsIgnoreCase(originalNode.getMetadata.get("status").asInstanceOf[String])) throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name, "Invalid Flagged Content! Content Can Not Be Accepted.")
+            val node = getNodeForOperation(contentId, "update")
+            node.getMetadata.put("status","FlagDraft")
+            val updateResponse = updateDataNode(node)
+            if(checkError(updateResponse))
+                updateResponse
+            else{
+                originalNode.getMetadata.put("status", "Retired")
+                val retiredResponse = updateDataNode(originalNode)
+                if(checkError(retiredResponse))
+                    retiredResponse
+                else {
+                    val response= getSuccessResponse;
+                    response.put("node_id", contentId)
+                    response.put("version", updateResponse.get("versionKey"))
+                    response
+                }
+
+            }
+        }
     }
 
 }

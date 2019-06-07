@@ -55,7 +55,7 @@ class ContentManagerImpl extends BaseContentManager{
     validateAndMigrateEcml(identifier, contentMap)
     if(!fields.isEmpty){
       fields + ("identifier")
-      contentMap = contentMap.filterKeys(p=> !fields.contains(p))
+      contentMap = contentMap.filterKeys(p=> fields.contains(p))
     }
     val externalPropsToFetch = fields.intersect(getExternalPropList(definition)).asInstanceOf[List[String]]
     if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty) {
