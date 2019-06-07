@@ -109,10 +109,6 @@ abstract class BaseAPIActor extends UntypedActor {
       if(null == response.getParams) response.setParams(new ResponseParams)
       if (StringUtils.isNotBlank(msgId)) response.getParams.setMsgid(msgId)
       response.getParams.setResmsgid(UUID.randomUUID().toString)
-      if (StringUtils.equalsIgnoreCase(StatusType.successful.name, response.getParams.getStatus)) {
-        response.getParams.setErr(null)
-        response.getParams.setErrmsg(null)
-      }
     }
       response
   }
