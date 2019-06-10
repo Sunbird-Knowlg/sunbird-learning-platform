@@ -43,7 +43,7 @@ node() {
                        mv sync-tool*.jar ansible
                     """
                     ansiblePlaybook = "${currentWs}/ansible/neo4j-es-sync-deploy.yml"
-                    ansibleExtraArgs = "--extra-vars \"telemetry_container=${params.telemetry_container} container_path=${params.container_path}/${params.failed_event_file_name} failed_event_file_name=${params.failed_event_file_name}'\" --vault-password-file /var/lib/jenkins/secrets/vault-pass"
+                    ansibleExtraArgs = "--extra-vars \"telemetry_container=${params.telemetry_container} container_path=${params.container_path}/${params.failed_event_file_name} failed_event_file_name=${params.failed_event_file_name}\" --vault-password-file /var/lib/jenkins/secrets/vault-pass"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
