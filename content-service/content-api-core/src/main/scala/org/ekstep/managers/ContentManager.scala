@@ -1,6 +1,8 @@
 package org.ekstep.managers
 
 
+import java.util.Date
+
 import org.apache.commons.lang3.StringUtils
 import org.ekstep.common.dto.Response
 import org.ekstep.common.enums.TaxonomyErrorCodes
@@ -201,6 +203,67 @@ object ContentManager extends BaseContentManagerImpl {
 
             }
         }
+    }
+
+
+    def update(request: org.ekstep.commons.Request) : Response ={
+        val params = request.params.getOrElse(Map())
+        val contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
+        val requestBody = JSONUtils.deserialize[RequestBody](request.body.get)
+        val contentMap = requestBody.request.getOrElse("content", throw new ClientException("ERR_CONTENT_INVALID_OBJECT", "Invalid Request")).asInstanceOf[Map[String, AnyRef]]
+        return getUpdatedResponse(contentId, contentMap)
+    }
+
+
+    private def getUpdatedResponse (contentIdentifier: String, map: Map[String, AnyRef]): Response = {
+        if (null == contentIdentifier || null == map || map.isEmpty) throw new ClientException("ERR_CONTENT_INVALID_OBJECT", "Invalid Request")
+        var contentMap = map
+        if (contentMap.contains("dialcodes")) contentMap - "dialcodes"
+
+        val definition = getDefinitionNode(TAXONOMY_ID, CONTENT_OBJECT_TYPE)
+        restrictProps(definition, contentMap, "status", "framework", "mimeType", "contentType")
+
+        contentMap += "objectType" -> CONTENT_OBJECT_TYPE
+        contentMap += "identifier" -> contentIdentifier
+        if (contentMap.contains(ContentAPIParams.body.name)) contentMap += (ContentAPIParams.artifactUrl.name -> null)
+
+        val mimeType = contentMap.get(TaxonomyAPIParams.mimeType.toString).getOrElse("").asInstanceOf[String]
+        updateDefaultValuesByMimeType(contentMap, mimeType)
+
+
+        var externalProps: Map[String, AnyRef] = Map()
+        val externalPropList: List[String] = getExternalPropList(definition)
+        externalPropList.map(key=>{
+            if ( null != contentMap.get(key)) externalProps += (key -> contentMap.get(key))
+            if (StringUtils.equalsIgnoreCase(ContentAPIParams.screenshots.name, key) && null != contentMap.get(key)) contentMap += (key -> null)
+            else contentMap - (key)
+        })
+
+        val node = getNodeForOperation(contentIdentifier, "update")
+        val status = node.getMetadata.get("status").asInstanceOf[String]
+        val inputStatus = contentMap.getOrElse("status", "").asInstanceOf[String]
+        if (reviewStatus.contains(inputStatus) && !reviewStatus.contains(status)) contentMap += ("lastSubmittedOn"-> DateUtils.format(new Date()))
+
+
+        var createResponse = createDataNode(node)
+        if (!checkError(createResponse)) {
+            modifyContentProperties(contentIdentifier, externalPropList)
+            contentMap += ("versionKey" -> createResponse.get("versionKey"))
+        }
+
+        val domainObj = ConvertToGraphNode.convertToGraphNode(contentMap.asJava, definition, node)
+        domainObj.setGraphId(TAXONOMY_ID)
+        domainObj.setIdentifier(node.getIdentifier)
+        domainObj.setObjectType(node.getObjectType)
+        createResponse = updateDataNode(domainObj)
+        if (checkError(createResponse)) return createResponse
+
+        createResponse.put(GraphDACParams.node_id.name, contentIdentifier)
+
+        val externalPropsResponse = updateContentProperties(contentIdentifier, externalProps)
+        if (checkError(externalPropsResponse)) return externalPropsResponse
+
+        return createResponse
     }
 
 }

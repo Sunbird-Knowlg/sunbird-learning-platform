@@ -7,7 +7,7 @@ import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.exception.{ClientException, ServerException}
 import org.ekstep.common.mgr.BaseManager
 import org.ekstep.common.router.RequestRouterPool
-import org.ekstep.commons.{Constants, ContentErrorCodes, TaxonomyAPIParams}
+import org.ekstep.commons.{Constants, ContentErrorCodes, ContentMetadata, TaxonomyAPIParams}
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.dac.enums.{GraphDACParams, SystemNodeTypes}
 import org.ekstep.graph.dac.model.Node
@@ -16,6 +16,7 @@ import org.ekstep.graph.model.node.DefinitionDTO
 import org.ekstep.learning.common.enums.{ContentAPIParams, LearningActorNames}
 import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStoreParams}
 import org.ekstep.learning.router.LearningRequestRouterPool
+import org.ekstep.managers.ContentManager.{checkError, updateContentProperties}
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil
 import org.ekstep.searchindex.util.CompositeSearchConstants
 import org.ekstep.telemetry.logger.TelemetryManager
@@ -37,6 +38,9 @@ class BaseContentManagerImpl extends BaseManager {
     val publishedStatus:List[String] = List("Live", "Unlisted", "Flagged")
     val YOUTUBE_MIMETYPE = "video/x-youtube"
     val DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX: String = ".img"
+    val reviewStatus:List[String] = List("Review", "FlagReview")
+
+
 
     /**
       * Get definition
@@ -107,7 +111,7 @@ class BaseContentManagerImpl extends BaseManager {
         request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
         request.setOperation(ContentStoreOperations.updateContentProperties.name)
         request.put(ContentStoreParams.content_id.name, contentId)
-        request.put(ContentStoreParams.properties.name, properties)
+        request.put(ContentStoreParams.properties.name, properties.asJava)
         val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
         response
     }
@@ -259,6 +263,42 @@ class BaseContentManagerImpl extends BaseManager {
             TelemetryManager.log("Returning Node Update Response.")
         }
         response
+    }
+
+
+
+    /**
+      * To get a definition node for content type
+      * @return
+      */
+    protected def getDefinitionNode(graphId: String, objectType: String): DefinitionDTO = {
+        val requestDto = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition", GraphDACParams.object_type.name, objectType);
+        getResponse(requestDto,RequestRouterPool.getRequestRouter()).get(GraphDACParams.definition_node.name).asInstanceOf[DefinitionDTO]
+    }
+
+    protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
+        if (StringUtils.isNotBlank(mimeType)) {
+            if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
+                map + TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
+            else map + TaxonomyAPIParams.contentEncoding.toString -> ContentMetadata.ContentEncoding.identity
+            if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url"))
+                map + TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.online
+            else map + TaxonomyAPIParams.contentDisposition.toString -> ContentMetadata.ContentDisposition.inline
+        }
+    }
+
+    protected def modifyContentProperties(contentId: String, properties: List[String]) = {
+        val request: org.ekstep.common.dto.Request = new Request()
+        request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
+        request.setOperation(ContentStoreOperations.getContentProperties.name)
+        request.put(ContentStoreParams.content_id.name, contentId)
+        request.put(ContentStoreParams.properties.name, properties.asJava)
+        var response: org.ekstep.common.dto.Response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
+
+        if(!checkError(response)){
+            val extValues = response.get(ContentStoreParams.values.name).asInstanceOf[Map[String, AnyRef]]
+            if (null != extValues && !extValues.isEmpty) response = updateContentProperties(contentId+DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, extValues)
+        }
     }
 
 
