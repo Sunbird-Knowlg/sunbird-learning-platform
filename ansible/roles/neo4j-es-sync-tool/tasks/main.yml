@@ -31,7 +31,7 @@
   copy: src="{{currentWs}}/{{artifact}}" dest={{learner_user_home}}/sync_tool/ 
 
 - name: Run Sync tool with given command and parameters.
-  shell: "java -Dconfig.file={{learner_user_home}}/sync_tool/application.conf -jar sync-tool-0.0.1-SNAPSHOT.jar sync --graph domain --type file --filepath {{file_path}}"
+  shell: "java -Dconfig.file={{learner_user_home}}/sync_tool/application.conf -jar sync-tool-0.0.1-SNAPSHOT.jar sync --graph domain --type file --filepath {{learner_user_home}}/sync_tool/{{ failed_event_file_name }}"
   async: 3600
   poll: 10
   args:
