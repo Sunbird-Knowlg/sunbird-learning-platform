@@ -13,6 +13,7 @@
     - name: check service status
       command: service monit status
       register: monit_service_status
+      ignore_errors: true
       tags:
         - status
     
@@ -32,6 +33,7 @@
       command: monit status
       register: monit_status
       when: monit_service_status.stdout.find("running") != -1
+      ignore_errors: true
       tags:
         - status
     
