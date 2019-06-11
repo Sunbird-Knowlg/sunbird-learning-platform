@@ -1,47 +1,47 @@
 - hosts: learningall
-  becomme: yes
+  become: yes
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_logstash_lp,monit_tomcat_lp' }
   tags: learningall
 
 - hosts: searchall
-  becomme: yes
+  become: yes
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_logstash_lp,monit_search_lp' }
   tags: searchall  
 
 - hosts: learning-neo4j-cluster
-  becomme: yes
+  become: yes
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_logstash_lp' }
   tags: learning-neo4j-cluster
 
 - hosts: cassandra
-  becomme: yes
+  become: yes
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_cassandra' }
   tags: cassandra
 
 - hosts: processing-cluster-kafka
-  becomme: yes
+  become: yes
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_kafka' }
   tags: processing-cluster-kafka
 
 - hosts: processing-cluster-zookeepers
-  becomme: yes
+  become: yes
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_zookeeper' }
   tags: processing-cluster-zookeepers
 
 - hosts: composite-search-cluster
-  becomme: yes
+  become: yes
   pre_tasks:
     - name: Registering node name
       set_fact:
