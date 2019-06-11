@@ -16,7 +16,7 @@
     - { src: 'files/monit_default', dest: '/etc/default/monit', mode: '0644' } 
     - { src: 'files/force_kill', dest: '/usr/local/bin', mode: '0755' } 
 
-- name: Softlinking montrc for monit
+- name: Softlinking monitrc for monit
   file:
     src: /etc/monit/monitrc
     dest: /etc/monitrc
