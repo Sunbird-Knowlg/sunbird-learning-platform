@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import akka.pattern.Patterns;
@@ -17,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
+import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -38,6 +40,7 @@ import org.ekstep.graph.dac.model.SearchConditions;
 import org.ekstep.graph.dac.model.SearchCriteria;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.graph.model.node.RelationDefinition;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.framework.FrameworkHierarchyOperations;
 import org.ekstep.learning.router.LearningRequestRouterPool;
@@ -86,9 +89,36 @@ public class BaseFrameworkManager extends BaseManager {
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		Map<String, Object> responseMap = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
+		filterNodeRelationships(responseMap, definition);
 		response.put(responseObject, responseMap);
 		response.setParams(getSucessStatus());
 		return response;
+	}
+	private void filterNodeRelationships(Map<String, Object> responseMap, DefinitionDTO definition) {
+		if(null != definition) {
+			if(CollectionUtils.isNotEmpty(definition.getInRelations())) {
+				List<String> inRelations = new ArrayList<>();
+				definition.getInRelations().stream().forEach(rel -> inRelations.add(rel.getTitle()));
+				inRelations.stream().forEach(rel -> {
+					List<NodeDTO> relMetaData = (List<NodeDTO>) responseMap.get(rel);
+					if(CollectionUtils.isNotEmpty(relMetaData)) {
+						Predicate<NodeDTO> predicate = p -> StringUtils.isNotBlank(p.getStatus()) && !StringUtils.equalsIgnoreCase((String)p.getStatus(), "Live");
+						relMetaData.removeIf(predicate);
+					}
+				});
+			}
+			if(CollectionUtils.isNotEmpty(definition.getOutRelations())) {
+				List<String> outRelations = new ArrayList<>();
+				definition.getOutRelations().stream().forEach(rel -> outRelations.add(rel.getTitle()));
+				outRelations.stream().forEach(rel -> {
+					List<NodeDTO> relMetaData = (List<NodeDTO>) responseMap.get(rel);
+					if(CollectionUtils.isNotEmpty(relMetaData)) {
+						Predicate<NodeDTO> predicate = p -> StringUtils.isNotBlank(p.getStatus()) && !StringUtils.equalsIgnoreCase((String)p.getStatus(), "Live");
+						relMetaData.removeIf(predicate);
+					}
+				});
+			}
+		}
 	}
 
 	protected Response update(String identifier, String objectType, Map<String, Object> map) {
