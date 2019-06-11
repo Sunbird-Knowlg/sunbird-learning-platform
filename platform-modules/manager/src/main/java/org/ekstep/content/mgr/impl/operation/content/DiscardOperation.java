@@ -13,7 +13,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
@@ -25,7 +24,7 @@ public class DiscardOperation extends BaseContentManager {
     private Boolean isCollection = false;
     private static final List<String> CONTENT_DISCARD_STATUS = Platform.config.hasPath("content.discard.status") ?
             Platform.config.getStringList("content.discard.status") : Arrays.asList("Draft", "FlagDraft");
-    private static List<String> CONTENT_LIVE_STATUS = Arrays.asList("Live", "Unlisted");
+    private static List<String> CONTENT_LIVE_STATUS = Arrays.asList("Live", "Unlisted", "Retired");
 
     /**
      * This API will allow to discard content
@@ -35,7 +34,7 @@ public class DiscardOperation extends BaseContentManager {
      */
     public Response discard(String contentId) throws Exception {
         //Check if ContentId is null
-        validateEmptyOrNull(contentId, "Content Object Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
+        validateEmptyOrNull(contentId, "Content Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
         //Get node
         Node node = getNode(contentId, false);
         if (node == null) {
@@ -56,7 +55,7 @@ public class DiscardOperation extends BaseContentManager {
         } else if (canDiscard) {
             response = discardContent(contentId, status);
         } else {
-            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_DRAFT.name(),
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_NOT_DRAFT.name(),
                     "No changes to discard since Content Image status isn't draft" + contentId, contentId);
         }
         return getResult(response, contentId);
@@ -77,10 +76,8 @@ public class DiscardOperation extends BaseContentManager {
                 return true;
             } else if (CONTENT_LIVE_STATUS.contains(status)) {
                 Node node = getNode(contentId, true);
-                if (node == null) {
-                    throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                            "No changes to discard since Content Image not found with id: " + contentId, contentId);
-                }
+                if (node == null)
+                    return false;
                 if (CONTENT_DISCARD_STATUS.contains(node.getMetadata().get("status")))
                     return true;
             }
