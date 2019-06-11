@@ -26,13 +26,14 @@ public class DiscardOperation extends BaseContentManager {
     private Boolean isCollection = false;
     private static final List<String> CONTENT_DISCARD_STATUS = Platform.config.hasPath("content.discard.status") ?
             Platform.config.getStringList("content.discard.status") : Arrays.asList("Draft", "FlagDraft");
-
     /**
      * This API will allow to discard content
      * @param contentId
      * @return
      */
     public Response discard(String contentId) throws Exception {
+
+
         Response response;
         validateEmptyOrNull(contentId, "Content Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
         Node imageNode = getNode(contentId, true);
@@ -45,6 +46,7 @@ public class DiscardOperation extends BaseContentManager {
                         "Content not found with id: " + contentId, contentId);
             }
             response = discardNode(node);
+
         }
         return getResult(response, contentId);
     }
@@ -70,6 +72,7 @@ public class DiscardOperation extends BaseContentManager {
                 return responseCollection;
             } else {
                 return discardContent(contentId);
+
             }
         } else {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_NOT_DRAFT.name(),
