@@ -99,7 +99,7 @@ public class UpdateContentOperation extends BaseContentManager {
                     metadata.put("lastUpdatedBy", lastUpdatedBy);
                 graphNode.setGraphId(TAXONOMY_ID);
                 //createResponse = createDataNode(graphNode);
-                createResponse = createDataNodeWithNoValidation(graphNode);
+                createResponse = createDataNode(graphNode, true);
                 checkError = checkError(createResponse);
                 if (!checkError) {
                     TelemetryManager.log("Updating external props for: " + contentImageId);

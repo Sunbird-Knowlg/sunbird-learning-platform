@@ -248,27 +248,19 @@ public abstract class BaseContentManager extends BaseManager {
 		}
 		return list;
 	}
+	
+	protected Response createDataNode(Node node) {
+		return createDataNode(node, false);
+	}
 
-    protected Response createDataNode(Node node) {
+    protected Response createDataNode(Node node, Boolean validation) {
         Response response = new Response();
         if (null != node) {
             Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
             request.put(GraphDACParams.node.name(), node);
+            request.put(GraphDACParams.skip_validations.name(), validation);
 
             TelemetryManager.log("Creating the Node ID: " + node.getIdentifier());
-            response = getResponse(request);
-        }
-        return response;
-    }
-    
-    protected Response createDataNodeWithNoValidation(Node node) {
-        Response response = new Response();
-        if (null != node) {
-            Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
-            request.put(GraphDACParams.node.name(), node);
-            request.put(GraphDACParams.skip_validations.name(), true);
-
-            TelemetryManager.log("Creating the Node ID without validation: " + node.getIdentifier());
             response = getResponse(request);
         }
         return response;
