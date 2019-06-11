@@ -13,83 +13,72 @@ import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.engine.router.GraphEngineManagers;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author Rhea Fernandes
+ */
 public class DiscardOperation extends BaseContentManager {
-    private Boolean canDiscard = false;
     private Boolean isCollection = false;
     private static final List<String> CONTENT_DISCARD_STATUS = Platform.config.hasPath("content.discard.status") ?
             Platform.config.getStringList("content.discard.status") : Arrays.asList("Draft", "FlagDraft");
-    private static List<String> CONTENT_LIVE_STATUS = Arrays.asList("Live", "Unlisted");
 
     /**
      * This API will allow to discard content
-     *
      * @param contentId
      * @return
      */
     public Response discard(String contentId) throws Exception {
-        //Check if ContentId is null
-        validateEmptyOrNull(contentId, "Content Object Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
-        //Get node
-        Node node = getNode(contentId, false);
-        if (node == null) {
-            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                    "Content not found with id: " + contentId, contentId);
-        }
-        String mimeType = (String) node.getMetadata().get("mimeType");
-        if (mimeType != null)
-            isCollection = StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType);
-        //Check if resource is present
-        //Check if status -> If live, check if there is image which is in draft/flag draft else if draft delete
-        String status = (String) node.getMetadata().get("status");
-        canDiscard = checkIfValidDiscardRequest(contentId, status);
         Response response;
-        //Check mimeType -> Collection and Resource handled differently
-        if (isCollection && canDiscard) {
-            response = discardCollection(contentId, status);
-        } else if (canDiscard) {
-            response = discardContent(contentId, status);
+        validateEmptyOrNull(contentId, "Content Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
+        Node imageNode = getNode(contentId, true);
+        if (imageNode != null) {
+            response = discardNode(imageNode);
         } else {
-            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_DRAFT.name(),
-                    "No changes to discard since Content Image status isn't draft" + contentId, contentId);
+            Node node = getNode(contentId, false);
+            if (node == null) {
+                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+                        "Content not found with id: " + contentId, contentId);
+            }
+            response = discardNode(node);
         }
         return getResult(response, contentId);
-
     }
 
     /**
-     * Checks if content is Live or Draft, if live checks if image is present
-     *
-     * @param contentId
-     * @param status
+     * Validates if the content can be discarded
+     * @param node
      * @return
      * @throws Exception
      */
-    private Boolean checkIfValidDiscardRequest(String contentId, String status) throws Exception {
-        if (status != null)
-            if (CONTENT_DISCARD_STATUS.contains(status)) {
-                return true;
-            } else if (CONTENT_LIVE_STATUS.contains(status)) {
-                Node node = getNode(contentId, true);
-                if (node == null) {
-                    throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                            "No changes to discard since Content Image not found with id: " + contentId, contentId);
+    private Response discardNode(Node node) throws Exception {
+        String contentId = node.getIdentifier();
+        String mimeType = (String) node.getMetadata().get("mimeType");
+        if (mimeType != null)
+            isCollection = StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType);
+        String status = (String) node.getMetadata().get("status");
+        if (CONTENT_DISCARD_STATUS.contains(status)) {
+            if (isCollection) {
+                Response responseCollection = discardCollection(contentId);
+                if (StringUtils.equalsIgnoreCase(ResponseCode.OK.name(), responseCollection.getResponseCode().name())) {
+                    return discardContent(contentId);
                 }
-                if (CONTENT_DISCARD_STATUS.contains(node.getMetadata().get("status")))
-                    return true;
+                return responseCollection;
+            } else {
+                return discardContent(contentId);
             }
-        return false;
+        } else {
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_NOT_DRAFT.name(),
+                    "No changes to discard since content status isn't draft " + contentId, contentId);
+        }
     }
 
     /**
      * Check if content id is blank or not
-     *
      * @param contentValue
      * @param contentName
      * @param contentErrorCode
@@ -105,7 +94,6 @@ public class DiscardOperation extends BaseContentManager {
 
     /**
      * Get the node from neo4j
-     *
      * @param contentId
      * @param imageRequired
      * @return
@@ -125,35 +113,21 @@ public class DiscardOperation extends BaseContentManager {
 
     /**
      * Delete image node in neo4j if live else node and also delete hierarchy in cassandra
-     *
      * @param contentId
-     * @param status
      * @return
      */
-    private Response discardCollection(String contentId, String status) {
-        String id = contentId;
-        if (CONTENT_LIVE_STATUS.contains(status))
-            contentId = contentId + ".img";
-        // delete image..
-        Request request = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
-        request.put(ContentWorkflowPipelineParams.node_id.name(), contentId);
-        Response response = getResponse(request);
-        if (StringUtils.equalsIgnoreCase(ResponseCode.OK.name(), response.getResponseCode().name())) {
-            Response resp = deleteHierarchy(Arrays.asList(id + ".img"));
+    private Response discardCollection(String contentId) {
+            if(!StringUtils.endsWithIgnoreCase(contentId, ".img"))
+                contentId = contentId + ".img";
+            Response resp = deleteHierarchy(Arrays.asList(contentId));
             return resp;
-        }
-        return response;
     }
 
     /**
      * Delete the neo4j node (If live delete the image in draft)
-     *
      * @param contentId
      */
-    private Response discardContent(String contentId, String status) {
-        if (CONTENT_LIVE_STATUS.contains(status))
-            contentId = contentId + ".img";
-        // delete image..
+    private Response discardContent(String contentId) {
         Request request = getRequest(TAXONOMY_ID, GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
         request.put(ContentWorkflowPipelineParams.node_id.name(), contentId);
         Response response = getResponse(request);
@@ -162,7 +136,6 @@ public class DiscardOperation extends BaseContentManager {
 
     /**
      * Get the json response
-     *
      * @param response
      * @param contentId
      * @return
@@ -176,3 +149,4 @@ public class DiscardOperation extends BaseContentManager {
         return response;
     }
 }
+

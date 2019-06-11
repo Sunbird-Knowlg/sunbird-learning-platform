@@ -576,6 +576,11 @@ public class ContentV3Controller extends BaseController {
 		}
 	}
 
+	/**
+	 * Controller method to discard all the changes made by the user, which is in draft state
+	 * @param contentId
+	 * @return
+	 */
 	@RequestMapping(value = "/discard/{id:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> discard(@PathVariable(value = "id") String contentId) {

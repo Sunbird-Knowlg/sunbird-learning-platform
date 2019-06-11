@@ -36,6 +36,12 @@ public class ContentManger {
 
     public Response retire(String contentId) { return this.retireOperation.retire(contentId); }
 
+    /**
+     * Discard operations
+     * @param contentId
+     * @return
+     * @throws Exception
+     */
     public Response discard(String contentId) throws Exception {
         return this.discardOperation.discard(contentId);
     }
