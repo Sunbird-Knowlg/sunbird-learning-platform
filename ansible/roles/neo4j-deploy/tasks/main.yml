@@ -19,11 +19,6 @@
   become_user: "{{learner_user}}"
   copy: src={{ custom_procs_file }} dest={{ neo4j_home }}/plugins/ owner={{ learner_user }} group={{ learner_user }}
 
-- name: copy the APOC plugin file
-  become: yes
-  become_user: "{{learner_user}}"
-  copy: src=artifacts/apoc-3.3.0.1-all.jar dest={{ neo4j_home }}/plugins/ owner={{ learner_user }} group={{ learner_user }}
-
 - name: Start logstash process
   become: yes
   systemd: name=logstash state=started

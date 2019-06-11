@@ -1,21 +1,20 @@
 package org.ekstep.jobs.samza.util;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.typesafe.config.ConfigFactory;
 import org.apache.samza.config.Config;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.Platform;
 
-import com.typesafe.config.ConfigFactory;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class JSONUtils {
 	
 	private static ObjectMapper mapper = new ObjectMapper();;
-	
+
 	public static String serialize(Object object) throws Exception {
-		return mapper.writeValueAsString(object);
+			return mapper.writeValueAsString(object);
 	}
 	
 	public static void loadProperties(Config config){

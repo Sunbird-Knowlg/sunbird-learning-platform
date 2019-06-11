@@ -1,14 +1,7 @@
 package org.ekstep.jobs.samza.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Date;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -29,8 +22,14 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author gauraw
@@ -68,6 +67,7 @@ public class AuditEventGenerator implements ISamzaService {
 	public void initialize(Config config) throws Exception {
 		this.config = config;
 		JSONUtils.loadProperties(config);
+		TelemetryGenerator.setComponent("audit-event-generator");
 		LOGGER.info("Initializing Actor System...");
 		LearningRequestRouterPool.init();
 		systemStream = new SystemStream("kafka", config.get("telemetry_raw_topic"));
@@ -130,6 +130,7 @@ public class AuditEventGenerator implements ISamzaService {
 		String objectType = (String) message.get(GraphDACParams.objectType.name());
 		String env = (null != objectType) ? objectType.toLowerCase().replace("image", "") : "system";
 		String graphId = (String) message.get(GraphDACParams.graphId.name());
+		String userId = (String) message.get(GraphDACParams.userId.name());
 		DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
 		Map<String, String> inRelations = new HashMap<>();
 		Map<String, String> outRelations = new HashMap<>();
@@ -186,6 +187,8 @@ public class AuditEventGenerator implements ISamzaService {
 			context.put("duration", duration);
 		if (StringUtils.isNotBlank(pkgVersion))
 			context.put("pkgVersion", pkgVersion);
+		if (StringUtils.isNotBlank(userId))
+			context.put(TelemetryParams.ACTOR.name(), userId);
 		if (!CollectionUtils.isEmpty(propsExceptSystemProps)) {
 			String auditMessage = TelemetryGenerator.audit(context, propsExceptSystemProps, currStatus, prevStatus,
 					cdata);

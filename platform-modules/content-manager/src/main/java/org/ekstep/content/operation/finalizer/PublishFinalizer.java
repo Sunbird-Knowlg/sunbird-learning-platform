@@ -92,6 +92,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private static final List<String> LEVEL4_CONTENT_TYPES = Arrays.asList("Course","CourseUnit","LessonPlan","LessonPlanUnit");
 	private static final String  ES_INDEX_NAME = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
 	private static final String DOCUMENT_TYPE = Platform.config.hasPath("search.document.type") ? Platform.config.getString("search.document.type") : CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE;
+	private static final Boolean CONTENT_CACHE_ENABLED = Platform.config.hasPath("content.cache.read") ? Platform.config.getBoolean("content.cache.read") : false;
+	private static final Boolean CONTENT_HIERARCHY_CACHE_ENABLED = Platform.config.hasPath("content.cache.hierarchy") ? Platform.config.getBoolean("content.cache.hierarchy") : false;
 
 	private static ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -135,7 +137,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	 *
 	 * @param parameterMap
 	 *            the parameterMap
-	 * 
+	 *
 	 *            checks if Node, ecrfType,ecmlType exists in the parameterMap
 	 *            else throws ClientException Output only ECML format create
 	 *            'artifactUrl' Get Content String write ECML File Create 'ZIP'
@@ -146,12 +148,12 @@ public class PublishFinalizer extends BaseFinalizer {
 	 * @return the response
 	 */
 	public Response finalize(Map<String, Object> parameterMap) {
-		
+
 		String artifactUrl = null;
 		File packageFile=null;
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		List<String> unitNodes = null;
-		
+
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
@@ -159,25 +161,26 @@ public class PublishFinalizer extends BaseFinalizer {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
-				unitNodes = getUnitFromLiveContent();
+				unitNodes = new ArrayList<>();
+				getUnitFromLiveContent(unitNodes);
 			}
 		}
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
-		
+
 		boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		TelemetryManager.log("Compression Applied ? " + isCompressionApplied);
-		
+
 		if (BooleanUtils.isTrue(isCompressionApplied)) {
 			Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
-			
+
 			if (null == ecrf)
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 						ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
-			
+
 			// Output only ECML format
 			String ecmlType = ContentWorkflowPipelineParams.ecml.name();
-			
+
 			// Get Content String
 			String ecml = getECMLString(ecrf, ecmlType);
 			// Write ECML File
@@ -207,8 +210,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		// Download App Icon and create thumbnail
 		createThumbnail(basePath, node);
-		
-		
+
+
 		// Set Package Version
 		double version = 1.0;
 		if (null != node && null != node.getMetadata()
@@ -223,13 +226,13 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		setCompatibilityLevel(node);
 		setPragma(node);
-		
+
 		String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
 		node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 				StringUtils.equalsIgnoreCase(publishType, ContentWorkflowPipelineParams.Unlisted.name())?
 						ContentWorkflowPipelineParams.Unlisted.name(): ContentWorkflowPipelineParams.Live.name());
 		node.getMetadata().put(ContentWorkflowPipelineParams.publish_type.name(), null);
-		
+
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 		if (null != artifact && artifact instanceof File) {
 			File pkgFile = (File) artifact;
@@ -264,7 +267,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		TelemetryManager.log("Ecar processing started for content: " + node.getIdentifier());
 		processForEcar(node, children);
 		TelemetryManager.log("Ecar processing done for content: " + node.getIdentifier());
-		
+
 		try {
 			TelemetryManager.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
@@ -279,7 +282,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		//update previewUrl for content streaming
 		updatePreviewURL(node);
-		
+
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
@@ -301,7 +304,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
 
 		getResponse(request);
-		
+
 		List<String> streamableMimeType = Platform.config.hasPath("stream.mime.type") ?
 				Arrays.asList(Platform.config.getString("stream.mime.type").split(",")) : Arrays.asList("video/mp4");
 		if (streamableMimeType.contains((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()))) {
@@ -319,12 +322,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			syncNodes(children, unitNodes);
 		}
 		//TODO: Reduce get definition call
-		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-		RedisStoreUtil.saveData(contentId, contentMap, 0);
+		if (CONTENT_CACHE_ENABLED) {
+			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
+			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
+			RedisStoreUtil.saveData(contentId, contentMap, 0);
+		}
+
 		return response;
 	}
-	
+
 	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes) {
 		if(CollectionUtils.isNotEmpty(children)) {
 			List<Map<String, Object>> newChildren = new ArrayList<>(children);
@@ -354,79 +360,71 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 	}
 	
-	private List<String> getUnitFromLiveContent(){
-		Node liveContent = util.getNode(ContentWorkflowPipelineParams.domain.name(), contentId);
-		List<String> childNodes = null;
-		if(null != liveContent.getMetadata().get("childNodes")) {
-			childNodes = new ArrayList<>(Arrays.asList((String[])liveContent.getMetadata().get("childNodes")));
-			if(CollectionUtils.isNotEmpty(childNodes)) {
-				List<Relation> outRelations = liveContent.getOutRelations();
-				if(CollectionUtils.isNotEmpty(outRelations)) {
-					List<String> leafNodes = outRelations.stream().filter(rel -> StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SEQUENCE_MEMBERSHIP.name())).map(rel -> rel.getEndNodeId()).collect(Collectors.toList());
-					childNodes.removeAll(leafNodes);
-				}
-			}
+	private void getUnitFromLiveContent(List<String> unitNodes){
+		Map<String, Object> liveContentHierarchy = getHierarchy(contentId, false);
+		if(MapUtils.isNotEmpty(liveContentHierarchy)) {
+			List<Map<String, Object>> children = (List<Map<String, Object>>)liveContentHierarchy.get("children");
+			getUnitFromLiveContent(unitNodes, children);
 		}
-		return childNodes;
 	}
-	
-	/*private BoolQueryBuilder getDeleteIndexQuery(List<String> identifiers) throws Exception {
-		BoolQueryBuilder query = QueryBuilders.boolQuery();
-		for(String identifier : identifiers)
-			query.should(QueryBuilders.matchQuery("identifier.raw", identifier));
-		return query;
-	}*/
+	private void getUnitFromLiveContent(List<String> unitNodes, List<Map<String, Object>> children) {
+		if(CollectionUtils.isNotEmpty(children)) {
+			children.stream().forEach(child -> {
+				if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+                		unitNodes.add((String)child.get("identifier"));
+                		getUnitFromLiveContent(unitNodes, (List<Map<String, Object>>) child.get("children"));
+                }
+            });
+		}
+	}
 	
 	private void syncNodes(List<Map<String, Object>> children, List<String> unitNodes) {
 		DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, ContentWorkflowPipelineParams.Content.name());
-		List<String> nodeIds = new ArrayList<>();
-		List<Node> nodes = new ArrayList<>();
-		getNodeMap(children, nodes, nodeIds, definition);
-		if(!CollectionUtils.isEmpty(unitNodes))
-			unitNodes.removeAll(nodeIds);
-		
-		if (nodes.isEmpty())
-			return;
-
-		Map<String, String> errors;
-		
 		if (null == definition) {
 			TelemetryManager.error("Content definition is null.");
 		}
+		List<String> nodeIds = new ArrayList<>();
+		List<Node> nodes = new ArrayList<>();
+		getNodeForSyncing(children, nodes, nodeIds, definition);
+		if(CollectionUtils.isNotEmpty(unitNodes))
+			unitNodes.removeAll(nodeIds);
 		
+		if(CollectionUtils.isEmpty(nodes) && CollectionUtils.isEmpty(unitNodes))
+			return;
+
+		Map<String, String> errors;
 		org.codehaus.jackson.map.ObjectMapper o = new org.codehaus.jackson.map.ObjectMapper();
 		Map<String, Object> def =  o.convertValue(definition, new TypeReference<Map<String, Object>>() {});
 		Map<String, String> relationMap = GraphUtil.getRelationMap(ContentWorkflowPipelineParams.Content.name(), def);
-		//SyncMessageGenerator.definitionMap.put(ContentWorkflowPipelineParams.Content.name(), relationMap);
-		
-		while (!nodes.isEmpty()) {
-			int currentBatchSize = (nodes.size() >= batchSize) ? batchSize : nodes.size();
-			List<Node> nodeBatch = nodes.subList(0, currentBatchSize);
-
-			if (CollectionUtils.isNotEmpty(nodeBatch)) {
-				
-				errors = new HashMap<>();
-				Map<String, Object> messages = SyncMessageGenerator.getMessages(nodes, ContentWorkflowPipelineParams.Content.name(), relationMap, errors);
-				if (!errors.isEmpty())
-					TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
-				if(MapUtils.isNotEmpty(messages)) {
-					try {
-						ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
-					} catch (Exception e) {
-						TelemetryManager.error("Elastic Search indexing failed: " + e);
-					}					
-				}
-				if(!CollectionUtils.isEmpty(unitNodes)) {
-					try {
-						ElasticSearchUtil.bulkDeleteDocumentById(ES_INDEX_NAME, DOCUMENT_TYPE, unitNodes);
-					} catch (Exception e) {
-						TelemetryManager.error("Elastic Search indexing failed: " + e);
+		if(CollectionUtils.isNotEmpty(nodes)) {
+			while (!nodes.isEmpty()) {
+				int currentBatchSize = (nodes.size() >= batchSize) ? batchSize : nodes.size();
+				List<Node> nodeBatch = nodes.subList(0, currentBatchSize);
+	
+				if (CollectionUtils.isNotEmpty(nodeBatch)) {
+					
+					errors = new HashMap<>();
+					Map<String, Object> messages = SyncMessageGenerator.getMessages(nodeBatch, ContentWorkflowPipelineParams.Content.name(), relationMap, errors);
+					if (!errors.isEmpty())
+						TelemetryManager.error("Error! while forming ES document data from nodes, below nodes are ignored: " + errors);
+					if(MapUtils.isNotEmpty(messages)) {
+						try {
+							ElasticSearchUtil.bulkIndexWithIndexId(ES_INDEX_NAME, DOCUMENT_TYPE, messages);
+						} catch (Exception e) {
+							TelemetryManager.error("Elastic Search indexing failed: " + e);
+						}					
 					}
 				}
-
+				// clear the already batched node ids from the list
+				nodes.subList(0, currentBatchSize).clear();
 			}
-			// clear the already batched node ids from the list
-			nodes.subList(0, currentBatchSize).clear();
+		}
+		try {
+			//Unindexing not utilized units
+			if(CollectionUtils.isNotEmpty(unitNodes))
+				ElasticSearchUtil.bulkDeleteDocumentById(ES_INDEX_NAME, DOCUMENT_TYPE, unitNodes);
+		} catch (Exception e) {
+			TelemetryManager.error("Elastic Search indexing failed: " + e);
 		}
 	}
 	
@@ -486,9 +484,64 @@ public class PublishFinalizer extends BaseFinalizer {
                     		nodeIds.add(node.getIdentifier());
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                		TelemetryManager.error("Error while generating node map. ", e);
                 }
                 getNodeMap((List<Map<String, Object>>) child.get("children"), nodes, nodeIds, definition);
+            });
+        }
+    }
+	private List<String> getRelationList(DefinitionDTO definition){
+		List<String> relationshipProperties = new ArrayList<>();
+		relationshipProperties.addAll(definition.getInRelations().stream().map(rel -> rel.getTitle()).collect(Collectors.toList()));
+		relationshipProperties.addAll(definition.getOutRelations().stream().map(rel -> rel.getTitle()).collect(Collectors.toList()));
+		return relationshipProperties;
+	}
+	
+	private void getNodeForSyncing(List<Map<String, Object>> children, List<Node> nodes, List<String> nodeIds, DefinitionDTO definition) {
+		List<String> relationshipProperties = getRelationList(definition);
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.stream().forEach(child -> {
+            		try {
+            			if(StringUtils.equalsIgnoreCase("Parent", (String) child.get("visibility"))) {
+            				Map<String, Object> childData = new HashMap<>();
+            				childData.putAll(child);
+            				Map<String, Object> relationProperties = new HashMap<>();
+            				for(String property : relationshipProperties) {
+            					if(childData.containsKey(property)) {
+                        			relationProperties.put(property, (List<Map<String, Object>>) childData.get(property));
+                        			childData.remove(property);
+                        		}
+            				}
+            				Node node = ConvertToGraphNode.convertToGraphNode(childData, definition, null);
+            				if(MapUtils.isNotEmpty(relationProperties)) {
+            					for(String key : relationProperties.keySet()) {
+                        			List<String> finalPropertyList = null;
+                        			List<Map<String, Object>> properties = (List<Map<String, Object>>)relationProperties.get(key);
+                        			if (CollectionUtils.isNotEmpty(properties)) {
+                        				finalPropertyList = properties.stream().map(property -> {
+            								String identifier = (String)property.get("identifier");
+            								return identifier;
+            							}).collect(Collectors.toList());
+            						}
+                        			if(CollectionUtils.isNotEmpty(finalPropertyList))
+                        				node.getMetadata().put(key, finalPropertyList);
+                        		}
+                        }
+                        if(StringUtils.isBlank(node.getObjectType()))
+                        		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
+                        if(StringUtils.isBlank(node.getGraphId()))
+                        		node.setGraphId(ContentWorkflowPipelineParams.domain.name());
+                        if(!nodeIds.contains(node.getIdentifier())) {
+                    			nodes.add(node);
+                    			nodeIds.add(node.getIdentifier());
+                        }
+                        getNodeForSyncing((List<Map<String, Object>>) child.get("children"), nodes, nodeIds, definition);
+                    }
+                    
+                } catch (Exception e) {
+                	TelemetryManager.error("Error while fetching unit nodes for syncing. ", e);
+                }
+                
             });
         }
     }
@@ -496,7 +549,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
 		Map<String, Object> hierarchy = getContentMap(node, childrenList);
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
-		RedisStoreUtil.saveData(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), hierarchy, CONTENT_CACHE_TTL);
+		if (CONTENT_HIERARCHY_CACHE_ENABLED)
+			RedisStoreUtil.saveData(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), hierarchy, CONTENT_CACHE_TTL);
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
@@ -542,7 +596,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
 		content.put(ContentWorkflowPipelineParams.variants.name(), node.getMetadata().get(ContentWorkflowPipelineParams.variants.name()));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private Integer getLeafNodeCount(Map<String, Object> data, int leafCount) {
 		List<Object> children = (List<Object>) data.get("children");
@@ -558,6 +612,24 @@ public class PublishFinalizer extends BaseFinalizer {
 				leafCount++;
 		}
 		return leafCount;
+	}
+
+	private double getTotalCompressedSize(Map<String, Object> data, double totalCompressed) {
+		List<Map<String,Object>> children = (List<Map<String,Object>>) data.get("children");
+		if(CollectionUtils.isNotEmpty(children)) {
+			for(Map<String,Object> child : children ){
+				if(!StringUtils.equals((String)child.get(ContentAPIParams.mimeType.name()), COLLECTION_MIMETYPE)
+						&& StringUtils.equals((String) child.get(ContentAPIParams.visibility.name()),"Default")) {
+					if(child.get(ContentAPIParams.totalCompressedSize.name()) != null) {
+						totalCompressed += (Double) child.get(ContentAPIParams.totalCompressedSize.name());
+					} else if(child.get(ContentAPIParams.size.name()) != null) {
+						totalCompressed += (Double) child.get(ContentAPIParams.size.name());
+					}
+				}
+				totalCompressed = getTotalCompressedSize(child, totalCompressed);
+			}
+		}
+		return totalCompressed;
 	}
 
 	/**
@@ -731,7 +803,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			return true;
 	}
 
-	private List<String> generateEcar(EcarPackageType pkgType, Node node, ContentBundle contentBundle, List<Map<String, Object>> ecarContents, List<String> childrenIds) {
+	private List<String> generateEcar(EcarPackageType pkgType, Node node, ContentBundle contentBundle,
+									  List<Map<String, Object>> ecarContents, List<String> childrenIds, List<Map<String, Object>> children) {
 
 		Map<Object, List<String>> downloadUrls = null;
 		TelemetryManager.log("Creating " + pkgType.toString() + " ECAR For Content Id: " + node.getIdentifier());
@@ -740,7 +813,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				pkgType);
 
 		List<String> ecarUrl = Arrays.asList(contentBundle.createContentBundle(ecarContents, bundleFileName,
-				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier()));
+				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node, children));
 		TelemetryManager.log(pkgType.toString() + " ECAR created For Content Id: " + node.getIdentifier());
 
 		if (!EcarPackageType.FULL.name().equalsIgnoreCase(pkgType.toString())) {
@@ -815,12 +888,12 @@ public class PublishFinalizer extends BaseFinalizer {
 			if(CollectionUtils.isNotEmpty((List<String>) node.getMetadata().get("childNodes")))
 				childrenIds = (List<String>) node.getMetadata().get("childNodes");
 		} else {
-			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds);
+			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds, null);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
 			s3Key = fullECARURL.get(IDX_S3_KEY);
 		}
 		// Generate spine ECAR.
-		List<String> spineECARUrl = generateEcar(EcarPackageType.SPINE, node, contentBundle, spineContents, childrenIds);
+		List<String> spineECARUrl = generateEcar(EcarPackageType.SPINE, node, contentBundle, spineContents, childrenIds, children);
 
 		// if collection full ECAR creation disabled set spine as download url.
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
@@ -830,7 +903,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		// generate online ECAR for Collection
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType)) {
-			generateEcar(EcarPackageType.ONLINE, node, contentBundle, onlineContents, childrenIds);
+			generateEcar(EcarPackageType.ONLINE, node, contentBundle, onlineContents, childrenIds, children);
 			node.getMetadata().remove("children");
 		}
 		// ECAR generation - END
@@ -972,9 +1045,13 @@ public class PublishFinalizer extends BaseFinalizer {
 				return;
 			int leafCount = 0;
 			leafCount = getLeafNodeCount(content, leafCount);
+			double totalCompressedSize = 0.0;
+			totalCompressedSize = getTotalCompressedSize(content, totalCompressedSize);
 			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
-			
+			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
+			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
+
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
 			List<String> childNodes = getChildNode(content);
@@ -1130,7 +1207,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					+ ContentAPIParams._temp.name() + File.separator + contentId;
 		return path;
 	}
-	
+
 	private String getAWSPath(String identifier) {
 		String folderName = S3PropertyReader.getProperty(CONTENT_FOLDER);
 		if (!StringUtils.isBlank(folderName)) {
@@ -1139,4 +1216,5 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		return folderName;
 	}
+
 }

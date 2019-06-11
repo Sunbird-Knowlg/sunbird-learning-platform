@@ -15,19 +15,31 @@ public class JobLogger {
 		logger = LoggerFactory.getLogger(clazz);
 	}
 
-	public void debug(String msg, Map<String, Object> event) throws Exception {
+	public void debug(String msg, Map<String, Object> event) {
 		if (logger.isDebugEnabled())
-			debug(msg, JSONUtils.serialize(event));
+			try {
+				debug(msg, JSONUtils.serialize(event));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 	}
 
-	public void info(String msg, Map<String, Object> event) throws Exception {
+	public void info(String msg, Map<String, Object> event) {
 		if (logger.isInfoEnabled())
-			info(msg, JSONUtils.serialize(event));
+			try {
+				info(msg, JSONUtils.serialize(event));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 	}
 
-	public void error(String msg, Map<String, Object> event, Throwable t) throws Exception {
+	public void error(String msg, Map<String, Object> event, Throwable t) {
 		if (logger.isErrorEnabled())
-			error(msg, JSONUtils.serialize(event), t);
+			try {
+				error(msg, JSONUtils.serialize(event), t);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 	}
 
 	public void debug(String msg) {

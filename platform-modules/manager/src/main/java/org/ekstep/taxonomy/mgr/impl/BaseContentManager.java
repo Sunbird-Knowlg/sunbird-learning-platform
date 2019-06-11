@@ -96,7 +96,7 @@ public abstract class BaseContentManager extends BaseManager {
     protected static final String COLLECTION_MIME_TYPE = "application/vnd.ekstep.content-collection";
 
     protected static final Integer DEFAULT_CONTENT_VERSION = 1;
-    protected static final Integer DEFAULT_COLLECTION_VERSION = 2;
+    protected static final Integer LATEST_CONTENT_VERSION = 2;
 
     protected static final Integer CONTENT_CACHE_TTL = (Platform.config.hasPath("content.cache.ttl"))
             ? Platform.config.getInt("content.cache.ttl")
