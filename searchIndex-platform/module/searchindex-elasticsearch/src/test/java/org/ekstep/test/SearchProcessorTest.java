@@ -3,16 +3,7 @@
  */
 package org.ekstep.test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import akka.dispatch.OnFailure;
+import akka.dispatch.OnSuccess;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
@@ -22,10 +13,17 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import akka.dispatch.OnSuccess;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author pradyumna
