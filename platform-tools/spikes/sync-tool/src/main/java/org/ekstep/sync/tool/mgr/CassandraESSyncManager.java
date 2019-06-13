@@ -41,6 +41,7 @@ public class CassandraESSyncManager {
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
+    private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 
 
     @PostConstruct
@@ -53,23 +54,44 @@ public class CassandraESSyncManager {
                 if(CollectionUtils.isNotEmpty(bookmarkIds))
                     System.out.println("Bookmark Id's shouldn't be provided for Multiple textbooks");
                 resourceIds.forEach(textbook->{
-                    Boolean flag = syncByBookmarkId(graphId, textbook, null);
+                    Boolean flag = syncByBookmarkId(graphId, textbook, null, false);
                         System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
                 });
             } else
                 resourceIds.forEach(textbook->{
-                    Boolean flag = syncByBookmarkId(graphId, textbook, bookmarkIds);
+                    Boolean flag = syncByBookmarkId(graphId, textbook, bookmarkIds, false);
                     System.out.println("Textbook id : " + textbook + " Sync status : " + flag);
                 });        }
     }
 
-    public Boolean syncByBookmarkId(String graphId, String resourceId, List<String> bookmarkIds) {
+    public void syncLeafNodesCountByIds(String graphId, List<String> resourceIds) {
+        if(CollectionUtils.isNotEmpty(resourceIds)) {
+            resourceIds.forEach(collectionId->{
+                Boolean flag = syncByBookmarkId(graphId, collectionId, null, true);
+                System.out.println("Collection id : " + collectionId + " Sync status : " + flag);
+            });
+        }
+    }
+
+    public Boolean syncByBookmarkId(String graphId, String resourceId, List<String> bookmarkIds, boolean refreshLeafNodeCount) {
         this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
         try {
             Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
             if (MapUtils.isNotEmpty(hierarchy)) {
+                if(refreshLeafNodeCount) {
+                    //Update Collection leafNodesCount in the hierarchy
+                    int collectionLeafNodesCount = getLeafNodesCount(hierarchy, 0);
+                    hierarchy.put("leafNodesCount", collectionLeafNodesCount);
+
+                    //Update leafNodesCount of children in the hierarchy
+                    updateLeafNodesCountInHierarchyMetadata((List<Map<String, Object>>) hierarchy.get("children"));
+
+                    //Update cassandra with updatedHierarchy
+                    hierarchyStore.saveOrUpdateHierarchy(resourceId, hierarchy);
+                }
+
                 List<Map<String, Object>> units = getUnitsMetadata(hierarchy, bookmarkIds);
-                
+
                 // Textbook should not be synced here.
                 /*if (CollectionUtils.isEmpty(bookmarkIds)) {
                     Map<String, Object> tbMetaData = getTBMetaData(resourceId);
@@ -137,7 +159,7 @@ public class CassandraESSyncManager {
             });
         }
     }
-    
+
     private Map<String, Object> refactorUnit(Map<String, Object> child) {
     		Map<String, Object> childData = new HashMap<>();
         childData.putAll(child);
@@ -273,6 +295,36 @@ public class CassandraESSyncManager {
             }
         }
 
+    }
+
+    private void updateLeafNodesCountInHierarchyMetadata(List<Map<String, Object>> children) {
+        if(CollectionUtils.isNotEmpty(children)) {
+            for(Map<String, Object> child : children) {
+                if(StringUtils.equalsIgnoreCase("Parent",
+                        (String)child.get("visibility"))){
+                    //set child metadata -- leafNodesCount
+                    child.put("leafNodesCount", getLeafNodesCount(child, 0));
+                    updateLeafNodesCountInHierarchyMetadata((List<Map<String,Object>>)child.get("children"));
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Integer getLeafNodesCount(Map<String, Object> data, int leafCount) {
+        List<Object> children = (List<Object>) data.get("children");
+        if (null != children && !children.isEmpty()) {
+            for (Object child : children) {
+                Map<String, Object> childMap = (Map<String, Object>) child;
+                int lc = 0;
+                lc = getLeafNodesCount(childMap, lc);
+                leafCount = leafCount + lc;
+            }
+        } else {
+            if (!COLLECTION_MIMETYPE.equals(data.get("mimeType")))
+                leafCount++;
+        }
+        return leafCount;
     }
 
 }
