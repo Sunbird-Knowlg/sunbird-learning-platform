@@ -160,9 +160,9 @@ public class DiscardOperation extends BaseContentManager {
     private Response getResult(Response response, String contentId) {
         response.getResult().put("node_id", contentId);
         if (!StringUtils.equalsIgnoreCase(ResponseCode.OK.name(), response.getResponseCode().name()))
-            response.getResult().put("message", "Draft version of the content with id: " + contentId + "is not found");
+            response.getResult().put("message", "Draft version of the content with id: " + contentId + " is not found");
         else
-            response.getResult().put("message", "Draft version of the content with id : " + contentId + "is discarded");
+            response.getResult().put("message", "Draft version of the content with id : " + contentId + " is discarded");
         return response;
     }
 

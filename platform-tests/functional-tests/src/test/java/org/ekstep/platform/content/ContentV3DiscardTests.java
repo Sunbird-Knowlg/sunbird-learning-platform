@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 
 
 import java.io.File;
+import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -191,6 +192,10 @@ public class ContentV3DiscardTests extends BaseTest {
         JsonPath res = readEditHierarchy(contentId);
         String actualStatus = res.get("result.content.status");
         assertEquals("Live", actualStatus);
+        List<String> languages = res.get("result.content.language");
+        System.out.println(languages);
+        assertEquals(1, languages.size());
+        assertEquals("[English]", languages.toString());
         JsonPath resp = readHierarchy(contentId);
         actualStatus = resp.get("result.content.status");
         assertEquals("Live", actualStatus);
@@ -214,7 +219,7 @@ public class ContentV3DiscardTests extends BaseTest {
         actualStatus = resp.get("result.content.status");
         assertEquals("Live", actualStatus);
     }
-    //@TODO: Doubt
+
     @Test
     public void discardCollectionWithStatusRetired() {
         String contentId = createContent(contentType, createTextContent);
@@ -352,7 +357,7 @@ public class ContentV3DiscardTests extends BaseTest {
                                 "  \"request\": {\n" +
                                 "    \"content\": {\n" +
                                 "      \"versionKey\": \"" + versionKey + "\",\n" +
-                                "      \"language\": [\"English\"]\n" +
+                                "      \"language\": [\"English\",\"Hindi\"]\n" +
                                 "    }\n" +
                                 "  }\n" +
                                 "}").
