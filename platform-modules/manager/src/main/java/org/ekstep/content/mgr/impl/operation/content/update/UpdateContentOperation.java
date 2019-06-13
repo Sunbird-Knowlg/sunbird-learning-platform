@@ -33,7 +33,7 @@ public class UpdateContentOperation extends BaseContentManager {
         DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
         restrictProps(definition, map, "status", "framework");
         
-        //
+        // copy of request map 
         Map<String, Object> orgRequestMap = new HashMap<String,Object>();
         orgRequestMap.putAll(map);
         orgRequestMap.remove("versionKey");
@@ -92,6 +92,7 @@ public class UpdateContentOperation extends BaseContentManager {
                 map.put("lastSubmittedOn", DateUtils.format(new Date()));
             }
         }
+        //graphNode metadata updated with values of request map
         for(Entry<String, Object> entry: orgRequestMap.entrySet()) {
         	graphNode.getMetadata().put(entry.getKey(), entry.getValue());
         }
@@ -108,7 +109,6 @@ public class UpdateContentOperation extends BaseContentManager {
                     metadata.put("lastUpdatedBy", lastUpdatedBy);
                 graphNode.setGraphId(TAXONOMY_ID);
                 createResponse = createDataNode(graphNode);
-                //createResponse = createDataNode(graphNode, true);
                 checkError = checkError(createResponse);
                 if (!checkError) {
                     TelemetryManager.log("Updating external props for: " + contentImageId);
