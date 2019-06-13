@@ -407,7 +407,7 @@ public abstract class BaseContentManager extends BaseManager {
         imageNode.setOutRelations(node.getOutRelations());
         imageNode.setTags(node.getTags());
         imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
-        Response response = createDataNode(imageNode);
+        Response response = createDataNode(imageNode, true);
         if (checkError(response))
             throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
                     "Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
