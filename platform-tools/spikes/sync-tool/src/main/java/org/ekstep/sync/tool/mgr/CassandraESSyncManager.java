@@ -9,11 +9,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.util.RequestValidatorUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
@@ -42,6 +45,7 @@ public class CassandraESSyncManager {
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
+    private static String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 
 
     @PostConstruct
@@ -79,45 +83,48 @@ public class CassandraESSyncManager {
             Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
             if (MapUtils.isNotEmpty(hierarchy)) {
                 if(refreshLeafNodeCount) {
-                    //Update Collection leafNodesCount in the hierarchy
-                    int collectionLeafNodesCount = getLeafNodesCount(hierarchy, 0);
-                    hierarchy.put("leafNodesCount", collectionLeafNodesCount);
-
-                    //Update leafNodesCount of children in the hierarchy
-                    updateLeafNodesCountInHierarchyMetadata((List<Map<String, Object>>) hierarchy.get("children"));
-
-                    //Update cassandra with updatedHierarchy
-                    hierarchyStore.saveOrUpdateHierarchy(resourceId, hierarchy);
+                    updateLeafNodeCount(hierarchy, resourceId);
                 }
-
                 List<Map<String, Object>> units = getUnitsMetadata(hierarchy, bookmarkIds);
-
-                // Textbook should not be synced here.
-                /*if (CollectionUtils.isEmpty(bookmarkIds)) {
-                    Map<String, Object> tbMetaData = getTBMetaData(resourceId);
-                    if (MapUtils.isNotEmpty(tbMetaData))
-                        units.add(tbMetaData);
-                }*/
-                if (CollectionUtils.isNotEmpty(units)) {
-                		List<String> syncedUnits = getSyncedUnitIds(units);
-                    List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
-                    Map<String, Object> esDocs = getESDocuments(units);
-                    if (MapUtils.isNotEmpty(esDocs)) {
-                        pushToElastic(esDocs);
-                        printMessages("success", syncedUnits, resourceId);
-                    }
-                    if (CollectionUtils.isNotEmpty(failedUnits)) {
-                        printMessages("failed", failedUnits, resourceId);
-                        return false;
-                    }
-                }
+                return updateElasticSearch(units, bookmarkIds, resourceId);
             } else {
                 System.out.println(resourceId + " is not a type of Collection or it is not live.");
                 return false;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(e.getMessage());
             return false;
+        }
+    }
+
+    private void updateLeafNodeCount(Map<String, Object> hierarchy, String resourceId) throws Exception {
+            //Update Collection leafNodesCount in the hierarchy
+            int collectionLeafNodesCount = getLeafNodesCount(hierarchy, 0);
+            hierarchy.put("leafNodesCount", collectionLeafNodesCount);
+            // Update RootNode in Neo4j
+            updateTextBookNode(resourceId, collectionLeafNodesCount);
+
+            //Update leafNodesCount of children in the hierarchy
+            updateLeafNodesCountInHierarchyMetadata((List<Map<String, Object>>) hierarchy.get("children"));
+
+            //Update cassandra with updatedHierarchy
+            hierarchyStore.saveOrUpdateHierarchy(resourceId, hierarchy);
+    }
+
+    private Boolean updateElasticSearch(List<Map<String, Object>> units, List<String> bookmarkIds, String resourceId) {
+        if (CollectionUtils.isNotEmpty(units)) {
+            List<String> syncedUnits = getSyncedUnitIds(units);
+            List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
+            Map<String, Object> esDocs = getESDocuments(units);
+            if (MapUtils.isNotEmpty(esDocs)) {
+                pushToElastic(esDocs);
+                printMessages("success", syncedUnits, resourceId);
+            }
+            if (CollectionUtils.isNotEmpty(failedUnits)) {
+                printMessages("failed", failedUnits, resourceId);
+                return false;
+            }
         }
         return true;
     }
@@ -327,4 +334,20 @@ public class CassandraESSyncManager {
         return leafCount;
     }
 
+
+    private void updateTextBookNode(String id, int collectionLeafNodesCount) throws Exception {
+        DefinitionDTO definition =util.getDefinition("domain", "Content");
+        Node node = util.getNode("domain", id);
+        Map<String, Object> map = new HashMap<String, Object>() {{
+            put("leafNodesCount", collectionLeafNodesCount);
+            put("versionKey", graphPassportKey);
+        }};
+        Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+        domainObj.setGraphId("domain");
+        domainObj.setObjectType("Content");
+        domainObj.setIdentifier(id);
+        Response response = util.updateNode(domainObj);
+        if(util.checkError(response))
+            throw new ServerException("Error while updating RootNode" , response.getParams().getErrmsg() + " :: " + response.getResult());
+    }
 }
