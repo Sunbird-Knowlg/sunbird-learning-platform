@@ -32,13 +32,15 @@ public class DiscardOperation extends BaseContentManager {
      * @return
      */
     public Response discard(String contentId) throws Exception {
-
-
         Response response;
         validateEmptyOrNull(contentId, "Content Id", ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name());
         Node imageNode = getNode(contentId, true);
         if (imageNode != null) {
-            response = discardNode(imageNode);
+            String objectType = imageNode.getObjectType();
+            if(StringUtils.equalsIgnoreCase(objectType, "ContentImage"))
+                response = discardNode(imageNode);
+            else
+                throw new ClientException(ContentErrorCodes.ERR_OBJECT_TYPE_MISMATCH.name(), "Content Image Node objectType isn't matching");
         } else {
             Node node = getNode(contentId, false);
             if (node == null) {
@@ -46,7 +48,6 @@ public class DiscardOperation extends BaseContentManager {
                         "Content not found with id: " + contentId, contentId);
             }
             response = discardNode(node);
-
         }
         return getResult(response, contentId);
     }
@@ -60,9 +61,12 @@ public class DiscardOperation extends BaseContentManager {
     private Response discardNode(Node node) throws Exception {
         String contentId = node.getIdentifier();
         String mimeType = (String) node.getMetadata().get("mimeType");
-        if (mimeType != null)
-            isCollection = StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType);
         String status = (String) node.getMetadata().get("status");
+        if (StringUtils.isNotBlank(mimeType) && StringUtils.isNotBlank(status)){
+            isCollection = StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType);
+        }else {
+            throw new ClientException(ContentErrorCodes.ERR_METADATA_ISSUE.name(), "Content Status and/or Mimetype can't be null");
+        }
         if (CONTENT_DISCARD_STATUS.contains(status)) {
             if (isCollection) {
                 Response responseCollection = discardCollection(contentId);
@@ -146,9 +150,9 @@ public class DiscardOperation extends BaseContentManager {
     private Response getResult(Response response, String contentId) {
         response.getResult().put("node_id", contentId);
         if (!StringUtils.equalsIgnoreCase(ResponseCode.OK.name(), response.getResponseCode().name()))
-            response.getResult().put("message", "Draft Changes couldn't be discarded for content id : " + contentId + "as not found");
+            response.getResult().put("message", "Draft version of the content with id: " + contentId + "is not found");
         else
-            response.getResult().put("message", "Draft Changes for content id : " + contentId + "are discarded");
+            response.getResult().put("message", "Draft version of the content with id : " + contentId + "is discarded");
         return response;
     }
 }

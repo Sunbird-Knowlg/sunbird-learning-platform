@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.PathParam;
-import javax.ws.rs.ext.ParamConverter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
