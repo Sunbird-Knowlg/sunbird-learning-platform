@@ -184,4 +184,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
         return this.hierarchyManager.getContentHierarchy(contentId, bookMarkId, mode, fields);
     }
 
+	/**
+	 * Implementation for {@link IContentManager#discardContent(String)}
+	 * @param contentId
+	 * @return
+	 * @throws Exception
+	 */
+    @Override
+	public Response discardContent(String contentId) throws Exception {
+		return this.contentManger.discard(contentId);
+	}
+
 }
