@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class UpdateContentOperation extends BaseContentManager {
 
@@ -32,11 +31,6 @@ public class UpdateContentOperation extends BaseContentManager {
         }
         DefinitionDTO definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE);
         restrictProps(definition, map, "status", "framework");
-        
-        // copy of request map 
-        Map<String, Object> orgRequestMap = new HashMap<String,Object>();
-        orgRequestMap.putAll(map);
-        orgRequestMap.remove("versionKey");
 
         String originalId = contentId;
         String objectType = CONTENT_OBJECT_TYPE;
@@ -92,10 +86,6 @@ public class UpdateContentOperation extends BaseContentManager {
                 map.put("lastSubmittedOn", DateUtils.format(new Date()));
             }
         }
-        //graphNode metadata updated with values of request map
-        for(Entry<String, Object> entry: orgRequestMap.entrySet()) {
-        	graphNode.getMetadata().put(entry.getKey(), entry.getValue());
-        }
 
         boolean checkError = false;
         Response createResponse = null;
@@ -108,7 +98,8 @@ public class UpdateContentOperation extends BaseContentManager {
                 if (null != lastUpdatedBy)
                     metadata.put("lastUpdatedBy", lastUpdatedBy);
                 graphNode.setGraphId(TAXONOMY_ID);
-                createResponse = createDataNode(graphNode);
+                //createResponse = createDataNode(graphNode);
+                createResponse = createDataNode(graphNode, true);
                 checkError = checkError(createResponse);
                 if (!checkError) {
                     TelemetryManager.log("Updating external props for: " + contentImageId);
@@ -129,16 +120,18 @@ public class UpdateContentOperation extends BaseContentManager {
         } else if (imageObjectExists) {
             objectType = CONTENT_IMAGE_OBJECT_TYPE;
             contentId = contentImageId;
-            
-            TelemetryManager.log("Updating content node: " + contentId);
-            Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
-            domainObj.setGraphId(TAXONOMY_ID);
-            domainObj.setIdentifier(contentId);
-            domainObj.setObjectType(objectType);
-            createResponse = updateDataNode(domainObj);
-            checkError = checkError(createResponse);
         }
 
+        if (checkError)
+            return createResponse;
+
+        TelemetryManager.log("Updating content node: " + contentId);
+        Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+        domainObj.setGraphId(TAXONOMY_ID);
+        domainObj.setIdentifier(contentId);
+        domainObj.setObjectType(objectType);
+        createResponse = updateDataNode(domainObj);
+        checkError = checkError(createResponse);
         if (checkError)
             return createResponse;
 
