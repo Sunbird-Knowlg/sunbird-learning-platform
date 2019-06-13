@@ -107,10 +107,11 @@ public class DiscardOperation extends BaseContentManager {
      */
 
     private Node getNode(String contentId, Boolean imageRequired) {
+        String identifier = contentId;
         if (imageRequired)
-            contentId = contentId + ".img";
-        TelemetryManager.log("Fetching the Data For Content Id: " + contentId);
-        Response response = getDataNode(TAXONOMY_ID, contentId);
+            identifier = identifier + ".img";
+        TelemetryManager.log("Fetching the Data For Content Id: " + identifier);
+        Response response = getDataNode(TAXONOMY_ID, identifier);
         if (!checkError(response)) {
             Node node = (Node) response.get(GraphDACParams.node.name());
             return node;
@@ -124,9 +125,10 @@ public class DiscardOperation extends BaseContentManager {
      * @return
      */
     private Response discardCollection(String contentId) {
+        String identifier = contentId;
             if(!StringUtils.endsWithIgnoreCase(contentId, ".img"))
-                contentId = contentId + ".img";
-            Response resp = deleteHierarchy(Arrays.asList(contentId));
+                identifier = identifier + ".img";
+            Response resp = deleteHierarchy(Arrays.asList(identifier));
             return resp;
     }
 
