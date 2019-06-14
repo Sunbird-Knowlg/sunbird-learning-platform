@@ -53,6 +53,8 @@ public class CassandraESSyncManager {
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
     private static String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
     private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
+    private List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
+            Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
 
 
     @PostConstruct
@@ -160,7 +162,6 @@ public class CassandraESSyncManager {
             flag = true;
         List<Map<String, Object>> children = (List<Map<String, Object>>)hierarchy.get("children");
         getUnitsToBeSynced(unitsMetadata, children, bookmarkIds, flag);
-        System.out.println("Data: " + new JSONObject(unitsMetadata));
         return unitsMetadata;
     }
 
@@ -189,21 +190,28 @@ public class CassandraESSyncManager {
             Map<String, Object> nodeMap = SyncMessageGenerator.getMessage(node);
             Map<String, Object>  message = SyncMessageGenerator.getJSONMessage(nodeMap, relationMap);
             childData = refactorUnit(child);
-            Map<String, Object> variants = (Map<String, Object>) message.get("variants");
-            if(MapUtils.isNotEmpty(variants))
+            Object variants = message.get("variants");
+            if(null != variants && !(variants instanceof String))
                 message.put("variants", mapper.writeValueAsString(variants));
-            message.put("children", childData.get("children"));
+            updateRelationData(message, childData);
             unitsMetadata.put((String) childData.get("identifier"), message);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void updateRelationData(Map<String, Object> message, Map<String, Object> childData) {
+        if(CollectionUtils.isNotEmpty(relationshipProperties)){
+            relationshipProperties.forEach(relationProperty -> {
+                if(CollectionUtils.isNotEmpty((List) childData.get(relationProperty)))
+                    message.put(relationProperty, childData.get(relationProperty));
+            });
+        }
+    }
+
     private Map<String, Object> refactorUnit(Map<String, Object> child) {
     		Map<String, Object> childData = new HashMap<>();
         childData.putAll(child);
-        List<String> relationshipProperties = Platform.config.hasPath("content.relationship.properties") ?
-                Arrays.asList(Platform.config.getString("content.relationship.properties").split(",")) : Collections.emptyList();
         for(String property : relationshipProperties) {
         		if(childData.containsKey(property)) {
         			List<Map<String, Object>> nextLevelNodes = (List<Map<String, Object>>) childData.get(property);
