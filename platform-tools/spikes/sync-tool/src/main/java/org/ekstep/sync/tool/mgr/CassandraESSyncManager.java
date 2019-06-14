@@ -3,6 +3,7 @@
  * @created: 13th May 2019
  */
 package org.ekstep.sync.tool.mgr;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,9 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.hierarchy.store.HierarchyStore;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
+import org.ekstep.sync.tool.util.GraphUtil;
+import org.ekstep.sync.tool.util.SyncMessageGenerator;
+import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -36,20 +40,26 @@ public class CassandraESSyncManager {
 
     private ControllerUtil util = new ControllerUtil();
     private ObjectMapper mapper = new ObjectMapper();
-    private String graphId;
+    private String graphId = "domain";
     private final String objectType = "Content";
     private final String nodeType = "DATA_NODE";
-    Map<String, Object> definition = getDefinition();
+    DefinitionDTO definitionDTO;
+    Map<String, Object> definition = new HashMap<>();
+    Map<String, String> relationMap = new HashMap<>();
 
 
     private HierarchyStore hierarchyStore = new HierarchyStore();
     private ElasticSearchConnector searchConnector = new ElasticSearchConnector();
     private static final String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
     private static String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+    private static List<String> nestedFields = Platform.config.getStringList("nested.fields");
 
 
     @PostConstruct
     private void init() throws Exception {
+        definitionDTO = util.getDefinition(graphId, objectType);
+        definition = getDefinition();
+        relationMap = GraphUtil.getRelationMap(objectType, definition);
     }
 
     public void syncAllIds(String graphId, List<String> resourceIds, List<String> bookmarkIds) {
@@ -85,8 +95,12 @@ public class CassandraESSyncManager {
                 if(refreshLeafNodeCount) {
                     updateLeafNodeCount(hierarchy, resourceId);
                 }
-                List<Map<String, Object>> units = getUnitsMetadata(hierarchy, bookmarkIds);
-                return updateElasticSearch(units, bookmarkIds, resourceId);
+                Map<String, Object> units = getUnitsMetadata(hierarchy, bookmarkIds);
+                if(MapUtils.isNotEmpty(units)){
+                    pushToElastic(units);
+                    printMessages("success", new ArrayList<>(units.keySet()), resourceId);
+                }
+                return true;
             } else {
                 System.out.println(resourceId + " is not a type of Collection or it is not live.");
                 return false;
@@ -112,7 +126,7 @@ public class CassandraESSyncManager {
             hierarchyStore.saveOrUpdateHierarchy(resourceId, hierarchy);
     }
 
-    private Boolean updateElasticSearch(List<Map<String, Object>> units, List<String> bookmarkIds, String resourceId) {
+    private Boolean updateElasticSearch(List<Map<String, Object>> units, List<String> bookmarkIds, String resourceId) throws Exception {
         if (CollectionUtils.isNotEmpty(units)) {
             List<String> syncedUnits = getSyncedUnitIds(units);
             List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
@@ -139,31 +153,49 @@ public class CassandraESSyncManager {
     }
 
 
-    public List<Map<String, Object>> getUnitsMetadata(Map<String, Object> hierarchy, List<String> bookmarkIds) {
+    public Map<String, Object> getUnitsMetadata(Map<String, Object> hierarchy, List<String> bookmarkIds) {
         Boolean flag = false;
-        List<Map<String, Object>> unitsMetadata = new ArrayList<>();
+        Map<String, Object> unitsMetadata = new HashMap<>();
         if(CollectionUtils.isEmpty(bookmarkIds))
             flag = true;
         List<Map<String, Object>> children = (List<Map<String, Object>>)hierarchy.get("children");
         getUnitsToBeSynced(unitsMetadata, children, bookmarkIds, flag);
+        System.out.println("Data: " + new JSONObject(unitsMetadata));
         return unitsMetadata;
     }
 
-    private void getUnitsToBeSynced(List<Map<String, Object>> unitsMetadata, List<Map<String, Object>> children, List<String> bookmarkIds, Boolean flag) {
+    private void getUnitsToBeSynced(Map<String, Object> unitsMetadata, List<Map<String, Object>> children, List<String> bookmarkIds, Boolean flag) {
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
                 if (child.containsKey("visibility") && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "parent")) {
-                		Map<String, Object> childData = refactorUnit(child);
-                		if (flag)
-                        unitsMetadata.add(childData);
-                    else if (bookmarkIds.contains(child.get("identifier")))
-                        unitsMetadata.add(childData);
+                		if (flag || bookmarkIds.contains(child.get("identifier"))){
+                		    populateESDoc(unitsMetadata, child);
+                        }
                     if (child.containsKey("children")) {
                         List<Map<String,Object>> newChildren = mapper.convertValue(child.get("children"), new TypeReference<List<Map<String, Object>>>(){});
                         getUnitsToBeSynced(unitsMetadata, newChildren , bookmarkIds, flag);
                     }
                 }
             });
+        }
+    }
+
+    private void populateESDoc(Map<String, Object> unitsMetadata, Map<String, Object> child) {
+        Map<String, Object> childData = new HashMap<>();
+        childData.putAll(child);
+        childData.remove("children");
+        try {
+            Node node = ConvertToGraphNode.convertToGraphNode(childData, definitionDTO, null);
+            Map<String, Object> nodeMap = SyncMessageGenerator.getMessage(node);
+            Map<String, Object>  message = SyncMessageGenerator.getJSONMessage(nodeMap, relationMap);
+            childData = refactorUnit(child);
+            Map<String, Object> variants = (Map<String, Object>) message.get("variants");
+            if(MapUtils.isNotEmpty(variants))
+                message.put("variants", mapper.writeValueAsString(variants));
+            message.put("children", childData.get("children"));
+            unitsMetadata.put((String) childData.get("identifier"), message);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -223,28 +255,18 @@ public class CassandraESSyncManager {
         return metadata;
     }
 
-    private Map<String, Object> getESDocuments(List<Map<String, Object>> units) {
+    private Map<String, Object> getESDocuments(List<Map<String, Object>> units) throws Exception {
         List<String> indexablePropslist;
-        
-        Map<String, Object> esDocument = new HashMap<>();
-        List<String> objectTypeList = Platform.config.hasPath("restrict.metadata.objectTypes") ?
-                Arrays.asList(Platform.config.getString("restrict.metadata.objectTypes").split(",")) : Collections.emptyList();
-        if (objectTypeList.contains(objectType)) {
-            indexablePropslist = getIndexableProperties(definition);
-            units.forEach(unit -> {
-                String identifier = (String) unit.get("identifier");
-                if (CollectionUtils.isNotEmpty(indexablePropslist))
-                    filterIndexableProps(unit, indexablePropslist);
-                putAdditionalFields(unit, identifier);
-                esDocument.put( identifier , unit);
-            });
-        }else {
-        		units.forEach(unit -> {
-                String identifier = (String) unit.get("identifier");
-                putAdditionalFields(unit, identifier);
-                esDocument.put( identifier , unit);
-            });
-        }
+        DefinitionDTO definition =util.getDefinition("domain", "Content");
+        List<Node> nodes = units.stream().map(unit -> {
+            try {
+                return ConvertToGraphNode.convertToGraphNode(unit, definition, null);
+            } catch (Exception e) {
+            }
+            return null;
+        }).filter(node -> null!=node).collect(Collectors.toList());
+
+        Map<String, Object> esDocument = SyncMessageGenerator.getMessages(nodes, "Content", new HashMap<>());
         return esDocument;
     }
 
@@ -257,11 +279,10 @@ public class CassandraESSyncManager {
 
     private Map<String, Object> getDefinition() {
     		this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
-        DefinitionDTO definition = util.getDefinition(graphId, objectType);
-        if (RequestValidatorUtil.isEmptyOrNull(definition)) {
+        if (RequestValidatorUtil.isEmptyOrNull(definitionDTO)) {
             throw new ServerException("ERR_DEFINITION_NOT_FOUND", "No Definition found for " + objectType);
         }
-        return mapper.convertValue(definition, new TypeReference<Map<String, Object>>() {
+        return mapper.convertValue(definitionDTO, new TypeReference<Map<String, Object>>() {
         });
     }
 
