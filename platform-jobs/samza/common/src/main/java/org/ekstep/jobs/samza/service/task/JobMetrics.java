@@ -90,6 +90,7 @@ public class JobMetrics {
 	public long computeConsumerLag(Map<String, ConcurrentHashMap<String, Metric>> containerMetricsRegistry) {
 		long consumerLag = 0;
 		try {
+			LOGGER.info("computeConsumerLag | stream count for partition "+partition +" : "+context.getSystemStreamPartitions().size());
 			for (SystemStreamPartition sysPartition : context.getSystemStreamPartitions()) {
 				if (!sysPartition.getStream().endsWith("system.command")) {
 
@@ -112,6 +113,7 @@ public class JobMetrics {
 	}
 
 	public Map<String, Object> collect() {
+		LOGGER.info("collect is called for Job : "+getJobName()+" , partition : "+partition);
 		Map<String, Object> metricsEvent = new HashMap<>();
 		metricsEvent.put("job-name", jobName);
 		metricsEvent.put("success-message-count", successMessageCount.getCount());
