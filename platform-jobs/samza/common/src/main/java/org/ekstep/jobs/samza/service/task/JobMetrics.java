@@ -103,7 +103,7 @@ public class JobMetrics {
 							Long.valueOf(containerMetricsRegistry.get("org.apache.samza.system.kafka.KafkaSystemConsumerMetrics")
 									.get(offsetChangeKey).toString());
 					long offset = offsetMap.getOrDefault(sysPartition.getStream() + sysPartition.getPartition().getPartitionId(), 0L);
-					LOGGER.info("Job Name : " + getJobName() + " , Stream : " + sysPartition.toString() + " , offsetChangeKey : " + offsetChangeKey + " , logEndOffset : " + logEndOffset + " , current offset of message got processed by samza: " + offset + " , partition : " + sysPartition.getPartition().getPartitionId() + " , consumer lag : " + ((offset > 0) ? (logEndOffset - offset + 1) : 0) + " , timestamp :" + System.currentTimeMillis());
+					LOGGER.info("Job Name : " + getJobName() + " , Stream : " + sysPartition.toString() + " , offsetChangeKey : " + offsetChangeKey + " , logEndOffset : " + logEndOffset + " , current offset of message got processed by samza: " + offset + " , partition : " + sysPartition.getPartition().getPartitionId() + " , consumer lag : " + ((offset > 0) ? ((logEndOffset - offset) + 1) : 0) + " , timestamp :" + System.currentTimeMillis());
 					if (offset > 0L) {
 						offset += 1;
 						consumerLag += logEndOffset - offset;
