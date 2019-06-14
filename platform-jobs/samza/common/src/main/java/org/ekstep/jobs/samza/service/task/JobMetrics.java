@@ -22,6 +22,7 @@ public class JobMetrics {
 	private final Counter failedMessageCount;
 	private final Counter skippedMessageCount;
 	private final Counter errorMessageCount;
+	private int partition;
 	private Map<String,Long> offsetMap = new HashMap<>();
 
 
@@ -45,6 +46,7 @@ public class JobMetrics {
 		failedMessageCount.clear();
 		skippedMessageCount.clear();
 		errorMessageCount.clear();
+		offsetMap.clear();
 	}
 
 	public void incSuccessCounter() {
@@ -87,18 +89,21 @@ public class JobMetrics {
 
 	public long computeConsumerLag(Map<String, ConcurrentHashMap<String, Metric>> containerMetricsRegistry) {
 		long consumerLag = 0;
-		int partition = 0;
 		try {
 			for (SystemStreamPartition sysPartition : context.getSystemStreamPartitions()) {
-				String offsetChangeKey = String.format("%s-%s-%s-offset-change",
-						sysPartition.getSystem(), sysPartition.getStream(), sysPartition.getPartition().getPartitionId());
-				long logEndOffset =
-						Long.valueOf(containerMetricsRegistry.get("org.apache.samza.system.kafka.KafkaSystemConsumerMetrics")
-								.get(offsetChangeKey).toString());
-				long offset = offsetMap.getOrDefault(sysPartition.getStream() +
-						sysPartition.getPartition().getPartitionId(), -1L) + 1L;
-				consumerLag += logEndOffset - offset;
-				partition = sysPartition.getPartition().getPartitionId();
+				if (!sysPartition.getStream().endsWith("system.command")) {
+
+					String offsetChangeKey = String.format("%s-%s-%s-offset-change",
+							sysPartition.getSystem(), sysPartition.getStream(), sysPartition.getPartition().getPartitionId());
+					long logEndOffset =
+							Long.valueOf(containerMetricsRegistry.get("org.apache.samza.system.kafka.KafkaSystemConsumerMetrics")
+									.get(offsetChangeKey).toString());
+					long offset = offsetMap.getOrDefault(sysPartition.getStream() +
+							sysPartition.getPartition().getPartitionId(), 0L);
+					LOGGER.info("Job Name : " + getJobName() + " , Stream : " + sysPartition.toString() + " , offsetChangeKey : " + offsetChangeKey + " , logEndOffset : " + logEndOffset + " , current offset : " + offset + " , partition : " + sysPartition.getPartition().getPartitionId() + " , consumer lag : " + (logEndOffset - offset) + " , timestamp :" + System.currentTimeMillis());
+					consumerLag += logEndOffset - offset;
+					partition = sysPartition.getPartition().getPartitionId();
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error("Exception Occurred While Computing Consumer Lag. Exception is : ", "", e);
@@ -113,6 +118,7 @@ public class JobMetrics {
 		metricsEvent.put("failed-message-count", failedMessageCount.getCount());
 		metricsEvent.put("error-message-count", errorMessageCount.getCount());		
 		metricsEvent.put("skipped-message-count", skippedMessageCount.getCount());
+		metricsEvent.put("partition",partition);
 		metricsEvent.put("consumer-lag",
 				computeConsumerLag(((MetricsRegistryMap) context.getSamzaContainerContext().metricsRegistry).metrics()));
 		return metricsEvent;
