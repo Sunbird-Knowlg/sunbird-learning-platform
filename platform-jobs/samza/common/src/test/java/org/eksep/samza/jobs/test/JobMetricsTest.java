@@ -58,7 +58,7 @@ public class JobMetricsTest  {
 
         when(contextMock.getSystemStreamPartitions()).thenReturn(systemStreamPartitions);
         long consumer_lag = jobMetricsMock.computeConsumerLag(concurrentHashMap);
-        assertEquals(15, consumer_lag);
+        assertEquals(13, consumer_lag);
 
     }
 
@@ -101,7 +101,7 @@ public class JobMetricsTest  {
         //Assert.assertEquals(15, consumer_lag);
 
         //After Ignoring system.command stream
-        assertEquals(12, consumer_lag);
+        assertEquals(11, consumer_lag);
 
     }
 }

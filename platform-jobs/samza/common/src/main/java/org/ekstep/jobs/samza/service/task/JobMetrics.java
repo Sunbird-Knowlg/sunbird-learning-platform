@@ -46,7 +46,6 @@ public class JobMetrics {
 		failedMessageCount.clear();
 		skippedMessageCount.clear();
 		errorMessageCount.clear();
-		offsetMap.clear();
 	}
 
 	public void incSuccessCounter() {
@@ -87,10 +86,14 @@ public class JobMetrics {
 		offsetMap.put(offsetMapKey, Long.valueOf(offset));
 	}
 
+	/**
+	 *
+	 * @param containerMetricsRegistry
+	 * @return
+	 */
 	public long computeConsumerLag(Map<String, ConcurrentHashMap<String, Metric>> containerMetricsRegistry) {
 		long consumerLag = 0;
 		try {
-			LOGGER.info("computeConsumerLag | stream count for partition "+partition +" : "+context.getSystemStreamPartitions().size());
 			for (SystemStreamPartition sysPartition : context.getSystemStreamPartitions()) {
 				if (!sysPartition.getStream().endsWith("system.command")) {
 
@@ -99,10 +102,12 @@ public class JobMetrics {
 					long logEndOffset =
 							Long.valueOf(containerMetricsRegistry.get("org.apache.samza.system.kafka.KafkaSystemConsumerMetrics")
 									.get(offsetChangeKey).toString());
-					long offset = offsetMap.getOrDefault(sysPartition.getStream() +
-							sysPartition.getPartition().getPartitionId(), 0L);
-					LOGGER.info("Job Name : " + getJobName() + " , Stream : " + sysPartition.toString() + " , offsetChangeKey : " + offsetChangeKey + " , logEndOffset : " + logEndOffset + " , current offset : " + offset + " , partition : " + sysPartition.getPartition().getPartitionId() + " , consumer lag : " + (logEndOffset - offset) + " , timestamp :" + System.currentTimeMillis());
-					consumerLag += logEndOffset - offset;
+					long offset = offsetMap.getOrDefault(sysPartition.getStream() + sysPartition.getPartition().getPartitionId(), 0L);
+					LOGGER.info("Job Name : " + getJobName() + " , Stream : " + sysPartition.toString() + " , offsetChangeKey : " + offsetChangeKey + " , logEndOffset : " + logEndOffset + " , current offset of message got processed by samza: " + offset + " , partition : " + sysPartition.getPartition().getPartitionId() + " , consumer lag : " + ((offset > 0) ? (logEndOffset - offset + 1) : 0) + " , timestamp :" + System.currentTimeMillis());
+					if (offset > 0L) {
+						offset += 1;
+						consumerLag += logEndOffset - offset;
+					}
 					partition = sysPartition.getPartition().getPartitionId();
 				}
 			}
