@@ -333,9 +333,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 			final List<Relation> delRels = new ArrayList<Relation>();
 			final List<Node> dbNodes = new ArrayList<Node>();
 			String date = DateUtils.formatCurrentDate();
-			
+
 			Node dbNode = datanode.getNodeObject(request);
-			
+
 			if (null != dbNode && StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), dbNode.getNodeType())) {
 				if (null == datanode.getMetadata()) {
 					datanode.setMetadata(new HashMap<String, Object>());
