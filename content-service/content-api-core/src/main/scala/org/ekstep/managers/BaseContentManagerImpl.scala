@@ -266,16 +266,6 @@ class BaseContentManagerImpl extends BaseManager {
     }
 
 
-
-    /**
-      * To get a definition node for content type
-      * @return
-      */
-    protected def getDefinitionNode(graphId: String, objectType: String): DefinitionDTO = {
-        val requestDto = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition", GraphDACParams.object_type.name, objectType);
-        getResponse(requestDto,RequestRouterPool.getRequestRouter()).get(GraphDACParams.definition_node.name).asInstanceOf[DefinitionDTO]
-    }
-
     protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
         if (StringUtils.isNotBlank(mimeType)) {
             if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
@@ -288,17 +278,21 @@ class BaseContentManagerImpl extends BaseManager {
     }
 
     protected def modifyContentProperties(contentId: String, properties: List[String]) = {
+
+        var response: org.ekstep.common.dto.Response = getContentProperties(contentId, properties)
+        if(!checkError(response)){
+            val extValues = response.get(ContentStoreParams.values.name).asInstanceOf[Map[String, AnyRef]]
+            if (null != extValues && !extValues.isEmpty) response = updateContentProperties(contentId+DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, extValues)
+        }
+    }
+
+    protected def getContentProperties(contentId: String, properties: List[String]):Response={
         val request: org.ekstep.common.dto.Request = new Request()
         request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
         request.setOperation(ContentStoreOperations.getContentProperties.name)
         request.put(ContentStoreParams.content_id.name, contentId)
         request.put(ContentStoreParams.properties.name, properties.asJava)
-        var response: org.ekstep.common.dto.Response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
-
-        if(!checkError(response)){
-            val extValues = response.get(ContentStoreParams.values.name).asInstanceOf[Map[String, AnyRef]]
-            if (null != extValues && !extValues.isEmpty) response = updateContentProperties(contentId+DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, extValues)
-        }
+        return  getResponse(request, LearningRequestRouterPool.getRequestRouter)
     }
 
 

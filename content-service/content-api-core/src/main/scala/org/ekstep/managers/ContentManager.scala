@@ -17,7 +17,6 @@ import org.ekstep.graph.dac.enums.GraphDACParams
 import org.ekstep.graph.model.node.DefinitionDTO
 import org.ekstep.learning.common.enums.ContentAPIParams
 import org.ekstep.graph.dac.model.Node
-import org.ekstep.learning.contentstore.ContentStoreParams
 import org.ekstep.telemetry.logger.TelemetryManager
 
 import scala.collection.JavaConverters._
@@ -220,7 +219,7 @@ object ContentManager extends BaseContentManagerImpl {
         var contentMap = map
         if (contentMap.contains("dialcodes")) contentMap - "dialcodes"
 
-        val definition = getDefinitionNode(TAXONOMY_ID, CONTENT_OBJECT_TYPE)
+        val definition = getDefinition(TAXONOMY_ID, CONTENT_OBJECT_TYPE)
         restrictProps(definition, contentMap, "status", "framework", "mimeType", "contentType")
 
         contentMap += "objectType" -> CONTENT_OBJECT_TYPE
@@ -244,26 +243,23 @@ object ContentManager extends BaseContentManagerImpl {
         val inputStatus = contentMap.getOrElse("status", "").asInstanceOf[String]
         if (reviewStatus.contains(inputStatus) && !reviewStatus.contains(status)) contentMap += ("lastSubmittedOn"-> DateUtils.format(new Date()))
 
-
-        var createResponse = createDataNode(node)
-        if (!checkError(createResponse)) {
-            modifyContentProperties(contentIdentifier, externalPropList)
-            contentMap += ("versionKey" -> createResponse.get("versionKey"))
-        }
-
         val domainObj = ConvertToGraphNode.convertToGraphNode(contentMap.asJava, definition, node)
         domainObj.setGraphId(TAXONOMY_ID)
         domainObj.setIdentifier(node.getIdentifier)
         domainObj.setObjectType(node.getObjectType)
-        createResponse = updateDataNode(domainObj)
-        if (checkError(createResponse)) return createResponse
+        val updateResponse = updateDataNode(domainObj)
 
-        createResponse.put(GraphDACParams.node_id.name, contentIdentifier)
+        if (checkError(updateResponse)) return updateResponse
+
+        modifyContentProperties(contentIdentifier, externalPropList)
+        contentMap += ("versionKey" -> updateResponse.get("versionKey"))
+
+        updateResponse.put(GraphDACParams.node_id.name, contentIdentifier)
 
         val externalPropsResponse = updateContentProperties(contentIdentifier, externalProps)
         if (checkError(externalPropsResponse)) return externalPropsResponse
 
-        return createResponse
+        return updateResponse
     }
 
 }
