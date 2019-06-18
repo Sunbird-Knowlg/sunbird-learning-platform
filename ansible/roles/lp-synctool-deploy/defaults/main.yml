@@ -14,5 +14,6 @@ hierarchy_keyspace_name: "{{env}}_hierarchy_store"
 youtube_app_name: fetch-youtube-license
 instance: "{{env}}"
 instance_name: 
+compositesearch_index_name: "compositesearch"
 
 lp_cassandra_connection: "{{groups['cassandra']|join(':9042,')}}:9042"
