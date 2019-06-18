@@ -59,12 +59,9 @@ public class ReserveDialcodesOperation extends BaseContentManager {
 
         Response updateResponse;
         if (updateContent) {
-            Map<String, Object> reqMap = new HashMap<>();
-            reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
-            updateResponse = updateAllContents(contentId, reqMap);
             // update textbook hierarchy for live content
             boolean isHierarchyUpdateReq = StringUtils.equalsIgnoreCase(node.getObjectType(), "ContentImage") ? true : (StringUtils.equalsIgnoreCase((String) metaData.get("status"), "Live") ? true : false);
-            if (!checkError(updateResponse) && isHierarchyUpdateReq) {
+            if (isHierarchyUpdateReq) {
                 Response hierarchyResponse = getCollectionHierarchy(contentId);
                 if (checkError(hierarchyResponse)) {
                     throw new ServerException("ERR_DIALCODE_RESERVE",
@@ -73,11 +70,15 @@ public class ReserveDialcodesOperation extends BaseContentManager {
                 Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
                 if (MapUtils.isNotEmpty(rootHierarchy))
                     rootHierarchy.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
-                Response rupdateResponse = updateCollectionHierarchy(contentId, rootHierarchy);
-                if (checkError(rupdateResponse))
+                Response updateHierarchyResponse = updateCollectionHierarchy(contentId, rootHierarchy);
+                if (checkError(updateHierarchyResponse))
                     throw new ServerException("ERR_DIALCODE_RESERVE",
                             "Unable to update Hierarchy for Root Node: [" + contentId + "]");
             }
+            //update neo4j node
+            Map<String, Object> reqMap = new HashMap<>();
+            reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
+            updateResponse = updateAllContents(contentId, reqMap);
         }else {
             updateResponse = getClientErrorResponse();
             updateResponse.put(ContentAPIParams.messages.name(),
