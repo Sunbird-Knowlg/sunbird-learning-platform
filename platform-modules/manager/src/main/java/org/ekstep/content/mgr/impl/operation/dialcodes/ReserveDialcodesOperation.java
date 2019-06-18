@@ -1,6 +1,7 @@
 package org.ekstep.content.mgr.impl.operation.dialcodes;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.hadoop.util.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.enums.TaxonomyErrorCodes;
@@ -11,14 +12,15 @@ import org.ekstep.common.util.HttpRestUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.taxonomy.enums.DialCodeEnum;
 import org.ekstep.taxonomy.mgr.impl.BaseContentManager;
 import org.ekstep.telemetry.logger.TelemetryManager;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
 
 public class ReserveDialcodesOperation extends BaseContentManager {
 
@@ -56,10 +58,26 @@ public class ReserveDialcodesOperation extends BaseContentManager {
         }
 
         Response updateResponse;
-        if(updateContent) {
+        if (updateContent) {
             Map<String, Object> reqMap = new HashMap<>();
             reqMap.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
             updateResponse = updateAllContents(contentId, reqMap);
+            // update textbook hierarchy for live content
+            boolean isHierarchyUpdateReq = StringUtils.equalsIgnoreCase(node.getObjectType(), "ContentImage") ? true : (StringUtils.equalsIgnoreCase((String) metaData.get("status"), "Live") ? true : false);
+            if (!checkError(updateResponse) && isHierarchyUpdateReq) {
+                Response hierarchyResponse = getCollectionHierarchy(contentId);
+                if (!checkError(hierarchyResponse)) {
+                    throw new ServerException("ERR_DIALCODE_RESERVE",
+                            "Unable to fetch Hierarchy for Root Node: [" + contentId + "]");
+                }
+                Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
+                if (MapUtils.isNotEmpty(rootHierarchy))
+                    rootHierarchy.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
+                Response response = updateCollectionHierarchy(contentId, rootHierarchy);
+                if (!checkError(response))
+                    throw new ServerException("ERR_DIALCODE_RESERVE",
+                            "Unable to update Hierarchy for Root Node: [" + contentId + "]");
+            }
         }else {
             updateResponse = getClientErrorResponse();
             updateResponse.put(ContentAPIParams.messages.name(),
