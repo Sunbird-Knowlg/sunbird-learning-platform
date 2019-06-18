@@ -15,6 +15,7 @@ import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.util.RequestValidatorUtil;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
@@ -100,7 +101,10 @@ public class CassandraESSyncManager {
                 Map<String, Object> units = getUnitsMetadata(hierarchy, bookmarkIds);
                 if(MapUtils.isNotEmpty(units)){
                     pushToElastic(units);
-                    printMessages("success", new ArrayList<>(units.keySet()), resourceId);
+                    List<String> ids = new ArrayList<>(units.keySet());
+                    printMessages("success", ids, resourceId);
+                    ids.add(resourceId);
+                    ids.forEach(id -> RedisStoreUtil.delete("hierarchy_" + id));
                 }
                 return true;
             } else {
@@ -126,6 +130,9 @@ public class CassandraESSyncManager {
 
             //Update cassandra with updatedHierarchy
             hierarchyStore.saveOrUpdateHierarchy(resourceId, hierarchy);
+
+            //Clear Redis Cache of hierarchy data
+            RedisStoreUtil.delete("hierarchy_" + resourceId);
     }
 
     private Boolean updateElasticSearch(List<Map<String, Object>> units, List<String> bookmarkIds, String resourceId) throws Exception {
@@ -187,6 +194,9 @@ public class CassandraESSyncManager {
         childData.remove("children");
         try {
             Node node = ConvertToGraphNode.convertToGraphNode(childData, definitionDTO, null);
+            node.setGraphId(graphId);
+            node.setObjectType(objectType);
+            node.setNodeType(nodeType);
             Map<String, Object> nodeMap = SyncMessageGenerator.getMessage(node);
             Map<String, Object>  message = SyncMessageGenerator.getJSONMessage(nodeMap, relationMap);
             childData = refactorUnit(child);
