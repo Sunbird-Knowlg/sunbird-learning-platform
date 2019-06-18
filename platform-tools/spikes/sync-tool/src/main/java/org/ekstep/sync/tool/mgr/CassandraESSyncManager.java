@@ -101,7 +101,10 @@ public class CassandraESSyncManager {
                 Map<String, Object> units = getUnitsMetadata(hierarchy, bookmarkIds);
                 if(MapUtils.isNotEmpty(units)){
                     pushToElastic(units);
-                    printMessages("success", new ArrayList<>(units.keySet()), resourceId);
+                    List<String> ids = new ArrayList<>(units.keySet());
+                    printMessages("success", ids, resourceId);
+                    ids.add(resourceId);
+                    ids.forEach(id -> RedisStoreUtil.delete("hierarchy_" + id));
                 }
                 return true;
             } else {
