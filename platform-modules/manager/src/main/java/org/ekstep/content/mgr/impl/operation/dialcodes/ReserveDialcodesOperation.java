@@ -66,15 +66,15 @@ public class ReserveDialcodesOperation extends BaseContentManager {
             boolean isHierarchyUpdateReq = StringUtils.equalsIgnoreCase(node.getObjectType(), "ContentImage") ? true : (StringUtils.equalsIgnoreCase((String) metaData.get("status"), "Live") ? true : false);
             if (!checkError(updateResponse) && isHierarchyUpdateReq) {
                 Response hierarchyResponse = getCollectionHierarchy(contentId);
-                if (!checkError(hierarchyResponse)) {
+                if (checkError(hierarchyResponse)) {
                     throw new ServerException("ERR_DIALCODE_RESERVE",
                             "Unable to fetch Hierarchy for Root Node: [" + contentId + "]");
                 }
                 Map<String, Object> rootHierarchy = (Map<String, Object>) hierarchyResponse.getResult().get("hierarchy");
                 if (MapUtils.isNotEmpty(rootHierarchy))
                     rootHierarchy.put(ContentAPIParams.reservedDialcodes.name(), dialCodeMap);
-                Response response = updateCollectionHierarchy(contentId, rootHierarchy);
-                if (!checkError(response))
+                Response rupdateResponse = updateCollectionHierarchy(contentId, rootHierarchy);
+                if (checkError(rupdateResponse))
                     throw new ServerException("ERR_DIALCODE_RESERVE",
                             "Unable to update Hierarchy for Root Node: [" + contentId + "]");
             }
