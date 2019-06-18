@@ -2,8 +2,10 @@ package org.ekstep.managers
 
 
 import java.util.Date
+import java.io.File
 
 import org.apache.commons.lang3.StringUtils
+import org.ekstep.common.Platform
 import org.ekstep.common.dto.Response
 import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.exception.{ClientException, ResponseCode, ServerException}
@@ -17,6 +19,7 @@ import org.ekstep.graph.dac.enums.GraphDACParams
 import org.ekstep.graph.model.node.DefinitionDTO
 import org.ekstep.learning.common.enums.ContentAPIParams
 import org.ekstep.graph.dac.model.Node
+import org.ekstep.graph.service.common.DACConfigurationConstants
 import org.ekstep.telemetry.logger.TelemetryManager
 
 import scala.collection.JavaConverters._
@@ -261,5 +264,116 @@ object ContentManager extends BaseContentManagerImpl {
 
         return updateResponse
     }
+
+    def uploadFile(request: org.ekstep.commons.Request) : Response ={
+        val params = request.params.getOrElse(Map())
+        val contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
+
+        val file = params.getOrElse("file", new File("Empty")).asInstanceOf[File]
+        var mimeType = params.getOrElse("mimeType", "").asInstanceOf[String]
+
+        try{
+            val node = getNodeForOperation(contentId, "upload")
+            isNodeUnderProcessing(node, "Upload");
+
+            //update the mime type
+            var updateMimeType = false
+            if (StringUtils.isBlank(mimeType)) {
+                mimeType = node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString
+            } else {
+                node.getMetadata.asScala += ("mimeType"-> mimeType)
+                updateDefaultValuesByMimeType(node.getMetadata.asInstanceOf[Map[String, AnyRef]], mimeType)
+                updateMimeType = true
+            }
+
+            val mimeTypeManager = MimeTypeManagerFactory.getManager(node.getMetadata.get("contentType").asInstanceOf[String], mimeType)
+            val response = mimeTypeManager.upload(contentId, node, file, false)
+            if(checkError(response)) return response
+            if (updateMimeType) {
+                val updatedRes = updateResponseWith(response, node, contentId, mimeType)
+                if (checkError(updatedRes)) return response
+            }
+
+            editResponse(response)
+            return response
+        }  catch {
+            case e: ClientException =>
+                println("c-execp "+e.printStackTrace())
+                throw e
+            case e: ServerException =>
+                println("S-execp "+e.printStackTrace())
+                return ERROR(e.getErrCode, e.getMessage, ResponseCode.SERVER_ERROR)
+            case e: Exception =>
+                println("e-execp "+e.printStackTrace())
+                val message = "Something went wrong while processing uploaded file."
+                TelemetryManager.error(message, e)
+                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name, message, ResponseCode.SERVER_ERROR)
+        }
+
+
+    }
+
+
+    def uploadUrl(request: org.ekstep.commons.Request) : Response ={
+        val params = request.params.getOrElse(Map())
+        val contentId = params.getOrElse(Constants.IDENTIFIER, "").asInstanceOf[String]
+        val fileUrl = params.getOrElse("fileUrl", "").asInstanceOf[String]
+        var mimeType = params.getOrElse("mimeType", "").asInstanceOf[String]
+
+        try {
+            val node = getNodeForOperation(contentId, "upload")
+            isNodeUnderProcessing(node, "Upload");
+
+            //update the mime type
+            var updateMimeType = false
+            if (StringUtils.isBlank(mimeType)) {
+                mimeType = node.getMetadata().getOrDefault("mimeType", Constants.DEFAULT_MIME_TYPE).toString
+            } else {
+                node.getMetadata.asScala += ("mimeType"-> mimeType)
+                updateDefaultValuesByMimeType(node.getMetadata.asInstanceOf[Map[String, AnyRef]], mimeType)
+                updateMimeType = true
+            }
+
+            ValidationUtils.validateUrlLicense(mimeType, fileUrl, node)
+            val mimeTypeManager = MimeTypeManagerFactory.getManager(node.getMetadata.get("contentType").asInstanceOf[String], mimeType)
+            val response = mimeTypeManager.upload(contentId, node, fileUrl)
+
+
+            if(checkError(response)) return response
+            if (updateMimeType) {
+                val updatedRes = updateResponseWith(response, node, contentId, mimeType)
+                if (checkError(updatedRes)) return response
+            }
+
+            editResponse(response)
+            return response
+        } catch {
+            case e: ClientException =>
+                throw e
+            case e: ServerException =>
+                return ERROR(e.getErrCode, e.getMessage, ResponseCode.SERVER_ERROR)
+            case e: Exception =>
+                val message = "Something went wrong while processing uploaded file."
+                TelemetryManager.error(message, e)
+                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name, message, ResponseCode.SERVER_ERROR)
+        }
+    }
+
+
+    protected def updateResponseWith(response: Response, node: Node, id: String,  mimeType:String): Response ={
+        node.getMetadata.asScala += "versionKey" -> response.getResult().get("versionKey")
+        val map = Map[String, AnyRef]()
+        map + "mimeType" -> mimeType
+        map + "versionKey" -> Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY)
+        return getUpdatedResponse(id, map)
+
+    }
+
+    protected def editResponse(response: Response) ={
+        val nodeId = response.getResult.get("node_id").asInstanceOf[String]
+        val returnNodeId = if (StringUtils.endsWith(nodeId, ".img")) nodeId.replace(".img", "") else nodeId
+        response.getResult.replace("node_id", nodeId, returnNodeId)
+    }
+
 
 }

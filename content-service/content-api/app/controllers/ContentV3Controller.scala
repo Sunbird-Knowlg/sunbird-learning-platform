@@ -32,11 +32,37 @@ class ContentV3Controller extends BaseController {
 
     def upload(identifier: String, fileUrl:Option[String]): Action[AnyContent] = Action.async {
         implicit request =>
-            val body: String = Json.stringify(request.body.asJson.get)
-            val result = ask(RequestRouter.getActorRef("contentActor"), Request(APIIds.UPLOAD_CONTENT, Some(body), Some(Map("identifier" -> identifier, "objectType" ->
-                    "Content", "fileUrl" -> fileUrl.getOrElse(""))), Some(getContext(request))))
-                    .mapTo[Response]
-            result.map(response => sendResponse(response))
+            val urlpart = request.body.asMultipartFormData.get.asFormUrlEncoded.get("fileUrl")
+            val filePart = request.body.asMultipartFormData.get.files
+            val urlPartMissing = (urlpart == None || (urlpart != None && org.apache.commons.lang3.StringUtils.isBlank(urlpart.head.head)))
+            //val part = (urlpart == None && filePart.size == 0) || ((urlpart != None && org.apache.commons.lang3.StringUtils.isBlank(urlpart.head.head)) && filePart.size == 0)
+            if(urlPartMissing && (filePart.size == 0) ) {
+                val resStatus = new org.ekstep.common.dto.ResponseParams
+                resStatus.setErrmsg("File or fileUrl should be available.")
+                val errResponse = new Response
+                errResponse.setResponseCode(org.ekstep.common.exception.ResponseCode.CLIENT_ERROR)
+                errResponse.setParams(resStatus)
+                val result = ask(RequestRouter.getActorRef("contentActor"), Request(APIIds.UPLOAD_CONTENT, None, None, Some(getContext(request))))
+                  .mapTo[Response]
+                result.map(response => sendResponse(errResponse))
+
+            } else if(urlpart != None && !org.apache.commons.lang3.StringUtils.isBlank(urlpart.head.head)) {
+                var fileUrl = urlpart.head.head
+                val result = ask(RequestRouter.getActorRef("contentActor"), Request(APIIds.UPLOAD_CONTENT, None, Some(Map("identifier" -> identifier, "objectType" ->
+                  "Content", "fileUrl" -> fileUrl)), Some(getContext(request))))
+                  .mapTo[Response]
+                result.map(response => sendResponse(response))
+
+            } else {
+                val file = filePart.head
+                val filename = file.filename
+                val fileObj = new java.io.File(filename)
+                file.ref.moveTo(fileObj)
+                val result = ask(RequestRouter.getActorRef("contentActor"), Request(APIIds.UPLOAD_CONTENT, None, Some(Map("identifier" -> identifier, "objectType" ->
+                  "Content", "file" -> fileObj)), Some(getContext(request))))
+                  .mapTo[Response]
+                result.map(response => sendResponse(response))
+            }
     }
 
     def preSignedUrl(identifier: String): Action[AnyContent] = Action.async {
