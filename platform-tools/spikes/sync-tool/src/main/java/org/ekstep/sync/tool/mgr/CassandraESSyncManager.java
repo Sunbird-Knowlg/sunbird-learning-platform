@@ -101,10 +101,19 @@ public class CassandraESSyncManager {
                 Map<String, Object> units = getUnitsMetadata(hierarchy, bookmarkIds);
                 if(MapUtils.isNotEmpty(units)){
                     pushToElastic(units);
-                    List<String> ids = new ArrayList<>(units.keySet());
-                    printMessages("success", ids, resourceId);
-                    ids.add(resourceId);
-                    ids.forEach(id -> RedisStoreUtil.delete("hierarchy_" + id));
+                    List<String> collectionUnitIds = new ArrayList<>(units.keySet());
+
+                    //Clear TextBookUnits from Cassandra Hierarchy Store
+                    hierarchyStore.deleteHierarchy(collectionUnitIds);
+
+                    //Clear TextBook from Redis Cache
+                    RedisStoreUtil.delete("hierarchy_" + resourceId);
+
+                    //Clear TextBookUnits from Redis Cache
+                    collectionUnitIds.forEach(id -> RedisStoreUtil.delete("hierarchy_" + id));
+
+                    //print success message
+                    printMessages("success", collectionUnitIds, resourceId);
                 }
                 return true;
             } else {
