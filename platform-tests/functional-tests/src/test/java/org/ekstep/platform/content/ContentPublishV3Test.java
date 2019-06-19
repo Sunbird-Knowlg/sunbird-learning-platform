@@ -23,7 +23,6 @@ import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
 import net.lingala.zip4j.core.ZipFile;
-import org.springframework.test.context.TestPropertySource;
 
 /**
  * Test Cases for Content Publish Usecase.
@@ -574,6 +573,9 @@ public class ContentPublishV3Test extends BaseTest{
 		publishContent(identifier, null, false);
 		delay(15000);
 		String downloadUrl = readContent(identifier).get("result.content.downloadUrl");
+		JsonPath hierachyRes = readHierarchy(identifier);
+		String mimeTypesCount = hierachyRes.get("result.content.mimeTypesCount").toString().replace("\\\"", "\"");
+		System.out.println(mimeTypesCount);
 		try {
 			// Download Ecar
 			FileUtils.copyURLToFile(new URL(downloadUrl), new File(downloadPath + ecarName + ".zip"));
@@ -588,6 +590,7 @@ public class ContentPublishV3Test extends BaseTest{
 			File fileName = new File(bundleExtractPath);
 			File[] files = fileName.listFiles();
 			List<File> fileList = Arrays.asList(files);
+			assertEquals(1, fileList.stream().filter(x -> x.getName().equalsIgnoreCase("manifest.json")).count());
 			fileList.forEach(file -> {
 				if (file.getName().equalsIgnoreCase("manifest.json")) {
 					try {
@@ -605,6 +608,13 @@ public class ContentPublishV3Test extends BaseTest{
 								children.forEach(child -> {
 									assertTrue(child instanceof Map);
 								});
+							}
+							if(!StringUtils.equalsIgnoreCase("Resource", (String) item.get("contentType")))
+								assertNotNull(item.get("leafNodesCount"));
+							if(StringUtils.equalsIgnoreCase("TextBook", (String) item.get("contentType"))) {
+								assertNotNull(item.get("mimeTypesCount"));
+								assertEquals(item.get("mimeTypesCount"), mimeTypesCount);
+								assertEquals(item.get("leafNodesCount") , 2);
 							}
 						});
 					} catch (Exception e) {
@@ -827,5 +837,21 @@ public class ContentPublishV3Test extends BaseTest{
 		}
 		return isValidEcar;
 	}
-	
+
+	private JsonPath readHierarchy(String contentId) {
+		JsonPath resp;
+		setURI();
+		Response response =
+				given().
+						spec(getRequestSpecification(contentType, userId, APIToken)).
+						when().
+						get("/content/v3/hierarchy/" + contentId).
+						then().log().all().
+						spec(get200ResponseSpec()).
+						extract().response();
+
+		resp = response.jsonPath();
+		return resp;
+	}
 }
+
