@@ -20,6 +20,7 @@ object HttpRestUtil {
 
     val EKSTEP_PLATFORM_API_USERID = "System"
     val DEFAULT_CONTENT_TYPE = "application/json"
+    //TODO: Auth Key Implementation Should be generic.
     val EKSTEP_API_AUTHORIZATION_KEY = "Bearer " + {
         if (Platform.config.hasPath("dialcode.api.authorization")) Platform.config.getString("dialcode.api.authorization") else ""
     }
@@ -96,6 +97,7 @@ object HttpRestUtil {
       * @param query
       * @return
       */
+    //TODO: Check for Alternatives
     def toJson(query: Any): String = query match {
         case m: Map[String, Any] => s"{${m.map(toJson(_)).mkString(",")}}"
         case t: (String, Any) => s""""${t._1}":${toJson(t._2)}"""

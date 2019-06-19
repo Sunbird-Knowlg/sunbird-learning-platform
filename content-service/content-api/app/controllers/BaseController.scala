@@ -24,7 +24,9 @@ abstract class BaseController extends Controller {
       case ResponseCode.OK => Ok(res)
       case ResponseCode.CLIENT_ERROR => BadRequest(res)
       case ResponseCode.RESOURCE_NOT_FOUND => NotFound(res)
-      case ResponseCode.SERVER_ERROR => ServiceUnavailable(res)
+      case ResponseCode.PARTIAL_SUCCESS => PartialContent(res)
+      case ResponseCode.SERVER_ERROR => InternalServerError(res)
+        // TODO: Put Exact Match for Service Unavailable.
       case _ => ServiceUnavailable(res)
     }
 

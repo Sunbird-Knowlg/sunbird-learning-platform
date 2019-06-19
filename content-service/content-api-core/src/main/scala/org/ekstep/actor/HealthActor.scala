@@ -28,7 +28,7 @@ object HealthActor extends BaseAPIActor {
 
 
   def checkHealth(request: Request) = {
-    val responseMap = HealthCheckService.checkSystemHealth(Request(APIIds.CHECK_HEALTH, None, None, Some(mutable.Map())))
+    val responseMap = HealthCheckService.checkSystemHealth(Request(APIIds.CHECK_HEALTH, None, Some(Map()), None, Some(mutable.Map())))
     val result = new org.ekstep.common.dto.Response() {
       put("result", responseMap)
     }

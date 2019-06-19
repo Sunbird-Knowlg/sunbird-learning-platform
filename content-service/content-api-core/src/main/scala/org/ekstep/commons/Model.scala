@@ -9,7 +9,7 @@ object Model {
 
 case class Params(resmsgid: String, msgid: String, err: String, status: String, errmsg: String, client_key: Option[String] = None);
 case class RequestBody(request: Map[String, AnyRef])
-case class Request(apiId: String, body: Option[String], params: Option[Map[String, AnyRef]], context: Option[mutable.Map[String, AnyRef]]);
+case class Request(apiId: String, body: Option[String], requestParams: Option[Map[String, AnyRef]], params: Option[Map[String, AnyRef]], context: Option[mutable.Map[String, AnyRef]]);
 case class Response(id: String, ver: String, ts: String, params: Params, responseCode: String, result: Option[Map[String, AnyRef]]);
 
 
@@ -94,7 +94,7 @@ object ContentMetadata {
 
   object DialCodeEnum extends Enumeration {
     type String = Value
-    val ERR_DIALCODE_LINK, ERR_DIALCODE_LINK_REQUEST= Value
+    val ERR_DIALCODE_LINK, ERR_DIALCODE_LINK_REQUEST, dialcodes, dialcode, identifier, count= Value
   }
 
 }
