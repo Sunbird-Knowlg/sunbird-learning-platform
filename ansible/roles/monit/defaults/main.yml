@@ -1,9 +1,9 @@
 ---
 user: root
 group: root
-slack_channel: 
+slack_channel: "{{ monitor_alerts_slack_channel }}"
 slack_user: Monit
-slack_web_hook: 
+slack_web_hook: "{{ lp_vault_monitor_alerts_slack_url }}"
 
 monit_logstash_lp:
   app_name: logstash
