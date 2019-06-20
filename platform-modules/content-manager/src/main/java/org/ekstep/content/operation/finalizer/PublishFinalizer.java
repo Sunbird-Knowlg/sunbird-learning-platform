@@ -641,7 +641,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Response response = getDataNode(TAXONOMY_ID, identifier);
 		if (!checkError(response)) {
 			Node node = (Node) response.get(GraphDACParams.node.name());
-			Response updateResp = updateNode(node);
+			Response updateResp = updateNode(node, true);
 			if (!checkError(updateResp)) {
 				return (String) updateResp.get(GraphDACParams.versionKey.name());
 			} else {

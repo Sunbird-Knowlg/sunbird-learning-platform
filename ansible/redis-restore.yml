@@ -1,0 +1,9 @@
+---
+
+- name: redis restore
+  hosts: redisall
+  become: yes
+  vars_files:
+   - ['{{inventory_dir}}/secrets.yml', 'secrets/{{env}}.yml']
+  roles:
+   - redis-restore
