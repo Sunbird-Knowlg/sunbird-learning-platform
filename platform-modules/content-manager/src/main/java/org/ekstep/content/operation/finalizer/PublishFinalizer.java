@@ -620,9 +620,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			for(Map<String,Object> child : children ){
 				if(!StringUtils.equals((String)child.get(ContentAPIParams.mimeType.name()), COLLECTION_MIMETYPE)
 						&& StringUtils.equals((String) child.get(ContentAPIParams.visibility.name()),"Default")) {
-					if(child.get(ContentAPIParams.totalCompressedSize.name()) != null) {
+					if(null != child.get(ContentAPIParams.totalCompressedSize.name())) {
 						totalCompressed += ((Number) child.get(ContentAPIParams.totalCompressedSize.name())).doubleValue();
-					} else if(child.get(ContentAPIParams.size.name()) != null) {
+					} else if(null != child.get(ContentAPIParams.size.name())) {
 						totalCompressed += ((Number) child.get(ContentAPIParams.size.name())).doubleValue();
 					}
 				}
