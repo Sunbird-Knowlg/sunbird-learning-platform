@@ -1,5 +1,7 @@
 - hosts: learningall
   become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_logstash_lp,monit_tomcat_lp' }
@@ -7,6 +9,8 @@
 
 - hosts: searchall
   become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_logstash_lp,monit_search_lp' }
@@ -14,6 +18,8 @@
 
 - hosts: learning-neo4j-cluster
   become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_logstash_lp' }
@@ -21,6 +27,8 @@
 
 - hosts: cassandra
   become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_cassandra' }
@@ -28,6 +36,8 @@
 
 - hosts: processing-cluster-kafka
   become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_kafka' }
@@ -35,6 +45,8 @@
 
 - hosts: processing-cluster-zookeepers
   become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
   name: Installing and configuring monit
   roles:
     - { role: monit, service: 'monit_zookeeper' }
@@ -42,6 +54,8 @@
 
 - hosts: composite-search-cluster
   become: yes
+  vars_files:
+    - ['{{inventory_dir}}/secrets.yml']
   pre_tasks:
     - name: Registering node name
       set_fact:
