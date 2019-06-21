@@ -14,7 +14,7 @@ class HealthController extends BaseController {
 
   def checkAPIhealth(): Action[AnyContent] = Action.async {
       implicit request =>
-        val result = ask(RequestRouter.getActorRef("healthActor"), Request(APIIds.CHECK_HEALTH, None, None, Some(mutable.Map())))
+        val result = ask(RequestRouter.getActorRef("healthActor"), Request(APIIds.CHECK_HEALTH, None, Some(Map()), None, Some(mutable.Map())))
           .mapTo[Response]
         result.map(response => sendResponse(response))
     }
