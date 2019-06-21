@@ -759,10 +759,12 @@ public class PublishFinalizer extends BaseFinalizer {
 				String imageBody = getContentBody(contentImageId);
 				if (StringUtils.isNotBlank(imageBody)) {
 					response = updateContentBody(contentId, imageBody);
-					if (checkError(response))
+					if (checkError(response)) {
+						TelemetryManager.error("Content Body Update Failed During Publish. Error Code :" + response.getParams().getErr() + " | Error Message : " + response.getParams().getErrmsg() + " | Result : " + response.getResult());
 						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 								ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
 										+ "]");
+					}
 				}
 			}
 
@@ -1197,13 +1199,17 @@ public class PublishFinalizer extends BaseFinalizer {
 		return folderName;
 	}
 
+	/**
+	 *
+	 * @param obj
+	 * @return
+	 */
 	private List<String> getList(Object obj) {
 		List<String> list = new ArrayList<String>();
 		try {
 			if (obj instanceof String) {
 				list.add((String) obj);
 			} else if (obj instanceof String[]) {
-				System.out.println("Array is input.");
 				list = Arrays.asList((String[]) obj);
 			} else if (obj instanceof List){
 				list.addAll((List<String>) obj);
@@ -1212,7 +1218,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			e.printStackTrace();
 		}
 		if (null != list) {
-			list = list.stream().filter(x -> org.apache.commons.lang3.StringUtils.isNotBlank(x)).collect(toList());
+			list = list.stream().filter(x -> StringUtils.isNotBlank(x)).collect(toList());
 		}
 		return list;
 	}
