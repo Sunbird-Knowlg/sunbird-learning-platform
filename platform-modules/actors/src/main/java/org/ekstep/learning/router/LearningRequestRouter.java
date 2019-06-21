@@ -1,8 +1,6 @@
 package org.ekstep.learning.router;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.dto.ResponseParams;
@@ -13,7 +11,6 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.common.exception.ServerException;
 import org.ekstep.common.router.RequestRouterPool;
-import org.ekstep.graph.common.enums.GraphHeaderParams;
 import org.ekstep.learning.actor.ContentStoreActor;
 import org.ekstep.learning.actor.FrameworkHierarchyActor;
 import org.ekstep.learning.actor.LocalCacheUpdateActor;
@@ -40,10 +37,10 @@ import scala.concurrent.Future;
  */
 public class LearningRequestRouter extends UntypedActor {
 
+	/** The logger. */
+
 	/** The timeout. */
 	protected long timeout = 30000;
-
-	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 
 	/*
 	 * (non-Javadoc)
@@ -61,11 +58,6 @@ public class LearningRequestRouter extends UntypedActor {
 			}
 		} else if (message instanceof Request) {
 			Request request = (Request) message;
-			long startTime = System.currentTimeMillis();
-			request.getContext().put(GraphHeaderParams.start_time.name(), startTime);
-			perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-					+ request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
-					+ request.getOperation() + ",STARTTIME," + startTime);
 			ActorRef parent = getSender();
 			try {
 				ActorRef actorRef = getActorFromPool(request);
@@ -86,10 +78,10 @@ public class LearningRequestRouter extends UntypedActor {
 		int poolSize = 4;
 
 		Props contentStoreProps = Props.create(ContentStoreActor.class);
-		Props fwhierarchyProps = Props.create(FrameworkHierarchyActor.class).withDispatcher("fw-dispatcher");
+		Props fwhierarchyProps = Props.create(FrameworkHierarchyActor.class);
 		Props localCacheUpdaterProps = Props.create(LocalCacheUpdateActor.class);
 		ActorRef contentStoreActor = system.actorOf(new SmallestMailboxPool(poolSize).props(contentStoreProps));
-		ActorRef fwHierarchyActor = system.actorOf(new SmallestMailboxPool(8).props(fwhierarchyProps));
+		ActorRef fwHierarchyActor = system.actorOf(new SmallestMailboxPool(poolSize).props(fwhierarchyProps));
 		ActorRef localCacheUpdaterActor = system.actorOf(new SmallestMailboxPool(poolSize).props(localCacheUpdaterProps));
 		LearningActorPool.addActorRefToPool(LearningActorNames.CONTENT_STORE_ACTOR.name(), contentStoreActor);
 		LearningActorPool.addActorRefToPool(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name(), fwHierarchyActor);
@@ -127,18 +119,10 @@ public class LearningRequestRouter extends UntypedActor {
 			@Override
 			public void onSuccess(Object arg0) throws Throwable {
 				parent.tell(arg0, getSelf());
-				long endTime = System.currentTimeMillis();
-				long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
 				Response res = (Response) arg0;
 				ResponseParams params = res.getParams();
 				TelemetryManager.log(
 						request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
-				perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-						+ request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
-						+ request.getOperation() + ",ENDTIME," + endTime);
-				perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-						+ request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
-						+ request.getOperation() + "," + params.getStatus() + "," + exeTime);
 			}
 		}, getContext().dispatcher());
 
