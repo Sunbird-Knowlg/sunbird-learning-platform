@@ -97,7 +97,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 				framework = (Map<String, Object>) getHierarchyResp.get("framework");
 				Map<String, Object> cacheFW = new HashMap<>(framework);
 				filterFrameworkCategories(cacheFW, categoriesCached);
-				RedisStoreUtil.save(frameworkId + CACHE_SUFFIX, mapper.writeValueAsString(framework), cacheTtl);
+				RedisStoreUtil.save(frameworkId + CACHE_SUFFIX, mapper.writeValueAsString(cacheFW), cacheTtl);
 			}
 		}
 
