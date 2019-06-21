@@ -267,9 +267,13 @@ content.tagging.backward_enable=true
 content.tagging.property="subject,medium"
 
 # Redis Cache Configuration
-content.cache.ttl=259200
+content.cache.ttl=86400
 content.cache.read=true
-content.cache.hierarchy=true
+content.cache.hierarchy=false
+
+framework.categories_cached=["subject", "medium", "gradeLevel", "board"]
+framework.cache.ttl=86400
+framework.cache.read=true
 
 
 

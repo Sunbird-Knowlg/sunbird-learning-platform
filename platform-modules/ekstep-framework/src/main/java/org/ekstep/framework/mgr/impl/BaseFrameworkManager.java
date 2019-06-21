@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import akka.pattern.Patterns;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -58,6 +59,8 @@ public class BaseFrameworkManager extends BaseManager {
 	private static final List<String> LANGUAGE_CODES = (Platform.config.hasPath("language.graph_ids"))
 			? Platform.config.getStringList("language.graph_ids")
 			: null;
+
+	protected ObjectMapper mapper = new ObjectMapper();
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		if (request.containsKey("translations"))
