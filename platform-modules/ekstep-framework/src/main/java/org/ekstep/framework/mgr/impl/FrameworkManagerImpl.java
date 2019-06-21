@@ -85,7 +85,6 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		if(CollectionUtils.isNotEmpty(returnCategories) && categoriesCached.containsAll(returnCategories) && cacheEnabled){
 			String filteredCategories = RedisStoreUtil.get(frameworkId + CACHE_SUFFIX);
 			if(StringUtils.isNotBlank(filteredCategories)){
-				System.out.println("Reading framework from Cache");
 				framework = mapper.readValue(filteredCategories, new TypeReference<Map<String, Object>>(){});
 			}
 		}
