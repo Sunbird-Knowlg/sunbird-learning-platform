@@ -19,6 +19,7 @@ import org.ekstep.graph.dac.model.Node;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,8 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	private static final String CACHE_SUFFIX = "_categories";
 	private boolean cacheEnabled = Platform.config.hasPath("framework.cache.read") ?
 			Platform.config.getBoolean("framework.cache.read"): false;
+	private int cacheTtl = Platform.config.hasPath("framework.cache.ttl") ?
+			Platform.config.getInt("framework.cache.ttl"): 86400;
 
 	/*
 	 * create framework
@@ -92,6 +95,9 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 			Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
 			if (!checkError(getHierarchyResp)) {
 				framework = (Map<String, Object>) getHierarchyResp.get("framework");
+				Map<String, Object> cacheFW = new HashMap<>(framework);
+				filterFrameworkCategories(cacheFW, categoriesCached);
+				RedisStoreUtil.save(frameworkId + CACHE_SUFFIX, mapper.writeValueAsString(framework), cacheTtl);
 			}
 		}
 
