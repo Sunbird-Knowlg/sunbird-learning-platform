@@ -7,7 +7,7 @@ import org.ekstep.common.enums.TaxonomyErrorCodes
 import org.ekstep.common.exception.{ClientException, ServerException}
 import org.ekstep.common.mgr.BaseManager
 import org.ekstep.common.router.RequestRouterPool
-import org.ekstep.commons.{Constants, ContentErrorCodes, ContentMetadata, TaxonomyAPIParams}
+import org.ekstep.commons.{Constants, ContentErrorCodes, TaxonomyAPIParams}
 import org.ekstep.graph.cache.util.RedisStoreUtil
 import org.ekstep.graph.dac.enums.{GraphDACParams, SystemNodeTypes}
 import org.ekstep.graph.dac.model.Node
@@ -16,7 +16,6 @@ import org.ekstep.graph.model.node.DefinitionDTO
 import org.ekstep.learning.common.enums.{ContentAPIParams, LearningActorNames}
 import org.ekstep.learning.contentstore.{ContentStoreOperations, ContentStoreParams}
 import org.ekstep.learning.router.LearningRequestRouterPool
-import org.ekstep.managers.ContentManager.{checkError, updateContentProperties}
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil
 import org.ekstep.searchindex.util.CompositeSearchConstants
 import org.ekstep.telemetry.logger.TelemetryManager
@@ -38,9 +37,6 @@ class BaseContentManagerImpl extends BaseManager {
     val publishedStatus:List[String] = List("Live", "Unlisted", "Flagged")
     val YOUTUBE_MIMETYPE = "video/x-youtube"
     val DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX: String = ".img"
-    val reviewStatus:List[String] = List("Review", "FlagReview")
-
-
 
     /**
       * Get definition
@@ -111,7 +107,7 @@ class BaseContentManagerImpl extends BaseManager {
         request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name)
         request.setOperation(ContentStoreOperations.updateContentProperties.name)
         request.put(ContentStoreParams.content_id.name, contentId)
-        request.put(ContentStoreParams.properties.name, properties.asJava)
+        request.put(ContentStoreParams.properties.name, properties)
         val response = getResponse(request, LearningRequestRouterPool.getRequestRouter)
         response
     }
@@ -266,6 +262,7 @@ class BaseContentManagerImpl extends BaseManager {
     }
 
 
+<<<<<<< HEAD
     protected def updateDefaultValuesByMimeType(map: Map[String, AnyRef], mimeType: String): Unit = {
         if (StringUtils.isNotBlank(mimeType)) {
             if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
@@ -296,4 +293,6 @@ class BaseContentManagerImpl extends BaseManager {
     }
 
 
+=======
+>>>>>>> parent of c5eca41... Issue #Sb-12311 Update Api refactored - contentManager
 }

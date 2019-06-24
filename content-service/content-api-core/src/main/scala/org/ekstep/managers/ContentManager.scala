@@ -1,9 +1,12 @@
 package org.ekstep.managers
 
 
+<<<<<<< HEAD
 import java.util.Date
 import java.io.File
 
+=======
+>>>>>>> parent of c5eca41... Issue #Sb-12311 Update Api refactored - contentManager
 import org.apache.commons.lang3.StringUtils
 import org.ekstep.common.Platform
 import org.ekstep.common.dto.Response
@@ -207,6 +210,7 @@ object ContentManager extends BaseContentManagerImpl {
         }
     }
 
+<<<<<<< HEAD
 
     def update(request: org.ekstep.commons.Request) : Response ={
         val params = request.params.getOrElse(Map())
@@ -376,4 +380,6 @@ object ContentManager extends BaseContentManagerImpl {
     }
 
 
+=======
+>>>>>>> parent of c5eca41... Issue #Sb-12311 Update Api refactored - contentManager
 }

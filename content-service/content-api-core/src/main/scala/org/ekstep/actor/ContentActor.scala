@@ -52,7 +52,8 @@ object ContentActor extends BaseAPIActor {
 
   private def updateContent(request: Request) : Response  = {
     try{
-      val result = ContentManager.update(request)
+      val contentMgr = new ContentManagerImpl()
+      val result = contentMgr.update(request)
       setResponseEnvelope(result, request.apiId, null)
     } catch {
       case e: Exception => getErrorResponse(e, APIIds.UPDATE_CONTENT)
