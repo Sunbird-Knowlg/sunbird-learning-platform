@@ -80,8 +80,7 @@ public class RetireOperation extends BaseContentManager {
             }
             Response responseNode = validateAndGetNodeResponseForOperation(contentId);
             node = (Node) responseNode.get("node");
-            if(!"application/vnd.ekstep.content-collection".equalsIgnoreCase(mimeType))
-                RedisStoreUtil.delete(contentId);
+            RedisStoreUtil.delete(contentId);
 
             Response res = getSuccessResponse();
             res.put(ContentAPIParams.node_id.name(), node.getIdentifier());

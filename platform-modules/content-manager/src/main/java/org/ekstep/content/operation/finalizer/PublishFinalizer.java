@@ -60,6 +60,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * The Class BundleFinalizer, extends BaseFinalizer which mainly holds common
  * methods and operations of a ContentBody. PublishFinalizer holds methods which
@@ -253,7 +255,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			children = (List<Map<String,Object>>)collectionHierarchy.get("children");
 			enrichChildren(children, collectionResourceChildNodes);
 			if(!collectionResourceChildNodes.isEmpty()) {
-				List<String> collectionChildNodes = new ArrayList<String>(Arrays.asList((String[])node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name())));
+				List<String> collectionChildNodes = getList(node.getMetadata().get(ContentWorkflowPipelineParams.childNodes.name()));
 				collectionChildNodes.addAll(collectionResourceChildNodes);
 			}
 
@@ -346,7 +348,7 @@ public class PublishFinalizer extends BaseFinalizer {
 						if(MapUtils.isNotEmpty(collectionHierarchy)) {
 							collectionHierarchy.put(ContentWorkflowPipelineParams.index.name(), child.get(ContentWorkflowPipelineParams.index.name()));
 							collectionHierarchy.put(ContentWorkflowPipelineParams.parent.name(), child.get(ContentWorkflowPipelineParams.parent.name()));
-							List<String> childNodes = (List<String>)collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name());
+							List<String> childNodes = getList(collectionHierarchy.get(ContentWorkflowPipelineParams.childNodes.name()));
 							if(!CollectionUtils.isEmpty(childNodes)) 
 								collectionResourceChildNodes.addAll(childNodes);
 							if(!MapUtils.isEmpty(collectionHierarchy)) {
@@ -775,10 +777,12 @@ public class PublishFinalizer extends BaseFinalizer {
 				String imageBody = getContentBody(contentImageId);
 				if (StringUtils.isNotBlank(imageBody)) {
 					response = updateContentBody(contentId, imageBody);
-					if (checkError(response))
+					if (checkError(response)) {
+						TelemetryManager.error("Content Body Update Failed During Publish. Error Code :" + response.getParams().getErr() + " | Error Message : " + response.getParams().getErrmsg() + " | Result : " + response.getResult());
 						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 								ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
 										+ "]");
+					}
 				}
 			}
 
@@ -885,8 +889,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (COLLECTION_MIMETYPE.equalsIgnoreCase(mimeType) && disableCollectionFullECAR()) {
 			TelemetryManager.log("Disabled full ECAR generation for collections. So not generating for collection id: " + node.getIdentifier());
 			// TODO: START : Remove the below when mobile app is ready to accept Resources as Default in manifest
-			if(CollectionUtils.isNotEmpty((List<String>) node.getMetadata().get("childNodes")))
-				childrenIds = (List<String>) node.getMetadata().get("childNodes");
+			List<String> nodeChildList = getList(node.getMetadata().get("childNodes"));
+			if(CollectionUtils.isNotEmpty(nodeChildList))
+				childrenIds = nodeChildList;
 		} else {
 			List<String> fullECARURL = generateEcar(EcarPackageType.FULL, node, contentBundle, contents, childrenIds, null);
 			downloadUrl = fullECARURL.get(IDX_S3_URL);
@@ -1217,4 +1222,27 @@ public class PublishFinalizer extends BaseFinalizer {
 		return folderName;
 	}
 
+	/**
+	 *
+	 * @param obj
+	 * @return
+	 */
+	private List<String> getList(Object obj) {
+		List<String> list = new ArrayList<String>();
+		try {
+			if (obj instanceof String) {
+				list.add((String) obj);
+			} else if (obj instanceof String[]) {
+				list = Arrays.asList((String[]) obj);
+			} else if (obj instanceof List){
+				list.addAll((List<String>) obj);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (null != list) {
+			list = list.stream().filter(x -> StringUtils.isNotBlank(x)).collect(toList());
+		}
+		return list;
+	}
 }
