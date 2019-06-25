@@ -393,6 +393,11 @@ public class SearchProcessor {
 				queryBuilder = checkNestedProperty(queryBuilder, propertyName);
 				break;
 			}
+			case CompositeSearchConstants.SEARCH_OPERATION_AND: {
+				queryBuilder = getAndQuery(propertyName, values);
+				queryBuilder = checkNestedProperty(queryBuilder, propertyName);
+				break;
+			}
 			}
 			if (totalOperation.equalsIgnoreCase(AND)) {
 				boolQuery.must(queryBuilder);
@@ -535,6 +540,12 @@ public class SearchProcessor {
 						ScoreFunctionBuilders.weightFactorFunction(weight)));
 				break;
 			}
+			case CompositeSearchConstants.SEARCH_OPERATION_AND: {
+				filterFunctionBuilder.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+						getAndQuery(propertyName, values),
+						ScoreFunctionBuilders.weightFactorFunction(weight)));
+				break;
+			}
 			}
 		}
 
@@ -544,6 +555,15 @@ public class SearchProcessor {
 				.boostMode(CombineFunction.REPLACE).scoreMode(ScoreMode.SUM);
 		return queryBuilder;
 
+	}
+
+	private QueryBuilder getAndQuery(String propertyName, List<Object> values) {
+		BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+		for (Object value : values) {
+				queryBuilder.must(
+						QueryBuilders.matchQuery(propertyName, value).operator(Operator.AND));
+		}
+		return queryBuilder;
 	}
 
 	/**

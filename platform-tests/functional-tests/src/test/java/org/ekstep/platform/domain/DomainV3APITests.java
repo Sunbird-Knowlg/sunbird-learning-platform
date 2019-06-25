@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@Ignore
 public class DomainV3APITests extends BaseTest
 {
 
