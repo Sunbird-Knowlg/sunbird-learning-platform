@@ -1,8 +1,11 @@
 
 package org.ekstep.framework.mgr.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.Platform;
 import org.ekstep.common.Slug;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
@@ -10,12 +13,15 @@ import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
 import org.ekstep.framework.enums.FrameworkEnum;
 import org.ekstep.framework.mgr.IFrameworkManager;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Node;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The Class <code>FrameworkManagerImpl</code> is the implementation of
@@ -30,6 +36,7 @@ import java.util.Map;
 public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrameworkManager {
 
 	private static final String FRAMEWORK_OBJECT_TYPE = "Framework";
+	private boolean cacheEnabled = Platform.config.hasPath("framework.cache.read") ? Platform.config.getBoolean("framework.cache.read") : false;
 
 	/*
 	 * create framework
@@ -69,28 +76,33 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response readFramework(String frameworkId, List<String> returnCategories) throws Exception {
-		Response response = new Response();
 		Map<String, Object> framework = null;
+
+		if(CollectionUtils.isNotEmpty(returnCategories) && cacheEnabled){
+			Collections.sort(returnCategories);
+			String cachedCategories = RedisStoreUtil.get(getFwCacheKey(frameworkId, returnCategories));
+			if(StringUtils.isNotBlank(cachedCategories)) {
+				framework = mapper.readValue(cachedCategories, new TypeReference<Map<String, Object>>(){});
+				Response response = OK();
+				response.put(FrameworkEnum.framework.name(), framework);
+				return response;
+			}
+		}
 
 		Response getHierarchyResp = getFrameworkHierarchy(frameworkId);
 		if (!checkError(getHierarchyResp)) {
 			framework = (Map<String, Object>) getHierarchyResp.get("framework");
 		}
 
-		if (MapUtils.isEmpty(framework)) {
-			Response readResponse = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
-			if (!checkError(readResponse))
-				framework = (Map<String, Object>) readResponse.getResult().get("framework");
-		}
-
 		if (MapUtils.isNotEmpty(framework)) {
 			filterFrameworkCategories(framework, returnCategories);
-			response = OK();
+			Response response = OK();
 			response.put(FrameworkEnum.framework.name(), framework);
+			return response;
 		} else {
-			throw new ResourceNotFoundException("ERR_FRAMEWORK_READ", "Framework Not Found With Identifier:" + frameworkId);
+			Response readResponse = read(frameworkId, FRAMEWORK_OBJECT_TYPE, FrameworkEnum.framework.name());
+			return readResponse;
 		}
-		return response;
 	}
 
 	/*

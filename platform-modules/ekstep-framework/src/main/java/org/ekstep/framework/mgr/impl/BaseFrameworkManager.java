@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import akka.pattern.Patterns;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -29,6 +31,7 @@ import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.mgr.ConvertToGraphNode;
 import org.ekstep.common.router.RequestRouterPool;
 import org.ekstep.framework.enums.FrameworkEnum;
+import org.ekstep.graph.cache.util.RedisStoreUtil;
 import org.ekstep.graph.dac.enums.GraphDACParams;
 import org.ekstep.graph.dac.model.Filter;
 import org.ekstep.graph.dac.model.MetadataCriterion;
@@ -58,6 +61,10 @@ public class BaseFrameworkManager extends BaseManager {
 	private static final List<String> LANGUAGE_CODES = (Platform.config.hasPath("language.graph_ids"))
 			? Platform.config.getStringList("language.graph_ids")
 			: null;
+
+	protected static final int cacheTtl = Platform.config.hasPath("framework.cache.ttl") ? Platform.config.getInt("framework.cache.ttl") : 86400;
+
+	protected ObjectMapper mapper = new ObjectMapper();
 
 	protected Response create(Map<String, Object> request, String objectType) {
 		if (request.containsKey("translations"))
@@ -636,14 +643,21 @@ public class BaseFrameworkManager extends BaseManager {
 	}
 
 
-	protected void filterFrameworkCategories(Map<String, Object> framework, List<String> categoryNames) {
+	protected void filterFrameworkCategories(Map<String, Object> framework, List<String> categoryNames) throws JsonProcessingException {
 		List<Map<String, Object>> categories = (List<Map<String, Object>>) framework.get("categories");
 		if (CollectionUtils.isNotEmpty(categories) && CollectionUtils.isNotEmpty(categoryNames)) {
 			framework.put("categories",
 					categories.stream().filter(p -> categoryNames.contains(p.get("code")))
 							.collect(Collectors.toList()));
 			removeAssociations(framework, categoryNames);
+			String key = getFwCacheKey((String) framework.get("identifier"), categoryNames);
+			RedisStoreUtil.save(key, mapper.writeValueAsString(framework), cacheTtl);
 		}
+	}
+
+	protected String getFwCacheKey(String identifier, List<String> categoryNames) {
+		Collections.sort(categoryNames);
+		return "fw_" + identifier.toLowerCase() + "_" + categoryNames.stream().map(cat -> cat.toLowerCase()).collect(Collectors.joining("_"));
 	}
 
 }
