@@ -163,6 +163,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
 				unitNodes = new ArrayList<>();
 				getUnitFromLiveContent(unitNodes);
+				if(CollectionUtils.isNotEmpty(unitNodes))
+					RedisStoreUtil.delete(unitNodes.toArray(new String[unitNodes.size()]));
 			}
 		}
 		node.setIdentifier(contentId);
