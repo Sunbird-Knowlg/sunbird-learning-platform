@@ -163,8 +163,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
 				unitNodes = new ArrayList<>();
 				getUnitFromLiveContent(unitNodes);
-				if(CollectionUtils.isNotEmpty(unitNodes))
-					RedisStoreUtil.delete(unitNodes.toArray(new String[unitNodes.size()]));
+				cleanUnitsInRedis(unitNodes);
 			}
 		}
 		node.setIdentifier(contentId);
@@ -331,6 +330,14 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		return response;
+	}
+
+	private void cleanUnitsInRedis(List<String> unitNodes) {
+		if(CollectionUtils.isNotEmpty(unitNodes)) {
+			String[] unitsIds = unitNodes.stream().map(id -> (COLLECTION_CACHE_KEY_PREFIX + id)).collect(Collectors.toList()).toArray(new String[unitNodes.size()]);
+			if(unitsIds.length > 0)
+				RedisStoreUtil.delete(unitsIds);
+		}
 	}
 
 	private void enrichChildren(List<Map<String, Object>> children, Set<String> collectionResourceChildNodes) {
