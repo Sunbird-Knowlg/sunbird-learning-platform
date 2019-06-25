@@ -59,7 +59,7 @@ public class BaseService extends PlatformAPIManager {
     protected Response uploadAsset(String path, String id, String src) throws Exception {
         File file = new File(path);
         String objectKey = src.replaceAll("assets/public/", "");
-        String url = cloudStoreManager.getcloudService(destStorageType).upload(cloudStoreManager.getContainerName(destStorageType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.apply(5), 1);
+        String url = cloudStoreManager.getcloudService(destStorageType).upload(cloudStoreManager.getContainerName(destStorageType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(1), Option.apply(5), Option.empty());
         String uploadUrl = url.split("\\?")[0];
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("fileUrl", uploadUrl);

@@ -337,9 +337,8 @@ public abstract class BaseContentManager extends BaseManager {
         }
         if (StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, domainObj.getMetadata().get("mimeType").toString())) {
             RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
-        } else {
-            RedisStoreUtil.delete(originalId);
         }
+        RedisStoreUtil.delete(originalId);
         return updateResponse;
     }
 
