@@ -16,6 +16,10 @@ SyncActorSystem{
   }
 }
 
+# Redis Configuration
+redis.host="{{ redis_host }}"
+redis.port={{ redis_port }}
+redis.maxConnections=128
 
 # Neo4j Graph Configuration
 graph.dir="/data/graphDB"
