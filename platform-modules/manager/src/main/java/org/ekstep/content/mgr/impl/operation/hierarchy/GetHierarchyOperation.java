@@ -195,12 +195,8 @@ public class GetHierarchyOperation extends BaseContentManager {
                     if (StringUtils.isNotBlank(rootId)) {
                         response = getCollectionHierarchy(rootId);
                         rootHierarchy = (Map<String, Object>) response.getResult().get("hierarchy");
-                        if (CONTENT_CACHE_ENABLED && MapUtils.isNotEmpty(rootHierarchy)){
-                            List<Map<String, Object>> rootChildren = (List<Map<String, Object>>) rootHierarchy.get("children");
-                            Map<String, Object> bookmarkHierarchy = filterBookmark(rootChildren, bookmarkId);
-                            if(MapUtils.isNotEmpty(bookmarkHierarchy))
-                                RedisStoreUtil.saveData(cacheKey, bookmarkHierarchy, CONTENT_CACHE_TTL);
-                        }
+                        if (CONTENT_CACHE_ENABLED && MapUtils.isNotEmpty(rootHierarchy))
+                            RedisStoreUtil.saveData(cacheKey, rootHierarchy, CONTENT_CACHE_TTL);
                         return getHierarchyResponse(rootHierarchy, bookmarkId);
                     } else {
                         throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(), "Content not found with id: " + bookmarkId);

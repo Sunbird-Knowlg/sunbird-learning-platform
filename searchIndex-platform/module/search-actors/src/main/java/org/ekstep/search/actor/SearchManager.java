@@ -476,12 +476,6 @@ private Integer getIntValue(Object num) {
 										CompositeSearchConstants.SEARCH_OPERATION_CONTAINS);
 								break;
 							}
-							case CompositeSearchConstants.SEARCH_OPERATION_AND:
-							case CompositeSearchConstants.SEARCH_OPERATION_AND_OPERATOR:
-							case CompositeSearchConstants.SEARCH_OPERATION_AND_TEXT_LOWERCASE: {
-								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_AND);
-								break;
-							}
 							default: {
 								throw new Exception("Unsupported operation");
 							}

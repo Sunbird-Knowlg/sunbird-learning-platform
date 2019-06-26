@@ -69,9 +69,8 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
 				ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 				ExecutionContext context = ExecutionContexts.fromExecutor(new ForkJoinPool(20));
-				Future<scala.collection.immutable.List<String>> futureResponse = contentPackageExtractionUtil.uploadH5pExtractedPackage(contentId, node, extractionBasePath,
+				contentPackageExtractionUtil.uploadH5pExtractedPackage(contentId, node, extractionBasePath,
 						ExtractionType.snapshot, false, context);
-                Await.result(futureResponse, Duration.create(3, TimeUnit.MINUTES));
 				response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 			}catch (IOException e) {
 				TelemetryManager.error("Error! While unzipping the content package file.", e);

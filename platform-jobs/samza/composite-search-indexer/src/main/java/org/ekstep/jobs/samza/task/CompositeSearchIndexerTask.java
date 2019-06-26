@@ -1,5 +1,8 @@
 package org.ekstep.jobs.samza.task;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.samza.config.Config;
@@ -19,11 +22,8 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.SamzaCommonParams;
 import org.ekstep.learning.util.ControllerUtil;
 
-import java.util.HashMap;
-import java.util.Map;
 
-
-public class CompositeSearchIndexerTask extends BaseTask {
+public class CompositeSearchIndexerTask implements StreamTask, InitableTask, WindowableTask {
 	
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerTask.class);
 	private ControllerUtil controllerUtil = new ControllerUtil();
@@ -75,7 +75,6 @@ public class CompositeSearchIndexerTask extends BaseTask {
 				}
 			} else {
 				service.processMessage(outgoingMap, metrics, collector);
-				setMetricsOffset(getSystemStreamPartition(envelope), getOffset(envelope), metrics);
 			}
 		} catch (Exception e) {
 			metrics.incErrorCounter();

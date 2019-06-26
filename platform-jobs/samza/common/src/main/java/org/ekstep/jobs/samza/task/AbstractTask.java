@@ -24,7 +24,7 @@ import org.ekstep.telemetry.TelemetryGenerator;
 import org.ekstep.telemetry.TelemetryParams;
 import org.ekstep.telemetry.handler.Level;
 
-public abstract class AbstractTask extends BaseTask {
+public abstract class AbstractTask implements StreamTask, InitableTask, WindowableTask {
 
 	protected JobMetrics metrics;
 	private Config config = null;
@@ -72,7 +72,6 @@ public abstract class AbstractTask extends BaseTask {
 				int currentIteration = (int) edata.get(SamzaCommonParams.iteration.name());
 				preProcess(message, collector, execution, maxIterations, currentIteration);
 				process(message, collector, coordinator);
-				setMetricsOffset(getSystemStreamPartition(envelope), getOffset(envelope), metrics);
 				postProcess(message, collector, execution, maxIterations, currentIteration);
 			} else if(StringUtils.equalsIgnoreCase("definition_update", requestedJobType)){
 				String graphId = edata.getOrDefault("graphId","").toString();

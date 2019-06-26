@@ -50,12 +50,6 @@ public class ContentConfigurationConstants {
 	 * Manifest File which is visible in Manifest File Header.
 	 */
 	public static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
-	/**
-	 * The Constant DEFAULT_CONTENT_HIERARCHY_VERSION is the default version of
-	 * Hierarchy File which is visible in Hierarchy File Header.
-	 */
-	public static final String DEFAULT_CONTENT_HIERARCHY_VERSION = "1.0";
-
 
 	/**
 	 * The Constant DEFAULT_ZIP_EXTENSION is the default ZIP package file
@@ -126,9 +120,6 @@ public class ContentConfigurationConstants {
 	public static final boolean IS_ECAR_EXTRACTION_ENABLED = true;
 	
 	public static final boolean IS_CONTENT_PACKAGE_EXTRACTION_ENABLED = true;
-
-	public static final String CONTENT_BUNDLE_HIERARCHY_FILE_NAME = "hierarchy.json";
-
 
 	/**
 	 * Instantiates a new content configuration constants, It is being used in a

@@ -285,15 +285,4 @@ public interface IContentManager {
 	 */
 	Response getContentHierarchy(String contentId, String bookMarkId,  String mode, List<String> fields) throws
 			Exception;
-
-	/**
-	 * This method is used for discarding the changes that were made, if and when required.
-	 * The changes can only be discarded if the content is in draft state, flag draft
-	 * or a Live content has a Image which is in draft
-	 *
-	 * @param contentId
-	 * @return
-	 * @throws Exception
-	 */
-	Response discardContent(String contentId) throws Exception;
 }

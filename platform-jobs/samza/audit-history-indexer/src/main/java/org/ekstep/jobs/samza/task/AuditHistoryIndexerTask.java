@@ -18,7 +18,7 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 
-public class AuditHistoryIndexerTask extends BaseTask {
+public class AuditHistoryIndexerTask implements StreamTask, InitableTask, WindowableTask {
 
 	private static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerTask.class);
 
@@ -44,7 +44,6 @@ public class AuditHistoryIndexerTask extends BaseTask {
 		Map<String, Object> outgoingMap = getMessage(envelope);
 		try {
 			auditHistoryMsgProcessor.processMessage(outgoingMap, metrics, collector);
-			setMetricsOffset(getSystemStreamPartition(envelope), getOffset(envelope), metrics);
 		} catch (Exception e) {
 			metrics.incErrorCounter();
 			LOGGER.error("Message processing Error", outgoingMap, e);

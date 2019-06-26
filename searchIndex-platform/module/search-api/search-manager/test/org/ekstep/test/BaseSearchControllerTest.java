@@ -1,6 +1,5 @@
 package org.ekstep.test;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,11 +54,9 @@ public class BaseSearchControllerTest extends WithApplication {
 		}
 		Map<String, Object> content = getContentTestRecord("do_10000031", 31);
 		content.put("description", "हिन्दी description");
-		content.put("subject", Arrays.asList("English", "Mathematics"));
 		addToIndex("do_10000031", content);
 		
 		content = getContentTestRecord("do_10000032", 32);
-		content.put("subject", Arrays.asList("Mathematics"));
 		addToIndex("do_10000032", content);
 	}
 	

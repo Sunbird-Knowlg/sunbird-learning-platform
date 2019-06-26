@@ -574,25 +574,4 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-
-	/**
-	 * Controller method to discard all the changes made by the user, which is in draft state
-	 * @param contentId
-	 * @return
-	 */
-	@RequestMapping(value = "/discard/{id:.+}", method = RequestMethod.DELETE)
-	@ResponseBody
-	public ResponseEntity<Response> discard(@PathVariable(value = "id") String contentId) {
-		String apiId = "ekstep.learning.content.discard";
-		TelemetryManager.log("Discarding Changes | Content Id : " + contentId);
-		Response response;
-		try {
-			response = contentManager.discardContent(contentId);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			TelemetryManager.error("Exception occured while Discarding Content : " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
-
-		}
-	}
 }

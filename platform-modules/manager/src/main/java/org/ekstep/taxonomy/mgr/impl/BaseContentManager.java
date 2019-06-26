@@ -248,17 +248,12 @@ public abstract class BaseContentManager extends BaseManager {
 		}
 		return list;
 	}
-	
-	protected Response createDataNode(Node node) {
-		return createDataNode(node, false);
-	}
 
-    protected Response createDataNode(Node node, Boolean isSkipValidation) {
+    protected Response createDataNode(Node node) {
         Response response = new Response();
         if (null != node) {
             Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
             request.put(GraphDACParams.node.name(), node);
-            request.put(GraphDACParams.skip_validations.name(), isSkipValidation);
 
             TelemetryManager.log("Creating the Node ID: " + node.getIdentifier());
             response = getResponse(request);
@@ -406,7 +401,7 @@ public abstract class BaseContentManager extends BaseManager {
         imageNode.setOutRelations(node.getOutRelations());
         imageNode.setTags(node.getTags());
         imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
-        Response response = createDataNode(imageNode, true);
+        Response response = createDataNode(imageNode);
         if (checkError(response))
             throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
                     "Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()

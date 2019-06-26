@@ -3,7 +3,15 @@
  */
 package org.ekstep.test;
 
-import akka.dispatch.OnSuccess;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
@@ -13,17 +21,10 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import akka.dispatch.OnSuccess;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author pradyumna
@@ -49,12 +50,10 @@ public class SearchProcessorTest extends BaseSearchTest {
 		Map<String, Object> content = getContentTestRecord("do_10000031", 31);
 		content.put("name", "31 check name match");
 		content.put("description", "हिन्दी description");
-		content.put("subject", Arrays.asList("English", "Mathematics"));
 		addToIndex("do_10000031", content);
 
 		content = getContentTestRecord("do_10000032", 32);
 		content.put("name", "check ends with value32");
-		content.put("subject", Arrays.asList("Mathematics"));
 		addToIndex("do_10000032", content);
 	}
 
@@ -1049,42 +1048,6 @@ public class SearchProcessorTest extends BaseSearchTest {
 			public void onSuccess(Map<String, Object> response) {
 				List<Map> results = (List<Map>) response.get("results");
 				Assert.assertNotNull(results);
-			}
-		}, ExecutionContext.Implicits$.MODULE$.global());
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
-	public void testSearchAndFilters() throws Exception {
-		SearchDTO searchObj = new SearchDTO();
-		List<Map> properties = new ArrayList<Map>();
-		Map<String, Object> property = new HashMap<String, Object>();
-		property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_AND);
-		property.put(CompositeSearchParams.propertyName.name(), "subject");
-		property.put(CompositeSearchParams.values.name(), Arrays.asList("English", "Mathematics"));
-		properties.add(property);
-		property = new HashMap<String, Object>();
-		property.put(CompositeSearchParams.values.name(), Arrays.asList("Content"));
-		property.put(CompositeSearchParams.propertyName.name(), "objectType");
-		property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-		properties.add(property);
-		searchObj.setProperties(properties);
-		searchObj.setLimit(100);
-		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-		Future<Map<String, Object>> res = searchprocessor.processSearch(searchObj, true);
-		res.onSuccess(new OnSuccess<Map<String, Object>>() {
-			public void onSuccess(Map<String, Object> response) {
-				List<Map> results = (List<Map>) response.get("results");
-				Assert.assertNotNull(results);
-				Assert.assertTrue(results.size() == 1);
-				boolean found = false;
-				for (Object obj : results) {
-					Map<String, Object> content = (Map<String, Object>) obj;
-					List<String> desc = (List<String>) content.get("subject");
-					if (null != desc && desc.contains("English") && desc.contains("Mathematics"))
-						found = true;
-				}
-				Assert.assertTrue(found);
 			}
 		}, ExecutionContext.Implicits$.MODULE$.global());
 	}

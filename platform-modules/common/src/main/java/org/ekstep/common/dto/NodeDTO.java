@@ -57,22 +57,17 @@ public class NodeDTO implements Serializable {
 		this.objectType = objectType;
 		this.relation = relation;
 	}
-	public NodeDTO(String identifier, String name, String description, String objectType, String relation, String status) {
-		this(identifier, name, description, objectType, relation);
-		this.status = status;
-	}
-	
+
 	public NodeDTO(String identifier, String name, String objectType, String relation, Map<String, Object> metadata) {
-		this(identifier, name, null, objectType, relation, metadata, null);
+		this(identifier, name, null, objectType, relation, metadata);
 	}
 
-	public NodeDTO(String identifier, String name, String description, String objectType, String relation, Map<String, Object> metadata, String status) {
+	public NodeDTO(String identifier, String name, String description, String objectType, String relation, Map<String, Object> metadata) {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
 		this.objectType = objectType;
 		this.relation = relation;
-		this.status = status;
 		if (null != metadata && !metadata.isEmpty()) {
 			if (metadata.containsKey(SystemProperties.IL_SEQUENCE_INDEX.name())
 					&& null != metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name())) {

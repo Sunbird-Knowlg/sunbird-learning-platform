@@ -62,7 +62,7 @@ public class CategoryTermsV3APITests extends BaseTest{
 		JSONObject js = new JSONObject(jsonCreateCategoryTerm);
 		String termId = js.getJSONObject("request").getJSONObject("term").get("code").toString();		
 		given().
-		spec(getRequestSpecification(contentType, userId, APIToken, channelId, appId)).
+		spec(getRequestSpecification(contentType, userId, APIToken, channelId)).
 		body(jsonCreateCategoryTerm).
 		with().
 		contentType(JSON).

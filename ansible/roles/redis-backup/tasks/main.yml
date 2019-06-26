@@ -26,12 +26,3 @@
    
 - name: clean up backup dir after upload
   file: path={{ redis_backup_dir }} state=absent
-
-- name: Keyspace info
-  shell: "echo info keyspace | ./src/redis-cli"
-  register: restoreinfo
-  args:
-    chdir: "/home/learning/redis-stable/"
-
-- debug: var=restoreinfo.stdout_lines
-

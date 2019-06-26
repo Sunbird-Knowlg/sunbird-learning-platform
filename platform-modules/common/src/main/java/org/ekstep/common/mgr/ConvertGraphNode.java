@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Predicate;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.graph.common.JSONUtils;
@@ -84,7 +81,7 @@ public class ConvertGraphNode {
 							id = id.replace(".img", "");
 						}
 						list.add(new NodeDTO(id, inRel.getStartNodeName(), getDescription(inRel.getStartNodeMetadata()),
-								objectType, inRel.getRelationType(), getStatus(inRel.getStartNodeMetadata())));
+								objectType, inRel.getRelationType()));
                     }
                 }
                 updateReturnMap(map, inRelMap, inRelDefMap);
@@ -107,14 +104,14 @@ public class ConvertGraphNode {
 								id = id.replace(".img", "");
 								NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
 										getDescription(outRel.getEndNodeMetadata()), outRel.getEndNodeObjectType(),
-										outRel.getRelationType(), outRel.getMetadata(), getStatus(outRel.getEndNodeMetadata()));
+										outRel.getRelationType(), outRel.getMetadata());
 								list.add(child);
 							}
 
 						} else {
 							NodeDTO child = new NodeDTO(id, outRel.getEndNodeName(),
 									getDescription(outRel.getEndNodeMetadata()), outRel.getEndNodeObjectType(),
-									outRel.getRelationType(), outRel.getMetadata(), getStatus(outRel.getEndNodeMetadata()));
+									outRel.getRelationType(), outRel.getMetadata());
 							list.add(child);
 						}
                     }
@@ -166,12 +163,6 @@ public class ConvertGraphNode {
         if (null != metadata && !metadata.isEmpty()) {
             return (String) metadata.get("description");
         }
-        return null;
-    }
-    private static String getStatus(Map<String, Object> metadata) {
-    		if(MapUtils.isNotEmpty(metadata)) {
-    			return (String) metadata.get("status");
-    		}
         return null;
     }
 
@@ -236,32 +227,5 @@ public class ConvertGraphNode {
         TelemetryManager.log("JSON properties: " + props);
         return props;
     }
-    
-    public static void filterNodeRelationships(Map<String, Object> responseMap, DefinitionDTO definition) {
-		if(null != definition) {
-			if(CollectionUtils.isNotEmpty(definition.getInRelations())) {
-				List<String> inRelations = new ArrayList<>();
-				definition.getInRelations().stream().forEach(rel -> inRelations.add(rel.getTitle()));
-				inRelations.stream().forEach(rel -> {
-					List<NodeDTO> relMetaData = (List<NodeDTO>) responseMap.get(rel);
-					if(CollectionUtils.isNotEmpty(relMetaData)) {
-						Predicate<NodeDTO> predicate = p -> StringUtils.isNotBlank(p.getStatus()) && !StringUtils.equalsIgnoreCase((String)p.getStatus(), "Live");
-						relMetaData.removeIf(predicate);
-					}
-				});
-			}
-			if(CollectionUtils.isNotEmpty(definition.getOutRelations())) {
-				List<String> outRelations = new ArrayList<>();
-				definition.getOutRelations().stream().forEach(rel -> outRelations.add(rel.getTitle()));
-				outRelations.stream().forEach(rel -> {
-					List<NodeDTO> relMetaData = (List<NodeDTO>) responseMap.get(rel);
-					if(CollectionUtils.isNotEmpty(relMetaData)) {
-						Predicate<NodeDTO> predicate = p -> StringUtils.isNotBlank(p.getStatus()) && !StringUtils.equalsIgnoreCase((String)p.getStatus(), "Live");
-						relMetaData.removeIf(predicate);
-					}
-				});
-			}
-		}
-	}
     
 }

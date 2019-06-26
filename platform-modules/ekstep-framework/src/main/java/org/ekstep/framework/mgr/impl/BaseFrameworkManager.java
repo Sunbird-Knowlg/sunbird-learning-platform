@@ -89,12 +89,11 @@ public class BaseFrameworkManager extends BaseManager {
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		Map<String, Object> responseMap = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
-		ConvertGraphNode.filterNodeRelationships(responseMap, definition);
 		response.put(responseObject, responseMap);
 		response.setParams(getSucessStatus());
 		return response;
 	}
-	
+
 	protected Response update(String identifier, String objectType, Map<String, Object> map) {
 		if (map.containsKey("translations"))
 			validateTranslation(map);
