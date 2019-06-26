@@ -86,14 +86,15 @@ public class LearningRequestRouter extends UntypedActor {
 		int poolSize = 4;
 
 		Props contentStoreProps = Props.create(ContentStoreActor.class);
-		Props fwhierarchyProps = Props.create(FrameworkHierarchyActor.class).withDispatcher("fw-dispatcher");
+
 		Props localCacheUpdaterProps = Props.create(LocalCacheUpdateActor.class);
 		ActorRef contentStoreActor = system.actorOf(new SmallestMailboxPool(poolSize).props(contentStoreProps));
-		ActorRef fwHierarchyActor = system.actorOf(new SmallestMailboxPool(8).props(fwhierarchyProps));
 		ActorRef localCacheUpdaterActor = system.actorOf(new SmallestMailboxPool(poolSize).props(localCacheUpdaterProps));
 		LearningActorPool.addActorRefToPool(LearningActorNames.CONTENT_STORE_ACTOR.name(), contentStoreActor);
-		LearningActorPool.addActorRefToPool(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name(), fwHierarchyActor);
 		LearningActorPool.addActorRefToPool(LearningActorNames.CACHE_UPDATE_ACTOR.name(), localCacheUpdaterActor);
+		Props fwhierarchyProps = Props.create(FrameworkHierarchyActor.class);
+		ActorRef fwHierarchyActor = system.actorOf(new SmallestMailboxPool(8).props(fwhierarchyProps));
+		LearningActorPool.addActorRefToPool(LearningActorNames.FRAMEWORK_HIERARCHY_ACTOR.name(), fwHierarchyActor);
 	}
 
 	/**
