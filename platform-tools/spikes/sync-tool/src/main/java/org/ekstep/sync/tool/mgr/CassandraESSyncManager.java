@@ -396,6 +396,6 @@ public class CassandraESSyncManager {
         domainObj.setIdentifier(id);
         Response response = util.updateNodeWithoutValidation(domainObj) ;
         if(util.checkError(response))
-            throw new ServerException("Error while updating RootNode" , response.getParams().getErr() + response.getParams().getErrmsg() + " :: " + response.getResult());
+            throw new ServerException("Error while updating RootNode" , response.getParams().getErr() + " :: "+ response.getParams().getErrmsg() + " :: " + response.getResult());
     }
 }
