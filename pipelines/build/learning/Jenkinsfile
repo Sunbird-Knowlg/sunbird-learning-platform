@@ -62,7 +62,7 @@ node() {
                         cp searchIndex-platform/module/search-api/search-manager/target/search-manager*.zip lp_artifacts
                         cp platform-tools/spikes/sync-tool/target/sync-tool*.jar lp_artifacts
                         cp platform-tools/spikes/size-migration/target/size-migration-*-jar-with-dependencies.jar lp_artifacts
-#                        cp platform-tools/spikes/content-tool/target/content-tool-*.jar lp_artifacts
+                        cp platform-tools/spikes/content-tool/target/content-tool-*.jar lp_artifacts
                         zip -j lp_artifacts.zip:${artifact_version} lp_artifacts/*
                     """
             archiveArtifacts artifacts: "lp_artifacts.zip:${artifact_version}", fingerprint: true, onlyIfSuccessful: true

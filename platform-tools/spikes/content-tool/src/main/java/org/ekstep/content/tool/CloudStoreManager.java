@@ -176,7 +176,7 @@ public class CloudStoreManager {
         File file = new File(path);
         String objectKey = folder + "/" + file.getName();
         TelemetryManager.info("Uploading Artifact path : " + file.getAbsolutePath());
-        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.apply(5), 1);
+        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(1), Option.apply(5), Option.empty());
         return url;
 
     }
@@ -213,7 +213,7 @@ public class CloudStoreManager {
         String folder = "ecar_files/" + id;
         File file = new File(path);
         String objectKey = folder + "/" + file.getName();
-        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(false), Option.empty(), Option.apply(1), 1);
+        String url = getcloudService(cloudStoreType).upload(getContainerName(cloudStoreType), file.getAbsolutePath(), objectKey, Option.apply(false), Option.apply(1), Option.apply(5), Option.empty());
         return url;
     }
 
