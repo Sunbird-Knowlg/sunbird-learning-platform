@@ -1094,7 +1094,14 @@
 						"CourseUnit",
 						"TextBookUnit",
 						"TeachingMethod",
-						"PedagogyFlow"
+						"PedagogyFlow",
+						"FocusSpot",
+                        "LearningOutcomeDefinition",
+                        "PracticeQuestionSet",
+                        "CuriosityQuestions",
+                        "MarkingSchemeRubric",
+                        "ExplanationResource",
+                        "ExperientialResource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -2857,7 +2864,22 @@
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
-				}
+				},
+				{
+                    "required": false,
+                    "dataType": "Text",
+                    "propertyName": "programId",
+                    "title": "ProgramId",
+                    "description": "Id of the Program",
+                    "category": "general",
+                    "displayProperty": "Editable",
+                    "range": null,
+                    "defaultValue": "",
+                    "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+                    "indexed": true,
+                    "draft": false,
+                    "rangeValidation": true
+                }
 			],
 			"inRelations": [
 				{
