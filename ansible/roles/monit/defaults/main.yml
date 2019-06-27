@@ -20,7 +20,7 @@ monit_tomcat_lp:
 
 monit_search_lp:
   app_name: search
-  pid_file: /home/learning/platform/service/search-service.pid
+  grep_string: search
   custom_start: /home/learning/platform/service/search-service start
   custom_stop: /home/learning/platform/service/search-service stop
   user: learning
