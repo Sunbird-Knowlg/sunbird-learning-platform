@@ -43,7 +43,7 @@ node() {
                        unzip ${artifact}
                        mv content-tool-*.jar ansible
                     """
-                    ansiblePlaybook = "${currentWs}/ansible/lp_contenttool_deploy.yml"
+                    ansiblePlaybook = "${currentWs}/ansible/lp_contenttool_deploy_new.yml"
                     ansibleExtraArgs = "--extra-vars \"host=${params.host} command=${params.command} parameters=${params.parameters}\" --tags ${params.ansible_tag} --vault-password-file /var/lib/jenkins/secrets/vault-pass"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
