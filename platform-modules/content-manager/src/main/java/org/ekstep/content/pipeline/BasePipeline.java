@@ -109,7 +109,7 @@ public class BasePipeline extends BaseManager {
 	 *            the node
 	 * @return the response of UpdateContentNode with node_id
 	 */
-	protected Response updateNode(Node node) {
+	protected Response updateNode(Node node, Boolean isSkipValid) {
 		Response response = new Response();
 		if (null != node) {
 			Cloner cloner = new Cloner();
@@ -118,11 +118,18 @@ public class BasePipeline extends BaseManager {
 			if(null != clonedNode.getMetadata().get("channel"))
 				updateReq.getContext().put(GraphDACParams.CHANNEL_ID.name(), (String)clonedNode.getMetadata().get("channel"));
 			updateReq.put(GraphDACParams.node.name(), clonedNode);
+			updateReq.put(GraphDACParams.skip_validations.name(), isSkipValid);
+
 			updateReq.put(GraphDACParams.node_id.name(), clonedNode.getIdentifier());
 			response = getResponse(updateReq);
 		}
 		return response;
 	}
+	
+	protected Response updateNode(Node node) {
+		return updateNode(node, false);
+	}
+		
 
 	/**
 	 * Updates the content body in content store

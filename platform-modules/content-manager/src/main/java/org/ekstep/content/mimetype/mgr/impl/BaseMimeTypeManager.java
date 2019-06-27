@@ -299,7 +299,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		ContentBundle contentBundle = new ContentBundle();
 		Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null, EcarPackageType.FULL);
 		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, "1.1", downloadUrls,
-				node.getIdentifier());
+				node,null);
 		node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 		node.getMetadata().put("downloadUrl", urlArray[1]);
 		node.getMetadata().put("status", "Live");
