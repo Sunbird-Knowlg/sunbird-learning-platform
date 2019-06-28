@@ -18,8 +18,8 @@
 	</properties>
 
 	<modules>
-		<module>functional-tests</module>
-	</modules>
+        <module>kp-integration-test</module>
+    </modules>
 
 	<dependencies>
 		<dependency>
