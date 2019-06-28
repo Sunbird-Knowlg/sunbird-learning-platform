@@ -296,4 +296,7 @@ public interface IContentManager {
 	 * @throws Exception
 	 */
 	Response discardContent(String contentId) throws Exception;
+
+	Response deleteCache(String key) throws Exception;
+
 }

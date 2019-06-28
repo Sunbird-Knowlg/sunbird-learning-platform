@@ -2,6 +2,7 @@ package org.ekstep.content.mgr.impl;
 
 import org.ekstep.common.dto.Response;
 import org.ekstep.content.mgr.impl.operation.content.CreateOperation;
+import org.ekstep.content.mgr.impl.operation.content.DeleteCacheOperation;
 import org.ekstep.content.mgr.impl.operation.content.DiscardOperation;
 import org.ekstep.content.mgr.impl.operation.content.FindOperation;
 import org.ekstep.content.mgr.impl.operation.content.RetireOperation;
@@ -17,6 +18,7 @@ public class ContentManger {
     private final UpdateOperation updateOperation = new UpdateOperation();
     private final RetireOperation retireOperation = new RetireOperation();
     private final DiscardOperation discardOperation = new DiscardOperation();
+    private final DeleteCacheOperation deleteCacheOperation = new DeleteCacheOperation();
 
     public Response create(Map<String, Object> map, String channelId) throws Exception {
         return this.createOperation.create(map, channelId);
@@ -44,6 +46,10 @@ public class ContentManger {
      */
     public Response discard(String contentId) throws Exception {
         return this.discardOperation.discard(contentId);
+    }
+
+    public Response deleteCache(String key) throws Exception {
+        return this.deleteCacheOperation.deleteCache(key);
     }
 
 }
