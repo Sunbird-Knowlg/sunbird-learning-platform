@@ -1,0 +1,10 @@
+{
+  "request": {
+    "content": {
+      "name": "KP Integration Test Content",
+      "code": "kp.ft.resource.ecml",
+      "mimeType": "application/vnd.ekstep.ecml-archive",
+      "contentType":"Resource"
+    }
+  }
+}

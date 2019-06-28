@@ -4,7 +4,9 @@ import com.consol.citrus.TestAction;
 import com.consol.citrus.context.TestContext;
 import com.consol.citrus.dsl.builder.HttpActionBuilder;
 import com.consol.citrus.dsl.builder.HttpClientRequestActionBuilder;
+import com.consol.citrus.dsl.endpoint.CitrusEndpoints;
 import com.consol.citrus.exceptions.CitrusRuntimeException;
+import com.consol.citrus.http.client.HttpClient;
 import com.consol.citrus.message.MessageType;
 import com.consol.citrus.validation.json.JsonMappingValidationCallback;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
@@ -252,7 +255,7 @@ public class TestActionUtil {
     if (isAuthRequired) {
       headers.put(Constant.X_AUTHENTICATED_USER_TOKEN, "${accessToken}");
     }
-    headers.put("X-Channel-Id", "channel");
+    headers.put("X-Channel-Id", "channel-kp-it-test");
     headers.put(Constant.AUTHORIZATION, Constant.BEARER + System.getenv("sunbird_api_key"));
     return headers;
   }

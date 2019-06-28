@@ -1,7 +1,9 @@
 package org.sunbird.integration.test;
 
 import com.consol.citrus.context.TestContext;
+import com.consol.citrus.dsl.endpoint.CitrusEndpoints;
 import com.consol.citrus.dsl.testng.TestNGCitrusTestRunner;
+import com.consol.citrus.http.client.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.sunbird.test.common.Constant;
@@ -16,11 +18,17 @@ public class BaseCitrusTestRunner extends TestNGCitrusTestRunner{
     @Autowired
     protected TestContext testContext;
 
+    public static final String REQUEST_FORM_DATA = "request.params";
+    public static final String REQUEST_JSON = "request.json";
+    public static final String RESPONSE_JSON = "response.json";
+
     public static final String KP_ENDPOINT = "restTestClient";
     public static final String KEYCLOAK_ENDPOINT = "keycloakTestClient";
 
     private static String keycloakAdminUser = Platform.config.hasPath("keycloak_admin_user") ? Platform.config.getString("keycloak_admin_user"): "";
     private static String keycloakAdminPass = Platform.config.hasPath("keycloak_admin_pass") ? Platform.config.getString("keycloak_admin_pass"): "";
+
+
 
     public BaseCitrusTestRunner() {}
 

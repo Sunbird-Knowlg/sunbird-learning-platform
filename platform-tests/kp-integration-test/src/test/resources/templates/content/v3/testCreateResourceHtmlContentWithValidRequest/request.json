@@ -1,0 +1,10 @@
+{
+  "request": {
+    "content": {
+      "name": "KP Integration Test Content",
+      "code": "kp.ft.resource.html",
+      "mimeType": "application/vnd.ekstep.html-archive",
+      "contentType":"Resource"
+    }
+  }
+}
