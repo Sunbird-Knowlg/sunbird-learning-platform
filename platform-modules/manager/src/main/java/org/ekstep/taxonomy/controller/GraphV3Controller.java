@@ -173,18 +173,18 @@ public class GraphV3Controller extends BaseController {
 	}
 
 	/**
-	 * Controller method to discard all the changes made by the user, which is in draft state
-	 * @param key
+	 * Controller method to delete cache in redis given identifier for all keys with that identifier
+	 * @param identifier
 	 * @return
 	 */
-	@RequestMapping(value = "/cache/delete/{key:.+}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/cache/delete/{identifier:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
-	public ResponseEntity<Response> deleteCache(@PathVariable(value = "key") String key) {
+	public ResponseEntity<Response> deleteCache(@PathVariable(value = "identifier") String identifier) {
 		String apiId = "ekstep.learning.system.cache.delete";
-		TelemetryManager.log("Deleting cache from redis for key: " + key);
+		TelemetryManager.log("Deleting cache from redis for key: " + identifier);
 		Response response;
 		try {
-			response = contentManager.deleteCache(key);
+			response = contentManager.deleteCache(identifier);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception occured while Discarding Content : " + e.getMessage(), e);

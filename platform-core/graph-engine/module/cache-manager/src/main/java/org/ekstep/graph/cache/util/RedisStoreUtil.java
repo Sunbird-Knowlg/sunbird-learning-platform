@@ -9,12 +9,10 @@ import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static org.ekstep.graph.cache.factory.JedisFactory.getRedisConncetion;
 import static org.ekstep.graph.cache.factory.JedisFactory.returnConnection;

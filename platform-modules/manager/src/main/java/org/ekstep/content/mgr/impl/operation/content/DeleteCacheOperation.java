@@ -11,20 +11,20 @@ import java.util.Set;
 
 public class DeleteCacheOperation extends BaseContentManager {
 
-    public Response deleteCache(String key) throws Exception {
-        if (StringUtils.isBlank(key))
+    public Response deleteCache(String identifier) throws Exception {
+        if (StringUtils.isBlank(identifier))
             throw new ClientException(ContentErrorCodes.ERR_BLANK_REDIS_KEY.name(), "Redis Key cannot be blank");
-        Set keys = RedisStoreUtil.keys("*" + key + "*");
-        if(keys != null)
+        Set keys = RedisStoreUtil.keys("*" + identifier + "*");
+        if (keys != null)
             keys.forEach(deleteKey -> RedisStoreUtil.delete((String) deleteKey));
         Response response = OK();
-        return getResult(response, key);
+        return getResult(response, identifier, keys);
 
     }
 
-    private Response getResult(Response response, String key) {
-        response.getResult().put("redisKey", key);
-        response.getResult().put("message", "Cache successfully deleted for the key: " + key);
+    private Response getResult(Response response, String identifier, Set keys) {
+        response.getResult().put("identifier", identifier);
+        response.getResult().put("message", "Cache successfully deleted for the keys: " + keys);
         return response;
     }
 }

@@ -195,7 +195,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return this.contentManger.discard(contentId);
 	}
 	@Override
-	public Response deleteCache(String key) throws Exception {
-		return this.contentManger.deleteCache(key);
+	public Response deleteCache(String identifier) throws Exception {
+		return this.contentManger.deleteCache(identifier);
 	}
 }

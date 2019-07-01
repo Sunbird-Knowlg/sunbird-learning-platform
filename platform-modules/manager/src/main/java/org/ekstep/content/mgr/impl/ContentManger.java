@@ -48,8 +48,8 @@ public class ContentManger {
         return this.discardOperation.discard(contentId);
     }
 
-    public Response deleteCache(String key) throws Exception {
-        return this.deleteCacheOperation.deleteCache(key);
+    public Response deleteCache(String identifier) throws Exception {
+        return this.deleteCacheOperation.deleteCache(identifier);
     }
 
 }
