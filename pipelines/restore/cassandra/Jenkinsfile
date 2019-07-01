@@ -19,7 +19,7 @@ node() {
                 envDir = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-3].trim()
                 module = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-2].trim()
                 jobName = sh(returnStdout: true, script: "echo $JOB_NAME").split('/')[-1].trim()
-                ansiblePlaybook = "${currentWs}/ansible/cassandra-restoration.yml"
+                ansiblePlaybook = "${currentWs}/ansible/cassandra-restore.yml"
                 ansibleExtraArgs = "--extra-vars \"cassandra_restore_file_name=${backup_file_name} keyspace_names=${keyspace_names} remote=${remote}\" --vault-password-file /var/lib/jenkins/secrets/vault-pass -vv"
                 values.put('currentWs', currentWs)
                 values.put('env', envDir)
