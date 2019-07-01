@@ -31,7 +31,5 @@
 - name: clean up backup dir after restore
   file: path={{ item }} state=absent
   with_items:
-     - "{{ backup_folder_name }}"
-     - "{{ cassandra_restore_file_name }}"
-  args:
-    chdir: "/home/{{user}}"
+     - "{{ backup_dir }}"
+     - "/home/{{user}}/{{ cassandra_restore_file_name }}"
