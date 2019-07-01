@@ -49,18 +49,20 @@ CREATE TABLE IF NOT EXISTS {{ hierarchy_keyspace_name }}.framework_hierarchy (
   PRIMARY KEY (identifier)
 );
 
+
+{% if groups['cassandra-node-2'] is defined %}
 ALTER KEYSPACE {{ content_keyspace_name }} WITH replication = {
   'class': 'NetworkTopologyStrategy',
-  'datacenter1' : 2, 'datacenter2': 1
+  'datacenter1' : 2
 };
 
 ALTER KEYSPACE {{ hierarchy_keyspace_name }} WITH replication = {
   'class': 'NetworkTopologyStrategy',
-  'datacenter1' : 2, 'datacenter2': 1
+  'datacenter1' : 2
 };
 
 ALTER KEYSPACE {{ orchestrator_keyspace_name }} WITH replication = {
   'class': 'NetworkTopologyStrategy',
-  'datacenter1' : 2, 'datacenter2': 1
+  'datacenter1' : 2
 };
-
+{% endif %}
