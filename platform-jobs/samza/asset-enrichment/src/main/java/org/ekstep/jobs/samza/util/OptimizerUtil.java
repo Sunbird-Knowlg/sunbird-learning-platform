@@ -246,8 +246,11 @@ public class OptimizerUtil {
 	}
 	
 	private static void generateThumbNail(File inFile, File outFile) throws Exception {
+		int maxThumbNailSizeInPixels = Platform.config.hasPath("max.thumbnail.size.pixels")?
+				Platform.config.getInt("max.thumbnail.size.pixels"): 56;
+
 		BufferedImage srcImage = ImageIO.read(inFile);
-        BufferedImage scaledImage = Scalr.resize(srcImage, 150);
+        BufferedImage scaledImage = Scalr.resize(srcImage, maxThumbNailSizeInPixels);
         ImageIO.write(scaledImage, "png", outFile);
     }
 	

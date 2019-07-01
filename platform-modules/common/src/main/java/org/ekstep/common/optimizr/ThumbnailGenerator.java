@@ -8,6 +8,8 @@ import javax.imageio.ImageIO;
 import org.ekstep.telemetry.logger.TelemetryManager;
 import org.imgscalr.Scalr;
 
+import org.ekstep.common.Platform;
+
 /**
  * Utility class to generate thumbnails from a given image. Provides overloaded
  * methods to work with File objects, or take an input file name and returns the
@@ -18,7 +20,8 @@ import org.imgscalr.Scalr;
 public class ThumbnailGenerator {
 
     // Constant - thumbnail size (150px in max dimension)
-    private static final int THUMBNAIL_SIZE = 150;
+    private static final int THUMBNAIL_SIZE = Platform.config.hasPath("max.thumbnail.size.pixels")?
+            Platform.config.getInt("max.thumbnail.size.pixels"): 56;;
 
     /**
      * Recursively traverses the given directory and generates thumbnails for all
