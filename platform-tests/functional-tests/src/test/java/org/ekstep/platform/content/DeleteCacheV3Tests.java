@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
 public class DeleteCacheV3Tests extends BaseTest {
     private static ClassLoader classLoader = DeleteCacheV3Tests.class.getClassLoader();
     private static File path = new File(classLoader.getResource("UploadFiles/").getFile());
-    private static ObjectMapper mapper=new ObjectMapper();
 
     @Test
     public void testCacheDelete200ResponseKeysDeleted() {
