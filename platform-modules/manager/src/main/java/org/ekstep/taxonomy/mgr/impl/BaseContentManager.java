@@ -250,13 +250,21 @@ public abstract class BaseContentManager extends BaseManager {
 	}
 	
 	protected Response createDataNode(Node node) {
-		return createDataNode(node, false);
+		return createDataNode(node, null, false);
 	}
 
-    protected Response createDataNode(Node node, Boolean isSkipValidation) {
+
+	protected Response createImageNode(Node node, String channel) {
+        return createDataNode(node, channel, true);
+    }
+
+    protected Response createDataNode(Node node, String channel, Boolean isSkipValidation) {
         Response response = new Response();
         if (null != node) {
             Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
+            if (StringUtils.isNotBlank(channel)) {
+                request.getContext().put(GraphDACParams.CHANNEL_ID.name(), channel);
+            }
             request.put(GraphDACParams.node.name(), node);
             request.put(GraphDACParams.skip_validations.name(), isSkipValidation);
 
@@ -406,7 +414,8 @@ public abstract class BaseContentManager extends BaseManager {
         imageNode.setOutRelations(node.getOutRelations());
         imageNode.setTags(node.getTags());
         imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
-        Response response = createDataNode(imageNode, true);
+        String channel = (String) node.getMetadata().get("channel");
+        Response response = createImageNode(imageNode, channel);
         if (checkError(response))
             throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
                     "Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
