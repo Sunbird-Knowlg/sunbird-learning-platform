@@ -45,6 +45,7 @@ public class QRCodeImageGeneratorTask implements StreamTask, InitableTask {
 		} catch (Exception e) {
 			LOGGER.error("QRCodeImageGeneratorTask:process: Error while processing message for process_id:: " + 
 					(String) outgoingMap.get(QRCodeImageGeneratorParams.processId.name()), outgoingMap, e);
+			e.printStackTrace();
 			//throw e;
 		}
 	}
