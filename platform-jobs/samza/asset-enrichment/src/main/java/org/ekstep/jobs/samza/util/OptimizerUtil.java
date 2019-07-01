@@ -229,7 +229,7 @@ public class OptimizerUtil {
 				bufferedImage = converter.convert(frameGrabber.grabImage());
 				if(null != bufferedImage) {
 					ImageIO.write(bufferedImage, "png", inFile);
-					generateThumbNail(inFile, outFile);
+					ThumbnailGenerator.generateThumbNail(inFile, outFile);
 					int tmpColorCount = getImageColor(outFile);
 					if (colorCount < tmpColorCount) {
 						colorCount = tmpColorCount;
@@ -244,13 +244,11 @@ public class OptimizerUtil {
 		return thumbnail;
 
 	}
-	
-	private static void generateThumbNail(File inFile, File outFile) throws Exception {
-		int maxThumbNailSizeInPixels = Platform.config.hasPath("max.thumbnail.size.pixels")?
-				Platform.config.getInt("max.thumbnail.size.pixels"): 56;
 
+	//To be deleted in release-2.2.0
+	private static void generateThumbNail(File inFile, File outFile) throws Exception {
 		BufferedImage srcImage = ImageIO.read(inFile);
-        BufferedImage scaledImage = Scalr.resize(srcImage, maxThumbNailSizeInPixels);
+        BufferedImage scaledImage = Scalr.resize(srcImage, 150);
         ImageIO.write(scaledImage, "png", outFile);
     }
 	

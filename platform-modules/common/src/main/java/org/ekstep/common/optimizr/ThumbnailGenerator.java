@@ -21,7 +21,7 @@ public class ThumbnailGenerator {
 
     // Constant - thumbnail size (150px in max dimension)
     private static final int THUMBNAIL_SIZE = Platform.config.hasPath("max.thumbnail.size.pixels")?
-            Platform.config.getInt("max.thumbnail.size.pixels"): 56;;
+            Platform.config.getInt("max.thumbnail.size.pixels"): 56;
 
     /**
      * Recursively traverses the given directory and generates thumbnails for all
@@ -145,6 +145,7 @@ public class ThumbnailGenerator {
                 }
                 else {
                     // Image is smaller than thumbnail, no need to scale
+                    ImageIO.write(srcImage, "png", outFile);
                     done = false;
                 }
             } catch (Exception ex) {
