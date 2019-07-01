@@ -9,10 +9,12 @@ import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.ekstep.graph.cache.factory.JedisFactory.getRedisConncetion;
 import static org.ekstep.graph.cache.factory.JedisFactory.returnConnection;
@@ -203,6 +205,20 @@ public class RedisStoreUtil {
 		} finally {
 			returnConnection(jedis);
 		}
+	}
+
+	public static Set keys(String pattern) {
+		Jedis jedis = getRedisConncetion();
+		Set<String> keys = null;
+		try {
+			keys = jedis.keys(pattern);
+		} catch (Exception e) {
+			TelemetryManager.error("Error while getting data from Redis for Pattern : " + pattern + " | Error is : ", e);
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
+		} finally {
+			returnConnection(jedis);
+		}
+		return keys;
 	}
 
 }
