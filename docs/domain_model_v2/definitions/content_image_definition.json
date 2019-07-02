@@ -3097,6 +3097,7 @@
 				"versionCheckMode": "STRICT",
 				"allowupdate_status": false,
 				"allowupdate_framework": true,
+				"allowupdate_mimeType": false,
 				"fields": [
 					"identifier",
 					"name",
