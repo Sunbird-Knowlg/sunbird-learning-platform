@@ -1,0 +1,45 @@
+---
+- name: Print the command to console
+  debug:
+    var: command
+
+- name: Print the parameters to console
+  debug:
+    var: parameters
+
+- name: Delete existing configuration files
+  file: name="{{learner_user_home}}/sync_tool" state=absent
+
+- name: Create directory
+  file: name={{learner_user_home}}/sync_tool state=directory mode=755 owner="{{learner_user}}" group="{{learner_user}}"
+
+- name: Copy application.conf file
+  template: src=application.conf.j2 dest={{learner_user_home}}/sync_tool/application.conf
+
+- name: Copy jar file.
+  copy: src=sync-tool-0.0.1-SNAPSHOT.jar dest={{learner_user_home}}/sync_tool/
+
+- name: Download the artifact from Azure blob
+  include_role: 
+    name: artifacts-download-azure
+  vars:
+    artifacts_container : "{{ telemetry_container }}"
+    artifact : "{{ container_path }}/{{ failed_event_file_name }}"
+    artifact_path : "{{learner_user_home}}/sync_tool/{{ failed_event_file_name }}"
+
+- name: Run Sync tool with given command and parameters.
+  shell: "java -Dconfig.file={{learner_user_home}}/sync_tool/application.conf -jar sync-tool-0.0.1-SNAPSHOT.jar sync --graph domain --type file --filepath {{learner_user_home}}/sync_tool/{{failed_event_file_name}}"
+  async: 3600
+  poll: 10
+  args:
+    chdir: "{{learner_user_home}}/sync_tool/"
+  register: job_status
+
+- name: "Deleting the file {{ failed_event_file_name }}"
+  file:
+    path: "{{learner_user_home}}/sync_tool/{{ failed_event_file_name }}"
+    state: absent
+
+- name: Print the job status to console
+  debug:
+    var: job_status
