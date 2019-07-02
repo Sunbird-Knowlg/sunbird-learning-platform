@@ -247,11 +247,11 @@ public class OptimizerUtil {
 	}
 
 	//To be deleted in release-2.2.0
-	private static void generateThumbNail(File inFile, File outFile) throws Exception {
+/*	private static void generateThumbNail(File inFile, File outFile) throws Exception {
 		BufferedImage srcImage = ImageIO.read(inFile);
         BufferedImage scaledImage = Scalr.resize(srcImage, 150);
         ImageIO.write(scaledImage, "png", outFile);
-    }
+    }	*/
 	
 	private static int getImageColor(File imagePath) throws Exception {
         BufferedImage image = ImageIO.read(imagePath);
