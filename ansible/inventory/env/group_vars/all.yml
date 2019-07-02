@@ -75,4 +75,3 @@ backup_azure_storage_access_key: "{{lp_vault_azure_storage_secret}}"
 es_snapshot_host: "{{ groups['composite-search-cluster'][0] }}"
 snapshot_base_path: compositesearch
 
-

@@ -159,10 +159,12 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
+		RedisStoreUtil.delete(contentId);
 		if (node.getIdentifier().endsWith(".img")) {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
 			if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), COLLECTION_MIMETYPE)) {
+				RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
 				unitNodes = new ArrayList<>();
 				getUnitFromLiveContent(unitNodes);
 				cleanUnitsInRedis(unitNodes);
@@ -323,12 +325,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			updateHierarchyMetadata(children, publishedNode);
 			publishHierarchy(publishedNode, children);
 			syncNodes(children, unitNodes);
-		}
-		//TODO: Reduce get definition call
-		if (CONTENT_CACHE_ENABLED) {
-			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
-			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-			RedisStoreUtil.saveData(contentId, contentMap, 0);
 		}
 
 		return response;
@@ -560,8 +556,6 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
 		Map<String, Object> hierarchy = getContentMap(node, childrenList);
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
-		if (CONTENT_HIERARCHY_CACHE_ENABLED)
-			RedisStoreUtil.saveData(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), hierarchy, CONTENT_CACHE_TTL);
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
@@ -658,7 +652,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			} else {
 				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 						ContentErrorMessageConstants.CONTENT_IMAGE_MIGRATION_ERROR + " | [Content Id: " + contentId
-								+ "]");
+								+ "]" + "::" + updateResp.getParams().getErr() + " :: " + updateResp.getParams().getErrmsg() + " :: "
+								+ updateResp.getResult());
 			}
 		} else {
 			throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
@@ -790,7 +785,7 @@ public class PublishFinalizer extends BaseFinalizer {
 						TelemetryManager.error("Content Body Update Failed During Publish. Error Code :" + response.getParams().getErr() + " | Error Message : " + response.getParams().getErrmsg() + " | Result : " + response.getResult());
 						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 								ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
-										+ "]");
+										+ "]" + response.getParams().getErrmsg() + " :: " + response.getParams().getErr() + " :: " + response.getResult());
 					}
 				}
 			}
@@ -801,7 +796,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				TelemetryManager.error(response.getParams().getErrmsg() + " :: " + response.getParams().getErr() + " :: " + response.getResult());
 				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 						ContentErrorMessageConstants.CONTENT_IMAGE_MIGRATION_ERROR + " | [Content Id: " + contentId
-								+ "]");
+								+ "]" + response.getParams().getErrmsg() + " :: " + response.getParams().getErr() + " :: " + response.getResult());
 			}
 		}
 
