@@ -44,10 +44,11 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		TelemetryManager.log("Uploaded File: " + uploadedFile.getName());
 		TelemetryManager.log("Calling Upload Content For Node ID: " + node.getIdentifier());
 		File file = null;
+		String tempFilePath = "";
 		try {
 			String mimeType = (String)node.getMetadata().get("mimeType");
 			if(StringUtils.equalsIgnoreCase(mimeType, "application/epub") && StringUtils.endsWith(uploadedFile.getName(), ".epub")) {
-				String tempFilePath = getTempDirectoryPath(contentId) + "index.epub";
+				tempFilePath = getTempDirectoryPath(contentId) + "index.epub";
 				file = new File(tempFilePath);
 				try {
 					FileUtils.moveFile(uploadedFile,file);
@@ -58,8 +59,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 			}
 			return uploadContentArtifact(contentId, node, uploadedFile);
 		} finally {
-			if (null != file)
-				file.delete();
+			deleteTempDirectory(contentId);
 		}
 	}
 	

@@ -574,4 +574,13 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			appZip.zipIt(zipFileName);
 		}
 	}
+
+	protected void deleteTempDirectory(String contendId) {
+			String path = tempFileLocation + contendId;
+			try {
+				FileUtils.deleteDirectory(new File(path));
+			} catch (Exception e) {
+				TelemetryManager.error("Unable to delete directory with path: " + path, e);
+			}
+		}
 }
