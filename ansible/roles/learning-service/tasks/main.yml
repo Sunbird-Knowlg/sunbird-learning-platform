@@ -1,3 +1,10 @@
+- name: stop monit
+  become: yes
+  service:
+    name: monit
+    state: "stopped"
+  ignore_errors: yes
+
 - name: Stop tomcat
   become: yes
   service: name=tomcat state=stopped
@@ -10,12 +17,17 @@
 - name: Delete existing configuration files
   become: yes
   become_user: "{{learner_user}}"
-  file: name=/data/properties/learning state=absent
+  file: name=/data/properties/application.conf state=absent
 
 - name: Copy application.conf file
   become: yes
   become_user: "{{learner_user}}"
   template: src=application.conf.j2 dest=/data/properties/application.conf mode=755 owner={{ learner_user }} group={{ learner_group }}
+
+- name: Delete existing artifact file from tomcat webapps folder
+  become: yes
+  become_user: "{{learner_user}}"
+  file: name={{learner_user_home}}/apache-tomcat-{{tomcat_major_version}}.{{tomcat_minor_version}}/webapps/learning-service.war state=absent
 
 - name: Copy the artifact files to tomcat webapps folder
   become: yes
@@ -66,3 +78,10 @@
   become_user: "{{learner_user}}"
   debug:
     var: suggestions_index_create_status
+
+- name: start monit
+  become: yes
+  service:
+    name: monit
+    state: "started"
+  ignore_errors: yes
