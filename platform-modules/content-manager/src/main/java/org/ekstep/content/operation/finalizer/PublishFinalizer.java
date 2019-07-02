@@ -1060,6 +1060,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
+			updateLeafNodeIds(node, children);
+
 
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
@@ -1082,7 +1084,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
 	}
-	
+
+	private void updateLeafNodeIds(Node node, List<Map<String, Object>> children) {
+		List<Map<String, Object>> leafNodes = getLeafNodes(children, 1);
+		List<String> leafNodeIds = leafNodes.stream().map(leafNode -> ((String) leafNode.get(ContentAPIParams.identifier.name()))).collect(toList());
+		if(CollectionUtils.isNotEmpty(leafNodeIds)){
+			node.getMetadata().put(ContentAPIParams.leafNodes.name(), leafNodeIds);
+		}
+	}
+
 	private String convertToString(Object obj) throws Exception {
 		return mapper.writeValueAsString(obj);
 	}
