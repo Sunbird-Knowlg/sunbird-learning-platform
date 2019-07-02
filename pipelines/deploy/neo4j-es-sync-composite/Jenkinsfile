@@ -11,9 +11,9 @@ node() {
             cleanWs()
             checkout scm
         }
-        stage('define params') {
-            values = lp_dp_params()
+
             ansiColor('xterm') {
+                values = lp_dp_params()
                 stage('get artifact') {
                     currentWs = sh(returnStdout: true, script: 'pwd').trim()
                     artifact = values.artifact_name + ":" + values.artifact_version
@@ -31,20 +31,19 @@ node() {
                         values.put('ansiblePlaybook', ansiblePlaybook)
                         values.put('ansibleExtraArgs', ansibleExtraArgs)
                         ansible_playbook_run(values)
-                    }
-                    else{
+                    } else {
                         println(ANSI_BOLD + ANSI_YELLOW + '''\
                     Option chosen is JenkinsJob, using the artifacts copied 
                     '''.stripIndent().replace("\n", " ") + ANSI_NORMAL)
                     }
                 }
-                stage('deploy artifact'){
+                stage('deploy artifact') {
                     sh """
                        unzip ${artifact}
-                       mv content-tool-*.jar ansible
+                       mv sync-tool*.jar ansible
                     """
-                    ansiblePlaybook = "${currentWs}/ansible/lp_contenttool_deploy_new.yml"
-                    ansibleExtraArgs = "--extra-vars \"host=${params.host} command=${params.command} parameters=${params.parameters}\" --tags ${params.ansible_tag} --vault-password-file /var/lib/jenkins/secrets/vault-pass"
+                    ansiblePlaybook = "${currentWs}/ansible/neo4j-es-sync-deploy.yml"
+                    ansibleExtraArgs = "--extra-vars \"telemetry_container=${params.telemetry_container} container_path=${params.container_path} failed_event_file_name=${params.failed_event_file_name}\" --vault-password-file /var/lib/jenkins/secrets/vault-pass"
                     values.put('ansiblePlaybook', ansiblePlaybook)
                     values.put('ansibleExtraArgs', ansibleExtraArgs)
                     println values
@@ -54,9 +53,9 @@ node() {
                     currentBuild.description = "${values.artifact_version}"
                 }
             }
-        }
     }
     catch (err) {
+        currentBuild.result = "FAILURE"
         throw err
     }
 }
