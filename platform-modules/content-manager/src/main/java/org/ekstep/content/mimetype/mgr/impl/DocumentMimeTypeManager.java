@@ -44,12 +44,12 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		TelemetryManager.log("Uploaded File: " + uploadedFile.getName());
 		TelemetryManager.log("Calling Upload Content For Node ID: " + node.getIdentifier());
 		File file = null;
-		String tempFilePath = "";
+		String basePath = "";
 		try {
 			String mimeType = (String)node.getMetadata().get("mimeType");
 			if(StringUtils.equalsIgnoreCase(mimeType, "application/epub") && StringUtils.endsWith(uploadedFile.getName(), ".epub")) {
-				tempFilePath = getTempDirectoryPath(contentId) + "index.epub";
-				file = new File(tempFilePath);
+				basePath = getBasePath(contentId) + "/index.epub";
+				file = new File(basePath);
 				try {
 					FileUtils.moveFile(uploadedFile,file);
 				} catch (IOException e) {
@@ -59,7 +59,12 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 			}
 			return uploadContentArtifact(contentId, node, uploadedFile);
 		} finally {
-			deleteTempDirectory(contentId);
+			String path = StringUtils.replace(basePath, "/" + contentId + "/index.epub", "");
+			try {
+				FileUtils.deleteDirectory(new File(path));
+			} catch (Exception e) {
+				TelemetryManager.error("Error deleting directory: " + path, e);
+			}
 		}
 	}
 	
@@ -104,7 +109,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		return response;
 	}
 
-	/**
+	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.ekstep.taxonomy.mgr.IMimeTypeManager#review(org.ekstep.graph.dac.model.
