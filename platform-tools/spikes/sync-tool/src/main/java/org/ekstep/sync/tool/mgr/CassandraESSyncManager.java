@@ -24,7 +24,6 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.sync.tool.util.ElasticSearchConnector;
 import org.ekstep.sync.tool.util.GraphUtil;
 import org.ekstep.sync.tool.util.SyncMessageGenerator;
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -32,8 +31,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -131,7 +132,7 @@ public class CassandraESSyncManager {
 
     private void updateLeafNodeCount(Map<String, Object> hierarchy, String resourceId) throws Exception {
             //Update Collection leafNodesCount in the hierarchy
-            int collectionLeafNodesCount = getLeafNodesCount(hierarchy, 0);
+            int collectionLeafNodesCount = getLeafNodesCount(hierarchy);
             hierarchy.put("leafNodesCount", collectionLeafNodesCount);
             // Update RootNode in Neo4j
             updateTextBookNode(resourceId, "leafNodesCount", collectionLeafNodesCount);
@@ -360,7 +361,7 @@ public class CassandraESSyncManager {
                 if(StringUtils.equalsIgnoreCase("Parent",
                         (String)child.get("visibility"))){
                     //set child metadata -- leafNodesCount
-                    child.put("leafNodesCount", getLeafNodesCount(child, 0));
+                    child.put("leafNodesCount", getLeafNodesCount(child));
                     updateLeafNodesCountInHierarchyMetadata((List<Map<String,Object>>)child.get("children"));
                 }
             }
@@ -368,20 +369,10 @@ public class CassandraESSyncManager {
     }
 
     @SuppressWarnings("unchecked")
-    private Integer getLeafNodesCount(Map<String, Object> data, int leafCount) {
-        List<Object> children = (List<Object>) data.get("children");
-        if (null != children && !children.isEmpty()) {
-            for (Object child : children) {
-                Map<String, Object> childMap = (Map<String, Object>) child;
-                int lc = 0;
-                lc = getLeafNodesCount(childMap, lc);
-                leafCount = leafCount + lc;
-            }
-        } else {
-            if (!COLLECTION_MIMETYPE.equals(data.get("mimeType")))
-                leafCount++;
-        }
-        return leafCount;
+    private Integer getLeafNodesCount(Map<String, Object> data) {
+        Set<String> leafNodeIds = new HashSet<>();
+        getLeafNodesIds(data, leafNodeIds);
+        return leafNodeIds.size();
     }
 
 
@@ -421,11 +412,12 @@ public class CassandraESSyncManager {
                 RedisStoreUtil.delete(collectionId);
                 RedisStoreUtil.delete(CACHE_PREFIX + collectionId);
 
-                List<String> leafNodeids = getLeafNodesIds((List<Map<String, Object>>) hierarchy.get("children"), 1);
-                if(CollectionUtils.isNotEmpty(leafNodeids)) {
-                    System.out.println("LeafNodes are :" + leafNodeids);
-                    updateTextBookNode(collectionId, "leafNodes", leafNodeids);
-                    hierarchy.put("leafNodes", leafNodeids);
+                Set<String> leafNodeIds = new HashSet<>();
+                getLeafNodesIds(hierarchy, leafNodeIds);
+                if(CollectionUtils.isNotEmpty(leafNodeIds)) {
+                    System.out.println("LeafNodes are :" + leafNodeIds);
+                    updateTextBookNode(collectionId, "leafNodes", leafNodeIds);
+                    hierarchy.put("leafNodes", leafNodeIds);
                     hierarchyStore.saveOrUpdateHierarchy(collectionId, hierarchy);
                     return true;
                 } else {
@@ -440,24 +432,17 @@ public class CassandraESSyncManager {
         return false;
     }
 
-    private List<String> getLeafNodesIds(List<Map<String, Object>> children, int depth) {
-        List<String> leafNodes = new ArrayList<>();
+    private void getLeafNodesIds(Map<String, Object> data, Set<String> leafNodeIds) {
+        List<Map<String,Object>> children = (List<Map<String,Object>>)data.get("children");
         if(CollectionUtils.isNotEmpty(children)) {
-            int index = 1;
             for(Map<String, Object> child : children) {
-                String visibility = (String) child.get("visibility");
-                if(StringUtils.equalsIgnoreCase(visibility, "Parent")) {
-                    List<Map<String,Object>> nextChildren = (List<Map<String,Object>>)child.get("children");
-                    int nextDepth = depth + 1;
-                    List<String> nextLevelLeafNodes = getLeafNodesIds(nextChildren, nextDepth);
-                    leafNodes.addAll(nextLevelLeafNodes);
-                }else {
-                    leafNodes.add((String) child.get("identifier"));
-                    index++;
-                }
+                getLeafNodesIds(child, leafNodeIds);
+            }
+        } else {
+            if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) data.get("mimeType"))) {
+                leafNodeIds.add((String) data.get("identifier"));
             }
         }
-        return leafNodes;
     }
 
 }
